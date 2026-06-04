@@ -41,7 +41,13 @@ export function dedupeRecommendedActions(actions: readonly RecommendedActionInpu
   const byKey = new Map<string, RecommendedActionInput[]>();
   for (const action of actions) {
     const key = dedupeKey(action);
-    byKey.set(key, [...(byKey.get(key) ?? []), action]);
+    // Bolt Optimization: Amortized O(1) push instead of O(N^2) array spread
+    const group = byKey.get(key);
+    if (group) {
+      group.push(action);
+    } else {
+      byKey.set(key, [action]);
+    }
   }
 
   const visibleActions = Array.from(byKey.values()).map((group) => {

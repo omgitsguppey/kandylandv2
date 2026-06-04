@@ -25,3 +25,7 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2026-06-01 - Avoid Array Spread inside Map grouping loops
+**Learning:** Initializing array elements inside tight grouping loops using array spread syntax (e.g., `map.set(key, [...(map.get(key) ?? []), item])`) leads to severe memory allocation and garbage collection pressure, turning an $O(N)$ operation into an $O(N^2)$ operation when inserting $N$ items to the same key.
+**Action:** When grouping arrays into Maps, always prefer looking up the array by key and using `Array.push()` on the existing array in place. This provides an amortized $O(1)$ insertion cost instead of allocating an entirely new array on each step.

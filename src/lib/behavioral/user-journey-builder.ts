@@ -499,8 +499,20 @@ export function buildBehavioralIntelligenceInput(input: {
   const bySession = new Map<string, UserJourneyEvent[]>();
   const byPerson = new Map<string, UserJourneyEvent[]>();
   for (const event of selected) {
-    bySession.set(event.sessionId, [...(bySession.get(event.sessionId) ?? []), event]);
-    byPerson.set(event.linkedPersonId, [...(byPerson.get(event.linkedPersonId) ?? []), event]);
+    // Bolt Optimization: Amortized O(1) push instead of O(N^2) array spread
+    const sessionGroup = bySession.get(event.sessionId);
+    if (sessionGroup) {
+      sessionGroup.push(event);
+    } else {
+      bySession.set(event.sessionId, [event]);
+    }
+
+    const personGroup = byPerson.get(event.linkedPersonId);
+    if (personGroup) {
+      personGroup.push(event);
+    } else {
+      byPerson.set(event.linkedPersonId, [event]);
+    }
   }
   return {
     storageMode: "compact_summary",

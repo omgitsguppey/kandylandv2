@@ -13887,3 +13887,9 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2026-06-01 #bolt-map-spread] PRE: Optimize Map array spreads across four files.
+Scope: Replacing O(N^2) memory allocations via array spreads in `Map.set([...(map.get(key) ?? []), item])` with amortized O(1) `Array.push()` logic to reduce garbage collection pressure inside tight loops.
+
+## [2026-06-01 #bolt-map-spread] POST: Map array spread optimization complete.
+Replaced O(N^2) memory-allocating array spreads with amortized O(1) conditional `.push()` operations across four core backend and debug libraries (`user-journey-builder.ts`, `ai-repair-triage-engine.ts`, `debug-signal-grouping.ts`, `recommended-action-dedupe.ts`). Typechecking and tests passed.

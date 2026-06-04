@@ -61,7 +61,13 @@ export function groupRepairWorkItems(items: AiRepairWorkItem[]) {
   const groups = new Map<string, AiRepairWorkItem[]>();
   for (const item of items) {
     const key = groupKey(item);
-    groups.set(key, [...(groups.get(key) ?? []), item]);
+    // Bolt Optimization: Amortized O(1) push instead of O(N^2) array spread
+    const group = groups.get(key);
+    if (group) {
+      group.push(item);
+    } else {
+      groups.set(key, [item]);
+    }
   }
 
   const output: AiRepairWorkItemGroup[] = [...groups.entries()].map(([key, groupItems]) => {

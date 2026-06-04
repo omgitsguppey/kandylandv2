@@ -238,7 +238,13 @@ export function groupDebugSignals(inputs: readonly DebugSignalGroupingInput[]): 
   const buckets = new Map<string, DebugSignalGroupingInput[]>();
   for (const input of inputs) {
     const key = groupingKey(input);
-    buckets.set(key, [...(buckets.get(key) ?? []), input]);
+    // Bolt Optimization: Amortized O(1) push instead of O(N^2) array spread
+    const group = buckets.get(key);
+    if (group) {
+      group.push(input);
+    } else {
+      buckets.set(key, [input]);
+    }
   }
 
   return Array.from(buckets.entries()).map(([key, groupInputs]) => {
