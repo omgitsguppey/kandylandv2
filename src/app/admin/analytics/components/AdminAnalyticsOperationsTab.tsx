@@ -75,6 +75,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const [livePulseViewMode, setLivePulseViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [eventMixViewMode, setEventMixViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [authOutcomeViewMode, setAuthOutcomeViewMode] = React.useState<AnalyticsViewMode>("cards");
+  const [journeyFunnelViewMode, setJourneyFunnelViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [guestQualityViewMode, setGuestQualityViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [liveInteractionViewMode, setLiveInteractionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
@@ -147,6 +148,15 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     journeyFunnelModel.biggestDropoffStep && journeyFunnelModel.biggestDropoffPercent !== null
       ? `${journeyFunnelModel.biggestDropoffStep} ${formatPercent(journeyFunnelModel.biggestDropoffPercent)}`
       : "Unavailable";
+  const journeyFunnelChartRows = journeyFunnelModel.steps.map((step) => ({
+    ...step,
+    chartLabel:
+      step.visibleLabel.length > 14
+        ? `${step.visibleLabel.slice(0, 14)}...`
+        : step.visibleLabel,
+    countValue: step.displayedCount ?? 0,
+    percentValue: step.displayedPercent === null ? 0 : Math.round(step.displayedPercent * 100),
+  }));
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -630,7 +640,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               subtitle="Repeated event-volume chain. Not a unique-user funnel."
               icon={Eye}
               density="compact"
-              rightSlot={renderSectionRangeControl("journeyFunnel")}
+              rightSlot={(
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <AnalyticsViewModeToggle
+                    value={journeyFunnelViewMode}
+                    onChange={setJourneyFunnelViewMode}
+                    options={[
+                      { id: "cards", label: "Cards" },
+                      { id: "chart", label: "Chart" },
+                      { id: "table", label: "Table" },
+                    ]}
+                  />
+                  {renderSectionRangeControl("journeyFunnel")}
+                </div>
+              )}
             >
               <div
                 className="mb-2 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-4 text-gray-300 md:flex-row md:items-center md:justify-between"
@@ -667,80 +690,146 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   </p>
                 </div>
               ) : (
-                <>
-                  <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-                    <MetricCard
-                      label="Mode"
-                      value={journeyFunnelModel.modeLabel}
-                      hint={formatAdminAnalyticsJourneyDenominatorMode(journeyFunnelModel.denominatorMode)}
-                      icon={Route}
-                      truthState={historicalMetricTruthState}
-                      statusBadgeLabel={journeyFunnelBadgeLabel}
-                      className="rounded-[1rem] p-2 min-h-[4.75rem]"
-                      valueClassName="text-[1.05rem] leading-5 md:text-lg"
-                    />
-                    <MetricCard
-                      label="Base"
-                      value={journeyCountLabel(journeyFunnelModel.steps[0]?.displayedCount ?? null)}
-                      hint="Auth modal events"
-                      icon={Users}
-                      truthState={historicalMetricTruthState}
-                      statusBadgeLabel={journeyFunnelBadgeLabel}
-                      className="rounded-[1rem] p-2 min-h-[4.75rem]"
-                      valueClassName="text-[1.05rem] leading-5 md:text-lg"
-                    />
-                    <MetricCard
-                      label="Largest Event-Volume Decrease"
-                      value={biggestDropoffLabel}
-                      hint="Largest prior-step event gap"
-                      icon={AlertTriangle}
-                      truthState={historicalMetricTruthState}
-                      statusBadgeLabel={journeyFunnelBadgeLabel}
-                      className="rounded-[1rem] p-2 min-h-[4.75rem]"
-                      valueClassName="truncate text-[1.05rem] leading-5 md:text-lg"
-                    />
-                    <MetricCard
-                      label="Attention"
-                      value={journeyFunnelModel.nonSequentialSteps.length.toLocaleString()}
-                      hint="Non-sequential steps"
-                      icon={CheckCircle2}
-                      truthState={historicalMetricTruthState}
-                      statusBadgeLabel={journeyFunnelBadgeLabel}
-                      className="rounded-[1rem] p-2 min-h-[4.75rem]"
-                      valueClassName="text-[1.05rem] leading-5 md:text-lg"
-                    />
-                  </div>
-
-                  {journeyFunnelModel.visibleDegradedCopy ? (
-                    <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
-                      {journeyFunnelModel.visibleDegradedCopy}
-                    </p>
+                <div
+                  className="space-y-2"
+                  data-admin-analytics-mobile-view-mode={journeyFunnelViewMode}
+                  data-journey-funnel-hydration-state={journeyFunnelModel.hydrationState}
+                  data-journey-funnel-measurement-mode={journeyFunnelModel.measurementMode}
+                  data-journey-funnel-denominator-mode={journeyFunnelModel.denominatorMode}
+                  data-journey-funnel-exact-user-funnel-available={String(journeyFunnelModel.exactUserFunnelAvailable)}
+                >
+                  {journeyFunnelViewMode === "chart" ? (
+                    <div
+                      className="h-56 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                      data-journey-funnel-chart="compact"
+                      data-journey-funnel-hydration-state={journeyFunnelModel.hydrationState}
+                      data-journey-funnel-measurement-mode={journeyFunnelModel.measurementMode}
+                      data-journey-funnel-denominator-mode={journeyFunnelModel.denominatorMode}
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={journeyFunnelChartRows} margin={{ top: 4, right: 0, left: -22, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="journeyFunnelCountFill" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#b28cff" stopOpacity={0.32} />
+                              <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="journeyFunnelPercentFill" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.26} />
+                              <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                          <XAxis
+                            dataKey="chartLabel"
+                            stroke="#6b7280"
+                            fontSize={10}
+                            tickLine={false}
+                            axisLine={false}
+                            interval={0}
+                            angle={-18}
+                            textAnchor="end"
+                            height={52}
+                          />
+                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                          <Tooltip content={<AnalyticsTooltip />} />
+                          <Area type="monotone" dataKey="countValue" name="Events" stroke="#b28cff" strokeWidth={2} fill="url(#journeyFunnelCountFill)" />
+                          <Area type="monotone" dataKey="percentValue" name="Percent" stroke="#22d3ee" strokeWidth={2} fill="url(#journeyFunnelPercentFill)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
                   ) : null}
 
-                  {eventChainCanRenderDetails ? (
+                  {journeyFunnelViewMode === "table" ? (
+                    <div
+                      className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                      data-journey-funnel-table="compact"
+                      data-journey-funnel-hydration-state={journeyFunnelModel.hydrationState}
+                      data-journey-funnel-measurement-mode={journeyFunnelModel.measurementMode}
+                      data-journey-funnel-denominator-mode={journeyFunnelModel.denominatorMode}
+                    >
+                      <table className="min-w-full text-left text-xs">
+                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                          <tr>
+                            <th className="px-3 py-2 font-semibold">Step</th>
+                            <th className="px-3 py-2 font-semibold">Events</th>
+                            <th className="px-3 py-2 font-semibold">Percent</th>
+                            <th className="px-3 py-2 font-semibold">Denominator</th>
+                            <th className="px-3 py-2 font-semibold">Source</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/10 text-gray-300">
+                          {journeyFunnelModel.steps.map((step) => (
+                            <tr
+                              key={step.stepKey}
+                              data-journey-funnel-step-key={step.stepKey}
+                              data-journey-funnel-source-mismatch={String(journeyFunnelModel.sourceMismatchSteps.includes(step.stepKey))}
+                            >
+                              <td className="max-w-[16rem] px-3 py-2">
+                                <p className="truncate font-semibold text-white">{step.visibleLabel}</p>
+                                <p className="truncate text-[11px] text-gray-500">{step.explanation}</p>
+                              </td>
+                              <td className="px-3 py-2">{journeyCountLabel(step.displayedCount)}</td>
+                              <td className="px-3 py-2">{step.denominatorStep ? journeyPercentLabel(step.displayedPercent) : "Base"}</td>
+                              <td className="px-3 py-2">{step.denominatorLabel}</td>
+                              <td className="px-3 py-2">{step.ratioMeaning.replaceAll("_", " ")}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : null}
+
+                  {journeyFunnelViewMode === "cards" ? (
                     <>
-                      <details className="mt-2 space-y-1.5 md:hidden">
-                        <summary className="cursor-pointer rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-semibold text-gray-300">
-                          Step details
-                        </summary>
-                        <div className="mt-2 space-y-1.5">
-                          {journeyFunnelModel.steps.map(renderJourneyStepRow)}
-                        </div>
-                      </details>
-                      <div className="mt-2 hidden space-y-1.5 md:block">
-                        {journeyFunnelModel.steps.map(renderJourneyStepRow)}
+                      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                        <MetricCard
+                          label="Mode"
+                          value={journeyFunnelModel.modeLabel}
+                          hint={formatAdminAnalyticsJourneyDenominatorMode(journeyFunnelModel.denominatorMode)}
+                          icon={Route}
+                          truthState={historicalMetricTruthState}
+                          statusBadgeLabel={journeyFunnelBadgeLabel}
+                          className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                          valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                        />
+                        <MetricCard
+                          label="Base"
+                          value={journeyCountLabel(journeyFunnelModel.steps[0]?.displayedCount ?? null)}
+                          hint="Auth modal events"
+                          icon={Users}
+                          truthState={historicalMetricTruthState}
+                          statusBadgeLabel={journeyFunnelBadgeLabel}
+                          className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                          valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                        />
+                        <MetricCard
+                          label="Largest Event-Volume Decrease"
+                          value={biggestDropoffLabel}
+                          hint="Largest prior-step event gap"
+                          icon={AlertTriangle}
+                          truthState={historicalMetricTruthState}
+                          statusBadgeLabel={journeyFunnelBadgeLabel}
+                          className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                          valueClassName="truncate text-[1.05rem] leading-5 md:text-lg"
+                        />
+                        <MetricCard
+                          label="Attention"
+                          value={journeyFunnelModel.nonSequentialSteps.length.toLocaleString()}
+                          hint="Non-sequential steps"
+                          icon={CheckCircle2}
+                          truthState={historicalMetricTruthState}
+                          statusBadgeLabel={journeyFunnelBadgeLabel}
+                          className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                          valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                        />
                       </div>
-                    </>
-                  ) : null}
 
-                  {eventChainHasUsableSample ? (
-                    <div className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 p-2.5 md:p-3">
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                          Supporting Events
+                      {journeyFunnelModel.visibleDegradedCopy ? (
+                        <p className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                          {journeyFunnelModel.visibleDegradedCopy}
                         </p>
-                        <span className="text-[10px] text-gray-500">Separate from the chain</span>
-                      </div>
+                      ) : null}
+
                       <div className="grid grid-cols-2 gap-2">
                         {journeyFunnelModel.supportingEvents.map((item) => (
                           <MetricCard
@@ -756,13 +845,24 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           />
                         ))}
                       </div>
-                    </div>
+                    </>
                   ) : null}
 
-                  <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                  {eventChainCanRenderDetails && journeyFunnelViewMode === "cards" ? (
+                    <details className="space-y-1.5">
+                      <summary className="cursor-pointer rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-semibold text-gray-300">
+                        Step details
+                      </summary>
+                      <div className="mt-2 space-y-1.5">
+                        {journeyFunnelModel.steps.map(renderJourneyStepRow)}
+                      </div>
+                    </details>
+                  ) : null}
+
+                  <p className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
                     {journeyFunnelModel.recommendation}
                   </p>
-                </>
+                </div>
               )}
             </SectionCard>
 

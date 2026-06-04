@@ -1,11 +1,59 @@
 {
-  "currentVersion": "1.5.61",
-  "betaReleaseCounter": 561,
+  "currentVersion": "1.5.62",
+  "betaReleaseCounter": 562,
   "channel": "beta",
-  "generatedAt": "2026-06-04T02:03:15.926Z",
-  "generatedAtUtc": "2026-06-04T02:03:15.926Z",
-  "lastCommitSha": "2ab0582ad85954b3f8b8c99dfb84c7056fb36681",
+  "generatedAt": "2026-06-04T02:18:06.050Z",
+  "generatedAtUtc": "2026-06-04T02:18:06.050Z",
+  "lastCommitSha": "0656aa2542d7ccce981f7f3f960508801d7a93e6",
   "notes": [
+    {
+      "version": "1.5.62",
+      "previousVersion": "1.5.61",
+      "betaReleaseCounter": 562,
+      "previousBetaReleaseCounter": 561,
+      "commitSha": "0656aa2542d7ccce981f7f3f960508801d7a93e6",
+      "commitTitle": "fix(admin): add compact journey funnel modes",
+      "commitCount": 2,
+      "commitShas": [
+        "efb1ce7e905289f10e1f073d7c19d5bd942a41a6",
+        "0656aa2542d7ccce981f7f3f960508801d7a93e6"
+      ],
+      "committedAt": "2026-06-04T02:17:50.000Z",
+      "generatedAt": "2026-06-04T02:18:06.049Z",
+      "committedAtUtc": "2026-06-04T02:17:50.000Z",
+      "generatedAtUtc": "2026-06-04T02:18:06.049Z",
+      "updatedAtUtc": "2026-06-04T02:18:06.049Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-audience-mobile.spec.ts",
+        "tests/unit/admin-analytics-operations-mobile.spec.ts"
+      ],
+      "sourceCommit": "0656aa2542d7ccce981f7f3f960508801d7a93e6"
+    },
     {
       "version": "1.5.61",
       "previousVersion": "1.5.60",
@@ -1166,77 +1214,6 @@
         "src/lib/release-notes/release-version-contract.ts"
       ],
       "sourceCommit": "19604704a1a8b87b28d6da8c13b6e833925004e7"
-    },
-    {
-      "version": "1.5.37",
-      "previousVersion": "1.5.36",
-      "betaReleaseCounter": 537,
-      "previousBetaReleaseCounter": 536,
-      "commitSha": "8450d4ab093503ba4b72464f966321cb61fea027",
-      "commitTitle": "fix(admin): simplify debug control tower layout",
-      "commitCount": 2,
-      "commitShas": [
-        "2aa75e5a9ea59a7c2285758666161d2789c6be20",
-        "8450d4ab093503ba4b72464f966321cb61fea027"
-      ],
-      "committedAt": "2026-06-03T20:10:15.000Z",
-      "generatedAt": "2026-06-03T20:11:18.100Z",
-      "committedAtUtc": "2026-06-03T20:10:15.000Z",
-      "generatedAtUtc": "2026-06-03T20:11:18.100Z",
-      "updatedAtUtc": "2026-06-03T20:11:18.100Z",
-      "category": "New",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
-        "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json",
-        "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
-        "agent/state/admin-truth-sample-evidence.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/debug-panel-output-triage.generated.json",
-        "agent/state/evidence-capture-status.generated.json",
-        "agent/state/formal-evidence-bridge.generated.json",
-        "agent/state/provider-smoke-evidence.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/runtime-smoke-evidence.generated.json",
-        "docs/agent-truth/evidence-capture-status.md",
-        "docs/agent-truth/formal-evidence-bridge.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/capture-truthful-evidence.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-admin-truth-sample-evidence.ts",
-        "scripts/agent/validate-current-beta-exit-status.ts",
-        "scripts/agent/validate-evidence-capture-status.ts",
-        "scripts/agent/validate-formal-evidence-bridge.ts",
-        "scripts/agent/validate-provider-smoke-evidence.ts",
-        "scripts/agent/validate-runtime-smoke-evidence.ts",
-        "src/app/admin/debug/components/DebugControlTower.tsx",
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/formal-evidence-bridge.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/evidence-capture-status.spec.ts"
-      ],
-      "sourceCommit": "8450d4ab093503ba4b72464f966321cb61fea027"
     }
   ]
 }

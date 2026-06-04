@@ -48,6 +48,20 @@ describe("Admin analytics operations mobile consolidation", () => {
     expect(source).toContain('authOutcomeViewMode === "cards"');
   });
 
+  it("renders Journey Funnel as one compact mobile view mode at a time", () => {
+    expect(source).toContain("journeyFunnelViewMode");
+    expect(source).toContain("setJourneyFunnelViewMode");
+    expect(source).toContain("data-admin-analytics-mobile-view-mode={journeyFunnelViewMode}");
+    expect(source).toContain('data-journey-funnel-chart="compact"');
+    expect(source).toContain('data-journey-funnel-table="compact"');
+    expect(source).toContain("data-journey-funnel-hydration-state={journeyFunnelModel.hydrationState}");
+    expect(source).toContain("data-journey-funnel-measurement-mode={journeyFunnelModel.measurementMode}");
+    expect(source).toContain("data-journey-funnel-denominator-mode={journeyFunnelModel.denominatorMode}");
+    expect(source).toContain('journeyFunnelViewMode === "chart"');
+    expect(source).toContain('journeyFunnelViewMode === "table"');
+    expect(source).toContain('journeyFunnelViewMode === "cards"');
+  });
+
   it("renders Event Mix as one compact mobile view mode at a time", () => {
     expect(source).toContain("eventMixViewMode");
     expect(source).toContain("setEventMixViewMode");
