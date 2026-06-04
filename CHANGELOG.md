@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.58 - 2026-06-04
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+
 ## 1.5.57 - 2026-06-04
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
@@ -145,9 +151,3 @@ Showing the last 25 public updates in pages of 5.
 - Bug fixes and quality-of-life improvements
 - Fixed beta issues to make KandyDrops smoother to use.
 - Improved reliability for the latest Beta build.
-
-## 1.5.33 - 2026-06-02
-- Sharper home hero experience
-- Refined the home hero glow, headline treatment, CTA depth, and live status chip.
-- Kept the hero shell stable while live Drop status and tracking hydrate.
-- Improved homepage hero telemetry so view and CTA events fire once through canonical tracking.

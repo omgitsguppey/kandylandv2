@@ -74,6 +74,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";
   const [eventMixViewMode, setEventMixViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [authOutcomeViewMode, setAuthOutcomeViewMode] = React.useState<AnalyticsViewMode>("cards");
+  const [guestQualityViewMode, setGuestQualityViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [liveInteractionViewMode, setLiveInteractionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
   const mobileVisibleLiveSurfaces = livePulseModel.surfaces.slice(0, livePulseModel.mobileSurfaceRowsLimit);
@@ -205,6 +206,28 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     value === null ? "Unavailable" : formatPercent(value);
   const formatRelativeUtc = (value: string | null) =>
     value ? formatRelativeTime(new Date(value).getTime(), nowMs) : "none";
+  const guestQualityChartRows = [
+    {
+      label: "Estimated views",
+      value: guestBounceQualityModel.estimatedGuestViews.value ?? 0,
+      source: guestBounceQualityModel.estimatedGuestViews.sourceTruth,
+      state: guestBounceQualityModel.estimatedGuestViews.freshnessState,
+    },
+    {
+      label: "Guest sample",
+      value: guestBounceQualityModel.guestQuality.state === "available"
+        ? guestBounceQualityModel.guestQuality.sampleCount
+        : 0,
+      source: guestBounceQualityModel.guestQuality.state,
+      state: guestBounceQualityModel.guestQuality.state,
+    },
+    {
+      label: "Signed-in sample",
+      value: guestBounceQualityModel.signedInBounce.sampleCount ?? 0,
+      source: guestBounceQualityModel.signedInBounce.freshnessState,
+      state: guestBounceQualityModel.signedInBounce.freshnessState,
+    },
+  ];
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -1129,7 +1152,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               title="Guest Quality"
               subtitle="Estimated guest traffic, consent-safe guest quality, and signed-in bounce truth."
               icon={Monitor}
-              rightSlot={renderSectionRangeControl("categorySemantics")}
+              rightSlot={(
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <AnalyticsViewModeToggle
+                    value={guestQualityViewMode}
+                    onChange={setGuestQualityViewMode}
+                    options={[
+                      { id: "cards", label: "Cards" },
+                      { id: "chart", label: "Chart" },
+                      { id: "table", label: "Table" },
+                    ]}
+                  />
+                  {renderSectionRangeControl("categorySemantics")}
+                </div>
+              )}
             >
               <div
                 className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between"
@@ -1152,6 +1188,84 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 />
               </div>
 
+              <div
+                className="space-y-2"
+                data-admin-analytics-mobile-view-mode={guestQualityViewMode}
+                data-guest-quality-state={guestBounceQualityModel.guestQuality.state}
+                data-guest-quality-series-state={guestBounceQualityModel.series.state}
+                data-guest-estimate-source-truth={guestBounceQualityModel.estimatedGuestViews.sourceTruth}
+                data-signed-in-bounce-state={guestBounceQualityModel.signedInBounce.freshnessState}
+              >
+                {guestQualityViewMode === "chart" ? (
+                  <div
+                    className="h-52 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                    data-guest-quality-chart="compact"
+                    data-guest-quality-state={guestBounceQualityModel.guestQuality.state}
+                    data-guest-quality-series-state={guestBounceQualityModel.series.state}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={guestQualityChartRows} margin={{ top: 4, right: 0, left: -22, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="guestQualitySampleFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#b28cff" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                        <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={52} />
+                        <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                        <Tooltip content={<AnalyticsTooltip />} />
+                        <Area type="monotone" dataKey="value" name="Sample count" stroke="#b28cff" strokeWidth={2} fill="url(#guestQualitySampleFill)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : null}
+
+                {guestQualityViewMode === "table" ? (
+                  <div
+                    className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                    data-guest-quality-table="compact"
+                    data-guest-quality-state={guestBounceQualityModel.guestQuality.state}
+                    data-guest-quality-series-state={guestBounceQualityModel.series.state}
+                  >
+                    <table className="min-w-full text-left text-xs">
+                      <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                        <tr>
+                          <th className="px-3 py-2 font-semibold">Signal</th>
+                          <th className="px-3 py-2 font-semibold">Value</th>
+                          <th className="px-3 py-2 font-semibold">Source/state</th>
+                          <th className="px-3 py-2 font-semibold">Freshness</th>
+                          <th className="px-3 py-2 font-semibold">Detail</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/10 text-gray-300">
+                        <tr>
+                          <td className="px-3 py-2 font-semibold text-white">{guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}</td>
+                          <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.display}</td>
+                          <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.sourceTruth}</td>
+                          <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.freshnessState}</td>
+                          <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}</td>
+                        </tr>
+                        <tr>
+                          <td className="px-3 py-2 font-semibold text-white">Guest Quality</td>
+                          <td className="px-3 py-2">{guestBounceQualityModel.guestQuality.state === "available" ? guestQualityCountLabel(guestBounceQualityModel.guestQuality.sampleCount) : "No sample"}</td>
+                          <td className="px-3 py-2">{guestBounceQualityModel.guestQuality.state}</td>
+                          <td className="px-3 py-2">{formatRelativeUtc(guestBounceQualityModel.guestQuality.lastGuestBatchAtUtc)}</td>
+                          <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.guestQuality.nextAction}</td>
+                        </tr>
+                        <tr>
+                          <td className="px-3 py-2 font-semibold text-white">Signed-in Bounce</td>
+                          <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.display}</td>
+                          <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.freshnessState}</td>
+                          <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.sampleCount ?? "unavailable"}</td>
+                          <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.signedInBounce.explanation}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                ) : null}
+
+                {guestQualityViewMode === "cards" ? (
               <div className="grid gap-2 md:grid-cols-3">
                 <div
                   data-guest-estimated-views={guestBounceQualityModel.estimatedGuestViews.value}
@@ -1204,6 +1318,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     valueClassName="truncate text-base leading-6 md:text-lg"
                   />
                 </div>
+              </div>
+                ) : null}
               </div>
 
               <div className="mt-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-2">

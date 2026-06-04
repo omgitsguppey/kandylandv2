@@ -9,6 +9,19 @@ const source = readFileSync(
 );
 
 describe("Admin analytics operations mobile consolidation", () => {
+  it("renders Guest Quality as one compact mobile view mode at a time", () => {
+    expect(source).toContain("guestQualityViewMode");
+    expect(source).toContain("setGuestQualityViewMode");
+    expect(source).toContain("data-admin-analytics-mobile-view-mode={guestQualityViewMode}");
+    expect(source).toContain('data-guest-quality-table="compact"');
+    expect(source).toContain('data-guest-quality-chart="compact"');
+    expect(source).toContain("data-guest-quality-state={guestBounceQualityModel.guestQuality.state}");
+    expect(source).toContain("data-guest-quality-series-state={guestBounceQualityModel.series.state}");
+    expect(source).toContain('guestQualityViewMode === "chart"');
+    expect(source).toContain('guestQualityViewMode === "table"');
+    expect(source).toContain('guestQualityViewMode === "cards"');
+  });
+
   it("renders Auth Outcomes as one compact mobile view mode at a time", () => {
     expect(source).toContain("authOutcomeViewMode");
     expect(source).toContain("setAuthOutcomeViewMode");
