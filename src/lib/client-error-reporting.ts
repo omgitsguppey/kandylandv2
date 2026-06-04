@@ -69,6 +69,28 @@ function mapClientChannelToEvidenceCategory(
   }
 }
 
+function buildClientIssueFingerprint(input: {
+  channel: ClientDiagnosticChannel;
+  message: string;
+  category?: DebugEvidenceCategory;
+  detail: Record<string, unknown>;
+}) {
+  const route = typeof window !== "undefined" ? window.location.pathname : "unknown_route";
+  const listener = typeof input.detail.listener === "string" ? input.detail.listener : "";
+  const component = typeof input.detail.component === "string" ? input.detail.component : "";
+  const errorName = typeof input.detail.errorName === "string" ? input.detail.errorName : "";
+  const errorMessage = typeof input.detail.errorMessage === "string" ? input.detail.errorMessage : "";
+  const source = listener || component || route;
+  return [
+    input.channel,
+    input.category ?? mapClientChannelToEvidenceCategory(input.channel, input.detail),
+    source,
+    input.message,
+    errorName,
+    errorMessage,
+  ].join("::").slice(0, 320);
+}
+
 function queueDebugEvidenceWrite(input: {
   channel: ClientDiagnosticChannel;
   message: string;
@@ -151,14 +173,20 @@ export function reportClientIssue(input: {
     normalizedDetail = browserSecurityBoundary.detail as typeof normalizedDetail;
   }
 
+  const diagnosticFingerprint = fingerprint ?? buildClientIssueFingerprint({
+    channel: input.channel,
+    message,
+    category: evidenceCategory,
+    detail: normalizedDetail,
+  });
+  if (diagnosticFingerprint && !shouldRecordClientDiagnosticFingerprint(diagnosticFingerprint)) {
+    return;
+  }
+
   if (severity === "warn") {
     console.warn(input.consoleLabel ?? input.message, input.error ?? normalizedDetail);
   } else {
     console.error(input.consoleLabel ?? input.message, input.error ?? normalizedDetail);
-  }
-
-  if (fingerprint && !shouldRecordClientDiagnosticFingerprint(fingerprint)) {
-    return;
   }
 
   recordClientDiagnostic(input.channel, message, normalizedDetail, severity);
@@ -169,7 +197,7 @@ export function reportClientIssue(input: {
     severity,
     category: evidenceCategory,
     detail: normalizedDetail,
-    fingerprint,
+    fingerprint: diagnosticFingerprint,
   });
 }
 

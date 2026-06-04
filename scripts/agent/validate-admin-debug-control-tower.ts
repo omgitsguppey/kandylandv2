@@ -212,13 +212,16 @@ requireNotIncludes(helper, "const overallScore = scoreValues", "Admin debug cont
 for (const expected of [
   "canonicalPublicBetaReadinessReason",
   "canonicalPublicBetaCapDetails.slice(0, 3)",
-  "Needs proof",
+  "data-debug-visible-summary=\"single-triage-strip\"",
+  "Evidence drawer",
   "Source detail",
   "reportAggregateSummary",
   "data-debug-canonical-public-beta-score",
 ]) {
   requireIncludes(controlTower, expected, "Admin Debug Control Tower canonical beta score card");
 }
+requireNotIncludes(controlTower, "Needs proof", "Admin Debug Control Tower compact view must not restore the removed redundant proof label");
+requireNotIncludes(controlTower, "Source reports</p>", "Admin Debug Control Tower compact view must not restore the removed source-report card");
 requireNotIncludes(controlTower, "model?.overallScore ?? \"--\"", "Admin Debug Control Tower primary score must not render report aggregate overallScore");
 requireNotIncludes(controlTower, "model?.canonicalPublicBetaScore ?? \"--\"", "Admin Debug Control Tower primary view must not render the raw beta score as the hero value");
 requireNotIncludes(controlTower, "model.reportAggregateScore", "Admin Debug Control Tower primary view must keep report aggregate scores collapsed/out of the main view");
@@ -2473,6 +2476,8 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugPrimitives\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabActions\.tsx$/u,
+    /^tests\/unit\/admin-truth-state\.spec\.ts$/u,
+    /^tests\/unit\/client-error-reporting\.spec\.ts$/u,
     /^tests\/unit\/admin-debug-compact-layout\.spec\.ts$/u,
     /^src\/components\/Dashboard\/DailyTasksModule\.tsx$/u,
     /^src\/components\/AdminErrorCatcher\.tsx$/u,
@@ -2488,6 +2493,7 @@ try {
     /^src\/lib\/creator-experiences\.ts$/u,
     /^src\/lib\/client-diagnostics\.ts$/u,
     /^src\/lib\/client-error-reporting\.ts$/u,
+    /^src\/lib\/admin-truth-state\.ts$/u,
     /^src\/lib\/creator-lane-debug-parity\.ts$/u,
     /^src\/lib\/creator-onboarding\.ts$/u,
     /^src\/lib\/debug\/debug-operator-cockpit\.ts$/u,

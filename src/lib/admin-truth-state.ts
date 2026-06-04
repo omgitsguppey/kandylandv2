@@ -114,6 +114,10 @@ export function resolveAdminTruthState(input: {
     return input.hasUsableValue ? "privacy_limited" : "unavailable";
   }
 
+  if (transportState === "unavailable" || valueState === "unavailable") {
+    return "unavailable";
+  }
+
   if (!input.hasUsableValue) {
     if (transportState === "failed" || valueState === "failed") {
       return "failed";

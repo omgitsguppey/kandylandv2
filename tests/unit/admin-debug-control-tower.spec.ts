@@ -120,8 +120,12 @@ describe("admin debug control tower model", () => {
         expect(component).toContain("canonicalPublicBetaScore");
         expect(component).toContain("canonicalPublicBetaReadinessReason");
         expect(component).toContain("canonicalPublicBetaCapDetails.slice(0, 3)");
-        expect(component).toContain("Needs proof");
+        expect(component).toContain('data-debug-visible-summary="single-triage-strip"');
+        expect(component).toContain("Evidence drawer");
         expect(component).toContain("Source detail");
+        expect(component).not.toContain("Needs proof");
+        expect(component).not.toContain("Status {model.canonicalPublicBetaStatus}");
+        expect(component).not.toContain("Source reports</p>");
         expect(component).not.toContain("model.reportAggregateScore");
         expect(component).not.toContain("model?.overallScore ?? \"--\"");
     });

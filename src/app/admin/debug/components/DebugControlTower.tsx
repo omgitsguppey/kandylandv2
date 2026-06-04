@@ -151,31 +151,23 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                     </div>
                 </div>
                 {model ? (
-                    <div className="mt-3 border-t border-white/10 pt-3" data-debug-report-source="agent/state/public-beta-score.generated.json">
-                        <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-                            <div className="min-w-0">
-                                <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Needs proof</p>
-                                <p className="mt-1 line-clamp-2 text-sm font-semibold leading-5 text-white">{model.canonicalPublicBetaReadinessReason}</p>
-                            </div>
-                            <div className="flex flex-wrap gap-1.5 text-[11px] text-gray-300 md:justify-end">
-                                <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">Status {model.canonicalPublicBetaStatus}</span>
-                                <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">{model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"}</span>
-                            </div>
-                        </div>
-                        <div className="mt-2 grid gap-1.5 sm:grid-cols-3" data-debug-visible-summary="launch-live-source">
-                            <div className="rounded-md border border-white/10 bg-black/20 px-3 py-2">
-                                <p className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Launch blockers</p>
-                                <p className="mt-1 text-sm font-bold text-white">{canonicalBetaCapDetails.length || blockerReports.length}</p>
-                            </div>
-                            <div className="rounded-md border border-white/10 bg-black/20 px-3 py-2">
-                                <p className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Live issues</p>
-                                <p className="mt-1 text-sm font-bold text-white">{model.liveIssues.length}</p>
-                            </div>
-                            <div className="rounded-md border border-white/10 bg-black/20 px-3 py-2">
-                                <p className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Source reports</p>
-                                <p className="mt-1 text-sm font-bold text-white">{visibleReports}</p>
-                            </div>
-                        </div>
+                    <div
+                        className="mt-3 flex flex-wrap gap-1.5 border-t border-white/10 pt-3 text-[11px] text-gray-300"
+                        data-debug-visible-summary="single-triage-strip"
+                        data-debug-report-source="agent/state/public-beta-score.generated.json"
+                    >
+                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">
+                            Launch blockers {canonicalBetaCapDetails.length || blockerReports.length}
+                        </span>
+                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">
+                            Live issues {model.liveIssues.length}
+                        </span>
+                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">
+                            Source rows {visibleReports}
+                        </span>
+                        <span className="min-w-0 rounded-md border border-white/10 bg-black/25 px-2.5 py-1">
+                            <span className="line-clamp-1">{model.canonicalPublicBetaReadinessReason}</span>
+                        </span>
                     </div>
                 ) : null}
             </div>
@@ -199,14 +191,17 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                     data-debug-default-details="collapsed"
                 >
                     <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">
-                        Source detail evidence drawer: launch blockers, live issues, next actions, and source reports
+                        Evidence drawer: Source detail, launch blockers, live issues, next actions, and report rows
                     </summary>
                     <div className="mt-3 space-y-3">
                         <section className="rounded-md border border-white/10 bg-black/25 p-3" data-debug-report-source="triage-summary">
                             <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div>
                                     <h3 className="font-bold text-white">Launch blockers</h3>
-                                    <p className="text-xs text-gray-400">Formal proof and current source issues stay here for review.</p>
+                                    <p className="text-xs text-gray-400">{model.canonicalPublicBetaReadinessReason}</p>
+                                    <p className="mt-1 text-[11px] text-gray-500">
+                                        {model.canonicalPublicBetaStatus} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"}
+                                    </p>
                                 </div>
                                 <AdminTruthBadge state={canonicalBetaCapDetails.length || blockerReports.length ? "failed" : "live"} />
                             </div>
@@ -293,7 +288,7 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                         ) : null}
 
                         <details className="rounded-md border border-white/10 bg-black/20 p-2">
-                            <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">Report filters and source reports ({visibleReports})</summary>
+                            <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">Report filters and source rows ({visibleReports})</summary>
                             <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
                                 {FILTERS.map((filter) => {
                                     const active = activeFilter === filter.id;
