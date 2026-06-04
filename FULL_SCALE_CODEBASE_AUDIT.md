@@ -13887,3 +13887,23 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2024-05-28 #sentinel] PRE: Open Redirect Vulnerability in Action URLs
+
+Scope started:
+- Investigating `getSafeUrl` and `normalizeActionUrl` functions across the codebase.
+- Looking for potential protocol-relative Open Redirect bypasses (e.g., `\\evil.com`) where url parsers normalize input that slips past naive `.startsWith("//")` string checks.
+
+Scope completed:
+- Confirmed `src/components/PromoCard.tsx` already had the fix applied.
+- Identified vulnerabilities in `src/lib/admin-drop-form.ts` and `src/lib/server/drop-mutations.ts` where inputs like `\\evil.com` or `/\evil.com` could bypass relative path verification.
+- Applied patch to ensure `trimmedUrl.startsWith("\\") || trimmedUrl.startsWith("//") || trimmedUrl.startsWith("/\\")` is explicitly checked before extracting the `pathname`.
+- Verified type safety and existing test suites (vitest) pass with no regressions. Cleaned up scratch files.
+
+## [2024-05-28 #sentinel] POST: Open Redirect Vulnerability in Action URLs
+
+Findings/Verification:
+- The `new URL()` constructor can parse malformed inputs like `\\evil.com` as having the base origin, but with a pathname that preserves the leading slashes (or converts them to `//evil.com`).
+- Returning this modified `pathname` directly to the client creates an open redirect when the browser interprets `//evil.com` as an absolute protocol-relative URL.
+- By checking the original, raw `trimmedUrl` string against `\\`, `//`, and `/\`, we prevent the parser from bypassing the intended relative-path-only restrictions.
+- Fix applied, verified via isolated scratch script testing and full `pnpm run typecheck` + `npx vitest run`.

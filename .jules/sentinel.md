@@ -30,3 +30,8 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+
+## 2024-05-28 - [Open Redirect via Protocol-Relative URLs in drop mutations]
+**Vulnerability:** Open redirect risk in `normalizeActionUrl` and `isSafeDropActionUrl` via inputs like `\\evil.com` or `/\evil.com`.
+**Learning:** Checking `parsed.origin === ADMIN_DROP_URL_BASE` is insufficient if the logic then returns `parsed.pathname` without first ensuring the raw input didn't start with protocol-relative slash variants. The URL constructor normalizes `\\` into `//`, which browsers interpret as absolute URLs.
+**Prevention:** Always verify that `pathname` does not start with `//` or `/\\` AND that the raw input `trimmedUrl` does not start with `//`, `/\\`, or `\\` when extracting relative paths from user-provided URLs.

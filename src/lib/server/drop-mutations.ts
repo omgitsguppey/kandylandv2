@@ -126,6 +126,9 @@ function isSafeDropActionUrl(value: string) {
                 parsed.pathname.startsWith("//")
                 || parsed.pathname.startsWith("/\\")
                 || parsed.pathname.startsWith("\\")
+                || trimmedUrl.startsWith("\\")
+                || trimmedUrl.startsWith("//")
+                || trimmedUrl.startsWith("/\\")
             ) {
                 return false;
             }
