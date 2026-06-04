@@ -1,11 +1,60 @@
 {
-  "currentVersion": "1.5.52",
-  "betaReleaseCounter": 552,
+  "currentVersion": "1.5.53",
+  "betaReleaseCounter": 553,
   "channel": "beta",
-  "generatedAt": "2026-06-04T00:17:36.538Z",
-  "generatedAtUtc": "2026-06-04T00:17:36.538Z",
-  "lastCommitSha": "1bd77282b535b0b2e847ff08c198dc854f8efa22",
+  "generatedAt": "2026-06-04T00:25:53.613Z",
+  "generatedAtUtc": "2026-06-04T00:25:53.613Z",
+  "lastCommitSha": "3e4fa09f66e8fe92bddd156be9a5f87413b1e060",
   "notes": [
+    {
+      "version": "1.5.53",
+      "previousVersion": "1.5.52",
+      "betaReleaseCounter": 553,
+      "previousBetaReleaseCounter": 552,
+      "commitSha": "3e4fa09f66e8fe92bddd156be9a5f87413b1e060",
+      "commitTitle": "fix(admin): add compact viewer journey analytics modes",
+      "commitCount": 2,
+      "commitShas": [
+        "1f4f8b1ad25805ee7044da3fbb4dc8c3f5790171",
+        "3e4fa09f66e8fe92bddd156be9a5f87413b1e060"
+      ],
+      "committedAt": "2026-06-04T00:25:39.000Z",
+      "generatedAt": "2026-06-04T00:25:53.611Z",
+      "committedAtUtc": "2026-06-04T00:25:39.000Z",
+      "generatedAtUtc": "2026-06-04T00:25:53.611Z",
+      "updatedAtUtc": "2026-06-04T00:25:53.611Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/debug/page.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-commerce-mobile.spec.ts",
+        "tests/unit/admin-debug-compact-panel.spec.ts"
+      ],
+      "sourceCommit": "3e4fa09f66e8fe92bddd156be9a5f87413b1e060"
+    },
     {
       "version": "1.5.52",
       "previousVersion": "1.5.51",
@@ -1430,76 +1479,6 @@
         "tests/unit/live-evidence-gate-replacement.spec.ts"
       ],
       "sourceCommit": "8832e0bcd312aacf1eaa94934a81ae11989695c9"
-    },
-    {
-      "version": "1.5.28",
-      "previousVersion": "1.5.27",
-      "betaReleaseCounter": 528,
-      "previousBetaReleaseCounter": 527,
-      "commitSha": "a6ac6d0632b66412ba22ad6a2ff981d0f7aee3aa",
-      "commitTitle": "refactor(beta): connect live runtime evidence",
-      "commitCount": 1,
-      "commitShas": [
-        "a6ac6d0632b66412ba22ad6a2ff981d0f7aee3aa"
-      ],
-      "committedAt": "2026-05-31T23:13:11.000Z",
-      "generatedAt": "2026-05-31T23:53:49.118Z",
-      "committedAtUtc": "2026-05-31T23:13:11.000Z",
-      "generatedAtUtc": "2026-05-31T23:53:49.118Z",
-      "updatedAtUtc": "2026-05-31T23:53:49.118Z",
-      "category": "Security",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "account-onboarding",
-        "admin",
-        "chat-support",
-        "creator",
-        "daily-tasks",
-        "drops-viewer",
-        "navigation",
-        "notifications",
-        "privacy-security",
-        "wallet"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-panel-hydration.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/event-liveness-audit.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/evidence-capture-status.generated.json",
-        "agent/state/live-evidence-gate-replacement.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/analytics-panel-hydration.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/event-liveness-audit.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/evidence-capture-status.md",
-        "docs/agent-truth/live-evidence-gate-replacement.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-analytics-panel-hydration.ts",
-        "scripts/agent/validate-current-beta-exit-status.ts",
-        "scripts/agent/validate-event-liveness-audit.ts",
-        "scripts/agent/validate-event-translation-bridge.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/release-readiness/live-evidence-gate-contract.ts",
-        "src/lib/release-readiness/live-evidence-resolver.ts",
-        "tests/unit/current-beta-exit-status.spec.ts",
-        "tests/unit/live-evidence-gate-replacement.spec.ts"
-      ],
-      "sourceCommit": "a6ac6d0632b66412ba22ad6a2ff981d0f7aee3aa"
     }
   ]
 }
