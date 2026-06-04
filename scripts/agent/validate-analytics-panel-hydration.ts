@@ -63,6 +63,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/overnight-beta-readiness-lock.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/live-evidence-gate-replacement.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/live-evidence-gate-replacement.md") return "documentation_artifact_expected";
+  if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
@@ -87,6 +88,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "tests/unit/analytics-hydration-consolidation.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/admin-analytics-page.spec.tsx") return "test_artifact_expected";
   if (/^src\/lib\/agent-score\/(algorithmic-evidence-policy|core|evidence-quality|formal-evidence-bridge|regression-risk-refresh-plan)\.ts$/u.test(normalized)) {
     return "beta_studio_consolidation_source_expected";
   }

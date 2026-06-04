@@ -63,6 +63,10 @@ function isKnownOverviewSnapshotUnavailable(error: { message?: string } | null |
   );
 }
 
+function formatPanelRecoveryCount(count: number, singular: string, plural = `${singular}s`) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
 const AdminAnalyticsOperationsTab = dynamic(
   () => import("./components/AdminAnalyticsOperationsTab").then((module) => module.AdminAnalyticsOperationsTab),
 );
@@ -131,6 +135,27 @@ export default function AdminAnalyticsPage() {
     showHistoricalEmptyState,
     visibleOverviewDegradedCopy,
   ]);
+  const panelHydrationSummary = state.panelHydration?.summary;
+  const connectedPanelCount = panelHydrationSummary?.hydrated ?? 0;
+  const totalPanelCount = panelHydrationSummary?.totalPanels ?? 0;
+  const collectingPanelCount = panelHydrationSummary
+    ? panelHydrationSummary.collecting + panelHydrationSummary.sourceReadyWaitingForActivity
+    : 0;
+  const verificationNeededPanelCount = panelHydrationSummary
+    ? panelHydrationSummary.sourceMissing +
+      panelHydrationSummary.materializerMissing +
+      panelHydrationSummary.bridgeMissing +
+      panelHydrationSummary.notObservedButExpected +
+      panelHydrationSummary.broken
+    : 0;
+  const externalProofPanelCount = panelHydrationSummary?.externalRequired ?? 0;
+  const panelRecoveryActions = panelHydrationSummary?.topNextActions ?? [];
+  const showPanelRecovery =
+    Boolean(panelHydrationSummary) &&
+    (verificationNeededPanelCount > 0 ||
+      collectingPanelCount > 0 ||
+      externalProofPanelCount > 0 ||
+      connectedPanelCount < totalPanelCount);
 
   if (needsSetup) {
     return (
@@ -278,6 +303,36 @@ export default function AdminAnalyticsPage() {
             </ul>
             {liveFeedDetail ? <p className="mt-2 text-amber-200/80">{liveFeedDetail}</p> : null}
           </details>
+        ) : null}
+        {showPanelRecovery ? (
+          <div
+            className="mt-2 rounded-md border border-white/10 bg-black/25 px-2.5 py-2 text-xs text-gray-200"
+            data-admin-analytics-panel-recovery="compact"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="font-semibold text-white">Panel recovery</p>
+              <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-300">
+                <span>{connectedPanelCount}/{totalPanelCount} connected</span>
+                <span>{formatPanelRecoveryCount(verificationNeededPanelCount, "need", "need")} verification</span>
+                <span>{formatPanelRecoveryCount(collectingPanelCount, "collecting", "collecting")}</span>
+                {externalProofPanelCount > 0 ? (
+                  <span>{formatPanelRecoveryCount(externalProofPanelCount, "external proof", "external proof")}</span>
+                ) : null}
+              </div>
+            </div>
+            {panelRecoveryActions.length > 0 ? (
+              <details className="mt-2 text-[11px] text-gray-300">
+                <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">
+                  Top recovery actions
+                </summary>
+                <ul className="mt-1 list-disc space-y-1 pl-4">
+                  {panelRecoveryActions.slice(0, 3).map((action) => (
+                    <li key={action}>{action}</li>
+                  ))}
+                </ul>
+              </details>
+            ) : null}
+          </div>
         ) : null}
       </div>
 

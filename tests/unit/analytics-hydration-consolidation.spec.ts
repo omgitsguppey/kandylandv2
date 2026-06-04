@@ -46,7 +46,7 @@ describe("analytics hydration consolidation", () => {
     const records = resolveAllPanelHydration({ scoreDimensions });
 
     expect(records).toHaveLength(41);
-    expect(records.some((panel) => panel.panelId === "payment_approvals" && panel.hydrationStatus === "external_required")).toBe(true);
+    expect(records.some((panel) => panel.panelId === "payment_approvals" && panel.hydrationStatus === "provider_gated")).toBe(true);
     expect(records.some((panel) => panel.canDisplayZero && panel.hydrationStatus !== "hydrated")).toBe(false);
   });
 });

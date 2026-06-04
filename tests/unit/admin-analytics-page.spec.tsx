@@ -111,6 +111,42 @@ const mockState = vi.hoisted(() => {
       liveResponse: { totalActive: 12, liveTruthLabel: "live" },
       backgroundAnalyticsIssues: [],
       visibleDegradedCopy: [],
+      liveFeedStatus: "polled",
+      liveFeedDetail: "",
+      historicalTruthState: "cached",
+      historicalSourceLabel: "30D Server snapshot",
+      adminAnalyticsSourceHierarchy: {
+        status: "aligned",
+        nextAction: "Analytics source hierarchy is aligned.",
+      },
+      panelHydration: {
+        summary: {
+          totalPanels: 11,
+          hydrated: 3,
+          collecting: 2,
+          sourceReadyWaitingForActivity: 1,
+          notObservedButExpected: 2,
+          sourceMissing: 1,
+          materializerMissing: 1,
+          bridgeMissing: 0,
+          externalRequired: 1,
+          broken: 0,
+          topNextActions: [
+            "Audience snapshot: Refresh analytics_admin_metric_snapshots before treating audience as hydrated.",
+            "Commerce snapshot: Attach redacted provider evidence before clearing payment proof.",
+          ],
+        },
+        panelStatus: {},
+        topPanelHydrationFailures: [
+          {
+            panelId: "audience_snapshot",
+            panelLabel: "Audience snapshot",
+            hydrationStatus: "source_missing",
+            nextExactAction:
+              "Refresh analytics_admin_metric_snapshots before treating audience as hydrated.",
+          },
+        ],
+      },
       analyticsOverviewDebugMeta: { metrics: [] },
       analyticsSnapshotMigrationDebug: {
         snapshotFirstMigrationEnabled: true,
@@ -414,5 +450,30 @@ describe("AdminAnalyticsPage", () => {
         (node) => node.getAttribute("data-badge-placement") === "hidden",
       ),
     ).toBe(true);
+  });
+
+  it("summarizes panel recovery in one compact source strip", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      blockingAnalyticsError: {
+        message:
+          "No verified admin metric snapshot display payload is available for platform_pulse:30d.",
+      },
+      backgroundAnalyticsIssues: [
+        "Historical analytics: No verified admin metric snapshot display payload is available for platform_pulse:30d.",
+      ],
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).toContain("Panel recovery");
+    expect(container.textContent).toContain("3/11 connected");
+    expect(container.textContent).toContain("4 need verification");
+    expect(container.textContent).toContain("3 collecting");
+    expect(container.textContent).toContain("1 external proof");
+    expect(container.textContent).toContain("Top recovery actions");
+    expect(container.textContent).not.toContain("platform_pulse:30d");
   });
 });
