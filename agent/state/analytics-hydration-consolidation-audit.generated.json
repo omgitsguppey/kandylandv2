@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-hydration-consolidation-audit",
-  "generatedAtUtc": "2026-06-04T02:32:00.343Z",
-  "currentHead": "4c775594c1677c6b3cb0d1c075d67a545706f65a",
+  "generatedAtUtc": "2026-06-04T02:33:14.006Z",
+  "currentHead": "5926e18976ba2b83397fd91c76be63496023fcc3",
   "filesAudited": [
     {
       "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
