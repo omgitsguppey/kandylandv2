@@ -3,7 +3,11 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Funnel } from "lucide-react";
 
-import { SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
+import {
+    AnalyticsViewModeToggle,
+    SectionCard,
+    type AnalyticsViewMode,
+} from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import type { AdminTaskPipelineModel, AdminTaskPipelineMetric } from "@/lib/admin-task-pipeline";
 
@@ -14,6 +18,7 @@ export function AdminDailyTaskPipelineModule(props: {
     formatPercent: (value: number) => string;
 }) {
     const [leaderboardPage, setLeaderboardPage] = useState(0);
+    const [taskPipelineViewMode, setTaskPipelineViewMode] = useState<AnalyticsViewMode>("cards");
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -55,9 +60,29 @@ export function AdminDailyTaskPipelineModule(props: {
             title="Daily Task Pipeline"
             subtitle="Assigned, started, completed, and failed tasks in one progression view."
             icon={Funnel}
-            rightSlot={props.renderSectionRangeControl("dailyTaskPipeline")}
+            rightSlot={(
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AnalyticsViewModeToggle
+                        value={taskPipelineViewMode}
+                        onChange={setTaskPipelineViewMode}
+                        options={[
+                            { id: "cards", label: "Cards" },
+                            { id: "chart", label: "Chart" },
+                            { id: "table", label: "Table" },
+                        ]}
+                    />
+                    {props.renderSectionRangeControl("dailyTaskPipeline")}
+                </div>
+            )}
         >
-            <div className="space-y-2.5" data-task-pipeline-delta-source="leaderboardPipelineDelta">
+            <div
+                className="space-y-2.5"
+                data-admin-analytics-mobile-view-mode={taskPipelineViewMode}
+                data-task-pipeline-delta-source="leaderboardPipelineDelta"
+                data-task-pipeline-snapshot-state={props.model.snapshotState}
+                data-task-pipeline-truth-state={props.model.truthState}
+                data-task-pipeline-guidance-state={props.model.guidanceTelemetryState}
+            >
                 <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                         <p>{props.model.recommendation}</p>
@@ -68,115 +93,167 @@ export function AdminDailyTaskPipelineModule(props: {
                     <AdminStatusBadge state={props.model.truthState} label={props.model.badgeLabel} className="max-w-[5.5rem] shrink-0 truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-                    {props.model.lifecycleMetrics.map((metric) => (
-                        <div key={metric.key} className="rounded-[0.9rem] border border-white/10 bg-black/25 px-3 py-2">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">{metric.key === "failed" ? "Failed / expired" : metric.label}</p>
-                            <p className="mt-1 text-lg font-black text-white">{formatCount(metric.value)}</p>
-                            <p className="mt-0.5 truncate text-[10px] text-gray-500">{metric.source.replace("_", " ")}</p>
-                        </div>
-                    ))}
-                </div>
-
-                {props.model.hasData ? (
-                    <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
-                        <div className="mb-2 grid gap-1.5 text-[10px] text-gray-400 sm:grid-cols-2 xl:grid-cols-5">
-                            <span>Start rate uses started / assigned: <span className="text-white">{formatRate(props.model.rates.startFromAssignedPct)}</span></span>
-                            <span>Completed / started: <span className="text-white">{formatRate(props.model.rates.completionFromStartedPct)}</span></span>
-                            <span>Completed / assigned: <span className="text-white">{formatRate(props.model.rates.completionFromAssignedPct)}</span></span>
-                            <span>Failed / assigned: <span className="text-white">{formatRate(props.model.rates.failureFromAssignedPct)}</span></span>
-                            <span>Fail after start: <span className="text-white">{formatRate(props.model.rates.failureAfterStartPct)}</span></span>
-                        </div>
-                        <div className="space-y-1.5">
+                {taskPipelineViewMode === "cards" ? (
+                    <>
+                        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                             {props.model.lifecycleMetrics.map((metric) => (
-                                <div key={metric.key} className="grid grid-cols-[5.2rem_minmax(0,1fr)_3rem] items-center gap-2 text-[11px]">
-                                    <span className="truncate text-gray-400">{metric.key === "failed" ? "Failed / exp." : metric.label}</span>
-                                    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                                        <div className={metric.key === "failed" ? "h-full rounded-full bg-rose-400" : metric.key === "completed" ? "h-full rounded-full bg-brand-purple" : "h-full rounded-full bg-slate-400"} style={{ width: lifecycleProgressWidth(metric) }} />
+                                <div key={metric.key} className="rounded-[0.9rem] border border-white/10 bg-black/25 px-3 py-2">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">{metric.key === "failed" ? "Failed / expired" : metric.label}</p>
+                                    <p className="mt-1 text-lg font-black text-white">{formatCount(metric.value)}</p>
+                                    <p className="mt-0.5 truncate text-[10px] text-gray-500">{metric.source.replace("_", " ")}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="grid gap-1.5 rounded-[1rem] border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] text-gray-400 sm:grid-cols-4">
+                            <span>Start: <span className="text-white">{formatRate(props.model.rates.startFromAssignedPct)}</span></span>
+                            <span>Complete: <span className="text-white">{formatRate(props.model.rates.completionFromStartedPct)}</span></span>
+                            <span>Failed: <span className="text-white">{formatRate(props.model.rates.failureFromAssignedPct)}</span></span>
+                            <span>Coverage: <span className="text-white">{formatRate(props.model.timingCoveragePercent)}</span></span>
+                        </div>
+
+                        {guidanceNeedsReview ? (
+                            <p className="rounded-[0.8rem] border border-amber-400/25 bg-amber-500/10 px-2.5 py-2 text-[10px] leading-5 text-amber-100">
+                                Task guidance telemetry is missing; guidance impact cannot be evaluated.
+                            </p>
+                        ) : null}
+
+                        <details className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-400">
+                            <summary className="cursor-pointer font-semibold text-gray-300">
+                                Source and delta checks
+                            </summary>
+                            <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                                <span>Stuck assigned: <span className="text-white">{formatCount(props.model.stuckAssignedCount)}</span></span>
+                                <span>Started open: <span className="text-white">{formatCount(props.model.startedNotCompletedCount)}</span></span>
+                                <span>Orphan starts: <span className="text-white">{formatCount(props.model.orphanStartedCount)}</span></span>
+                                <span>Orphan completions: <span className="text-white">{formatCount(props.model.orphanCompletedCount)}</span></span>
+                                <span>Pipeline delta: <span className="text-white">{formatCount(props.model.checks.pipelineDelta)}</span></span>
+                                <span>Timing partial: <span className="text-white">{props.model.checks.timingPartial}</span></span>
+                            </div>
+                            <p className="mt-2 text-gray-500">
+                                {staleSnapshotCopy} {props.model.checks.pipelineDeltaExplanation}
+                            </p>
+                        </details>
+                    </>
+                ) : null}
+
+                {taskPipelineViewMode === "chart" ? (
+                    <div
+                        className="space-y-2 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                        data-task-pipeline-chart="compact"
+                        data-task-pipeline-snapshot-state={props.model.snapshotState}
+                        data-task-pipeline-truth-state={props.model.truthState}
+                        data-task-pipeline-guidance-state={props.model.guidanceTelemetryState}
+                    >
+                        {props.model.hasData ? (
+                            <div className="space-y-1.5">
+                                {props.model.lifecycleMetrics.map((metric) => (
+                                    <div key={metric.key} className="grid grid-cols-[5.2rem_minmax(0,1fr)_3rem] items-center gap-2 text-[11px]">
+                                        <span className="truncate text-gray-400">{metric.key === "failed" ? "Failed / exp." : metric.label}</span>
+                                        <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                                            <div className={metric.key === "failed" ? "h-full rounded-full bg-rose-400" : metric.key === "completed" ? "h-full rounded-full bg-brand-purple" : "h-full rounded-full bg-slate-400"} style={{ width: lifecycleProgressWidth(metric) }} />
+                                        </div>
+                                        <span className="text-right font-semibold text-white">{formatCount(metric.value)}</span>
                                     </div>
-                                    <span className="text-right font-semibold text-white">{formatCount(metric.value)}</span>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                                Task pipeline is waiting for lifecycle signals.
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                            <SpeedTile label="Avg finish" value={formatSpeed(props.model.avgCompletionSeconds)} />
+                            <SpeedTile label="Median" value={formatSpeed(props.model.medianCompletionSeconds)} />
+                            <SpeedTile label="Timed" value={formatCount(props.model.timedCompletionCount)} />
+                            <SpeedTile label="Coverage" value={formatRate(props.model.timingCoveragePercent)} />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            {props.model.speedBuckets.map((bucket) => (
+                                <div key={bucket.bucketKey} className="grid grid-cols-[3.8rem_minmax(0,1fr)_2.8rem] items-center gap-2 text-[10px]">
+                                    <span className="truncate text-gray-500">{bucket.label}</span>
+                                    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                                        <div className={`h-full rounded-full ${speedBarClass(bucket.label, bucket.count)}`} style={{ width: `${Math.max(4, Math.min(100, ((bucket.count ?? 0) / speedPeak) * 100))}%` }} />
+                                    </div>
+                                    <span className="text-right font-semibold text-gray-300">{formatCount(bucket.count)}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
-                ) : (
-                    <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                        Task pipeline is waiting for lifecycle signals.
-                    </div>
-                )}
+                ) : null}
 
-                <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-white/[0.03] p-3 text-[11px] text-gray-300">
-                    <div className="grid grid-cols-3 gap-1.5">
-                        {props.model.guidanceMetrics.map((metric) => (
-                            <div key={metric.key} className="rounded-[0.8rem] bg-black/25 px-2 py-1.5">
-                                <p className="truncate text-[10px] text-gray-500">{metric.label}</p>
-                                <p className="font-semibold text-white">{formatCount(metric.value)}</p>
-                            </div>
-                        ))}
+                {taskPipelineViewMode === "table" ? (
+                    <div
+                        className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                        data-task-pipeline-table="compact"
+                        data-task-pipeline-snapshot-state={props.model.snapshotState}
+                        data-task-pipeline-truth-state={props.model.truthState}
+                        data-task-pipeline-guidance-state={props.model.guidanceTelemetryState}
+                    >
+                        <table className="min-w-full text-left text-xs">
+                            <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                                <tr>
+                                    <th className="px-3 py-2 font-semibold">Lane</th>
+                                    <th className="px-3 py-2 font-semibold">Count</th>
+                                    <th className="px-3 py-2 font-semibold">Source</th>
+                                    <th className="px-3 py-2 font-semibold">Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/10 text-gray-300">
+                                {props.model.lifecycleMetrics.map((metric) => (
+                                    <tr key={metric.key} data-task-pipeline-lifecycle-key={metric.key}>
+                                        <td className="px-3 py-2 font-semibold text-white">{metric.key === "failed" ? "Failed / expired" : metric.label}</td>
+                                        <td className="px-3 py-2">{formatCount(metric.value)}</td>
+                                        <td className="px-3 py-2">{metric.source.replace("_", " ")}</td>
+                                        <td className="px-3 py-2">{metric.key === "completed" ? formatRate(props.model.rates.completionFromStartedPct) : metric.key === "failed" ? formatRate(props.model.rates.failureFromAssignedPct) : metric.key === "started" ? formatRate(props.model.rates.startFromAssignedPct) : "Base"}</td>
+                                    </tr>
+                                ))}
+                                {props.model.guidanceMetrics.map((metric) => (
+                                    <tr key={metric.key} data-task-pipeline-guidance-key={metric.key}>
+                                        <td className="px-3 py-2 font-semibold text-white">{metric.label}</td>
+                                        <td className="px-3 py-2">{formatCount(metric.value)}</td>
+                                        <td className="px-3 py-2">{props.model.guidanceTelemetryState}</td>
+                                        <td className="px-3 py-2">Guidance</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                    <p className="leading-5 text-gray-400">
-                        {staleSnapshotCopy} {props.model.rates.explanations.join(" ")}
-                    </p>
-                    {guidanceNeedsReview ? (
-                        <p className="rounded-[0.8rem] border border-amber-400/25 bg-amber-500/10 px-2.5 py-2 text-[10px] leading-5 text-amber-100">
-                            Task guidance telemetry is missing; guidance impact cannot be evaluated.
-                        </p>
-                    ) : null}
-                    <div className="grid grid-cols-2 gap-1.5 text-[10px] text-gray-400">
-                        <span>Stuck assigned: <span className="text-white">{formatCount(props.model.stuckAssignedCount)}</span></span>
-                        <span>Started open: <span className="text-white">{formatCount(props.model.startedNotCompletedCount)}</span></span>
-                        <span>Orphan starts: <span className="text-white">{formatCount(props.model.orphanStartedCount)}</span></span>
-                        <span>Orphan completions: <span className="text-white">{formatCount(props.model.orphanCompletedCount)}</span></span>
-                    </div>
-                    <div className="grid gap-1.5 text-[10px] text-gray-400 sm:grid-cols-3">
-                        <span>Active stuck assigned: <span className="text-white">{formatCount(props.model.stuckAssignedBreakdown.activeCurrentWindow)}</span></span>
-                        <span>Historical stuck assigned: <span className="text-white">{formatCount(props.model.stuckAssignedBreakdown.historicalUnstarted)}</span></span>
-                        <span>Expired unstarted: <span className="text-white">{formatCount(props.model.stuckAssignedBreakdown.expiredUnstarted)}</span></span>
-                    </div>
-                    <p className="text-[10px] leading-5 text-gray-500">
-                        {props.model.stuckAssignedBreakdown.explanation}
-                    </p>
-                </div>
+                ) : null}
 
-                <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
-                    <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="min-w-0">
-                            <p className="text-xs font-semibold text-white">Completion speed</p>
-                            <p className="mt-0.5 text-[11px] leading-4 text-gray-500">{props.model.timingRecommendation}</p>
-                        </div>
-                        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">{props.model.speedSource}</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-                        <SpeedTile label="Avg finish" value={formatSpeed(props.model.avgCompletionSeconds)} />
-                        <SpeedTile label="Median" value={formatSpeed(props.model.medianCompletionSeconds)} />
-                        <SpeedTile label="Timed" value={formatCount(props.model.timedCompletionCount)} />
-                        <SpeedTile label="Coverage" value={formatRate(props.model.timingCoveragePercent)} />
-                    </div>
-                    <div className="mt-2 space-y-1.5">
-                        {props.model.speedBuckets.map((bucket) => (
-                            <div key={bucket.bucketKey} className="grid grid-cols-[3.8rem_minmax(0,1fr)_2.8rem] items-center gap-2 text-[10px]">
-                                <span className="truncate text-gray-500">{bucket.label}</span>
-                                <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                                    <div className={`h-full rounded-full ${speedBarClass(bucket.label, bucket.count)}`} style={{ width: `${Math.max(4, Math.min(100, ((bucket.count ?? 0) / speedPeak) * 100))}%` }} />
-                                </div>
-                                <span className="text-right font-semibold text-gray-300">{formatCount(bucket.count)}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                {taskPipelineViewMode === "table" ? (
+                    <TaskLeaderboardPanel
+                        model={props.model}
+                        visibleRows={visibleRows}
+                        page={page}
+                        pageCount={pageCount}
+                        hasPagination={hasPagination}
+                        onPageChange={changePage}
+                        formatCount={formatCount}
+                        formatRate={formatRate}
+                        formatSpeed={formatSpeed}
+                        formatPercent={props.formatPercent}
+                    />
+                ) : null}
 
-                <TaskLeaderboardPanel
-                    model={props.model}
-                    visibleRows={visibleRows}
-                    page={page}
-                    pageCount={pageCount}
-                    hasPagination={hasPagination}
-                    onPageChange={changePage}
-                    formatCount={formatCount}
-                    formatRate={formatRate}
-                    formatSpeed={formatSpeed}
-                    formatPercent={props.formatPercent}
-                />
+                {taskPipelineViewMode !== "cards" ? (
+                    <div className="grid gap-1.5 rounded-[1rem] border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] text-gray-400 sm:grid-cols-2">
+                        <span>
+                            {staleSnapshotCopy}
+                        </span>
+                        {guidanceNeedsReview ? (
+                            <span className="text-amber-100">
+                                Task guidance telemetry is missing.
+                            </span>
+                        ) : (
+                            <span>
+                                Guidance source {props.model.guidanceTelemetryState}.
+                            </span>
+                        )}
+                    </div>
+                ) : null}
             </div>
         </SectionCard>
     );

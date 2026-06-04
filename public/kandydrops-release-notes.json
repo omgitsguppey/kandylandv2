@@ -1,11 +1,59 @@
 {
-  "currentVersion": "1.5.62",
-  "betaReleaseCounter": 562,
+  "currentVersion": "1.5.63",
+  "betaReleaseCounter": 563,
   "channel": "beta",
-  "generatedAt": "2026-06-04T02:18:06.050Z",
-  "generatedAtUtc": "2026-06-04T02:18:06.050Z",
-  "lastCommitSha": "0656aa2542d7ccce981f7f3f960508801d7a93e6",
+  "generatedAt": "2026-06-04T02:30:22.300Z",
+  "generatedAtUtc": "2026-06-04T02:30:22.300Z",
+  "lastCommitSha": "9dae7044f1fc6b9f2cd0415242fbd1dc1cb0ae55",
   "notes": [
+    {
+      "version": "1.5.63",
+      "previousVersion": "1.5.62",
+      "betaReleaseCounter": 563,
+      "previousBetaReleaseCounter": 562,
+      "commitSha": "9dae7044f1fc6b9f2cd0415242fbd1dc1cb0ae55",
+      "commitTitle": "fix(admin): add compact task pipeline modes",
+      "commitCount": 2,
+      "commitShas": [
+        "486e53f74c6483055f8603688a2d6e5dc7534a00",
+        "9dae7044f1fc6b9f2cd0415242fbd1dc1cb0ae55"
+      ],
+      "committedAt": "2026-06-04T02:30:06.000Z",
+      "generatedAt": "2026-06-04T02:30:22.298Z",
+      "committedAtUtc": "2026-06-04T02:30:06.000Z",
+      "generatedAtUtc": "2026-06-04T02:30:22.298Z",
+      "updatedAtUtc": "2026-06-04T02:30:22.298Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-operations-mobile.spec.ts",
+        "tests/unit/admin-daily-task-pipeline-mobile.spec.ts"
+      ],
+      "sourceCommit": "9dae7044f1fc6b9f2cd0415242fbd1dc1cb0ae55"
+    },
     {
       "version": "1.5.62",
       "previousVersion": "1.5.61",
@@ -1169,51 +1217,6 @@
         "tests/unit/admin-debug-summary-cards.spec.ts"
       ],
       "sourceCommit": "ce406145d6e36051dd979da2e0a8b8cadb271473"
-    },
-    {
-      "version": "1.5.38",
-      "previousVersion": "1.5.37",
-      "betaReleaseCounter": 538,
-      "previousBetaReleaseCounter": 537,
-      "commitSha": "19604704a1a8b87b28d6da8c13b6e833925004e7",
-      "commitTitle": "fix(admin): simplify debug control tower layout",
-      "commitCount": 1,
-      "commitShas": [
-        "19604704a1a8b87b28d6da8c13b6e833925004e7"
-      ],
-      "committedAt": "2026-06-03T20:12:28.000Z",
-      "generatedAt": "2026-06-03T21:06:13.926Z",
-      "committedAtUtc": "2026-06-03T20:12:28.000Z",
-      "generatedAtUtc": "2026-06-03T21:06:13.926Z",
-      "updatedAtUtc": "2026-06-03T21:06:13.926Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/debug-panel-output-triage.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/debug/components/DebugControlTower.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "sourceCommit": "19604704a1a8b87b28d6da8c13b6e833925004e7"
     }
   ]
 }
