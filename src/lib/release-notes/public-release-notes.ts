@@ -1,13 +1,59 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.50",
-  "betaReleaseCounter": 550,
+  "currentVersion": "1.5.51",
+  "betaReleaseCounter": 551,
   "channel": "beta",
-  "generatedAt": "2026-06-03T23:52:29.434Z",
-  "generatedAtUtc": "2026-06-03T23:52:29.434Z",
-  "lastCommitSha": "89f8ee2b07fdb057f8ecefb96d2140c35e7e071c",
+  "generatedAt": "2026-06-04T00:02:17.223Z",
+  "generatedAtUtc": "2026-06-04T00:02:17.223Z",
+  "lastCommitSha": "2a2375c01b0d3f570b793a5cba98a651eb7b3633",
   "notes": [
+    {
+      "version": "1.5.51",
+      "previousVersion": "1.5.50",
+      "betaReleaseCounter": 551,
+      "previousBetaReleaseCounter": 550,
+      "commitSha": "2a2375c01b0d3f570b793a5cba98a651eb7b3633",
+      "commitTitle": "fix(admin): add compact package performance analytics modes",
+      "commitCount": 2,
+      "commitShas": [
+        "5372621b09aff5ae82aa7e963d09df32b6660662",
+        "2a2375c01b0d3f570b793a5cba98a651eb7b3633"
+      ],
+      "committedAt": "2026-06-04T00:02:02.000Z",
+      "generatedAt": "2026-06-04T00:02:17.221Z",
+      "committedAtUtc": "2026-06-04T00:02:02.000Z",
+      "generatedAtUtc": "2026-06-04T00:02:17.221Z",
+      "updatedAtUtc": "2026-06-04T00:02:17.221Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-commerce-mobile.spec.ts"
+      ],
+      "sourceCommit": "2a2375c01b0d3f570b793a5cba98a651eb7b3633"
+    },
     {
       "version": "1.5.50",
       "previousVersion": "1.5.49",
@@ -1460,62 +1506,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts"
       ],
       "effectiveChangeCount": 3,
-      "excludedGeneratedChangeCount": 4,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.5.26",
-      "previousVersion": "1.5.25",
-      "betaReleaseCounter": 526,
-      "previousBetaReleaseCounter": 525,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "refactor(beta): consolidate analytics panel truth",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-31T04:05:00.000Z",
-      "generatedAt": "2026-05-31T04:05:00.000Z",
-      "committedAtUtc": "2026-05-31T04:05:00.000Z",
-      "generatedAtUtc": "2026-05-31T04:05:00.000Z",
-      "category": "Internal Reliability",
-      "title": "Analytics panel truth cleanup",
-      "updatedAtUtc": "2026-05-31T04:05:00.000Z",
-      "summary": "Reconnected admin analytics panel hydration to canonical event and person metric sources while keeping runtime, provider, and billing proof separate.",
-      "userFacingTitle": "Clearer Beta analytics status",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Reclassified analytics panels so wired-but-unobserved metrics no longer appear as missing source.",
-        "Kept provider, runtime, billing, and payment proof separate from source-only telemetry checks.",
-        "Preserved missing data as collecting, expected-unobserved, source-ready, or manual-required instead of showing fake zeroes."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Separated wired-but-waiting panels from unobserved, manual, and provider-gated evidence states.",
-        "Connected panel hydration to the canonical event translation bridge and person metrics hydration reports.",
-        "Did not change payment, wallet, PayPal, GumDrop math, pricing, package amounts, or runtime routes."
-      ],
-      "affectedSurfaces": [
-        "Admin analytics panels",
-        "Event translation bridge",
-        "Person metrics hydration",
-        "Beta score diagnostics"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/admin-analytics/panel-hydration-contract.ts",
-        "src/lib/admin-analytics/panel-hydration-resolver.ts",
-        "scripts/agent/validate-analytics-panel-hydration.ts",
-        "tests/unit/analytics-panel-hydration.spec.ts",
-        "agent/state/analytics-panel-hydration.generated.json",
-        "docs/agent-truth/analytics-panel-hydration.md",
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "effectiveChangeCount": 6,
       "excludedGeneratedChangeCount": 4,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"

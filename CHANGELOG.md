@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.51 - 2026-06-04
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+
 ## 1.5.50 - 2026-06-03
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
@@ -145,9 +151,3 @@ Showing the last 25 public updates in pages of 5.
 - Updated Beta cost readiness so current source cost guard checks are counted accurately.
 - Kept Cloud Run, Cloud SQL/Data Connect, Gemini/Vertex, and billing proof as owner-review requirements.
 - Preserved the rule that source cost guards do not prove external billing savings.
-
-## 1.5.26 - 2026-05-31
-- Analytics panel truth cleanup
-- Reclassified analytics panels so wired-but-unobserved metrics no longer appear as missing source.
-- Kept provider, runtime, billing, and payment proof separate from source-only telemetry checks.
-- Preserved missing data as collecting, expected-unobserved, source-ready, or manual-required instead of showing fake zeroes.

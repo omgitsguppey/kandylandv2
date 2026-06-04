@@ -99,9 +99,18 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     checkoutConversionLabel: commerceConversionLabel,
   });
   const [contentConversionGrouping, setContentConversionGrouping] = React.useState<"contentType" | "flavor" | "creator" | "priceBand">("contentType");
+  const [packagePerformanceViewMode, setPackagePerformanceViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [contentConversionViewMode, setContentConversionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [topDropConversionViewMode, setTopDropConversionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [viewerDropViewMode, setViewerDropViewMode] = React.useState<AnalyticsViewMode>("cards");
+  const packagePerformanceRows = packagePerformancePanelState?.rows ?? [];
+  const packagePerformanceChartRows = packagePerformanceRows.map((row: any) => ({
+    ...row,
+    chartLabel:
+      row.packageLabel && row.packageLabel.length > 14
+        ? `${row.packageLabel.slice(0, 14)}...`
+        : row.packageLabel || row.packageId,
+  }));
   const contentConversionRows = contentConversionModel.rowsByDimension[contentConversionGrouping] ?? [];
   const contentConversionVisibleRows = contentConversionRows.slice(0, 8);
   const contentConversionChartRows = contentConversionVisibleRows.map((row) => ({
@@ -340,9 +349,28 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 title="Package Performance"
                 subtitle="Which Gum Drop packs earn starts, purchases, and drop-off."
                 icon={Wallet}
-                rightSlot={renderSectionRangeControl("packagePerformance")}
+                rightSlot={(
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AnalyticsViewModeToggle
+                      value={packagePerformanceViewMode}
+                      onChange={setPackagePerformanceViewMode}
+                      options={[
+                        { id: "cards", label: "Cards" },
+                        { id: "chart", label: "Chart" },
+                        { id: "table", label: "Table" },
+                      ]}
+                    />
+                    {renderSectionRangeControl("packagePerformance")}
+                  </div>
+                )}
               >
-                <div className="mb-3 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-4">
+                <div
+                  className="space-y-3"
+                  data-admin-analytics-mobile-view-mode={packagePerformanceViewMode}
+                  data-package-performance-source-state={packagePerformancePanelState?.sourceState ?? "unknown"}
+                  data-package-performance-range={packagePerformancePanelState?.range ?? packagePerformanceRange}
+                >
+                <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-4">
                   <div>
                     <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Range</div>
                     <div className="font-semibold text-white">{packagePerformancePanelState?.range ?? packagePerformanceRange}</div>
@@ -366,73 +394,105 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 </div>
 
                 {packagePerformancePanelState?.warnings?.length ? (
-                  <div className="mb-3 rounded-[1rem] border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] leading-5 text-amber-100">
+                  <div className="rounded-[1rem] border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] leading-5 text-amber-100">
                     {packagePerformancePanelState.warnings.join(" ")}
                   </div>
                 ) : null}
 
-                {packagePerformancePanelState && packagePerformancePanelState.rows.length > 0 ? (
+                {packagePerformancePanelState && packagePerformanceRows.length > 0 ? (
                   <div className="space-y-2">
-                    <div className="hidden grid-cols-[minmax(0,1.8fr)_0.8fr_0.8fr_0.8fr_0.9fr_1fr_1fr_0.9fr] gap-2 px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
-                      <div>Package</div>
-                      <div>Price</div>
-                      <div>Starts</div>
-                      <div>Purch.</div>
-                      <div>Conv.</div>
-                      <div>Revenue</div>
-                      <div>GD issued</div>
-                      <div>State</div>
-                    </div>
-                    {packagePerformancePanelState.rows.map((row: any) => (
-                      <div
-                        key={row.packageId}
-                        className="rounded-[1rem] border border-white/10 bg-black/30 px-3 py-3"
-                        data-package-performance-id={row.packageId}
-                        data-package-performance-state={row.performanceState}
-                        data-package-performance-source={row.sourceTruth}
-                      >
-                        <div className="md:hidden">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-white">{row.packageLabel}</p>
-                              <p className="text-[11px] text-gray-500">{row.packageId}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm font-semibold text-brand-purple">
-                                {row.conversionRatePct === null ? "Partial" : `${Math.round(row.conversionRatePct)}%`}
-                              </p>
-                              <p className="text-[11px] text-gray-500">{row.performanceState}</p>
-                            </div>
-                          </div>
-                          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-300">
-                            <span>{row.priceUsd === null ? "No price" : formatMoney(row.priceUsd)}</span>
-                            <span>{row.checkoutStarts} starts</span>
-                            <span>{row.completedPurchases} purchases</span>
-                            <span>{formatMoney(row.revenueUsd)} revenue</span>
-                            <span>{row.paidGdIssued + row.bonusGdIssued} GD issued</span>
-                          </div>
-                          <p className="mt-2 text-[11px] leading-5 text-gray-400">{row.explanation}</p>
-                        </div>
-
-                        <div className="hidden md:grid md:grid-cols-[minmax(0,1.8fr)_0.8fr_0.8fr_0.8fr_0.9fr_1fr_1fr_0.9fr] md:items-start md:gap-2">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">{row.packageLabel}</p>
-                            <p className="truncate text-[11px] text-gray-500">
-                              {row.packageId} | {row.sourceTruth} | {row.effectiveUsdPer100Gd === null ? "No effective rate" : `${formatMoney(row.effectiveUsdPer100Gd)} / 100 GD`}
-                            </p>
-                          </div>
-                          <div className="text-sm text-white">{row.priceUsd === null ? "N/A" : formatMoney(row.priceUsd)}</div>
-                          <div className="text-sm text-white">{row.checkoutStarts}</div>
-                          <div className="text-sm text-white">{row.completedPurchases}</div>
-                          <div className="text-sm text-white">
-                            {row.conversionRatePct === null ? "Unavailable" : `${Math.round(row.conversionRatePct)}%`}
-                          </div>
-                          <div className="text-sm text-white">{formatMoney(row.revenueUsd)}</div>
-                          <div className="text-sm text-white">{row.paidGdIssued + row.bonusGdIssued}</div>
-                          <div className="text-sm text-white">{row.performanceState}</div>
-                        </div>
+                    {packagePerformanceViewMode === "chart" ? (
+                      <div className="h-72 w-full rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={packagePerformanceChartRows} margin={{ top: 8, right: 8, left: -18, bottom: 36 }}>
+                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                            <XAxis dataKey="chartLabel" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={58} />
+                            <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                            <Tooltip content={<AnalyticsTooltip />} />
+                            <Bar dataKey="checkoutStarts" name="Starts" fill="#22d3ee" radius={[10, 10, 0, 0]} />
+                            <Bar dataKey="completedPurchases" name="Purchases" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
                       </div>
-                    ))}
+                    ) : null}
+
+                    {packagePerformanceViewMode === "table" ? (
+                      <div
+                        className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                        data-package-performance-table="compact"
+                      >
+                        <table className="min-w-full text-left text-xs">
+                          <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.14em] text-gray-500">
+                            <tr>
+                              <th className="px-3 py-2 font-semibold">Package</th>
+                              <th className="px-3 py-2 font-semibold">Price</th>
+                              <th className="px-3 py-2 font-semibold">Starts</th>
+                              <th className="px-3 py-2 font-semibold">Purch.</th>
+                              <th className="px-3 py-2 font-semibold">Conv.</th>
+                              <th className="px-3 py-2 font-semibold">Revenue</th>
+                              <th className="px-3 py-2 font-semibold">GD issued</th>
+                              <th className="px-3 py-2 font-semibold">State</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/10 text-gray-300">
+                            {packagePerformanceRows.map((row: any) => (
+                              <tr
+                                key={`package-performance-table-${row.packageId}`}
+                                data-package-performance-id={row.packageId}
+                                data-package-performance-state={row.performanceState}
+                                data-package-performance-source={row.sourceTruth}
+                              >
+                                <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-white" title={`${row.packageId} | ${row.sourceTruth}`}>
+                                  {row.packageLabel}
+                                </td>
+                                <td className="px-3 py-2">{row.priceUsd === null ? "N/A" : formatMoney(row.priceUsd)}</td>
+                                <td className="px-3 py-2">{row.checkoutStarts}</td>
+                                <td className="px-3 py-2">{row.completedPurchases}</td>
+                                <td className="px-3 py-2">{row.conversionRatePct === null ? "Unavailable" : `${Math.round(row.conversionRatePct)}%`}</td>
+                                <td className="px-3 py-2">{formatMoney(row.revenueUsd)}</td>
+                                <td className="px-3 py-2">{row.paidGdIssued + row.bonusGdIssued}</td>
+                                <td className="px-3 py-2">{row.performanceState}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : null}
+
+                    {packagePerformanceViewMode === "cards" ? (
+                      <div className="space-y-2">
+                        {packagePerformanceRows.map((row: any) => (
+                          <div
+                            key={row.packageId}
+                            className="rounded-[1rem] border border-white/10 bg-black/30 px-3 py-3"
+                            data-package-performance-id={row.packageId}
+                            data-package-performance-state={row.performanceState}
+                            data-package-performance-source={row.sourceTruth}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-semibold text-white">{row.packageLabel}</p>
+                                <p className="text-[11px] text-gray-500">{row.packageId}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-semibold text-brand-purple">
+                                  {row.conversionRatePct === null ? "Partial" : `${Math.round(row.conversionRatePct)}%`}
+                                </p>
+                                <p className="text-[11px] text-gray-500">{row.performanceState}</p>
+                              </div>
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-300">
+                              <span>{row.priceUsd === null ? "No price" : formatMoney(row.priceUsd)}</span>
+                              <span>{row.checkoutStarts} starts</span>
+                              <span>{row.completedPurchases} purchases</span>
+                              <span>{formatMoney(row.revenueUsd)} revenue</span>
+                              <span>{row.paidGdIssued + row.bonusGdIssued} GD issued</span>
+                            </div>
+                            <p className="mt-2 text-[11px] leading-5 text-gray-400">{row.explanation}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 ) : (
                   <div className="rounded-[1rem] border border-white/10 bg-black/25 px-4 py-4 text-sm text-gray-300">
@@ -441,6 +501,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                       : "Package config exists, but no package-specific checkout or purchase data was observed in this range."}
                   </div>
                 )}
+                </div>
               </SectionCard>
 
               <SectionCard
