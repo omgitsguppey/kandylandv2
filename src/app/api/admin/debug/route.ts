@@ -2596,9 +2596,17 @@ function buildRolloutRegistryPanelState(input: {
 
     const registryStatus = buildExperimentRolloutRegistryStatus({
         configuredCount: rolloutItems.length,
-        activeCount: rolloutItems.filter((item) => item.effectiveState === "active_experiment").length,
-        completedCount: rolloutItems.filter((item) => item.effectiveState === "fully_rolled_out" || item.effectiveState === "baseline").length,
-        betaRelatedCount: rolloutItems.filter((item) => item.stage === "beta").length,
+        ...(() => {
+            let activeCount = 0;
+            let completedCount = 0;
+            let betaRelatedCount = 0;
+            for (const item of rolloutItems) {
+                if (item.effectiveState === "active_experiment") activeCount++;
+                if (item.effectiveState === "fully_rolled_out" || item.effectiveState === "baseline") completedCount++;
+                if (item.stage === "beta") betaRelatedCount++;
+            }
+            return { activeCount, completedCount, betaRelatedCount };
+        })(),
         actorResolutionStatus: actorRows.length > 0 ? "live" : "missing",
         assignmentSource: "src/lib/rollouts.ts representative evaluation",
         exposureEventSource: rolloutItems.some((item) => item.effectiveState === "active_experiment") ? "analytics exposure events required for active experiments" : "not_required_without_active_experiment",
@@ -2635,11 +2643,21 @@ function buildRolloutRegistryPanelState(input: {
         summary: {
             configuredRollouts: rolloutItems.length,
             sampleActors: actorRows.length,
-            activeExperiments: rolloutItems.filter((item) => item.effectiveState === "active_experiment").length,
-            fullyRolledOutFeatures: rolloutItems.filter((item) => item.effectiveState === "fully_rolled_out" || item.effectiveState === "baseline").length,
-            internalFeatures: rolloutItems.filter((item) => item.effectiveState === "internal_feature").length,
-            killSwitchReady: rolloutItems.filter((item) => item.killSwitchReady).length,
-            staleRollouts: rolloutItems.filter((item) => item.stage === "alpha" && currentTrainFreshnessState === "historical").length,
+            ...(() => {
+                let activeExperiments = 0;
+                let fullyRolledOutFeatures = 0;
+                let internalFeatures = 0;
+                let killSwitchReady = 0;
+                let staleRollouts = 0;
+                for (const item of rolloutItems) {
+                    if (item.effectiveState === "active_experiment") activeExperiments++;
+                    if (item.effectiveState === "fully_rolled_out" || item.effectiveState === "baseline") fullyRolledOutFeatures++;
+                    if (item.effectiveState === "internal_feature") internalFeatures++;
+                    if (item.killSwitchReady) killSwitchReady++;
+                    if (item.stage === "alpha" && currentTrainFreshnessState === "historical") staleRollouts++;
+                }
+                return { activeExperiments, fullyRolledOutFeatures, internalFeatures, killSwitchReady, staleRollouts };
+            })(),
         },
         rollouts: rolloutItems,
         actorEvaluation,
@@ -5129,20 +5147,32 @@ export async function GET(request: NextRequest) {
                 && toNumber(entry.timestampMs) >= weekAgoMs;
         });
 
-        const creatorSpendParity = {
-            trackedTransactions: creatorSpendTransactions7d.length,
-            totalPurchasedSpent: creatorSpendTransactions7d.reduce((sum, entry) => sum + toNumber(entry.purchasedAmountSpent), 0),
-            totalRewardSpent: creatorSpendTransactions7d.reduce((sum, entry) => sum + toNumber(entry.rewardAmountSpent), 0),
-            missingLedgerSourceCount: creatorSpendTransactions7d.filter((entry) => !toStringValue(entry.ledgerSource)).length,
-            restrictedSpendViolationCount: creatorSpendTransactions7d.filter((entry) => toNumber(entry.rewardAmountSpent) > 0 || toStringValue(entry.ledgerSource) === "reward" || toStringValue(entry.ledgerSource) === "mixed").length,
-            amountMismatchCount: creatorSpendTransactions7d.filter((entry) => {
-                const spendTotal = toNumber(entry.purchasedAmountSpent) + toNumber(entry.rewardAmountSpent);
-                return spendTotal > 0 && spendTotal !== Math.abs(toNumber(entry.amount));
-            }).length,
-            missingCreatorAccrualCount: creatorSpendTransactions7d.filter((entry) => !toStringValue(entry.creatorAccrualId)).length,
-            byType: Array.from(creatorSpendTransactions7d.reduce((map, entry) => {
+        const _creatorSpendStats = (() => {
+            let totalPurchasedSpent = 0;
+            let totalRewardSpent = 0;
+            let missingLedgerSourceCount = 0;
+            let restrictedSpendViolationCount = 0;
+            let amountMismatchCount = 0;
+            let missingCreatorAccrualCount = 0;
+            const byTypeMap = new Map<string, { type: string; label: string; count: number; purchasedSpent: number; rewardSpent: number }>();
+
+            for (const entry of creatorSpendTransactions7d) {
+                const purchasedAmountSpent = toNumber(entry.purchasedAmountSpent);
+                const rewardAmountSpent = toNumber(entry.rewardAmountSpent);
+                const spendTotal = purchasedAmountSpent + rewardAmountSpent;
+                const ledgerSource = toStringValue(entry.ledgerSource);
+                const entryAmount = Math.abs(toNumber(entry.amount));
+
+                totalPurchasedSpent += purchasedAmountSpent;
+                totalRewardSpent += rewardAmountSpent;
+
+                if (!ledgerSource) missingLedgerSourceCount++;
+                if (rewardAmountSpent > 0 || ledgerSource === "reward" || ledgerSource === "mixed") restrictedSpendViolationCount++;
+                if (spendTotal > 0 && spendTotal !== entryAmount) amountMismatchCount++;
+                if (!toStringValue(entry.creatorAccrualId)) missingCreatorAccrualCount++;
+
                 const key = toStringValue(entry.type) || "unknown";
-                const current = map.get(key) || {
+                const current = byTypeMap.get(key) || {
                     type: key,
                     label: getTransactionBadgeLabel({
                         type: key as Parameters<typeof getTransactionBadgeLabel>[0]["type"],
@@ -5153,12 +5183,25 @@ export async function GET(request: NextRequest) {
                     rewardSpent: 0,
                 };
                 current.count += 1;
-                current.purchasedSpent += toNumber(entry.purchasedAmountSpent);
-                current.rewardSpent += toNumber(entry.rewardAmountSpent);
-                map.set(key, current);
-                return map;
-            }, new Map<string, { type: string; label: string; count: number; purchasedSpent: number; rewardSpent: number }>()).values())
-                .sort((left, right) => right.count - left.count),
+                current.purchasedSpent += purchasedAmountSpent;
+                current.rewardSpent += rewardAmountSpent;
+                byTypeMap.set(key, current);
+            }
+
+            return {
+                trackedTransactions: creatorSpendTransactions7d.length,
+                totalPurchasedSpent,
+                totalRewardSpent,
+                missingLedgerSourceCount,
+                restrictedSpendViolationCount,
+                amountMismatchCount,
+                missingCreatorAccrualCount,
+                byType: Array.from(byTypeMap.values()).sort((left, right) => right.count - left.count),
+            };
+        })();
+
+        const creatorSpendParity = {
+            ..._creatorSpendStats,
             policies: Object.entries(CREATOR_SPEND_POLICIES).map(([key, policy]) => ({
                 key,
                 label: policy.label,
@@ -5752,15 +5795,45 @@ export async function GET(request: NextRequest) {
                     ? "review"
                     : "live",
         };
+        const _taskTelemetryStats = (() => {
+            let taskTriggerReadyCount = 0;
+            let taskTriggerPartialCount = 0;
+            let taskTriggerMissingCount = 0;
+            let lifecycleEventCount = 0;
+            let supportingTelemetryCount = 0;
+
+            for (const row of taskTelemetryMappingRows) {
+                if (row.eventPurpose === "task_trigger") {
+                    if (row.mappingState === "ready") taskTriggerReadyCount++;
+                    else if (row.mappingState === "needs_criteria" || row.mappingState === "shared_receipts") taskTriggerPartialCount++;
+                    else if (row.mappingState === "needs_task_mapping") taskTriggerMissingCount++;
+                } else if (row.eventPurpose === "task_lifecycle") {
+                    lifecycleEventCount++;
+                }
+
+                if (row.mappingState === "supporting_not_task") {
+                    supportingTelemetryCount++;
+                }
+            }
+
+            return {
+                taskTriggerReadyCount,
+                taskTriggerPartialCount,
+                taskTriggerMissingCount,
+                lifecycleEventCount,
+                supportingTelemetryCount,
+            };
+        })();
+
         const taskTelemetryMappingSummary: TaskTelemetryMappingSummary = {
             sourceStatus: buildTaskTelemetryMappingReconstruction({
                 catalogEventCount: new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName)).size,
                 mappingRowCount: taskTelemetryMappingRows.length,
-                taskTriggerReadyCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "ready").length,
-                taskTriggerPartialCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && (row.mappingState === "needs_criteria" || row.mappingState === "shared_receipts")).length,
-                taskTriggerMissingCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "needs_task_mapping").length,
-                lifecycleEventCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_lifecycle").length,
-                supportingTelemetryCount: taskTelemetryMappingRows.filter((row) => row.mappingState === "supporting_not_task").length,
+                taskTriggerReadyCount: _taskTelemetryStats.taskTriggerReadyCount,
+                taskTriggerPartialCount: _taskTelemetryStats.taskTriggerPartialCount,
+                taskTriggerMissingCount: _taskTelemetryStats.taskTriggerMissingCount,
+                lifecycleEventCount: _taskTelemetryStats.lifecycleEventCount,
+                supportingTelemetryCount: _taskTelemetryStats.supportingTelemetryCount,
                 sharedEventsNeedingCriteria: sharedEventGroups.filter((group) => group.ambiguityState !== "safe_with_criteria").length,
                 unsupportedRuntimeCount: unsupportedRuntimeGroups.reduce((sum, group) => sum + group.count, 0),
                 taskActivityLifecycleSamples: completedEvents7d.length + recentTaskEvents.length,
@@ -5778,11 +5851,11 @@ export async function GET(request: NextRequest) {
             unsupportedActiveAssignments: unsupportedRuntimeGroups
                 .filter((group) => group.source === "assignment" && (group.activityScope === "active" || group.activityScope === "mixed"))
                 .reduce((sum, group) => sum + group.count, 0),
-            taskTriggerReadyCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "ready").length,
-            taskTriggerPartialCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && (row.mappingState === "needs_criteria" || row.mappingState === "shared_receipts")).length,
-            taskTriggerMissingCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "needs_task_mapping").length,
-            lifecycleExpectedCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_lifecycle").length,
-            supportingTelemetryCount: taskTelemetryMappingRows.filter((row) => row.mappingState === "supporting_not_task").length,
+            taskTriggerReadyCount: _taskTelemetryStats.taskTriggerReadyCount,
+            taskTriggerPartialCount: _taskTelemetryStats.taskTriggerPartialCount,
+            taskTriggerMissingCount: _taskTelemetryStats.taskTriggerMissingCount,
+            lifecycleExpectedCount: _taskTelemetryStats.lifecycleEventCount,
+            supportingTelemetryCount: _taskTelemetryStats.supportingTelemetryCount,
             sharedEventGroups,
             receiptMappingGroups,
             unsupportedRuntimeGroups,
