@@ -17,6 +17,7 @@ import { buildDeterministicCreatorRecommendations } from "@/lib/server/behaviora
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { mapWithConcurrency } from "@/lib/server/bounded-concurrency";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 import {
     CREATOR_RELATIONSHIP_DEBUG_LANE,
     buildCreatorRelationshipTelemetryPayload,
@@ -533,6 +534,8 @@ export async function POST(request: NextRequest) {
                 followerCount,
                 action,
             });
+
+            await touchUserRuntime(caller.uid, { activity: true, profile: true }).catch(() => null);
         }
 
         return finalize(NextResponse.json({

@@ -11,6 +11,7 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 
 const USER_FOLLOW_BODY_LIMIT_BYTES = 32_768;
 
@@ -93,6 +94,8 @@ async function POST_handler(request: NextRequest) {
             creator_display_name: typeof targetData.displayName === "string" ? targetData.displayName : "Creator",
             transaction_id: `${userId}:${targetUserId}:${action}`,
         }, userId).catch(() => null);
+
+        await touchUserRuntime(userId, { activity: true, profile: true }).catch(() => null);
 
         return NextResponse.json({ success: true, action });
     } catch (error) {
