@@ -1,11 +1,59 @@
 {
-  "currentVersion": "1.5.56",
-  "betaReleaseCounter": 556,
+  "currentVersion": "1.5.57",
+  "betaReleaseCounter": 557,
   "channel": "beta",
-  "generatedAt": "2026-06-04T01:06:08.238Z",
-  "generatedAtUtc": "2026-06-04T01:06:08.238Z",
-  "lastCommitSha": "9425b0663b79381f201d2989c17eaf07a8c48a6a",
+  "generatedAt": "2026-06-04T01:17:19.237Z",
+  "generatedAtUtc": "2026-06-04T01:17:19.237Z",
+  "lastCommitSha": "44b3c2caa7dccab8aa18692bfb06b80f85d736a5",
   "notes": [
+    {
+      "version": "1.5.57",
+      "previousVersion": "1.5.56",
+      "betaReleaseCounter": 557,
+      "previousBetaReleaseCounter": 556,
+      "commitSha": "44b3c2caa7dccab8aa18692bfb06b80f85d736a5",
+      "commitTitle": "fix(admin): add compact auth outcome modes",
+      "commitCount": 2,
+      "commitShas": [
+        "a67099557fc178d7e56aabcded629aac91b3a7db",
+        "44b3c2caa7dccab8aa18692bfb06b80f85d736a5"
+      ],
+      "committedAt": "2026-06-04T01:17:04.000Z",
+      "generatedAt": "2026-06-04T01:17:19.235Z",
+      "committedAtUtc": "2026-06-04T01:17:04.000Z",
+      "generatedAtUtc": "2026-06-04T01:17:19.235Z",
+      "updatedAtUtc": "2026-06-04T01:17:19.235Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-audience-mobile.spec.ts",
+        "tests/unit/admin-analytics-operations-mobile.spec.ts"
+      ],
+      "sourceCommit": "44b3c2caa7dccab8aa18692bfb06b80f85d736a5"
+    },
     {
       "version": "1.5.56",
       "previousVersion": "1.5.55",
@@ -1245,72 +1293,6 @@
         "tests/unit/surface-telemetry-parity.spec.ts"
       ],
       "sourceCommit": "fa8ebb98f302fc0584a2e9fd00d25b033fce500c"
-    },
-    {
-      "version": "1.5.32",
-      "previousVersion": "1.5.31",
-      "betaReleaseCounter": 532,
-      "previousBetaReleaseCounter": 531,
-      "commitSha": "909832bd7b6b912762a0dd3dd1f59033fe5cf986",
-      "commitTitle": "chore(beta): refresh security closure truth",
-      "commitCount": 2,
-      "commitShas": [
-        "d2f8ab1063d6f2b11387b38ca07603a59b77a12e",
-        "909832bd7b6b912762a0dd3dd1f59033fe5cf986"
-      ],
-      "committedAt": "2026-06-01T18:51:57.000Z",
-      "generatedAt": "2026-06-02T16:33:47.124Z",
-      "committedAtUtc": "2026-06-01T18:51:57.000Z",
-      "generatedAtUtc": "2026-06-02T16:33:47.124Z",
-      "updatedAtUtc": "2026-06-02T16:33:47.124Z",
-      "category": "Security",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "creator",
-        "drops-viewer",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/final-open-pr-closure.generated.json",
-        "agent/state/open-pr-dependency-hygiene.generated.json",
-        "agent/state/overnight-beta-readiness-lock.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/security-prng-redirect-closure.generated.json",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/final-open-pr-closure.md",
-        "docs/agent-truth/open-pr-dependency-hygiene.md",
-        "docs/agent-truth/overnight-beta-readiness-lock.md",
-        "docs/agent-truth/security-prng-redirect-closure.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/lib/admin-drop-form.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/release-readiness/final-beta-exit-closure.ts",
-        "src/lib/server/drop-mutations.ts",
-        "tests/unit/admin-cms-workflow.spec.ts",
-        "tests/unit/admin-drop-form.spec.ts",
-        "tests/unit/creator-settings-source-health.spec.ts",
-        "tests/unit/final-open-pr-closure.spec.ts"
-      ],
-      "sourceCommit": "909832bd7b6b912762a0dd3dd1f59033fe5cf986"
     }
   ]
 }

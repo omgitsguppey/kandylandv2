@@ -9,6 +9,19 @@ const source = readFileSync(
 );
 
 describe("Admin analytics operations mobile consolidation", () => {
+  it("renders Auth Outcomes as one compact mobile view mode at a time", () => {
+    expect(source).toContain("authOutcomeViewMode");
+    expect(source).toContain("setAuthOutcomeViewMode");
+    expect(source).toContain("data-admin-analytics-mobile-view-mode={authOutcomeViewMode}");
+    expect(source).toContain('data-auth-outcomes-table="compact"');
+    expect(source).toContain('data-auth-outcomes-chart="compact"');
+    expect(source).toContain("data-auth-outcomes-hydration-state={authOutcomeModel.hydrationState}");
+    expect(source).toContain("data-auth-outcomes-measurement-mode={authOutcomeModel.measurementMode}");
+    expect(source).toContain('authOutcomeViewMode === "chart"');
+    expect(source).toContain('authOutcomeViewMode === "table"');
+    expect(source).toContain('authOutcomeViewMode === "cards"');
+  });
+
   it("renders Event Mix as one compact mobile view mode at a time", () => {
     expect(source).toContain("eventMixViewMode");
     expect(source).toContain("setEventMixViewMode");

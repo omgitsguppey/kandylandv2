@@ -73,6 +73,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const compactLiveMetricClass = "rounded-[1rem] p-2 min-h-[4.75rem]";
   const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";
   const [eventMixViewMode, setEventMixViewMode] = React.useState<AnalyticsViewMode>("cards");
+  const [authOutcomeViewMode, setAuthOutcomeViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [liveInteractionViewMode, setLiveInteractionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
   const mobileVisibleLiveSurfaces = livePulseModel.surfaces.slice(0, livePulseModel.mobileSurfaceRowsLimit);
@@ -174,6 +175,17 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     group.attempts === null
       ? "No tracked attempts"
       : `${formatCompactNumber(group.failures ?? 0)} failed · ${formatCompactNumber(group.successes ?? 0)} succeeded`;
+  const authMethodChartRows = authOutcomeModel.methodBreakdown.map((item) => ({
+    ...item,
+    chartLabel:
+      item.visibleLabel.length > 14
+        ? `${item.visibleLabel.slice(0, 14)}...`
+        : item.visibleLabel,
+    attemptsValue: item.attempts ?? 0,
+    successesValue: item.successes ?? 0,
+    failuresValue: item.failures ?? 0,
+    unfinishedValue: item.unfinished ?? 0,
+  }));
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -699,7 +711,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 subtitle="Source-truthed auth attempts, lifecycle outcomes, and finish timing."
                 icon={Users}
                 density="compact"
-                rightSlot={renderSectionRangeControl("authOutcomeSplit")}
+                rightSlot={(
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AnalyticsViewModeToggle
+                      value={authOutcomeViewMode}
+                      onChange={setAuthOutcomeViewMode}
+                      options={[
+                        { id: "cards", label: "Cards" },
+                        { id: "chart", label: "Chart" },
+                        { id: "table", label: "Table" },
+                      ]}
+                    />
+                    {renderSectionRangeControl("authOutcomeSplit")}
+                  </div>
+                )}
               >
                 <div
                   className="mb-2 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-4 text-gray-300 md:flex-row md:items-center md:justify-between"
@@ -750,7 +775,107 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     </p>
                   </div>
                 ) : (
-                  <>
+                  <div
+                    className="space-y-2"
+                    data-admin-analytics-mobile-view-mode={authOutcomeViewMode}
+                    data-auth-outcomes-hydration-state={authOutcomeModel.hydrationState}
+                    data-auth-outcomes-measurement-mode={authOutcomeModel.measurementMode}
+                    data-auth-outcomes-source-state={authCanRenderDetails ? "loaded" : "no_sample"}
+                  >
+                    {authOutcomeViewMode === "chart" ? (
+                      <div
+                        className="h-56 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                        data-auth-outcomes-chart="compact"
+                        data-auth-outcomes-hydration-state={authOutcomeModel.hydrationState}
+                        data-auth-outcomes-measurement-mode={authOutcomeModel.measurementMode}
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={authMethodChartRows} margin={{ top: 4, right: 0, left: -22, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="authOutcomeSuccessFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#b28cff" stopOpacity={0.32} />
+                                <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
+                              </linearGradient>
+                              <linearGradient id="authOutcomeFailureFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#fb7185" stopOpacity={0.28} />
+                                <stop offset="95%" stopColor="#fb7185" stopOpacity={0} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                            <XAxis
+                              dataKey="chartLabel"
+                              stroke="#6b7280"
+                              fontSize={10}
+                              tickLine={false}
+                              axisLine={false}
+                              interval={0}
+                              angle={-18}
+                              textAnchor="end"
+                              height={52}
+                            />
+                            <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                            <Tooltip content={<AnalyticsTooltip />} />
+                            <Area type="monotone" dataKey="successesValue" name="Successes" stroke="#b28cff" strokeWidth={2} fill="url(#authOutcomeSuccessFill)" />
+                            <Area type="monotone" dataKey="failuresValue" name="Failures" stroke="#fb7185" strokeWidth={2} fill="url(#authOutcomeFailureFill)" />
+                            <Area type="monotone" dataKey="unfinishedValue" name="Unfinished" stroke="#64748b" strokeWidth={2} fill="transparent" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : null}
+
+                    {authOutcomeViewMode === "table" ? (
+                      <div
+                        className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                        data-auth-outcomes-table="compact"
+                        data-auth-outcomes-hydration-state={authOutcomeModel.hydrationState}
+                        data-auth-outcomes-measurement-mode={authOutcomeModel.measurementMode}
+                      >
+                        <table className="min-w-full text-left text-xs">
+                          <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                            <tr>
+                              <th className="px-3 py-2 font-semibold">Method</th>
+                              <th className="px-3 py-2 font-semibold">Attempts</th>
+                              <th className="px-3 py-2 font-semibold">Successes</th>
+                              <th className="px-3 py-2 font-semibold">Failures</th>
+                              <th className="px-3 py-2 font-semibold">Unfinished</th>
+                              <th className="px-3 py-2 font-semibold">State</th>
+                              <th className="px-3 py-2 font-semibold">Top failure</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/10 text-gray-300">
+                            {authOutcomeModel.methodBreakdown.map((item) => (
+                              <tr key={`auth-outcomes-method-table-${item.methodKey}`}>
+                                <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-white">{item.visibleLabel}</td>
+                                <td className="px-3 py-2">{authCountLabel(item.attempts)}</td>
+                                <td className="px-3 py-2">{authCountLabel(item.successes)}</td>
+                                <td className="px-3 py-2">{authCountLabel(item.failures)}</td>
+                                <td className="px-3 py-2">{authCountLabel(item.unfinished)}</td>
+                                <td className="px-3 py-2">{item.state}</td>
+                                <td className="max-w-[14rem] truncate px-3 py-2">
+                                  {formatAuthFailureReason(item.failureBreakdown[0]?.failureCode)}
+                                </td>
+                              </tr>
+                            ))}
+                            {authOutcomeModel.lifecycleOutcomes.map((item) => (
+                              <tr key={`auth-outcomes-lifecycle-table-${item.name}`}>
+                                <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-white">
+                                  {item.name === "registration_completed" ? "Registration completed" : "Navigation session established"}
+                                </td>
+                                <td className="px-3 py-2">{authCountLabel(item.count)}</td>
+                                <td className="px-3 py-2">n/a</td>
+                                <td className="px-3 py-2">n/a</td>
+                                <td className="px-3 py-2">n/a</td>
+                                <td className="px-3 py-2">{item.state}</td>
+                                <td className="max-w-[14rem] truncate px-3 py-2">{item.explanation}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : null}
+
+                    {authOutcomeViewMode === "cards" ? (
+                      <>
                     <div className="grid grid-cols-2 gap-2 md:hidden">
                       <MetricCard
                         label="Email/password"
@@ -974,7 +1099,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         </div>
                       </>
                     ) : null}
-                  </>
+                      </>
+                    ) : null}
+                  </div>
                 )}
               </SectionCard>
 
