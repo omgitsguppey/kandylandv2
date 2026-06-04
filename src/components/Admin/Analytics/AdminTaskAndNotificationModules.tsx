@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { BellRing } from "lucide-react";
 
 import { AdminDailyTaskPipelineModule } from "@/components/Admin/Analytics/AdminDailyTaskPipelineModule";
-import { SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
+import {
+    AnalyticsViewModeToggle,
+    SectionCard,
+    type AnalyticsViewMode,
+} from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import type { AdminNotificationFunnelModel, NotificationFunnelStep } from "@/lib/admin-notification-funnel";
 import type { AdminTaskPipelineModel } from "@/lib/admin-task-pipeline";
 
@@ -19,6 +23,8 @@ export function AdminTaskAndNotificationModules(props: {
     formatDuration: (seconds: number) => string;
     formatPercent: (value: number) => string;
 }) {
+    const [notificationFunnelViewMode, setNotificationFunnelViewMode] = useState<AnalyticsViewMode>("cards");
+
     useEffect(() => {
         (window as typeof window & {
             __KANDYDROPS_ADMIN_ANALYTICS_NOTIFICATION_FUNNEL_DEBUG__?: unknown;
@@ -30,6 +36,12 @@ export function AdminTaskAndNotificationModules(props: {
     const generatedAtLabel = props.notificationFunnelModel.generatedAtUtc
         ? new Date(props.notificationFunnelModel.generatedAtUtc).toLocaleString()
         : "Unavailable";
+    const peakNotificationCount = Math.max(
+        1,
+        ...props.notificationFunnelModel.metrics.map((metric) => metric.count ?? 0),
+    );
+    const notificationBarWidth = (step: NotificationFunnelStep) =>
+        `${Math.max(4, Math.min(100, ((step.count ?? 0) / peakNotificationCount) * 100))}%`;
 
     return (
         <>
@@ -47,11 +59,26 @@ export function AdminTaskAndNotificationModules(props: {
                     title="Notification Funnel"
                     subtitle="Prompt, enablement, send, open, read, and clear behavior."
                     icon={BellRing}
-                    rightSlot={props.renderSectionRangeControl("notificationFunnel")}
+                    rightSlot={(
+                        <div className="flex flex-wrap items-center justify-end gap-2">
+                            <AnalyticsViewModeToggle
+                                value={notificationFunnelViewMode}
+                                onChange={setNotificationFunnelViewMode}
+                                options={[
+                                    { id: "cards", label: "Cards" },
+                                    { id: "chart", label: "Chart" },
+                                    { id: "table", label: "Table" },
+                                ]}
+                            />
+                            {props.renderSectionRangeControl("notificationFunnel")}
+                        </div>
+                    )}
                 >
                     <div
                         className="compact-notification-funnel space-y-3"
+                        data-admin-analytics-mobile-view-mode={notificationFunnelViewMode}
                         data-notification-funnel-state={props.notificationFunnelModel.state}
+                        data-notification-funnel-source-mode={props.notificationFunnelModel.sourceMode}
                         data-notification-denominator-mode={props.notificationFunnelModel.denominatorMode}
                         data-notification-missing-source-count={props.notificationFunnelModel.missingSourceCount}
                     >
@@ -71,7 +98,7 @@ export function AdminTaskAndNotificationModules(props: {
                             <span><span className="font-semibold text-white">Last updated:</span> {generatedAtLabel}</span>
                         </div>
 
-                        {props.notificationFunnelModel.warnings.length > 0 ? (
+                        {props.notificationFunnelModel.warnings.length > 0 && notificationFunnelViewMode !== "table" ? (
                             <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
                                 {props.notificationFunnelModel.warnings.map((warning) => (
                                     <p key={warning}>{warning}</p>
@@ -79,6 +106,8 @@ export function AdminTaskAndNotificationModules(props: {
                             </div>
                         ) : null}
 
+                        {notificationFunnelViewMode === "cards" ? (
+                            <>
                         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
                             {primaryMetrics.map((metric) => (
                                 <NotificationStepCard key={metric.key} step={metric} />
@@ -115,6 +144,83 @@ export function AdminTaskAndNotificationModules(props: {
                                 </div>
                             </div>
                         </div>
+                            </>
+                        ) : null}
+
+                        {notificationFunnelViewMode === "chart" ? (
+                            <div
+                                className="space-y-1.5 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                                data-notification-funnel-chart="compact"
+                                data-notification-funnel-source-mode={props.notificationFunnelModel.sourceMode}
+                                data-notification-denominator-mode={props.notificationFunnelModel.denominatorMode}
+                                data-notification-missing-source-count={props.notificationFunnelModel.missingSourceCount}
+                            >
+                                {props.notificationFunnelModel.metrics.map((metric) => (
+                                    <div key={metric.key} className="grid grid-cols-[5.6rem_minmax(0,1fr)_4rem] items-center gap-2 text-[10px]">
+                                        <span className="truncate text-gray-400">{metric.label}</span>
+                                        <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                                            <div
+                                                className={metric.status === "loaded" ? "h-full rounded-full bg-brand-purple" : metric.status === "partial" ? "h-full rounded-full bg-amber-400" : "h-full rounded-full bg-slate-600"}
+                                                style={{ width: notificationBarWidth(metric) }}
+                                            />
+                                        </div>
+                                        <span className="text-right font-semibold text-white">
+                                            {metric.displayValue || (metric.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : "Unavailable")}
+                                        </span>
+                                    </div>
+                                ))}
+
+                                <div className="rounded-[0.9rem] border border-white/10 bg-black/25 px-3 py-2">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-gray-500">Reminder reasons</p>
+                                    <p className="mt-1 text-[11px] leading-5 text-gray-300">{props.notificationFunnelModel.reminderReasonSummary}</p>
+                                    <p className="mt-1 text-[10px] leading-5 text-gray-500">
+                                        Source {props.notificationFunnelModel.reminderReasonsSourceLabel || TASK_REMINDER_TELEMETRY_LABEL} - freshness {props.notificationFunnelModel.reminderReasonsFreshness}
+                                    </p>
+                                </div>
+                            </div>
+                        ) : null}
+
+                        {notificationFunnelViewMode === "table" ? (
+                            <div
+                                className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                                data-notification-funnel-table="compact"
+                                data-notification-funnel-source-mode={props.notificationFunnelModel.sourceMode}
+                                data-notification-denominator-mode={props.notificationFunnelModel.denominatorMode}
+                                data-notification-missing-source-count={props.notificationFunnelModel.missingSourceCount}
+                            >
+                                <table className="min-w-full text-left text-xs">
+                                    <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                                        <tr>
+                                            <th className="px-3 py-2 font-semibold">Step</th>
+                                            <th className="px-3 py-2 font-semibold">Value</th>
+                                            <th className="px-3 py-2 font-semibold">Source</th>
+                                            <th className="px-3 py-2 font-semibold">Status</th>
+                                            <th className="px-3 py-2 font-semibold">Denominator</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/10 text-gray-300">
+                                        {props.notificationFunnelModel.metrics.map((metric) => (
+                                            <tr
+                                                key={metric.key}
+                                                data-notification-step={metric.key}
+                                                data-notification-step-source={metric.sourceTruth}
+                                                data-notification-step-status={metric.status}
+                                                data-notification-step-freshness={metric.freshnessState}
+                                            >
+                                                <td className="max-w-[15rem] px-3 py-2">
+                                                    <p className="truncate font-semibold text-white">{metric.label}</p>
+                                                    <p className="truncate text-[11px] text-gray-500">{metric.explanation}</p>
+                                                </td>
+                                                <td className="px-3 py-2">{metric.displayValue || (metric.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : "Unavailable")}</td>
+                                                <td className="px-3 py-2">{metric.sourceLabel || (metric.key === "sent" ? DEBUG_NOTIFICATION_RECORDS_LABEL : metric.sourceLabel)}</td>
+                                                <td className="px-3 py-2">{metric.status} / {metric.freshnessState}</td>
+                                                <td className="px-3 py-2">{metric.denominator ?? props.notificationFunnelModel.denominatorMode}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : null}
                     </div>
                 </SectionCard>
             </div>

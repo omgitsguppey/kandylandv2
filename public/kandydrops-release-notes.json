@@ -1,11 +1,58 @@
 {
-  "currentVersion": "1.5.63",
-  "betaReleaseCounter": 563,
+  "currentVersion": "1.5.64",
+  "betaReleaseCounter": 564,
   "channel": "beta",
-  "generatedAt": "2026-06-04T02:30:22.300Z",
-  "generatedAtUtc": "2026-06-04T02:30:22.300Z",
-  "lastCommitSha": "9dae7044f1fc6b9f2cd0415242fbd1dc1cb0ae55",
+  "generatedAt": "2026-06-04T02:43:16.159Z",
+  "generatedAtUtc": "2026-06-04T02:43:16.159Z",
+  "lastCommitSha": "c9f69caefc3f08132e0666d12681561a0f99d961",
   "notes": [
+    {
+      "version": "1.5.64",
+      "previousVersion": "1.5.63",
+      "betaReleaseCounter": 564,
+      "previousBetaReleaseCounter": 563,
+      "commitSha": "c9f69caefc3f08132e0666d12681561a0f99d961",
+      "commitTitle": "fix(admin): add compact notification funnel modes",
+      "commitCount": 2,
+      "commitShas": [
+        "4c775594c1677c6b3cb0d1c075d67a545706f65a",
+        "c9f69caefc3f08132e0666d12681561a0f99d961"
+      ],
+      "committedAt": "2026-06-04T02:43:01.000Z",
+      "generatedAt": "2026-06-04T02:43:16.158Z",
+      "committedAtUtc": "2026-06-04T02:43:01.000Z",
+      "generatedAtUtc": "2026-06-04T02:43:16.158Z",
+      "updatedAtUtc": "2026-06-04T02:43:16.158Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx",
+        "src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-daily-task-pipeline-mobile.spec.ts",
+        "tests/unit/admin-notification-funnel-mobile.spec.ts"
+      ],
+      "sourceCommit": "c9f69caefc3f08132e0666d12681561a0f99d961"
+    },
     {
       "version": "1.5.63",
       "previousVersion": "1.5.62",
@@ -1155,68 +1202,6 @@
         "tests/unit/admin-debug-summary-cards.spec.ts"
       ],
       "sourceCommit": "8d387848990aa76d5f8a5b9c2d9a5a1af0beb2c4"
-    },
-    {
-      "version": "1.5.39",
-      "previousVersion": "1.5.38",
-      "betaReleaseCounter": 539,
-      "previousBetaReleaseCounter": 538,
-      "commitSha": "ce406145d6e36051dd979da2e0a8b8cadb271473",
-      "commitTitle": "fix(admin): compact debug control panel",
-      "commitCount": 2,
-      "commitShas": [
-        "d1500b65c33f9a21d7f12f14f115213fc54c6fea",
-        "ce406145d6e36051dd979da2e0a8b8cadb271473"
-      ],
-      "committedAt": "2026-06-03T21:36:03.000Z",
-      "generatedAt": "2026-06-03T21:36:39.765Z",
-      "committedAtUtc": "2026-06-03T21:36:03.000Z",
-      "generatedAtUtc": "2026-06-03T21:36:39.765Z",
-      "updatedAtUtc": "2026-06-03T21:36:39.765Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/admin-analytics-source-hierarchy.generated.json",
-        "agent/state/analytics-hydration-consolidation-audit.generated.json",
-        "agent/state/analytics-hydration-consolidation.generated.json",
-        "agent/state/analytics-panel-hydration.generated.json",
-        "docs/agent-truth/admin-analytics-source-hierarchy.md",
-        "docs/agent-truth/analytics-hydration-consolidation-audit.md",
-        "docs/agent-truth/analytics-hydration-consolidation.md",
-        "docs/agent-truth/analytics-panel-hydration.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/admin/debug/components/DebugPrimitives.tsx",
-        "src/app/admin/debug/components/DebugTabNow.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
-        "src/hooks/useAdminOverviewRealtime.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-page.spec.tsx",
-        "tests/unit/admin-debug-summary-cards.spec.ts"
-      ],
-      "sourceCommit": "ce406145d6e36051dd979da2e0a8b8cadb271473"
     }
   ]
 }
