@@ -18,15 +18,29 @@ describe("admin debug compact layout", () => {
         expect(source).toContain("data-debug-business-truth-state={controlTowerBusinessTruthState}");
     });
 
-    it("compresses system health details into one summary strip with collapsed raw samples", () => {
+    it("compresses system health details into one source drawer with collapsed raw samples", () => {
         const source = readFileSync(join(process.cwd(), "src/app/admin/debug/components/DebugTabNow.tsx"), "utf8");
 
         expect(source).toContain('data-admin-debug-health-layout="compact_strip"');
-        expect(source).toContain('data-admin-debug-health-summary-card-count="5"');
-        expect(source).toContain('data-admin-debug-health-raw-default="collapsed"');
+        expect(source).toContain('data-admin-debug-health-summary-card-count="4"');
+        expect(source).toContain('data-admin-debug-raw-samples-default="collapsed"');
         expect(source).toContain('title="Raw health samples"');
         expect(source).toContain('defaultOpen={false}');
         expect(source).not.toContain('className="grid gap-4 lg:grid-cols-1"');
         expect(source).not.toContain('className="grid gap-3 md:grid-cols-2 lg:grid-cols-1"');
+    });
+
+    it("removes redundant visible score-heavy containers while preserving debug evidence metadata", () => {
+        const source = readFileSync(join(process.cwd(), "src/app/admin/debug/components/DebugTabNow.tsx"), "utf8");
+
+        expect(source).toContain('data-admin-debug-now-layout="triage_strip_plus_source_drawer"');
+        expect(source).toContain('data-admin-debug-source-drawer-count="1"');
+        expect(source).toContain("data-debug-score-penalty-count={systemHealthNow.score.penaltyCount}");
+        expect(source).toContain('data-admin-debug-raw-samples-default="collapsed"');
+        expect(source).not.toContain('title="System health now"');
+        expect(source).not.toContain("systemHealthSummary");
+        expect(source).not.toContain('data-admin-debug-health-summary-card-count="5"');
+        expect(source).not.toContain('label: "Score penalties"');
+        expect(source).not.toContain("Score penalties");
     });
 });

@@ -988,7 +988,10 @@ for (const expected of [
   "<DebugControlTower businessSnapshot={adminUserTruthSnapshot} />",
   "<DebugNowDiagnostics",
   "Creator Lane",
-  "System health now",
+  "data-admin-debug-now-layout=\"triage_strip_plus_source_drawer\"",
+  "data-admin-debug-source-drawer-count=\"1\"",
+  "data-admin-debug-health-summary-card-count=\"4\"",
+  "data-admin-debug-raw-samples-default=\"collapsed\"",
   "data-debug-health-freshness",
   "data-debug-health-generated-at-utc",
   "data-debug-route-failure-count",
@@ -997,9 +1000,15 @@ for (const expected of [
   "data-debug-score-penalty-count",
   "writerCountSource",
   "lastSeenAtUtc",
-  "Score penalties",
 ]) {
-  requireIncludes(debugNowBundle, expected, "DebugTabNow must keep old diagnostics while mounting Control Tower");
+  requireIncludes(debugNowBundle, expected, "DebugTabNow must keep compact source diagnostics while mounting Control Tower");
+}
+for (const forbidden of [
+  "title=\"System health now\"",
+  "systemHealthSummary",
+  "label: \"Score penalties\"",
+]) {
+  requireNotIncludes(debugNowBundle, forbidden, "DebugTabNow must not reintroduce duplicate visible score-heavy containers");
 }
 requireIncludes(debugTabNow, "<DebugCreatorLane", "DebugTabNow must mount the Creator Lane detail card");
 requireIncludes(debugCreatorLane, "Top creator lane mismatches", "Creator Lane card must surface actionable mismatch details");

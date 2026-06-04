@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.59",
-  "betaReleaseCounter": 559,
+  "currentVersion": "1.5.60",
+  "betaReleaseCounter": 560,
   "channel": "beta",
-  "generatedAt": "2026-06-04T01:39:45.453Z",
-  "generatedAtUtc": "2026-06-04T01:39:45.453Z",
-  "lastCommitSha": "75d9c9f51c1aec46091a814946f5f03fb8e8ad80",
+  "generatedAt": "2026-06-04T01:54:32.294Z",
+  "generatedAtUtc": "2026-06-04T01:54:32.294Z",
+  "lastCommitSha": "5d2d432b82a456750d07ce4425a1ed5cd1e25ee0",
   "notes": [
+    {
+      "version": "1.5.60",
+      "previousVersion": "1.5.59",
+      "betaReleaseCounter": 560,
+      "previousBetaReleaseCounter": 559,
+      "commitSha": "5d2d432b82a456750d07ce4425a1ed5cd1e25ee0",
+      "commitTitle": "fix(admin): simplify debug now panel",
+      "commitCount": 2,
+      "commitShas": [
+        "885da4a8acfdfc3316a90f2539320717f34ab6c2",
+        "5d2d432b82a456750d07ce4425a1ed5cd1e25ee0"
+      ],
+      "committedAt": "2026-06-04T01:54:20.000Z",
+      "generatedAt": "2026-06-04T01:54:32.293Z",
+      "committedAtUtc": "2026-06-04T01:54:20.000Z",
+      "generatedAtUtc": "2026-06-04T01:54:32.293Z",
+      "updatedAtUtc": "2026-06-04T01:54:32.293Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-operations-mobile.spec.ts",
+        "tests/unit/admin-debug-compact-layout.spec.ts"
+      ],
+      "sourceCommit": "5d2d432b82a456750d07ce4425a1ed5cd1e25ee0"
+    },
     {
       "version": "1.5.59",
       "previousVersion": "1.5.58",
@@ -1217,65 +1266,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/firebase-messaging-sw.spec.ts"
       ],
       "sourceCommit": "3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4"
-    },
-    {
-      "version": "1.5.35",
-      "previousVersion": "1.5.34",
-      "betaReleaseCounter": 535,
-      "previousBetaReleaseCounter": 534,
-      "commitSha": "0b26fcb57a1a9ec2065816cd9cdadddb8cc12d42",
-      "commitTitle": "fix(pwa): recover old service worker caches",
-      "commitCount": 2,
-      "commitShas": [
-        "c9d80a45a9b9649cd95c8d346dd8e079edf372d9",
-        "0b26fcb57a1a9ec2065816cd9cdadddb8cc12d42"
-      ],
-      "committedAt": "2026-06-03T14:18:08.000Z",
-      "generatedAt": "2026-06-03T14:18:32.151Z",
-      "committedAtUtc": "2026-06-03T14:18:08.000Z",
-      "generatedAtUtc": "2026-06-03T14:18:32.151Z",
-      "updatedAtUtc": "2026-06-03T14:18:32.151Z",
-      "category": "Fixed",
-      "title": "Improved navigation reliability",
-      "summary": "Bug fixes and quality-of-life improvements for top-level navigation and Beta update access.",
-      "userFacingTitle": "Improved navigation reliability",
-      "surfaceCategory": "Navigation",
-      "bullets": [
-        "Improved how key app navigation surfaces stay in sync with the latest Beta build.",
-        "Reduced confusing status changes when opening update notes and top-level navigation lanes."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/environment-deployment-truth-audit.generated.json",
-        "agent/state/pwa-service-worker-safety.generated.json",
-        "agent/state/repo-doctrine-reset.generated.json",
-        "docs/agent-truth/current-operator-doctrine.md",
-        "docs/agent-truth/environment-deployment-truth.md",
-        "docs/agent-truth/public-beta-release-notes.md",
-        "docs/agent-truth/pwa-service-worker-safety.md",
-        "public/firebase-messaging-sw.js",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-android-pwa-chat-and-build-banner.ts",
-        "scripts/agent/validate-environment-deployment-truth.ts",
-        "scripts/agent/validate-pwa-service-worker-safety.ts",
-        "scripts/agent/validate-pwa-service-worker.ts",
-        "scripts/agent/validate-repo-doctrine-reset.ts",
-        "src/components/PwaRuntimeBridge.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/firebase-messaging-sw.spec.ts",
-        "tests/unit/repo-doctrine-reset.spec.ts",
-        "tests/unit/source-truth-authority-map.spec.ts"
-      ],
-      "sourceCommit": "0b26fcb57a1a9ec2065816cd9cdadddb8cc12d42"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
