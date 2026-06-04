@@ -9,6 +9,18 @@ const source = readFileSync(
 );
 
 describe("Admin analytics audience mobile consolidation", () => {
+  it("renders Navigation Destinations as one compact mobile view mode at a time", () => {
+    expect(source).toContain("navigationDestinationsViewMode");
+    expect(source).toContain("setNavigationDestinationsViewMode");
+    expect(source).toContain("data-admin-analytics-mobile-view-mode={navigationDestinationsViewMode}");
+    expect(source).toContain('data-navigation-destinations-table="compact"');
+    expect(source).toContain('navigationDestinationsViewMode === "chart"');
+    expect(source).toContain('navigationDestinationsViewMode === "table"');
+    expect(source).toContain('navigationDestinationsViewMode === "cards"');
+    expect(source).toContain("data-navigation-destinations-range={navigationDestinationsModel.range}");
+    expect(source).toContain("data-navigation-destinations-source-mode={navigationDestinationsModel.sourceMode}");
+  });
+
   it("renders Top Paths as one compact mobile view mode at a time", () => {
     expect(source).toContain("topPathsViewMode");
     expect(source).toContain("setTopPathsViewMode");

@@ -1,13 +1,61 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.55",
-  "betaReleaseCounter": 555,
+  "currentVersion": "1.5.56",
+  "betaReleaseCounter": 556,
   "channel": "beta",
-  "generatedAt": "2026-06-04T00:54:20.097Z",
-  "generatedAtUtc": "2026-06-04T00:54:20.097Z",
-  "lastCommitSha": "01b03cb4c3aedf644f96f5dd7a8d54e492d33195",
+  "generatedAt": "2026-06-04T01:06:08.238Z",
+  "generatedAtUtc": "2026-06-04T01:06:08.238Z",
+  "lastCommitSha": "9425b0663b79381f201d2989c17eaf07a8c48a6a",
   "notes": [
+    {
+      "version": "1.5.56",
+      "previousVersion": "1.5.55",
+      "betaReleaseCounter": 556,
+      "previousBetaReleaseCounter": 555,
+      "commitSha": "9425b0663b79381f201d2989c17eaf07a8c48a6a",
+      "commitTitle": "fix(admin): add compact navigation destination modes",
+      "commitCount": 2,
+      "commitShas": [
+        "141997d2e35ceeb94a36094bd354d511c45431ef",
+        "9425b0663b79381f201d2989c17eaf07a8c48a6a"
+      ],
+      "committedAt": "2026-06-04T01:05:53.000Z",
+      "generatedAt": "2026-06-04T01:06:08.224Z",
+      "committedAtUtc": "2026-06-04T01:05:53.000Z",
+      "generatedAtUtc": "2026-06-04T01:06:08.224Z",
+      "updatedAtUtc": "2026-06-04T01:06:08.224Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-audience-mobile.spec.ts",
+        "tests/unit/admin-analytics-commerce-mobile.spec.ts"
+      ],
+      "sourceCommit": "9425b0663b79381f201d2989c17eaf07a8c48a6a"
+    },
     {
       "version": "1.5.55",
       "previousVersion": "1.5.54",
@@ -1265,105 +1313,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/final-open-pr-closure.spec.ts"
       ],
       "sourceCommit": "909832bd7b6b912762a0dd3dd1f59033fe5cf986"
-    },
-    {
-      "version": "1.5.31",
-      "previousVersion": "1.5.30",
-      "betaReleaseCounter": 531,
-      "previousBetaReleaseCounter": 530,
-      "commitSha": "f63b2f63fc40856fe347c0dbc5ac94344371d0ac",
-      "commitTitle": "fix(security): close redirect review blocker",
-      "commitCount": 5,
-      "commitShas": [
-        "4e35a4e709bdf7612301090931d6496d68ccdbaa",
-        "e00ee1ec3ff7e93db56fb21cf795248ada0d6d39",
-        "c525024240902c3f2ca716c01015c3cb6b25997b",
-        "fb210dfd0ff24136c42e6ee2f31fdd9355f3a6b0",
-        "f63b2f63fc40856fe347c0dbc5ac94344371d0ac"
-      ],
-      "committedAt": "2026-06-01T18:13:07.000Z",
-      "generatedAt": "2026-06-01T18:22:12.208Z",
-      "committedAtUtc": "2026-06-01T18:13:07.000Z",
-      "generatedAtUtc": "2026-06-01T18:22:12.208Z",
-      "updatedAtUtc": "2026-06-01T18:22:12.208Z",
-      "category": "Security",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 5 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "account-onboarding",
-        "admin",
-        "creator",
-        "drops-viewer",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/automated-truth-reconciliation.generated.json",
-        "agent/state/beta-health-algorithm-v2.generated.json",
-        "agent/state/claim-truth-audit.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/final-current-head-score-refresh.generated.json",
-        "agent/state/final-open-pr-closure.generated.json",
-        "agent/state/final-release-exit-readiness-packet.generated.json",
-        "agent/state/formal-evidence-bridge.generated.json",
-        "agent/state/generated-artifact-size-policy.generated.json",
-        "agent/state/generated-report-authority.generated.json",
-        "agent/state/half-implementation-detector.generated.json",
-        "agent/state/overnight-beta-readiness-lock.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/score-dimension-80-lock.generated.json",
-        "agent/state/score-truth-audit.generated.json",
-        "agent/state/validator-authority-audit.generated.json",
-        "agent/state/wiring-truth-audit.generated.json",
-        "docs/agent-truth/automated-truth-reconciliation.md",
-        "docs/agent-truth/claim-truth-audit.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/final-current-head-score-refresh.md",
-        "docs/agent-truth/final-open-pr-closure.md",
-        "docs/agent-truth/final-release-exit-readiness-packet.md",
-        "docs/agent-truth/formal-evidence-bridge.md",
-        "docs/agent-truth/generated-artifact-size-policy.md",
-        "docs/agent-truth/half-implementation-detector.md",
-        "docs/agent-truth/overnight-beta-readiness-lock.md",
-        "docs/agent-truth/score-dimension-80-lock.md",
-        "docs/agent-truth/score-truth-audit.md",
-        "docs/agent-truth/validator-authority-audit.md",
-        "docs/agent-truth/wiring-truth-audit.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/truth-reconciliation-report-runner.ts",
-        "scripts/agent/validate-generated-artifact-size-policy.ts",
-        "scripts/agent/validate-generated-report-authority.ts",
-        "scripts/agent/validate-validator-authority.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/lib/admin-drop-form.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/release-readiness/automated-truth-reconciliation.ts",
-        "src/lib/release-readiness/final-beta-exit-closure.ts",
-        "src/lib/release-readiness/validator-authority-auditor.ts",
-        "src/lib/server/drop-mutations.ts",
-        "src/lib/test-hardening/generated-artifact-size-policy.ts",
-        "tests/unit/admin-cms-workflow.spec.ts",
-        "tests/unit/admin-drop-form.spec.ts",
-        "tests/unit/creator-settings-source-health.spec.ts",
-        "tests/unit/final-open-pr-closure.spec.ts",
-        "tests/unit/generated-artifact-size-policy.spec.ts",
-        "tests/unit/validator-authority-audit.spec.ts"
-      ],
-      "sourceCommit": "f63b2f63fc40856fe347c0dbc5ac94344371d0ac"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

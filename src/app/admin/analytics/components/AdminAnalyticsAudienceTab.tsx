@@ -87,6 +87,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const [topPathsPage, setTopPathsPage] = React.useState(1);
   const [topPathsPageSize, setTopPathsPageSize] = React.useState(10);
   const [deviceMixViewMode, setDeviceMixViewMode] = React.useState<AnalyticsViewMode>("cards");
+  const [navigationDestinationsViewMode, setNavigationDestinationsViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [topPathsViewMode, setTopPathsViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [regionsViewMode, setRegionsViewMode] = React.useState<AnalyticsViewMode>("cards");
   const filteredTopPathRows = React.useMemo(() => {
@@ -580,7 +581,22 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 title="Navigation Destinations"
                 subtitle="Top in-app destinations reached from intentional navigation telemetry."
                 icon={Route}
-                rightSlot={renderSectionRangeControl("navigationDestinations")}
+                density="compact"
+                summaryLine={`${navigationDestinationsModel.totalNavigationEvents.toLocaleString()} events | ${navigationDestinationsModel.sourceModeLabel}`}
+                rightSlot={(
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AnalyticsViewModeToggle
+                      value={navigationDestinationsViewMode}
+                      onChange={setNavigationDestinationsViewMode}
+                      options={[
+                        { id: "cards", label: "Cards" },
+                        { id: "chart", label: "Chart" },
+                        { id: "table", label: "Table" },
+                      ]}
+                    />
+                    {renderSectionRangeControl("navigationDestinations")}
+                  </div>
+                )}
               >
                 <div
                   className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
@@ -607,8 +623,16 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     {" | "}Missing sources: {navigationDestinationsModel.missingSourceCount}
                   </p>
                 </div>
-                <div className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr]">
-                  <div className="h-64 w-full">
+                <div
+                  className="space-y-3"
+                  data-admin-analytics-mobile-view-mode={navigationDestinationsViewMode}
+                  data-navigation-destinations-range={navigationDestinationsModel.range}
+                  data-navigation-destinations-source-mode={navigationDestinationsModel.sourceMode}
+                  data-navigation-destinations-generated-at-utc={navigationDestinationsModel.generatedAtUtc}
+                  data-navigation-destinations-source-state={navigationDestinationsModel.destinations.length > 0 ? "loaded" : "no_sample"}
+                >
+                  {navigationDestinationsModel.destinations.length > 0 && navigationDestinationsViewMode === "chart" ? (
+                  <div className="h-56 w-full rounded-[1.35rem] border border-white/10 bg-black/25 p-3">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -637,15 +661,56 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
+                  ) : null}
 
-                  <div className="space-y-3">
-                    {navigationDestinationsModel.destinations.length > 0 ? (
-                      navigationDestinationsModel.destinations
-                        .slice(0, 6)
-                        .map((item, index) => (
+                  {navigationDestinationsModel.destinations.length > 0 && navigationDestinationsViewMode === "table" ? (
+                    <div
+                      className="overflow-x-auto rounded-[1.35rem] border border-white/10 bg-black/25"
+                      data-navigation-destinations-table="compact"
+                      data-navigation-destinations-range={navigationDestinationsModel.range}
+                      data-navigation-destinations-source-mode={navigationDestinationsModel.sourceMode}
+                    >
+                      <table className="min-w-full text-left text-xs">
+                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                          <tr>
+                            <th className="px-3 py-2 font-semibold">Destination</th>
+                            <th className="px-3 py-2 font-semibold">Events</th>
+                            <th className="px-3 py-2 font-semibold">Source</th>
+                            <th className="px-3 py-2 font-semibold">Freshness</th>
+                            <th className="px-3 py-2 font-semibold">Last seen</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/10 text-gray-300">
+                          {navigationDestinationsModel.destinations.slice(0, 8).map((item) => (
+                            <tr key={`navigation-destinations-table-${item.destinationPath}`}>
+                              <td className="max-w-[16rem] px-3 py-2">
+                                <div className="truncate font-semibold text-white">{item.destinationLabel}</div>
+                                <div className="truncate text-[11px] text-gray-500">{item.destinationPath}</div>
+                              </td>
+                              <td className="px-3 py-2 font-semibold text-brand-purple">{item.count.toLocaleString()}</td>
+                              <td className="px-3 py-2">{item.sourceTruth}</td>
+                              <td className="px-3 py-2">{item.freshnessState}</td>
+                              <td className="px-3 py-2">
+                                {item.lastSeenAtUtc
+                                  ? formatRelativeTime(Date.parse(item.lastSeenAtUtc), nowMs)
+                                  : "Unavailable"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : null}
+
+                  {navigationDestinationsViewMode === "cards" ? (
+                    <>
+                      {navigationDestinationsModel.destinations.length > 0 ? (
+                        navigationDestinationsModel.destinations
+                          .slice(0, 6)
+                          .map((item, index) => (
                           <div
                             key={item.destinationPath}
-                            className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
+                            className="rounded-[1.25rem] border border-white/10 bg-black/30 p-3"
                           >
                             <div className="mb-2 flex items-center justify-between gap-3">
                               <div className="flex items-center gap-2">
@@ -689,17 +754,26 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               />
                             </div>
                           </div>
-                        ))
-                    ) : (
-                      <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                        {navigationDestinationsModel.missingReason
-                          ?? "No navigation tap or destination-view events found in this range."}
-                        <p className="mt-2 text-xs text-gray-600">
-                          {navigationDestinationsModel.expectedEventsLabel}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                          ))
+                      ) : (
+                        <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                          {navigationDestinationsModel.missingReason
+                            ?? "No navigation tap or destination-view events found in this range."}
+                          <p className="mt-2 text-xs text-gray-600">
+                            {navigationDestinationsModel.expectedEventsLabel}
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  ) : navigationDestinationsModel.destinations.length === 0 ? (
+                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                      {navigationDestinationsModel.missingReason
+                        ?? "No navigation tap or destination-view events found in this range."}
+                      <p className="mt-2 text-xs text-gray-600">
+                        {navigationDestinationsModel.expectedEventsLabel}
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
               </SectionCard>
             </div>
