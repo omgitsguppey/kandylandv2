@@ -1,11 +1,60 @@
 {
-  "currentVersion": "1.5.60",
-  "betaReleaseCounter": 560,
+  "currentVersion": "1.5.61",
+  "betaReleaseCounter": 561,
   "channel": "beta",
-  "generatedAt": "2026-06-04T01:54:32.294Z",
-  "generatedAtUtc": "2026-06-04T01:54:32.294Z",
-  "lastCommitSha": "5d2d432b82a456750d07ce4425a1ed5cd1e25ee0",
+  "generatedAt": "2026-06-04T02:03:15.926Z",
+  "generatedAtUtc": "2026-06-04T02:03:15.926Z",
+  "lastCommitSha": "2ab0582ad85954b3f8b8c99dfb84c7056fb36681",
   "notes": [
+    {
+      "version": "1.5.61",
+      "previousVersion": "1.5.60",
+      "betaReleaseCounter": 561,
+      "previousBetaReleaseCounter": 560,
+      "commitSha": "2ab0582ad85954b3f8b8c99dfb84c7056fb36681",
+      "commitTitle": "fix(admin): add compact return cadence modes",
+      "commitCount": 2,
+      "commitShas": [
+        "eae4c5814e0b08cd58eec360638f64b2e1bb21ae",
+        "2ab0582ad85954b3f8b8c99dfb84c7056fb36681"
+      ],
+      "committedAt": "2026-06-04T02:03:02.000Z",
+      "generatedAt": "2026-06-04T02:03:15.925Z",
+      "committedAtUtc": "2026-06-04T02:03:02.000Z",
+      "generatedAtUtc": "2026-06-04T02:03:15.925Z",
+      "updatedAtUtc": "2026-06-04T02:03:15.925Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-audience-mobile.spec.ts",
+        "tests/unit/admin-debug-compact-layout.spec.ts"
+      ],
+      "sourceCommit": "2ab0582ad85954b3f8b8c99dfb84c7056fb36681"
+    },
     {
       "version": "1.5.60",
       "previousVersion": "1.5.59",
@@ -1188,82 +1237,6 @@
         "tests/unit/evidence-capture-status.spec.ts"
       ],
       "sourceCommit": "8450d4ab093503ba4b72464f966321cb61fea027"
-    },
-    {
-      "version": "1.5.36",
-      "previousVersion": "1.5.35",
-      "betaReleaseCounter": 536,
-      "previousBetaReleaseCounter": 535,
-      "commitSha": "3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4",
-      "commitTitle": "fix(admin): consolidate debug panel evidence",
-      "commitCount": 2,
-      "commitShas": [
-        "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
-        "3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4"
-      ],
-      "committedAt": "2026-06-03T16:37:33.000Z",
-      "generatedAt": "2026-06-03T18:44:40.013Z",
-      "committedAtUtc": "2026-06-03T16:37:33.000Z",
-      "generatedAtUtc": "2026-06-03T18:44:40.013Z",
-      "updatedAtUtc": "2026-06-03T18:44:40.013Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/debug-panel-output-triage.generated.json",
-        "agent/state/debug-runtime-evidence.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/pwa-service-worker-safety.generated.json",
-        "agent/state/repo-spring-cleaning-rewire.generated.json",
-        "agent/state/targeted-behavior-evidence.generated.json",
-        "agent/state/telemetry-admin-debug-truth.generated.json",
-        "agent/state/user-facing-feature-connection-audit.generated.json",
-        "docs/agent-truth/debug-runtime-evidence.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "docs/agent-truth/pwa-service-worker-safety.md",
-        "docs/agent-truth/targeted-behavior-evidence.md",
-        "docs/agent-truth/telemetry-admin-debug-truth.md",
-        "public/firebase-messaging-sw.js",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-debug-panel-output-triage.ts",
-        "scripts/agent/validate-pwa-service-worker-safety.ts",
-        "scripts/agent/validate-pwa-service-worker.ts",
-        "src/app/admin/debug/components/DebugControlTower.tsx",
-        "src/app/admin/debug/components/DebugControlTowerCards.tsx",
-        "src/components/PwaRuntimeBridge.tsx",
-        "src/lib/agent-score/core.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-debug-control-tower-component.spec.tsx",
-        "tests/unit/admin-debug-control-tower.spec.ts",
-        "tests/unit/debug-panel-output-triage.spec.ts",
-        "tests/unit/firebase-messaging-sw.spec.ts"
-      ],
-      "sourceCommit": "3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4"
     }
   ]
 }

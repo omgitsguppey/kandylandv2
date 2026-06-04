@@ -46,4 +46,18 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).toContain('regionsViewMode === "table"');
     expect(source).toContain('regionsViewMode === "cards"');
   });
+
+  it("renders Return Cadence as one compact mobile view mode at a time", () => {
+    expect(source).toContain("returnCadenceViewMode");
+    expect(source).toContain("setReturnCadenceViewMode");
+    expect(source).toContain("data-admin-analytics-mobile-view-mode={returnCadenceViewMode}");
+    expect(source).toContain('data-return-cadence-chart="compact"');
+    expect(source).toContain('data-return-cadence-table="compact"');
+    expect(source).toContain("data-return-cadence-source-truth={returnCadenceModel.sourceTruth}");
+    expect(source).toContain("data-return-cadence-freshness={returnCadenceModel.freshnessState}");
+    expect(source).toContain("data-return-cadence-range={returnCadenceModel.range}");
+    expect(source).toContain('returnCadenceViewMode === "chart"');
+    expect(source).toContain('returnCadenceViewMode === "table"');
+    expect(source).toContain('returnCadenceViewMode === "cards"');
+  });
 });

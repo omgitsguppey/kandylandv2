@@ -86,6 +86,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   >("all");
   const [topPathsPage, setTopPathsPage] = React.useState(1);
   const [topPathsPageSize, setTopPathsPageSize] = React.useState(10);
+  const [returnCadenceViewMode, setReturnCadenceViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [deviceMixViewMode, setDeviceMixViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [navigationDestinationsViewMode, setNavigationDestinationsViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [topPathsViewMode, setTopPathsViewMode] = React.useState<AnalyticsViewMode>("cards");
@@ -452,15 +453,29 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
-                title="Return Cadence"
-                subtitle="Authenticated users grouped by distinct return days in the selected range."
-                icon={Route}
-                rightSlot={renderSectionRangeControl("returnCadence")}
-              >
+              title="Return Cadence"
+              subtitle="Authenticated users grouped by distinct return days in the selected range."
+              icon={Route}
+                rightSlot={(
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AnalyticsViewModeToggle
+                      value={returnCadenceViewMode}
+                      onChange={setReturnCadenceViewMode}
+                      options={[
+                        { id: "cards", label: "Cards" },
+                        { id: "chart", label: "Chart" },
+                        { id: "table", label: "Table" },
+                      ]}
+                    />
+                    {renderSectionRangeControl("returnCadence")}
+                  </div>
+                )}
+            >
                 <div
                   className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
                   data-return-cadence-source-truth={returnCadenceModel.sourceTruth}
                   data-return-cadence-freshness={returnCadenceModel.freshnessState}
+                  data-return-cadence-range={returnCadenceModel.range}
                   data-return-cadence-tracked-users={String(returnCadenceModel.trackedAuthenticatedUsers)}
                   data-return-cadence-unique-returners={String(returnCadenceModel.uniqueReturners)}
                   data-return-cadence-bucket-one={String(returnCadenceModel.buckets.oneDay)}
@@ -483,97 +498,155 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                       : formatRelativeTime(Date.parse(returnCadenceModel.generatedAtUtc), nowMs)}
                   </p>
                 </div>
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={returnCadenceModel.fakeZeroPrevented ? [] : returnCadenceModel.chartSegments}
-                      margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
+                <div
+                  className="space-y-3"
+                  data-admin-analytics-mobile-view-mode={returnCadenceViewMode}
+                  data-return-cadence-source-truth={returnCadenceModel.sourceTruth}
+                  data-return-cadence-freshness={returnCadenceModel.freshnessState}
+                  data-return-cadence-range={returnCadenceModel.range}
+                  data-return-cadence-generated-at-utc={returnCadenceModel.generatedAtUtc}
+                >
+                  {returnCadenceViewMode === "chart" ? (
+                    <div
+                      className="h-56 w-full rounded-[1.35rem] border border-white/10 bg-black/25 p-3"
+                      data-return-cadence-chart="compact"
                     >
-                      <CartesianGrid
-                        stroke="rgba(255,255,255,0.06)"
-                        vertical={false}
-                      />
-                      <XAxis
-                        dataKey="label"
-                        stroke="#6b7280"
-                        fontSize={11}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <YAxis
-                        stroke="#6b7280"
-                        fontSize={11}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <Tooltip content={<AnalyticsTooltip />} />
-                      <Bar
-                        dataKey="users"
-                        name="Users"
-                        fill="#b28cff"
-                        radius={[10, 10, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="mt-3 grid gap-2 md:grid-cols-4">
-                  {returnCadenceBuckets.map((bucket) => {
-                    return (
-                      <div
-                        key={bucket.label}
-                        className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300"
-                      >
-                        <p className="font-semibold text-white">{bucket.label}</p>
-                        <p>{bucket.countDisplay ?? formatCompactNumber(bucket.count)}</p>
-                        <p className="text-gray-500">
-                          {bucket.percentDisplay ?? formatPercent(bucket.pct)}
-                        </p>
+                      {returnCadenceModel.fakeZeroPrevented ? (
+                        <div className="flex h-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/25 px-3 text-center text-xs text-gray-400">
+                          Return cadence source unavailable; missing data is not shown as zero.
+                        </div>
+                      ) : (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={returnCadenceModel.chartSegments}
+                            margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
+                          >
+                            <CartesianGrid
+                              stroke="rgba(255,255,255,0.06)"
+                              vertical={false}
+                            />
+                            <XAxis
+                              dataKey="label"
+                              stroke="#6b7280"
+                              fontSize={11}
+                              tickLine={false}
+                              axisLine={false}
+                            />
+                            <YAxis
+                              stroke="#6b7280"
+                              fontSize={11}
+                              tickLine={false}
+                              axisLine={false}
+                            />
+                            <Tooltip content={<AnalyticsTooltip />} />
+                            <Bar
+                              dataKey="users"
+                              name="Users"
+                              fill="#b28cff"
+                              radius={[10, 10, 0, 0]}
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      )}
+                    </div>
+                  ) : null}
+
+                  {returnCadenceViewMode === "table" ? (
+                    <div
+                      className="overflow-x-auto rounded-[1.35rem] border border-white/10 bg-black/25"
+                      data-return-cadence-table="compact"
+                      data-return-cadence-source-truth={returnCadenceModel.sourceTruth}
+                      data-return-cadence-freshness={returnCadenceModel.freshnessState}
+                      data-return-cadence-range={returnCadenceModel.range}
+                    >
+                      <table className="min-w-full text-left text-xs">
+                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                          <tr>
+                            <th className="px-3 py-2 font-semibold">Cadence</th>
+                            <th className="px-3 py-2 font-semibold">Users</th>
+                            <th className="px-3 py-2 font-semibold">Share</th>
+                            <th className="px-3 py-2 font-semibold">Source</th>
+                            <th className="px-3 py-2 font-semibold">Freshness</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/10 text-gray-300">
+                          {returnCadenceBuckets.map((bucket) => (
+                            <tr key={`return-cadence-table-${bucket.label}`}>
+                              <td className="px-3 py-2 font-semibold text-white">{bucket.label}</td>
+                              <td className="px-3 py-2">{bucket.countDisplay ?? formatCompactNumber(bucket.count)}</td>
+                              <td className="px-3 py-2">{bucket.percentDisplay ?? formatPercent(bucket.pct)}</td>
+                              <td className="px-3 py-2">{returnCadenceModel.sourceTruth}</td>
+                              <td className="px-3 py-2">{returnCadenceModel.freshnessState}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : null}
+
+                  {returnCadenceViewMode === "cards" ? (
+                    <>
+                      <div className="grid gap-2 md:grid-cols-4">
+                        {returnCadenceBuckets.map((bucket) => {
+                          return (
+                            <div
+                              key={bucket.label}
+                              className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300"
+                            >
+                              <p className="font-semibold text-white">{bucket.label}</p>
+                              <p>{bucket.countDisplay ?? formatCompactNumber(bucket.count)}</p>
+                              <p className="text-gray-500">
+                                {bucket.percentDisplay ?? formatPercent(bucket.pct)}
+                              </p>
+                            </div>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
-                </div>
-                <p className="mt-2 text-[11px] text-gray-500">
-                  {returnCadenceModel.denominatorExplanation}
-                </p>
-                <div className="mt-4 grid gap-3 border-t border-white/5 pt-4 md:grid-cols-3">
-                  <MetricCard
-                    label="Tracked Auth Users"
-                    value={
-                      returnCadenceModel.fakeZeroPrevented
-                        ? "[unavailable]"
-                        : formatCompactNumber(returnCadenceModel.trackedAuthenticatedUsers)
-                    }
-                    hint={returnCadenceModel.sourceTruth === "missing"
-                      ? "No verified zero should be displayed"
-                      : "Authenticated activity days in range"}
-                    icon={Users}
-                    truthState={returnCadenceTruthState}
-                    dictionaryTooltip="Tracked authenticated users are users with at least one qualifying authenticated activity day in the selected range."
-                  />
-                  <MetricCard
-                    label="Unique Returners"
-                    value={returnCadenceModel.fakeZeroPrevented
-                      ? "[unavailable]"
-                      : formatCompactNumber(returnCadenceModel.uniqueReturners)}
-                    hint={returnCadenceModel.sourceTruth === "missing"
-                      ? "Return cadence source unavailable"
-                      : "Users active on 2+ distinct days"}
-                    icon={Users}
-                    truthState={returnCadenceTruthState}
-                    dictionaryTooltip="Count of authenticated users active on two or more distinct days within the selected time window."
-                  />
-                  <MetricCard
-                    label="Conversion"
-                    value={returnCadenceModel.fakeZeroPrevented
-                      ? "[unavailable]"
-                      : formatPercent(returnCadenceModel.conversionPct)}
-                    hint={returnCadenceModel.sourceTruth === "missing"
-                      ? "Tracked user source unavailable"
-                      : `${returnCadenceModel.trackedAuthenticatedUsers.toLocaleString()} tracked authenticated users`}
-                    icon={Activity}
-                    truthState={returnCadenceTruthState}
-                    dictionaryTooltip="The percentage of tracked authenticated users in this window who were active on multiple distinct days."
-                  />
+                      <p className="text-[11px] text-gray-500">
+                        {returnCadenceModel.denominatorExplanation}
+                      </p>
+                      <div className="grid gap-3 border-t border-white/5 pt-3 md:grid-cols-3">
+                        <MetricCard
+                          label="Tracked Auth Users"
+                          value={
+                            returnCadenceModel.fakeZeroPrevented
+                              ? "[unavailable]"
+                              : formatCompactNumber(returnCadenceModel.trackedAuthenticatedUsers)
+                          }
+                          hint={returnCadenceModel.sourceTruth === "missing"
+                            ? "No verified zero should be displayed"
+                            : "Authenticated activity days in range"}
+                          icon={Users}
+                          truthState={returnCadenceTruthState}
+                          dictionaryTooltip="Tracked authenticated users are users with at least one qualifying authenticated activity day in the selected range."
+                        />
+                        <MetricCard
+                          label="Unique Returners"
+                          value={returnCadenceModel.fakeZeroPrevented
+                            ? "[unavailable]"
+                            : formatCompactNumber(returnCadenceModel.uniqueReturners)}
+                          hint={returnCadenceModel.sourceTruth === "missing"
+                            ? "Return cadence source unavailable"
+                            : "Users active on 2+ distinct days"}
+                          icon={Users}
+                          truthState={returnCadenceTruthState}
+                          dictionaryTooltip="Count of authenticated users active on two or more distinct days within the selected time window."
+                        />
+                        <MetricCard
+                          label="Conversion"
+                          value={returnCadenceModel.fakeZeroPrevented
+                            ? "[unavailable]"
+                            : formatPercent(returnCadenceModel.conversionPct)}
+                          hint={returnCadenceModel.sourceTruth === "missing"
+                            ? "Tracked user source unavailable"
+                            : `${returnCadenceModel.trackedAuthenticatedUsers.toLocaleString()} tracked authenticated users`}
+                          icon={Activity}
+                          truthState={returnCadenceTruthState}
+                          dictionaryTooltip="The percentage of tracked authenticated users in this window who were active on multiple distinct days."
+                        />
+                      </div>
+                    </>
+                  ) : null}
                 </div>
               </SectionCard>
 
