@@ -21,6 +21,18 @@ describe("Admin analytics commerce mobile consolidation", () => {
     expect(source).toContain("data-viewer-journey-source-state={viewerJourneyItems.length > 0 ? \"loaded\" : \"no_sample\"}");
   });
 
+  it("renders Watch Depth + Tags as one compact mobile view mode at a time", () => {
+    expect(source).toContain("watchDepthTagsViewMode");
+    expect(source).toContain("setWatchDepthTagsViewMode");
+    expect(source).toContain('data-admin-analytics-mobile-view-mode={watchDepthTagsViewMode}');
+    expect(source).toContain('data-watch-depth-tags-table="compact"');
+    expect(source).toContain('watchDepthTagsViewMode === "chart"');
+    expect(source).toContain('watchDepthTagsViewMode === "table"');
+    expect(source).toContain('watchDepthTagsViewMode === "cards"');
+    expect(source).toContain("data-watch-depth-tags-range={watchDepthTagsRange}");
+    expect(source).toContain("data-watch-depth-tags-source-state={watchDepthTagBuckets.length > 0 || watchDepthTagDemand.length > 0 ? \"loaded\" : \"no_sample\"}");
+  });
+
   it("renders Package Performance as one compact mobile view mode at a time", () => {
     expect(source).toContain("packagePerformanceViewMode");
     expect(source).toContain("setPackagePerformanceViewMode");

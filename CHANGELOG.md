@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.54 - 2026-06-04
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+
 ## 1.5.53 - 2026-06-04
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
@@ -145,9 +151,3 @@ Showing the last 25 public updates in pages of 5.
 - Improved chat media sizing and message-thread scrolling.
 - Improved guest analytics and admin truth checks behind the scenes.
 - Updated Beta readiness evidence so stale or missing launch evidence stays visible.
-
-## 1.5.29 - 2026-06-01
-- More reliable Drop viewing
-- Fixed a Drop viewer access race that could show Not Authorized after a Drop was already unwrapped.
-- Stabilized loading while account and unlock entitlement checks finish.
-- Added safer access-state reporting for Drop viewer bug reports.

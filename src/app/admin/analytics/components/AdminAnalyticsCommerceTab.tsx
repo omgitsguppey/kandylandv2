@@ -59,7 +59,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     // Added remaining
     clearAllFilters, formatMoney, activeViewerFilter, viewerUserFilter,
     getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, viewerDropChartData,
-    viewerDrilldownInsights, viewerJourneyRange, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand
+    viewerDrilldownInsights, viewerJourneyRange, viewerJourneyItems, watchDepthTagsRange, watchDepthTagBuckets, watchDepthTagDemand
   } = props;
   const liveCaptureTruthState = liveResponse?.liveTruthLabel
     ? coerceAdminSurfaceState(liveResponse.liveTruthLabel)
@@ -104,6 +104,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const [topDropConversionViewMode, setTopDropConversionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [viewerDropViewMode, setViewerDropViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [viewerJourneyViewMode, setViewerJourneyViewMode] = React.useState<AnalyticsViewMode>("cards");
+  const [watchDepthTagsViewMode, setWatchDepthTagsViewMode] = React.useState<AnalyticsViewMode>("cards");
   const packagePerformanceRows = packagePerformancePanelState?.rows ?? [];
   const packagePerformanceChartRows = packagePerformanceRows.map((row: any) => ({
     ...row,
@@ -144,6 +145,18 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
         ? `${item.label.slice(0, 14)}...`
         : item.label || "Unknown step",
   }));
+  const watchDepthMaxCount = Math.max(
+    1,
+    ...watchDepthTagBuckets.map((bucket: any) => Number(bucket.count || 0)),
+  );
+  const watchDepthChartRows = watchDepthTagBuckets.map((bucket: any) => ({
+    ...bucket,
+    shortLabel:
+      bucket.label && bucket.label.length > 14
+        ? `${bucket.label.slice(0, 14)}...`
+        : bucket.label || "Unknown depth",
+  }));
+  const watchTagVisibleRows = watchDepthTagDemand.slice(0, 8);
   const viewerDrilldownGeneratedAtLabel = viewerDrilldownGeneratedAtMs
     ? formatAbsoluteDateTime(viewerDrilldownGeneratedAtMs)
     : "Unknown";
@@ -1943,64 +1956,153 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 title="Watch Depth + Tags"
                 subtitle="What people watch after unwrap, plus the tags driving demand."
                 icon={Eye}
-                rightSlot={renderSectionRangeControl("watchDepthTags")}
+                rightSlot={
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AnalyticsViewModeToggle
+                      value={watchDepthTagsViewMode}
+                      onChange={setWatchDepthTagsViewMode}
+                      options={[
+                        { id: "cards", label: "Cards" },
+                        { id: "chart", label: "Chart" },
+                        { id: "table", label: "Table" },
+                      ]}
+                    />
+                    {renderSectionRangeControl("watchDepthTags")}
+                  </div>
+                }
               >
-                {watchDepthTagBuckets.some((bucket: any) => bucket.count > 0) || watchDepthTagDemand.length > 0 ? (
-                  <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-                    <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                      <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                        Watch depth
-                      </p>
-                      <div className="space-y-3">
-                        {watchDepthTagBuckets.map((bucket: any) => (
-                          <div key={bucket.label}>
-                            <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-                              <span className="text-white">{bucket.label}</span>
-                              <span className="font-semibold text-brand-purple">
-                                {bucket.count.toLocaleString()}
+                <div
+                  className="space-y-3"
+                  data-admin-analytics-mobile-view-mode={watchDepthTagsViewMode}
+                  data-watch-depth-tags-range={watchDepthTagsRange}
+                  data-watch-depth-tags-source-state={watchDepthTagBuckets.length > 0 || watchDepthTagDemand.length > 0 ? "loaded" : "no_sample"}
+                >
+                  {(watchDepthTagBuckets.some((bucket: any) => bucket.count > 0) || watchDepthTagDemand.length > 0) && watchDepthTagsViewMode === "chart" ? (
+                    <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
+                      <div className="h-64 rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={watchDepthChartRows} margin={{ top: 8, right: 4, left: -18, bottom: 0 }}>
+                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                            <XAxis
+                              dataKey="shortLabel"
+                              stroke="#6b7280"
+                              fontSize={10}
+                              tickLine={false}
+                              axisLine={false}
+                              interval={0}
+                              angle={-16}
+                              textAnchor="end"
+                              height={52}
+                            />
+                            <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                            <Tooltip content={<AnalyticsTooltip />} />
+                            <Bar dataKey="count" name="Depth events" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Top tags</p>
+                        <div className="flex flex-wrap gap-2">
+                          {watchTagVisibleRows.length > 0 ? (
+                            watchTagVisibleRows.map((item: any) => (
+                              <span key={`watch-tag-chart-${item.tag}`} className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-white">
+                                {item.tag}; {item.count.toLocaleString()}
                               </span>
-                            </div>
-                            <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                              <div
-                                className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
-                                style={{
-                                  width: `${Math.max(6, (bucket.count / Math.max(1, watchDepthTagBuckets[0]?.count || 1)) * 100)}%`,
-                                }}
-                              />
-                            </div>
-                          </div>
-                        ))}
+                            ))
+                          ) : (
+                            <p className="text-sm text-gray-500">Tag demand will populate after more unwraps land in this range.</p>
+                          )}
+                        </div>
                       </div>
                     </div>
+                  ) : null}
 
-                    <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                      <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                        Top tags
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {watchDepthTagDemand.length > 0 ? (
-                          watchDepthTagDemand.map((item: any) => (
-                            <span
-                              key={item.tag}
-                              className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-white"
-                            >
-                              {item.tag}; {item.count}
-                            </span>
-                          ))
-                        ) : (
-                          <p className="text-sm text-gray-500">
-                            Tag demand will populate after more unwraps land in
-                            this range.
-                          </p>
-                        )}
+                  {(watchDepthTagBuckets.length > 0 || watchDepthTagDemand.length > 0) && watchDepthTagsViewMode === "table" ? (
+                    <div
+                      className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                      data-watch-depth-tags-table="compact"
+                      data-watch-depth-tags-range={watchDepthTagsRange}
+                      data-watch-depth-tags-source-state={watchDepthTagBuckets.length > 0 || watchDepthTagDemand.length > 0 ? "loaded" : "no_sample"}
+                    >
+                      <table className="min-w-full text-left text-xs">
+                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.14em] text-gray-500">
+                          <tr>
+                            <th className="px-3 py-2 font-semibold">Type</th>
+                            <th className="px-3 py-2 font-semibold">Label</th>
+                            <th className="px-3 py-2 font-semibold">Count</th>
+                            <th className="px-3 py-2 font-semibold">Range</th>
+                            <th className="px-3 py-2 font-semibold">State</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/10 text-gray-300">
+                          {watchDepthTagBuckets.map((bucket: any) => (
+                            <tr key={`watch-depth-table-${bucket.label}`}>
+                              <td className="px-3 py-2 text-gray-400">Depth</td>
+                              <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-white">{bucket.label}</td>
+                              <td className="px-3 py-2 text-brand-purple">{bucket.count.toLocaleString()}</td>
+                              <td className="px-3 py-2">{watchDepthTagsRange}</td>
+                              <td className="px-3 py-2">{bucket.count > 0 ? "Observed" : "No sample"}</td>
+                            </tr>
+                          ))}
+                          {watchTagVisibleRows.map((item: any) => (
+                            <tr key={`watch-tag-table-${item.tag}`}>
+                              <td className="px-3 py-2 text-gray-400">Tag</td>
+                              <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-white">{item.tag}</td>
+                              <td className="px-3 py-2 text-brand-purple">{item.count.toLocaleString()}</td>
+                              <td className="px-3 py-2">{watchDepthTagsRange}</td>
+                              <td className="px-3 py-2">{item.count > 0 ? "Observed" : "No sample"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : null}
+
+                  {(watchDepthTagBuckets.length > 0 || watchDepthTagDemand.length > 0) && watchDepthTagsViewMode === "cards" ? (
+                    <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
+                      <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Watch depth</p>
+                        <div className="space-y-2">
+                          {watchDepthTagBuckets.map((bucket: any) => (
+                            <div key={`watch-depth-card-${bucket.label}`} className="rounded-[0.8rem] border border-white/10 bg-white/[0.035] px-3 py-2">
+                              <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+                                <span className="truncate text-white">{bucket.label}</span>
+                                <span className="font-semibold text-brand-purple">{bucket.count.toLocaleString()}</span>
+                              </div>
+                              <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                                <div
+                                  className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+                                  style={{ width: `${Math.max(6, (bucket.count / watchDepthMaxCount) * 100)}%` }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Top tags</p>
+                        <div className="flex flex-wrap gap-2">
+                          {watchTagVisibleRows.length > 0 ? (
+                            watchTagVisibleRows.map((item: any) => (
+                              <span key={`watch-tag-card-${item.tag}`} className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-white">
+                                {item.tag}; {item.count.toLocaleString()}
+                              </span>
+                            ))
+                          ) : (
+                            <p className="text-sm text-gray-500">Tag demand will populate after more unwraps land in this range.</p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                    No watch-depth or tag-demand rows were returned in this window.
-                  </div>
-                )}
+                  ) : null}
+
+                  {watchDepthTagBuckets.length === 0 && watchDepthTagDemand.length === 0 ? (
+                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                      No watch-depth or tag-demand rows were returned in this window.
+                    </div>
+                  ) : null}
+                </div>
               </SectionCard>
             </div>
     </>
