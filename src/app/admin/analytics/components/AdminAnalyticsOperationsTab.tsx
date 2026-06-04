@@ -72,6 +72,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
         : "Live updates";
   const compactLiveMetricClass = "rounded-[1rem] p-2 min-h-[4.75rem]";
   const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";
+  const [livePulseViewMode, setLivePulseViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [eventMixViewMode, setEventMixViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [authOutcomeViewMode, setAuthOutcomeViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [guestQualityViewMode, setGuestQualityViewMode] = React.useState<AnalyticsViewMode>("cards");
@@ -407,7 +408,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               icon={Activity}
               density="compact"
               defaultExpanded={false}
-              rightSlot={renderSectionRangeControl("livePulse")}
+              rightSlot={(
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <AnalyticsViewModeToggle
+                    value={livePulseViewMode}
+                    onChange={setLivePulseViewMode}
+                    options={[
+                      { id: "cards", label: "Cards" },
+                      { id: "chart", label: "Chart" },
+                      { id: "table", label: "Table" },
+                    ]}
+                  />
+                  {renderSectionRangeControl("livePulse")}
+                </div>
+              )}
             >
               <div
                 className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between"
@@ -436,6 +450,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 </div>
               </div>
 
+              <div
+                className="space-y-2"
+                data-admin-analytics-mobile-view-mode={livePulseViewMode}
+                data-live-pulse-graph-source={livePulseModel.graphSourceLabel}
+                data-live-pulse-refresh-state={livePulseModel.refreshState}
+                data-live-pulse-source-state={livePulseModel.graphHydrated ? "loaded" : "no_sample"}
+              >
+              {livePulseViewMode === "cards" ? (
               <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                 <MetricCard
                   label="Active Now"
@@ -478,8 +500,15 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   valueClassName="truncate text-base leading-6 md:text-lg"
                 />
               </div>
+              ) : null}
 
-              <div className={cn("relative mt-2 w-full", livePulseModel.compactChartHeightClass)}>
+              {livePulseViewMode === "chart" ? (
+              <div
+                className={cn("relative w-full", livePulseModel.compactChartHeightClass)}
+                data-live-pulse-chart="compact"
+                data-live-pulse-graph-source={livePulseModel.graphSourceLabel}
+                data-live-pulse-refresh-state={livePulseModel.refreshState}
+              >
                 <div className="mb-1 flex items-center justify-between gap-2 px-1 text-[10px] text-gray-400">
                   <span>{livePulseModel.graphSourceLabel}</span>
                   <span>{livePulseModel.graphLegendLabel}</span>
@@ -516,8 +545,15 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   </div>
                 )}
               </div>
+              ) : null}
 
-              <div className="mt-2 grid gap-2 xl:grid-cols-[0.9fr_1.1fr]">
+              {livePulseViewMode === "table" ? (
+              <div
+                className="grid gap-2 xl:grid-cols-[0.9fr_1.1fr]"
+                data-live-pulse-table="compact"
+                data-live-pulse-graph-source={livePulseModel.graphSourceLabel}
+                data-live-pulse-refresh-state={livePulseModel.refreshState}
+              >
                 <div className="rounded-[1rem] border border-white/10 bg-black/30 p-2.5 md:p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
@@ -584,6 +620,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     )}
                   </div>
                 </div>
+              </div>
+              ) : null}
               </div>
             </SectionCard>
 

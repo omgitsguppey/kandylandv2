@@ -9,6 +9,19 @@ const source = readFileSync(
 );
 
 describe("Admin analytics operations mobile consolidation", () => {
+  it("renders Live Pulse as one compact mobile view mode at a time", () => {
+    expect(source).toContain("livePulseViewMode");
+    expect(source).toContain("setLivePulseViewMode");
+    expect(source).toContain("data-admin-analytics-mobile-view-mode={livePulseViewMode}");
+    expect(source).toContain('data-live-pulse-chart="compact"');
+    expect(source).toContain('data-live-pulse-table="compact"');
+    expect(source).toContain("data-live-pulse-graph-source={livePulseModel.graphSourceLabel}");
+    expect(source).toContain("data-live-pulse-refresh-state={livePulseModel.refreshState}");
+    expect(source).toContain('livePulseViewMode === "chart"');
+    expect(source).toContain('livePulseViewMode === "table"');
+    expect(source).toContain('livePulseViewMode === "cards"');
+  });
+
   it("renders Guest Quality as one compact mobile view mode at a time", () => {
     expect(source).toContain("guestQualityViewMode");
     expect(source).toContain("setGuestQualityViewMode");
