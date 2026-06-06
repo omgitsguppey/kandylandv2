@@ -162,6 +162,9 @@ export async function broadcastFCMWithReport(
             .select("fcmTokens", "notificationSettings", "notificationQuality", "lastActiveAtMs")
             .stream();
 
+        // ⚡ Bolt: Decouple FCM batches from stream parsing to allow concurrent dispatch
+        const dispatchPromises: Promise<void>[] = [];
+
         const dispatchBatch = async (tokens: string[]) => {
             if (tokens.length === 0) return;
             if (dispatchedBatchCount >= FCM_MAX_BATCHES_PER_BROADCAST_RUN) {
@@ -284,7 +287,11 @@ export async function broadcastFCMWithReport(
                 while (tokensChunk.length >= FCM_MULTICAST_BATCH_SIZE && !batchCapReached) {
                     const batchToDispatch = tokensChunk.slice(0, FCM_MULTICAST_BATCH_SIZE);
                     tokensChunk = tokensChunk.slice(FCM_MULTICAST_BATCH_SIZE);
-                    await dispatchBatch(batchToDispatch);
+                    dispatchPromises.push(dispatchBatch(batchToDispatch).catch(e => { throw e; }));
+                    if (dispatchPromises.length >= 5) {
+                        await Promise.all(dispatchPromises);
+                        dispatchPromises.length = 0;
+                    }
                 }
             }
 
@@ -294,8 +301,10 @@ export async function broadcastFCMWithReport(
         }
 
         if (tokensChunk.length > 0 && !batchCapReached) {
-            await dispatchBatch(tokensChunk);
+            dispatchPromises.push(dispatchBatch(tokensChunk).catch(e => { throw e; }));
         }
+
+        await Promise.all(dispatchPromises);
 
         if (tokensSent) {
             if (failureCount > 0) {

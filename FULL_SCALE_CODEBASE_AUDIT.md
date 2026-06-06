@@ -13887,3 +13887,11 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2026-04-15 #FCM-Opt] PRE: FCM Multicast Concurrency
+- **Scope**: Optimize FCM Multicast inside `src/lib/server/fcm-utils.ts`. The current implementation awaits `dispatchBatch` synchronously inside the streaming loop. This creates an unnecessary bottleneck where the fast database stream is paused to wait for Google's API to respond for every batch of 500 recipients.
+- **Goal**: Change FCM push dispatches to be concurrent by collecting promises into `dispatchPromises` and utilizing `Promise.all` after the stream, reducing notification delivery time while retaining token cleanup error logic. Update unit tests correspondingly.
+
+## [2026-04-15 #FCM-Opt] POST: FCM Multicast Concurrency
+- **Modifications**: Modified `fcm-utils.ts` to collect FCM dispatch promises into an array during stream traversal and resolved them concurrently with `Promise.all` after the stream ends. Updated `tests/unit/fcm-utils.spec.ts`'s `.select` array expectation to include newly selected fields `"notificationQuality"` and `"lastActiveAtMs"`.
+- **Verification**: Ran `npx vitest run tests/unit/fcm-utils.spec.ts` and `NODE_OPTIONS="--max-old-space-size=4096" pnpm run typecheck`, both passed successfully indicating logic safety and strict typing remains intact.

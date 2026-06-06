@@ -25,3 +25,7 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2026-04-15 - Unhandled Promise Rejections in Stream Concurrency
+**Learning:** When collecting promises into an array (like `dispatchPromises`) during an asynchronous database stream and deferring their `await` until the stream ends via `Promise.all`, any rejection that occurs in an early promise *while* the stream is still fetching the next chunk will trigger an `UnhandledPromiseRejection`. In modern Node.js environments, this can crash the application even if a `try/catch` wraps the stream loop, because the event loop detects the rejection before the deferred `await Promise.all` executes.
+**Action:** When implementing concurrency in streaming patterns, ensure promises pushed to the collection array have an attached `.catch()` handler to prevent them from becoming unhandled rejections during async IO yields, or collect results safely using `Promise.allSettled`.
