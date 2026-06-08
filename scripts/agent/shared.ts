@@ -12,6 +12,33 @@ export const AGENT_PROMPTS_DIR = path.join(AGENT_DIR, "prompts");
 
 export const INTERNAL_DIRECTORIES = ["src", "functions/src", "scripts", "tests"] as const;
 export const FILE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"] as const;
+const FALLBACK_DISCOVERY_ROOTS = [
+  "src",
+  "functions/src",
+  "shared",
+  "scripts",
+  "tests",
+  "agent/index",
+  "agent/context",
+  "agent/state",
+  "docs/agent-truth",
+] as const;
+const FALLBACK_EXCLUDED_PARTS = [
+  "node_modules",
+  ".next",
+  "coverage",
+  "playwright-report",
+  "test-results",
+  "lighthouse-results",
+  "storybook-static",
+  "dist",
+  "build",
+  "out",
+  ".turbo",
+  ".cache",
+  "logs",
+  "tmp",
+] as const;
 
 export type Json =
   | null
@@ -31,11 +58,204 @@ type JsonSchema = {
   minItems?: number;
 };
 
-function runGit(args: string[]) {
+export type GitToolStatus = "available" | "missing" | "error";
+export type SourceFileDiscovery = "git" | "repo_inventory" | "filesystem";
+export type CurrentHeadSource = "git" | "repo_inventory" | "generated_artifact" | "unknown";
+
+export type RepoToolchainState = {
+  gitStatus: GitToolStatus;
+  sourceFileDiscovery: SourceFileDiscovery;
+  currentHead: string | null;
+  currentHeadSource: CurrentHeadSource;
+  workingTreeStatus: string[] | "unavailable_git_missing";
+  toolingDegraded: boolean;
+  degradationReason: string | null;
+};
+
+function summarizeCommandError(error: unknown) {
+  const candidate = error as {
+    code?: unknown;
+    errno?: unknown;
+    syscall?: unknown;
+    path?: unknown;
+    status?: unknown;
+    message?: unknown;
+    stderr?: unknown;
+  };
+  const code = typeof candidate.code === "string" ? candidate.code : "";
+  const syscall = typeof candidate.syscall === "string" ? candidate.syscall : "";
+  const executable = typeof candidate.path === "string" ? candidate.path : "git";
+  const message = typeof candidate.message === "string" ? candidate.message : "";
+  const stderr = Buffer.isBuffer(candidate.stderr) ? candidate.stderr.toString("utf8") : "";
+  const status = typeof candidate.status === "number" ? `status ${candidate.status}` : "";
+  const firstLine = (stderr || message || status || "command failed").split(/\r?\n/u)[0]?.trim() || "command failed";
+  if (code || syscall) return [syscall || "spawnSync", executable, code || firstLine].filter(Boolean).join(" ");
+  return firstLine;
+}
+
+export function runGit(args: string[]) {
   return execFileSync("git", args, {
     cwd: ROOT,
     encoding: "utf8",
+    shell: process.platform === "win32",
   });
+}
+
+export function tryRunGit(args: string[]) {
+  if (process.env.KANDYDROPS_DISABLE_GIT === "1") {
+    return { ok: false as const, stdout: "", errorSummary: "spawnSync git ENOENT" };
+  }
+  try {
+    return { ok: true as const, stdout: runGit(args).trim(), errorSummary: null };
+  } catch (error) {
+    return { ok: false as const, stdout: "", errorSummary: summarizeCommandError(error) };
+  }
+}
+
+function normalizeRepoPath(repoPath: string) {
+  return repoPath.replace(/\\/g, "/").replace(/^\.\//u, "").trim();
+}
+
+function shouldSkipFallbackPath(repoPath: string) {
+  const normalized = normalizeRepoPath(repoPath);
+  return FALLBACK_EXCLUDED_PARTS.some((part) => normalized === part || normalized.includes(`/${part}/`) || normalized.startsWith(`${part}/`));
+}
+
+function repoInventoryFiles() {
+  const inventoryPath = "agent/index/repo-inventory.json";
+  if (!fileExists(inventoryPath)) return [];
+  try {
+    const parsed = readJsonFile<{ items?: Array<{ path?: unknown }> }>(inventoryPath);
+    return (parsed.items ?? [])
+      .map((item) => typeof item.path === "string" ? normalizeRepoPath(item.path) : "")
+      .filter((repoPath) => repoPath && !shouldSkipFallbackPath(repoPath) && fileExists(repoPath))
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
+function walkFallbackFilesFromRoot(directory: string, results: string[] = []) {
+  const absoluteDirectory = toAbsoluteRepoPath(directory);
+  if (!existsSync(absoluteDirectory)) return results;
+  for (const entry of readdirSync(absoluteDirectory)) {
+    const absolutePath = path.join(absoluteDirectory, entry);
+    const repoPath = toRepoPath(absolutePath);
+    if (shouldSkipFallbackPath(repoPath)) continue;
+    const stats = statSync(absolutePath);
+    if (stats.isDirectory()) {
+      walkFallbackFilesFromRoot(repoPath, results);
+      continue;
+    }
+    results.push(repoPath);
+  }
+  return results;
+}
+
+function filesystemFallbackFiles() {
+  return Array.from(new Set(FALLBACK_DISCOVERY_ROOTS.flatMap((root) => walkFallbackFilesFromRoot(root))))
+    .filter((repoPath) => !shouldSkipFallbackPath(repoPath))
+    .sort();
+}
+
+function splitLines(output: string) {
+  return output
+    .split(/\r?\n/u)
+    .map((entry) => normalizeRepoPath(entry))
+    .filter(Boolean);
+}
+
+function readCurrentHeadFromArtifacts(): { currentHead: string | null; source: CurrentHeadSource } {
+  for (const repoPath of [
+    "agent/index/repo-inventory.json",
+    "agent/state/public-beta-score.generated.json",
+    "agent/state/generated-report-authority.generated.json",
+  ]) {
+    if (!fileExists(repoPath)) continue;
+    try {
+      const parsed = readJsonFile<Record<string, unknown>>(repoPath);
+      const currentHead = typeof parsed.currentHead === "string"
+        ? parsed.currentHead
+        : typeof parsed.sourceCommit === "string"
+          ? parsed.sourceCommit
+          : null;
+      if (currentHead) {
+        return {
+          currentHead,
+          source: repoPath.startsWith("agent/index/") ? "repo_inventory" : "generated_artifact",
+        };
+      }
+    } catch {
+      // Ignore malformed generated artifacts; they cannot establish current-head truth.
+    }
+  }
+  return { currentHead: null, source: "unknown" };
+}
+
+export function readRepoToolchainState(): RepoToolchainState {
+  const gitHead = tryRunGit(["rev-parse", "HEAD"]);
+  const gitStatus: GitToolStatus = gitHead.ok ? "available" : /ENOENT|not recognized|not found|spawnSync git|spawn git/iu.test(gitHead.errorSummary ?? "")
+    ? "missing"
+    : "error";
+  const gitFiles = gitStatus === "available" ? tryRunGit(["ls-files"]) : { ok: false as const, stdout: "", errorSummary: gitHead.errorSummary };
+  const inventoryFiles = gitFiles.ok ? [] : repoInventoryFiles();
+  const filesystemFiles = gitFiles.ok || inventoryFiles.length > 0 ? [] : filesystemFallbackFiles();
+  const sourceFileDiscovery: SourceFileDiscovery = gitFiles.ok ? "git" : inventoryFiles.length > 0 ? "repo_inventory" : "filesystem";
+  const fallbackHead = gitHead.ok ? { currentHead: gitHead.stdout || null, source: "git" as const } : readCurrentHeadFromArtifacts();
+  const statusOutput = gitStatus === "available"
+    ? tryRunGit(["status", "--short"])
+    : { ok: false as const, stdout: "", errorSummary: gitHead.errorSummary };
+  const workingTreeStatus = statusOutput.ok ? splitLines(statusOutput.stdout) : "unavailable_git_missing";
+  const degradationReason = gitStatus === "available"
+    ? null
+    : gitHead.errorSummary ?? "git unavailable";
+
+  return {
+    gitStatus,
+    sourceFileDiscovery,
+    currentHead: fallbackHead.currentHead,
+    currentHeadSource: fallbackHead.source,
+    workingTreeStatus,
+    toolingDegraded: gitStatus !== "available" || sourceFileDiscovery !== "git",
+    degradationReason,
+  };
+}
+
+export function discoverRepoFiles() {
+  const gitFiles = tryRunGit(["ls-files"]);
+  if (gitFiles.ok) {
+    return {
+      files: splitLines(gitFiles.stdout).sort(),
+      sourceFileDiscovery: "git" as const,
+      gitStatus: "available" as const,
+      toolingDegraded: false,
+      degradationReason: null,
+    };
+  }
+  const inventoryFiles = repoInventoryFiles();
+  if (inventoryFiles.length > 0) {
+    return {
+      files: inventoryFiles,
+      sourceFileDiscovery: "repo_inventory" as const,
+      gitStatus: /ENOENT|not recognized|not found|spawnSync git|spawn git/iu.test(gitFiles.errorSummary ?? "") ? "missing" as const : "error" as const,
+      toolingDegraded: true,
+      degradationReason: gitFiles.errorSummary ?? "git unavailable",
+    };
+  }
+  return {
+    files: filesystemFallbackFiles(),
+    sourceFileDiscovery: "filesystem" as const,
+    gitStatus: /ENOENT|not recognized|not found|spawnSync git|spawn git/iu.test(gitFiles.errorSummary ?? "") ? "missing" as const : "error" as const,
+    toolingDegraded: true,
+    degradationReason: gitFiles.errorSummary ?? "git unavailable",
+  };
+}
+
+export function listWorkingTreeFiles() {
+  const state = readRepoToolchainState();
+  return Array.isArray(state.workingTreeStatus)
+    ? state.workingTreeStatus.map((line) => line.replace(/^.../u, "").trim()).filter(Boolean)
+    : [];
 }
 
 export function nowIso() {
@@ -94,20 +314,14 @@ export function fileExists(repoPath: string) {
 }
 
 export function listRepoFiles() {
-  const tracked = runGit(["ls-files", "--cached", "--others", "--exclude-standard"])
-    .split(/\r?\n/)
-    .map((entry) => entry.trim())
-    .filter(Boolean);
+  const gitFiles = tryRunGit(["ls-files", "--cached", "--others", "--exclude-standard"]);
+  const tracked = gitFiles.ok ? splitLines(gitFiles.stdout) : discoverRepoFiles().files;
 
   return Array.from(new Set(tracked)).sort();
 }
 
 export function listTrackedFiles() {
-  return runGit(["ls-files"])
-    .split(/\r?\n/)
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-    .sort();
+  return discoverRepoFiles().files;
 }
 
 export function listRootFiles() {

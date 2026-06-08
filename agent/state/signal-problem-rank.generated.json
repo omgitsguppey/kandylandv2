@@ -1,0 +1,3956 @@
+{
+  "schemaVersion": "signal_finding_v1",
+  "generatedAtUtc": "2026-06-08T18:42:46.968Z",
+  "sourceGraphPath": "agent/state/signal-source-graph.generated.json",
+  "sourceGraphGeneratedAtUtc": "2026-06-08T18:42:33.546Z",
+  "reportPath": "agent/state/signal-problem-rank.generated.json",
+  "reportCompleteness": "capped",
+  "totalFindingCount": 410,
+  "emittedFindingCount": 50,
+  "omittedFindingCount": 360,
+  "capReason": "rank report emits the top scored queue while ranking all source findings first",
+  "capStrategy": "top_risk",
+  "capLimit": 50,
+  "rankingInputCompleteness": "complete",
+  "highRiskCounts": {
+    "critical": 3,
+    "major": 0,
+    "signoff": 3,
+    "privacy": 0,
+    "payment": 0,
+    "lockedContent": 3,
+    "sourceTruth": 7
+  },
+  "sourceFileDiscovery": "git",
+  "gitStatus": "available",
+  "toolingDegraded": false,
+  "degradationReason": null,
+  "currentHead": "f1e140ac6a2827e40c4531ae47997d7312526f29",
+  "currentHeadSource": "git",
+  "sourceCommit": "f1e140ac6a2827e40c4531ae47997d7312526f29",
+  "freshness": "fresh",
+  "baselineStatus": "current",
+  "owner": "scripts/agent/rank-signal-problems.ts",
+  "safetyClass": "source_safe",
+  "costClass": "local_free",
+  "rollback": "Revert this generated report and rerun npm run signal:rank after restoring ranker inputs.",
+  "cleanupPolicy": "regenerate",
+  "cleanupCommand": "npm run signal:rank",
+  "sourceTruthRole": "generated_snapshot",
+  "verificationInputs": {
+    "selector": "scripts/agent/verification-selector.ts",
+    "indexes": [
+      "agent/index/verification-commands.json",
+      "agent/index/workflow-guidance.json",
+      "agent/index/surface-map.json",
+      "agent/index/canonical-helpers.json"
+    ],
+    "workflowGuidanceFiles": 19,
+    "requiredWorkflowGuidanceFiles": 7
+  },
+  "commandBudget": {
+    "allowedCommands": [
+      "npm run signal:rank",
+      "npm run typecheck",
+      "npm run agent:test -- tests/unit/signal-problem-rank.spec.ts"
+    ],
+    "forbiddenCommands": [
+      "npm run check",
+      "playwright",
+      "cypress",
+      "lighthouse",
+      "firebase deploy",
+      "gcloud",
+      "provider API calls"
+    ]
+  },
+  "summary": {
+    "sourceFindingCount": 410,
+    "rankInputFindingCount": 410,
+    "rankedProblemCount": 50,
+    "topScore": 51,
+    "providerRuntimeProofCount": 0,
+    "sourceOnlyEvidenceCount": 50,
+    "staleGeneratedSnapshotCount": 0,
+    "signoffTerminalCount": 0,
+    "targetedTerminalCount": 49,
+    "forbiddenTerminalCount": 0,
+    "byQueueCategory": {
+      "fix_now": 1,
+      "queue_later": 49,
+      "manual_evidence_required": 0,
+      "external_proof_required": 0,
+      "do_not_source_fix": 0,
+      "archive_stale_evidence": 0
+    }
+  },
+  "compactQueue": {
+    "fix_now": [
+      {
+        "rank": 29,
+        "id": "signal__signal-source-graph-unknown-owner-lane-src__app__dashboard__profile__profile-page-types-ts-source-file-has-no-obvious-owner-lane-or-surface",
+        "score": 47,
+        "title": "Source file has no obvious owner lane or surface.",
+        "nextSafeStep": "Review whether the file belongs under an existing owner or should be registered in repo-intelligence indexes."
+      }
+    ],
+    "queue_later": [
+      {
+        "rank": 1,
+        "id": "signal__signal-source-graph-ui-server-import-src__app__admin__page-tsx-src__lib__server__admin-page-data-loader-ts-ui-file-imports-server-only-logic",
+        "score": 51,
+        "title": "UI file imports server-only logic.",
+        "nextSafeStep": "Move the call behind a route/server action boundary or canonical client projection."
+      },
+      {
+        "rank": 2,
+        "id": "signal__signal-source-graph-ui-server-import-src__app__admin__user__-userid-__page-tsx-src__lib__server__admin-page-data-loader-ts-ui-file-imports-server-only-logic",
+        "score": 51,
+        "title": "UI file imports server-only logic.",
+        "nextSafeStep": "Move the call behind a route/server action boundary or canonical client projection."
+      },
+      {
+        "rank": 3,
+        "id": "signal__signal-source-graph-ui-server-import-src__app__admin__users__page-tsx-src__lib__server__admin-page-data-loader-ts-ui-file-imports-server-only-logic",
+        "score": 51,
+        "title": "UI file imports server-only logic.",
+        "nextSafeStep": "Move the call behind a route/server action boundary or canonical client projection."
+      },
+      {
+        "rank": 4,
+        "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__build-ui-runtime-audit-ts-exporting-source-file-has-no-resolved-inbound-imports",
+        "score": 48,
+        "title": "Exporting source file has no resolved inbound imports.",
+        "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal."
+      },
+      {
+        "rank": 5,
+        "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__check-agent-context-ts-exporting-source-file-has-no-resolved-inbound-imports",
+        "score": 48,
+        "title": "Exporting source file has no resolved inbound imports.",
+        "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal."
+      },
+      {
+        "rank": 6,
+        "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__check-ui-surface-coverage-ts-exporting-source-file-has-no-resolved-inbound-imports",
+        "score": 48,
+        "title": "Exporting source file has no resolved inbound imports.",
+        "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal."
+      },
+      {
+        "rank": 7,
+        "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__fast-start-ts-exporting-source-file-has-no-resolved-inbound-imports",
+        "score": 48,
+        "title": "Exporting source file has no resolved inbound imports.",
+        "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal."
+      },
+      {
+        "rank": 8,
+        "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__inject-debug-evidence-ts-exporting-source-file-has-no-resolved-inbound-imports",
+        "score": 48,
+        "title": "Exporting source file has no resolved inbound imports.",
+        "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal."
+      }
+    ],
+    "manual_evidence_required": [],
+    "external_proof_required": [],
+    "do_not_source_fix": [],
+    "archive_stale_evidence": []
+  },
+  "rankedProblems": [
+    {
+      "rank": 1,
+      "id": "signal__signal-source-graph-ui-server-import-src__app__admin__page-tsx-src__lib__server__admin-page-data-loader-ts-ui-file-imports-server-only-logic",
+      "ruleId": "signal.source-graph.ui-server-import",
+      "score": 51,
+      "shortTitle": "UI file imports server-only logic.",
+      "whyItMatters": "This may put source-truth responsibility in the wrong layer or bypass a canonical owner.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "frontend",
+      "canonicalOwner": "frontend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/admin/page.tsx",
+        "src/lib/server/admin-page-data-loader.ts"
+      ],
+      "nextSafeStep": "Move the call behind a route/server action boundary or canonical client projection.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/admin/page.tsx",
+          "npm run agent:test -- src/lib/server/admin-page-data-loader.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/admin/page.tsx",
+          "src/lib/server/admin-page-data-loader.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 81,
+        "impact": 38,
+        "evidenceQuality": 64,
+        "safety": 75,
+        "sourceTruthRisk": 85,
+        "userImpactRisk": 50,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 25,
+        "confidence": 55,
+        "blastRadius": 41,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 2,
+      "id": "signal__signal-source-graph-ui-server-import-src__app__admin__user__-userid-__page-tsx-src__lib__server__admin-page-data-loader-ts-ui-file-imports-server-only-logic",
+      "ruleId": "signal.source-graph.ui-server-import",
+      "score": 51,
+      "shortTitle": "UI file imports server-only logic.",
+      "whyItMatters": "This may put source-truth responsibility in the wrong layer or bypass a canonical owner.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "frontend",
+      "canonicalOwner": "frontend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/admin/user/[userId]/page.tsx",
+        "src/lib/server/admin-page-data-loader.ts"
+      ],
+      "nextSafeStep": "Move the call behind a route/server action boundary or canonical client projection.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/admin/user/[userId]/page.tsx",
+          "npm run agent:test -- src/lib/server/admin-page-data-loader.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/admin/user/[userId]/page.tsx",
+          "src/lib/server/admin-page-data-loader.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 81,
+        "impact": 38,
+        "evidenceQuality": 64,
+        "safety": 75,
+        "sourceTruthRisk": 85,
+        "userImpactRisk": 50,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 25,
+        "confidence": 55,
+        "blastRadius": 41,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 3,
+      "id": "signal__signal-source-graph-ui-server-import-src__app__admin__users__page-tsx-src__lib__server__admin-page-data-loader-ts-ui-file-imports-server-only-logic",
+      "ruleId": "signal.source-graph.ui-server-import",
+      "score": 51,
+      "shortTitle": "UI file imports server-only logic.",
+      "whyItMatters": "This may put source-truth responsibility in the wrong layer or bypass a canonical owner.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "frontend",
+      "canonicalOwner": "frontend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/admin/users/page.tsx",
+        "src/lib/server/admin-page-data-loader.ts"
+      ],
+      "nextSafeStep": "Move the call behind a route/server action boundary or canonical client projection.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/admin/users/page.tsx",
+          "npm run agent:test -- src/lib/server/admin-page-data-loader.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/admin/users/page.tsx",
+          "src/lib/server/admin-page-data-loader.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 81,
+        "impact": 38,
+        "evidenceQuality": 64,
+        "safety": 75,
+        "sourceTruthRisk": 85,
+        "userImpactRisk": 50,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 25,
+        "confidence": 55,
+        "blastRadius": 41,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 4,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__build-ui-runtime-audit-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/build-ui-runtime-audit.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/build-ui-runtime-audit.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/build-ui-runtime-audit.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 5,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__check-agent-context-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/check-agent-context.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/check-agent-context.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/check-agent-context.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 6,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__check-ui-surface-coverage-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/check-ui-surface-coverage.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/check-ui-surface-coverage.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/check-ui-surface-coverage.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 7,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__fast-start-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/fast-start.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/fast-start.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/fast-start.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 8,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__inject-debug-evidence-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/inject-debug-evidence.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/inject-debug-evidence.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/inject-debug-evidence.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 9,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__precatch-runtime-issues-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/precatch-runtime-issues.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/precatch-runtime-issues.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/precatch-runtime-issues.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 10,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__run-evals-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/run-evals.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/run-evals.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/run-evals.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 11,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__score-ai-cover-learning-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/score-ai-cover-learning.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/score-ai-cover-learning.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/score-ai-cover-learning.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 12,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__score-code-organization-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/score-code-organization.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/score-code-organization.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/score-code-organization.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 13,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__score-content-protection-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/score-content-protection.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/score-content-protection.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/score-content-protection.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 14,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__score-device-layout-contract-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/score-device-layout-contract.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/score-device-layout-contract.ts",
+          "npm run check:device-layout-contract",
+          "npm run check:device-ui",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/score-device-layout-contract.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 15,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__score-doctrine-hierarchy-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/score-doctrine-hierarchy.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/score-doctrine-hierarchy.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/score-doctrine-hierarchy.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 16,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__score-public-beta-readiness-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/score-public-beta-readiness.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/score-public-beta-readiness.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/score-public-beta-readiness.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 17,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-agent-indexes-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-agent-indexes.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-agent-indexes.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-agent-indexes.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 18,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-ai-debug-critic-review-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-ai-debug-critic-review.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-ai-debug-critic-review.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-ai-debug-critic-review.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 19,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-ai-debug-planner-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-ai-debug-planner.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-ai-debug-planner.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-ai-debug-planner.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 20,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-ai-debug-queue-truth-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-ai-debug-queue-truth.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-ai-debug-queue-truth.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-ai-debug-queue-truth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 21,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-analytics-ingest-firestore-closure-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-analytics-ingest-firestore-closure.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-analytics-ingest-firestore-closure.ts",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-analytics-ingest-firestore-closure.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 22,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-analytics-ingest-identified-repair-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 48,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-analytics-ingest-identified-repair.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-analytics-ingest-identified-repair.ts",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-analytics-ingest-identified-repair.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 96,
+        "impact": 8,
+        "evidenceQuality": 64,
+        "safety": 100,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 0,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 0,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 23,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-admin-ai-control-tower-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 47,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-admin-ai-control-tower.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-admin-ai-control-tower.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-admin-ai-control-tower.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 90,
+        "impact": 12,
+        "evidenceQuality": 64,
+        "safety": 95,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 25,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 24,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-admin-analytics-monolith-cleanup-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 47,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-admin-analytics-monolith-cleanup.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-admin-analytics-monolith-cleanup.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-admin-analytics-monolith-cleanup.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 90,
+        "impact": 12,
+        "evidenceQuality": 64,
+        "safety": 95,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 25,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 25,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-admin-truth-redaction-packet-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 47,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-admin-truth-redaction-packet.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-admin-truth-redaction-packet.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-admin-truth-redaction-packet.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 90,
+        "impact": 12,
+        "evidenceQuality": 64,
+        "safety": 95,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 25,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 26,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-admin-ui-primitives-cutover-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 47,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-admin-ui-primitives-cutover.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-admin-ui-primitives-cutover.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-admin-ui-primitives-cutover.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 90,
+        "impact": 12,
+        "evidenceQuality": 64,
+        "safety": 95,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 25,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 27,
+      "id": "signal__signal-source-graph-orphan-candidate-scripts__agent__validate-admin-user-behavior-truth-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 47,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "Disconnected imports, orphan candidates, or unwired validators can hide dead paths and make later fixes miss real owners.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "repo_intelligence",
+      "ownerLane": "agent_context",
+      "canonicalOwner": "agent_context",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "scripts/agent/validate-admin-user-behavior-truth.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- scripts/agent/validate-admin-user-behavior-truth.ts",
+          "npm run check:agent-context"
+        ],
+        "signoffCommands": [
+          "npm run check:inventory",
+          "npm run check:architecture",
+          "npm run check:agent-intelligence",
+          "npm run eval:agent-context",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "scripts/agent/validate-admin-user-behavior-truth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "repo_tooling"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 90,
+        "impact": 12,
+        "evidenceQuality": 64,
+        "safety": 95,
+        "sourceTruthRisk": 10,
+        "userImpactRisk": 23,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 55,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 25,
+        "confidence": 55,
+        "blastRadius": 18,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 28,
+      "id": "signal__signal-source-graph-server-truth-in-ui-src__app__admin__analytics__components__adminanalyticscommercetab-tsx-ui-file-contains-server-truth-or-provider-owned-terms",
+      "ruleId": "signal.source-graph.server-truth-in-ui",
+      "score": 47,
+      "shortTitle": "UI file contains server-truth or provider-owned terms.",
+      "whyItMatters": "This may put source-truth responsibility in the wrong layer or bypass a canonical owner.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "telemetry",
+      "canonicalOwner": "telemetry",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"
+      ],
+      "nextSafeStep": "Review whether this should delegate to a canonical server/helper owner before changing behavior.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 77,
+        "impact": 43,
+        "evidenceQuality": 64,
+        "safety": 57,
+        "sourceTruthRisk": 73,
+        "userImpactRisk": 50,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 75,
+        "confidence": 55,
+        "blastRadius": 8,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 29,
+      "id": "signal__signal-source-graph-unknown-owner-lane-src__app__dashboard__profile__profile-page-types-ts-source-file-has-no-obvious-owner-lane-or-surface",
+      "ruleId": "signal.source-graph.unknown-owner-lane",
+      "score": 47,
+      "shortTitle": "Source file has no obvious owner lane or surface.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "fix_now",
+      "affectedSurface": "server_truth",
+      "ownerLane": "unknown",
+      "canonicalOwner": "unknown",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/dashboard/profile/profile-page-types.ts"
+      ],
+      "nextSafeStep": "Review whether the file belongs under an existing owner or should be registered in repo-intelligence indexes.",
+      "minimalValidatorRecommendation": [],
+      "minimalVerification": {
+        "category": "targeted_unit_or_contract_test",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/dashboard/profile/profile-page-types.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime"
+        ],
+        "signoffCommands": [],
+        "selectorMatchedPaths": [
+          "src/app/dashboard/profile/profile-page-types.ts"
+        ],
+        "selectorTouchedDomains": [
+          "app_routes"
+        ],
+        "broadChecksNotNeededBecause": "The finding is bounded to source/index evidence and matched paths have a targeted fast lane, so full npm run check, browser audits, provider calls, and deploy checks are unnecessary by default.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "none",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 92,
+        "impact": 20,
+        "evidenceQuality": 64,
+        "safety": 97,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 30,
+        "protectedDomainRisk": 25,
+        "confidence": 55,
+        "blastRadius": 8,
+        "verificationCost": 0
+      }
+    },
+    {
+      "rank": 30,
+      "id": "signal__signal-source-graph-orphan-candidate-functions__src__ml-feature-registry-ts-exporting-source-file-has-no-resolved-inbound-imports",
+      "ruleId": "signal.source-graph.orphan-candidate",
+      "score": 46,
+      "shortTitle": "Exporting source file has no resolved inbound imports.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "backend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "functions/src/ml-feature-registry.ts"
+      ],
+      "nextSafeStep": "Review dynamic references, package scripts, route conventions, or docs before considering removal.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- functions/src/ml-feature-registry.ts",
+          "npm --prefix functions run check"
+        ],
+        "signoffCommands": [
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "functions/src/ml-feature-registry.ts"
+        ],
+        "selectorTouchedDomains": [
+          "functions"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [],
+        "explanation": "Matched 1 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 83,
+        "impact": 22,
+        "evidenceQuality": 64,
+        "safety": 77,
+        "sourceTruthRisk": 38,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 0,
+        "lockedContentRisk": 0,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 45,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 25,
+        "confidence": 55,
+        "blastRadius": 33,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 31,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-covers__feedback__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-covers/feedback/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-covers/feedback/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-covers/feedback/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 32,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-covers__generate__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-covers/generate/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-covers/generate/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-covers/generate/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 33,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-covers__prompt-policy__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-covers/prompt-policy/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-covers/prompt-policy/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-covers/prompt-policy/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 34,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-covers__references__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-covers/references/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-covers/references/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-covers/references/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 35,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-covers__review-gallery__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-covers/review-gallery/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-covers/review-gallery/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-covers/review-gallery/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 36,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-covers__route-ts-src__lib__server__admin-source-verification-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "backend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-covers/route.ts",
+        "src/lib/server/admin-source-verification.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-covers/route.ts",
+          "npm run agent:test -- src/lib/server/admin-source-verification.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-covers/route.ts",
+          "src/lib/server/admin-source-verification.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 37,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-covers__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-covers/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-covers/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-covers/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 38,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-covers__template__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-covers/template/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-covers/template/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-covers/template/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 39,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-descriptions__feedback__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-descriptions/feedback/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-descriptions/feedback/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-descriptions/feedback/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 40,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-descriptions__generate__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-descriptions/generate/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-descriptions/generate/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-descriptions/generate/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 41,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-descriptions__prompt-policy__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 42,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__ai__drop-descriptions__route-ts-src__lib__server__auth-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "route_boundary_auth_request_guard: src/lib/server/auth.ts",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/ai/drop-descriptions/route.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/ai/drop-descriptions/route.ts",
+          "npm run agent:test -- src/lib/server/auth.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:auth-runtime-telemetry",
+          "npm run check:auth-role-drift-4xx-policy",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:auth-readiness-lock",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/ai/drop-descriptions/route.ts",
+          "src/lib/server/auth.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "ai_admin",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 43,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__analytics__historical__route-ts-src__lib__server__admin-analytics-capture-health-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "backend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/server/admin-analytics-capture-health.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/analytics/historical/route.ts",
+          "npm run agent:test -- src/lib/server/admin-analytics-capture-health.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/analytics/historical/route.ts",
+          "src/lib/server/admin-analytics-capture-health.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 44,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__analytics__historical__route-ts-src__lib__server__admin-analytics-context-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "backend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/server/admin-analytics-context.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/analytics/historical/route.ts",
+          "npm run agent:test -- src/lib/server/admin-analytics-context.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/analytics/historical/route.ts",
+          "src/lib/server/admin-analytics-context.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 45,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__analytics__historical__route-ts-src__lib__server__admin-analytics-data-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "backend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/server/admin-analytics-data.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/analytics/historical/route.ts",
+          "npm run agent:test -- src/lib/server/admin-analytics-data.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/analytics/historical/route.ts",
+          "src/lib/server/admin-analytics-data.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 46,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__analytics__historical__route-ts-src__lib__server__admin-analytics-historical-activity-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "backend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/server/admin-analytics-historical-activity.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/analytics/historical/route.ts",
+          "npm run agent:test -- src/lib/server/admin-analytics-historical-activity.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/analytics/historical/route.ts",
+          "src/lib/server/admin-analytics-historical-activity.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 47,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__analytics__historical__route-ts-src__lib__server__admin-analytics-historical-content-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "backend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/server/admin-analytics-historical-content.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/analytics/historical/route.ts",
+          "npm run agent:test -- src/lib/server/admin-analytics-historical-content.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/analytics/historical/route.ts",
+          "src/lib/server/admin-analytics-historical-content.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 48,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__analytics__historical__route-ts-src__lib__server__admin-analytics-historical-engagement-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "backend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/analytics/historical/route.ts",
+          "npm run agent:test -- src/lib/server/admin-analytics-historical-engagement.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/analytics/historical/route.ts",
+          "src/lib/server/admin-analytics-historical-engagement.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 49,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__analytics__historical__route-ts-src__lib__server__admin-analytics-historical-onboarding-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "backend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/server/admin-analytics-historical-onboarding.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/analytics/historical/route.ts",
+          "npm run agent:test -- src/lib/server/admin-analytics-historical-onboarding.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/analytics/historical/route.ts",
+          "src/lib/server/admin-analytics-historical-onboarding.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    },
+    {
+      "rank": 50,
+      "id": "signal__signal-source-graph-server-component-sensitive-helper-review-src__app__api__admin__analytics__historical__route-ts-src__lib__server__admin-analytics-historical-tasks-ts-server-capable-app-router-file-imports-a-sensitive-server-helper",
+      "ruleId": "signal.source-graph.server-component-sensitive-helper-review",
+      "score": 45,
+      "shortTitle": "Server-capable App Router file imports a sensitive server helper.",
+      "whyItMatters": "This is a local source-graph signal that should guide targeted review before broad validation.",
+      "queueCategory": "queue_later",
+      "affectedSurface": "server_truth",
+      "ownerLane": "backend",
+      "canonicalOwner": "backend",
+      "evidenceClassifications": [
+        "source_only"
+      ],
+      "evidenceReferences": [
+        "source:signal-source-graph"
+      ],
+      "affectedFiles": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/server/admin-analytics-historical-tasks.ts"
+      ],
+      "nextSafeStep": "Review only if the selected task crosses auth, payment, privacy, or entitlement boundaries.",
+      "minimalValidatorRecommendation": [
+        "npm run typecheck"
+      ],
+      "minimalVerification": {
+        "category": "signoff_only_check",
+        "commands": [
+          "npm run typecheck",
+          "npm run agent:test -- src/app/api/admin/analytics/historical/route.ts",
+          "npm run agent:test -- src/lib/server/admin-analytics-historical-tasks.ts",
+          "npm run check:ui:coverage",
+          "npm run check:ui:runtime",
+          "npm run check:telemetry-dependency-graph",
+          "npm run check:telemetry",
+          "npm run check:analytics-semantics",
+          "npm run check:telemetry-parity-score",
+          "npm run check:debug-evidence-pipeline",
+          "npm run check:admin-debug-control-tower"
+        ],
+        "signoffCommands": [
+          "npm run check:analytics:continuity",
+          "npm run check:continuity"
+        ],
+        "selectorMatchedPaths": [
+          "src/app/api/admin/analytics/historical/route.ts",
+          "src/lib/server/admin-analytics-historical-tasks.ts"
+        ],
+        "selectorTouchedDomains": [
+          "admin_ops",
+          "app_routes",
+          "shared_server_helpers"
+        ],
+        "broadChecksNotNeededBecause": "The selector marks this as broad or signoff-sensitive; keep broad checks out of the edit loop and run them only at signoff.",
+        "browserProviderDeployPolicy": "forbidden_by_default",
+        "blockedCommandsRequiringPromotion": [
+          "npm run check:ui:audits"
+        ],
+        "explanation": "Matched 2 repo-tracked paths."
+      },
+      "terminalRequirement": "targeted",
+      "sourceTruthCaveat": "Source-only evidence can identify likely code problems, but it does not prove runtime or provider behavior.",
+      "dimensions": {
+        "fixability": 75,
+        "impact": 28,
+        "evidenceQuality": 64,
+        "safety": 69,
+        "sourceTruthRisk": 30,
+        "userImpactRisk": 35,
+        "privacySecurityRisk": 25,
+        "paymentEconomyRisk": 30,
+        "lockedContentRisk": 30,
+        "staleEvidenceRisk": 0,
+        "orphanDisconnectedCodeRisk": 0,
+        "duplicateOwnerRisk": 0,
+        "validatorCoverageGap": 0,
+        "protectedDomainRisk": 30,
+        "confidence": 55,
+        "blastRadius": 61,
+        "verificationCost": 30
+      }
+    }
+  ]
+}
