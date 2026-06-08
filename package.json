@@ -974,7 +974,7 @@
         "npm-check-updates": "^19.6.6",
         "playwright": "^1.59.1",
         "postcss": "^8.5.10",
-        "puppeteer": "^24.40.0",
+        "puppeteer": "^25.1.0",
         "storybook": "^10.3.5",
         "syncpack": "^14.3.0",
         "tailwindcss": "^4.2.2",
