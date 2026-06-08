@@ -30,6 +30,7 @@ import {
 const FLOW_STORAGE_KEY = "kandydrops.telemetry.flows";
 
 type SanitizedEventParams = SanitizedTelemetryParams;
+type TelemetryTransportReason = "interval" | "page_view" | "visibility" | "pagehide" | "cleanup" | "online" | "priority";
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
 const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "semantic_page_viewed",
@@ -257,6 +258,86 @@ function getEnrichedEventParams(eventName: string, eventParams?: Record<string, 
 
 function getGaDispatchParams(eventParams?: SanitizedEventParams) {
     return sanitizeTelemetryParamsForGa4(eventParams);
+}
+
+export async function submitGuestAnalyticsIngestPayload(input: {
+    payload: unknown;
+    pagePath: string;
+    reason: TelemetryTransportReason;
+    preferBeacon?: boolean;
+    eventCount: number;
+}) {
+    if (typeof window === "undefined") {
+        return false;
+    }
+
+    const preferBeacon = input.preferBeacon === true
+        || input.reason === "pagehide"
+        || input.reason === "visibility"
+        || input.reason === "cleanup";
+    const body = JSON.stringify(input.payload);
+    const blob = new Blob([body], { type: "application/json" });
+
+    try {
+        if (preferBeacon && typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
+            const accepted = navigator.sendBeacon("/api/analytics/ingest", blob);
+            if (!accepted) {
+                throw new Error("Guest analytics sendBeacon was rejected");
+            }
+            return true;
+        }
+
+        const response = await fetch("/api/analytics/ingest", {
+            method: "POST",
+            body: blob,
+            keepalive: preferBeacon,
+        });
+        if (!response.ok) {
+            throw new Error(`Guest analytics flush failed (${response.status})`);
+        }
+        return true;
+    } catch (error) {
+        recordClientDiagnostic("telemetry", "Guest analytics flush failed", {
+            pagePath: input.pagePath,
+            reason: input.reason,
+            queuedEvents: input.eventCount,
+            message: error instanceof Error ? error.message : String(error),
+        });
+        return false;
+    }
+}
+
+export function submitRuntimeWatchTelemetryEvent(input: {
+    event: unknown;
+    ingestEndpoint?: string | null;
+    preferBeacon?: boolean;
+}) {
+    if (!input.ingestEndpoint || typeof window === "undefined") {
+        return;
+    }
+
+    const body = JSON.stringify({ runtimeWatchEvent: input.event });
+    if (
+        input.preferBeacon === true
+        && typeof navigator !== "undefined"
+        && typeof navigator.sendBeacon === "function"
+    ) {
+        const sent = navigator.sendBeacon(input.ingestEndpoint, new Blob([body], { type: "application/json" }));
+        if (sent) {
+            return;
+        }
+    }
+
+    void fetch(input.ingestEndpoint, {
+        method: "POST",
+        body,
+        headers: { "content-type": "application/json" },
+        keepalive: input.preferBeacon === true,
+    }).catch((error) => {
+        recordClientDiagnostic("telemetry", "Runtime watch telemetry flush failed", {
+            message: error instanceof Error ? error.message : String(error),
+        });
+    });
 }
 
 function dispatchGaCompanionEvent(eventName: string, eventParams?: SanitizedEventParams) {

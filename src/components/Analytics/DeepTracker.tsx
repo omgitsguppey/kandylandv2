@@ -10,7 +10,7 @@ import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
 import { buildClientTrackingDecision } from "@/lib/analytics/client-tracking-policy";
 import { canUseBehavioralAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
-import { trackEvent } from "@/lib/telemetry";
+import { submitGuestAnalyticsIngestPayload, trackEvent } from "@/lib/telemetry";
 import {
     closeSession,
     startSession,
@@ -428,42 +428,25 @@ export function DeepTracker() {
             stableGuestBatchRef.current = stableBatch;
 
             guestFlushInFlightRef.current = (async () => {
-                const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-                const preferBeacon = options.preferBeacon === true
-                    || reason === "pagehide"
-                    || reason === "visibility"
-                    || reason === "cleanup";
                 try {
-                    if (preferBeacon && navigator?.sendBeacon) {
-                        const accepted = navigator.sendBeacon("/api/analytics/ingest", blob);
-                        if (!accepted) {
-                            throw new Error("Guest analytics sendBeacon was rejected");
-                        }
-                    } else {
-                        const response = await fetch("/api/analytics/ingest", {
-                            method: "POST",
-                            body: blob,
-                            keepalive: preferBeacon,
-                        });
-                        if (!response.ok) {
-                            throw new Error(`Guest analytics flush failed (${response.status})`);
-                        }
+                    const flushed = await submitGuestAnalyticsIngestPayload({
+                        payload,
+                        pagePath: pathname,
+                        reason,
+                        preferBeacon: options.preferBeacon,
+                        eventCount: queuedEvents.length,
+                    });
+                    if (!flushed) {
+                        return;
                     }
-
                     eventQueue.current = eventQueue.current.slice(queuedEvents.length);
                     stableGuestBatchRef.current = clearStableGuestAnalyticsBatchAfterSuccess(
                         stableGuestBatchRef.current,
                         stableBatch.signature,
                     );
                     persistGuestQueue(eventQueue.current);
-                } catch (error) {
+                } catch {
                     persistGuestQueue(eventQueue.current);
-                    recordClientDiagnostic("telemetry", "Guest analytics flush failed", {
-                        pagePath: pathname,
-                        reason,
-                        queuedEvents: queuedEvents.length,
-                        message: error instanceof Error ? error.message : String(error),
-                    });
                 } finally {
                     guestFlushInFlightRef.current = null;
                 }

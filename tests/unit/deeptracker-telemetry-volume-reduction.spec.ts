@@ -123,6 +123,21 @@ describe("DeepTracker telemetry volume reduction", () => {
     expect(source).not.toContain("CLIENT_TELEMETRY_NON_PRIORITY_FLUSH_INTERVAL_MS");
   });
 
+  it("routes raw analytics transports through canonical telemetry helpers", () => {
+    const deepTracker = readRepoFile("src/components/Analytics/DeepTracker.tsx");
+    const runtimeWatchTracker = readRepoFile("src/components/Analytics/RuntimeWatchTracker.tsx");
+    const telemetry = readRepoFile("src/lib/telemetry.ts");
+
+    expect(deepTracker).toContain("submitGuestAnalyticsIngestPayload");
+    expect(runtimeWatchTracker).toContain("submitRuntimeWatchTelemetryEvent");
+    expect(deepTracker).not.toMatch(/fetch\s*\(\s*["']\/api\/analytics\/ingest/u);
+    expect(deepTracker).not.toMatch(/navigator\.sendBeacon\s*\(/u);
+    expect(runtimeWatchTracker).not.toMatch(/fetch\s*\(/u);
+    expect(runtimeWatchTracker).not.toMatch(/navigator\.sendBeacon\s*\(/u);
+    expect(telemetry).toContain("submitGuestAnalyticsIngestPayload");
+    expect(telemetry).toContain("submitRuntimeWatchTelemetryEvent");
+  });
+
   it("writes the phase report with audit items and percentage-only savings", () => {
     const report = JSON.parse(readRepoFile("agent/state/deeptracker-telemetry-volume-reduction.generated.json"));
 

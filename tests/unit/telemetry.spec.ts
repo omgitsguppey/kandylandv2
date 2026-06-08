@@ -75,6 +75,10 @@ describe("telemetry flow logic", () => {
             visibilityState: "visible",
             addEventListener: vi.fn(),
         });
+        vi.stubGlobal("navigator", {
+            sendBeacon: vi.fn(),
+        });
+        vi.stubGlobal("fetch", vi.fn());
         vi.useFakeTimers();
         vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
 
@@ -324,6 +328,66 @@ describe("telemetry flow logic", () => {
                     release_version: "1.0.0"
                 })
             );
+        });
+    });
+
+    describe("canonical client telemetry transports", () => {
+        it("submits guest analytics with beacon on lifecycle flushes", async () => {
+            vi.mocked(navigator.sendBeacon).mockReturnValue(true);
+
+            const result = await telemetry.submitGuestAnalyticsIngestPayload({
+                payload: { batchId: "batch_1", events: [] },
+                pagePath: "/test-path",
+                reason: "pagehide",
+                eventCount: 1,
+            });
+
+            expect(result).toBe(true);
+            expect(navigator.sendBeacon).toHaveBeenCalledWith(
+                "/api/analytics/ingest",
+                expect.any(Blob),
+            );
+            expect(fetch).not.toHaveBeenCalled();
+        });
+
+        it("records a diagnostic and keeps the guest queue intact when transport fails", async () => {
+            vi.mocked(navigator.sendBeacon).mockReturnValue(false);
+            vi.mocked(fetch).mockRejectedValue(new Error("offline"));
+
+            const result = await telemetry.submitGuestAnalyticsIngestPayload({
+                payload: { batchId: "batch_1", events: [] },
+                pagePath: "/test-path",
+                reason: "page_view",
+                eventCount: 2,
+            });
+
+            expect(result).toBe(false);
+            expect(diagnostics.recordClientDiagnostic).toHaveBeenCalledWith("telemetry", "Guest analytics flush failed", expect.objectContaining({
+                pagePath: "/test-path",
+                reason: "page_view",
+                queuedEvents: 2,
+                message: "offline",
+            }));
+        });
+
+        it("submits runtime watch events through the canonical helper", () => {
+            vi.mocked(navigator.sendBeacon).mockReturnValue(false);
+            vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 204 }));
+
+            telemetry.submitRuntimeWatchTelemetryEvent({
+                event: { eventId: "watch_1", eventType: "watch_pause" },
+                ingestEndpoint: "/api/watch/runtime",
+                preferBeacon: true,
+            });
+
+            expect(navigator.sendBeacon).toHaveBeenCalledWith(
+                "/api/watch/runtime",
+                expect.any(Blob),
+            );
+            expect(fetch).toHaveBeenCalledWith("/api/watch/runtime", expect.objectContaining({
+                method: "POST",
+                keepalive: true,
+            }));
         });
     });
 });

@@ -8,6 +8,7 @@ import {
   type RuntimeWatchEventType,
 } from "@/lib/analytics/runtime-watch-time-v2";
 import type { AnalyticsIdentityState } from "@/lib/analytics/analytics-event-contract";
+import { submitRuntimeWatchTelemetryEvent } from "@/lib/telemetry";
 
 type RuntimeWatchTrackerProps = {
   mediaRef: RefObject<HTMLMediaElement | null>;
@@ -86,24 +87,11 @@ export function RuntimeWatchTracker({
       return;
     }
 
-    if (!ingestEndpoint || typeof window === "undefined") {
-      return;
-    }
-
-    const body = JSON.stringify({ runtimeWatchEvent: event });
-    if (preferBeacon && typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
-      const sent = navigator.sendBeacon(ingestEndpoint, new Blob([body], { type: "application/json" }));
-      if (sent) {
-        return;
-      }
-    }
-
-    void fetch(ingestEndpoint, {
-      method: "POST",
-      body,
-      headers: { "content-type": "application/json" },
-      keepalive: true,
-    }).catch(() => undefined);
+    submitRuntimeWatchTelemetryEvent({
+      event,
+      ingestEndpoint,
+      preferBeacon,
+    });
   }, [ingestEndpoint, onWatchEvent]);
 
   const emitWatchEvent = useCallback((eventType: RuntimeWatchEventType, options: { preferBeacon?: boolean } = {}) => {
