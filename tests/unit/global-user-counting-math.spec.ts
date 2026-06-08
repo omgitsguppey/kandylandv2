@@ -78,6 +78,75 @@ describe("global user linked-person counting math", () => {
     expect(report.validation.duplicateGuestUserCountsSuppressed).toBeGreaterThanOrEqual(1);
   });
 
+  it("keeps link observations and restore duplicates from inflating the first post-login action", () => {
+    const linkBase = {
+      actorKind: "signed_in_user" as const,
+      identityState: "logged_in_linked_guest" as const,
+      identityConfidence: "linked" as const,
+      guestId: "guest_1",
+      userRef: { kind: "user" as const, id: "user_1" },
+      linkId: "link_1",
+      timestamp: "2026-05-26T10:00:00.000Z",
+    };
+    const clientLink = envelope({
+      ...linkBase,
+      eventId: "identity_linked_client",
+      eventName: "identity_linked",
+      metadata: {
+        diagnostic_only: true,
+        metric_eligible: false,
+        metric_exclusion_reason: "client_observed_identity_link",
+      },
+    });
+    const serverLink = envelope({
+      ...linkBase,
+      eventId: "identity_linked_server",
+      eventName: "identity_linked",
+      source: "server",
+      metadata: { sourceTruth: "canonical" },
+    });
+    const restoreDuplicateLink = envelope({
+      ...linkBase,
+      eventId: "identity_linked_restore_duplicate",
+      eventName: "identity_linked",
+      metadata: { replayOfEventId: "identity_linked_server" },
+    });
+    const guestCopy = envelope({
+      eventId: "drop_guest_before_login",
+      eventName: "drop_preview_opened",
+      actorKind: "guest",
+      identityState: "guest_minimal_analytics",
+      identityConfidence: "weak",
+      guestId: "guest_1",
+      userRef: null,
+      linkId: "link_1",
+      metadata: { dropId: "drop_1" },
+      timestamp: "2026-05-26T10:00:01.000Z",
+    });
+    const firstPostLogin = envelope({
+      ...linkBase,
+      eventId: "drop_first_post_login",
+      eventName: "drop_preview_opened",
+      metadata: { dropId: "drop_1" },
+      timestamp: "2026-05-26T10:00:03.000Z",
+    });
+
+    const report = hydratePersonMetrics({
+      envelopes: [clientLink, serverLink, restoreDuplicateLink, guestCopy, firstPostLogin],
+    });
+
+    expect(report.scopes.global.metrics.drop_opens.count).toBe(1);
+    expect(report.scopes.linkedPerson.metrics.drop_opens.count).toBe(1);
+    expect(report.scopes.guest.metrics.drop_opens.count).toBe(0);
+    expect(report.scopes.signedIn.metrics.drop_opens.count).toBe(0);
+    expect(report.scopes.global.metrics.auth_runtime_events.hydratedEventIds).not.toEqual(expect.arrayContaining([
+      "identity_linked_client",
+      "identity_linked_server",
+      "identity_linked_restore_duplicate",
+    ]));
+    expect(report.validation.duplicateGuestUserCountsSuppressed).toBeGreaterThanOrEqual(1);
+  });
+
   it("excludes admin projections and system events from user behavior", () => {
     const admin = calculateGlobalCountDecision({
       eventName: "admin_debug_viewed",

@@ -11,14 +11,21 @@ const sources = {
     export function buildIdentityLink() { return { identityLinkId: "id", authTransitionId: "auth" }; }
     export function createIdentityLinkStorageKey() {}
     export function hasSubmittedIdentityLink() {}
+    export function buildIdentityLinkPayload() { return { submit() { if (hasSubmittedIdentityLink(link, storage)) return; markIdentityLinkSubmitted(link, storage); } }; }
+    function markIdentityLinkSubmitted() {}
+  `,
+  "src/lib/analytics/identity-transfer.ts": `
+    export type AnalyticsIdentityLink = {};
+    export type AnalyticsIdentityTransferInput = {};
+    export function buildAnalyticsIdentityLink() {}
+    export function getAnalyticsIdentityLinkId() {}
   `,
   "src/lib/analytics/analytics-event-contract.ts": `
     export const ANALYTICS_IDENTITY_STATES = ["guest_only", "user_only", "guest_linked_to_user", "unknown_legacy"] as const;
     type Event = { identityState: string };
   `,
   "src/context/AuthContext.tsx": `
-    if (hasSubmittedIdentityLink(payload)) return;
-    markIdentityLinkSubmitted(payload);
+    void payload.submit(authFetch);
   `,
   "src/app/api/analytics/identity-link/route.ts": `
     guardApiRequest(request, { auth: "user", requireAuthHeaderPresence: true });

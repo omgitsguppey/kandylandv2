@@ -122,7 +122,8 @@ export function syncClientSessionOwnership(actorKey: string | null) {
   const shouldRotateSession = Boolean(
     previousOwner
     && previousOwner !== actorKey
-    && isAuthenticatedActor(previousOwner),
+    && isAuthenticatedActor(previousOwner)
+    && isAuthenticatedActor(actorKey),
   );
 
   if (shouldRotateSession) {

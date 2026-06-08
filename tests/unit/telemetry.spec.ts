@@ -8,6 +8,7 @@ vi.mock("@/lib/privacy-consent", async () => {
         readPrivacySettingsSnapshot: vi.fn(),
         canUseAnonymousAnalytics: vi.fn(),
         canUseIdentifiedAnalytics: vi.fn(),
+        resolvePrivacyDataAvailabilityReason: vi.fn(() => "full_signal"),
     };
 });
 
@@ -57,6 +58,15 @@ describe("telemetry flow logic", () => {
                 }),
                 removeItem: vi.fn((key: string) => {
                     delete mockLocalStorage[key];
+                }),
+            },
+            sessionStorage: {
+                getItem: vi.fn((key: string) => mockLocalStorage[`session:${key}`] || null),
+                setItem: vi.fn((key: string, value: string) => {
+                    mockLocalStorage[`session:${key}`] = value;
+                }),
+                removeItem: vi.fn((key: string) => {
+                    delete mockLocalStorage[`session:${key}`];
                 }),
             },
             innerWidth: 1024,
@@ -229,11 +239,59 @@ describe("telemetry flow logic", () => {
             expect(stored.userId).toBe("same_user");
             expect(stored.events).toEqual(events);
         });
+
+        it("drops stale queued events before a new authenticated user can enqueue", () => {
+            vi.mocked(privacyConsent.readPrivacySettingsSnapshot).mockReturnValue({
+                consentMode: "full_behavioral",
+                anonymousAnalyticsEnabled: true,
+                identifiedAnalyticsEnabled: true,
+                allowRecommendations: true,
+                showInAnonymousStats: true,
+                honorGlobalPrivacyControl: true,
+                consentUpdatedAt: 1767225600000,
+            } as any);
+            vi.mocked(privacyConsent.canUseAnonymousAnalytics).mockReturnValue(true);
+            vi.mocked(privacyConsent.canUseIdentifiedAnalytics).mockReturnValue(true);
+            vi.mocked(analyticsClientEngine.prepareAnalyticsEvent).mockReturnValue({
+                isKnownEvent: true,
+                canonicalEventName: "known_event",
+                enrichedParams: { source_component: "test" },
+            });
+            // @ts-ignore
+            if (firebaseAuth.auth) {
+                // @ts-ignore
+                firebaseAuth.auth.currentUser = { uid: "new_user" };
+            }
+            telemetry.__setTelemetryStateForTesting("old_user", [{
+                eventId: "old_event",
+                eventName: "old_event",
+                eventTimestampMs: 1,
+                eventParams: { user_id: "old_user" },
+            }]);
+
+            telemetry.trackEvent("known_event");
+
+            const stored = telemetry.__getTelemetryStateForTesting();
+            expect(stored.userId).toBe("new_user");
+            expect(stored.events).toHaveLength(1);
+            expect(stored.events[0]).toMatchObject({
+                eventName: "known_event",
+                eventParams: expect.not.objectContaining({ user_id: "old_user" }),
+            });
+        });
     });
 
     describe("trackEvent", () => {
         beforeEach(() => {
-            vi.mocked(privacyConsent.readPrivacySettingsSnapshot).mockReturnValue({} as any);
+            vi.mocked(privacyConsent.readPrivacySettingsSnapshot).mockReturnValue({
+                consentMode: "full_behavioral",
+                anonymousAnalyticsEnabled: true,
+                identifiedAnalyticsEnabled: true,
+                allowRecommendations: true,
+                showInAnonymousStats: true,
+                honorGlobalPrivacyControl: true,
+                consentUpdatedAt: 1767225600000,
+            } as any);
             vi.mocked(privacyConsent.canUseAnonymousAnalytics).mockReturnValue(true);
             vi.mocked(privacyConsent.canUseIdentifiedAnalytics).mockReturnValue(true);
 
@@ -253,6 +311,15 @@ describe("telemetry flow logic", () => {
         it("bails early if analytics are disabled and not a task progress event", () => {
             vi.mocked(privacyConsent.canUseAnonymousAnalytics).mockReturnValue(false);
             vi.mocked(privacyConsent.canUseIdentifiedAnalytics).mockReturnValue(false);
+            vi.mocked(privacyConsent.readPrivacySettingsSnapshot).mockReturnValue({
+                consentMode: "denied",
+                anonymousAnalyticsEnabled: false,
+                identifiedAnalyticsEnabled: false,
+                allowRecommendations: false,
+                showInAnonymousStats: false,
+                honorGlobalPrivacyControl: true,
+                consentUpdatedAt: 1767225600000,
+            } as any);
 
             telemetry.trackEvent("test_event");
 
@@ -293,12 +360,10 @@ describe("telemetry flow logic", () => {
                 "event",
                 "known_event",
                 expect.objectContaining({
-                    test: "param",
                     page_path: "/test-path",
-                    viewport_width: 1024,
-                    viewport_height: 768,
-                    is_mobile_viewport: false,
                     auth_state: "authenticated",
+                    consent_mode: "full_behavioral",
+                    event_name: "known_event",
                     event_timestamp_ms: 1767225600000
                 })
             );
@@ -324,10 +389,115 @@ describe("telemetry flow logic", () => {
                 "event",
                 "known_event",
                 expect.objectContaining({
-                    rollout_context: "A",
-                    release_version: "1.0.0"
+                    page_path: "/test-path",
+                    auth_state: "authenticated",
+                    event_name: "known_event"
                 })
             );
+        });
+    });
+
+    describe("trackIdentityLinked", () => {
+        beforeEach(() => {
+            vi.mocked(privacyConsent.readPrivacySettingsSnapshot).mockReturnValue({
+                consentMode: "full_behavioral",
+                anonymousAnalyticsEnabled: true,
+                identifiedAnalyticsEnabled: true,
+                allowRecommendations: true,
+                showInAnonymousStats: true,
+                honorGlobalPrivacyControl: true,
+                consentUpdatedAt: 1767225600000,
+            } as any);
+            vi.mocked(privacyConsent.canUseIdentifiedAnalytics).mockReturnValue(true);
+            vi.mocked(privacyConsent.resolvePrivacyDataAvailabilityReason).mockReturnValue("full_signal");
+            vi.mocked(analyticsClientEngine.prepareAnalyticsEvent).mockImplementation((eventName, params) => ({
+                isKnownEvent: true,
+                canonicalEventName: eventName,
+                enrichedParams: params as any,
+            }));
+            vi.mocked(authFetchModule.authFetch).mockResolvedValue(new Response(null, { status: 204 }));
+
+            // @ts-ignore
+            if (firebaseAuth.auth) {
+                // @ts-ignore
+                firebaseAuth.auth.currentUser = { uid: "user123" };
+            }
+        });
+
+        it("keeps the client identity_linked observation diagnostic-only so the server link remains canonical", async () => {
+            telemetry.trackIdentityLinked({
+                userId: "user123",
+                method: "login",
+                eligiblePastSessionIds: ["sess_previous"],
+            });
+
+            await Promise.resolve();
+            await Promise.resolve();
+
+            expect(authFetchModule.authFetch).toHaveBeenCalledWith(
+                "/api/analytics/ingest-identified",
+                expect.objectContaining({ method: "POST" }),
+            );
+            const [, init] = vi.mocked(authFetchModule.authFetch).mock.calls[0];
+            expect(init).toBeDefined();
+            if (!init) {
+                throw new Error("Expected identity link telemetry flush init");
+            }
+            const body = JSON.parse(String(init.body)) as {
+                events: Array<{ eventName: string; eventParams: Record<string, unknown> }>;
+            };
+
+            expect(body.events[0]).toMatchObject({
+                eventName: "identity_linked",
+                eventParams: {
+                    user_id: "user123",
+                    method: "login",
+                    diagnostic_only: true,
+                    metric_eligible: false,
+                    metric_exclusion_reason: "client_observed_identity_link",
+                    source_truth: "client_supporting",
+                    source_component: "client_identity_link_observer",
+                },
+            });
+        });
+
+        it("adds signed-in user, session, and link metadata to the next auth success event", async () => {
+            telemetry.trackIdentityLinked({
+                userId: "user123",
+                method: "login",
+                eligiblePastSessionIds: ["sess_previous"],
+            });
+            await Promise.resolve();
+            await Promise.resolve();
+            const firstCall = vi.mocked(authFetchModule.authFetch).mock.calls[0];
+            const firstBody = JSON.parse(String(firstCall[1]?.body)) as {
+                events: Array<{ eventParams: Record<string, unknown> }>;
+            };
+            const linkedSessionId = firstBody.events[0].eventParams.session_id;
+            const identityLinkId = firstBody.events[0].eventParams.identity_link_id;
+            vi.mocked(authFetchModule.authFetch).mockClear();
+
+            telemetry.trackEvent("auth_session_established", {
+                source_component: "AuthContext",
+                source_truth: "server_session",
+            });
+            await Promise.resolve();
+            await Promise.resolve();
+
+            const [, init] = vi.mocked(authFetchModule.authFetch).mock.calls[0];
+            const body = JSON.parse(String(init?.body)) as {
+                events: Array<{ eventName: string; eventParams: Record<string, unknown> }>;
+            };
+            expect(body.events[0]).toMatchObject({
+                eventName: "auth_session_established",
+                eventParams: expect.objectContaining({
+                    auth_state: "authenticated",
+                    actor_kind: "signed_in_user",
+                    session_id: linkedSessionId,
+                    identity_link_id: identityLinkId,
+                }),
+            });
+            expect(identityLinkId).toEqual(expect.stringMatching(/^identity_link_/u));
         });
     });
 

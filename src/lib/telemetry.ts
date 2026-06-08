@@ -242,7 +242,9 @@ function getEnrichedEventParams(eventName: string, eventParams?: Record<string, 
         auth_state: isAuthenticated ? "authenticated" : "guest",
         identified_analytics_allowed: allowIdentifiedAnalytics,
         privacy_data_availability_reason: privacyDataAvailabilityReason,
-        metric_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+        metric_exclusion_reason: typeof sanitizedParams.metric_exclusion_reason === "string" && sanitizedParams.metric_exclusion_reason
+            ? sanitizedParams.metric_exclusion_reason
+            : allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
         privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
         ...buildAnalyticsSemanticParams({
             pagePath: window.location.pathname,
@@ -674,14 +676,17 @@ export function trackIdentityLinked(input: {
         method: identityLink.method,
         eligible_past_session_ids: identityLink.eligiblePastSessionIds,
         confidence: identityLink.persisted ? "high" : "medium",
-        metric_eligible: allowIdentifiedAnalytics,
-        metric_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+        diagnostic_only: true,
+        metric_eligible: false,
+        metric_exclusion_reason: "client_observed_identity_link",
         privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
         privacy_data_availability_reason: privacyDataAvailabilityReason,
         identity_persistence_allowed: identityLink.persisted,
         consent_state: identityLink.consentState,
-        source_truth: "canonical",
-        source_confidence: allowIdentifiedAnalytics ? 1 : 0.7,
+        source_truth: "client_supporting",
+        source_component: "client_identity_link_observer",
+        source_confidence: allowIdentifiedAnalytics ? 0.7 : 0.45,
+        canonical_link_source: "server_identity_link",
     });
     const sessionIdForEnvelope = getSessionId();
     const eventTimestampMsForEnvelope = Date.now();
@@ -691,8 +696,13 @@ export function trackIdentityLinked(input: {
         consent_state: allowIdentifiedAnalytics ? "granted" : "denied",
         identified_analytics_allowed: allowIdentifiedAnalytics,
         privacy_data_availability_reason: privacyDataAvailabilityReason,
-        metric_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+        diagnostic_only: true,
+        metric_eligible: false,
+        metric_exclusion_reason: "client_observed_identity_link",
         privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+        source_truth: "client_supporting",
+        source_component: "client_identity_link_observer",
+        canonical_link_source: "server_identity_link",
     }, {
         eventId,
         eventTimestampMs: eventTimestampMsForEnvelope,

@@ -68,7 +68,6 @@ import { syncIdentifiedTelemetryOwnership, trackEvent, trackIdentityLinked } fro
 import {
     buildIdentityLinkPayload,
     hasSubmittedIdentityLink,
-    markIdentityLinkSubmitted,
 } from "@/lib/analytics/analytics-identity-link";
 import {
     buildAccountPrivacySettingsFromConsentSnapshot,
@@ -270,6 +269,7 @@ async function syncGuestConsentIntoAccountProfile(input: {
         },
     };
 }
+
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -292,11 +292,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [pathname]);
 
     const emitIdentityLinkContinuity = useCallback((userId: string, method: "login" | "signup" | "session_restore") => {
-        trackIdentityLinked({
-            userId,
-            method,
-        });
-
         if (typeof window === "undefined") {
             return;
         }
@@ -307,6 +302,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const consentState = identityLinkAllowed ? "granted" : "denied";
         const identity = getClientAnalyticsIdentitySnapshot(consentState);
         if (!identity.anonymousVisitorId || !identity.sessionId) {
+            syncIdentifiedTelemetryOwnership(userId);
             return;
         }
 
@@ -322,10 +318,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         if (hasSubmittedIdentityLink(payload)) {
+            syncIdentifiedTelemetryOwnership(userId);
             return;
         }
 
-        markIdentityLinkSubmitted(payload);
+        syncIdentifiedTelemetryOwnership(userId);
+        trackIdentityLinked({
+            userId,
+            method,
+            eligiblePastSessionIds: [identity.sessionId],
+        });
+
         void payload.submit(authFetch).then((result) => {
             if (!result.success) {
                 reportRealtimeIssue("analytics identity link transfer failed", result.reason ?? "identity_link_failed", {
@@ -547,7 +550,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             setUserProfile(null);
                             setLoading(true);
                             syncClientSessionOwnership(`user:${nextUserId}`);
-                            syncIdentifiedTelemetryOwnership(nextUserId);
                             syncLastVisitedPathOwner(nextUserId);
                             if (previousUserId && previousUserId !== nextUserId) {
                                 clearTaskGuidanceStorage();

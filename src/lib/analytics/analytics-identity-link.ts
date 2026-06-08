@@ -325,6 +325,16 @@ export function buildIdentityLinkPayload(input: {
   return {
     ...payload,
     async submit(fetcher: Fetcher, storage?: Storage | null): Promise<IdentityLinkSubmitResult> {
+      if (hasSubmittedIdentityLink(link, storage)) {
+        return {
+          success: false,
+          identityLinkId: link.identityLinkId,
+          loginBlocking: false,
+          retryable: false,
+          reason: "identity_link_submit_suppressed_by_lifecycle_state",
+        };
+      }
+
       markIdentityLinkSubmitted(link, storage);
       try {
         const response = await fetcher(GUEST_USER_IDENTITY_TRANSFER_ROUTE, {

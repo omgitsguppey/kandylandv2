@@ -101,6 +101,41 @@ describe("client-session", () => {
     expect(sessionStore["kandydrops.clientSessionOwner"]).toBe("user:second");
   });
 
+  it("preserves the guest session when the first authenticated user takes ownership", () => {
+    const { store: sessionStore, storage: sessionStorage } = createStorageMock();
+    const { storage: localStorage } = createStorageMock();
+    sessionStore.kandy_session_id = "sess_guest_journey";
+
+    vi.stubGlobal("window", { localStorage, sessionStorage });
+    vi.stubGlobal("crypto", {
+      randomUUID: vi.fn(() => "should-not-rotate"),
+    });
+
+    syncClientSessionOwnership("user:first");
+
+    expect(sessionStore.kandy_session_id).toBe("sess_guest_journey");
+    expect(sessionStore["kandydrops.clientSessionOwner"]).toBe("user:first");
+    expect(crypto.randomUUID).not.toHaveBeenCalled();
+  });
+
+  it("clears the authenticated owner on logout without rotating the journey session", () => {
+    const { store: sessionStore, storage: sessionStorage } = createStorageMock();
+    const { storage: localStorage } = createStorageMock();
+    sessionStore.kandy_session_id = "sess_user_journey";
+    sessionStore["kandydrops.clientSessionOwner"] = "user:first";
+
+    vi.stubGlobal("window", { localStorage, sessionStorage });
+    vi.stubGlobal("crypto", {
+      randomUUID: vi.fn(() => "should-not-rotate"),
+    });
+
+    syncClientSessionOwnership(null);
+
+    expect(sessionStore.kandy_session_id).toBe("sess_user_journey");
+    expect(sessionStore["kandydrops.clientSessionOwner"]).toBeUndefined();
+    expect(crypto.randomUUID).not.toHaveBeenCalled();
+  });
+
   it("stores the subject ID in both persistent and session storage", () => {
     const { store: localStore, storage: localStorage } = createStorageMock();
     const { store: sessionStore, storage: sessionStorage } = createStorageMock();

@@ -145,6 +145,7 @@ describe("identity transfer telemetry closure", () => {
         export const ANALYTICS_IDENTITY_STATES = ["guest_only", "user_only", "guest_linked_to_user", "creator_user", "admin_projection", "unknown_legacy"];
         export function buildGuestUserIdentityLinkId() {}
         export function buildIdentityTransferCountingKeys() { return {}; }
+        export function buildIdentityLinkPayload() { return { submit() { if (hasSubmittedIdentityLink(link, storage)) return; markIdentityLinkSubmitted(link, storage); } }; }
         const countAsUnknownLegacy = true;
       `,
       "src/lib/analytics/analytics-event-contract.ts": `
@@ -153,7 +154,7 @@ describe("identity transfer telemetry closure", () => {
       "src/lib/server/analytics-identity-linking.ts": "import { buildGuestUserIdentityLinkId } from '@/lib/analytics/identity-transfer';",
       "src/app/api/analytics/identity-link/route.ts": `guardApiRequest(request, { auth: "user", requireAuthHeaderPresence: true });`,
       "src/app/api/analytics/ingest-identified/route.ts": "resolveIdentityTransferTelemetryState(); const sourceIdentity = {};",
-      "src/context/AuthContext.tsx": "hasSubmittedIdentityLink(); markIdentityLinkSubmitted();",
+      "src/context/AuthContext.tsx": "void payload.submit(authFetch);",
       "tests/unit/identity-transfer-telemetry-closure.spec.ts": readFileSync("tests/unit/identity-transfer-telemetry-closure.spec.ts", "utf8"),
       "package.json": packageJson,
     };

@@ -1,7 +1,11 @@
 {
-  "generatedAtUtc": "2026-05-19T22:11:50.182Z",
+  "generatedAtUtc": "2026-06-08T22:26:42.966Z",
   "reportKey": "guest-user-identity-transfer",
-  "currentHead": "a13bf80ac8d08d88089b3e7aba9167f2da5a0d87",
+  "currentHead": "3dc89e369a6a422df4aec2d3f89d977d0771de1e",
+  "currentHeadSource": "git",
+  "gitStatus": "available",
+  "toolingDegraded": false,
+  "degradationReason": null,
   "summary": {
     "linkHelperCreated": true,
     "identityLinkRouteCreated": true,
