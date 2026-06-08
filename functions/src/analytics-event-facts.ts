@@ -16,6 +16,7 @@ import {recordSemanticRollupFromEventFact} from "./analytics-semantics.js"
 import {touchAnalyticsRuntime} from "./analytics-runtime.js"
 import {enforcePrivacyConsentOnEvent} from "./privacy-consent-enforcement.js"
 import {onCall, HttpsError} from "firebase-functions/v2/https"
+import {resolveTelemetryEventNameForRuntime} from "../../shared/runtime/telemetry-event-manifest"
 
 type IdentifiedAnalyticsBatchEvent = {
   eventId?: unknown;
@@ -201,6 +202,11 @@ export const ingestAnalyticsEvent = onCall(
       if (!normalizedEvent.eventName) {
         throw new HttpsError("invalid-argument", "eventName is required.")
       }
+      const canonicalEventName = resolveTelemetryEventNameForRuntime(normalizedEvent.eventName)
+      if (!canonicalEventName) {
+        throw new HttpsError("invalid-argument", "Unsupported telemetry eventName.")
+      }
+      normalizedEvent.eventName = canonicalEventName
 
       const enforcement = enforcePrivacyConsentOnEvent(normalizedEvent)
       if (!enforcement.allowed) {

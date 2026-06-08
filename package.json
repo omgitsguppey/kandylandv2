@@ -114,6 +114,7 @@
         "check:behavioral-experiments": "tsx scripts/agent/validate-behavioral-experiments.ts",
         "check:notification-quality": "tsx scripts/agent/validate-notification-quality.ts",
         "analytics:truth:rebuild": "tsx scripts/rebuild-analytics-truth.ts",
+        "telemetry:manifest": "tsx scripts/agent/build-telemetry-event-manifest.ts",
         "check:telemetry": "tsx scripts/audit-telemetry.ts && tsx scripts/check-telemetry-parity-contracts.ts",
         "check:telemetry-orphan-cleanup": "tsx scripts/agent/validate-telemetry-orphan-cleanup.ts",
         "check:drops-mobile-refinement": "tsx scripts/agent/validate-drops-mobile-refinement.ts",
