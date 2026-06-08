@@ -36,6 +36,7 @@
         "score:validator-authority": "tsx scripts/agent/score-validator-authority.ts",
         "check:validator-authority": "tsx scripts/agent/validate-validator-authority.ts",
         "check:generated-report-authority": "tsx scripts/agent/validate-generated-report-authority.ts",
+        "check:evidence-freshness-index": "tsx scripts/agent/validate-evidence-freshness-index.ts",
         "check:phase-one-lock": "tsx scripts/agent/validate-phase-one-lock.ts",
         "scan:codebase-junk": "tsx scripts/agent/scan-codebase-junk.ts",
         "check:codebase-junk-cleanup": "tsx scripts/agent/validate-codebase-junk-cleanup.ts",
