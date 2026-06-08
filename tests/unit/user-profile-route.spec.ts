@@ -10,6 +10,7 @@ const mockState = vi.hoisted(() => {
         handleApiError: vi.fn(),
         recordRouteRuntimeSample: vi.fn(),
         getErrorMessage: vi.fn((error: unknown) => error instanceof Error ? error.message : String(error)),
+        recordRouteWarning: vi.fn(),
         recordCanonicalTaskEvent: vi.fn(),
         normalizeUsername: vi.fn((value: unknown) => typeof value === "string" ? value.trim().toLowerCase() : null),
         parseAdultDateOfBirth: vi.fn((value: unknown) => value === "1990-01-01"
@@ -55,6 +56,7 @@ const mockState = vi.hoisted(() => {
             this.normalizeCreatorSettings.mockClear();
             this.reserveUsernameForUser.mockReset();
             this.getErrorMessage.mockImplementation((error: unknown) => error instanceof Error ? error.message : String(error));
+            this.recordRouteWarning.mockReset();
         },
     };
 });
@@ -72,6 +74,7 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
 }));
 vi.mock("@/lib/server/route-diagnostics", () => ({
     getErrorMessage: mockState.getErrorMessage,
+    recordRouteWarning: mockState.recordRouteWarning,
 }));
 vi.mock("@/lib/server/rate-limit", () => ({
     STANDARD: {},
@@ -121,7 +124,6 @@ describe("GET /api/user/profile", () => {
 
         const response = await GET(new NextRequest("http://localhost/api/user/profile"));
         const body = await response.json();
-
         expect(response.status).toBe(200);
         expect(body.success).toBe(true);
         expect(body.profile).toEqual({
@@ -146,6 +148,7 @@ describe("PUT /api/user/profile", () => {
     it("rejects removing date of birth with null", async () => {
         const response = await PUT(new NextRequest("http://localhost/api/user/profile", {
             method: "PUT",
+            headers: { "content-type": "application/json" },
             body: JSON.stringify({
                 dateOfBirth: null,
             }),
@@ -160,6 +163,7 @@ describe("PUT /api/user/profile", () => {
     it("rejects removing date of birth with an empty string", async () => {
         const response = await PUT(new NextRequest("http://localhost/api/user/profile", {
             method: "PUT",
+            headers: { "content-type": "application/json" },
             body: JSON.stringify({
                 dateOfBirth: "",
             }),
@@ -179,6 +183,7 @@ describe("PUT /api/user/profile", () => {
 
         const response = await PUT(new NextRequest("http://localhost/api/user/profile", {
             method: "PUT",
+            headers: { "content-type": "application/json" },
             body: JSON.stringify({
                 dateOfBirth: "1990-01-01",
             }),
@@ -195,5 +200,92 @@ describe("PUT /api/user/profile", () => {
                 },
             },
         ]);
+    });
+
+    it("persists account privacy consent metadata with full behavioral truth", async () => {
+        mockState.userDocs.set("user_1", {
+            username: "existing-user",
+        });
+
+        const response = await PUT(new NextRequest("http://localhost/api/user/profile", {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                privacySettings: {
+                    anonymousAnalyticsEnabled: true,
+                    identifiedAnalyticsEnabled: true,
+                    allowRecommendations: true,
+                    showInAnonymousStats: true,
+                    honorGlobalPrivacyControl: true,
+                    consentMode: "full_behavioral",
+                    consentDecision: "accept_all",
+                    consentSource: "account_settings",
+                    consentPolicyVersion: "2026-05-consent-tracking-v1",
+                    consentUpdatedAt: 1700000000000,
+                },
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.success).toBe(true);
+        expect(mockState.updateCalls).toEqual([
+            {
+                id: "user_1",
+                payload: {
+                    privacySettings: expect.objectContaining({
+                        consentMode: "full_behavioral",
+                        consentDecision: "accept_all",
+                        consentSource: "account_settings",
+                        consentPolicyVersion: "2026-05-consent-tracking-v1",
+                        anonymousAnalyticsEnabled: true,
+                        identifiedAnalyticsEnabled: true,
+                        allowRecommendations: true,
+                        showInAnonymousStats: true,
+                        honorGlobalPrivacyControl: true,
+                        consentUpdatedAt: 1700000000000,
+                    }),
+                },
+            },
+        ]);
+    });
+
+    it("derives minimal consent metadata from legacy boolean-only account payloads", async () => {
+        mockState.userDocs.set("user_1", {
+            username: "existing-user",
+        });
+
+        const response = await PUT(new NextRequest("http://localhost/api/user/profile", {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                privacySettings: {
+                    anonymousAnalyticsEnabled: true,
+                    identifiedAnalyticsEnabled: false,
+                    allowRecommendations: false,
+                    showInAnonymousStats: true,
+                    honorGlobalPrivacyControl: true,
+                },
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.success).toBe(true);
+        expect(mockState.updateCalls[0]).toEqual({
+            id: "user_1",
+            payload: {
+                privacySettings: expect.objectContaining({
+                    consentMode: "minimal_analytics",
+                    consentDecision: "minimal",
+                    consentSource: "account_settings",
+                    consentPolicyVersion: "2026-05-consent-tracking-v1",
+                    anonymousAnalyticsEnabled: true,
+                    identifiedAnalyticsEnabled: false,
+                    allowRecommendations: false,
+                    showInAnonymousStats: true,
+                }),
+            },
+        });
     });
 });

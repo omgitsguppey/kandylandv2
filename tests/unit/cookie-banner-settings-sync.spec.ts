@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_PRIVACY_SETTINGS,
   buildAccountPrivacySettingsFromConsentSnapshot,
+  normalizePrivacySettingsSnapshot,
   shouldSyncGuestConsentToAccount,
 } from "@/lib/privacy-consent";
 import {
@@ -68,9 +69,21 @@ describe("cookie banner mobile UX and settings sync", () => {
       showInAnonymousStats: true,
       consentUpdatedAt: 1700000000000,
     };
+    const guestMinimal = {
+      ...DEFAULT_PRIVACY_SETTINGS,
+      consentMode: "minimal_analytics" as const,
+      consentDecision: "minimal" as const,
+      consentSource: "banner" as const,
+      anonymousAnalyticsEnabled: true,
+      identifiedAnalyticsEnabled: false,
+      allowRecommendations: false,
+      showInAnonymousStats: true,
+      consentUpdatedAt: 1700000000001,
+    };
 
     expect(shouldSyncGuestConsentToAccount(guestFull, { consentUpdatedAt: 0 })).toBe(true);
     expect(shouldSyncGuestConsentToAccount(guestFull, { consentUpdatedAt: 1690000000000 })).toBe(false);
+    expect(shouldSyncGuestConsentToAccount(guestMinimal, undefined)).toBe(true);
     expect(shouldSyncGuestConsentToAccount(DEFAULT_PRIVACY_SETTINGS, { consentUpdatedAt: 0 })).toBe(false);
     expect(buildAccountPrivacySettingsFromConsentSnapshot(guestFull)).toMatchObject({
       anonymousAnalyticsEnabled: true,
@@ -80,15 +93,49 @@ describe("cookie banner mobile UX and settings sync", () => {
       honorGlobalPrivacyControl: true,
       consentUpdatedAt: 1700000000000,
     });
+    expect(buildAccountPrivacySettingsFromConsentSnapshot(guestMinimal)).toMatchObject({
+      anonymousAnalyticsEnabled: true,
+      identifiedAnalyticsEnabled: false,
+      allowRecommendations: false,
+      showInAnonymousStats: true,
+      honorGlobalPrivacyControl: true,
+      consentUpdatedAt: 1700000000001,
+    });
   });
 
-  it("wires account preference sync in the app shell without touching nav or chat", () => {
-    const coreLayout = read("src/components/CoreLayoutWrapper.tsx");
+  it("keeps default and malformed consent timestamps non-explicit so the banner can show", () => {
+    expect(DEFAULT_PRIVACY_SETTINGS.consentUpdatedAt).toBe(0);
+    expect(normalizePrivacySettingsSnapshot(null).consentUpdatedAt).toBe(0);
+    expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: "bad" as never }).consentUpdatedAt).toBe(0);
+    expect(shouldSyncGuestConsentToAccount(normalizePrivacySettingsSnapshot(null), undefined)).toBe(false);
+  });
 
-    expect(coreLayout).toContain("shouldSyncGuestConsentToAccount");
-    expect(coreLayout).toContain("buildAccountPrivacySettingsFromConsentSnapshot");
-    expect(coreLayout).toContain("/api/user/profile");
-    expect(coreLayout).toContain("account_settings");
+  it("treats real banner and account timestamps as explicit consent", () => {
+    const accepted = normalizePrivacySettingsSnapshot({
+      consentDecision: "accept_all",
+      consentSource: "banner",
+      consentMode: "full_behavioral",
+      anonymousAnalyticsEnabled: true,
+      identifiedAnalyticsEnabled: true,
+      allowRecommendations: true,
+      showInAnonymousStats: true,
+      consentUpdatedAt: 1700000000002,
+    });
+
+    expect(accepted.consentUpdatedAt).toBeGreaterThan(0);
+    expect(shouldSyncGuestConsentToAccount(accepted, undefined)).toBe(true);
+    expect(shouldSyncGuestConsentToAccount(accepted, { consentUpdatedAt: 1700000000001 })).toBe(false);
+  });
+
+  it("wires account preference sync in auth handoff without touching nav or chat", () => {
+    const authContext = read("src/context/AuthContext.tsx");
+
+    expect(authContext).toContain("syncGuestConsentIntoAccountProfile");
+    expect(authContext).toContain("shouldSyncGuestConsentToAccount");
+    expect(authContext).toContain("buildAccountPrivacySettingsFromConsentSnapshot");
+    expect(authContext).toContain("/api/user/profile");
+    expect(authContext).toContain("account_settings");
+    expect(authContext).toContain("setUserProfile(profile)");
 
     const changedFilesValidator = read("scripts/agent/validate-cookie-banner-settings-sync.ts");
     expect(changedFilesValidator).toContain("protectedChanges");

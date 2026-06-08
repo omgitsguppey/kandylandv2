@@ -1,6 +1,9 @@
 "use client";
 
 import {
+    CONSENT_DECISION_VALUES,
+    CONSENT_MODE_VALUES,
+    CONSENT_SOURCE_VALUES,
     CONSENT_TRACKING_STORAGE_KEYS,
     CONSENT_TRACKING_VERSION,
     type ConsentDecision,
@@ -56,6 +59,10 @@ export type PrivacyDataAvailabilityReason =
 
 export type AccountPrivacySettingsInput = Partial<Pick<
     PrivacySettingsSnapshot,
+    | "consentMode"
+    | "consentDecision"
+    | "consentSource"
+    | "consentPolicyVersion"
     | "anonymousAnalyticsEnabled"
     | "identifiedAnalyticsEnabled"
     | "allowRecommendations"
@@ -82,36 +89,60 @@ export function normalizePrivacySettingsSnapshot(
 ): PrivacySettingsSnapshot {
     const consentMode = resolveConsentMode(value);
     const legacyAccepted = !value?.consentMode && value?.anonymousAnalyticsEnabled === true;
+    const minimalAllowed = consentMode === "minimal_analytics" || consentMode === "full_analytics" || consentMode === "full_behavioral";
+    const identifiedAllowed = consentMode === "full_analytics" || consentMode === "full_behavioral";
+    const behavioralAllowed = consentMode === "full_behavioral";
     return {
         consentMode,
-        consentDecision: value?.consentDecision ?? (legacyAccepted ? "accept_all" : null),
+        consentDecision: value?.consentDecision ?? (legacyAccepted ? "minimal" : null),
         consentSource: value?.consentSource ?? (legacyAccepted ? "legacy_default" : "unknown"),
         consentPolicyVersion: CONSENT_TRACKING_VERSION,
-        anonymousAnalyticsEnabled: value?.anonymousAnalyticsEnabled === true,
-        identifiedAnalyticsEnabled: value?.identifiedAnalyticsEnabled === true || consentMode === "full_behavioral",
-        allowRecommendations: value?.allowRecommendations === true || consentMode === "full_behavioral",
-        showInAnonymousStats: value?.showInAnonymousStats === true || consentMode === "minimal_analytics" || consentMode === "full_behavioral",
+        anonymousAnalyticsEnabled: value?.anonymousAnalyticsEnabled === true || minimalAllowed,
+        identifiedAnalyticsEnabled: value?.identifiedAnalyticsEnabled === true || identifiedAllowed,
+        allowRecommendations: value?.allowRecommendations === true || behavioralAllowed,
+        showInAnonymousStats: value?.showInAnonymousStats === true || minimalAllowed,
         honorGlobalPrivacyControl: value?.honorGlobalPrivacyControl !== false,
-        consentUpdatedAt: Number.isFinite(value?.consentUpdatedAt) ? Number(value?.consentUpdatedAt) : Date.now(),
+        consentUpdatedAt: Number.isFinite(value?.consentUpdatedAt) ? Number(value?.consentUpdatedAt) : 0,
     };
 }
 
-export function hasExplicitConsentPreference(value: { consentUpdatedAt?: unknown } | null | undefined) {
-    return Number.isFinite(value?.consentUpdatedAt)
-        ? Number(value?.consentUpdatedAt) > 0
-        : false;
+export function hasExplicitConsentPreference(value: {
+    consentUpdatedAt?: unknown;
+    consentDecision?: unknown;
+    consentSource?: unknown;
+    consentMode?: unknown;
+} | null | undefined) {
+    if (Number.isFinite(value?.consentUpdatedAt) && Number(value?.consentUpdatedAt) > 0) {
+        return true;
+    }
+
+    const consentSource = CONSENT_SOURCE_VALUES.includes(value?.consentSource as ConsentSource)
+        ? value?.consentSource as ConsentSource
+        : "unknown";
+    const hasExplicitSource = consentSource === "banner" || consentSource === "account_settings";
+    const hasExplicitDecision = CONSENT_DECISION_VALUES.includes(value?.consentDecision as ConsentDecision);
+    const consentMode = CONSENT_MODE_VALUES.includes(value?.consentMode as ConsentMode)
+        ? value?.consentMode as ConsentMode
+        : "unknown";
+
+    return hasExplicitSource && (hasExplicitDecision || consentMode !== "unknown");
 }
 
 export function buildAccountPrivacySettingsFromConsentSnapshot(
     snapshot: PrivacySettingsSnapshot,
-): Required<AccountPrivacySettingsInput> {
+): Required<Omit<AccountPrivacySettingsInput, "consentDecision">> & Pick<PrivacySettingsSnapshot, "consentDecision"> {
     const consentMode = resolveConsentMode(snapshot);
     const minimalAllowed = consentMode === "minimal_analytics" || consentMode === "full_analytics" || consentMode === "full_behavioral";
+    const identifiedAllowed = consentMode === "full_analytics" || consentMode === "full_behavioral";
     const fullBehavioralAllowed = consentMode === "full_behavioral";
 
     return {
+        consentMode,
+        consentDecision: snapshot.consentDecision,
+        consentSource: snapshot.consentSource,
+        consentPolicyVersion: snapshot.consentPolicyVersion,
         anonymousAnalyticsEnabled: minimalAllowed,
-        identifiedAnalyticsEnabled: fullBehavioralAllowed,
+        identifiedAnalyticsEnabled: identifiedAllowed,
         allowRecommendations: fullBehavioralAllowed,
         showInAnonymousStats: minimalAllowed,
         honorGlobalPrivacyControl: snapshot.honorGlobalPrivacyControl !== false,

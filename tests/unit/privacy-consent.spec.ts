@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
     ANALYTICS_CONSENT_COOKIE,
     applyAnalyticsConsentToGtag,
+    buildAccountPrivacySettingsFromConsentSnapshot,
     canUseAnonymousAnalytics,
+    canUseBehavioralAnalytics,
+    canUseExternalAnalyticsFromPrivacy,
     canUseIdentifiedAnalytics,
     emitPrivacySettingsChanged,
     getBrowserGlobalPrivacyControl,
@@ -11,9 +14,14 @@ import {
     PRIVACY_SETTINGS_STORAGE_KEY,
     readPrivacySettingsSnapshot,
     saveGuestAnalyticsConsent,
+    shouldSyncGuestConsentToAccount,
     subscribeToPrivacySettings,
     type PrivacySettingsSnapshot,
 } from "@/lib/privacy-consent";
+import {
+    canTrackEvent,
+    resolveConsentMode,
+} from "@/lib/privacy/consent-tracking-policy";
 
 const DEFAULT_PRIVACY_SETTINGS = {
     consentMode: "unknown",
@@ -38,22 +46,9 @@ describe("normalizePrivacySettingsSnapshot", () => {
         vi.useRealTimers();
     });
 
-    it("returns safe defaults for null or undefined input", () => {
-        const expected = {
-            consentMode: "unknown",
-            consentDecision: null,
-            consentSource: "unknown",
-            consentPolicyVersion: "2026-05-consent-tracking-v1",
-            anonymousAnalyticsEnabled: false,
-            identifiedAnalyticsEnabled: false,
-            allowRecommendations: false,
-            showInAnonymousStats: false,
-            honorGlobalPrivacyControl: true,
-            consentUpdatedAt: Date.now(),
-        };
-
-        expect(normalizePrivacySettingsSnapshot(null)).toEqual(expected);
-        expect(normalizePrivacySettingsSnapshot(undefined)).toEqual(expected);
+    it("returns safe defaults without inventing an explicit consent timestamp", () => {
+        expect(normalizePrivacySettingsSnapshot(null)).toEqual(DEFAULT_PRIVACY_SETTINGS);
+        expect(normalizePrivacySettingsSnapshot(undefined)).toEqual(DEFAULT_PRIVACY_SETTINGS);
     });
 
     it("preserves valid truthy boolean fields", () => {
@@ -83,12 +78,47 @@ describe("normalizePrivacySettingsSnapshot", () => {
         expect(result.consentUpdatedAt).toBe(timestamp);
     });
 
-    it("falls back to Date.now() for invalid consentUpdatedAt", () => {
-        const currentTime = Date.now();
-        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: NaN as never }).consentUpdatedAt).toBe(currentTime);
-        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: Infinity as never }).consentUpdatedAt).toBe(currentTime);
-        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: -Infinity as never }).consentUpdatedAt).toBe(currentTime);
-        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: "123" as never }).consentUpdatedAt).toBe(currentTime);
+    it("keeps invalid consentUpdatedAt non-explicit so the banner can still show", () => {
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: NaN as never }).consentUpdatedAt).toBe(0);
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: Infinity as never }).consentUpdatedAt).toBe(0);
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: -Infinity as never }).consentUpdatedAt).toBe(0);
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: "123" as never }).consentUpdatedAt).toBe(0);
+    });
+
+    it("normalizes consent levels without overstating anonymous analytics as behavioral", () => {
+        const declined = normalizePrivacySettingsSnapshot({
+            anonymousAnalyticsEnabled: false,
+            identifiedAnalyticsEnabled: false,
+            allowRecommendations: false,
+            consentUpdatedAt: 1,
+        });
+        const minimal = normalizePrivacySettingsSnapshot({
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: false,
+            allowRecommendations: false,
+            consentUpdatedAt: 1,
+        });
+        const fullAnalytics = normalizePrivacySettingsSnapshot({
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: false,
+            consentUpdatedAt: 1,
+        });
+        const acceptAll = normalizePrivacySettingsSnapshot({
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: true,
+            consentUpdatedAt: 1,
+        });
+
+        expect(declined.consentMode).toBe("necessary_only");
+        expect(minimal.consentMode).toBe("minimal_analytics");
+        expect(fullAnalytics.consentMode).toBe("full_analytics");
+        expect(acceptAll.consentMode).toBe("full_behavioral");
+        expect(canTrackEvent("wallet_opened", minimal.consentMode)).toBe(true);
+        expect(canTrackEvent("semantic_target_clicked", minimal.consentMode)).toBe(false);
+        expect(canTrackEvent("semantic_target_clicked", fullAnalytics.consentMode)).toBe(false);
+        expect(canTrackEvent("semantic_target_clicked", acceptAll.consentMode)).toBe(true);
     });
 });
 
@@ -121,9 +151,9 @@ describe("readPrivacySettingsSnapshot", () => {
 
         const snapshot = readPrivacySettingsSnapshot();
         expect(snapshot.anonymousAnalyticsEnabled).toBe(true);
-        expect(snapshot.consentMode).toBe("full_behavioral");
+        expect(snapshot.consentMode).toBe("minimal_analytics");
         expect(snapshot.consentUpdatedAt).toBe(123456789);
-        expect(snapshot.identifiedAnalyticsEnabled).toBe(true);
+        expect(snapshot.identifiedAnalyticsEnabled).toBe(false);
         expect(snapshot.honorGlobalPrivacyControl).toBe(true);
     });
 
@@ -132,6 +162,7 @@ describe("readPrivacySettingsSnapshot", () => {
 
         const snapshot = readPrivacySettingsSnapshot();
         expect(snapshot).toEqual(DEFAULT_PRIVACY_SETTINGS);
+        expect(snapshot.consentUpdatedAt).toBe(0);
     });
 
     it("returns DEFAULT_PRIVACY_SETTINGS when JSON.parse fails", () => {
@@ -139,6 +170,7 @@ describe("readPrivacySettingsSnapshot", () => {
 
         const snapshot = readPrivacySettingsSnapshot();
         expect(snapshot).toEqual(DEFAULT_PRIVACY_SETTINGS);
+        expect(snapshot.consentUpdatedAt).toBe(0);
     });
 
     it("uses the correct localStorage key", () => {
@@ -287,10 +319,26 @@ describe("applyAnalyticsConsentToGtag", () => {
         applyAnalyticsConsentToGtag();
     });
 
-    it("grants analytics_storage when anonymous analytics is enabled and GPC is not blocking", () => {
+    it("denies external analytics_storage for anonymous-only minimal analytics", () => {
         applyAnalyticsConsentToGtag({
             ...DEFAULT_PRIVACY_SETTINGS,
             anonymousAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: false,
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith("consent", "update", expect.objectContaining({
+            analytics_storage: "denied",
+            ad_storage: "denied",
+            functionality_storage: "granted",
+            security_storage: "granted",
+        }));
+    });
+
+    it("grants analytics_storage for full account analytics when GPC is not blocking", () => {
+        applyAnalyticsConsentToGtag({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
             honorGlobalPrivacyControl: false,
         });
 
@@ -327,7 +375,7 @@ describe("applyAnalyticsConsentToGtag", () => {
         }));
     });
 
-    it("grants analytics_storage when GPC is active but not honored", () => {
+    it("keeps anonymous-only external analytics denied when GPC is active but not honored", () => {
         vi.stubGlobal("navigator", { globalPrivacyControl: true });
 
         applyAnalyticsConsentToGtag({
@@ -337,7 +385,7 @@ describe("applyAnalyticsConsentToGtag", () => {
         });
 
         expect(window.gtag).toHaveBeenCalledWith("consent", "update", expect.objectContaining({
-            analytics_storage: "granted",
+            analytics_storage: "denied",
         }));
     });
 });
@@ -427,10 +475,10 @@ describe("persistPrivacySettingsSnapshot", () => {
         expect(mergedSettings.consentUpdatedAt).toBe(1600000000000);
     });
 
-    it("sets the analytics consent cookie to full behavioral on https", () => {
+    it("sets the analytics consent cookie to minimal analytics on anonymous-only https", () => {
         persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
 
-        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=full_behavioral; path=/; max-age=31536000; SameSite=Lax; Secure`);
+        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=minimal_analytics; path=/; max-age=31536000; SameSite=Lax; Secure`);
     });
 
     it("sets the analytics consent cookie to necessary only on https", () => {
@@ -443,14 +491,14 @@ describe("persistPrivacySettingsSnapshot", () => {
         window.location.protocol = "http:";
         persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
 
-        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=full_behavioral; path=/; max-age=31536000; SameSite=Lax`);
+        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=minimal_analytics; path=/; max-age=31536000; SameSite=Lax`);
     });
 
     it("calls window.gtag with updated consent", () => {
         persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
 
         expect(window.gtag).toHaveBeenCalledWith("consent", "update", expect.objectContaining({
-            analytics_storage: "granted",
+            analytics_storage: "denied",
         }));
     });
 
@@ -472,6 +520,184 @@ describe("persistPrivacySettingsSnapshot", () => {
         }).not.toThrow();
 
         expect(document.cookie).toContain(ANALYTICS_CONSENT_COOKIE);
+    });
+});
+
+describe("privacy consent capability levels", () => {
+    beforeEach(() => {
+        vi.stubGlobal("navigator", {});
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("resolves anonymous-only, identified-only, accept-all, and GPC override semantics", () => {
+        expect(resolveConsentMode({
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: false,
+            allowRecommendations: false,
+            consentUpdatedAt: 1,
+        })).toBe("minimal_analytics");
+        expect(resolveConsentMode({
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: false,
+            consentUpdatedAt: 1,
+        })).toBe("full_analytics");
+        expect(resolveConsentMode({
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: true,
+            consentUpdatedAt: 1,
+        })).toBe("full_behavioral");
+        expect(resolveConsentMode({
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: true,
+            honorGlobalPrivacyControl: true,
+            globalPrivacyControl: true,
+        })).toBe("necessary_only");
+    });
+
+    it("allows minimal product telemetry while denying behavioral personalization", () => {
+        const minimal = {
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: false,
+            allowRecommendations: false,
+            consentUpdatedAt: 1,
+        };
+        const fullAnalytics = {
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: false,
+            consentUpdatedAt: 1,
+        };
+        const acceptAll = {
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: true,
+            consentUpdatedAt: 1,
+        };
+
+        expect(canUseAnonymousAnalytics(minimal)).toBe(true);
+        expect(canUseIdentifiedAnalytics(minimal)).toBe(false);
+        expect(canUseBehavioralAnalytics(minimal)).toBe(false);
+        expect(canUseExternalAnalyticsFromPrivacy(minimal)).toBe(false);
+
+        expect(canUseAnonymousAnalytics(fullAnalytics)).toBe(true);
+        expect(canUseIdentifiedAnalytics(fullAnalytics)).toBe(true);
+        expect(canUseBehavioralAnalytics(fullAnalytics)).toBe(false);
+        expect(canUseExternalAnalyticsFromPrivacy(fullAnalytics)).toBe(true);
+
+        expect(canUseAnonymousAnalytics(acceptAll)).toBe(true);
+        expect(canUseIdentifiedAnalytics(acceptAll)).toBe(true);
+        expect(canUseBehavioralAnalytics(acceptAll)).toBe(true);
+        expect(canUseExternalAnalyticsFromPrivacy(acceptAll)).toBe(true);
+    });
+
+    it("builds account privacy settings with consent metadata for server round trips", () => {
+        const accountSettings = buildAccountPrivacySettingsFromConsentSnapshot({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            consentMode: "full_behavioral",
+            consentDecision: "accept_all",
+            consentSource: "banner",
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: true,
+            showInAnonymousStats: true,
+            consentUpdatedAt: 1700000000000,
+        });
+
+        expect(accountSettings).toEqual({
+            consentMode: "full_behavioral",
+            consentDecision: "accept_all",
+            consentSource: "banner",
+            consentPolicyVersion: "2026-05-consent-tracking-v1",
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: true,
+            showInAnonymousStats: true,
+            honorGlobalPrivacyControl: true,
+            consentUpdatedAt: 1700000000000,
+        });
+    });
+
+    it("carries guest accept-all consent into signup when the account has no explicit setting", () => {
+        const guestAcceptAll = normalizePrivacySettingsSnapshot({
+            consentMode: "full_behavioral",
+            consentDecision: "accept_all",
+            consentSource: "banner",
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: true,
+            showInAnonymousStats: true,
+            consentUpdatedAt: 1700000000000,
+        });
+
+        expect(shouldSyncGuestConsentToAccount(guestAcceptAll, undefined)).toBe(true);
+        expect(buildAccountPrivacySettingsFromConsentSnapshot(guestAcceptAll)).toMatchObject({
+            consentMode: "full_behavioral",
+            consentDecision: "accept_all",
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: true,
+            showInAnonymousStats: true,
+            consentUpdatedAt: 1700000000000,
+        });
+    });
+
+    it("carries guest minimal consent into signup without enabling behavioral personalization", () => {
+        const guestMinimal = normalizePrivacySettingsSnapshot({
+            consentMode: "minimal_analytics",
+            consentDecision: "minimal",
+            consentSource: "banner",
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: false,
+            allowRecommendations: false,
+            showInAnonymousStats: true,
+            consentUpdatedAt: 1700000000001,
+        });
+
+        expect(shouldSyncGuestConsentToAccount(guestMinimal, { consentUpdatedAt: 0 })).toBe(true);
+        expect(buildAccountPrivacySettingsFromConsentSnapshot(guestMinimal)).toMatchObject({
+            consentMode: "minimal_analytics",
+            consentDecision: "minimal",
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: false,
+            allowRecommendations: false,
+            showInAnonymousStats: true,
+            consentUpdatedAt: 1700000000001,
+        });
+    });
+
+    it("does not override explicit account privacy metadata even when a legacy account timestamp is missing", () => {
+        const guestAcceptAll = normalizePrivacySettingsSnapshot({
+            consentMode: "full_behavioral",
+            consentDecision: "accept_all",
+            consentSource: "banner",
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: true,
+            showInAnonymousStats: true,
+            consentUpdatedAt: 1700000000002,
+        });
+
+        expect(shouldSyncGuestConsentToAccount(guestAcceptAll, {
+            consentMode: "minimal_analytics",
+            consentDecision: "minimal",
+            consentSource: "account_settings",
+            consentUpdatedAt: 0,
+        })).toBe(false);
+        expect(shouldSyncGuestConsentToAccount(guestAcceptAll, {
+            consentMode: "minimal_analytics",
+            consentDecision: "minimal",
+            consentSource: "legacy_default",
+            consentUpdatedAt: 0,
+        })).toBe(true);
     });
 });
 

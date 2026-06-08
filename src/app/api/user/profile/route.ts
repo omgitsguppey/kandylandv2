@@ -15,6 +15,14 @@ import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import {
+    CONSENT_DECISION_VALUES,
+    CONSENT_SOURCE_VALUES,
+    CONSENT_TRACKING_VERSION,
+    type ConsentDecision,
+    type ConsentSource,
+} from "@/lib/privacy/consent-tracking-contract";
+import { normalizeConsentMode, resolveConsentMode, type ConsentMode } from "@/lib/privacy/consent-tracking-policy";
+import {
     USER_PROFILE_HUMAN_ERRORS,
     buildCanonicalUserProfileResponse,
     getServerOnlyUserProfilePayloadKeys,
@@ -81,6 +89,10 @@ function normalizeNotificationSettings(value: unknown): {
 }
 
 function normalizePrivacySettings(value: unknown): {
+    consentMode: ConsentMode;
+    consentDecision: ConsentDecision | null;
+    consentSource: ConsentSource;
+    consentPolicyVersion: typeof CONSENT_TRACKING_VERSION;
     allowRecommendations: boolean;
     showInAnonymousStats: boolean;
     anonymousAnalyticsEnabled: boolean;
@@ -99,20 +111,57 @@ function normalizePrivacySettings(value: unknown): {
         anonymousAnalyticsEnabled?: unknown;
         identifiedAnalyticsEnabled?: unknown;
         honorGlobalPrivacyControl?: unknown;
+        consentMode?: unknown;
+        consentDecision?: unknown;
+        consentSource?: unknown;
+        consentPolicyVersion?: unknown;
+        consentUpdatedAt?: unknown;
     };
 
-    const anonymousAnalyticsEnabled = source.anonymousAnalyticsEnabled === true;
-    const identifiedAnalyticsEnabled = source.identifiedAnalyticsEnabled === true;
-    const allowRecommendations = source.allowRecommendations === true;
-    const showInAnonymousStats = source.showInAnonymousStats === true;
+    const explicitConsentMode = normalizeConsentMode(source.consentMode);
+    const consentMode = explicitConsentMode === "unknown"
+        ? resolveConsentMode({
+            anonymousAnalyticsEnabled: source.anonymousAnalyticsEnabled === true,
+            identifiedAnalyticsEnabled: source.identifiedAnalyticsEnabled === true,
+            allowRecommendations: source.allowRecommendations === true,
+            honorGlobalPrivacyControl: source.honorGlobalPrivacyControl !== false,
+            consentUpdatedAt: 1,
+        })
+        : explicitConsentMode;
+    const minimalAllowed = consentMode === "minimal_analytics" || consentMode === "full_analytics" || consentMode === "full_behavioral";
+    const identifiedAllowed = consentMode === "full_analytics" || consentMode === "full_behavioral";
+    const behavioralAllowed = consentMode === "full_behavioral";
+    const anonymousAnalyticsEnabled = source.anonymousAnalyticsEnabled === true || minimalAllowed;
+    const identifiedAnalyticsEnabled = source.identifiedAnalyticsEnabled === true || identifiedAllowed;
+    const allowRecommendations = (source.allowRecommendations === true || behavioralAllowed) && identifiedAnalyticsEnabled;
+    const showInAnonymousStats = (source.showInAnonymousStats === true || minimalAllowed) && anonymousAnalyticsEnabled;
+    const consentDecision = CONSENT_DECISION_VALUES.includes(source.consentDecision as ConsentDecision)
+        ? source.consentDecision as ConsentDecision
+        : consentMode === "full_behavioral"
+            ? "accept_all"
+            : consentMode === "minimal_analytics"
+                ? "minimal"
+                : consentMode === "necessary_only"
+                    ? "decline_optional"
+                    : "customize";
+    const consentSource = CONSENT_SOURCE_VALUES.includes(source.consentSource as ConsentSource)
+        ? source.consentSource as ConsentSource
+        : "account_settings";
+    const consentUpdatedAt = Number.isFinite(source.consentUpdatedAt)
+        ? Number(source.consentUpdatedAt)
+        : Date.now();
 
     return {
-        allowRecommendations: allowRecommendations && identifiedAnalyticsEnabled,
-        showInAnonymousStats: showInAnonymousStats && anonymousAnalyticsEnabled,
-        anonymousAnalyticsEnabled: anonymousAnalyticsEnabled || identifiedAnalyticsEnabled || showInAnonymousStats,
+        consentMode,
+        consentDecision,
+        consentSource,
+        consentPolicyVersion: CONSENT_TRACKING_VERSION,
+        allowRecommendations,
+        showInAnonymousStats,
+        anonymousAnalyticsEnabled,
         identifiedAnalyticsEnabled,
         honorGlobalPrivacyControl: source.honorGlobalPrivacyControl !== false,
-        consentUpdatedAt: Date.now(),
+        consentUpdatedAt,
         privacyPolicyVersion: PRIVACY_POLICY_VERSION,
     };
 }

@@ -3,7 +3,11 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { z } from "zod";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
-import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
+import {
+    requestAllowsAnonymousAnalytics,
+    requestHasGlobalPrivacyControl,
+    resolveRequestConsentMode,
+} from "@/lib/server/privacy-consent";
 import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
 import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
@@ -152,6 +156,12 @@ function resolveGuestEnvelopeEventName(event: z.infer<typeof TelemetryEventSchem
     return event.semanticEventName || event.semanticExitEventName || event.type;
 }
 
+function resolveGuestConsentEventName(event: z.infer<typeof TelemetryEventSchema>) {
+    return event.semanticEventName
+        || event.semanticExitEventName
+        || (event.type === "page_view" ? "semantic_page_viewed" : event.type);
+}
+
 function currentHourKey(nowMs = Date.now()) {
     return new Date(nowMs).toISOString().slice(0, 13);
 }
@@ -291,19 +301,6 @@ async function POST_handler(request: NextRequest) {
             return buildAnalyticsIngestFailureResponse("payload_too_large");
         }
 
-        if (!requestAllowsAnonymousAnalytics(request)) {
-            const classification = classifyAnalyticsIngestFailure("analytics_consent_denied");
-            return NextResponse.json({
-                success: true,
-                status: classification.status,
-                ignored: true,
-                reason: classification.reason,
-                retryable: classification.retryable,
-                permanent: classification.permanent,
-                diagnosticPolicy: "suppressed_high_volume_consent_path",
-            });
-        }
-
         let rawPayload: unknown;
         try {
             rawPayload = await request.json();
@@ -343,7 +340,32 @@ async function POST_handler(request: NextRequest) {
             return buildAnalyticsIngestFailureResponse(reason);
         }
 
-        const { sessionId, events, consentMode, actorKind, identityState, identityConfidence } = parsed.data;
+        const consentFilteredEvents = parsed.data.events.map((event) => ({
+            event,
+            allowed: requestAllowsAnonymousAnalytics(request, resolveGuestConsentEventName(event)),
+        }));
+        const consentAcceptedEvents = consentFilteredEvents
+            .filter((result) => result.allowed)
+            .map((result) => result.event);
+        const consentDroppedEventCount = consentFilteredEvents.length - consentAcceptedEvents.length;
+
+        if (consentAcceptedEvents.length === 0) {
+            const classification = classifyAnalyticsIngestFailure("analytics_consent_denied");
+            return NextResponse.json({
+                success: true,
+                status: classification.status,
+                ignored: true,
+                reason: classification.reason,
+                retryable: classification.retryable,
+                permanent: classification.permanent,
+                droppedEvents: consentDroppedEventCount,
+                diagnosticPolicy: "suppressed_high_volume_consent_path",
+            });
+        }
+
+        const { sessionId, actorKind, identityState, identityConfidence } = parsed.data;
+        const consentMode = resolveRequestConsentMode(request);
+        const events = consentAcceptedEvents;
         const { sessionKey, shouldSetCookie } = getOrCreateSessionKey(request);
         const canonicalAnonymousVisitorId = resolveCanonicalGuestAnonymousVisitorId({
             clientAnonymousVisitorId: parsed.data.anonymousVisitorId,
@@ -547,9 +569,9 @@ async function POST_handler(request: NextRequest) {
         const response = NextResponse.json({
             success: true,
             status: "accepted",
-            processed: events.length,
+            processed: parsed.data.events.length,
             acceptedEvents: acceptedSanitizedEvents.length,
-            droppedEvents: 0,
+            droppedEvents: consentDroppedEventCount,
             rejectedEvents: quarantinedEventEnvelopes.length,
             retryable: false,
             dedupeKey,

@@ -10,7 +10,12 @@ import { mutate } from "swr";
 import { getBrowserNotificationState } from "@/lib/firebase-messaging";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { DEFAULT_CREATOR_SETTINGS, type CreatorSettings } from "@/lib/creator-experiences";
-import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
+import {
+    getBrowserGlobalPrivacyControl,
+    normalizePrivacySettingsSnapshot,
+    persistPrivacySettingsSnapshot,
+} from "@/lib/privacy-consent";
+import { CONSENT_TRACKING_VERSION } from "@/lib/privacy/consent-tracking-contract";
 import { getClientErrorMessage, reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -109,6 +114,37 @@ export function buildFormState(params: any): ProfileSettingsFormState {
         allowRecommendations: params.allowRecommendations === true,
         showInAnonymousStats: params.showInAnonymousStats === true,
         honorGlobalPrivacyControl: params.honorGlobalPrivacyControl === true,
+    };
+}
+
+type ProfilePrivacySettingsPayloadInput = Pick<
+    ProfileSettingsFormState,
+    | "anonymousAnalyticsEnabled"
+    | "identifiedAnalyticsEnabled"
+    | "allowRecommendations"
+    | "showInAnonymousStats"
+    | "honorGlobalPrivacyControl"
+>;
+
+export function buildAccountPrivacySettingsPayload(input: ProfilePrivacySettingsPayloadInput) {
+    const snapshot = normalizePrivacySettingsSnapshot({
+        ...input,
+        consentDecision: "customize",
+        consentSource: "account_settings",
+        consentPolicyVersion: CONSENT_TRACKING_VERSION,
+        consentUpdatedAt: 1,
+    });
+
+    return {
+        consentMode: snapshot.consentMode,
+        consentDecision: snapshot.consentDecision,
+        consentSource: "account_settings" as const,
+        consentPolicyVersion: snapshot.consentPolicyVersion,
+        anonymousAnalyticsEnabled: snapshot.anonymousAnalyticsEnabled,
+        identifiedAnalyticsEnabled: snapshot.identifiedAnalyticsEnabled,
+        allowRecommendations: snapshot.allowRecommendations,
+        showInAnonymousStats: snapshot.showInAnonymousStats,
+        honorGlobalPrivacyControl: snapshot.honorGlobalPrivacyControl,
     };
 }
 
@@ -422,13 +458,7 @@ export function useProfileState() {
             newDropAlerts: nextState.newDropAlerts,
             expiringSoonAlerts: nextState.expiringSoonAlerts,
         },
-        privacySettings: {
-            anonymousAnalyticsEnabled: nextState.anonymousAnalyticsEnabled,
-            identifiedAnalyticsEnabled: nextState.identifiedAnalyticsEnabled,
-            allowRecommendations: nextState.allowRecommendations,
-            showInAnonymousStats: nextState.showInAnonymousStats,
-            honorGlobalPrivacyControl: nextState.honorGlobalPrivacyControl,
-        },
+        privacySettings: buildAccountPrivacySettingsPayload(nextState),
     }), []);
 
     const savePrivacyPreferences = useCallback(async (nextPrivacyState: Pick<
@@ -446,13 +476,7 @@ export function useProfileState() {
         const response = await authFetch("/api/user/profile", {
             method: "PUT",
             body: JSON.stringify({
-                privacySettings: {
-                    anonymousAnalyticsEnabled: nextPrivacyState.anonymousAnalyticsEnabled,
-                    identifiedAnalyticsEnabled: nextPrivacyState.identifiedAnalyticsEnabled,
-                    allowRecommendations: nextPrivacyState.allowRecommendations,
-                    showInAnonymousStats: nextPrivacyState.showInAnonymousStats,
-                    honorGlobalPrivacyControl: nextPrivacyState.honorGlobalPrivacyControl,
-                },
+                privacySettings: buildAccountPrivacySettingsPayload(nextPrivacyState),
             }),
         });
 
@@ -467,6 +491,9 @@ export function useProfileState() {
             allowRecommendations: nextPrivacyState.allowRecommendations,
             showInAnonymousStats: nextPrivacyState.showInAnonymousStats,
             honorGlobalPrivacyControl: nextPrivacyState.honorGlobalPrivacyControl,
+            consentDecision: "customize",
+            consentSource: "account_settings",
+            consentPolicyVersion: CONSENT_TRACKING_VERSION,
         });
     }, [isCreatorProjectionActive]);
 

@@ -70,7 +70,13 @@ import {
     hasSubmittedIdentityLink,
     markIdentityLinkSubmitted,
 } from "@/lib/analytics/analytics-identity-link";
-import { canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
+import {
+    buildAccountPrivacySettingsFromConsentSnapshot,
+    canUseIdentifiedAnalytics,
+    persistPrivacySettingsSnapshot,
+    readPrivacySettingsSnapshot,
+    shouldSyncGuestConsentToAccount,
+} from "@/lib/privacy-consent";
 import {
     ensureManualSignupUsername,
     readManualRegistrationResult,
@@ -219,6 +225,51 @@ function shouldPreferRedirectGoogleSignIn() {
     return false;
 }
 
+async function syncGuestConsentIntoAccountProfile(input: {
+    userId: string;
+    profile: UserProfile;
+}) {
+    if (typeof window === "undefined") {
+        return input.profile;
+    }
+
+    const guestPrivacySnapshot = readPrivacySettingsSnapshot();
+    if (!shouldSyncGuestConsentToAccount(guestPrivacySnapshot, input.profile.privacySettings)) {
+        return input.profile;
+    }
+
+    const accountPrivacySettings = buildAccountPrivacySettingsFromConsentSnapshot(guestPrivacySnapshot);
+    persistPrivacySettingsSnapshot({
+        ...accountPrivacySettings,
+        consentMode: guestPrivacySnapshot.consentMode,
+        consentDecision: guestPrivacySnapshot.consentDecision,
+        consentSource: "account_settings",
+        consentPolicyVersion: guestPrivacySnapshot.consentPolicyVersion,
+    }, { preserveTimestamp: true });
+
+    try {
+        await authFetch("/api/user/profile", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ privacySettings: accountPrivacySettings }),
+        });
+    } catch (error) {
+        reportRealtimeIssue("privacy consent account sync failed", error, {
+            userId: input.userId,
+            consentMode: guestPrivacySnapshot.consentMode,
+            consentSource: guestPrivacySnapshot.consentSource,
+            sourceComponent: "AuthContext",
+        });
+    }
+
+    return {
+        ...input.profile,
+        privacySettings: {
+            ...input.profile.privacySettings,
+            ...accountPrivacySettings,
+        },
+    };
+}
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -613,7 +664,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     }
 
                     if (snapshot.exists()) {
-                        const profile = normalizeUserProfile(snapshot.data(), user);
+                        const normalizedProfile = normalizeUserProfile(snapshot.data(), user);
+                        const profile = normalizedProfile
+                            ? await syncGuestConsentIntoAccountProfile({
+                                userId: currentUserId,
+                                profile: normalizedProfile,
+                            })
+                            : null;
                         autoRegisterInFlight.delete(currentUserId);
 
                         if (profile && (profile.status === "banned" || profile.status === "suspended")) {

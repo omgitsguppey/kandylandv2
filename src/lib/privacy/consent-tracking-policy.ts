@@ -64,14 +64,14 @@ export function resolveConsentMode(snapshot?: ConsentModeInput | null): ConsentM
   const explicitMode = normalizeConsentMode(snapshot.consentMode);
   if (explicitMode !== "unknown") return explicitMode;
 
-  if (snapshot.anonymousAnalyticsEnabled === true && snapshot.allowRecommendations === true) {
-    return "full_behavioral";
-  }
-  if (snapshot.anonymousAnalyticsEnabled === true) {
+  if (snapshot.allowRecommendations === true) {
     return "full_behavioral";
   }
   if (snapshot.identifiedAnalyticsEnabled === true) {
     return "full_analytics";
+  }
+  if (snapshot.anonymousAnalyticsEnabled === true) {
+    return "minimal_analytics";
   }
   if (!snapshot.consentUpdatedAt) return "unknown";
 

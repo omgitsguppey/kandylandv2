@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { canTrackEvent } from "@/lib/privacy/consent-tracking-policy";
 
 const mockState = vi.hoisted(() => {
     const transactionSet = vi.fn();
@@ -9,7 +10,8 @@ const mockState = vi.hoisted(() => {
         guardApiRequest: vi.fn(),
         recordServerDiagnostic: vi.fn(async () => undefined),
         recordAnalyticsPipelineFailure: vi.fn(async () => undefined),
-        requestAllowsAnonymousAnalytics: vi.fn(() => true),
+        requestAllowsAnonymousAnalytics: vi.fn((_request?: unknown, _eventName?: string) => true),
+        resolveRequestConsentMode: vi.fn(() => "full_behavioral"),
         transactionSet,
         transactionCreate,
         adminDb: {
@@ -37,10 +39,36 @@ vi.mock("@/lib/server/rate-limit", () => ({
 vi.mock("@/lib/server/privacy-consent", () => ({
     requestAllowsAnonymousAnalytics: mockState.requestAllowsAnonymousAnalytics,
     requestHasGlobalPrivacyControl: vi.fn(() => false),
+    resolveRequestConsentMode: mockState.resolveRequestConsentMode,
 }));
 
 vi.mock("@/lib/telemetry-catalog", () => ({
     TELEMETRY_EVENT_INDEX_VERSION: 1,
+    normalizeTelemetryEventName: vi.fn((eventName: string) => eventName),
+    buildTelemetryEventExtensionMetadata: vi.fn((eventName: string) => ({
+        eventName,
+        feature: "analytics_guest_ingest",
+        surface: "analytics",
+        materializerLane: "behavioral_timeline",
+        debugVisibility: "debug_visible",
+        scoreEvidenceImpact: "supporting",
+        consentRequirement: eventName === "semantic_target_clicked" ? "full_behavioral" : "minimal_analytics",
+    })),
+    getTelemetryEventExtensionMetadata: vi.fn((eventName: string) => {
+        if (["page_view", "semantic_page_viewed", "semantic_target_clicked"].includes(eventName)) {
+            return {
+                eventName,
+                feature: "analytics_guest_ingest",
+                surface: "analytics",
+                materializerLane: "behavioral_timeline",
+                debugVisibility: "debug_visible",
+                scoreEvidenceImpact: "supporting",
+                consentRequirement: eventName === "semantic_target_clicked" ? "full_behavioral" : "minimal_analytics",
+            };
+        }
+
+        return null;
+    }),
 }));
 
 vi.mock("@/lib/server/analytics-event-utils", () => ({
@@ -114,6 +142,7 @@ describe("POST /api/analytics/ingest", () => {
         mockState.recordServerDiagnostic.mockReset();
         mockState.recordAnalyticsPipelineFailure.mockReset();
         mockState.requestAllowsAnonymousAnalytics.mockReset();
+        mockState.resolveRequestConsentMode.mockReset();
         mockState.transactionSet.mockReset();
         mockState.transactionCreate.mockReset();
         mockState.adminDb.collection.mockClear();
@@ -122,6 +151,7 @@ describe("POST /api/analytics/ingest", () => {
         mockState.recordServerDiagnostic.mockResolvedValue(undefined);
         mockState.recordAnalyticsPipelineFailure.mockResolvedValue(undefined);
         mockState.requestAllowsAnonymousAnalytics.mockReturnValue(true);
+        mockState.resolveRequestConsentMode.mockReturnValue("full_behavioral");
         mockState.adminDb.runTransaction.mockImplementation(async (callback: (transaction: unknown) => Promise<unknown>) => callback({
             get: vi.fn(async () => ({ exists: false, data: () => ({}) })),
             set: mockState.transactionSet,
@@ -202,7 +232,6 @@ describe("POST /api/analytics/ingest", () => {
 
         const response = await POST(request);
         const payload = await response.json();
-
         expect(response.status).toBe(200);
         expect(payload).toEqual({
             success: true,
@@ -211,9 +240,103 @@ describe("POST /api/analytics/ingest", () => {
             reason: "analytics_consent_denied",
             retryable: false,
             permanent: true,
+            droppedEvents: 1,
             diagnosticPolicy: "suppressed_high_volume_consent_path",
         });
         expect(mockState.recordServerDiagnostic).not.toHaveBeenCalled();
+    });
+
+    it("keeps minimal product liveness events while dropping behavioral guest events", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: null });
+        mockState.requestAllowsAnonymousAnalytics.mockImplementation((_request?: unknown, eventName = "") =>
+            canTrackEvent(String(eventName), "minimal_analytics"));
+        mockState.resolveRequestConsentMode.mockReturnValue("minimal_analytics");
+
+        const request = new NextRequest("http://localhost/api/analytics/ingest", {
+            method: "POST",
+            headers: {
+                cookie: "kandydrops_sid=anon_server-cookie-id",
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                sessionId: "sess_existing-session",
+                batchId: "batch_minimal-session_123456",
+                consentMode: "minimal_analytics",
+                events: [
+                    { type: "page_view", timestamp: Date.now(), path: "/" },
+                    { type: "hover", timestamp: Date.now(), path: "/", targetId: "hero-card" },
+                ],
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toEqual(expect.objectContaining({
+            success: true,
+            status: "accepted",
+            processed: 2,
+            acceptedEvents: 1,
+            droppedEvents: 1,
+        }));
+        expect(mockState.requestAllowsAnonymousAnalytics).toHaveBeenCalledWith(expect.any(NextRequest), "semantic_page_viewed");
+        expect(mockState.requestAllowsAnonymousAnalytics).toHaveBeenCalledWith(expect.any(NextRequest), "hover");
+        expect(mockState.transactionCreate).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                consentMode: "minimal_analytics",
+                eventCount: 1,
+                events: [expect.objectContaining({ type: "page_view" })],
+                interactionTypes: ["page_view"],
+            }),
+        );
+    });
+
+    it("accepts behavioral guest events only when the request gate has full behavioral consent", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: null });
+        mockState.requestAllowsAnonymousAnalytics.mockImplementation((_request?: unknown, eventName = "") =>
+            canTrackEvent(String(eventName), "full_behavioral"));
+        mockState.resolveRequestConsentMode.mockReturnValue("full_behavioral");
+
+        const request = new NextRequest("http://localhost/api/analytics/ingest", {
+            method: "POST",
+            headers: {
+                cookie: "kandydrops_sid=anon_server-cookie-id",
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                sessionId: "sess_existing-session",
+                batchId: "batch_full-session_123456",
+                consentMode: "full_behavioral",
+                events: [{
+                    type: "click",
+                    timestamp: Date.now(),
+                    path: "/",
+                    targetId: "hero-card",
+                    semanticEventName: "semantic_target_clicked",
+                }],
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toEqual(expect.objectContaining({
+            success: true,
+            status: "accepted",
+            acceptedEvents: 1,
+            droppedEvents: 0,
+        }));
+        expect(mockState.transactionCreate).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                eventCount: 1,
+                events: [expect.objectContaining({ type: "click", semanticEventName: "semantic_target_clicked" })],
+                interactionTypes: ["click"],
+            }),
+        );
     });
 
     it("prefers a valid client anonymous visitor id for canonical guest continuity", () => {
