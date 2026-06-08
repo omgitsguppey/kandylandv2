@@ -48,6 +48,7 @@ describe("identity handoff spine", () => {
       ["logged_in_linked_guest", { consentMode: "full_behavioral", sessionId: "sess_1", userId: "user_1", guestId: "guest_1", linkId: "identity_link_1" }],
       ["creator_logged_in", { consentMode: "full_behavioral", sessionId: "sess_1", userId: "creator_1", roles: ["creator"] }],
       ["admin_authenticated", { consentMode: "full_behavioral", sessionId: "sess_1", userId: "admin_1", roles: ["admin"] }],
+      ["guest_unknown_consent", { consentMode: "unknown", sessionId: "system_sess", systemGenerated: true }],
       ["legacy_unknown", { consentMode: "unknown", sessionId: null, legacyUnknown: true }],
     ];
 
@@ -162,6 +163,83 @@ describe("identity handoff spine", () => {
       identityState: "logged_in_linked_guest",
       identityConfidence: "linked",
       linkId: "identity_link_1",
+      includeInUserBehavior: true,
+    });
+  });
+
+  it("classifies system-generated events as system instead of legacy unknown", () => {
+    expect(buildEventIdentityEnvelope({
+      eventName: "system_rollup_completed",
+      sessionId: "system_sess",
+      consentMode: "unknown",
+      systemGenerated: true,
+    })).toMatchObject({
+      actorKind: "system",
+      identityState: "guest_unknown_consent",
+      identityConfidence: "exact",
+      includeInUserBehavior: false,
+    });
+
+    expect(buildEventIdentityEnvelope({
+      eventName: "system_rollup_completed",
+      sessionId: "system_sess",
+      identityState: "legacy_unknown",
+      systemGenerated: true,
+    })).toMatchObject({
+      actorKind: "system",
+      identityState: "guest_unknown_consent",
+      identityConfidence: "exact",
+      includeInUserBehavior: false,
+    });
+  });
+
+  it("keeps legacy unknown, admin projection, signed-in user, and guest lanes distinct", () => {
+    expect(buildEventIdentityEnvelope({
+      eventName: "legacy_imported",
+      sessionId: "legacy_sess",
+      legacyUnknown: true,
+    })).toMatchObject({
+      actorKind: "legacy_unknown",
+      identityState: "legacy_unknown",
+      identityConfidence: "unknown",
+      includeInUserBehavior: false,
+    });
+
+    expect(buildEventIdentityEnvelope({
+      eventName: "admin_view_as_creator_started",
+      userId: "admin_1",
+      sessionId: "admin_sess",
+      performedAs: "admin_view_as_creator",
+      projectionMode: "read_only_projection",
+      consentMode: "full_behavioral",
+    })).toMatchObject({
+      actorKind: "admin_projection",
+      identityState: "admin_authenticated",
+      identityConfidence: "exact",
+      includeInUserBehavior: false,
+    });
+
+    expect(buildEventIdentityEnvelope({
+      eventName: "wallet_opened",
+      userId: "user_1",
+      sessionId: "user_sess",
+      consentMode: "full_behavioral",
+    })).toMatchObject({
+      actorKind: "signed_in_user",
+      identityState: "logged_in_unlinked",
+      identityConfidence: "exact",
+      includeInUserBehavior: true,
+    });
+
+    expect(buildEventIdentityEnvelope({
+      eventName: "semantic_page_viewed",
+      guestId: "guest_1",
+      sessionId: "guest_sess",
+      consentMode: "full_behavioral",
+    })).toMatchObject({
+      actorKind: "guest",
+      identityState: "guest_full_behavioral",
+      identityConfidence: "weak",
       includeInUserBehavior: true,
     });
   });

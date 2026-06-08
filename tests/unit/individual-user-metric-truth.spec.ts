@@ -33,4 +33,17 @@ describe("individual user metric truth", () => {
     expect(INDIVIDUAL_USER_METRIC_TRUTH.find((metric) => metric.metricId === "payment_approvals")?.sourceEvents)
       .toContain("server_purchase_verified");
   });
+
+  it("inherits explicit materializer and permission blocked states from person metric hydration", () => {
+    const hydration = hydratePersonMetrics({
+      materializerMissingMetricIds: ["runtime_watch_sessions"],
+      permissionBlockedMetricIds: ["notification_interactions"],
+    });
+    const report = buildIndividualUserMetricTruthReport(hydration);
+
+    expect(report.metricStatus.runtime_watch_sessions.userHydrationStatus).toBe("materializer_missing");
+    expect(report.metricStatus.notification_interactions.userHydrationStatus).toBe("permission_blocked");
+    expect(report.metricStatus.runtime_watch_sessions.displayRule).toContain("not zero");
+    expect(report.metricStatus.notification_interactions.displayRule).toContain("not zero");
+  });
 });

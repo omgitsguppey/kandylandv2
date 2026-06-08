@@ -20,14 +20,32 @@ export const ANALYTICS_ACTOR_LANES = [
   "guest",
   "anonymous_visitor",
   "session",
+  "signed_in_user",
   "user",
+  "creator_user",
   "creator",
+  "admin_projection",
   "admin",
   "owner_admin",
   "system",
+  "legacy_unknown",
   "unknown",
 ] as const;
 export type AnalyticsActorLane = (typeof ANALYTICS_ACTOR_LANES)[number];
+
+export const ANALYTICS_COUNT_SCOPES = [
+  "global",
+  "guest",
+  "signed_in_user",
+  "linked_person",
+  "creator_role",
+  "admin",
+  "admin_projection",
+  "owner_admin",
+  "system",
+  "legacy_unknown",
+] as const;
+export type AnalyticsCountScope = (typeof ANALYTICS_COUNT_SCOPES)[number];
 
 export const ANALYTICS_EVENT_SOURCE_LANES = [
   "client",
@@ -177,6 +195,7 @@ export type CanonicalIdentityLinkedEvent = CanonicalAnalyticsEvent & {
 };
 
 export interface AnalyticsActorClassificationInput {
+  actorKind?: string | null;
   actorType?: string | null;
   anonymousVisitorId?: string | null;
   sessionId?: string | null;
@@ -206,6 +225,7 @@ export interface AnalyticsActorClassificationInput {
 export interface AnalyticsActorClassification {
   actorType: AnalyticsActorType;
   actorLane: AnalyticsActorLane;
+  countScopes: AnalyticsCountScope[];
   isAuthenticatedUser: boolean;
   isGuestLike: boolean;
   isAdmin: boolean;
@@ -291,12 +311,14 @@ function isAdminPerformedAs(value: unknown) {
 }
 
 function isAdminProjectionInput(input: AnalyticsActorClassificationInput) {
+  const actorKind = stringOrNull(input.actorKind)?.toLowerCase() ?? "";
   const eventName = stringOrNull(input.eventName)?.toLowerCase() ?? "";
   const performedAs = stringOrNull(input.performedAs)?.toLowerCase() ?? "";
   const projectionMode = stringOrNull(input.projectionMode)?.toLowerCase() ?? "";
   const sourceTruth = stringOrNull(input.sourceTruth)?.toLowerCase() ?? "";
 
-  return eventName.startsWith("admin_projection_")
+  return actorKind === "admin_projection"
+    || eventName.startsWith("admin_projection_")
     || eventName.startsWith("admin_view_as_")
     || eventName.includes("_projection_")
     || performedAs === "admin_view_as_creator"
@@ -304,8 +326,78 @@ function isAdminProjectionInput(input: AnalyticsActorClassificationInput) {
     || sourceTruth === "local_projection";
 }
 
+function uniqueCountScopes(scopes: AnalyticsCountScope[]) {
+  return Array.from(new Set(scopes));
+}
+
+export function resolveAnalyticsCountScopes(input: AnalyticsActorClassificationInput & {
+  actorLane?: AnalyticsActorLane | string | null;
+}): AnalyticsCountScope[] {
+  const actorLane = stringOrNull(input.actorLane)?.toLowerCase() ?? "";
+  const actorKind = stringOrNull(input.actorKind)?.toLowerCase() ?? "";
+  const identityState = stringOrNull(input.identityState)?.toLowerCase() ?? "";
+  const hasGuestLineage = Boolean(stringOrNull(input.anonymousVisitorId) ?? stringOrNull(input.sessionId));
+  const hasLinkedPerson = Boolean(stringOrNull(input.identityLinkId))
+    || identityState === "guest_linked_to_user"
+    || identityState === "logged_in_linked_guest";
+
+  if (actorLane === "legacy_unknown" || actorKind === "legacy_unknown" || identityState === "legacy_unknown") {
+    return ["legacy_unknown"];
+  }
+  if (actorLane === "system" || actorKind === "system" || input.systemGenerated === true) {
+    return ["system"];
+  }
+  if (actorLane === "owner_admin") {
+    return ["global", "owner_admin", "admin"];
+  }
+  if (actorLane === "admin_projection" || isAdminProjectionInput(input) || isAdminPerformedAs(input.performedAs)) {
+    return ["global", "admin_projection", "admin"];
+  }
+  if (actorLane === "admin") {
+    return ["global", "admin"];
+  }
+  if (actorLane === "creator_user" || actorKind === "creator_user") {
+    return uniqueCountScopes([
+      "global",
+      "signed_in_user",
+      hasLinkedPerson ? "linked_person" : null,
+      "creator_role",
+    ].filter(Boolean) as AnalyticsCountScope[]);
+  }
+  if (actorLane === "creator") {
+    return ["global", "creator_role"];
+  }
+  if (actorLane === "guest" || actorLane === "anonymous_visitor" || actorLane === "session" || actorKind === "guest") {
+    return ["global", "guest"];
+  }
+  if (actorLane === "signed_in_user" || actorLane === "user" || actorKind === "signed_in_user" || stringOrNull(input.userId) || stringOrNull(input.actorUserId)) {
+    return uniqueCountScopes([
+      "global",
+      "signed_in_user",
+      hasLinkedPerson ? "linked_person" : null,
+    ].filter(Boolean) as AnalyticsCountScope[]);
+  }
+  if (hasGuestLineage) {
+    return ["global", "guest"];
+  }
+  return [];
+}
+
 export function normalizeAnalyticsActorType(value: unknown): AnalyticsActorType {
   return isOneOf(value, ANALYTICS_ACTOR_TYPES) ? value : "unknown";
+}
+
+function analyticsActorTypeFromActorKind(value: unknown): AnalyticsActorType | null {
+  const actorKind = stringOrNull(value)?.toLowerCase();
+  if (!actorKind) return null;
+  if (actorKind === "guest") return "guest";
+  if (actorKind === "signed_in_user") return "user";
+  if (actorKind === "creator_user") return "creator";
+  if (actorKind === "admin" || actorKind === "admin_projection") return "admin";
+  if (actorKind === "owner_admin") return "owner_admin";
+  if (actorKind === "system") return "system";
+  if (actorKind === "legacy_unknown") return "unknown";
+  return null;
 }
 
 export function normalizeAnalyticsSourceLane(value: unknown): AnalyticsEventSourceLane {
@@ -330,11 +422,15 @@ export function resolveAnalyticsIdentityState(input: AnalyticsActorClassificatio
     return explicit;
   }
 
-  const hasUser = Boolean(stringOrNull(input.userId) ?? stringOrNull(input.actorUserId));
-  const hasCreator = normalizeAnalyticsActorType(input.actorType) === "creator"
+  const actorType = analyticsActorTypeFromActorKind(input.actorKind) ?? normalizeAnalyticsActorType(input.actorType);
+  const actorKind = stringOrNull(input.actorKind)?.toLowerCase() ?? "";
+  const hasUser = actorKind === "signed_in_user" || Boolean(stringOrNull(input.userId) ?? stringOrNull(input.actorUserId));
+  const hasCreator = actorKind === "creator_user" || actorType === "creator"
     || Boolean(stringOrNull(input.creatorId) ?? stringOrNull(input.actorCreatorId));
-  const hasAdminProjection = normalizeAnalyticsActorType(input.actorType) === "admin"
-    || normalizeAnalyticsActorType(input.actorType) === "owner_admin"
+  const hasAdminProjection = actorKind === "admin_projection"
+    || actorKind === "admin"
+    || actorType === "admin"
+    || actorType === "owner_admin"
     || Boolean(stringOrNull(input.adminId) ?? stringOrNull(input.actorAdminId))
     || isAdminProjectionInput(input)
     || isAdminPerformedAs(input.performedAs);
@@ -362,7 +458,8 @@ export function resolveAnalyticsIdentityState(input: AnalyticsActorClassificatio
 }
 
 export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput): AnalyticsActorClassification {
-  const explicitActorType = normalizeAnalyticsActorType(input.actorType);
+  const actorKind = stringOrNull(input.actorKind)?.toLowerCase() ?? "";
+  const explicitActorType = analyticsActorTypeFromActorKind(actorKind) ?? normalizeAnalyticsActorType(input.actorType);
   const roles = Array.isArray(input.roles) ? input.roles.map((role) => role.toLowerCase()) : [];
   const claims = input.claims ?? {};
   const route = stringOrNull(input.route)?.toLowerCase() ?? "";
@@ -375,6 +472,24 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
   const actorAdminId = stringOrNull(input.actorAdminId) ?? stringOrNull(input.adminId);
   const adminProjection = isAdminProjectionInput(input);
   const adminPerformedAs = isAdminPerformedAs(performedAs);
+
+  if (actorKind === "legacy_unknown") {
+    reasons.push("Identity handoff marked this event as legacy unknown; it must not be promoted into a user lane.");
+    return {
+      actorType: "unknown",
+      actorLane: "legacy_unknown",
+      countScopes: ["legacy_unknown"],
+      isAuthenticatedUser: false,
+      isGuestLike: false,
+      isAdmin: false,
+      isCreator: false,
+      isSystem: false,
+      isUnknown: true,
+      identityLinkRequired: false,
+      confidence: "low",
+      reasons,
+    };
+  }
 
   const hasAdminRole =
     roles.some((role) => role === "admin" || role === "owner" || role === "owner_admin" || role === "super_admin") ||
@@ -392,6 +507,7 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
     return {
       actorType: "system",
       actorLane: "system",
+      countScopes: ["system"],
       isAuthenticatedUser: false,
       isGuestLike: false,
       isAdmin: false,
@@ -417,6 +533,7 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
     return {
       actorType: "owner_admin",
       actorLane: "owner_admin",
+      countScopes: ["global", "owner_admin", "admin"],
       isAuthenticatedUser: false,
       isGuestLike: false,
       isAdmin: true,
@@ -447,9 +564,11 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
     if (adminProjection) {
       reasons.push("Admin projection/view-as markers are excluded from live user behavior metrics.");
     }
+    const actorLane = adminProjection ? "admin_projection" : "admin";
     return {
       actorType: "admin",
-      actorLane: "admin",
+      actorLane,
+      countScopes: resolveAnalyticsCountScopes({ ...input, actorLane }),
       isAuthenticatedUser: false,
       isGuestLike: false,
       isAdmin: true,
@@ -473,10 +592,12 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
     || Boolean(creatorActorId);
   if (isCreator) {
     reasons.push("Creator actor type, creator role, or creator actor claim is present.");
+    const actorLane = actorKind === "creator_user" ? "creator_user" : "creator";
     return {
       actorType: "creator",
-      actorLane: "creator",
-      isAuthenticatedUser: false,
+      actorLane,
+      countScopes: resolveAnalyticsCountScopes({ ...input, actorLane }),
+      isAuthenticatedUser: actorLane === "creator_user",
       isGuestLike: false,
       isAdmin: false,
       isCreator: true,
@@ -488,14 +609,40 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
     };
   }
 
+  if (actorKind === "guest" || explicitActorType === "guest") {
+    const hasAnonymousVisitorId = Boolean(stringOrNull(input.anonymousVisitorId));
+    const hasSessionId = Boolean(stringOrNull(input.sessionId));
+    reasons.push("Identity handoff or explicit actor type marked this event as guest.");
+    if (actorUserId) {
+      reasons.push("A caller/user id is present on the ingest route, but explicit guest actor classification wins for this event.");
+    }
+    const actorLane = hasAnonymousVisitorId && !hasSessionId ? "anonymous_visitor" : hasSessionId ? "guest" : "guest";
+    return {
+      actorType: "guest",
+      actorLane,
+      countScopes: resolveAnalyticsCountScopes({ ...input, actorLane }),
+      isAuthenticatedUser: false,
+      isGuestLike: true,
+      isAdmin: false,
+      isCreator: false,
+      isSystem: false,
+      isUnknown: false,
+      identityLinkRequired: false,
+      confidence: hasAnonymousVisitorId || hasSessionId ? "high" : "medium",
+      reasons,
+    };
+  }
+
   if (explicitActorType === "user" || actorUserId) {
     reasons.push("Authenticated user id or explicit user actor type is present.");
     if (stringOrNull(input.anonymousVisitorId) || stringOrNull(input.sessionId)) {
       reasons.push("Guest/session lineage is present; merge requires an identity_linked event and must preserve guest history.");
     }
+    const actorLane = actorKind === "signed_in_user" ? "signed_in_user" : "user";
     return {
       actorType: "user",
-      actorLane: "user",
+      actorLane,
+      countScopes: resolveAnalyticsCountScopes({ ...input, actorLane }),
       isAuthenticatedUser: true,
       isGuestLike: false,
       isAdmin: false,
@@ -508,13 +655,15 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
     };
   }
 
-  if (explicitActorType === "guest" || stringOrNull(input.anonymousVisitorId) || stringOrNull(input.sessionId)) {
+  if (stringOrNull(input.anonymousVisitorId) || stringOrNull(input.sessionId)) {
     const hasAnonymousVisitorId = Boolean(stringOrNull(input.anonymousVisitorId));
     const hasSessionId = Boolean(stringOrNull(input.sessionId));
     reasons.push("Anonymous visitor id, session id, or explicit guest actor type is present.");
+    const actorLane = hasAnonymousVisitorId && !hasSessionId ? "anonymous_visitor" : hasSessionId ? "session" : "guest";
     return {
       actorType: "guest",
-      actorLane: hasAnonymousVisitorId && !hasSessionId ? "anonymous_visitor" : hasSessionId ? "session" : "guest",
+      actorLane,
+      countScopes: resolveAnalyticsCountScopes({ ...input, actorLane }),
       isAuthenticatedUser: false,
       isGuestLike: true,
       isAdmin: false,
@@ -531,6 +680,7 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
   return {
     actorType: "unknown",
     actorLane: "unknown",
+    countScopes: [],
     isAuthenticatedUser: false,
     isGuestLike: false,
     isAdmin: false,
@@ -736,7 +886,7 @@ export function shouldExcludeFromUserAnalytics(event: AnalyticsActorClassificati
     classification.actorType === "admin" ||
     classification.actorType === "owner_admin" ||
     classification.actorType === "system" ||
-    classification.actorType === "creator" ||
+    (classification.actorType === "creator" && !classification.countScopes.includes("signed_in_user")) ||
     classification.actorType === "unknown"
   );
 }
@@ -771,7 +921,7 @@ export function explainEventInclusion(event: AnalyticsActorClassificationInput):
       : actorClassification.actorType === "system"
         ? "System events are excluded from user/guest behavior analytics."
         : actorClassification.actorType === "creator"
-          ? "Creator events stay in the creator lane and are not merged into user behavior."
+          ? "Creator-only events stay in the creator lane; creator_user events also carry signed-in user scope."
           : "Unknown actor events are excluded from user behavior until classified.";
 
   return {

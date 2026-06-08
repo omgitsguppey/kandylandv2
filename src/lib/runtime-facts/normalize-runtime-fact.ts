@@ -2,6 +2,7 @@ import {
   explainEventInclusion,
   type AnalyticsActorType,
 } from "@/lib/analytics/analytics-event-contract";
+import { buildEventIdentityEnvelope } from "@/lib/analytics/identity-handoff-engine";
 import { normalizeIdentifiedMetricEventFact } from "@/lib/behavioral/event-fact-normalizer";
 import { normalizeBehavioralEventFactWithDiagnostics } from "@/lib/behavioral/normalize-event-fact";
 import type { TelemetryEventOption } from "@/lib/telemetry-catalog";
@@ -23,6 +24,52 @@ function readStringParam(params: Record<string, unknown>, ...keys: string[]) {
   }
 
   return "";
+}
+
+function readStringArrayParam(params: Record<string, unknown>, ...keys: string[]) {
+  const values: string[] = [];
+  for (const key of keys) {
+    const value = params[key];
+    if (Array.isArray(value)) {
+      values.push(...value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0));
+    } else if (typeof value === "string" && value.trim().length > 0) {
+      values.push(...value.split(",").map((entry) => entry.trim()).filter(Boolean));
+    }
+  }
+
+  return Array.from(new Set(values.map((value) => value.toLowerCase())));
+}
+
+function readBooleanParam(params: Record<string, unknown>, ...keys: string[]) {
+  for (const key of keys) {
+    const value = params[key];
+    if (typeof value === "boolean") return value;
+    if (typeof value === "string") {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === "true") return true;
+      if (normalized === "false") return false;
+    }
+  }
+
+  return false;
+}
+
+function readClaimsParam(params: Record<string, unknown>) {
+  const claimsValue = params.claims ?? params.authClaims ?? params.userClaims;
+  const claims = claimsValue && typeof claimsValue === "object" && !Array.isArray(claimsValue)
+    ? { ...(claimsValue as Record<string, unknown>) }
+    : {};
+
+  if (readBooleanParam(params, "is_admin", "isAdmin", "admin")) claims.admin = true;
+  if (readBooleanParam(params, "is_owner", "isOwner", "owner", "owner_admin", "ownerAdmin")) claims.owner = true;
+  if (readBooleanParam(params, "is_creator", "isCreator", "creator")) claims.creator = true;
+
+  const creatorId = readStringParam(params, "actor_creator_id", "actorCreatorId", "creator_actor_id", "creatorActorId", "creator_uid", "creatorUid");
+  if (creatorId && typeof claims.creatorId !== "string" && typeof claims.creatorUid !== "string") {
+    claims.creatorId = creatorId;
+  }
+
+  return claims;
 }
 
 function clampConfidence(value: number) {
@@ -228,6 +275,36 @@ export function normalizeIdentifiedRuntimeFact(input: {
   const performedAs = readStringParam(enrichedParams, "performed_as", "performedAs");
   const projectionMode = readStringParam(enrichedParams, "projection_mode", "projectionMode", "view_as_mode", "viewAsMode");
   const sourceTruth = resolveIdentifiedSourceTruth(canonicalEventName, enrichedParams);
+  const anonymousVisitorId = readStringParam(enrichedParams, "anonymous_visitor_id", "anonymousVisitorId");
+  const sessionId = readStringParam(enrichedParams, "session_id", "sessionId");
+  const identityLinkId = readStringParam(enrichedParams, "identity_link_id", "identityLinkId");
+  const roles = readStringArrayParam(enrichedParams, "roles", "role", "actor_roles", "actorRoles", "actor_role", "actorRole");
+  const claims = readClaimsParam(enrichedParams);
+  const creatorActorId = readStringParam(
+    enrichedParams,
+    "actor_creator_id",
+    "actorCreatorId",
+    "creator_actor_id",
+    "creatorActorId",
+    "creator_uid",
+    "creatorUid",
+  );
+  const identityEnvelope = buildEventIdentityEnvelope({
+    eventName: canonicalEventName,
+    actorKind: readStringParam(enrichedParams, "actor_kind", "actorKind") || undefined,
+    identityState: readStringParam(enrichedParams, "identity_state", "identityState") || undefined,
+    guestId: anonymousVisitorId,
+    userId: input.callerUid,
+    sessionId,
+    linkId: identityLinkId,
+    consentMode: readStringParam(enrichedParams, "consent_mode", "consentMode") || undefined,
+    roles,
+    claims,
+    projectionMode,
+    performedAs,
+    systemGenerated: readBooleanParam(enrichedParams, "system_generated", "systemGenerated"),
+    legacyUnknown: readBooleanParam(enrichedParams, "legacy_unknown", "legacyUnknown"),
+  });
   const explicitActorAdminId = readStringParam(
     enrichedParams,
     "actor_admin_id",
@@ -247,15 +324,24 @@ export function normalizeIdentifiedRuntimeFact(input: {
   const inclusion = explainEventInclusion({
     eventName: canonicalEventName,
     userId: input.callerUid,
+    actorKind: identityEnvelope.actorKind,
+    identityState: identityEnvelope.identityState,
     actorAdminId: explicitActorAdminId,
+    actorCreatorId: creatorActorId,
     adminId: adminRouteOrEvent ? (explicitActorAdminId || input.callerUid) : readStringParam(enrichedParams, "admin_id", "adminId"),
-    actorType: readStringParam(enrichedParams, "actor_type", "actorType") || (adminRouteOrEvent ? "admin" : "user"),
+    actorType: readStringParam(enrichedParams, "actor_type", "actorType"),
+    anonymousVisitorId,
+    sessionId,
+    identityLinkId,
     route,
     surface: readStringParam(enrichedParams, "surface", "source_surface", "sourceSurface") || "client",
     source: "identified_ingest",
     performedAs,
     projectionMode,
     sourceTruth,
+    roles,
+    claims,
+    systemGenerated: identityEnvelope.actorKind === "system",
   });
   const actorClassification = inclusion.actorClassification;
   const parityFact = normalizeIdentifiedMetricEventFact({
@@ -284,6 +370,16 @@ export function normalizeIdentifiedRuntimeFact(input: {
       : parityFact.metricFamily === "notification" && canonicalEventName !== "notification_read"
         ? "notification_diagnostic_only"
         : parityFact.metricExclusionReason;
+  const countsAsSignedInUser = actorClassification.countScopes.includes("signed_in_user");
+  const runtimeActorUserId = countsAsSignedInUser
+    ? (parityFact.actorUserId || input.callerUid)
+    : "";
+  const runtimeActorCreatorId = actorClassification.actorType === "creator"
+    ? (parityFact.actorCreatorId || creatorActorId || input.callerUid)
+    : "";
+  const runtimeActorAdminId = actorClassification.isAdmin
+    ? (parityFact.actorAdminId || explicitActorAdminId || input.callerUid)
+    : "";
 
   return {
     diagnostic: null,
@@ -297,11 +393,11 @@ export function normalizeIdentifiedRuntimeFact(input: {
       actorLane: actorClassification.actorLane,
       actor: {
         actorType: actorClassification.actorType,
-        actorUserId: parityFact.actorUserId,
-        actorCreatorId: parityFact.actorCreatorId,
-        actorAdminId: parityFact.actorAdminId || (actorClassification.isAdmin ? (explicitActorAdminId || input.callerUid) : ""),
-        anonymousVisitorId: readStringParam(enrichedParams, "anonymous_visitor_id", "anonymousVisitorId"),
-        sessionId: readStringParam(enrichedParams, "session_id", "sessionId"),
+        actorUserId: runtimeActorUserId,
+        actorCreatorId: runtimeActorCreatorId,
+        actorAdminId: runtimeActorAdminId,
+        anonymousVisitorId,
+        sessionId,
       },
       target: {
         targetUserId: parityFact.targetUserId,

@@ -131,9 +131,10 @@ function includeInUserBehavior(input: {
 
 export function resolveCurrentIdentityState(input: IdentityHandoffInput): IdentityState {
   const explicitState = normalizeIdentityState(input.identityState);
+  if (input.systemGenerated === true && explicitState === "legacy_unknown") return "guest_unknown_consent";
   if (explicitState) return explicitState;
+  if (input.systemGenerated === true) return "guest_unknown_consent";
   if (input.legacyUnknown) return "legacy_unknown";
-  if (input.systemGenerated === true) return "legacy_unknown";
   if (isProjection(input)) return "admin_authenticated";
 
   const roles = roleSet(input);

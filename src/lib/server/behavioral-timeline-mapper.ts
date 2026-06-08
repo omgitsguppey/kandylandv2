@@ -82,7 +82,12 @@ export function mapRuntimeFactToBehavioralTimelineFact(input: {
           && input.runtimeFact.timestampMs
           && input.runtimeFact.normalizedAction,
       ),
-      hasActor: Boolean(input.runtimeFact.actor.actorUserId || input.runtimeFact.actor.anonymousVisitorId),
+      hasActor: Boolean(
+        input.runtimeFact.actor.actorUserId
+          || input.runtimeFact.actor.actorCreatorId
+          || input.runtimeFact.actor.actorAdminId
+          || input.runtimeFact.actor.anonymousVisitorId,
+      ),
       hasTargetWhenRequired: Boolean(
         !input.runtimeFact.normalizedAction.includes("drop")
           || input.runtimeFact.target.targetDropId,
