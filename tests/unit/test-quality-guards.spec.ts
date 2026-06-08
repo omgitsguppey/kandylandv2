@@ -16,4 +16,25 @@ describe("test quality guards", () => {
     expect(report.findings.some((finding) => finding.kind === "as_any" || finding.kind === "date_now")).toBe(true);
     expect(validation.ok).toBe(true);
   });
+
+  it("blocks unowned fantasy DTO fixtures", () => {
+    const report = buildTestQualityGuardsReport();
+    const validation = validateTestQualityGuardsReport({
+      ...report,
+      findings: [
+        ...report.findings,
+        {
+          kind: "fantasy_dto",
+          file: "tests/unit/example.spec.ts",
+          classification: "unsafe_unknown",
+          canClearReleaseProofGate: false,
+          action: "Replace with a canonical test factory or add a fixture-owner comment with the exact deferred owner/reason.",
+        },
+      ],
+      unsafeUnknowns: report.unsafeUnknowns + 1,
+    });
+
+    expect(validation.ok).toBe(false);
+    expect(validation.failures).toContain("unowned fantasy DTO fixtures found: 1");
+  });
 });

@@ -120,7 +120,7 @@ export function evidenceArtifactNumericValue(artifact: PublicBetaEvidenceArtifac
 }
 
 export function evidenceArtifactHasFormalPass(artifact: PublicBetaEvidenceArtifact | undefined) {
-  if (!artifact?.passed) return false;
+  if (!evidenceArtifactIsPassing(artifact)) return false;
   const status = evidenceArtifactStatusText(artifact).toLowerCase();
   const text = evidenceArtifactText(artifact).toLowerCase();
   return /passed|formal_complete|formal_passed|usable/u.test(status)
@@ -137,13 +137,19 @@ export function evidenceArtifactHasSourceConfidence(artifact: PublicBetaEvidence
 
 export function evidenceArtifactIsPassing(
   artifact: PublicBetaEvidenceArtifact | undefined,
-  fallbackBoolean?: boolean,
+  _fallbackBoolean?: boolean,
 ) {
-  if (!artifact) return fallbackBoolean === true;
-  const status = evidenceArtifactStatusText(artifact);
+  if (!artifact) return false;
+  const status = evidenceArtifactStatusText(artifact).toLowerCase();
+  const text = evidenceArtifactText(artifact).toLowerCase();
+  const freshness = resolveFreshness(artifact, {
+    lane: "formal_evidence_artifact",
+    requiredForExit: true,
+  });
   return artifact.passed === true
+    && freshness.freshness === "fresh"
     && !NON_PASSING_EVIDENCE_STATUSES.has(status)
-    && !/source[_-]ready|runtime_proof_required/iu.test(status);
+    && !/source[_-]ready|runtime[_-]proof[_-]required|operator[_-]reported|not[_-]formal|runtime[_-]unverified|missing|unknown|failed|stale|unavailable|needs[_-]review|tracked[_-]not[_-]passing/iu.test(`${status}\n${text}`);
 }
 
 function ageHours(generatedAtUtc: string | undefined, nowUtc: string | undefined) {

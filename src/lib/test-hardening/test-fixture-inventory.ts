@@ -33,6 +33,8 @@ export type TestFixtureInventoryEntry = {
   driftRisk: "low" | "medium" | "high";
   duplicateCandidates: string[];
   action: TestFixtureAction;
+  deferredOwner?: string;
+  deferredReason?: string;
 };
 
 export type TestFixtureInventoryReport = {
@@ -47,6 +49,8 @@ export type TestFixtureInventoryReport = {
   canonicalFactoriesAddedOrReused: number;
   mockEvidenceClasses: readonly MockEvidenceClass[];
   entries: TestFixtureInventoryEntry[];
+  severityCounts: Record<TestFixtureInventoryEntry["driftRisk"], number>;
+  actionCounts: Record<TestFixtureAction, number>;
   unsafeUnknowns: number;
   remainingGaps: string[];
   nextExactSteps: string[];
@@ -71,6 +75,33 @@ function fixtureNameFromPath(path: string) {
 function countDirectFixtureDoubles(text: string) {
   const withoutDisplaySafetyTerms = text.replace(/\bfakeZero[A-Za-z_]*\b/gu, "");
   return countMatches(withoutDisplaySafetyTerms, /\bfake[A-Z_]|\bmock[A-Z_]|\bas any\b/gu);
+}
+
+function deferredOwnerFor(domain: SharedTypeDomain, file: string) {
+  if (/support/iu.test(file)) return "support";
+  if (/route|request|guardApiRequest|adminDb|firestore/iu.test(file)) return "route_fixture";
+  if (domain === "analytics" || domain === "person_metrics") return "telemetry";
+  if (domain === "debug" || domain === "release_readiness") return "admin_truth";
+  if (domain === "payment" || domain === "gumdrop") return "gumdrop";
+  if (domain === "creator") return "creator";
+  if (domain === "user") return "user";
+  return "test-hardening";
+}
+
+function deferredReasonFor(entry: {
+  file: string;
+  domain: SharedTypeDomain;
+  canonicalTypeUsed: boolean;
+  driftRisk: TestFixtureInventoryEntry["driftRisk"];
+}) {
+  if (entry.canonicalTypeUsed) return undefined;
+  if (/route|request|guardApiRequest|adminDb|firestore/iu.test(entry.file)) {
+    return "Route and Firestore harnesses still use local test doubles; defer until a canonical route/request factory is introduced.";
+  }
+  if (entry.driftRisk === "high") {
+    return "Local fake/mock shape should be replaced with the canonical factory for this domain when the owning validator is touched.";
+  }
+  return "Fixture is source-only evidence and should stay explicitly fixture-only until an owning canonical factory exists.";
 }
 
 export function buildTestFixtureInventoryReport(): TestFixtureInventoryReport {
@@ -100,6 +131,7 @@ export function buildTestFixtureInventoryReport(): TestFixtureInventoryReport {
         : mockEvidenceClass === "fixture_only"
           ? "mark_fixture_only"
           : "keep";
+    const deferredReason = deferredReasonFor({ file, domain, canonicalTypeUsed, driftRisk });
     return {
       fixtureName,
       file,
@@ -110,8 +142,25 @@ export function buildTestFixtureInventoryReport(): TestFixtureInventoryReport {
       driftRisk,
       duplicateCandidates,
       action,
+      ...(deferredReason ? {
+        deferredOwner: deferredOwnerFor(domain, file),
+        deferredReason,
+      } : {}),
     };
   });
+  const severityCounts = {
+    low: entries.filter((entry) => entry.driftRisk === "low").length,
+    medium: entries.filter((entry) => entry.driftRisk === "medium").length,
+    high: entries.filter((entry) => entry.driftRisk === "high").length,
+  };
+  const actionCounts = {
+    keep: entries.filter((entry) => entry.action === "keep").length,
+    consolidate: entries.filter((entry) => entry.action === "consolidate").length,
+    replace_with_factory: entries.filter((entry) => entry.action === "replace_with_factory").length,
+    remove: entries.filter((entry) => entry.action === "remove").length,
+    mark_fixture_only: entries.filter((entry) => entry.action === "mark_fixture_only").length,
+    unsafe_unknown: entries.filter((entry) => entry.action === "unsafe_unknown").length,
+  };
 
   const report: TestFixtureInventoryReport = {
     reportKey: "test-fixture-inventory",
@@ -125,8 +174,10 @@ export function buildTestFixtureInventoryReport(): TestFixtureInventoryReport {
     canonicalFactoriesAddedOrReused: CANONICAL_TEST_FACTORY_NAMES.length,
     mockEvidenceClasses: MOCK_EVIDENCE_CLASSES.filter((evidenceClass) => evidenceClass !== "unsafe_unknown"),
     entries,
+    severityCounts,
+    actionCounts,
     unsafeUnknowns: entries.filter((entry) => entry.action === "unsafe_unknown" || entry.mockEvidenceClass === "unsafe_unknown").length,
-    remainingGaps: unique(entries.filter((entry) => entry.driftRisk === "high").slice(0, 10).map((entry) => `${entry.file}: replace local fake/mock data with canonical test factory where practical.`)),
+    remainingGaps: unique(entries.filter((entry) => entry.deferredReason).map((entry) => `${entry.file}: ${entry.deferredReason}`)),
     nextExactSteps: [
       "Use src/lib/testing/canonical-test-factories.ts before adding new fixture DTOs.",
       "Classify every mock evidence boundary before it can feed release/readiness checks.",
@@ -144,8 +195,11 @@ export function validateTestFixtureInventoryReport(report: TestFixtureInventoryR
   if (report.fixturesAudited === 0) failures.push("fixture inventory found no fixtures.");
   if (!report.canonicalFactories.includes("buildCanonicalEventEnvelopeFixture")) failures.push("canonical event envelope fixture missing.");
   if (!report.canonicalFactories.includes("buildCanonicalGumDropLedgerFixture")) failures.push("canonical GumDrop ledger fixture missing.");
+  if (!report.canonicalFactories.includes("buildCanonicalSupportThreadFixture")) failures.push("canonical support fixture missing.");
   if (!report.mockEvidenceClasses.includes("fixture_only")) failures.push("fixture_only mock evidence class missing.");
   if (report.unsafeUnknowns > 0) failures.push("fixture inventory contains unsafe_unknown entries.");
+  const unownedDeferred = report.entries.filter((entry) => entry.deferredReason && !entry.deferredOwner);
+  if (unownedDeferred.length > 0) failures.push(`fixture inventory has unowned deferred fixtures: ${unownedDeferred.length}`);
   if (report.entries.some((entry) => entry.mockEvidenceClass === "source_only" && entry.action === "keep" && !entry.canonicalTypeUsed)) {
     warnings.push("source_only mock exists without canonical type import.");
   }

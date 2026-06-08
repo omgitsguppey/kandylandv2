@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildCanonicalEventEnvelopeFixture,
+  buildCanonicalSupportReadinessFixture,
+  buildCanonicalSupportThreadFixture,
   buildCanonicalUserFixture,
 } from "../../src/lib/testing/canonical-test-factories";
 import {
@@ -16,6 +18,7 @@ describe("test fixture inventory", () => {
 
     expect(report.fixturesAudited).toBeGreaterThan(10);
     expect(report.canonicalFactories).toContain("buildCanonicalEventEnvelopeFixture");
+    expect(report.canonicalFactories).toContain("buildCanonicalSupportThreadFixture");
     expect(report.unsafeUnknowns).toBe(0);
     expect(report.mockEvidenceClasses).toContain("fixture_only");
     expect(validation.ok).toBe(true);
@@ -24,12 +27,25 @@ describe("test fixture inventory", () => {
   it("uses deterministic canonical fixture factories", () => {
     const user = buildCanonicalUserFixture();
     const envelope = buildCanonicalEventEnvelopeFixture();
+    const supportThread = buildCanonicalSupportThreadFixture();
+    const supportReadiness = buildCanonicalSupportReadinessFixture();
 
     expect(user.uid).toBe("test-user-1");
     expect(user.email).toBeNull();
     expect(envelope.eventId).toBe("test-event-1");
     expect(envelope.privacyClass).toBe("minimal_product");
     expect(envelope.includeInUserBehavior).toBe(true);
+    expect(supportThread.threadKey).toBe("support:test-user-1");
+    expect(supportReadiness.summary.state).toBe("waiting_on_support");
+    expect(supportReadiness.threads).toHaveLength(1);
+  });
+
+  it("marks deferred local fixtures with an owner and reason", () => {
+    const report = buildTestFixtureInventoryReport();
+    const deferred = report.entries.filter((entry) => entry.deferredReason);
+
+    expect(deferred.length).toBeGreaterThan(0);
+    expect(deferred.every((entry) => Boolean(entry.deferredOwner))).toBe(true);
   });
 
   it("does not treat fake-zero protection language as fake fixture drift", () => {

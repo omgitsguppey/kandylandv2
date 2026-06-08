@@ -1,13 +1,26 @@
 import { buildTestQualityGuardsReport, validateTestQualityGuardsReport } from "@/lib/test-hardening/test-quality-guards";
 import { writeCompactJson, writeText } from "@/lib/test-hardening/test-hardening-shared";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
 const report = buildTestQualityGuardsReport();
 const validation = validateTestQualityGuardsReport(report);
-const compact = {
+const compact = withGeneratedReportEnvelope({
   ...report,
   findings: report.findings.slice(0, 40),
   validation,
-};
+}, {
+  reportKey: "test-quality-guards",
+  status: validation.ok ? "pass" : "fail",
+  evidenceClass: "source_snapshot",
+  canClearSourceGate: validation.ok,
+  nextExactSteps: report.nextExactSteps,
+  validationFailures: validation.failures,
+  doesNotProve: [
+    "Does not prove runtime behavior.",
+    "Does not prove provider availability.",
+    "Does not clear release proof gates for documented provider_call or production_read exceptions.",
+  ],
+});
 
 writeCompactJson("agent/state/test-quality-guards.generated.json", compact);
 writeText("docs/agent-truth/test-quality-guards.md", [
@@ -24,6 +37,7 @@ writeText("docs/agent-truth/test-quality-guards.md", [
   "",
   "- Provider calls are forbidden in source/unit harnesses.",
   "- Production reads are forbidden in source/unit harnesses.",
+  "- Documented provider_call / production_read exceptions are source hygiene signals only and cannot clear release/proof gates.",
   "- New deterministic tests must use stable clocks and IDs.",
   "",
 ].join("\n"));

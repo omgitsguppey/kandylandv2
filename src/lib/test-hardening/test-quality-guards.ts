@@ -1,5 +1,6 @@
 import {
   currentGitHead,
+  hasCanonicalImport,
   listFiles,
   readText,
   TEST_HARDENING_GENERATED_AT_UTC,
@@ -18,12 +19,14 @@ export type TestQualityFindingKind =
   | "provider_call"
   | "production_read"
   | "secret_snapshot"
+  | "fantasy_dto"
   | "oversized_snapshot";
 
 export type TestQualityFinding = {
   kind: TestQualityFindingKind;
   file: string;
   classification: "canonical_fixture" | "fixture_only" | "source_only_mock" | "documented_exception" | "retired_validator" | "unsafe_unknown";
+  canClearReleaseProofGate: false;
   action: string;
 };
 
@@ -53,10 +56,16 @@ const FINDING_PATTERNS: Array<[TestQualityFindingKind, RegExp]> = [
   ["provider_call", /\b(fetch|axios|paypal|stripe|gcloud|firebase deploy)\b/iu],
   ["production_read", /\bproduction read|prod read|live provider|adminDb\.collection\(/iu],
   ["secret_snapshot", /\b(secret|token|private key|service account)\b/iu],
+  ["fantasy_dto", /\b(?:type|interface)\s+(?:Fantasy|TestOnly)[A-Z]\w*(?:Dto|DTO|Record|Payload|Shape)\b/u],
 ];
 
-function classify(file: string, kind: TestQualityFindingKind): TestQualityFinding["classification"] {
+function classify(file: string, kind: TestQualityFindingKind, text: string): TestQualityFinding["classification"] {
   if (/canonical-test-factories|test-fixture|mock-evidence/iu.test(file)) return "canonical_fixture";
+  if (kind === "fantasy_dto") {
+    if (/\/\/\s*fixture-owner:/u.test(text)) return "documented_exception";
+    if (hasCanonicalImport(text, "unknown")) return "canonical_fixture";
+    return "unsafe_unknown";
+  }
   if (kind === "skip" || kind === "as_any" || kind === "date_now" || kind === "math_random" || kind === "provider_call" || kind === "production_read") return "documented_exception";
   if (/mocks|fixtures|support|setup/iu.test(file)) return "fixture_only";
   if (/validate-/iu.test(file)) return "source_only_mock";
@@ -71,14 +80,17 @@ export function buildTestQualityGuardsReport(): TestQualityGuardsReport {
     const text = readText(file);
     for (const [kind, pattern] of FINDING_PATTERNS) {
       if (!pattern.test(text)) continue;
-      const classification = classify(file, kind);
+      const classification = classify(file, kind, text);
       findings.push({
         kind,
         file,
         classification,
+        canClearReleaseProofGate: false,
         action: classification === "unsafe_unknown"
-          ? "Remove or explicitly classify before release gates can depend on this test."
-          : "Documented existing test-layer pattern; replace with canonical fixture when this file is touched.",
+          ? "Replace with a canonical test factory or add a fixture-owner comment with the exact deferred owner/reason."
+          : kind === "provider_call" || kind === "production_read"
+            ? "Documented exception only; cannot clear runtime, provider, admin truth, or release proof gates."
+            : "Documented existing test-layer pattern; replace with canonical fixture when this file is touched.",
       });
     }
   }
@@ -99,6 +111,7 @@ export function buildTestQualityGuardsReport(): TestQualityGuardsReport {
       "Keep .only blocked.",
       "Keep provider calls and production reads forbidden in source/unit harnesses.",
       "Use injected clocks and deterministic IDs in new tests.",
+      "Do not add Fantasy/TestOnly DTO shapes without a canonical factory or fixture-owner deferral.",
     ],
     validationFailures: [],
   };
@@ -112,6 +125,8 @@ export function validateTestQualityGuardsReport(report: TestQualityGuardsReport)
   if (!report.providerCallsForbidden) failures.push("provider calls are not explicitly forbidden.");
   if (!report.productionReadsForbidden) failures.push("production reads are not explicitly forbidden.");
   const unsafeBlocking = report.findings.filter((finding) => finding.classification === "unsafe_unknown" && ["only", "provider_call", "production_read"].includes(finding.kind));
+  const fantasyDtoBlocking = report.findings.filter((finding) => finding.kind === "fantasy_dto" && finding.classification === "unsafe_unknown");
   if (unsafeBlocking.length > 0) failures.push(`blocking unclassified test quality findings: ${unsafeBlocking.length}`);
+  if (fantasyDtoBlocking.length > 0) failures.push(`unowned fantasy DTO fixtures found: ${fantasyDtoBlocking.length}`);
   return validation(failures.length === 0, failures);
 }

@@ -78,7 +78,7 @@ export function printPublicBetaScoreSummary(report: PublicBetaScoreReport) {
   console.log(`Safe autofixes available: ${report.safeAutofixesAvailable}`);
   if (report.evidenceCapsApplied.length > 0) {
     console.log("Evidence caps:");
-    for (const cap of report.evidenceCapsApplied.slice(0, 6)) {
+    for (const cap of report.evidenceCapsApplied) {
       console.log(`- ${cap}`);
     }
   }
