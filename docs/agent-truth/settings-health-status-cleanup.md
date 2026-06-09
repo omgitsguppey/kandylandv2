@@ -1,7 +1,7 @@
 # Settings health status cleanup
 
-Generated: 2026-05-24T16:27:27.889Z
-Head: 3198b27d8499d675aa8e3ee98fe4e3368f2c77e0
+Generated: 2026-06-08T04:11:05.893Z
+Head: f1e140ac6a2827e40c4531ae47997d7312526f29
 
 ## Status
 
@@ -13,34 +13,34 @@ Validation failures: none
 {
   "reportKey": "settings-health-status-cleanup",
   "scoreBefore": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreDimensions": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
-  "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0",
-  "generatedAtUtc": "2026-05-24T16:27:27.889Z",
+  "currentHead": "f1e140ac6a2827e40c4531ae47997d7312526f29",
+  "generatedAtUtc": "2026-06-08T04:11:05.893Z",
   "statusBefore": "live_stale",
   "statusAfter": "healthy_current",
   "components": [
@@ -54,6 +54,20 @@ Validation failures: none
   "artifactFreshnessStatus": "current",
   "refreshCommand": "npm run check:settings-debug-validator-authority",
   "duplicatedRawValidatorsDefaultOpen": false,
-  "validationFailures": []
+  "validationFailures": [],
+  "status": "healthy_current",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Run Settings health status cleanup validator after touching this admin status lane."
+  ],
+  "doesNotProve": [
+    "Does not prove deployed runtime behavior.",
+    "Does not prove provider availability.",
+    "Does not prove current admin truth samples."
+  ]
 }
 ```

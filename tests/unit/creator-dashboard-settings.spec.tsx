@@ -545,6 +545,64 @@ describe("CreatorDashboardSettingsHub", () => {
     });
   });
 
+  it("does not render zero stats as live when source samples are unknown", async () => {
+    mockState.authFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        creatorSettings: {
+          broadcastsEnabled: true,
+          subscriptionsEnabled: true,
+          messagingEnabled: true,
+          customRequestsEnabled: true,
+          bookingsEnabled: true,
+          availabilityWindows: [{ day: "mon" }],
+          subscriptionPriceGd: 500,
+        },
+        creatorRestrictions: {},
+        stats: {
+          earningsGd: 0,
+          pendingCashoutGd: 0,
+          followerCount: 0,
+          profileViewsCount: 0,
+          liveDropsCount: 0,
+          activeSubscribers: 0,
+          openRequests: 0,
+          bookedCalls: 0,
+        },
+        statsEvidence: buildStatsEvidence({
+          sourceTruth: "partial",
+          sourceFreshness: "unknown",
+          sampleCount: 0,
+          zeroValuesAreProven: false,
+          sources: {
+            ledgerAccruals: source(0, "queried_zero", false),
+            pendingPayouts: source(0, "queried_zero", false),
+            subscriptions: source(0, "queried_zero", false),
+            customRequests: source(0, "queried_zero", false),
+            callBookings: source(0, "queried_zero", false),
+            relationshipsOps: source(0, "queried_zero", false),
+            drops: source(0, "queried_zero", false),
+            userProfile: source(0, "queried_zero", false),
+          },
+          issues: ["zero_values_not_fully_proven"],
+        }),
+      }),
+    });
+    const { container } = render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(section(container, "requests").dataset.creatorSectionState).toBe("needs_review");
+      expect(section(container, "bookings").dataset.creatorSectionState).toBe("needs_review");
+      expect(section(container, "earnings").dataset.creatorSectionState).toBe("needs_review");
+      expect(section(container, "audience").dataset.creatorSectionState).toBe("needs_review");
+    });
+    expect(section(container, "requests").textContent).toContain("Request source sample needs review.");
+    expect(section(container, "bookings").textContent).toContain("Booking source sample needs review.");
+    expect(section(container, "earnings").textContent).toContain("Earnings need source review.");
+    expect(section(container, "audience").textContent).toContain("Audience source sample needs review.");
+  });
+
   it("creator earnings summary uses the safe settings source and attribution marker", async () => {
     const { container } = render(<CreatorDashboardSettingsHub />);
 

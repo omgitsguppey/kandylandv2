@@ -200,8 +200,9 @@ function SectionCard({
 
 function creatorSectionStateFromEvidence(source: CreatorStatsEvidenceSource | undefined, fallbackValue = 0): SectionState {
   if (!source) return "unavailable";
-  if (source.state === "verified_sample" || source.state === "queried_zero") return "live";
+  if ((source.state === "verified_sample" || source.state === "queried_zero") && source.sampleKnown) return "live";
   if (source.state === "unavailable") return "unavailable";
+  if ((source.state === "verified_sample" || source.state === "queried_zero") && !source.sampleKnown) return "needs_review";
   if (source.state === "partial" || source.state === "missing_source" || source.state === "needs_review") return "needs_review";
   return fallbackValue > 0 ? "needs_review" : "unavailable";
 }

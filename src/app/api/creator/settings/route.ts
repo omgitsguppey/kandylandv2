@@ -104,8 +104,9 @@ function evidenceSource(collection: string, value: number, state: CreatorStatsEv
     };
 }
 
-function evidenceStateForSum(value: number): CreatorStatsEvidenceState {
-    return value > 0 ? "verified_sample" : "partial";
+function evidenceStateForSum(value: number, queried: boolean): CreatorStatsEvidenceState {
+    if (!queried) return "missing_source";
+    return value > 0 ? "verified_sample" : "queried_zero";
 }
 
 async function readCountFromQuery(query: any): Promise<number> {
@@ -309,8 +310,8 @@ function buildCreatorStatsEvidence(input: {
     const sources: CreatorStatsEvidence["sources"] = {
         fans: evidenceSource("creator_relationships", input.followerCount, evidenceStateForCount(input.followerCount, input.relationshipsOpsKnown), input.relationshipsOpsKnown),
         content: evidenceSource("drops", input.contentCount, evidenceStateForCount(input.contentCount, true), true),
-        ledgerAccruals: evidenceSource("creator_ledger_accruals", input.earningsGd, evidenceStateForSum(input.earningsGd), input.earningsGd > 0),
-        pendingPayouts: evidenceSource("creator_payout_requests", input.pendingCashoutGd, evidenceStateForSum(input.pendingCashoutGd), input.pendingCashoutGd > 0),
+        ledgerAccruals: evidenceSource("creator_ledger_accruals", input.earningsGd, evidenceStateForSum(input.earningsGd, true), true),
+        pendingPayouts: evidenceSource("creator_payout_requests", input.pendingCashoutGd, evidenceStateForSum(input.pendingCashoutGd, true), true),
         subscriptions: evidenceSource("creator_subscriptions", input.activeSubscribers, evidenceStateForCount(input.activeSubscribers, true), true),
         customRequests: evidenceSource("creator_custom_requests", input.openRequests, evidenceStateForCount(input.openRequests, true), true),
         callBookings: evidenceSource("creator_call_bookings", input.bookedCalls, evidenceStateForCount(input.bookedCalls, true), true),
@@ -487,8 +488,8 @@ async function GET_handler(request: NextRequest) {
             settingsState === "not_configured" ? "creator_settings_not_configured" : null,
         ].filter((issue): issue is string => Boolean(issue));
         const sourceStates = {
-            ledgerAccruals: { state: ledgerSource.state === "verified_sample" ? evidenceStateForSum(earningsGd) : ledgerSource.state, sampleKnown: ledgerSource.sampleKnown && earningsGd > 0, issue: ledgerSource.issue },
-            pendingPayouts: { state: payoutSource.state === "verified_sample" ? evidenceStateForSum(pendingCashoutGd) : payoutSource.state, sampleKnown: payoutSource.sampleKnown && pendingCashoutGd > 0, issue: payoutSource.issue },
+            ledgerAccruals: { state: ledgerSource.state === "verified_sample" ? evidenceStateForSum(earningsGd, ledgerSource.sampleKnown) : ledgerSource.state, sampleKnown: ledgerSource.sampleKnown, issue: ledgerSource.issue },
+            pendingPayouts: { state: payoutSource.state === "verified_sample" ? evidenceStateForSum(pendingCashoutGd, payoutSource.sampleKnown) : payoutSource.state, sampleKnown: payoutSource.sampleKnown, issue: payoutSource.issue },
             subscriptions: { state: subscriptionSource.state === "verified_sample" ? evidenceStateForCount(activeSubscribers, true) : subscriptionSource.state, sampleKnown: subscriptionSource.sampleKnown, issue: subscriptionSource.issue },
             customRequests: { state: requestSource.state === "verified_sample" ? evidenceStateForCount(openRequests, true) : requestSource.state, sampleKnown: requestSource.sampleKnown, issue: requestSource.issue },
             callBookings: { state: bookingSource.state === "verified_sample" ? evidenceStateForCount(bookedCalls, true) : bookingSource.state, sampleKnown: bookingSource.sampleKnown, issue: bookingSource.issue },

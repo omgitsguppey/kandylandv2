@@ -14,6 +14,10 @@ vi.mock("firebase-admin/firestore", () => ({
   AggregateField: {
     sum: vi.fn((field: string) => ({ kind: "sum", field })),
   },
+  FieldValue: {
+    serverTimestamp: vi.fn(() => "server_timestamp"),
+    increment: vi.fn((value: number) => ({ kind: "increment", value })),
+  },
 }));
 
 vi.mock("@/lib/server/auth", () => ({
@@ -44,10 +48,31 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
 vi.mock("@/lib/server/firebase-admin", () => ({
   adminDb: {
     collection: (...args: unknown[]) => mockState.collection(...args),
+    runTransaction: vi.fn(async (callback: (transaction: {
+      get: (ref: unknown) => Promise<{ exists: boolean; id: string; data: () => Record<string, unknown> }>;
+      set: (...args: unknown[]) => void;
+    }) => Promise<void>) => callback({
+      get: vi.fn(async () => ({ exists: false, id: "debug_doc", data: () => ({}) })),
+      set: vi.fn(),
+    })),
   },
 }));
 
 vi.mock("@/lib/creator-experiences", () => ({
+  CREATOR_BOOKING_MIN_MINUTES: 1,
+  CREATOR_BOOKING_RATES: {
+    phone: 1000,
+    video: 1000,
+  },
+  CREATOR_MESSAGE_COSTS: {
+    textGd: 25,
+    imageGd: 50,
+    videoGd: 100,
+  },
+  CREATOR_SUBSCRIPTION_MIN_GD: 500,
+  DEFAULT_CREATOR_REQUEST_CATEGORIES: [
+    { id: "custom-photo", label: "Custom photo", priceGd: 300, enabled: true },
+  ],
   DEFAULT_CREATOR_RESTRICTIONS: {
     messagingRestricted: false,
     broadcastsRestricted: false,
@@ -64,11 +89,57 @@ vi.mock("@/lib/creator-experiences", () => ({
     bookingsEnabled: true,
     customRequestsEnabled: true,
     subscriptionPriceGd: 500,
+    fanPassWelcomeText: "",
+    phoneRatePerMinuteGd: 1000,
+    videoRatePerMinuteGd: 1000,
+    bookingMinimumMinutes: 1,
+    videoSubscriberDiscountPercent: 0,
+    chatFreeForSubscribers: true,
+    requestCategories: [
+      { id: "custom-photo", label: "Custom photo", priceGd: 300, enabled: true },
+    ],
+    availabilityTimezone: "America/Chicago",
     availabilityWindows: [],
+    broadcastDefaultAudience: "followers",
+    profileTimelineEnabled: true,
+    showApprovedDropsOnTimeline: true,
+    showBroadcastsOnTimeline: true,
   },
   isCreatorOrAdminRole: (role: unknown) => role === "creator" || role === "admin",
+  normalizeCreatorRequestCategories: (value: unknown) => Array.isArray(value) && value.length > 0
+    ? value
+    : [{ id: "custom-photo", label: "Custom photo", priceGd: 300, enabled: true }],
+  normalizePositiveWholeNumber: (value: unknown, fallback: number) => {
+    if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+      return fallback;
+    }
+    return Math.round(value);
+  },
   normalizeCreatorRestrictions: (value: unknown) => value ?? {},
-  normalizeCreatorSettings: (value: unknown) => value ?? {},
+  normalizeCreatorSettings: (value: unknown) => ({
+    messagingEnabled: true,
+    broadcastsEnabled: true,
+    subscriptionsEnabled: true,
+    bookingsEnabled: true,
+    customRequestsEnabled: true,
+    subscriptionPriceGd: 500,
+    fanPassWelcomeText: "",
+    phoneRatePerMinuteGd: 1000,
+    videoRatePerMinuteGd: 1000,
+    bookingMinimumMinutes: 1,
+    videoSubscriberDiscountPercent: 0,
+    chatFreeForSubscribers: true,
+    requestCategories: [
+      { id: "custom-photo", label: "Custom photo", priceGd: 300, enabled: true },
+    ],
+    availabilityTimezone: "America/Chicago",
+    availabilityWindows: [],
+    broadcastDefaultAudience: "followers",
+    profileTimelineEnabled: true,
+    showApprovedDropsOnTimeline: true,
+    showBroadcastsOnTimeline: true,
+    ...((value && typeof value === "object") ? value as Record<string, unknown> : {}),
+  }),
 }));
 
 vi.mock("@/lib/server/creator-experiences", () => ({
@@ -121,6 +192,16 @@ function installFirestoreMock(options: FirestoreMockOptions = {}) {
   mockState.collection.mockImplementation((collectionName: string) => {
     if (collectionName === "users") {
       return { doc: mockState.doc };
+    }
+    if (collectionName === "debug_evidence_rollups" || collectionName === "debug_evidence") {
+      return {
+        doc: vi.fn(() => ({ id: "debug_doc" })),
+      };
+    }
+    if (collectionName === "server_diagnostics") {
+      return {
+        add: vi.fn(async () => ({ id: "diagnostic_1" })),
+      };
     }
     if (collectionName === "creator_relationships_ops") {
       return {
@@ -231,15 +312,16 @@ describe("creator settings route", () => {
       bookedCalls: 2,
     });
     expect(body.statsEvidence).toMatchObject({
-      sourceTruth: "partial",
+      sourceTruth: "canonical",
       sourceFreshness: "fresh",
-      zeroValuesAreProven: false,
+      zeroValuesAreProven: true,
       readOnlyProjection: false,
     });
     expect(body.statsEvidence.generatedAtUtc).toEqual(expect.any(String));
     expect(body.statsEvidence.sources.subscriptions.state).toBe("queried_zero");
     expect(body.statsEvidence.sources.callBookings.state).toBe("verified_sample");
-    expect(body.statsEvidence.sources.ledgerAccruals.state).toBe("partial");
+    expect(body.statsEvidence.sources.ledgerAccruals.state).toBe("queried_zero");
+    expect(body.statsEvidence.sources.ledgerAccruals.sampleKnown).toBe(true);
     expect(body.statsEvidence.sources.pendingPayouts.state).toBe("verified_sample");
   });
 
