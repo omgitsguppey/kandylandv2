@@ -143,6 +143,51 @@ describe("admin user metric source truth", () => {
     expect(snapshot.watchTimeIssues).toEqual([]);
   });
 
+  it("keeps legacy watch seconds diagnostic when watch sessions are not canonical", () => {
+    const generatedAt = 1_700_000_000_000;
+    const snapshot = buildAdminUserMetricsSnapshot({
+      generatedAt,
+      users: [
+        {
+          uid: "user_1",
+          status: "active",
+          isVerified: true,
+          onboardingCompleted: true,
+          notificationSettings: { browserPushEnabled: true },
+        },
+      ],
+      analyticsByUser: {
+        user_1: {
+          lastSeenAt: generatedAt - 60_000,
+          unwrapCount: 1,
+          purchaseCount: 0,
+          watchSecondsTotal: 120,
+          grossRevenueUsd: 0,
+        },
+      },
+      watchSessionsByUser: {
+        user_1: [
+          {
+            userId: "user_1",
+            validWatchMs: 90_000,
+            lastSeenAtMs: generatedAt - 30_000,
+            watchScoreSource: "legacy_page_duration",
+          },
+        ],
+      },
+      commerceSummaryRaw: {},
+      commerceSummaryExists: false,
+      source: "live_fallback",
+    }).snapshot;
+
+    expect(snapshot.watchTimeMs).toBe(0);
+    expect(snapshot.watchTimeSource).toBe("unavailable");
+    expect(snapshot.watchTimeDiagnosticEstimate?.source).toBe("diagnostic_estimate");
+    expect(snapshot.watchTimeIssues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "watch_time_missing_despite_views" }),
+    ]));
+  });
+
   it("flags capped rollup events for raw fact recovery", () => {
     expect(shouldRecoverAdminUserMetricsFromFacts({
       hasRollup: true,

@@ -43,6 +43,16 @@ function readValidWatchMs(raw: Record<string, unknown>) {
   return 0;
 }
 
+function readDurationMs(raw: Record<string, unknown>, msKey: string, secondsKey: string) {
+  const msValue = readNumber(raw[msKey]);
+  if (msValue > 0) {
+    return Math.round(msValue);
+  }
+
+  const secondsValue = readNumber(raw[secondsKey]);
+  return secondsValue > 0 ? Math.round(secondsValue * 1000) : 0;
+}
+
 function readMediaType(raw: Record<string, unknown>) {
   return inferLiteralWatchMediaType(
     typeof raw.mediaType === "string"
@@ -96,6 +106,13 @@ export function buildWatchTimeRollupFromRecords(input: {
   let latestWatchAt = 0;
   const knownWatchSamplesMs: number[] = [];
   let partialMediaTicks = false;
+  let observedVisibleMs = 0;
+  let observedActiveMs = 0;
+  let observedPlayingMs = 0;
+  let maxProgressPercent = 0;
+  let manualAdvanceAfterMs = 0;
+  let completedFileCount = 0;
+  let dominantMediaType = input.mediaType ?? "unknown";
 
   input.records.forEach((record) => {
     const watchScoreSource = typeof record.watchScoreSource === "string" ? record.watchScoreSource : "";
@@ -105,6 +122,9 @@ export function buildWatchTimeRollupFromRecords(input: {
 
     const validWatchMs = readValidWatchMs(record);
     const mediaType = readMediaType(record);
+    if (dominantMediaType === "unknown" && mediaType !== "unknown") {
+      dominantMediaType = mediaType;
+    }
     latestWatchAt = Math.max(
       latestWatchAt,
       readTimestamp(record.lastSeenAtMs),
@@ -112,6 +132,21 @@ export function buildWatchTimeRollupFromRecords(input: {
       readTimestamp(record.updatedAtMs),
     );
     partialMediaTicks = partialMediaTicks || hasPartialMediaTicks(record);
+    observedVisibleMs += readDurationMs(record, "visibleMs", "totalVisibleSeconds");
+    observedActiveMs += readDurationMs(record, "activeMs", "totalActiveSeconds");
+    observedPlayingMs += readDurationMs(record, "playingMs", "totalPlayingSeconds");
+    maxProgressPercent = Math.max(
+      maxProgressPercent,
+      readNumber(record.maxProgressPercent),
+      readNumber(record.progressPercent),
+    );
+    manualAdvanceAfterMs = Math.max(
+      manualAdvanceAfterMs,
+      readDurationMs(record, "manualAdvanceAfterMs", "manualAdvanceAfterSeconds"),
+    );
+    if (record.completed === true || record.isCompleted === true || record.completedAtMs) {
+      completedFileCount += 1;
+    }
 
     if (validWatchMs > 0) {
       if (!input.mediaType || input.mediaType === "unknown" || input.mediaType === mediaType) {
@@ -144,6 +179,13 @@ export function buildWatchTimeRollupFromRecords(input: {
       pageDurationMs: input.pageDurationMs ?? legacyPageDurationMs,
       watchSessionEventCount: input.records.length,
       partialMediaTicks,
+      mediaType: dominantMediaType,
+      visibleMs: observedVisibleMs,
+      activeMs: observedActiveMs,
+      playingMs: observedPlayingMs,
+      progressPercent: maxProgressPercent,
+      manualAdvanceAfterMs,
+      completedFileCount,
     })
     : null;
 
