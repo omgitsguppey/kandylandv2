@@ -1,10 +1,20 @@
 import { buildGeneratedArtifactSizePolicyReport, validateGeneratedArtifactSizePolicyReport } from "@/lib/test-hardening/generated-artifact-size-policy";
+import { buildGeneratedReportCompleteness } from "@/lib/generated-reports/generated-report-contract";
 import { writeCompactJson, writeText } from "@/lib/test-hardening/test-hardening-shared";
 
 const report = buildGeneratedArtifactSizePolicyReport();
 const validation = validateGeneratedArtifactSizePolicyReport(report);
 const compact = {
   ...report,
+  ...buildGeneratedReportCompleteness({
+    totalFindingCount: report.oversizedArtifacts.length,
+    emittedFindingCount: Math.min(report.oversizedArtifacts.length, 30),
+    capLimit: 30,
+    capStrategy: report.oversizedArtifacts.length > 30 ? "top_risk" : "none",
+    capReason: report.oversizedArtifacts.length > 30 ? "compact artifact emits first 30 oversized entries and preserves total/omitted counts" : null,
+    rankingInputCompleteness: "complete",
+    highRiskCounts: report.highRiskCounts,
+  }),
   oversizedArtifacts: report.oversizedArtifacts.slice(0, 30),
   validation,
 };

@@ -1,8 +1,8 @@
 # Generated Report Schema Contract
 
-Generated: 2026-05-27T05:01:42.726Z
-Generated reports audited: 573
-Typed report contracts: 455
+Generated: 2026-06-09T04:11:42.862Z
+Generated reports audited: 640
+Typed report contracts: 505
 Oversized type-schema artifacts: 0
 
 ## Base Fields
@@ -16,3 +16,15 @@ Oversized type-schema artifacts: 0
 - findings
 - nextExactSteps
 - validationFailures
+- reportCompleteness
+- totalFindingCount
+- emittedFindingCount
+- omittedFindingCount
+- capStrategy
+- sourceFileDiscovery
+- gitStatus
+- toolingDegraded
+- freshness
+- baselineStatus
+- cleanupPolicy
+- sourceTruthRole

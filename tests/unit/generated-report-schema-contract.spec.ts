@@ -13,7 +13,12 @@ describe("generated report schema contract", () => {
 
     expect(GENERATED_REPORT_BASE_FIELDS).toContain("generatedAtUtc");
     expect(GENERATED_REPORT_BASE_FIELDS).toContain("validationFailures");
+    expect(GENERATED_REPORT_BASE_FIELDS).toContain("reportCompleteness");
+    expect(GENERATED_REPORT_BASE_FIELDS).toContain("cleanupPolicy");
     expect(report.generatedReportsAudited).toBeGreaterThan(20);
+    expect(report.reportCompleteness).toBe("complete");
+    expect(report.cleanupPolicy).toBe("regenerate");
+    expect(report.sourceTruthRole).toBe("generated_snapshot");
     expect(report.oversizedGeneratedArtifacts.length).toBe(0);
     expect(validation.ok).toBe(true);
   });

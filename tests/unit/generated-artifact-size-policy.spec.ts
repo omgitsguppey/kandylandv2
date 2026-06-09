@@ -13,6 +13,11 @@ describe("generated artifact size policy", () => {
     expect(report.generatedArtifactsAudited).toBeGreaterThan(50);
     expect(report.defaultMaxLines).toBe(500);
     expect(report.defaultMaxBytes).toBe(250000);
+    expect(report.reportCompleteness).toBe("complete");
+    expect(report.cleanupPolicy).toBe("regenerate");
+    expect(report.sourceTruthRole).toBe("generated_snapshot");
+    expect(report.gitStatus === "available" || report.gitStatus === "missing").toBe(true);
+    expect(report.highRiskCounts.sourceTruth).toBe(report.oversizedArtifacts.length);
     expect(report.oversizedArtifacts.some((artifact) => artifact.artifactPath.endsWith("product-body-map.generated.json"))).toBe(true);
     expect(report.oversizedArtifacts.every((artifact) => artifact.classification !== "unsafe_unknown")).toBe(true);
     expect(validation.ok).toBe(true);

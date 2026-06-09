@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
+import { buildGeneratedReportCompleteness } from "@/lib/generated-reports/generated-report-contract";
 import { buildGeneratedReportSchemaContractReport, validateGeneratedReportSchemaContractReport } from "@/lib/type-hardening/generated-report-schema-contract";
 
 const ROOT = process.cwd();
@@ -15,6 +16,15 @@ const report = buildGeneratedReportSchemaContractReport();
 const validation = validateGeneratedReportSchemaContractReport(report);
 const compact = {
   ...report,
+  ...buildGeneratedReportCompleteness({
+    totalFindingCount: report.totalFindingCount,
+    emittedFindingCount: Math.min(report.typedReportContracts.length, 30) + report.oversizedGeneratedArtifacts.length,
+    capLimit: 30,
+    capStrategy: report.typedReportContracts.length > 30 ? "top_risk" : "none",
+    capReason: report.typedReportContracts.length > 30 ? "compact artifact emits first 30 typed contracts and preserves total/omitted counts" : null,
+    rankingInputCompleteness: "complete",
+    highRiskCounts: report.highRiskCounts,
+  }),
   typedReportContracts: report.typedReportContracts.slice(0, 30),
   validation,
 };
