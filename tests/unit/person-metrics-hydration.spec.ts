@@ -61,6 +61,58 @@ describe("person metrics hydration", () => {
     expect(report.lowConfidenceMetrics.find((metric) => metric.metricId === "wallet_opens")).toBeUndefined();
   });
 
+  it("counts creator users as signed-in users and creator role without creating another person", () => {
+    const report = hydratePersonMetrics({
+      envelopes: [
+        envelope({
+          eventName: "wallet_opened",
+          eventId: "wallet_creator_1",
+          actorKind: "creator_user",
+          identityState: "creator_logged_in",
+          identityConfidence: "exact",
+          userRef: { kind: "user", id: "creator_user_1" },
+        }),
+      ],
+    });
+
+    expect(report.scopes.global.metrics.wallet_opens.count).toBe(1);
+    expect(report.scopes.signedIn.metrics.wallet_opens.count).toBe(1);
+    expect(report.scopes.creatorRole.metrics.wallet_opens.count).toBe(1);
+    expect(report.scopes.guest.metrics.wallet_opens.count).toBe(0);
+    expect(report.userParityStatus.wallet_opens).toMatchObject({
+      state: "hydrated",
+      signedInCount: 1,
+      creatorRoleCount: 1,
+      blocksUserParity: false,
+    });
+  });
+
+  it("keeps admin projection out of user and creator role parity", () => {
+    const report = hydratePersonMetrics({
+      envelopes: [
+        envelope({
+          eventName: "wallet_opened",
+          eventId: "wallet_projection_1",
+          actorKind: "admin_projection",
+          identityState: "admin_authenticated",
+          identityConfidence: "exact",
+          userRef: { kind: "user", id: "admin_1" },
+          includeInUserBehavior: false,
+        }),
+      ],
+    });
+
+    expect(report.scopes.global.metrics.wallet_opens.count).toBe(0);
+    expect(report.scopes.signedIn.metrics.wallet_opens.count).toBe(0);
+    expect(report.scopes.creatorRole.metrics.wallet_opens.count).toBe(0);
+    expect(report.userParityStatus.wallet_opens).toMatchObject({
+      state: "materializer_missing",
+      signedInCount: 0,
+      creatorRoleCount: 0,
+      provenZero: false,
+    });
+  });
+
   it("attributes linked guest activity to the user once without double-counting guest metrics", () => {
     const linkedEnvelope = envelope({
       eventName: "drop_preview_opened",
@@ -161,5 +213,60 @@ describe("person metrics hydration", () => {
       provenZero: false,
     });
     expect(confidence.wallet_opens.missingSourceExplanation).toContain("wallet_opened");
+  });
+
+  it("blocks user parity when global activity exists without a person bridge", () => {
+    const report = hydratePersonMetrics({
+      envelopes: [
+        envelope({
+          eventName: "wallet_opened",
+          eventId: "wallet_global_only",
+          actorKind: "guest",
+          identityState: "guest_unknown_consent",
+          identityConfidence: "weak",
+          guestId: null,
+          userRef: null,
+        }),
+      ],
+    });
+
+    expect(report.scopes.global.metrics.wallet_opens.count).toBe(1);
+    expect(report.scopes.guest.metrics.wallet_opens.count).toBe(0);
+    expect(report.scopes.signedIn.metrics.wallet_opens.count).toBe(0);
+    expect(report.userParityStatus.wallet_opens).toMatchObject({
+      state: "bridge_missing",
+      blocksUserParity: true,
+      globalCount: 1,
+      guestCount: 0,
+      signedInCount: 0,
+    });
+    expect(report.userParityStatus.wallet_opens.debugNextAction).toContain("identity handoff");
+    expect(report.userParityGaps.map((gap) => gap.metricId)).toContain("wallet_opens");
+    expect(report.status).toBe("review");
+  });
+
+  it("surfaces materializer and permission gaps instead of rendering missing user data as zero", () => {
+    const report = hydratePersonMetrics({
+      envelopes: [],
+      materializerMissingMetricIds: ["runtime_watch_sessions"],
+      permissionBlockedMetricIds: ["notification_interactions"],
+    });
+
+    expect(report.userParityStatus.runtime_watch_sessions).toMatchObject({
+      state: "materializer_missing",
+      blocksUserParity: true,
+      globalCount: 0,
+      provenZero: false,
+    });
+    expect(report.userParityStatus.notification_interactions).toMatchObject({
+      state: "permission_blocked",
+      blocksUserParity: true,
+      globalCount: 0,
+      provenZero: false,
+    });
+    expect(report.userParityGaps.map((gap) => gap.state)).toEqual(expect.arrayContaining([
+      "materializer_missing",
+      "permission_blocked",
+    ]));
   });
 });

@@ -94,13 +94,16 @@ export function buildIndividualUserMetricTruthReport(report: PersonMetricsHydrat
     const linked = report.scopes.linkedPerson.metrics[metric.id];
     const creator = report.scopes.creatorRole.metrics[metric.id];
     const userCount = guest.count + signedIn.count + linked.count + creator.count;
-    const userHydrationStatus = statusFor({
+    const computedUserHydrationStatus = statusFor({
       globalCount: global.count,
       userCount,
       provenZero: global.provenZero,
       missingProducer: report.metricStatus[metric.id].missingProducer,
       missingBridge: report.metricStatus[metric.id].missingBridge,
     });
+    const userHydrationStatus = global.count > 0 && userCount === 0
+      ? "bridge_missing"
+      : report.userParityStatus?.[metric.id]?.state ?? computedUserHydrationStatus;
     output[metric.id] = {
       metricId: metric.id,
       globalCount: global.count,

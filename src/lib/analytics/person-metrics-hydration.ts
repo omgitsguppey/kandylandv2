@@ -17,6 +17,14 @@ import {
 
 export type PersonMetricHydrationScope = "global" | "guest" | "signedIn" | "linkedPerson" | "creatorRole";
 export type PersonMetricHydrationState = "hydrated" | "collecting" | "unavailable";
+export type PersonMetricUserParityState =
+  | "hydrated"
+  | "collecting"
+  | "source_missing"
+  | "bridge_missing"
+  | "materializer_missing"
+  | "permission_blocked"
+  | "proven_zero";
 
 export type PersonMetricScopeEntry = {
   metricId: PersonMetricId;
@@ -34,6 +42,19 @@ export type PersonMetricHydrationStatus = PersonMetricScopeEntry & {
   lowConfidenceReason: string | null;
   missingProducer: string | null;
   missingBridge: string | null;
+};
+
+export type PersonMetricUserParityStatus = {
+  metricId: PersonMetricId;
+  state: PersonMetricUserParityState;
+  globalCount: number;
+  guestCount: number;
+  signedInCount: number;
+  linkedPersonCount: number;
+  creatorRoleCount: number;
+  provenZero: boolean;
+  blocksUserParity: boolean;
+  debugNextAction: string;
 };
 
 export type PersonMetricScopeSummary = {
@@ -58,6 +79,10 @@ export type PersonMetricsHydrationInput = {
   legacyCandidates?: readonly LegacyEventRecoveryCandidate[];
   requiredMetricIds?: readonly PersonMetricId[];
   provenZeroMetricIds?: readonly PersonMetricId[];
+  permissionBlockedMetricIds?: readonly PersonMetricId[];
+  sourceMissingMetricIds?: readonly PersonMetricId[];
+  bridgeMissingMetricIds?: readonly PersonMetricId[];
+  materializerMissingMetricIds?: readonly PersonMetricId[];
   generatedAtUtc?: string;
 };
 
@@ -86,6 +111,8 @@ export type PersonMetricsHydrationReport = {
   scopes: Record<PersonMetricHydrationScope, PersonMetricScopeSummary>;
   lowConfidenceMetrics: PersonMetricHydrationStatus[];
   missingHydration: MissingMetricHydrationExplanation[];
+  userParityStatus: Record<PersonMetricId, PersonMetricUserParityStatus>;
+  userParityGaps: PersonMetricUserParityStatus[];
   legacySummary: {
     candidatesReviewed: number;
     candidatesHydrated: number;
@@ -188,6 +215,63 @@ function statusForMetric(metric: PersonMetricDefinition, globalEntry: PersonMetr
     missingProducer: hydrated || globalEntry.provenZero ? null : metric.eventNames[0] ?? metric.id,
     missingBridge: hydrated || globalEntry.provenZero ? null : metric.materializer,
     missingSourceExplanation: explanation,
+  };
+}
+
+function userParityStatusForMetric(input: {
+  metric: PersonMetricDefinition;
+  global: PersonMetricScopeEntry;
+  guest: PersonMetricScopeEntry;
+  signedIn: PersonMetricScopeEntry;
+  linkedPerson: PersonMetricScopeEntry;
+  creatorRole: PersonMetricScopeEntry;
+  metricStatus: PersonMetricHydrationStatus;
+  permissionBlockedMetricIds: ReadonlySet<PersonMetricId>;
+  sourceMissingMetricIds: ReadonlySet<PersonMetricId>;
+  bridgeMissingMetricIds: ReadonlySet<PersonMetricId>;
+  materializerMissingMetricIds: ReadonlySet<PersonMetricId>;
+}): PersonMetricUserParityStatus {
+  const userCount =
+    input.guest.count
+    + input.signedIn.count
+    + input.linkedPerson.count
+    + input.creatorRole.count;
+  const explicitState =
+    input.permissionBlockedMetricIds.has(input.metric.id) ? "permission_blocked"
+      : input.materializerMissingMetricIds.has(input.metric.id) ? "materializer_missing"
+        : input.bridgeMissingMetricIds.has(input.metric.id) ? "bridge_missing"
+          : input.sourceMissingMetricIds.has(input.metric.id) ? "source_missing"
+            : null;
+  const state: PersonMetricUserParityState =
+    explicitState
+      ?? (userCount > 0 ? "hydrated"
+        : input.global.provenZero ? "proven_zero"
+          : input.global.count > 0 ? "bridge_missing"
+            : input.metricStatus.missingBridge ? "materializer_missing"
+              : input.metricStatus.missingProducer ? "source_missing"
+                : "collecting");
+  const blocksUserParity = !["hydrated", "proven_zero", "collecting"].includes(state);
+  const debugNextActionByState: Record<PersonMetricUserParityState, string> = {
+    hydrated: "User/person metric is hydrated from canonical person-scoped event envelopes.",
+    collecting: "Keep collecting bounded person-scoped samples before displaying this as a user zero.",
+    source_missing: `Restore source event producer for ${input.metric.id}: ${input.metric.eventNames.join(", ")}.`,
+    bridge_missing: `Global ${input.metric.id} activity exists, but guest/signed-in/linked-person scopes are empty; inspect identity handoff and event actor bridge.`,
+    materializer_missing: `Connect ${input.metric.materializer} before scoring ${input.metric.id} as user-level telemetry parity.`,
+    permission_blocked: `Permission or consent blocks ${input.metric.id}; show permission_blocked instead of zero.`,
+    proven_zero: "Display zero only because a bounded source window proved zero for the person scope.",
+  };
+
+  return {
+    metricId: input.metric.id,
+    state,
+    globalCount: input.global.count,
+    guestCount: input.guest.count,
+    signedInCount: input.signedIn.count,
+    linkedPersonCount: input.linkedPerson.count,
+    creatorRoleCount: input.creatorRole.count,
+    provenZero: input.global.provenZero,
+    blocksUserParity,
+    debugNextAction: debugNextActionByState[state],
   };
 }
 
@@ -323,6 +407,10 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
   const envelopes = [...(input.envelopes ?? [])];
   const legacyCandidates = [...(input.legacyCandidates ?? [])];
   const provenZeroMetricIds = new Set(input.provenZeroMetricIds ?? []);
+  const permissionBlockedMetricIds = new Set(input.permissionBlockedMetricIds ?? []);
+  const sourceMissingMetricIds = new Set(input.sourceMissingMetricIds ?? []);
+  const bridgeMissingMetricIds = new Set(input.bridgeMissingMetricIds ?? []);
+  const materializerMissingMetricIds = new Set(input.materializerMissingMetricIds ?? []);
   const scopes = {
     global: createScope("global"),
     guest: createScope("guest"),
@@ -417,12 +505,32 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
       missingBridge: metric.missingBridge,
       explanation: metric.missingSourceExplanation,
     }));
-  const gapCount = missingHydration.length;
+  const userParityStatus = PERSON_METRIC_DEFINITIONS.reduce<Record<PersonMetricId, PersonMetricUserParityStatus>>((output, metric) => {
+    output[metric.id] = userParityStatusForMetric({
+      metric,
+      global: scopes.global.metrics[metric.id],
+      guest: scopes.guest.metrics[metric.id],
+      signedIn: scopes.signedIn.metrics[metric.id],
+      linkedPerson: scopes.linkedPerson.metrics[metric.id],
+      creatorRole: scopes.creatorRole.metrics[metric.id],
+      metricStatus: metricStatus[metric.id],
+      permissionBlockedMetricIds,
+      sourceMissingMetricIds,
+      bridgeMissingMetricIds,
+      materializerMissingMetricIds,
+    });
+    return output;
+  }, {} as Record<PersonMetricId, PersonMetricUserParityStatus>);
+  const userParityGaps = PERSON_METRIC_IDS
+    .map((metricId) => userParityStatus[metricId])
+    .filter((metric) => metric.blocksUserParity)
+    .sort((left, right) => left.metricId.localeCompare(right.metricId));
+  const gapCount = missingHydration.length + userParityGaps.length;
 
   return {
     reportKey: "person-metrics-hydration",
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
-    status: checkoutStartCountsAsPaymentSuccess || pageTimeCountsAsWatchTime ? "review" : "pass",
+    status: checkoutStartCountsAsPaymentSuccess || pageTimeCountsAsWatchTime || userParityGaps.length > 0 ? "review" : "pass",
     productionReadsRequired: false,
     legacyMutationAllowed: false,
     fakeMetricsUsed: false,
@@ -444,6 +552,8 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
     scopes,
     lowConfidenceMetrics,
     missingHydration,
+    userParityStatus,
+    userParityGaps,
     legacySummary: {
       candidatesReviewed: legacyCandidates.length,
       candidatesHydrated,
