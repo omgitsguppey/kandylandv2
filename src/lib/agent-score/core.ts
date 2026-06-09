@@ -707,10 +707,7 @@ export function buildPublicBetaEvidenceGates(input: {
       : evidence.openPrTriageFresh === false
         ? describeFreshnessState({ openPrTriageFresh: false }).userMessage
         : reportEvidence.detail;
-  const targetedBehaviorPassed = evidenceArtifactPassed(
-    evidence.targetedBehaviorEvidence,
-    evidence.hasTargetedBehaviorEvidence,
-  );
+  const targetedBehaviorPassed = evidenceArtifactPassed(evidence.targetedBehaviorEvidence);
   const targetedBehaviorDetail = evidenceArtifactDetail(
     evidence.targetedBehaviorEvidence,
     targetedBehaviorPassed
@@ -729,23 +726,43 @@ export function buildPublicBetaEvidenceGates(input: {
     },
   });
 
-  const artifactBackedSmoke = Boolean(evidence.providerSmokeEvidence || evidence.runtimeSmokeEvidence);
-  const providerSmokePassed = evidenceArtifactPassed(
-    evidence.providerSmokeEvidence,
-    artifactBackedSmoke ? false : evidence.hasProviderSmokeEvidence,
-  );
-  const runtimeSmokePassed = evidenceArtifactPassed(
-    evidence.runtimeSmokeEvidence,
-    artifactBackedSmoke ? false : evidence.hasProviderSmokeEvidence,
-  );
+  const providerQuality = resolveEvidenceQuality({
+    artifact: evidence.providerSmokeEvidence,
+    context: {
+      currentHead,
+      lane: "provider_smoke",
+      requiredForExit: true,
+    },
+  });
+  const runtimeQuality = resolveEvidenceQuality({
+    artifact: evidence.runtimeSmokeEvidence,
+    context: {
+      currentHead,
+      lane: "runtime_smoke",
+      requiredForExit: true,
+      requiresRuntimeProof: true,
+    },
+  });
+  const providerSmokePassed = evidenceArtifactPassed(evidence.providerSmokeEvidence);
+  const runtimeSmokePassed = evidenceArtifactPassed(evidence.runtimeSmokeEvidence);
   const providerSmokeStatus = String(evidenceArtifactStatus(evidence.providerSmokeEvidence));
   const runtimeSmokeStatus = String(evidenceArtifactStatus(evidence.runtimeSmokeEvidence, "runtime_unverified"));
   const runtimeProviderSmokePassed = providerSmokePassed && runtimeSmokePassed;
-  const runtimeProviderSmokeStatus: PublicBetaReadinessStatus = runtimeProviderSmokePassed
-    ? "Ready"
-    : runtimeSmokeStatus === "runtime_unverified"
-      ? "Runtime unverified"
-      : "Ready with smoke required";
+  let runtimeProviderSmokeStatus: PublicBetaReadinessStatus = "Ready with smoke required";
+  if (runtimeProviderSmokePassed) {
+    runtimeProviderSmokeStatus = "Ready";
+  } else if (providerQuality.quality === "failed" || runtimeQuality.quality === "failed") {
+    runtimeProviderSmokeStatus = "Needs review";
+  } else if (
+    providerQuality.freshness === "stale"
+    || runtimeQuality.freshness === "stale"
+    || providerQuality.freshness === "head_mismatch"
+    || runtimeQuality.freshness === "head_mismatch"
+  ) {
+    runtimeProviderSmokeStatus = "Stale evidence";
+  } else if (runtimeSmokeStatus === "runtime_unverified") {
+    runtimeProviderSmokeStatus = "Runtime unverified";
+  }
   const providerSmokeDetail = evidenceArtifactDetail(
     evidence.providerSmokeEvidence,
     providerSmokePassed ? "Provider smoke evidence was supplied." : "No formal provider smoke evidence artifact was supplied.",
@@ -883,23 +900,6 @@ export function buildPublicBetaEvidenceGates(input: {
         : []
     ),
   ]));
-  const providerQuality = resolveEvidenceQuality({
-    artifact: evidence.providerSmokeEvidence,
-    context: {
-      currentHead,
-      lane: "provider_smoke",
-      requiredForExit: true,
-    },
-  });
-  const runtimeQuality = resolveEvidenceQuality({
-    artifact: evidence.runtimeSmokeEvidence,
-    context: {
-      currentHead,
-      lane: "runtime_smoke",
-      requiredForExit: true,
-      requiresRuntimeProof: true,
-    },
-  });
   const formalEvidenceBridge = buildFormalEvidenceBridgeReport({
     generatedAtUtc: new Date().toISOString(),
     currentHead: currentHead ?? "unknown",
@@ -916,34 +916,30 @@ export function buildPublicBetaEvidenceGates(input: {
     },
   });
   const runtimeProviderBridgeCredit = formalEvidenceBridge.gates.runtimeProviderSmoke.evidenceCredit / 100;
+  const runtimeProviderFormalCredit = runtimeProviderSmokePassed
+    ? Math.min(providerQuality.partialCredit, runtimeQuality.partialCredit)
+    : 0;
   const runtimeProviderQuality = {
     quality: providerQuality.quality === "formal_passed" && runtimeQuality.quality === "formal_passed"
       ? "formal_passed"
       : providerQuality.quality === "operator_reported"
         ? "operator_reported"
-        : runtimeProviderBridgeCredit > 0
-          ? "formal_partial"
         : runtimeQuality.quality === "source_ready"
           ? "source_ready"
           : providerQuality.quality === "failed" || runtimeQuality.quality === "failed"
             ? "failed"
             : "missing",
-    confidence: Math.max(Math.min(providerQuality.confidence, runtimeQuality.confidence), runtimeProviderBridgeCredit * 0.9),
+    confidence: runtimeProviderSmokePassed
+      ? Math.min(providerQuality.confidence, runtimeQuality.confidence)
+      : Math.max(Math.min(providerQuality.confidence, runtimeQuality.confidence), runtimeProviderBridgeCredit * 0.9),
     freshness: providerQuality.freshness === "fresh" ? runtimeQuality.freshness : providerQuality.freshness,
     freshnessScore: Math.min(providerQuality.freshnessScore, runtimeQuality.freshnessScore),
-    partialCredit: roundScore(Math.max(
-      (providerQuality.partialCredit + runtimeQuality.partialCredit) / 2,
-      runtimeProviderBridgeCredit,
-      runtimeProviderRuntimeCredit / 100,
-    )),
+    partialCredit: roundScore(runtimeProviderFormalCredit),
     blocksLaunch: providerQuality.blocksLaunch || runtimeQuality.blocksLaunch,
     reason: `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear formal provider or deployed runtime smoke.`,
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
 
-  const adminTruthSamplePassed = evidenceArtifactPassed(
-    evidence.adminTruthSampleEvidence,
-    evidence.hasAdminTruthSampleEvidence,
-  );
+  const adminTruthSamplePassed = evidenceArtifactPassed(evidence.adminTruthSampleEvidence);
   const adminTruthSampleStatus = String(evidenceArtifactStatus(evidence.adminTruthSampleEvidence, "missing_or_unknown"));
   const adminTruthSampleDetail = evidenceArtifactDetail(
     evidence.adminTruthSampleEvidence,
@@ -973,23 +969,24 @@ export function buildPublicBetaEvidenceGates(input: {
     : 0;
   const adminQuality = {
     ...adminBaseQuality,
-    quality: adminBaseQuality.quality === "formal_passed"
-      ? adminBaseQuality.quality
-      : adminBridgeCredit > 0
-        ? "formal_partial"
-        : adminBaseQuality.quality,
+    quality: adminBaseQuality.quality,
     confidence: Math.max(adminBaseQuality.confidence, adminBridgeCredit * 0.9, adminSourceConfidence / 100),
-    partialCredit: roundScore(Math.max(adminBaseQuality.partialCredit, adminBridgeCredit, adminSourceConfidence / 100)),
+    partialCredit: adminTruthSamplePassed ? adminBaseQuality.partialCredit : 0,
     blocksLaunch: adminBaseQuality.blocksLaunch,
     reason: adminBaseQuality.quality === "formal_passed"
       ? adminBaseQuality.reason
       : "Admin source evidence earns partial bridge confidence but does not clear the production admin truth sample gate.",
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
-  const adminTruthSampleStatusLabel: PublicBetaReadinessStatus = adminTruthSamplePassed
-    ? "Ready"
-    : adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
-      ? "Ready with smoke required"
-      : "Unknown evidence";
+  let adminTruthSampleStatusLabel: PublicBetaReadinessStatus = "Unknown evidence";
+  if (adminTruthSamplePassed) {
+    adminTruthSampleStatusLabel = "Ready";
+  } else if (adminBaseQuality.quality === "failed") {
+    adminTruthSampleStatusLabel = "Needs review";
+  } else if (adminBaseQuality.freshness === "stale" || adminBaseQuality.freshness === "head_mismatch") {
+    adminTruthSampleStatusLabel = "Stale evidence";
+  } else if (adminBaseQuality.quality === "source_ready" || adminBridgeCredit > 0 || adminSourceConfidence > 0) {
+    adminTruthSampleStatusLabel = "Ready with smoke required";
+  }
 
   const sourceSafetyQuality = {
     quality: input.hasCritical ? "failed" : "formal_passed",
@@ -1126,13 +1123,11 @@ export function buildPublicBetaEvidenceGates(input: {
       quality: adminQuality,
       gateRequiredForExit: true,
       sourceCredit: adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
-        ? adminQuality.partialCredit * 100
+        ? Math.max(adminBridgeCredit * 100, adminSourceConfidence)
         : undefined,
       runtimeCredit: adminQuality.quality === "formal_passed"
         ? adminQuality.partialCredit * 100
-        : adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
-          ? adminQuality.partialCredit * 100
-          : 0,
+        : 0,
     }),
     buildEvidenceGate({
       id: "freshnessIntegrity",
