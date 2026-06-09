@@ -1,6 +1,6 @@
 # telemetry-parity-pass-gate
 
-Generated: 2026-05-25T05:51:06.644Z
+Generated: 2026-06-09T02:53:39.302Z
 
 Status: pass
 

@@ -26,6 +26,7 @@ import {
 } from "@/lib/analytics/event-envelope-builder";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
+import type { RuntimeFact } from "@/lib/runtime-facts/runtime-fact-contract";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +56,21 @@ function getAnalyticsIngestErrorMessage(error: unknown) {
 
 function buildFallbackEventId(userId: string, eventName: string) {
     return `evt_${encodeURIComponent(userId || "anonymous")}_${encodeURIComponent(eventName || "event")}_${Date.now().toString(36)}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+}
+
+function normalizeIdentifiedRuntimeFactForIngestWrite(fact: RuntimeFact): RuntimeFact {
+    const serverUnlockFact = fact.canonicalEventName === "drop_unwrapped"
+        && fact.sourceTruth === "server"
+        && Boolean(fact.target.transactionId || fact.target.targetDropId);
+    if (!serverUnlockFact) {
+        return fact;
+    }
+
+    return {
+        ...fact,
+        normalizedAction: "drop_unlocked",
+        metricFamily: "commerce",
+    };
 }
 
 function buildIdentifiedIngestClientErrorResponse(input: {
@@ -273,6 +289,7 @@ async function POST_handler(request: NextRequest) {
 
         const batch = adminDb.batch();
         let processed = 0;
+        let dedupedExisting = 0;
         let skippedUnsupported = 0;
         const skippedUnsupportedEventNames = new Set<string>();
         let latestActiveUserPatch: Record<string, unknown> | null = null;
@@ -293,6 +310,11 @@ async function POST_handler(request: NextRequest) {
             const canonicalEventName = telemetryEvent.canonicalEventName;
             const eventId = rawEvent.eventId || buildFallbackEventId(caller.uid, canonicalEventName);
             const ref = adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.runtimeFacts).doc(eventId);
+            const existingFact = await ref.get();
+            if (existingFact.exists) {
+                dedupedExisting += 1;
+                continue;
+            }
 
             const timestamp = rawEvent.eventTimestampMs || Date.now();
             const enrichedParamsBase = {
@@ -317,8 +339,9 @@ async function POST_handler(request: NextRequest) {
                 continue;
             }
 
+            const ingestRuntimeFact = normalizeIdentifiedRuntimeFactForIngestWrite(runtimeFactResult.fact);
             const finalEvent = createRuntimeFactFirestoreDocument({
-                runtimeFact: runtimeFactResult.fact,
+                runtimeFact: ingestRuntimeFact,
                 params: enrichedParams,
                 telemetryEventCategory: telemetryEvent.option?.category || "system",
                 telemetryEventModules: telemetryEvent.option?.modules || [],
@@ -392,8 +415,8 @@ async function POST_handler(request: NextRequest) {
                 },
             };
 
-            // Using batch.set with merge: false to mimic create, but safer. Deduplication is handled by background worker if duplicate
-            batch.set(ref, eventFactDocument, { merge: false });
+            // Existing event ids are skipped before enqueueing writes; create prevents retry/race overwrites.
+            batch.create(ref, eventFactDocument);
             processed++;
             const consentState = readStringParam(enrichedParams, "consent_state", "consentState") === "granted"
                 ? "granted"
@@ -401,7 +424,7 @@ async function POST_handler(request: NextRequest) {
                     ? "denied"
                     : "unknown";
             timelineFacts.push(mapRuntimeFactToBehavioralTimelineFact({
-                runtimeFact: runtimeFactResult.fact,
+                runtimeFact: ingestRuntimeFact,
                 consentState,
             }));
 
@@ -429,7 +452,7 @@ async function POST_handler(request: NextRequest) {
                 }
             }
 
-            if (runtimeFactResult.fact.includeInUserBehavior && (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0))) {
+            if (ingestRuntimeFact.includeInUserBehavior && (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0))) {
                 latestActiveUserPatch = buildIdentifiedActiveUserPatch({
                     uid: caller.uid,
                     timestampMs: timestamp,
@@ -441,20 +464,20 @@ async function POST_handler(request: NextRequest) {
                     eventModules: readEventModules(enrichedParams),
                     source: "identified_client_ingest",
                     parityFact: {
-                        normalizedAction: runtimeFactResult.fact.normalizedAction,
-                        metricFamily: runtimeFactResult.fact.metricFamily as any,
-                        actorUserId: runtimeFactResult.fact.actor.actorUserId,
-                        actorAdminId: runtimeFactResult.fact.actor.actorAdminId,
-                        actorCreatorId: runtimeFactResult.fact.actor.actorCreatorId,
-                        targetUserId: runtimeFactResult.fact.target.targetUserId,
-                        targetCreatorId: runtimeFactResult.fact.target.targetCreatorId,
-                        targetDropId: runtimeFactResult.fact.target.targetDropId,
-                        targetFileId: runtimeFactResult.fact.target.targetFileId,
-                        targetThreadId: runtimeFactResult.fact.target.targetThreadId,
-                        transactionId: runtimeFactResult.fact.target.transactionId,
-                        sourceTruth: runtimeFactResult.fact.sourceTruth,
-                        sourceConfidence: runtimeFactResult.fact.confidence,
-                        metricEligible: runtimeFactResult.fact.metricEligible,
+                        normalizedAction: ingestRuntimeFact.normalizedAction,
+                        metricFamily: ingestRuntimeFact.metricFamily as any,
+                        actorUserId: ingestRuntimeFact.actor.actorUserId,
+                        actorAdminId: ingestRuntimeFact.actor.actorAdminId,
+                        actorCreatorId: ingestRuntimeFact.actor.actorCreatorId,
+                        targetUserId: ingestRuntimeFact.target.targetUserId,
+                        targetCreatorId: ingestRuntimeFact.target.targetCreatorId,
+                        targetDropId: ingestRuntimeFact.target.targetDropId,
+                        targetFileId: ingestRuntimeFact.target.targetFileId,
+                        targetThreadId: ingestRuntimeFact.target.targetThreadId,
+                        transactionId: ingestRuntimeFact.target.transactionId,
+                        sourceTruth: ingestRuntimeFact.sourceTruth,
+                        sourceConfidence: ingestRuntimeFact.confidence,
+                        metricEligible: ingestRuntimeFact.metricEligible,
                         metricExclusionReason: finalEvent.metricExclusionReason,
                         reasonCode: finalEvent.metricExclusionReason,
                         behavioralFact: null,
@@ -535,6 +558,7 @@ async function POST_handler(request: NextRequest) {
         return NextResponse.json({
             success: true,
             processed,
+            dedupedExisting,
             skippedUnsupported,
             timelineFactsWritten: timelineWrite.written,
             timelineFactsSkipped: timelineWrite.skipped,

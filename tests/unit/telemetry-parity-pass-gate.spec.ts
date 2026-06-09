@@ -38,6 +38,9 @@ describe("telemetry parity pass gate", () => {
 
     expect(gate.status).toBe("fail");
     expect(gate.passAllowed).toBe(false);
+    expect(gate.sourceParityPassAllowed).toBe(false);
+    expect(gate.finalPassAllowed).toBe(false);
+    expect(gate.proofClasses.find((proof) => proof.proofClass === "source_parity")?.status).toBe("missing");
     expect(gate.confidenceStatus).toBe("low");
     expect(gate.blockers).toEqual(expect.arrayContaining([
       "low_confidence",
@@ -48,5 +51,75 @@ describe("telemetry parity pass gate", () => {
     expect(gate.nextAction).toContain("Fix analytics refresh failures");
     expect(gate.nextAction).not.toMatch(/which event source is missing/iu);
     expect(gate.displaySummary).toContain("Sample presence confirmed");
+  });
+
+  it("allows source parity to pass without clearing formal proof gates", () => {
+    const gate = buildTelemetryParityPassGate({
+      eventSampleCount: 500,
+      canonicalSampleCount: 500,
+      confidence: 100,
+      eventSource: "analytics_event_facts.eventName",
+      sampleSource: "telemetry_catalog",
+      refreshDiagnosticsStatus: "pass",
+      refreshFailureCount: 0,
+      range: "30d",
+      generatedAtUtc: "2026-05-24T15:57:48.000Z",
+      requiredProofClasses: [
+        "source_parity",
+        "runtime_route_health",
+        "provider_smoke",
+        "admin_truth_sample",
+      ],
+      proofClasses: {
+        admin_truth_sample: "present",
+      },
+    });
+
+    expect(gate.sourceParityStatus).toBe("pass");
+    expect(gate.sourceParityPassAllowed).toBe(true);
+    expect(gate.finalEvidenceStatus).toBe("review");
+    expect(gate.passAllowed).toBe(false);
+    expect(gate.finalPassAllowed).toBe(false);
+    expect(gate.missingProofClasses).toEqual(expect.arrayContaining([
+      "runtime_route_health",
+      "provider_smoke",
+    ]));
+    expect(gate.blockers).toEqual(expect.arrayContaining([
+      "runtime_route_health_missing",
+      "provider_smoke_missing",
+    ]));
+    expect(gate.displaySummary).toContain("Source telemetry parity passes");
+  });
+
+  it("passes final parity only when every required proof class is present", () => {
+    const gate = buildTelemetryParityPassGate({
+      eventSampleCount: 500,
+      canonicalSampleCount: 500,
+      confidence: 100,
+      eventSource: "analytics_event_facts.eventName",
+      sampleSource: "telemetry_catalog",
+      refreshDiagnosticsStatus: "pass",
+      refreshFailureCount: 0,
+      range: "30d",
+      generatedAtUtc: "2026-05-24T15:57:48.000Z",
+      requiredProofClasses: [
+        "source_parity",
+        "runtime_route_health",
+        "provider_smoke",
+        "admin_truth_sample",
+      ],
+      proofClasses: {
+        runtime_route_health: "present",
+        provider_smoke: "present",
+        admin_truth_sample: "present",
+      },
+    });
+
+    expect(gate.status).toBe("pass");
+    expect(gate.sourceParityStatus).toBe("pass");
+    expect(gate.finalEvidenceStatus).toBe("pass");
+    expect(gate.passAllowed).toBe(true);
+    expect(gate.missingProofClasses).toEqual([]);
+    expect(gate.blockers).toEqual(["none"]);
   });
 });

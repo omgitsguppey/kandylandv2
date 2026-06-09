@@ -375,7 +375,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "recommendation_dismissed", label: "Recommendation dismissed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement"] },
   { eventName: "drop_unwrap_intent_blocked_by_funds", label: "Unwrap intent blocked by funds", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
   { eventName: "drop_unlock_attempted", label: "Drop unlock attempted", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
-  { eventName: "drop_unlocked", label: "Drop unlocked", category: "content", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["content", "commerce"], aliases: ["unlock_drop_success"] },
+  { eventName: "drop_unlocked", label: "Drop unlocked", category: "content", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["content", "commerce"] },
   { eventName: "drop_unwrapped", label: "Drop unwrapped", category: "content", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["content", "viewer"] },
   { eventName: "unlock_drop_success", label: "Drop unlocked (legacy compatibility)", category: "content", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["content", "commerce"], auditCoveredBy: ["drop_unlocked"] },
   { eventName: "entitlement_granted", label: "Entitlement granted", category: "content", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["content", "commerce", "admin"] },
@@ -886,7 +886,11 @@ export const TELEMETRY_EVENT_OPTIONS_BY_NAME = Object.fromEntries(
 ) as Record<string, TelemetryEventOption>;
 
 export const TELEMETRY_EVENT_ALIAS_MAP = Object.fromEntries(
-  TELEMETRY_EVENT_OPTIONS.flatMap((event) => (event.aliases ?? []).map((alias) => [alias, event.eventName] as const)),
+  TELEMETRY_EVENT_OPTIONS.flatMap((event) => (event.aliases ?? [])
+    .filter((alias) =>
+      !(event.auditCoveredBy?.includes("surface_telemetry_parity") && TELEMETRY_EVENT_NAME_SET.has(alias)),
+    )
+    .map((alias) => [alias, event.eventName] as const)),
 ) as Record<string, string>;
 
 export const TELEMETRY_EVENT_LABELS = Object.fromEntries(

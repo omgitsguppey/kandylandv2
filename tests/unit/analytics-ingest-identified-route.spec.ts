@@ -3,15 +3,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockState = vi.hoisted(() => {
   const writes: Array<{ path: string; data: Record<string, unknown>; options?: unknown }> = [];
+  const existingPaths = new Set<string>();
   const batch = {
     set: vi.fn((ref: { path: string }, data: Record<string, unknown>, options?: unknown) => {
       writes.push({ path: ref.path, data, options });
+    }),
+    create: vi.fn((ref: { path: string }, data: Record<string, unknown>) => {
+      writes.push({ path: ref.path, data, options: { create: true } });
     }),
     commit: vi.fn(async () => undefined),
   };
 
   return {
     writes,
+    existingPaths,
     batch,
     guardApiRequest: vi.fn(async () => ({ uid: "user_123" })),
     recordRouteWarning: vi.fn(),
@@ -30,7 +35,9 @@ const mockState = vi.hoisted(() => {
     })),
     reset() {
       writes.length = 0;
+      existingPaths.clear();
       batch.set.mockClear();
+      batch.create.mockClear();
       batch.commit.mockClear();
       this.guardApiRequest.mockClear();
       this.recordRouteWarning.mockClear();
@@ -61,7 +68,11 @@ vi.mock("@/lib/server/firebase-admin", () => ({
     collection(name: string) {
       return {
         doc(id: string) {
-          return { path: `${name}/${id}` };
+          const path = `${name}/${id}`;
+          return {
+            path,
+            get: vi.fn(async () => ({ exists: mockState.existingPaths.has(path) })),
+          };
         },
       };
     },
@@ -254,7 +265,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_follow");
     expect(eventWrite?.data).toMatchObject({
       actorType: "user",
-      actorLane: "user",
+      actorLane: "signed_in_user",
       actorUserId: "user_123",
       actorCreatorId: "",
       targetCreatorId: "creator_456",
@@ -670,6 +681,7 @@ describe("POST /api/analytics/ingest-identified", () => {
 
     expect(payload).toEqual(expect.objectContaining({ success: true, processed: 0, skippedUnsupported: 1 }));
     expect(mockState.batch.set).not.toHaveBeenCalled();
+    expect(mockState.batch.create).not.toHaveBeenCalled();
     expect(mockState.batch.commit).not.toHaveBeenCalled();
     expect(mockState.recordRouteWarning).toHaveBeenCalledWith(
       "Analytics.IngestIdentified",
@@ -683,6 +695,35 @@ describe("POST /api/analytics/ingest-identified", () => {
         }),
       }),
     );
+  });
+
+  it("skips existing event ids without overwriting canonical analytics facts", async () => {
+    mockState.existingPaths.add("analytics_event_facts/evt_existing_retry");
+
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_existing_retry",
+        eventTimestampMs: 1767225600000,
+        eventName: "creator_followed",
+        eventParams: {
+          page_path: "/creators/kandy",
+          session_id: "session_123",
+          creator_id: "creator_456",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual(expect.objectContaining({
+      success: true,
+      processed: 0,
+      dedupedExisting: 1,
+      skippedUnsupported: 0,
+    }));
+    expect(mockState.writes.some((write) => write.path === "analytics_event_facts/evt_existing_retry")).toBe(false);
+    expect(mockState.batch.create).not.toHaveBeenCalled();
+    expect(mockState.batch.commit).not.toHaveBeenCalled();
+    expect(mockState.writeBehavioralTimelineFacts).toHaveBeenCalledWith([]);
   });
 
   it("keeps legacy admin UI errors in diagnostics instead of analytics facts", async () => {
@@ -701,6 +742,7 @@ describe("POST /api/analytics/ingest-identified", () => {
 
     expect(payload).toEqual(expect.objectContaining({ success: true, processed: 0, skippedUnsupported: 1 }));
     expect(mockState.batch.set).not.toHaveBeenCalled();
+    expect(mockState.batch.create).not.toHaveBeenCalled();
     expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
       channel: "ai",
       severity: "error",
