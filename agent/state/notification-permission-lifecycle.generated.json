@@ -1,8 +1,11 @@
 {
-  "generatedAtUtc": "2026-05-24T07:34:59.076Z",
-  "currentHead": "8feac347",
+  "generatedAtUtc": "2026-06-09T01:08:18.932Z",
+  "currentHead": "00b18bf22",
   "productionReadsRequired": false,
   "deployRequired": false,
+  "evidenceKind": "source_only",
+  "livePushSmoke": "manual_external_required",
+  "dirtyWorktreeProofLimited": true,
   "promptLifecycleEvents": [
     "notification_prompt_eligible",
     "notification_prompt_viewed",
@@ -40,22 +43,22 @@
     "rawDetailsCollapsedByDefault": true
   },
   "scoreBefore": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreDimensionImpact": {
     "sourceHealth": "Notification prompt lifecycle has explicit source contract, telemetry events, and validator coverage.",
@@ -66,129 +69,107 @@
     "regressionRisk": "Unit and validator checks protect no-auto-prompt, cooldown, telemetry mapping, debug lane, and protected-surface boundaries.",
     "overallHealthScore": "Moves notification readiness evidence without clearing formal runtime/provider gates."
   },
+  "dirtyFilesScannedCount": 282,
+  "dirtyFilesOmittedCount": 257,
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": ".agent/workflows/auto-tasks.md",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": ".agent/workflows/pre-commit.md",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": ".env.example",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": ".gitignore",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/doctrine.cards.jsonl",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/doctrine.index.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/file-size-budget.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/legacy-registry.json",
+      "classification": "unsafe_unknown"
     },
     {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/context/task-pack.generated.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/context/validator-map.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/index/blast-radius.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/index/canonical-helpers.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/notification-permission-lifecycle.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/index/dependency-graph.summary.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/notification-pwa-score-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/index/governance-truth.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/notification-targeting-intent.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/index/known-pitfalls.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/index/package-manager-truth.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/index/recent-passes.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/push-token-registration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/index/repo-inventory.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/pwa-service-worker-safety.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/index/retrieval-index.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/notification-permission-lifecycle.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/notification-pwa-score-lock.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/notification-targeting-intent.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/push-token-registration.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/pwa-service-worker-safety.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
+      "path": "agent/README.md",
+      "classification": "unsafe_unknown"
     },
     {
       "path": "scripts/agent/validate-notification-permission-lifecycle.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-notification-pwa-score-lock.ts",
+      "path": "scripts/agent/validate-notification-return-loop.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
+      "path": "scripts/agent/validate-push-token-registration.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/notification-pwa-score-lock.spec.ts",
+      "path": "tests/unit/notification-permission-lifecycle.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],
@@ -199,5 +180,21 @@
       "reason": "Loading state accessibility remains required on the permission CTA."
     }
   ],
-  "validationFailures": []
+  "validationFailures": [],
+  "reportKey": "notification-permission-lifecycle",
+  "status": "pass",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Run npm run check:notification-permission-lifecycle after notification prompt source changes.",
+    "Collect separate live push/provider smoke evidence before clearing runtime or provider gates."
+  ],
+  "doesNotProve": [
+    "Does not prove real push delivery.",
+    "Does not prove browser permission UX in deployed runtime.",
+    "Does not prove provider/FCM availability."
+  ]
 }

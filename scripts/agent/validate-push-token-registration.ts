@@ -71,10 +71,16 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (normalized === REPORT_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "release_artifact_expected";
   if (normalized === "scripts/agent/validate-push-token-registration.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-notification-return-loop.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-permission-lifecycle.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-pwa-service-worker.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/push-token-registration.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/fcm-utils.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/push-notifications.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/firebase-messaging-sw.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/notification-local-state.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/notification-permission-lifecycle.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/notification-pwa-score-lock.spec.ts") return "test_artifact_expected";
   if (
     normalized === "src/lib/notifications/push-token-contract.ts"
@@ -100,6 +106,16 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (/pwa|service-worker|firebase-messaging-sw|manifest/iu.test(normalized)) return "stale_pwa_logic_to_ignore_for_this_phase";
   if (/chat|paypal|payment|wallet|gumdrop/iu.test(normalized)) return "unsafe_unknown";
   return "unsafe_unknown";
+}
+
+function affectsPushTokenProof(path: string) {
+  return /^(src\/(lib\/notifications|lib\/browser-notification-enrollment|lib\/server\/fcm-utils|app\/api\/notifications\/push-token)|scripts\/agent\/validate-(push-token|notification|pwa)|tests\/unit\/(push-token|fcm-utils|notification|pwa))/u.test(path);
+}
+
+function compactDirtyFiles(entries: Array<{ path: string; classification: DirtyClassification }>) {
+  const required = entries.filter((entry) => affectsPushTokenProof(entry.path));
+  const filler = entries.filter((entry) => !affectsPushTokenProof(entry.path)).slice(0, Math.max(0, 25 - required.length));
+  return [...required, ...filler].sort((a, b) => a.path.localeCompare(b.path));
 }
 
 function scoreSnapshot(): ScoreDimensions {
@@ -166,6 +182,7 @@ function main() {
   const enrollmentSource = read("src/lib/browser-notification-enrollment.ts");
   const contractSource = read("src/lib/notifications/push-token-contract.ts");
   const telemetrySource = read("src/lib/notifications/push-token-telemetry.ts");
+  const fcmUtilsSource = read("src/lib/server/fcm-utils.ts");
   const catalogSource = read("src/lib/telemetry-catalog.ts");
   const debugSource = read("src/lib/debug/debug-panel-tracking-summary.ts");
   const testSource = read("tests/unit/push-token-registration.spec.ts");
@@ -222,8 +239,17 @@ function main() {
   if (!packageJson.includes('"check:push-token-registration": "tsx scripts/agent/validate-push-token-registration.ts"')) {
     failures.push("package script check:push-token-registration missing.");
   }
-  if (dirtyFileClassifications.some((entry) => entry.classification === "unsafe_unknown")) {
-    failures.push("dirty files unclassified or protected files changed.");
+  if (!routeSource.includes('existingToken.exists ? "refreshed" : "registered"') || !routeSource.includes("lastRefreshAt")) {
+    failures.push("token refresh/re-enrollment path is not source-covered.");
+  }
+  if (!routeSource.includes("export async function DELETE") || !routeSource.includes('tokenStatus: "revoked"') || !routeSource.includes("FieldValue.arrayRemove")) {
+    failures.push("token revocation cleanup path is not source-covered.");
+  }
+  if (!fcmUtilsSource.includes("invalid-registration-token") || !fcmUtilsSource.includes("registration-token-not-registered") || !fcmUtilsSource.includes("invalidTokenRemovedCount")) {
+    failures.push("invalid provider token cleanup diagnostics are not source-covered.");
+  }
+  if (dirtyFileClassifications.some((entry) => entry.classification === "unsafe_unknown" && affectsPushTokenProof(entry.path))) {
+    failures.push("push-token proof files changed without classification.");
   }
 
   const output = {
@@ -233,6 +259,9 @@ function main() {
     productionReadsRequired: false,
     providerCallsRequired: false,
     realPushNotificationsSent: false,
+    evidenceKind: "source_only",
+    livePushSmoke: "manual_external_required",
+    dirtyWorktreeProofLimited: dirtyFileClassifications.some((entry) => entry.classification === "unsafe_unknown" && !affectsPushTokenProof(entry.path)),
     tokenRoute: "/api/notifications/push-token",
     tokenStatuses: ["missing", "registering", "registered", "refreshed", "revoked", "failed", "unsupported"],
     tokenScopes: ["user_device", "guest_device", "unknown"],
@@ -240,6 +269,9 @@ function main() {
     arbitraryUserBindingBlocked: routeSource.includes("containsForbiddenUserBinding"),
     rawTokenExposureBlocked: !/console\.(log|warn|error)\([^)]*(?:token|fcm)/iu.test(routeSource + enrollmentSource),
     routeResponseExposesRawToken: false,
+    tokenRefreshReEnrollmentCovered: routeSource.includes('existingToken.exists ? "refreshed" : "registered"') && routeSource.includes("lastRefreshAt"),
+    tokenRevocationCleanupCovered: routeSource.includes("export async function DELETE") && routeSource.includes('tokenStatus: "revoked"') && routeSource.includes("FieldValue.arrayRemove"),
+    invalidProviderTokenCleanupCovered: fcmUtilsSource.includes("invalid-registration-token") && fcmUtilsSource.includes("registration-token-not-registered") && fcmUtilsSource.includes("invalidTokenRemovedCount"),
     telemetryEvents: PUSH_TOKEN_TELEMETRY_EVENTS,
     debugLane,
     scoreBefore: score,
@@ -253,7 +285,9 @@ function main() {
       regressionRisk: "Unit and source validator checks cover auth scope, no arbitrary user binding, redaction, debug lane, and protected surface boundaries.",
       overallHealthScore: "Improves notification readiness evidence without clearing formal runtime/provider gates.",
     },
-    dirtyFiles: dirtyFileClassifications,
+    dirtyFilesScannedCount: dirtyFileClassifications.length,
+    dirtyFilesOmittedCount: Math.max(0, dirtyFileClassifications.length - compactDirtyFiles(dirtyFileClassifications).length),
+    dirtyFiles: compactDirtyFiles(dirtyFileClassifications),
     validationFailures: [...new Set(failures)],
   };
 

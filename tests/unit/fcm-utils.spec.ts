@@ -94,7 +94,7 @@ describe("broadcastFCM", () => {
         const result = await broadcastFCM("Kandy Drops", "A new drop is live.", "/drops", "new_drop");
 
         expect(result).toBe(true);
-        expect(mockState.selectedFields).toEqual([["fcmTokens", "notificationSettings"]]);
+        expect(mockState.selectedFields).toEqual([["fcmTokens", "notificationSettings", "notificationQuality", "lastActiveAtMs"]]);
         expect(mockState.sendEachForMulticast).toHaveBeenCalledTimes(1);
         expect(mockState.sendEachForMulticast).toHaveBeenCalledWith(expect.objectContaining({
             tokens: ["token-enabled-1", "token-enabled-2"],

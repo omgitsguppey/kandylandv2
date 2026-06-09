@@ -166,5 +166,37 @@
       "tests/unit/notifications-route.spec.ts",
       "tests/unit/admin-notification-funnel.spec.ts"
     ]
-  }
+  },
+  "reportKey": "notification-return-loop-audit",
+  "generatedAtUtc": "2026-06-09T01:08:18.030Z",
+  "currentHead": "00b18bf223507273fde4a53c036a415414bc73a2",
+  "status": "pass",
+  "sourceEvidence": {
+    "evidenceKind": "source_only",
+    "livePushSmoke": "manual_external_required",
+    "providerCallsRequired": false,
+    "realPushNotificationsSent": false,
+    "permissionAndPreferenceSkipsCovered": true,
+    "invalidTokenCleanupCovered": true,
+    "duplicatePushPreventionCovered": true,
+    "duplicateBrowserTagCovered": true,
+    "clickReturnRoutingCovered": true,
+    "readPersistenceCovered": true,
+    "returnLivePushSuppressed": true
+  },
+  "validationFailures": [],
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Run npm run check:notification-return-loop after notification return-routing changes.",
+    "Attach live push smoke separately before clearing provider or runtime delivery gates."
+  ],
+  "doesNotProve": [
+    "Does not prove any FCM/provider push was sent.",
+    "Does not prove deployed service worker click handling.",
+    "Does not prove live user notification return behavior."
+  ]
 }

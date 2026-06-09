@@ -51,4 +51,26 @@ describe("admin notification funnel model", () => {
         expect(model.duplicatePrevented.displayValue).toBe("Unavailable");
         expect(model.failedSkipped.displayValue).toBe("Unavailable");
     });
+
+    it("treats refresh-due verified cache as recent partial evidence", () => {
+        const model = buildAdminNotificationFunnelModel({
+            funnelItems: [{ label: "Prompted", count: 10 }],
+            actionItems: [],
+            reminderReasons: [],
+            response: {
+                success: true,
+                cacheState: "refresh_due",
+                staleButVerified: true,
+                cacheRevalidating: true,
+                generatedAtMs: Date.UTC(2026, 4, 6, 12, 0, 0),
+            } as never,
+        });
+
+        expect(model.state).toBe("partial");
+        expect(model.truthLabel).toBe("PARTIAL");
+        expect(model.prompt.freshnessState).toBe("recent");
+        expect(model.prompt.truthState).toBe("live");
+        expect(model.debug.stale).toBe(false);
+        expect(model.debug.fallback).toBe(true);
+    });
 });

@@ -171,7 +171,7 @@ function formatMetricValue(value: number | null, labelWhenMissing = "Unavailable
 
 function freshnessStateFromResponse(response?: HistoricalAnalyticsResponse): NotificationFunnelStepFreshnessState {
     if (!response) return "unknown";
-    if (response.cacheState === "stale" || response.staleButVerified) return "stale";
+    if (response.cacheState === "stale") return "stale";
     return "recent";
 }
 
@@ -238,7 +238,7 @@ export function buildAdminNotificationFunnelModel(input: {
     loading?: boolean;
 }) : AdminNotificationFunnelModel {
     const generatedAtUtc = input.response?.generatedAtMs ? new Date(input.response.generatedAtMs).toISOString() : null;
-    const stale = Boolean(input.response && (input.response.cacheState === "stale" || input.response.staleButVerified));
+    const stale = Boolean(input.response && input.response.cacheState === "stale");
     const freshnessState = freshnessStateFromResponse(input.response);
     const promptCount = findFunnelCount(input.funnelItems, ["prompt view", "prompted"]) ?? findActionValue(input.actionItems, "prompted");
     const enabledCount = findFunnelCount(input.funnelItems, ["notifications enabled", "enabled"]) ?? findActionValue(input.actionItems, "enabled");

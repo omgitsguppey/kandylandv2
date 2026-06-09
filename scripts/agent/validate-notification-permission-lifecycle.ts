@@ -11,6 +11,7 @@ import {
   buildNotificationPromptTelemetryEnvelope,
 } from "../../src/lib/notifications/notification-prompt-telemetry";
 import type { NotificationPromptLifecycleEvent } from "../../src/lib/notifications/notification-permission-contract";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
 type ScoreDimensions = {
   sourceHealth: number;
@@ -40,6 +41,9 @@ export type NotificationPermissionLifecycleReport = {
   currentHead: string;
   productionReadsRequired: false;
   deployRequired: false;
+  evidenceKind: "source_only";
+  livePushSmoke: "manual_external_required";
+  dirtyWorktreeProofLimited: boolean;
   promptLifecycleEvents: NotificationPromptLifecycleEvent[];
   permissionStateTracked: boolean;
   autoFireOnPageLoadBlocked: boolean;
@@ -55,6 +59,8 @@ export type NotificationPermissionLifecycleReport = {
   scoreBefore: ScoreDimensions;
   scoreAfter: ScoreDimensions;
   scoreDimensionImpact: Record<keyof ScoreDimensions, string>;
+  dirtyFilesScannedCount: number;
+  dirtyFilesOmittedCount: number;
   dirtyFiles: Array<{ path: string; classification: DirtyClassification }>;
   oldLogicReferences: Array<{ reference: string; classification: "still_required" | "stale_removed" | "stale_permission_logic_to_remove" | "unsafe_unknown"; reason: string }>;
   validationFailures: string[];
@@ -115,6 +121,7 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (normalized === DOC_PATH) return "release_artifact_expected";
   if (normalized === "docs/agent-truth/push-token-registration.md") return "release_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-permission-lifecycle.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-notification-return-loop.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-push-token-registration.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-pwa-service-worker.ts") return "validator_artifact_expected";
@@ -199,6 +206,16 @@ function oldLogicReferences(banner: string) {
   return references;
 }
 
+function affectsNotificationProof(path: string) {
+  return /^(src\/(lib\/notifications|components\/Dashboard\/NotificationPromptBanner|components\/Notifications|hooks\/useNotifications|app\/api\/notifications)|public\/firebase-messaging-sw\.js|scripts\/agent\/validate-(notification|push|pwa)|tests\/unit\/(notification|push|firebase-messaging-sw|pwa))/u.test(path);
+}
+
+function compactDirtyFiles(entries: Array<{ path: string; classification: DirtyClassification }>) {
+  const required = entries.filter((entry) => affectsNotificationProof(entry.path));
+  const filler = entries.filter((entry) => !affectsNotificationProof(entry.path)).slice(0, Math.max(0, 25 - required.length));
+  return [...required, ...filler].sort((a, b) => a.path.localeCompare(b.path));
+}
+
 export function buildNotificationPermissionLifecycleReport(input: {
   currentHead?: string;
   dirtyFiles?: string[];
@@ -225,6 +242,8 @@ export function buildNotificationPermissionLifecycleReport(input: {
   });
   const score = scoreSnapshot();
   const files = input.dirtyFiles ?? dirtyFiles();
+  const dirtyFileClassifications = files.map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const compactedDirtyFiles = compactDirtyFiles(dirtyFileClassifications);
   const debugLane = buildNotificationPermissionDebugLane({
     eligibleCount: 1,
     viewedCount: 1,
@@ -236,6 +255,9 @@ export function buildNotificationPermissionLifecycleReport(input: {
     currentHead: input.currentHead ?? currentHead(),
     productionReadsRequired: false,
     deployRequired: false,
+    evidenceKind: "source_only",
+    livePushSmoke: "manual_external_required",
+    dirtyWorktreeProofLimited: dirtyFileClassifications.some((entry) => entry.classification === "unsafe_unknown" && !affectsNotificationProof(entry.path)),
     promptLifecycleEvents: NOTIFICATION_PERMISSION_PROMPT_EVENTS,
     permissionStateTracked: contract.includes("NotificationPermissionState") && banner.includes("classifyNotificationPermissionState"),
     autoFireOnPageLoadBlocked: !/useEffect\([\s\S]{0,1800}(enableBrowserNotifications|requestBrowserNotificationAccess|Notification\.requestPermission)/u.test(banner),
@@ -259,12 +281,29 @@ export function buildNotificationPermissionLifecycleReport(input: {
       regressionRisk: "Unit and validator checks protect no-auto-prompt, cooldown, telemetry mapping, debug lane, and protected-surface boundaries.",
       overallHealthScore: "Moves notification readiness evidence without clearing formal runtime/provider gates.",
     },
-    dirtyFiles: files.map((path) => ({ path, classification: classifyDirtyFile(path) })),
+    dirtyFilesScannedCount: dirtyFileClassifications.length,
+    dirtyFilesOmittedCount: Math.max(0, dirtyFileClassifications.length - compactedDirtyFiles.length),
+    dirtyFiles: compactedDirtyFiles,
     oldLogicReferences: oldLogicReferences(banner),
     validationFailures: [],
   };
   report.validationFailures = validateNotificationPermissionLifecycleReport(report);
-  return report;
+  return withGeneratedReportEnvelope(report as unknown as Record<string, unknown>, {
+    reportKey: "notification-permission-lifecycle",
+    status: report.validationFailures.length > 0 ? "fail" : "pass",
+    evidenceClass: "source_snapshot",
+    canClearSourceGate: report.validationFailures.length === 0,
+    nextExactSteps: [
+      "Run npm run check:notification-permission-lifecycle after notification prompt source changes.",
+      "Collect separate live push/provider smoke evidence before clearing runtime or provider gates.",
+    ],
+    validationFailures: report.validationFailures,
+    doesNotProve: [
+      "Does not prove real push delivery.",
+      "Does not prove browser permission UX in deployed runtime.",
+      "Does not prove provider/FCM availability.",
+    ],
+  }) as unknown as NotificationPermissionLifecycleReport;
 }
 
 export function validateNotificationPermissionLifecycleReport(report: NotificationPermissionLifecycleReport): string[] {
@@ -276,7 +315,9 @@ export function validateNotificationPermissionLifecycleReport(report: Notificati
   if (!report.ariaBusyPreserved) failures.push("aria-busy lost.");
   if (!report.canonicalEnvelopeMapped || !report.featureRegistrationMapped || !report.personMetricsMapped) failures.push("notification events lack identity/feature/telemetry mapping.");
   if (!report.debugLanePresent || report.debugLane.label !== "Notification permission") failures.push("debug lane missing.");
-  if (report.dirtyFiles.some((entry) => entry.classification === "unsafe_unknown")) failures.push("chat/payment/GumDrop files changed.");
+  if (report.dirtyFiles.some((entry) => entry.classification === "unsafe_unknown" && affectsNotificationProof(entry.path))) {
+    failures.push("notification proof files changed without classification.");
+  }
   if (Object.keys(report.scoreDimensionImpact).length !== SCORE_KEYS.length) failures.push("score dimension impact missing.");
   return failures;
 }

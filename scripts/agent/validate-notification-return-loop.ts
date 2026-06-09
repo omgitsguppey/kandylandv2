@@ -1,8 +1,19 @@
-import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
 const root = process.cwd();
 const failures: string[] = [];
+
+function shell(command: string, args: readonly string[]) {
+  try {
+    return execFileSync(command, [...args], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  } catch {
+    return "";
+  }
+}
 
 function readRequired(relativePath: string) {
   const fullPath = join(root, relativePath);
@@ -220,6 +231,79 @@ for (const key of [
     failures.push(`audit.surfaces must include ${key}.`);
   }
 }
+
+const sourceEvidence = {
+  evidenceKind: "source_only",
+  livePushSmoke: "manual_external_required",
+  providerCallsRequired: false,
+  realPushNotificationsSent: false,
+  permissionAndPreferenceSkipsCovered: fcmUtils.includes("permissionSkippedCount")
+    && fcmUtils.includes("preferenceSkippedCount")
+    && pushNotifications.includes("skippedPermissionDeniedCount")
+    && pushNotifications.includes("skippedPreferencesDisabledCount"),
+  invalidTokenCleanupCovered: fcmUtils.includes("invalid-registration-token")
+    && fcmUtils.includes("registration-token-not-registered")
+    && fcmUtils.includes("invalidTokenRemovedCount"),
+  duplicatePushPreventionCovered: fcmUtils.includes("duplicatePushPreventedCount")
+    && fcmUtils.includes("tokensQueued")
+    && pushNotifications.includes("duplicatePushPrevented: true"),
+  duplicateBrowserTagCovered: pushNotifications.includes("buildBrowserNotificationTag")
+    && serviceWorker.includes("resolveNotificationTag(data)")
+    && serviceWorker.includes("renotify: false"),
+  clickReturnRoutingCovered: serviceWorker.includes("notificationclick")
+    && serviceWorker.includes("resolveSafeNotificationUrl")
+    && serviceWorker.includes("postMessage(clickPayload)")
+    && runtimeBridge.includes("KANDYDROPS_NOTIFICATION_CLICK"),
+  readPersistenceCovered: runtimeBridge.includes("markNotificationsAsRead")
+    && route.includes("readAtMs")
+    && route.includes("lastReadBy")
+    && hook.includes("markNotificationsReadLocally"),
+  returnLivePushSuppressed: pushTest.includes("does not send a return-live FCM push")
+    && pushNotifications.includes("drop_requeued_live"),
+};
+
+for (const [key, value] of Object.entries(sourceEvidence)) {
+  if (key === "providerCallsRequired" || key === "realPushNotificationsSent") {
+    continue;
+  }
+  if (typeof value === "boolean" && !value) {
+    failures.push(`sourceEvidence.${key} is not covered.`);
+  }
+}
+
+function writeCurrentReport() {
+  const currentHead = shell("git", ["rev-parse", "HEAD"]) || "unknown";
+  const nextAudit = withGeneratedReportEnvelope({
+    ...audit,
+    reportKey: "notification-return-loop-audit",
+    generatedAtUtc: new Date().toISOString(),
+    currentHead,
+    status: failures.length > 0 ? "fail" : "pass",
+    sourceEvidence,
+    validationFailures: [...failures],
+    surfaces,
+  }, {
+    reportKey: "notification-return-loop-audit",
+    status: failures.length > 0 ? "fail" : "pass",
+    currentHead,
+    evidenceClass: "source_snapshot",
+    canClearSourceGate: failures.length === 0,
+    nextExactSteps: [
+      "Run npm run check:notification-return-loop after notification return-routing changes.",
+      "Attach live push smoke separately before clearing provider or runtime delivery gates.",
+    ],
+    validationFailures: [...failures],
+    doesNotProve: [
+      "Does not prove any FCM/provider push was sent.",
+      "Does not prove deployed service worker click handling.",
+      "Does not prove live user notification return behavior.",
+    ],
+  });
+
+  writeFileSync(join(root, "agent/state/notification-return-loop-audit.generated.json"), `${JSON.stringify(nextAudit, null, 2)}\n`);
+}
+
+writeCurrentReport();
 
 if (failures.length > 0) {
   console.error("Notification return-loop validation failed:");

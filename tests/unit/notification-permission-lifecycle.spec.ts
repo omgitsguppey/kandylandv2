@@ -107,7 +107,7 @@ describe("notification permission lifecycle", () => {
     });
     const envelope = buildNotificationPromptTelemetryEnvelope(payload);
 
-    expect(envelope.eventName).toBe("notification_permission_granted");
+    expect(envelope.eventName).toBe("notifications_pwa_prompt_surface_action_succeeded");
     expect(envelope.featureId).toBe("notifications");
     expect(envelope.materializerLane).toBe("notification_materializer");
     expect(envelope.debugVisibility).toBe("debug_visible");

@@ -88,15 +88,10 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
                         disabled={isReadOnlyProjection}
                     />
                     <RowDivider />
-                    <ToggleRow
+                    <StaticRow
                         label="Ending soon"
-                        description="Warn me before drops expire."
-                        checked={formState.expiringSoonAlerts}
-                        onChange={(value) => {
-                            trackNotificationToggle("notification_preferences", value);
-                            updateForm("expiringSoonAlerts", value);
-                        }}
-                        disabled={isReadOnlyProjection}
+                        description="Drop expiration reminders are not available yet."
+                        badge="Unavailable"
                     />
                 </SectionContainer>
     );
