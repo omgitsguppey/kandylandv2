@@ -43,7 +43,11 @@ describe("readThroughStaleWhileRevalidateEphemeralRouteCache", () => {
     });
 
     expect(first.cacheStatus).toBe("miss");
+    expect(first.cacheFreshnessState).toBe("fresh_cache");
+    expect(first.truthHealthState).toBe("verified_cache");
     expect(second.cacheStatus).toBe("fresh");
+    expect(second.cacheFreshnessState).toBe("fresh_cache");
+    expect(second.truthHealthState).toBe("verified_cache");
     expect(second.value.generatedAtMs).toBe(1_000);
     expect(loader).toHaveBeenCalledTimes(1);
   });
@@ -71,6 +75,8 @@ describe("readThroughStaleWhileRevalidateEphemeralRouteCache", () => {
     });
 
     expect(stale.cacheStatus).toBe("stale");
+    expect(stale.cacheFreshnessState).toBe("refresh_due_cache");
+    expect(stale.truthHealthState).toBe("verified_cache");
     expect(stale.value.generatedAtMs).toBe(1_000);
     expect(stale.revalidating).toBe(true);
     expect(loader).toHaveBeenCalledTimes(2);
@@ -99,6 +105,8 @@ describe("readThroughStaleWhileRevalidateEphemeralRouteCache", () => {
     });
 
     expect(reloaded.cacheStatus).toBe("miss");
+    expect(reloaded.cacheFreshnessState).toBe("fresh_cache");
+    expect(reloaded.truthHealthState).toBe("verified_cache");
     expect(reloaded.validationIssues).toEqual(["missing generatedAtMs"]);
     expect(reloaded.value.generatedAtMs).toBe(2_000);
     expect(loader).toHaveBeenCalledTimes(2);
@@ -127,6 +135,8 @@ describe("readThroughStaleWhileRevalidateEphemeralRouteCache", () => {
     });
 
     expect(retained.cacheStatus).toBe("stale");
+    expect(retained.cacheFreshnessState).toBe("expired_cache");
+    expect(retained.truthHealthState).toBe("runtime_unverified");
     expect(retained.value.generatedAtMs).toBe(1_000);
     expect(retained.staleButVerified).toBe(true);
     expect(retained.retainedBeyondStaleTtl).toBe(true);
@@ -158,6 +168,8 @@ describe("readThroughStaleWhileRevalidateEphemeralRouteCache", () => {
     await Promise.resolve();
 
     expect(retained.cacheStatus).toBe("stale");
+    expect(retained.cacheFreshnessState).toBe("expired_cache");
+    expect(retained.truthHealthState).toBe("runtime_unverified");
     expect(retained.value.data).toEqual(["verified"]);
     expect(retained.revalidating).toBe(true);
     expect(retained.staleButVerified).toBe(true);

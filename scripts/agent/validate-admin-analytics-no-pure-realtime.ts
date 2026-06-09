@@ -93,6 +93,7 @@ for (const codeNeedle of [
   "displayStatePolicyApplied: true",
   "pureRealtimeDependencyRemoved: true",
   "ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST",
+  "ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS = 0",
   "rawDisplayFallbackDisabled: true",
   "sourceUse: \"snapshot_first_route\"",
 ]) {
@@ -101,6 +102,22 @@ for (const codeNeedle of [
 
 requireNotIncludes(stateHook, "from \"./useAdminAnalyticsRealtime\"", "Admin Analytics state hook");
 requireNotIncludes(stateHook, "useAdminAnalyticsRealtime(", "Admin Analytics state hook");
+
+for (const pollingNeedle of [
+  "useAdminPollingSWR<RealtimeAnalyticsResponse>(\n    \"/api/admin/analytics/realtime\",\n    30_000",
+  "useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, 60_000",
+  "useAdminPollingSWR<AdminOverviewResponse>(\"/api/admin/overview\", 60_000",
+]) {
+  requireNotIncludes(stateHook, pollingNeedle, "Admin Analytics metric polling defaults");
+}
+
+for (const disabledPollingNeedle of [
+  "useAdminPollingSWR<RealtimeAnalyticsResponse>(\n    \"/api/admin/analytics/realtime\",\n    ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+  "useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+  "useAdminPollingSWR<AdminOverviewResponse>(\"/api/admin/overview\", ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+]) {
+  requireIncludes(stateHook, disabledPollingNeedle, "Admin Analytics metric polling defaults");
+}
 
 for (const livePulseNeedle of [
   "Graph awaiting live upgrade.",
@@ -162,6 +179,25 @@ for (const bannedVisibleCopy of [
   "realtime lane fell back to polled data",
 ]) {
   requireNotIncludes(operationsTab + livePulseModel, bannedVisibleCopy, "Admin Analytics visible module copy");
+}
+
+for (const bannedSourceNeedle of [
+  'feedStatus: "polled"',
+  'feedStatus === "polled"',
+  '"api_polling"',
+  "polled_admin_analytics_realtime",
+  "fell back to polled data",
+]) {
+  requireNotIncludes(stateHook + livePulseModel + realtimeRoute, bannedSourceNeedle, "Admin Analytics snapshot-first realtime policy");
+}
+
+for (const snapshotLaneNeedle of [
+  'feedStatus: "snapshot"',
+  'feedStatus === "snapshot"',
+  "snapshot_first_route",
+  "verified_snapshot",
+]) {
+  requireIncludes(stateHook + livePulseModel, snapshotLaneNeedle, "Admin Analytics snapshot-first realtime policy");
 }
 
 if (!/realtimeBlocksFirstRender"\s*:\s*false/.test(auditReport)) {

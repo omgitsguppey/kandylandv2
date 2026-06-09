@@ -13,12 +13,25 @@ export type AdminHotCacheSnapshotId =
   | "admin_runtime_snapshot";
 
 export type AdminHotCacheFreshnessState =
-  | "fresh"
+  | "cached"
   | "refreshing"
-  | "stale"
+  | "refresh_due"
   | "missing"
   | "failed"
+  | "expired"
+  | "review"
   | "disabled";
+
+export type AdminDataStatus =
+  | "live"
+  | "cached"
+  | "refresh_due"
+  | "refreshing"
+  | "delayed"
+  | "unavailable"
+  | "failed"
+  | "expired"
+  | "review";
 
 export type AdminHotCacheSourceTruth =
   | "hot_cache"
@@ -186,10 +199,24 @@ export function classifyAdminHotCacheFreshness(input: {
   ttlSeconds?: number;
   failed?: boolean;
   disabled?: boolean;
+  expired?: boolean;
+  review?: boolean;
 }): AdminHotCacheFreshnessState {
   if (input.disabled) return "disabled";
   if (input.failed) return "failed";
+  if (input.expired) return "expired";
+  if (input.review) return "review";
   if (!input.generatedAtMs || !Number.isFinite(input.generatedAtMs)) return "missing";
   const ttlMs = (input.ttlSeconds ?? ADMIN_HOT_CACHE_TTL_SECONDS) * 1000;
-  return input.nowMs - input.generatedAtMs > ttlMs ? "stale" : "fresh";
+  return input.nowMs - input.generatedAtMs > ttlMs ? "refresh_due" : "cached";
+}
+
+export function mapAdminHotCacheFreshnessToStatus(state: AdminHotCacheFreshnessState): AdminDataStatus {
+  if (state === "cached") return "cached";
+  if (state === "refresh_due") return "refresh_due";
+  if (state === "refreshing") return "refreshing";
+  if (state === "failed") return "failed";
+  if (state === "expired") return "expired";
+  if (state === "review") return "review";
+  return "unavailable";
 }

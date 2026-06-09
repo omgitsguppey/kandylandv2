@@ -387,7 +387,7 @@ describe("GET /api/admin/analytics/realtime", () => {
         expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
     });
 
-    it("serves stale realtime hot cache truthfully instead of blocking on cold reads", async () => {
+    it("serves refresh-due realtime hot cache truthfully instead of blocking on cold reads", async () => {
         const generatedAtMs = Date.now() - 10 * 60_000;
         mockState.collections.set("analytics_aggregate_stats", [
             {
@@ -419,21 +419,21 @@ describe("GET /api/admin/analytics/realtime", () => {
         expect(payload).toMatchObject({
             success: true,
             generatedAtMs,
-            cacheState: "stale",
+            cacheState: "refresh_due",
             cacheSourceLabel: "analytics_aggregate_stats/realtime_summary:fallback_live_pulse_evidence",
             totalActive: 4,
             deepTrackerActive: 3,
-            liveTruthLabel: "stale",
-            activeUsersTruthLabel: "stale",
+            liveTruthLabel: "cached",
+            activeUsersTruthLabel: "cached",
             guestAnalyticsSnapshot: {
-                guestTruthState: "stale",
+                guestTruthState: "refresh_due",
                 guestSamplesAvailable: true,
                 guestBatchCount: 2,
             },
         });
         expect(payload.issues).toContain("Using legacy realtime_summary fallback evidence because canonical admin metric snapshot is unavailable.");
-        expect(payload.issues).toContain("Serving stale admin realtime analytics hot cache while the scheduled materializer catches up.");
-        expect(payload.verification.status).toBe("stale");
+        expect(payload.issues).toContain("Serving refresh-due admin realtime analytics hot cache while the scheduled materializer catches up.");
+        expect(payload.verification.status).toBe("cached");
         expect(payload.verification.fallbackSource).toBe("analytics_aggregate_stats/realtime_summary");
         expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
     });
@@ -524,7 +524,7 @@ describe("GET /api/admin/analytics/realtime", () => {
         expect(mockState.handleApiError).not.toHaveBeenCalled();
     });
 
-    it("labels stale canonical snapshots as stale cache instead of live", async () => {
+    it("labels refresh-due canonical snapshots as cached truth instead of stale failure", async () => {
         const generatedAtMs = Date.now() - 40 * 60_000;
         mockState.collections.set("analytics_admin_metric_snapshots", [
             {
@@ -543,11 +543,12 @@ describe("GET /api/admin/analytics/realtime", () => {
 
         expect(response.status).toBe(200);
         expect(payload.cacheSourceLabel).toBe("analytics_admin_metric_snapshots/live_pulse:24h");
-        expect(payload.liveTruthLabel).toBe("stale");
-        expect(payload.activeUsersTruthLabel).toBe("stale");
-        expect(payload.staleButVerified).toBe(true);
-        expect(payload.verification.status).toBe("stale");
-        expect(payload.issues).toContain("Serving stale canonical admin metric snapshot; realtime_summary remains fallback evidence only.");
+        expect(payload.cacheState).toBe("refresh_due");
+        expect(payload.liveTruthLabel).toBe("cached");
+        expect(payload.activeUsersTruthLabel).toBe("cached");
+        expect(payload.staleButVerified).toBe(false);
+        expect(payload.verification.status).toBe("cached");
+        expect(payload.issues).toContain("Serving refresh-due canonical admin metric snapshot; realtime_summary remains fallback evidence only.");
         expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
     });
 });

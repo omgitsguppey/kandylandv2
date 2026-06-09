@@ -9,6 +9,7 @@ import {
   normalizeAdminMetricSnapshotRange,
 } from "@/lib/analytics/admin-metric-snapshot";
 import {
+  canRunAdminAnalyticsDefaultRefresh,
   getAdminAnalyticsMaterializer,
   isAdminAnalyticsSnapshotModuleKey,
   materializeAdminAnalyticsSnapshot,
@@ -115,6 +116,9 @@ async function GET_handler(request: NextRequest) {
           parityChecksRequired: materializer.parityChecksRequired,
           legacySupportStatus: materializer.legacySupportStatus,
           currentImplementationStatus: materializer.currentImplementationStatus,
+          defaultAdminAnalyticsCoverage: materializer.defaultAdminAnalyticsCoverage,
+          canRunDefaultRefresh: materializer.canRunDefaultRefresh,
+          unavailableReason: materializer.unavailableReason,
         }
         : null,
     });
@@ -143,6 +147,28 @@ async function POST_handler(request: NextRequest) {
     const parsed = readModuleAndRange(request, body);
     if (!parsed.ok) {
       return parsed.response;
+    }
+
+    const materializer = getAdminAnalyticsMaterializer(parsed.moduleKey);
+    if (!materializer || !canRunAdminAnalyticsDefaultRefresh(materializer)) {
+      return adminAnalyticsJson({
+        success: false,
+        code: "materializer_not_promoted",
+        error: `${materializer?.label ?? parsed.moduleKey} is not promoted to a verified Admin Analytics snapshot materializer.`,
+        moduleKey: parsed.moduleKey,
+        rangeKey: parsed.rangeKey,
+        refreshStatus: "unavailable",
+        materializer: materializer
+          ? {
+            moduleKey: materializer.moduleKey,
+            currentImplementationStatus: materializer.currentImplementationStatus,
+            defaultAdminAnalyticsCoverage: materializer.defaultAdminAnalyticsCoverage,
+            canRunDefaultRefresh: materializer.canRunDefaultRefresh,
+            unavailableReason: materializer.unavailableReason,
+          }
+          : null,
+        nextAction: materializer?.unavailableReason ?? "Register a verified snapshot materializer before enabling default Admin Analytics refresh.",
+      }, { status: 409 });
     }
 
     const force = body.force === true;

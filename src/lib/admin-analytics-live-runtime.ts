@@ -10,7 +10,7 @@ export const ADMIN_ANALYTICS_REALTIME_SCOPE = ADMIN_ANALYTICS_REALTIME_POLICY.me
 export type AdminAnalyticsLiveFeedStatus =
   | "realtime"
   | "partial"
-  | "polled"
+  | "snapshot"
   | "failed";
 
 export type AdminAnalyticsLiveActor = RealtimeActiveUserItem & {
@@ -526,19 +526,19 @@ export function buildAdminAnalyticsLiveSignals(input: {
 
   const issues: string[] = [];
   if (listenerState.eventFactsFailed) {
-    issues.push("Identified event realtime lane fell back to polled data.");
+    issues.push("Identified event realtime lane fell back to the hot-cache snapshot.");
   }
   if (listenerState.guestBatchesFailed) {
-    issues.push("Guest batch realtime lane fell back to polled data.");
+    issues.push("Guest batch realtime lane fell back to the hot-cache snapshot.");
   }
   if (listenerState.guestSessionsFailed) {
-    issues.push("Guest session realtime lane fell back to polled data.");
+    issues.push("Guest session realtime lane fell back to the hot-cache snapshot.");
   }
   if (listenerState.watchSessionsFailed) {
-    issues.push("Viewer watch-session realtime lane fell back to polled data.");
+    issues.push("Viewer watch-session realtime lane fell back to the hot-cache snapshot.");
   }
 
-  let feedStatus: AdminAnalyticsLiveFeedStatus = "polled";
+  let feedStatus: AdminAnalyticsLiveFeedStatus = "snapshot";
   let feedDetail =
     "Realtime analytics observers have not loaded yet. Showing the hot-cache admin snapshot for business totals.";
 
@@ -574,22 +574,22 @@ export function buildAdminAnalyticsLiveSignals(input: {
     liveTruthLabel:
       feedStatus === "failed"
         ? "failed"
-        : feedStatus === "polled"
+        : feedStatus === "snapshot"
           ? "fallback"
           : "live",
     liveSourceLabel:
       feedStatus === "failed"
-        ? "polled_admin_analytics_realtime"
+        ? "admin_analytics_hot_cache_snapshot"
         : "analytics_event_facts + analytics_guest_batches + analytics_sessions + analytics_watch_sessions",
     activeUsersTruthLabel:
       feedStatus === "failed"
         ? "failed"
-        : feedStatus === "polled"
+        : feedStatus === "snapshot"
           ? "fallback"
           : "live",
     activeUsersSourceLabel:
       feedStatus === "failed"
-        ? "polled_admin_analytics_realtime"
+        ? "admin_analytics_hot_cache_snapshot"
         : "analytics_event_facts + analytics_guest_batches + analytics_sessions + analytics_watch_sessions",
   };
 }

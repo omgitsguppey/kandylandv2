@@ -6,6 +6,10 @@ import {
   resolveAdminAnalyticsOverviewMetricState,
 } from "@/lib/analytics/admin-analytics-display-state";
 import {
+  classifyAdminHotCacheFreshness,
+  mapAdminHotCacheFreshnessToStatus,
+} from "@/lib/admin/admin-hot-cache-contract";
+import {
   normalizeAdminSnapshotRatio,
   readAdminSnapshotNumberValue,
   resolveAdminAnalyticsWaitingCopy,
@@ -193,7 +197,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
 
   it("formats source evidence labels without promoting vendor or recovery evidence", () => {
     expect(formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot")).toBe("Verified snapshot");
-    expect(formatAdminAnalyticsEvidenceSourceLabel("stale_cache")).toBe("Stale verified snapshot");
+    expect(formatAdminAnalyticsEvidenceSourceLabel("stale_cache")).toBe("Verified snapshot, refresh due");
     expect(formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence")).toBe("Estimated from vendor analytics");
     expect(formatAdminAnalyticsEvidenceSourceLabel("debug_only")).toBe("Debug-only recovery evidence");
     expect(formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only")).toBe("Needs review before promotion");
@@ -231,5 +235,61 @@ describe("resolveAdminAnalyticsDisplayState", () => {
 
     expect(state.displayState).toBe("unavailable");
     expect(state.exactness).toBe("unavailable");
+  });
+
+  it("treats one-hour-old verified hot cache as cached instead of stale truth", () => {
+    const nowMs = Date.parse("2026-06-08T12:00:00.000Z");
+    const oneHourOldMs = nowMs - 60 * 60 * 1000;
+
+    const state = classifyAdminHotCacheFreshness({
+      generatedAtMs: oneHourOldMs,
+      nowMs,
+    });
+
+    expect(state).toBe("cached");
+    expect(mapAdminHotCacheFreshnessToStatus(state)).toBe("cached");
+  });
+
+  it("maps refresh-due snapshots to cached truth with refresh guidance", () => {
+    const state = resolveAdminAnalyticsDisplayState({
+      latestVerifiedSnapshot: {
+        exists: true,
+        sourceMode: "stale_cache",
+        truthState: "verified",
+        lastVerifiedAt: "2026-06-08T10:30:00.000Z",
+        hasValues: true,
+      },
+      moduleConfig: {
+        moduleKey: "live_pulse",
+        title: "Live Pulse",
+        metricValue: 12,
+      },
+    });
+
+    expect(state.sourceMode).toBe("stale_cache");
+    expect(state.truthState).toBe("verified");
+    expect(state.visibleMessage).toBe("Showing last verified data.");
+  });
+
+  it("does not promote refresh-due cache metadata to stale truth", () => {
+    const state = resolveAdminAnalyticsDisplayState({
+      latestVerifiedSnapshot: {
+        exists: true,
+        sourceMode: "stale_cache",
+        truthState: "stale",
+        stale: true,
+        lastVerifiedAt: "2026-06-08T10:30:00.000Z",
+        hasValues: true,
+      },
+      moduleConfig: {
+        moduleKey: "audience_snapshot",
+        title: "Audience Snapshot",
+        metricValue: 481,
+      },
+    });
+
+    expect(state.sourceMode).toBe("stale_cache");
+    expect(state.truthState).toBe("verified");
+    expect(state.visibleMessage).toBe("Showing last verified data.");
   });
 });

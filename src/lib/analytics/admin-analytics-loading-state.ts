@@ -48,11 +48,11 @@ export function resolveAdminSnapshotSurfaceState(
   }
 
   if (displaySnapshot.truthState === "verified") {
-    return displaySnapshot.sourceMode === "stale_cache" ? "stale" : "cached";
+    return "cached";
   }
 
   if (displaySnapshot.truthState === "stale") {
-    return "stale";
+    return "cached";
   }
 
   if (displaySnapshot.truthState === "partial" || displaySnapshot.sourceMode === "mixed") {

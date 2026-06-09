@@ -29,4 +29,22 @@ describe("admin realtime to hot-cache migration", () => {
     expect(exception?.reason).toContain("Operator live debug");
     expect(exception?.maxQuerySize).toBeGreaterThan(0);
   });
+
+  it("keeps admin analytics metric polling disabled by default", () => {
+    const analyticsStateHook = readFileSync(
+      join(process.cwd(), "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
+      "utf-8",
+    );
+
+    expect(analyticsStateHook).toContain("ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS = 0");
+    expect(analyticsStateHook).toContain(
+      "useAdminPollingSWR<RealtimeAnalyticsResponse>(\n    \"/api/admin/analytics/realtime\",\n    ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+    );
+    expect(analyticsStateHook).toContain(
+      "useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+    );
+    expect(analyticsStateHook).toContain(
+      "useAdminPollingSWR<AdminOverviewResponse>(\"/api/admin/overview\", ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+    );
+  });
 });

@@ -22,8 +22,10 @@ import { buildHistoricalEngagementAnalytics } from "@/lib/server/admin-analytics
 import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-historical-onboarding";
 import { buildHistoricalTaskAnalytics } from "@/lib/server/admin-analytics-historical-tasks";
 import { buildHistoricalTrafficOverview } from "@/lib/server/admin-analytics-historical-traffic";
-import { buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
-import { buildDataValidationPanelState } from "@/lib/server/admin-analytics-historical-validation";
+import {
+    buildDataValidationPanelState,
+    buildHistoricalValidationSummary,
+} from "@/lib/server/admin-analytics-historical-validation";
 import { buildHistoricalViewerOverview } from "@/lib/server/admin-analytics-historical-viewer";
 import { buildHistoricalAnalyticsUserMap } from "@/lib/server/admin-analytics-historical-users";
 import { readPlatformEconomyPackages } from "@/lib/server/platform-economy";
@@ -557,11 +559,11 @@ function buildHistoricalSnapshotAuthorityPayload(
         return null;
     }
 
-    const stale = sourceMode === "stale_cache";
+    const refreshDue = sourceMode === "stale_cache";
     const sourceLabel = `${ADMIN_ANALYTICS_HISTORICAL_CANONICAL_SNAPSHOT_SOURCE}/${target.moduleKey}:${target.rangeKey}`;
     const issues = [
-        stale
-            ? "Serving stale canonical admin metric snapshot; raw analytics collections remain debug-only."
+        refreshDue
+            ? "Serving refresh-due canonical admin metric snapshot; raw analytics collections remain debug-only."
             : null,
         ...snapshot.warnings.map((warning) => warning.message),
     ].filter((issue): issue is string => Boolean(issue));
@@ -569,10 +571,10 @@ function buildHistoricalSnapshotAuthorityPayload(
     return {
         success: true,
         generatedAtMs: Number.isFinite(generatedAtMs) ? generatedAtMs : Date.now(),
-        cacheState: stale ? "stale" : "fresh",
+        cacheState: refreshDue ? "refresh_due" : "fresh",
         cacheAgeMs: Number.isFinite(freshnessTimestamp) ? Math.max(0, Date.now() - freshnessTimestamp) : undefined,
         cacheSourceLabel: sourceLabel,
-        staleButVerified: stale,
+        staleButVerified: false,
         cacheValidationIssues: [],
         cacheRevalidating: false,
         retainedBeyondStaleTtl: false,
@@ -582,8 +584,8 @@ function buildHistoricalSnapshotAuthorityPayload(
             canonicalSource: ADMIN_ANALYTICS_HISTORICAL_CANONICAL_SNAPSHOT_SOURCE,
             fallbackSource: null,
             freshnessTimestamp: Number.isFinite(freshnessTimestamp) ? freshnessTimestamp : null,
-            status: stale ? "stale" : "cached",
-            degradedReason: stale ? "Canonical admin metric snapshot is stale." : null,
+            status: "cached",
+            degradedReason: refreshDue ? "Canonical admin metric snapshot is refresh due." : null,
             countComposition: {
                 snapshotAvailable: 1,
                 rawDisplayFallbackUsed: 0,
@@ -673,30 +675,37 @@ async function readHistoricalSnapshotAuthorityPayload(
 function annotateHistoricalCacheState(
     result: StaleWhileRevalidateCacheResult<HistoricalAnalyticsResponse>,
 ) {
+    const refreshDueCache = result.cacheFreshnessState === "refresh_due_cache";
+    const expiredCache = result.cacheFreshnessState === "expired_cache";
+    const responseCacheState = refreshDueCache || expiredCache ? "refresh_due" : result.cacheStatus;
     const cacheSourceLabel =
-        result.cacheStatus === "stale"
-            ? "Stale validated backend cache; async refresh in progress"
-            : result.cacheStatus === "fresh"
+        refreshDueCache
+            ? "Refresh-due validated backend cache; async refresh in progress"
+            : expiredCache
+                ? "Expired backend cache retained for display while async refresh runs"
+                : result.cacheStatus === "fresh"
                 ? "Validated backend cache"
                 : "Fresh backend computation";
-    const cacheIssue = result.cacheStatus === "stale"
-        ? "Serving stale validated historical analytics cache while backend refresh runs."
+    const cacheIssue = expiredCache
+        ? "Serving expired historical analytics cache outside the normal evidence window while backend refresh runs."
+        : refreshDueCache
+        ? "Serving refresh-due validated historical analytics cache while backend refresh runs."
         : null;
 
     const annotated = {
         ...result.value,
         generatedAtUtc: toUtcIsoOrNull(result.value.generatedAtMs ?? 0) ?? new Date().toISOString(),
-        cacheState: result.cacheStatus,
+        cacheState: responseCacheState,
         cacheAgeMs: result.cacheAgeMs,
-        sourceFreshness: result.cacheStatus === "stale"
-            ? "stale_known"
+        sourceFreshness: refreshDueCache || expiredCache
+            ? "refresh_due_known"
             : result.cacheStatus === "fresh"
                 ? "cached_known"
                 : "fresh_computation",
         cacheSourceLabel,
         cacheValidationIssues: result.validationIssues,
         cacheRevalidating: result.revalidating,
-        staleButVerified: result.staleButVerified,
+        staleButVerified: false,
         retainedBeyondStaleTtl: result.retainedBeyondStaleTtl,
         issues: [
             ...(result.value.issues ?? []),
@@ -706,7 +715,7 @@ function annotateHistoricalCacheState(
     };
 
     return annotated as HistoricalAnalyticsResponse & {
-        sourceFreshness: "stale_known" | "cached_known" | "fresh_computation";
+        sourceFreshness: "refresh_due_known" | "cached_known" | "fresh_computation";
     };
 }
 

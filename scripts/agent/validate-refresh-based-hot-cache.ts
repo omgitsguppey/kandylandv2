@@ -126,7 +126,8 @@ requireIncludes(routeCache, "staleButVerified: true", "Route cache stale-but-ver
 requireNotIncludes(routeCache, "staleRouteCache.delete(input.key);\n  }\n\n  const loaded", "Route cache must not delete stale verified payloads before refresh");
 requireIncludes(historicalRoute, "staleButVerified", "Historical route exposes stale-but-verified metadata");
 requireIncludes(analyticsData, "safeQueryWithDiagnostics", "Historical loader uses partial-safe query wrappers");
-requireIncludes(analyticsData, "safeRunReport", "Historical loader uses partial-safe GA wrappers");
+requireIncludes(analyticsData, "runVendorReportWhenAllowed", "Historical loader uses guarded GA evidence wrappers");
+requireIncludes(analyticsData, "allowGa4VendorReports", "Historical loader uses guarded GA evidence wrappers");
 requireIncludes(realtimeRoute, "readThroughEphemeralRouteCache", "Realtime route uses hot route cache");
 
 for (const debugField of [

@@ -31,7 +31,7 @@ export type AdminAnalyticsDisplaySnapshotState = {
 };
 
 export type AdminAnalyticsDisplayRealtimeState = {
-  status?: "live" | "realtime" | "partial" | "polled" | "failed" | "waiting" | string | null;
+  status?: "live" | "realtime" | "partial" | "snapshot" | "failed" | "waiting" | string | null;
   hasData?: boolean | null;
   sourceMode?: AdminMetricSnapshotSourceMode | null;
   truthState?: AdminMetricSnapshotTruthState | null;
@@ -75,7 +75,7 @@ export type AdminAnalyticsDisplayState = {
 
 export type AdminAnalyticsOverviewDisplayState =
   | "ready"
-  | "stale"
+  | "refresh_due"
   | "partial"
   | "unavailable"
   | "loading";
@@ -111,7 +111,7 @@ export function resolveAdminAnalyticsOverviewMetricState(input: {
 
   if (input.truthState === "stale") {
     return {
-      displayState: "stale",
+      displayState: "refresh_due",
       exactness: input.sourceTruth === "server_transactions" ? "derived" : "exact",
     };
   }
@@ -150,7 +150,7 @@ export function formatAdminAnalyticsEvidenceSourceLabel(
     case "intraday":
       return "Verified snapshot";
     case "stale_cache":
-      return "Stale verified snapshot";
+      return "Verified snapshot, refresh due";
     case "estimated":
     case "vendor_evidence":
       return "Estimated from vendor analytics";
@@ -199,11 +199,17 @@ function normalizeSnapshotTruthState(
   if (refreshRunning) {
     return "refreshing";
   }
+  if (
+    snapshot.truthState === "stale" &&
+    (snapshot.sourceMode === "stale_cache" || snapshot.stale === true)
+  ) {
+    return "verified";
+  }
   if (snapshot.truthState && snapshot.truthState !== "unavailable") {
     return snapshot.truthState;
   }
   if (snapshot.stale === true || snapshot.sourceMode === "stale_cache") {
-    return "stale";
+    return "verified";
   }
   return "verified";
 }
@@ -214,7 +220,7 @@ function normalizeRealtimeSourceMode(
   if (realtimeState.sourceMode) {
     return realtimeState.sourceMode;
   }
-  return realtimeState.status === "polled" ? "fallback" : "live";
+  return realtimeState.status === "snapshot" ? "fallback" : "live";
 }
 
 function metricNeedsFakeZeroPrevention(input: {

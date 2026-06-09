@@ -315,7 +315,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   activeUsers: RealtimeActiveUserItem[];
   surfaceMix: SurfaceMixItem[];
   liveSeries: Array<RealtimePoint & { label: string }>;
-  feedStatus: "realtime" | "partial" | "polled" | "failed";
+  feedStatus: "realtime" | "partial" | "snapshot" | "failed";
   feedDetail: string;
   truthState: AdminSurfaceState;
   activeUsersTruthState: AdminSurfaceState;
@@ -351,7 +351,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
         : "firestore_realtime"
       : input.feedStatus === "partial"
         ? "firestore_realtime"
-        : input.feedStatus === "polled"
+        : input.feedStatus === "snapshot"
           ? "backend_snapshot"
           : input.liveLoading
             ? "waiting"
@@ -405,7 +405,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   const hasServerConfirmation = Object.values(input.listenerDebugMeta?.listeners ?? {}).some(
     (entry) => entry.lastServerConfirmedAtMs !== null,
   );
-  const visibleCopy = input.displayState?.visibleMessage ?? (input.feedStatus === "polled"
+  const visibleCopy = input.displayState?.visibleMessage ?? (input.feedStatus === "snapshot"
     ? "Showing last verified snapshot."
     : input.feedStatus === "failed"
       ? "No verified snapshot yet."
@@ -432,7 +432,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   const mode: AdminAnalyticsLivePulseModel["mode"] =
     input.feedStatus === "failed" && !snapshotDisplayActive
       ? "unavailable"
-      : snapshotDisplayActive && (input.displayState?.sourceMode === "stale_cache" || input.feedStatus === "polled")
+      : snapshotDisplayActive && (input.displayState?.sourceMode === "stale_cache" || input.feedStatus === "snapshot")
         ? "delayed_snapshot"
         : snapshotDisplayActive
           ? "snapshot"
@@ -533,7 +533,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
         ? firestoreFromCache ? "cache" : "live"
         : input.feedStatus === "partial"
           ? "partial"
-          : input.feedStatus === "polled"
+          : input.feedStatus === "snapshot"
             ? "fallback"
             : input.liveLoading
               ? "waiting"
@@ -543,7 +543,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     reconnectReestablishesOnDisconnect: "unknown",
     firestoreFromCache,
     includeMetadataChanges: true,
-    backendSnapshotStatus: snapshotDisplayActive || input.feedStatus === "polled" ? "available" : input.liveLoading ? "waiting" : "not_used",
+    backendSnapshotStatus: snapshotDisplayActive || input.feedStatus === "snapshot" ? "available" : input.liveLoading ? "waiting" : "not_used",
     gaIntradayStatus: "not_primary_for_presence",
     graphSource,
     graphPoints,
@@ -568,12 +568,12 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     visibleCopy,
     displayStatePolicyApplied: true,
     pureRealtimeDependencyRemoved: true,
-    primaryDisplaySource: input.displayState?.visibleValueSource ?? (input.feedStatus === "polled" ? "verified_snapshot" : hasPresenceRows ? "realtime_upgrade" : "unavailable"),
+    primaryDisplaySource: input.displayState?.visibleValueSource ?? (input.feedStatus === "snapshot" ? "verified_snapshot" : hasPresenceRows ? "realtime_upgrade" : "unavailable"),
     latestVerifiedSnapshotExists: snapshotDisplayActive,
     latestVerifiedSnapshotAgeMs: input.latestVerifiedSnapshotAgeMs ?? null,
     realtimeListenerState: input.feedStatus,
     realtimeBlocksFirstRender: false,
-    fallbackSnapshotUsed: snapshotDisplayActive || input.feedStatus === "polled",
+    fallbackSnapshotUsed: snapshotDisplayActive || input.feedStatus === "snapshot",
     refreshStatus: input.refreshStatus ?? (input.liveLoading ? "refreshing" : "idle"),
     unavailableReason: input.displayState?.shouldShowUnavailable ? input.displayState.debugReason : null,
     laneFailures,

@@ -103,11 +103,13 @@ describe("/api/admin/analytics/refresh", () => {
       metadata: { moduleKey: "commerce_snapshot", rangeKey: "30d" },
       materializer: {
         moduleKey: "commerce_snapshot",
+        currentImplementationStatus: "manual_refresh_only",
+        canRunDefaultRefresh: false,
       },
     });
   });
 
-  it("runs a materializer and returns refresh metadata on POST", async () => {
+  it("refuses to run non-promoted placeholder materializers as completed live coverage", async () => {
     const request = new NextRequest("http://localhost/api/admin/analytics/refresh", {
       method: "POST",
       body: JSON.stringify({
@@ -122,7 +124,7 @@ describe("/api/admin/analytics/refresh", () => {
     const response = await POST(request);
     const payload = await response.json();
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(409);
     expect(mockState.guardApiRequest).toHaveBeenCalledWith(
       request,
       expect.objectContaining({
@@ -131,14 +133,21 @@ describe("/api/admin/analytics/refresh", () => {
         routeName: "admin/analytics/refresh",
       }),
     );
-    expect(payload.success).toBe(true);
-    expect(payload.refreshStatus).toBe("completed");
-    expect(payload.snapshot.truthState).toBe("unavailable");
-    expect(payload.snapshot.unavailableReason).toContain("Commerce Snapshot requires payment/internal parity");
-    expect(payload.metadata).toMatchObject({
+    expect(mockState.markSnapshotRefreshStarted).not.toHaveBeenCalled();
+    expect(mockState.runSnapshotRefreshWithDedupe).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshCompleted).not.toHaveBeenCalled();
+    expect(payload).toMatchObject({
+      success: false,
+      code: "materializer_not_promoted",
       moduleKey: "commerce_snapshot",
       rangeKey: "30d",
+      refreshStatus: "unavailable",
+      materializer: {
+        currentImplementationStatus: "manual_refresh_only",
+        canRunDefaultRefresh: false,
+      },
     });
+    expect(payload.nextAction).toContain("Commerce Snapshot requires payment/internal parity");
   });
 
   it("returns 413 payload_too_large before parsing an oversized POST body", async () => {
@@ -171,15 +180,11 @@ describe("/api/admin/analytics/refresh", () => {
     }));
     const payload = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(payload.success).toBe(true);
+    expect(response.status).toBe(409);
+    expect(payload.success).toBe(false);
     expect(payload.moduleKey).toBe("commerce_snapshot");
     expect(payload.rangeKey).toBe("30d");
-    expect(mockState.markSnapshotRefreshStarted).toHaveBeenCalledWith(expect.objectContaining({
-      moduleKey: "commerce_snapshot",
-      rangeKey: "30d",
-      force: false,
-    }));
+    expect(mockState.markSnapshotRefreshStarted).not.toHaveBeenCalled();
   });
 
   it("returns 400 invalid_json for malformed JSON", async () => {
@@ -201,7 +206,7 @@ describe("/api/admin/analytics/refresh", () => {
     expect(mockState.markSnapshotRefreshStarted).not.toHaveBeenCalled();
   });
 
-  it("prevents duplicate refresh storms and returns existing metadata", async () => {
+  it("does not enter duplicate-refresh handling for non-promoted modules", async () => {
     const existing = createUnavailableAdminMetricSnapshot({
       moduleKey: "event_mix",
       rangeKey: "7d",
@@ -232,14 +237,23 @@ describe("/api/admin/analytics/refresh", () => {
     const response = await POST(request);
     const payload = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(payload.refreshStatus).toBe("duplicate_prevented");
-    expect(payload.duplicateRefreshPrevented).toBe(true);
-    expect(payload.snapshot.moduleKey).toBe("event_mix");
+    expect(response.status).toBe(409);
+    expect(payload).toMatchObject({
+      success: false,
+      code: "materializer_not_promoted",
+      moduleKey: "event_mix",
+      rangeKey: "7d",
+      refreshStatus: "unavailable",
+      materializer: {
+        currentImplementationStatus: "manual_refresh_only",
+        canRunDefaultRefresh: false,
+      },
+    });
+    expect(mockState.markSnapshotRefreshStarted).not.toHaveBeenCalled();
     expect(mockState.runSnapshotRefreshWithDedupe).not.toHaveBeenCalled();
   });
 
-  it("returns stale snapshot metadata when manual refresh fails", async () => {
+  it("does not record failed-refresh metadata for non-promoted modules", async () => {
     const existing = createUnavailableAdminMetricSnapshot({
       moduleKey: "commerce_snapshot",
       rangeKey: "30d",
@@ -266,11 +280,13 @@ describe("/api/admin/analytics/refresh", () => {
     const response = await POST(request);
     const payload = await response.json();
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(409);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(payload.success).toBe(false);
-    expect(payload.refreshStatus).toBe("failed");
-    expect(payload.snapshot.moduleKey).toBe("commerce_snapshot");
-    expect(payload.error).toBe("source timeout");
+    expect(payload.refreshStatus).toBe("unavailable");
+    expect(payload.code).toBe("materializer_not_promoted");
+    expect(mockState.markSnapshotRefreshStarted).not.toHaveBeenCalled();
+    expect(mockState.runSnapshotRefreshWithDedupe).not.toHaveBeenCalled();
+    expect(mockState.markSnapshotRefreshFailed).not.toHaveBeenCalled();
   });
 });

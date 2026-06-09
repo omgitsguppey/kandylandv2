@@ -116,6 +116,7 @@ const ADMIN_ANALYTICS_OVERVIEW_SNAPSHOT_STORAGE_PREFIX =
 const EMPTY_TASK_LEADERBOARD: TaskLeaderboardItem[] = [];
 const ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST =
   "ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST";
+const ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS = 0;
 const ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_DETAIL =
   "Raw Firestore realtime listeners are disabled for compact Admin Analytics display; using the snapshot-first realtime route and Admin Debug raw evidence instead.";
 const ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_SOURCE_LABEL =
@@ -199,6 +200,12 @@ const EMPTY_ANALYTICS_OVERVIEW_HYDRATION_MARKS: AnalyticsOverviewHydrationMarks 
   backendRefreshFailMs: null,
 };
 
+type StoredHistoricalOverviewSnapshot = {
+  appVersion: typeof ADMIN_ANALYTICS_STORAGE_VERSION;
+  savedAtMs: number;
+  response?: HistoricalAnalyticsResponse;
+};
+
 const ANALYTICS_OVERVIEW_BADGE_LABELS: Record<AdminSurfaceState, string> = {
   loading: "WAIT",
   live: "LIVE",
@@ -228,7 +235,7 @@ const SNAPSHOT_SECTION_KEYS = new Set<string>([
 const SNAPSHOT_SOURCE_LABELS: Record<string, string> = {
   live: "LIVE",
   verified_cache: "SNAP",
-  stale_cache: "DELAYED",
+  stale_cache: "REFRESH",
   intraday: "UPDATED",
   estimated: "EST",
   fallback: "SNAP",
@@ -325,7 +332,7 @@ function buildSnapshotFirstRealtimeState(input: {
   }
 
   return {
-    feedStatus: "polled",
+    feedStatus: "snapshot",
     feedDetail: ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_DETAIL,
     generatedAtMs: input.liveResponse.generatedAtMs ?? null,
     totalActive: input.liveResponse.totalActive ?? 0,
@@ -445,7 +452,7 @@ function compactHistoricalOverviewSnapshot(
   return {
     success: response.success,
     generatedAtMs: response.generatedAtMs,
-    cacheState: "stale",
+    cacheState: "refresh_due",
     cacheAgeMs: response.generatedAtMs
       ? Math.max(0, Date.now() - response.generatedAtMs)
       : response.cacheAgeMs,
@@ -473,8 +480,11 @@ function readStoredHistoricalOverviewSnapshot(
       return undefined;
     }
 
-    const parsed = JSON.parse(raw) as { response?: HistoricalAnalyticsResponse };
-    if (!hasOverviewSnapshotValue(parsed.response)) {
+    const parsed = JSON.parse(raw) as Partial<StoredHistoricalOverviewSnapshot>;
+    if (
+      parsed.appVersion !== ADMIN_ANALYTICS_STORAGE_VERSION ||
+      !hasOverviewSnapshotValue(parsed.response)
+    ) {
       return undefined;
     }
 
@@ -499,6 +509,7 @@ function writeStoredHistoricalOverviewSnapshot(
     window.sessionStorage.setItem(
       buildOverviewSnapshotStorageKey(url),
       JSON.stringify({
+        appVersion: ADMIN_ANALYTICS_STORAGE_VERSION,
         savedAtMs: Date.now(),
         response: compactHistoricalOverviewSnapshot(response as HistoricalAnalyticsResponse),
       }),
@@ -513,7 +524,7 @@ function writeStoredHistoricalOverviewSnapshot(
 function resolveRealtimeBackendSnapshotSourceMode(
   response: RealtimeAnalyticsResponse,
 ): AdminAnalyticsDisplaySnapshotState["sourceMode"] {
-  if (response.cacheState === "stale" || response.liveTruthLabel === "stale") {
+  if (response.cacheState === "refresh_due" || response.liveTruthLabel === "stale") {
     return "stale_cache";
   }
   if (response.liveTruthLabel === "fallback") {
@@ -539,13 +550,13 @@ function resolveLivePulseSnapshotState(input: {
     return {
       exists: true,
       sourceMode: resolveRealtimeBackendSnapshotSourceMode(input.liveResponse),
-      truthState: input.liveResponse.cacheState === "stale" || input.liveResponse.liveTruthLabel === "stale"
+      truthState: input.liveResponse.liveTruthLabel === "stale"
         ? "stale"
         : input.liveResponse.liveTruthLabel === "partial"
           ? "partial"
           : "verified",
       lastVerifiedAt: input.liveResponse.generatedAtMs,
-      stale: input.liveResponse.cacheState === "stale" || input.liveResponse.liveTruthLabel === "stale",
+      stale: input.liveResponse.liveTruthLabel === "stale",
       hasValues,
       sourceLabel: input.liveResponse.cacheSourceLabel ?? input.liveResponse.liveSourceLabel ?? "admin realtime hot cache",
     };
@@ -592,7 +603,7 @@ function mapDisplayStateToAdminSurfaceState(
   if (displayState.truthState === "refreshing") return "degraded";
   if (displayState.sourceMode === "live") return "live";
   if (displayState.sourceMode === "verified_cache") return "cached";
-  if (displayState.sourceMode === "stale_cache") return "stale";
+  if (displayState.sourceMode === "stale_cache") return "cached";
   if (displayState.sourceMode === "fallback") return "fallback";
   if (displayState.sourceMode === "mixed" || displayState.sourceMode === "intraday") return "degraded";
   return displayState.truthState === "partial" ? "degraded" : "cached";
@@ -877,7 +888,7 @@ const { user } = useAuth();
     isLoading: liveLoading,
   } = useAdminPollingSWR<RealtimeAnalyticsResponse>(
     "/api/admin/analytics/realtime",
-    30_000,
+    ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS,
     {
       keepPreviousData: true,
     },
@@ -887,12 +898,12 @@ const { user } = useAuth();
     data: historicalResponse,
     error: historicalError,
     isLoading: historicalLoading,
-  } = useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, 60_000, {
+  } = useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS, {
     keepPreviousData: true,
   });
   const {
     data: adminOverviewResponse,
-  } = useAdminPollingSWR<AdminOverviewResponse>("/api/admin/overview", 60_000, {
+  } = useAdminPollingSWR<AdminOverviewResponse>("/api/admin/overview", ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS, {
     keepPreviousData: true,
   });
 
@@ -1111,8 +1122,8 @@ const { user } = useAuth();
       if (liveRealtime.feedStatus === "failed" && liveResponse) {
         return {
           ...liveResponse,
-          liveTruthLabel: liveResponse.liveTruthLabel ?? "stale",
-          liveSourceLabel: liveResponse.cacheSourceLabel ?? liveResponse.liveSourceLabel ?? "api_polling",
+          liveTruthLabel: liveResponse.liveTruthLabel ?? "cached",
+          liveSourceLabel: liveResponse.cacheSourceLabel ?? liveResponse.liveSourceLabel ?? "snapshot_first_route",
           issues: [
             ...(liveResponse.issues ?? []),
             ...liveRealtime.issues,
@@ -1416,9 +1427,9 @@ const { user } = useAuth();
   // Honest truth state for historical-sourced overview cards (Revenue, Purchases, Mobile Share)
   const historicalTruthState: AdminSurfaceState | undefined =
     historicalOverviewResponse && historicalError
-      ? "stale"
-      : historicalOverviewResponse?.cacheState === "stale"
-        ? "stale"
+      ? "cached"
+      : historicalOverviewResponse?.cacheState === "refresh_due"
+        ? "cached"
       : historicalOverviewResponse?.truthState?.fail
         ? "failed"
         : historicalOverviewResponse?.truthState?.warn || historicalOverviewIssues.length > 0
@@ -1468,7 +1479,6 @@ const { user } = useAuth();
     historicalTruthState === "live" ? "live"
     : historicalTruthState === "cached" ? "cached"
     : historicalTruthState === "degraded" ? "degraded"
-    : historicalTruthState === "stale" ? "stale"
     : historicalTruthState === "failed" ? "failed"
     : historicalSnapshotSurfaceState
       ? historicalSnapshotSurfaceState
@@ -1527,7 +1537,7 @@ const { user } = useAuth();
                 : "live",
       truthState: resolvedHistoricalOverviewTruthState,
       sourceTruth:
-        historicalOverviewResponse.cacheState === "stale"
+        historicalOverviewResponse.cacheState === "refresh_due"
           ? "last_verified_snapshot"
           : "realtime_snapshot",
       freshnessState:
@@ -1595,7 +1605,7 @@ const { user } = useAuth();
                 : "live",
       truthState: resolvedHistoricalOverviewTruthState,
       sourceTruth:
-        historicalOverviewResponse.cacheState === "stale"
+        historicalOverviewResponse.cacheState === "refresh_due"
           ? "last_verified_snapshot"
           : "realtime_snapshot",
       freshnessState:
@@ -1720,7 +1730,7 @@ const { user } = useAuth();
         liveRealtime.data.some((point) => point.users > 0 || point.views > 0),
       sourceMode: liveRealtime.feedStatus === "realtime"
         ? "live"
-        : liveRealtime.feedStatus === "polled"
+        : liveRealtime.feedStatus === "snapshot"
           ? "fallback"
           : liveRealtime.feedStatus === "partial"
             ? "mixed"
@@ -1766,7 +1776,7 @@ const { user } = useAuth();
     mapDisplayStateToAdminSurfaceState(livePulseDisplayState);
   const livePulseFeedStatus =
     livePulseDisplayState.shouldRenderSnapshot && !livePulseDisplayState.shouldRenderRealtimeUpgrade
-      ? "polled"
+      ? "snapshot"
       : liveRealtime.feedStatus;
   const livePulseTruthStateForModel = mapDisplayStateToAdminSurfaceState(livePulseDisplayState);
   const livePulseGuestTraffic = historicalResponse?.guestTraffic;
@@ -1823,7 +1833,9 @@ const { user } = useAuth();
           : liveActiveDisplay,
       primaryValue: liveActivePrimaryValue,
       truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
-      sourceTruth: effectiveLiveResponse
+      sourceTruth: effectiveLiveResponse && (
+        liveRealtime.feedStatus === "realtime" || liveRealtime.feedStatus === "partial"
+      )
         ? "realtime_snapshot"
         : snapshotLiveActiveValue !== null
           ? "last_verified_snapshot"
@@ -2000,7 +2012,7 @@ const { user } = useAuth();
       serverConfirmed: metricKey === "liveActive"
         ? Boolean(effectiveLiveResponse && effectiveLiveResponse.liveTruthLabel !== "fallback")
         : sourceTruth === "server_transactions" || Boolean(historicalResponse),
-      stale: truthState === "stale" || usedHistoricalOverviewFallbackSnapshot,
+      stale: false,
       lastValidatedAt: metricKey === "liveActive"
         ? effectiveLiveResponse?.generatedAtMs ?? null
         : historicalOverviewResponse?.generatedAtMs ?? adminOverviewResponse?.generatedAt ?? null,
@@ -2052,7 +2064,7 @@ const { user } = useAuth();
       fakeWaitingPrevented: snapshotUsedOnFirstRender,
       waterfallDetected,
       refreshDedupeHit: snapshotModule?.duplicateRefreshPrevented === true,
-      staleButVerified: truthState === "stale" && value !== null,
+      staleButVerified: false,
       invalidationReason: snapshotModule?.snapshot?.invalidationReason ?? null,
       estimatedGuestTraffic: metricKey === "mobileShare" && Boolean(historicalEstimationReason),
       anonymousBatchStatus: historicalEstimationReason ? "estimated_until_batches_arrive" : "not_applicable",
@@ -2074,7 +2086,7 @@ const { user } = useAuth();
         visibleValue: liveActiveDisplay,
         value: effectiveLiveResponse?.totalActive ?? snapshotLiveActiveValue,
         valueSource: effectiveLiveResponse?.totalActive !== undefined && effectiveLiveResponse?.totalActive !== null
-          ? liveRealtime.feedStatus === "realtime" ? "firestore_realtime" : liveRealtime.feedStatus === "partial" ? "firestore_partial" : "api_polling"
+          ? liveRealtime.feedStatus === "realtime" ? "firestore_realtime" : liveRealtime.feedStatus === "partial" ? "firestore_partial" : "verified_snapshot"
           : snapshotLiveActiveValue !== null ? "verified_snapshot" : liveLoading ? "hydrating" : "unavailable",
         truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
         sourceTruth: effectiveLiveResponse ? "realtime_snapshot" : snapshotLiveActiveValue !== null ? "last_verified_snapshot" : "missing",
@@ -2093,7 +2105,7 @@ const { user } = useAuth();
         visibleValue: mobileShareDisplay,
         value: typeof mobileShareCard.primaryValue === "number" ? mobileShareCard.primaryValue : null,
         valueSource: historicalOverviewResponse?.cacheState === "fresh" ? "server_cache"
-          : historicalOverviewResponse?.cacheState === "stale" ? "stale_server_cache"
+          : historicalOverviewResponse?.cacheState === "refresh_due" ? "refresh_due_server_cache"
           : hasMobileSample ? "verified_snapshot" : historicalLoading ? "hydrating" : "unavailable",
         truthState: mobileShareCard.truthState,
         sourceTruth: mobileShareCard.sourceTruth,
@@ -2112,7 +2124,7 @@ const { user } = useAuth();
         visibleValue: revenueDisplay,
         value: typeof revenueCard.primaryValue === "number" ? revenueCard.primaryValue : null,
         valueSource: historicalOverviewResponse?.cacheState === "fresh" ? "server_cache"
-          : historicalOverviewResponse?.cacheState === "stale" ? "stale_server_cache"
+          : historicalOverviewResponse?.cacheState === "refresh_due" ? "refresh_due_server_cache"
           : revenueFallbackAvailable ? "server_transaction_fallback" : snapshotRevenueValue !== null ? "verified_snapshot" : historicalLoading ? "hydrating" : "unavailable",
         truthState: revenueCard.truthState,
         sourceTruth: revenueCard.sourceTruth,
@@ -2131,7 +2143,7 @@ const { user } = useAuth();
         visibleValue: purchasesDisplay,
         value: typeof purchasesCard.primaryValue === "number" ? purchasesCard.primaryValue : null,
         valueSource: historicalOverviewResponse?.cacheState === "fresh" ? "server_cache"
-          : historicalOverviewResponse?.cacheState === "stale" ? "stale_server_cache"
+          : historicalOverviewResponse?.cacheState === "refresh_due" ? "refresh_due_server_cache"
           : purchasesFallbackAvailable ? "server_transaction_fallback" : snapshotPurchasesValue !== null ? "verified_snapshot" : historicalLoading ? "hydrating" : "unavailable",
         truthState: purchasesCard.truthState,
         sourceTruth: purchasesCard.sourceTruth,
@@ -2153,7 +2165,9 @@ const { user } = useAuth();
     historicalEstimationReason,
     cards: {
       liveActive: {
-        sourceTruth: effectiveLiveResponse ? "realtime_snapshot" : snapshotLiveActiveValue !== null ? "last_verified_snapshot" : "missing",
+        sourceTruth: effectiveLiveResponse && (
+          liveRealtime.feedStatus === "realtime" || liveRealtime.feedStatus === "partial"
+        ) ? "realtime_snapshot" : snapshotLiveActiveValue !== null ? "last_verified_snapshot" : "missing",
         freshnessState: liveActiveTruthState === "live" ? "live" : liveActiveTruthState === "cached" ? "recent" : liveActiveTruthState === "stale" ? "stale" : "unknown",
       },
       mobileShare: mobileShareCard,
@@ -3219,7 +3233,7 @@ const { user } = useAuth();
           },
           {
             panelId: "realtime_health",
-            hasData: liveRealtime.feedStatus === "polled" || liveRealtime.feedStatus === "partial",
+            hasData: liveRealtime.feedStatus === "snapshot" || liveRealtime.feedStatus === "partial",
             sourceLoaded: Boolean(effectiveLiveResponse),
             lastSeenAt: liveUpdatedAtMs ? new Date(liveUpdatedAtMs).toISOString() : null,
             error: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null,

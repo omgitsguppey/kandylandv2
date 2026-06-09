@@ -13,10 +13,19 @@ type StaleCacheEntry<T> = {
 };
 
 export type StaleWhileRevalidateCacheStatus = "miss" | "fresh" | "stale";
+export type StaleWhileRevalidateCacheFreshnessState =
+  | "fresh_cache"
+  | "refresh_due_cache"
+  | "expired_cache";
+export type StaleWhileRevalidateTruthHealthState =
+  | "verified_cache"
+  | "runtime_unverified";
 
 export type StaleWhileRevalidateCacheResult<T> = {
   value: T;
   cacheStatus: StaleWhileRevalidateCacheStatus;
+  cacheFreshnessState: StaleWhileRevalidateCacheFreshnessState;
+  truthHealthState: StaleWhileRevalidateTruthHealthState;
   cachedAtMs: number;
   cacheAgeMs: number;
   revalidating: boolean;
@@ -143,6 +152,8 @@ export async function readThroughStaleWhileRevalidateEphemeralRouteCache<T>(inpu
     return {
       value: existing.value,
       cacheStatus: "fresh",
+      cacheFreshnessState: "fresh_cache",
+      truthHealthState: "verified_cache",
       cachedAtMs: existing.storedAtMs,
       cacheAgeMs: Math.max(0, nowMs - existing.storedAtMs),
       revalidating: false,
@@ -153,15 +164,18 @@ export async function readThroughStaleWhileRevalidateEphemeralRouteCache<T>(inpu
   } else if (existing) {
     const refreshPromise = startStaleCacheRefresh(input);
     refreshPromise.catch(() => undefined);
+    const retainedBeyondStaleTtl = existing.staleUntilMs <= nowMs;
     return {
       value: existing.value,
       cacheStatus: "stale",
+      cacheFreshnessState: retainedBeyondStaleTtl ? "expired_cache" : "refresh_due_cache",
+      truthHealthState: retainedBeyondStaleTtl ? "runtime_unverified" : "verified_cache",
       cachedAtMs: existing.storedAtMs,
       cacheAgeMs: Math.max(0, nowMs - existing.storedAtMs),
       revalidating: true,
       validationIssues: [],
       staleButVerified: true,
-      retainedBeyondStaleTtl: existing.staleUntilMs <= nowMs,
+      retainedBeyondStaleTtl,
     };
   }
 
@@ -170,6 +184,8 @@ export async function readThroughStaleWhileRevalidateEphemeralRouteCache<T>(inpu
   return {
     value: loaded,
     cacheStatus: "miss",
+    cacheFreshnessState: "fresh_cache",
+    truthHealthState: "verified_cache",
     cachedAtMs: cachedEntry?.storedAtMs ?? Date.now(),
     cacheAgeMs: 0,
     revalidating: false,

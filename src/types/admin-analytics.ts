@@ -951,7 +951,7 @@ export interface SecurityReasonItem {
 export interface HistoricalAnalyticsResponse {
   success: boolean;
   generatedAtMs?: number;
-  cacheState?: "miss" | "fresh" | "stale";
+  cacheState?: "miss" | "fresh" | "refresh_due" | "stale";
   cacheAgeMs?: number;
   cacheSourceLabel?: string;
   cacheValidationIssues?: string[];
@@ -1108,15 +1108,15 @@ export interface RealtimeAnalyticsResponse {
   issues?: string[];
   totalActive?: number;
   deepTrackerActive?: number;
-  cacheState?: "miss" | "fresh" | "stale";
+  cacheState?: "miss" | "fresh" | "refresh_due" | "stale";
   cacheAgeMs?: number;
   cacheSourceLabel?: string;
   cacheRevalidating?: boolean;
   staleButVerified?: boolean;
   retainedBeyondStaleTtl?: boolean;
-  liveTruthLabel?: "live" | "cached" | "stale" | "fallback" | "partial" | "failed";
+  liveTruthLabel?: "live" | "cached" | "refresh_due" | "stale" | "fallback" | "partial" | "failed";
   liveSourceLabel?: string;
-  activeUsersTruthLabel?: "live" | "cached" | "stale" | "fallback" | "partial" | "failed";
+  activeUsersTruthLabel?: "live" | "cached" | "refresh_due" | "stale" | "fallback" | "partial" | "failed";
   activeUsersSourceLabel?: string;
   data?: RealtimePoint[];
   activeUsers?: RealtimeActiveUserItem[];
@@ -1134,7 +1134,7 @@ export interface RealtimeAnalyticsResponse {
     guestBounceCount: number;
     guestBounceRate: number | null;
     guestSamplesAvailable: boolean;
-    guestTruthState: "live" | "stale" | "unavailable" | "needs_review";
+    guestTruthState: "live" | "refresh_due" | "stale" | "unavailable" | "needs_review";
     sourceCollectionsUsed: string[];
     sourceSampleCounts: Record<string, number>;
     notes: string[];

@@ -344,7 +344,7 @@ describe("admin analytics historical route snapshot authority", () => {
     expect(payload.totals).toBeUndefined();
   }, 15_000);
 
-  it("labels stale canonical historical snapshots as stale_cache instead of live", async () => {
+  it("labels refresh-due canonical historical snapshots as cached truth instead of stale failure", async () => {
     routeMockState.getLatestVerifiedSnapshot.mockResolvedValue(snapshot({
       expiresAt: new Date("2026-05-13T11:00:00.000Z").toISOString(),
     }));
@@ -352,9 +352,9 @@ describe("admin analytics historical route snapshot authority", () => {
     const { response, payload } = await callHistoricalRoute("/api/admin/analytics/historical?period=30d&section=audienceSnapshot");
 
     expect(response.status).toBe(200);
-    expect(payload.cacheState).toBe("stale");
-    expect(payload.staleButVerified).toBe(true);
-    expect(payload.verification.status).toBe("stale");
-    expect(payload.issues).toContain("Serving stale canonical admin metric snapshot; raw analytics collections remain debug-only.");
+    expect(payload.cacheState).toBe("refresh_due");
+    expect(payload.staleButVerified).toBe(false);
+    expect(payload.verification.status).toBe("cached");
+    expect(payload.issues).toContain("Serving refresh-due canonical admin metric snapshot; raw analytics collections remain debug-only.");
   }, 15_000);
 });

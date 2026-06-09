@@ -111,7 +111,7 @@ const mockState = vi.hoisted(() => {
       liveResponse: { totalActive: 12, liveTruthLabel: "live" },
       backgroundAnalyticsIssues: [],
       visibleDegradedCopy: [],
-      liveFeedStatus: "polled",
+      liveFeedStatus: "snapshot",
       liveFeedDetail: "",
       historicalTruthState: "cached",
       historicalSourceLabel: "30D Server snapshot",

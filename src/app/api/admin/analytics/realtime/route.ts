@@ -49,7 +49,7 @@ type GuestAnalyticsSnapshot = {
   guestBounceCount: number;
   guestBounceRate: number | null;
   guestSamplesAvailable: boolean;
-  guestTruthState: "live" | "stale" | "unavailable" | "needs_review";
+  guestTruthState: "live" | "refresh_due" | "stale" | "unavailable" | "needs_review";
   sourceCollectionsUsed: string[];
   sourceSampleCounts: Record<string, number>;
   notes: string[];
@@ -68,8 +68,8 @@ function normalizeGuestAnalyticsSnapshotFromCache(
   const guestBatchSamples = toNumber(sourceSampleCounts[ANALYTICS_CANONICAL_COLLECTIONS.guestBatches]);
   const guestSamplesAvailable = snapshot.guestSamplesAvailable === true && guestBatchSamples > 0;
   const cachedTruthState = toStringValue(snapshot.guestTruthState);
-  const guestTruthState: GuestAnalyticsSnapshot["guestTruthState"] = cacheState === "stale"
-    ? "stale"
+  const guestTruthState: GuestAnalyticsSnapshot["guestTruthState"] = cacheState === "refresh_due"
+    ? "refresh_due"
     : !guestSamplesAvailable
       ? "unavailable"
       : cachedTruthState === "needs_review"
@@ -112,6 +112,7 @@ function normalizeRealtimeTruthLabel(
   const candidate = toStringValue(value);
   return candidate === "live"
     || candidate === "cached"
+    || candidate === "refresh_due"
     || candidate === "stale"
     || candidate === "fallback"
     || candidate === "partial"
@@ -177,15 +178,15 @@ function readSnapshotGeneratedAtMs(snapshot: AdminMetricSnapshotLike, fallbackMs
 
 function resolveSnapshotPayloadCacheState(snapshot: AdminMetricSnapshotLike, generatedAtMs: number, nowMs: number) {
   if (snapshot.sourceMode === "stale_cache" || snapshot.truthState === "stale") {
-    return "stale" as const;
+    return "refresh_due" as const;
   }
   if (snapshot.expiresAt) {
     const expiresAtMs = Date.parse(snapshot.expiresAt);
     if (Number.isFinite(expiresAtMs) && expiresAtMs <= nowMs) {
-      return "stale" as const;
+      return "refresh_due" as const;
     }
   }
-  return nowMs - generatedAtMs < ADMIN_ANALYTICS_REALTIME_HOT_CACHE_FRESH_MS ? "fresh" as const : "stale" as const;
+  return nowMs - generatedAtMs < ADMIN_ANALYTICS_REALTIME_HOT_CACHE_FRESH_MS ? "fresh" as const : "refresh_due" as const;
 }
 
 function readSnapshotWarnings(snapshot: AdminMetricSnapshotLike) {
@@ -252,8 +253,8 @@ function buildSnapshotGuestAnalyticsSnapshot(input: {
     guestBounceCount: guestBounceCount ?? 0,
     guestBounceRate,
     guestSamplesAvailable,
-    guestTruthState: input.cacheState === "stale"
-      ? "stale"
+    guestTruthState: input.cacheState === "refresh_due"
+      ? "refresh_due"
       : guestSamplesAvailable
         ? "live"
         : "unavailable",
@@ -283,8 +284,8 @@ function buildAdminMetricSnapshotRealtimePayload(input: {
     generatedAtMs,
     cacheState,
   });
-  const staleIssue = cacheState === "stale"
-    ? ["Serving stale canonical admin metric snapshot; realtime_summary remains fallback evidence only."]
+  const refreshDueIssue = cacheState === "refresh_due"
+    ? ["Serving refresh-due canonical admin metric snapshot; realtime_summary remains fallback evidence only."]
     : [];
 
   return {
@@ -293,18 +294,18 @@ function buildAdminMetricSnapshotRealtimePayload(input: {
     cacheState,
     cacheAgeMs,
     cacheSourceLabel: ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_SOURCE_LABEL,
-    staleButVerified: cacheState === "stale",
+    staleButVerified: false,
     issues: [
       ...input.issues,
       ...readSnapshotWarnings(input.snapshot),
-      ...staleIssue,
+      ...refreshDueIssue,
     ],
     totalActive: totalActive ?? undefined,
     deepTrackerActive: deepTrackerActive ?? undefined,
     guestAnalyticsSnapshot,
-    liveTruthLabel: cacheState === "stale" ? "stale" : "cached",
+    liveTruthLabel: "cached",
     liveSourceLabel: ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_SOURCE_LABEL,
-    activeUsersTruthLabel: cacheState === "stale" ? "stale" : "cached",
+    activeUsersTruthLabel: "cached",
     activeUsersSourceLabel: ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_SOURCE_LABEL,
     data,
     activeUsers,
@@ -347,14 +348,14 @@ function buildHotCachePayload(input: {
 }): AdminRealtimePayload {
   const cacheAgeMs = Math.max(0, input.nowMs - input.generatedAtMs);
   const cacheState: NonNullable<RealtimeAnalyticsResponse["cacheState"]> =
-    cacheAgeMs < ADMIN_ANALYTICS_REALTIME_HOT_CACHE_FRESH_MS ? "fresh" : "stale";
+    cacheAgeMs < ADMIN_ANALYTICS_REALTIME_HOT_CACHE_FRESH_MS ? "fresh" : "refresh_due";
   const aggregateIssues = readIssueList(input.aggregateData.issues);
   const guestAnalyticsSnapshot = normalizeGuestAnalyticsSnapshotFromCache(
     input.aggregateData.guestAnalyticsSnapshot,
     cacheState,
   );
-  const staleIssue = cacheState === "stale"
-    ? ["Serving stale admin realtime analytics hot cache while the scheduled materializer catches up."]
+  const refreshDueIssue = cacheState === "refresh_due"
+    ? ["Serving refresh-due admin realtime analytics hot cache while the scheduled materializer catches up."]
     : [];
 
   return {
@@ -366,14 +367,10 @@ function buildHotCachePayload(input: {
     cacheSourceLabel: ADMIN_ANALYTICS_REALTIME_LEGACY_SUMMARY_SOURCE_LABEL,
     liveSourceLabel: ADMIN_ANALYTICS_REALTIME_LEGACY_SUMMARY_SOURCE_LABEL,
     activeUsersSourceLabel: ADMIN_ANALYTICS_REALTIME_LEGACY_SUMMARY_SOURCE_LABEL,
-    liveTruthLabel: cacheState === "stale"
-      ? "stale"
-      : normalizeRealtimeTruthLabel(input.aggregateData.liveTruthLabel, "cached") === "live"
+    liveTruthLabel: normalizeRealtimeTruthLabel(input.aggregateData.liveTruthLabel, "cached") === "live"
         ? "cached"
         : normalizeRealtimeTruthLabel(input.aggregateData.liveTruthLabel, "cached"),
-    activeUsersTruthLabel: cacheState === "stale"
-      ? "stale"
-      : normalizeRealtimeTruthLabel(input.aggregateData.activeUsersTruthLabel, "cached") === "live"
+    activeUsersTruthLabel: normalizeRealtimeTruthLabel(input.aggregateData.activeUsersTruthLabel, "cached") === "live"
         ? "cached"
         : normalizeRealtimeTruthLabel(input.aggregateData.activeUsersTruthLabel, "cached"),
     guestAnalyticsSnapshot,
@@ -381,7 +378,7 @@ function buildHotCachePayload(input: {
       ...input.issues,
       "Using legacy realtime_summary fallback evidence because canonical admin metric snapshot is unavailable.",
       ...aggregateIssues,
-      ...staleIssue,
+      ...refreshDueIssue,
     ],
   };
 }
@@ -483,8 +480,8 @@ async function GET_handler(request: NextRequest) {
         freshnessTimestamp: payload.generatedAtMs ?? Date.now(),
         status: payload.liveTruthLabel === "failed"
           ? "failed"
-          : payload.liveTruthLabel === "stale"
-            ? "stale"
+          : payload.cacheState === "refresh_due"
+            ? "cached"
             : payload.liveTruthLabel === "partial"
               ? "degraded"
               : payload.liveTruthLabel === "fallback"

@@ -77,7 +77,7 @@ describe("admin analytics live runtime", () => {
     expect(result.data.find((entry) => entry.minute === 0)?.users).toBeGreaterThan(0);
   });
 
-  it("fails closed to polled mode when every realtime lane fails", () => {
+  it("fails closed to snapshot mode when every realtime lane fails", () => {
     const result = buildAdminAnalyticsLiveSignals({
       listenerState: {
         eventFactsFailed: true,
@@ -91,5 +91,6 @@ describe("admin analytics live runtime", () => {
     expect(result.feedStatus).toBe("failed");
     expect(result.liveTruthLabel).toBe("failed");
     expect(result.issues).toHaveLength(4);
+    expect(result.issues.join(" ")).not.toContain("polled");
   });
 });
