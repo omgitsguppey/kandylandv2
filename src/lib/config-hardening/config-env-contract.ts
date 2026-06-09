@@ -31,6 +31,17 @@ export type ConfigEnvContractReport = {
   secretValueLeakCount: number;
   missingContractCount: number;
   unsafePublicSecretNames: string[];
+  providerPresenceEvidence: {
+    status: "external_evidence_required";
+    evidenceKind: "external_provider_presence";
+    providerOwners: string[];
+    providerEnvVarCount: number;
+    secretNamesOnly: true;
+    secretValuesPrinted: false;
+    sourceCheckCanPass: true;
+    nextAction: string;
+    doesNotProve: string;
+  };
   remainingGaps: string[];
 };
 
@@ -117,6 +128,11 @@ export function buildConfigEnvContractReport(options: { generatedAtUtc?: string 
   const unsafePublicSecretNames = envVars
     .filter((entry) => entry.leakRisk === "secret_name_public")
     .map((entry) => entry.name);
+  const providerOwners = unique(envVars
+    .filter((entry) => entry.requiredIn.includes("production") && /(firebase|payments|analytics|storage|repo_governance)/u.test(entry.ownerSystem))
+    .map((entry) => entry.ownerSystem))
+    .sort();
+  const providerEnvVarCount = envVars.filter((entry) => /(PAYPAL|FIREBASE|GOOGLE|GA_|VERTEX|BIGQUERY|DATACONNECT|CLOUD_SQL|GCP|GCLOUD)/u.test(entry.name)).length;
   return {
     generatedAtUtc: options.generatedAtUtc || new Date().toISOString(),
     envVars,
@@ -126,6 +142,17 @@ export function buildConfigEnvContractReport(options: { generatedAtUtc?: string 
     secretValueLeakCount: 0,
     missingContractCount: 0,
     unsafePublicSecretNames,
+    providerPresenceEvidence: {
+      status: "external_evidence_required",
+      evidenceKind: "external_provider_presence",
+      providerOwners,
+      providerEnvVarCount,
+      secretNamesOnly: true,
+      secretValuesPrinted: false,
+      sourceCheckCanPass: true,
+      nextAction: "Attach redacted provider/runtime evidence through provider smoke, runtime smoke, admin truth, or operator-owned env evidence lanes; do not print env values.",
+      doesNotProve: "The env contract proves variable registration and redaction boundaries only. It does not prove credentials are present, valid, deployed, or accepted by Firebase, PayPal, Google, GA4, BigQuery, Vertex, Cloud SQL, or other providers.",
+    },
     remainingGaps: unsafePublicSecretNames.length
       ? ["Public env names with secret-like terms need owner review."]
       : ["No unregistered env variables found; provider presence remains external evidence."],
@@ -137,6 +164,9 @@ export function validateConfigEnvContractReport(report: ConfigEnvContractReport)
   if (report.missingContractCount > 0) failures.push("env var used in source lacks contract");
   if (report.unsafePublicSecretNames.length > 0) failures.push("public env var has secret-like name");
   if (report.secretValueLeakCount > 0) failures.push("generated artifact contains secret-looking value");
+  if (report.providerPresenceEvidence.status !== "external_evidence_required") failures.push("provider presence must remain external evidence.");
+  if (!report.providerPresenceEvidence.secretNamesOnly || report.providerPresenceEvidence.secretValuesPrinted) failures.push("provider presence report must not print secret values.");
+  if (!/does not prove credentials/iu.test(report.providerPresenceEvidence.doesNotProve)) failures.push("provider presence boundary must say source checks do not prove credentials.");
   for (const entry of report.envVars) {
     if (entry.requiredIn.includes("production") && !entry.missingBehavior) {
       failures.push(`${entry.name} required in production lacks missing behavior`);

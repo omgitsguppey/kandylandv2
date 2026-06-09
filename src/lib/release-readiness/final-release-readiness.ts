@@ -170,6 +170,7 @@ export type ReleaseReadinessContext = {
   publicBetaScore: Record<string, unknown>;
   currentBetaExitStatus: Record<string, unknown>;
   releaseNotes: Record<string, unknown>;
+  releaseEvidenceArtifacts: Record<string, Record<string, unknown>>;
   artifacts: ArtifactStatus[];
   openPrs: ClassifiedOpenPr[];
   dirtyFiles: Array<{ path: string; classification: DirtyFileClassification }>;
@@ -258,7 +259,20 @@ export type ReleaseRollbackIncidentReadinessReport = {
   generatedAtUtc: string;
   currentHead: string;
   releaseVersion: string;
+  readinessStatus:
+    | "source_ready_external_evidence_blocked"
+    | "source_ready_operator_signoff_required"
+    | "source_failure";
   migrationStatus: "no_migration_detected" | "migration_review_required";
+  currentHeadEvidence: ReleaseRollbackEvidenceGate;
+  releaseNotesEvidence: ReleaseRollbackEvidenceGate;
+  envContractEvidence: ReleaseRollbackEvidenceGate;
+  providerEvidence: ReleaseRollbackEvidenceGate;
+  runtimeEvidence: ReleaseRollbackEvidenceGate;
+  adminTruthEvidence: ReleaseRollbackEvidenceGate;
+  incidentRecoveryState: ReleaseRollbackEvidenceGate;
+  evidenceGates: ReleaseRollbackEvidenceGate[];
+  blockingExternalEvidence: ReleaseRollbackEvidenceGate[];
   featureFlagsAndKillSwitches: Array<{ surface: string; status: "available" | "missing_kill_switch"; note: string }>;
   safetyNotes: Record<string, string>;
   rollbackTriggerConditions: string[];
@@ -266,6 +280,35 @@ export type ReleaseRollbackIncidentReadinessReport = {
   postRollbackVerification: string[];
   incidentSeverityLevels: Array<{ severity: "sev1" | "sev2" | "sev3"; trigger: string; owner: string }>;
   validationFailures: string[];
+};
+
+export type ReleaseRollbackEvidenceGate = {
+  gateId: string;
+  label: string;
+  evidenceKind:
+    | "source"
+    | "generated_snapshot"
+    | "runtime_redacted"
+    | "provider_proof"
+    | "admin_operator_evidence"
+    | "external_manual";
+  status:
+    | "passed"
+    | "source_ready"
+    | "source_confidence_only"
+    | "operator_reported_only"
+    | "missing_external_evidence"
+    | "stale_evidence"
+    | "source_failed";
+  artifactPath: string;
+  currentHead?: string;
+  sourceCommit?: string;
+  generatedAtUtc?: string;
+  owner: string;
+  blocking: boolean;
+  validator: string;
+  nextExactAction: string;
+  doesNotProve: string;
 };
 
 export type ReleaseNotesIntegrityReport = {
@@ -444,6 +487,12 @@ export function getCurrentGitHead(root: string) {
 }
 
 export function readOpenPullRequests(root: string): OpenPrInput[] {
+  const cachedReport = readJson(root, "agent/state/open-pr-dependency-hygiene.generated.json");
+  const cachedOpenPrs = arrayValue(cachedReport.openPrs);
+  if (process.env.ALLOW_GH_PR_LIST !== "1") {
+    return cachedOpenPrs.filter((entry): entry is OpenPrInput => Boolean(entry) && typeof entry === "object");
+  }
+
   const output = shell(root, "gh", [
     "pr",
     "list",
@@ -656,6 +705,15 @@ export function buildReleaseReadinessContext(root: string, input: Omit<Partial<R
     publicBetaScore,
     currentBetaExitStatus,
     releaseNotes,
+    releaseEvidenceArtifacts: input.releaseEvidenceArtifacts ?? {
+      currentHeadReleaseReconciliation: readJson(root, "agent/state/current-head-release-reconciliation.generated.json"),
+      releaseNotesIntegrity: readJson(root, "agent/state/release-notes-integrity.generated.json"),
+      configEnvContract: readJson(root, "agent/state/config-env-contract.generated.json"),
+      providerSmokeEvidence: readJson(root, "agent/state/provider-smoke-evidence.generated.json"),
+      runtimeSmokeEvidence: readJson(root, "agent/state/runtime-smoke-evidence.generated.json"),
+      adminTruthSampleEvidence: readJson(root, "agent/state/admin-truth-sample-evidence.generated.json"),
+      rollbackIncidentResponse: readJson(root, "agent/state/rollback-incident-response.generated.json"),
+    },
     artifacts: input.artifacts ?? REQUIRED_ARTIFACTS.map((artifactPath) => readArtifactStatus(root, currentHead, artifactPath)),
     openPrs,
     dirtyFiles,
@@ -1055,8 +1113,175 @@ export function validateOperatorFinalQaPacketReport(report: OperatorFinalQaPacke
   return Array.from(new Set(failures));
 }
 
+function artifactGeneratedAt(artifact: Record<string, unknown>) {
+  return stringValue(artifact.generatedAtUtc ?? artifact.generatedAt) || undefined;
+}
+
+function artifactHead(artifact: Record<string, unknown>) {
+  return stringValue(artifact.currentHead ?? artifact.sourceCommit) || undefined;
+}
+
+function artifactPassed(artifact: Record<string, unknown>) {
+  const validation = recordValue(artifact.validation);
+  return artifact.passed === true
+    || validation.ok === true
+    || artifact.status === "formal_runtime_smoke_passed"
+    || artifact.status === "formal_admin_truth_sample_passed"
+    || artifact.status === "formal_provider_smoke_passed"
+    || artifact.overallStatus === "formal_runtime_smoke_passed"
+    || artifact.overallStatus === "formal_admin_truth_sample_passed"
+    || artifact.overallStatus === "formal_provider_smoke_passed";
+}
+
+function artifactStatusText(artifact: Record<string, unknown>) {
+  return stringValue(artifact.status ?? artifact.overallStatus);
+}
+
+function releaseGate(input: Omit<ReleaseRollbackEvidenceGate, "blocking"> & { blocking?: boolean }): ReleaseRollbackEvidenceGate {
+  return {
+    ...input,
+    blocking: input.blocking ?? ["missing_external_evidence", "operator_reported_only", "stale_evidence", "source_failed"].includes(input.status),
+  };
+}
+
+function releaseEvidenceGateSet(context: ReleaseReadinessContext) {
+  const artifacts = context.releaseEvidenceArtifacts;
+  const currentHead = artifacts.currentHeadReleaseReconciliation ?? {};
+  const notes = artifacts.releaseNotesIntegrity ?? {};
+  const env = artifacts.configEnvContract ?? {};
+  const provider = artifacts.providerSmokeEvidence ?? {};
+  const runtime = artifacts.runtimeSmokeEvidence ?? {};
+  const admin = artifacts.adminTruthSampleEvidence ?? {};
+  const incident = artifacts.rollbackIncidentResponse ?? {};
+  const staleCurrentHeadArtifacts = arrayValue(currentHead.staleArtifactsRemaining);
+  const providerStatus = artifactStatusText(provider);
+  const currentHeadGate = releaseGate({
+    gateId: "current-head-evidence",
+    label: "Current-head release artifacts",
+    evidenceKind: "generated_snapshot",
+    status: Object.keys(currentHead).length > 0 && staleCurrentHeadArtifacts.length === 0 ? "passed" : "stale_evidence",
+    artifactPath: "agent/state/current-head-release-reconciliation.generated.json",
+    currentHead: artifactHead(currentHead),
+    sourceCommit: artifactHead(currentHead),
+    generatedAtUtc: artifactGeneratedAt(currentHead),
+    owner: "release readiness",
+    validator: "npm run check:current-head-release-reconciliation",
+    nextExactAction: staleCurrentHeadArtifacts.length > 0
+      ? "Refresh current-head release artifacts through their owning validators before release signoff."
+      : "Keep current-head release artifacts fresh after this commit.",
+    doesNotProve: "Current-head source artifacts do not prove deployed runtime or provider health.",
+  });
+  const releaseNotesGate = releaseGate({
+    gateId: "release-notes-integrity",
+    label: "Release notes integrity",
+    evidenceKind: "source",
+    status: Object.keys(notes).length > 0 && arrayValue(notes.validationFailures).length === 0 && notes.claimsProviderRuntimeProof !== true && notes.claimsBetaExit !== true ? "passed" : "source_failed",
+    artifactPath: "agent/state/release-notes-integrity.generated.json",
+    currentHead: artifactHead(notes),
+    sourceCommit: artifactHead(notes),
+    generatedAtUtc: artifactGeneratedAt(notes),
+    owner: "release notes",
+    validator: "npm run check:release-notes-integrity",
+    nextExactAction: "Keep public release notes free of beta-exit, provider-proof, and runtime-proof claims.",
+    doesNotProve: "Release notes do not prove runtime health, provider smoke, or rollback success.",
+  });
+  const envGate = releaseGate({
+    gateId: "env-contract",
+    label: "Environment contract",
+    evidenceKind: "source",
+    status: Object.keys(env).length > 0 && recordValue(env.validation).ok === true ? "passed" : "source_failed",
+    artifactPath: "agent/state/config-env-contract.generated.json",
+    currentHead: artifactHead(env),
+    sourceCommit: artifactHead(env),
+    generatedAtUtc: artifactGeneratedAt(env),
+    owner: "config/env contract",
+    validator: "npm run check:config-env-contract",
+    nextExactAction: "Keep env contract registered; provider presence remains external evidence.",
+    doesNotProve: "Env contract source registration does not prove provider credentials exist or work in production.",
+  });
+  const providerGate = releaseGate({
+    gateId: "provider-smoke-evidence",
+    label: "Provider smoke evidence",
+    evidenceKind: "provider_proof",
+    status: artifactPassed(provider)
+      ? "passed"
+      : /operator_reported/iu.test(providerStatus)
+        ? "operator_reported_only"
+        : "missing_external_evidence",
+    artifactPath: "agent/state/provider-smoke-evidence.generated.json",
+    currentHead: artifactHead(provider),
+    sourceCommit: artifactHead(provider),
+    generatedAtUtc: artifactGeneratedAt(provider),
+    owner: "operator/provider owner",
+    validator: "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
+    nextExactAction: artifactPassed(provider)
+      ? "Keep redacted provider smoke evidence fresh."
+      : "Attach formal redacted provider smoke evidence; operator-reported provider success is not enough.",
+    doesNotProve: "Source tests and operator comments do not prove PayPal/provider callbacks or provider UI/webhook behavior.",
+  });
+  const runtimeGate = releaseGate({
+    gateId: "runtime-smoke-evidence",
+    label: "Deployed runtime smoke evidence",
+    evidenceKind: "runtime_redacted",
+    status: artifactPassed(runtime) ? "passed" : "missing_external_evidence",
+    artifactPath: "agent/state/runtime-smoke-evidence.generated.json",
+    currentHead: artifactHead(runtime),
+    sourceCommit: artifactHead(runtime),
+    generatedAtUtc: artifactGeneratedAt(runtime),
+    owner: "operator/runtime owner",
+    validator: "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
+    nextExactAction: artifactPassed(runtime)
+      ? "Keep deployed runtime smoke evidence fresh."
+      : "Attach deployed runtime smoke evidence before clearing runtime signoff.",
+    doesNotProve: "Source-safe harnesses do not prove deployed runtime behavior.",
+  });
+  const adminGate = releaseGate({
+    gateId: "admin-truth-sample-evidence",
+    label: "Admin truth sample evidence",
+    evidenceKind: "admin_operator_evidence",
+    status: artifactPassed(admin) ? "passed" : "missing_external_evidence",
+    artifactPath: "agent/state/admin-truth-sample-evidence.generated.json",
+    currentHead: artifactHead(admin),
+    sourceCommit: artifactHead(admin),
+    generatedAtUtc: artifactGeneratedAt(admin),
+    owner: "operator/admin owner",
+    validator: "EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence",
+    nextExactAction: artifactPassed(admin)
+      ? "Keep redacted admin truth sample evidence fresh."
+      : "Attach redacted admin truth sample evidence; source labels alone do not clear this gate.",
+    doesNotProve: "Admin source schema does not prove production admin truth.",
+  });
+  const incidentGate = releaseGate({
+    gateId: "incident-recovery-state",
+    label: "Incident recovery runbook",
+    evidenceKind: "source",
+    status: incident.runtimeBehaviorChanged === false && incident.productionDataWritten === false && Array.isArray(incident.incidents) ? "source_ready" : "source_failed",
+    artifactPath: "agent/state/rollback-incident-response.generated.json",
+    currentHead: artifactHead(incident),
+    sourceCommit: artifactHead(incident),
+    generatedAtUtc: artifactGeneratedAt(incident),
+    owner: "incident response",
+    validator: "npm run check:rollback-incident-response",
+    nextExactAction: "Use the rollback incident response runbook for source-safe recovery; provider-console actions remain manual/operator-owned.",
+    doesNotProve: "A source runbook does not prove an operator executed rollback or recovery.",
+    blocking: incident.runtimeBehaviorChanged !== false || incident.productionDataWritten !== false || !Array.isArray(incident.incidents),
+  });
+  return {
+    currentHeadGate,
+    releaseNotesGate,
+    envGate,
+    providerGate,
+    runtimeGate,
+    adminGate,
+    incidentGate,
+    evidenceGates: [currentHeadGate, releaseNotesGate, envGate, providerGate, runtimeGate, adminGate, incidentGate],
+  };
+}
+
 export function buildReleaseRollbackIncidentReadinessReport(context: ReleaseReadinessContext): ReleaseRollbackIncidentReadinessReport {
   const releaseVersion = stringValue(context.releaseNotes.currentVersion, "unversioned");
+  const gates = releaseEvidenceGateSet(context);
+  const blockingExternalEvidence = gates.evidenceGates.filter((gate) => gate.blocking && ["provider_proof", "runtime_redacted", "admin_operator_evidence", "external_manual"].includes(gate.evidenceKind));
   const featureFlagsAndKillSwitches = [
     { surface: "payment/wallet", status: "missing_kill_switch" as const, note: "No source-level payment kill switch is claimed; rollback must protect payment runtime by reverting the release." },
     { surface: "GumDrop ledger", status: "missing_kill_switch" as const, note: "No source-level ledger kill switch is claimed; use rollback and post-rollback ledger verification." },
@@ -1067,7 +1292,21 @@ export function buildReleaseRollbackIncidentReadinessReport(context: ReleaseRead
     generatedAtUtc: context.generatedAtUtc,
     currentHead: context.currentHead,
     releaseVersion,
+    readinessStatus: gates.evidenceGates.some((gate) => gate.status === "source_failed")
+      ? "source_failure"
+      : blockingExternalEvidence.length > 0
+        ? "source_ready_external_evidence_blocked"
+        : "source_ready_operator_signoff_required",
     migrationStatus: "no_migration_detected",
+    currentHeadEvidence: gates.currentHeadGate,
+    releaseNotesEvidence: gates.releaseNotesGate,
+    envContractEvidence: gates.envGate,
+    providerEvidence: gates.providerGate,
+    runtimeEvidence: gates.runtimeGate,
+    adminTruthEvidence: gates.adminGate,
+    incidentRecoveryState: gates.incidentGate,
+    evidenceGates: gates.evidenceGates,
+    blockingExternalEvidence,
     featureFlagsAndKillSwitches,
     safetyNotes: {
       paymentWallet: "Do not change payment runtime in this pass; rollback trigger includes checkout/provider failures or source-of-funds mismatch.",
@@ -1095,6 +1334,19 @@ export function buildReleaseRollbackIncidentReadinessReport(context: ReleaseRead
 export function validateReleaseRollbackIncidentReadinessReport(report: ReleaseRollbackIncidentReadinessReport) {
   const failures: string[] = [];
   if (!report.currentHead) failures.push("rollback plan missing current commit.");
+  if (!report.readinessStatus) failures.push("rollback report missing actionable readinessStatus.");
+  if (report.readinessStatus === "source_ready_operator_signoff_required" && report.blockingExternalEvidence.length > 0) failures.push("external evidence blockers hidden by ready status.");
+  if (report.readinessStatus === "source_failure" && report.validationFailures.length === 0 && !report.evidenceGates.some((gate) => gate.status === "source_failed")) failures.push("source failure status lacks source-failed gate.");
+  for (const requiredGate of ["current-head-evidence", "release-notes-integrity", "env-contract", "provider-smoke-evidence", "runtime-smoke-evidence", "admin-truth-sample-evidence", "incident-recovery-state"]) {
+    if (!report.evidenceGates.some((gate) => gate.gateId === requiredGate)) failures.push(`rollback report missing ${requiredGate}.`);
+  }
+  if (!report.providerEvidence || !report.runtimeEvidence || !report.adminTruthEvidence) failures.push("external evidence gates missing.");
+  if (report.providerEvidence?.status === "operator_reported_only" && report.providerEvidence.blocking !== true) failures.push("operator-reported provider evidence must remain blocking.");
+  if (report.providerEvidence?.status === "passed" && report.providerEvidence.evidenceKind !== "provider_proof") failures.push("provider evidence pass must come from provider proof.");
+  if (report.runtimeEvidence?.status === "passed" && report.runtimeEvidence.evidenceKind !== "runtime_redacted") failures.push("runtime evidence pass must be runtime evidence.");
+  if (report.adminTruthEvidence?.status === "passed" && report.adminTruthEvidence.evidenceKind !== "admin_operator_evidence") failures.push("admin truth pass must be admin/operator evidence.");
+  if (!report.envContractEvidence || report.envContractEvidence.doesNotProve.length === 0) failures.push("env contract boundary missing.");
+  if (!report.releaseNotesEvidence || report.releaseNotesEvidence.doesNotProve.length === 0) failures.push("release notes evidence boundary missing.");
   if (!report.safetyNotes.paymentWallet) failures.push("payment/wallet rollback safety missing.");
   if (!report.safetyNotes.gumdropLedger) failures.push("GumDrop ledger safety missing.");
   if (!report.safetyNotes.analyticsIngest) failures.push("analytics ingest rollback missing.");
