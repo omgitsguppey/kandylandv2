@@ -30,9 +30,12 @@ describe("agent verification selector", () => {
       paths: ["src/lib/telemetry.ts"],
     });
 
+    expect(plan.fastCommands).toContain("npm run check:telemetry-dependency-graph");
     expect(plan.fastCommands).toContain("npm run check:telemetry");
     expect(plan.fastCommands).toContain("npm run check:analytics-semantics");
+    expect(plan.fastCommands).toContain("npm run check:telemetry-parity-score");
     expect(plan.signoffCommands).toContain("npm run check:analytics:continuity");
+    expect(plan.manualEvidenceRequirements).toContain("telemetry_runtime: source checks cannot prove provider/runtime/admin sample evidence.");
   });
 
   it("keeps functions runtime checks separate from scheduler signoff lanes", () => {
@@ -56,5 +59,30 @@ describe("agent verification selector", () => {
     expect(plan.signoffCommands).toContain("npm run check:agent-intelligence");
     expect(plan.signoffCommands).toContain("npm run eval:agent-context");
     expect(plan.signoffCommands).toContain("npm run check:continuity");
+  });
+
+  it("escalates payment-adjacent files without selecting provider or broad checks", () => {
+    const plan = selectVerificationPlan({
+      paths: ["src/components/PurchaseModal.tsx"],
+    });
+
+    expect(plan.fastCommands).toContain("npm run typecheck");
+    expect(plan.fastCommands).toContain("npm run check:payment-unlock-security");
+    expect(plan.fastCommands).toContain("npm run check:purchase-telemetry-truth");
+    expect(plan.signoffCommands).toContain("npm run check:legal-payment-copy");
+    expect(plan.manualEvidenceRequirements).toContain("payment_provider: PayPal/provider success requires formal external smoke evidence, not source-only checks.");
+    expect(plan.protectedDomainEscalations.some((entry) => entry.startsWith("payment_economy_unlock:"))).toBe(true);
+    expect(plan.fastCommands).not.toContain("npm run check");
+    expect(plan.forbiddenByDefaultCommands).toContain("provider API calls");
+  });
+
+  it("routes generated agent artifacts to authority/context checks", () => {
+    const plan = selectVerificationPlan({
+      paths: ["agent/state/signal-telemetry-graph.generated.json"],
+    });
+
+    expect(plan.fastCommands).toContain("npm run check:generated-report-authority");
+    expect(plan.fastCommands).toContain("npm run check:agent-context");
+    expect(plan.manualEvidenceRequirements).toContain("generated_artifacts: refresh only consumed artifacts; stale reports remain evidence, not runtime truth.");
   });
 });
