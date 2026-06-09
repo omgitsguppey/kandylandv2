@@ -2,6 +2,7 @@ export type RouteHealthReconciledStatus =
   | "healthy_current"
   | "degraded_current"
   | "route_listener_delayed"
+  | "route_listener_delayed_with_last_verified_sample"
   | "route_listener_failed_no_sample"
   | "current_fail"
   | "stale_route_sample"
@@ -88,7 +89,9 @@ export function reconcileRouteHealth(input: RouteHealthReconcilerInput): RouteHe
   const status: RouteHealthReconciledStatus = activeFailureCount > 0
     ? "current_fail"
     : routeListenerStatus === "failed" && input.hasSnapshotRows
-      ? "route_listener_delayed"
+      ? canTrustLastVerified
+        ? "route_listener_delayed_with_last_verified_sample"
+        : "route_listener_delayed"
       : routeListenerStatus === "failed"
         ? "route_listener_failed_no_sample"
         : staleActionCount > 0

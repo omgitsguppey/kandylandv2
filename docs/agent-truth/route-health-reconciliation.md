@@ -1,45 +1,53 @@
 # Route health reconciliation
 
-Generated: 2026-05-24T17:07:40.526Z
-Head: a62f0177ba3e5bc7e86d8b5ec2c643258797c09a
+Generated: 2026-06-09T00:37:04.044Z
+Head: e633434db51813661460de08f286dcce84be4eca
 
 ## Summary
 
 ```json
 {
   "reportKey": "route-health-reconciliation",
-  "generatedAtUtc": "2026-05-24T17:07:40.526Z",
-  "currentHead": "a62f0177ba3e5bc7e86d8b5ec2c643258797c09a",
+  "generatedAtUtc": "2026-06-09T00:37:04.044Z",
+  "currentHead": "e633434db51813661460de08f286dcce84be4eca",
   "scoreBefore": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 80.5,
-    "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
+    "costRisk": 42,
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 80.5,
-    "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
+    "costRisk": 42,
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreDimensions": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 80.5,
-    "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
+    "costRisk": 42,
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "routeChecksStatus": "0 active failures",
   "routeHealthStatusBefore": "DEGRADED: 44 ok / 65 action / 2 fail",
-  "routeHealthStatusAfter": "route_listener_delayed",
+  "routeHealthStatusAfter": "route_listener_delayed_with_last_verified_sample",
+  "delayedListener": "admin_debug_route_health",
+  "expectedEvidenceArtifact": "route_runtime_health Firestore listener rows via Admin Debug runtime sample",
+  "delayedClassification": "manual_runtime_proof_required",
+  "evidenceBasis": "source_only_reconciliation_of_archived_debug_cockpit_batch6_sample",
+  "sourceBugFound": false,
+  "sourceOnlyCanClear": false,
+  "runtimeProofRequired": true,
+  "delayedIsHealthy": false,
   "trackedRoutes": 173,
   "observedRoutes": 109,
   "unseenRoutes": 64,
@@ -51,7 +59,7 @@ Head: a62f0177ba3e5bc7e86d8b5ec2c643258797c09a
   "routeListenerStatus": "failed",
   "canTrustLastVerified": true,
   "lastVerifiedAgeMs": 1800000,
-  "status": "route_listener_delayed",
+  "status": "route_listener_delayed_with_last_verified_sample",
   "unseenRoutesClassified": {
     "unseen_expected": 0,
     "unseen_inactive": 0,
