@@ -60,6 +60,18 @@ Validator: `npm run check:billing-spikes`
 - Firestore offset pagination on growing collections is a critical fail.
 - Rules dependent reads on high-frequency paths without documentation are a critical fail.
 
+## Coverage classification
+
+`sourceFilesMissing` must be classified before future agents act on it:
+
+- `real_missing_coverage`: no matching local owner exists and the guardrail needs source coverage.
+- `renamed_moved_source`: the surface is covered, but the detector points at an old path.
+- `intentionally_absent_feature`: the cost surface is a future/disabled feature and absence is expected.
+- `external_manual_evidence_required`: local source cannot prove the hosted/runtime policy.
+- `stale_detector_pattern`: a known old detector path should be replaced with current source owners.
+
+Risk-tier mismatches are `tier_calibration_review` findings. They keep the surface visible for promo-week billing awareness, but they are not evidence that source coverage is missing.
+
 ## Promo week watchlist
 
 Top watchlist should include all `critical` and `high` surfaces from the generated report, sorted by risk score. The debug control tower may consume this as the “billing spike watchlist” for release week readiness.

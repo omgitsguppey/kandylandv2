@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T04:43:53.538Z",
+  "generatedAt": "2026-06-09T04:12:37.621Z",
   "status": "warning",
   "overallRiskScore": 69,
   "topSpikeRisks": [
@@ -29,6 +29,16 @@
         "src/lib/uploads/asset-upload-draft-contract.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "critical",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "critical",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -60,6 +70,16 @@
         "src/lib/server/global-cost-surface-contract.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "critical",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "critical",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -127,6 +147,10 @@
         "scripts/rebuild-behavioral-intelligence.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "critical",
+      "riskTierMatches": true,
+      "tierFinding": null,
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -159,6 +183,16 @@
         "scripts/agent/validate-daily-task-engine-rewrite.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "critical",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "review",
+        "computedTier": "critical",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -191,6 +225,16 @@
         "functions/src/behavioral-intelligence-runtime.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "critical",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "critical",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -223,6 +267,10 @@
         "src/lib/server/server-diagnostics.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "high",
+      "riskTierMatches": true,
+      "tierFinding": null,
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -255,6 +303,10 @@
         "src/lib/server/cheap-4xx-response.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "high",
+      "riskTierMatches": true,
+      "tierFinding": null,
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -286,6 +338,16 @@
         "src/lib/server/security-hardening-contract.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "review",
+        "computedTier": "watch",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -443,6 +505,16 @@
         "src/app/admin/users/page.tsx"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "watch",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -474,6 +546,16 @@
         "src/lib/server/security-hardening-contract.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "review",
+        "computedTier": "watch",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -527,6 +609,7 @@
         "src/lib/server/admin-debug-control-tower-loader.ts",
         "src/lib/server/admin-debug-preferences.ts",
         "src/lib/server/admin-debug-settings.ts",
+        "src/lib/server/admin-heartbeat-writer.ts",
         "src/lib/server/admin-moderation.ts",
         "src/lib/server/admin-ops-health.ts",
         "src/lib/server/admin-orchestration-repairs.ts",
@@ -535,15 +618,19 @@
         "src/lib/server/admin-page-data-loader.ts",
         "src/lib/server/admin-panel-system-logs.ts",
         "src/lib/server/admin-privacy-console.ts",
+        "src/lib/server/admin-route-errors.ts",
         "src/lib/server/admin-source-verification.ts",
         "src/lib/server/admin-telemetry-health.ts",
         "src/lib/server/admin-ui-preferences.ts",
         "src/lib/server/admin-user-metrics-snapshot.ts",
         "src/lib/server/admin-user-truth-snapshot.ts",
         "src/lib/server/ai-debug-assistant.ts",
+        "src/lib/server/ai-debug-budget-guard.ts",
+        "src/lib/server/ai-debug-planner.ts",
         "src/lib/server/ai-drop-covers-helpers.ts",
         "src/lib/server/ai-drop-covers.ts",
         "src/lib/server/ai-drop-descriptions.ts",
+        "src/lib/server/ai-repair-planner.ts",
         "src/lib/server/analytics-event-utils.ts",
         "src/lib/server/analytics-governance.ts",
         "src/lib/server/analytics-identity-linking.ts",
@@ -610,6 +697,7 @@
         "src/lib/server/privacy-consent.ts",
         "src/lib/server/process-queue-drops.ts",
         "src/lib/server/push-notifications.ts",
+        "src/lib/server/queue-heartbeat.ts",
         "src/lib/server/queue-runtime.ts",
         "src/lib/server/rate-limit.ts",
         "src/lib/server/request-client-ip.ts",
@@ -632,6 +720,7 @@
         "src/lib/server/user-index-writer.ts",
         "src/lib/server/user-runtime.ts",
         "src/lib/server/username-suggestions.ts",
+        "src/lib/server/viewer-drop-entitlement.ts",
         "src/lib/server/watch-time-rollup.ts",
         "src/lib/server/write-runtime-fact.ts",
         "src/app/api/admin/ai/drop-covers/feedback/route.ts",
@@ -738,6 +827,7 @@
         "src/app/api/drops/unlock/route.ts",
         "src/app/api/drops/[dropId]/click/route.ts",
         "src/app/api/health/route.ts",
+        "src/app/api/notifications/push-token/route.ts",
         "src/app/api/notifications/route.ts",
         "src/app/api/paypal/capture/route.ts",
         "src/app/api/paypal/create/route.ts",
@@ -767,6 +857,16 @@
         "src/app/api/wallet/packages/route.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "critical",
+        "computedTier": "watch",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -834,6 +934,10 @@
         "scripts/rebuild-behavioral-intelligence.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "critical",
+      "riskTierMatches": true,
+      "tierFinding": null,
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -866,6 +970,10 @@
         "src/lib/server/server-diagnostics.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "high",
+      "riskTierMatches": true,
+      "tierFinding": null,
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -898,6 +1006,10 @@
         "src/lib/server/cheap-4xx-response.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "high",
+      "riskTierMatches": true,
+      "tierFinding": null,
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -930,6 +1042,16 @@
         "src/app/not-found.tsx"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "review",
+        "computedTier": "watch",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1060,6 +1182,7 @@
         "src/app/api/drops/unlock/route.ts",
         "src/app/api/drops/[dropId]/click/route.ts",
         "src/app/api/health/route.ts",
+        "src/app/api/notifications/push-token/route.ts",
         "src/app/api/notifications/route.ts",
         "src/app/api/paypal/capture/route.ts",
         "src/app/api/paypal/create/route.ts",
@@ -1091,6 +1214,16 @@
         "src/lib/server/rate-limit.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "review",
+        "computedTier": "watch",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1224,6 +1357,7 @@
         "src/app/api/drops/unlock/route.ts",
         "src/app/api/drops/[dropId]/click/route.ts",
         "src/app/api/health/route.ts",
+        "src/app/api/notifications/push-token/route.ts",
         "src/app/api/notifications/route.ts",
         "src/app/api/paypal/capture/route.ts",
         "src/app/api/paypal/create/route.ts",
@@ -1253,6 +1387,16 @@
         "src/app/api/wallet/packages/route.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "review",
+        "computedTier": "watch",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1289,6 +1433,16 @@
         "package.json"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "low",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "low",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1324,6 +1478,10 @@
         "docs/agent-truth/cloudrun-sql-bigquery-guardrails.md"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": true,
+      "tierFinding": null,
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1359,6 +1517,10 @@
         "docs/agent-truth/speed-security-hardening.md"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": true,
+      "tierFinding": null,
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1390,6 +1552,16 @@
         "src/lib/server/global-cost-surface-contract.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "critical",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "critical",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1422,6 +1594,16 @@
         "src/lib/uploads/asset-upload-draft-contract.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "critical",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "critical",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1566,6 +1748,7 @@
         "src/components/Landing/DeferredHomeDropTicker.tsx",
         "src/components/Landing/HomeActiveDropsCarousel.tsx",
         "src/components/Landing/HomeHeroActions.tsx",
+        "src/components/Landing/HomeHeroTelemetry.tsx",
         "src/components/Landing/HomeHowItWorksActions.tsx",
         "src/components/Landing/HowItWorks.tsx",
         "src/components/Legal/LegalBackLink.tsx",
@@ -1599,6 +1782,10 @@
         "src/components/UIDebug.tsx"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": true,
+      "tierFinding": null,
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1632,6 +1819,16 @@
         "src/components/Analytics/DeepTracker.tsx"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "low",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "review",
+        "computedTier": "low",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1664,6 +1861,16 @@
         "src/lib/server/analytics-governance.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "low",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "review",
+        "computedTier": "low",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1676,7 +1883,7 @@
       "sourceFiles": [
         "src/hooks/useViewerWatchSession.ts",
         "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
-        "docs/agent-truth/watch-time-truth-v2.md"
+        "docs/agent-truth/runtime-watch-time-v2.md"
       ],
       "billingProducts": [
         "Firestore writes",
@@ -1692,16 +1899,19 @@
       "emergencyDisableSwitch": "Disable continuous tick events and keep end-of-session rollups only.",
       "sourceFilesPresent": [
         "src/hooks/useViewerWatchSession.ts",
-        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts"
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "docs/agent-truth/runtime-watch-time-v2.md"
       ],
-      "sourceFilesMissing": [
-        "docs/agent-truth/watch-time-truth-v2.md"
-      ],
+      "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": true,
+      "tierFinding": null,
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
       "riskScore": 12000,
-      "status": "warning"
+      "status": "pass"
     },
     {
       "surface": "daily_task_reset_materializer_loops",
@@ -1729,6 +1939,16 @@
         "scripts/agent/validate-daily-task-engine-rewrite.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "critical",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "review",
+        "computedTier": "critical",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1762,6 +1982,16 @@
         "src/lib/server/notification-runtime.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "low",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "low",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1774,7 +2004,8 @@
       "sourceFiles": [
         "src/app/api/creator/broadcasts/route.ts",
         "src/components/Creators/CreatorBroadcastManager.tsx",
-        "src/lib/creator-dashboard/creator-broadcasts.ts"
+        "src/lib/creator-broadcasts/broadcast-contract.ts",
+        "src/lib/notifications/creator-broadcast-notifications.ts"
       ],
       "billingProducts": [
         "Firestore writes",
@@ -1791,11 +2022,21 @@
       "emergencyDisableSwitch": "Disable broadcast send action and allow draft-only mode.",
       "sourceFilesPresent": [
         "src/app/api/creator/broadcasts/route.ts",
-        "src/components/Creators/CreatorBroadcastManager.tsx"
+        "src/components/Creators/CreatorBroadcastManager.tsx",
+        "src/lib/creator-broadcasts/broadcast-contract.ts",
+        "src/lib/notifications/creator-broadcast-notifications.ts"
       ],
-      "sourceFilesMissing": [
-        "src/lib/creator-dashboard/creator-broadcasts.ts"
-      ],
+      "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "low",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "low",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1828,6 +2069,16 @@
         "src/lib/server/analytics-metrics.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "review",
+        "computedTier": "watch",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1860,6 +2111,16 @@
         "functions/src/behavioral-intelligence-runtime.ts"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "critical",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "critical",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1894,6 +2155,16 @@
         "docs/agent-truth/cloudrun-sql-bigquery-guardrails.md"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "watch",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "critical",
+        "computedTier": "watch",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1930,6 +2201,16 @@
         ".github/workflows/public-release-notes.yml"
       ],
       "sourceFilesMissing": [],
+      "sourcePatternFindings": [],
+      "computedTier": "low",
+      "riskTierMatches": false,
+      "tierFinding": {
+        "declaredTier": "high",
+        "computedTier": "low",
+        "classification": "tier_calibration_review",
+        "reason": "The deterministic sample risk model does not match the contract's declared watch tier.",
+        "nextAction": "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
+      },
       "hasOwner": true,
       "hasRecommendedCap": true,
       "hasEmergencySwitch": true,
@@ -1939,25 +2220,24 @@
   ],
   "criticalBlockers": [],
   "warnings": [
-    "firestore_realtime_listeners: one or more source patterns are missing in this repo snapshot.",
-    "firestore_rules_dependent_reads: one or more source patterns are missing in this repo snapshot.",
-    "firestore_offset_pagination: one or more source patterns are missing in this repo snapshot.",
-    "app_hosting_uncached_bandwidth: one or more source patterns are missing in this repo snapshot.",
-    "cloud_run_dynamic_route_requests: one or more source patterns are missing in this repo snapshot.",
-    "cloud_run_slow_route_cpu_memory: one or more source patterns are missing in this repo snapshot.",
-    "cloud_build_deploy_churn: one or more source patterns are missing in this repo snapshot.",
-    "storage_media_egress: one or more source patterns are missing in this repo snapshot.",
-    "storage_upload_retries: one or more source patterns are missing in this repo snapshot.",
-    "analytics_guest_ingest_volume: one or more source patterns are missing in this repo snapshot.",
-    "analytics_identified_ingest_volume: one or more source patterns are missing in this repo snapshot.",
-    "watch_session_tick_volume: one or more source patterns are missing in this repo snapshot.",
-    "daily_task_reset_materializer_loops: one or more source patterns are missing in this repo snapshot.",
-    "notification_fanout_retry_storms: one or more source patterns are missing in this repo snapshot.",
-    "creator_broadcast_fanout: one or more source patterns are missing in this repo snapshot.",
-    "admin_snapshot_refresh_cadence: one or more source patterns are missing in this repo snapshot.",
-    "behavioral_rebuild_jobs: one or more source patterns are missing in this repo snapshot.",
-    "import_export_bigquery_dataconnect_sync_jobs: one or more source patterns are missing in this repo snapshot.",
-    "release_note_version_update_loops: one or more source patterns are missing in this repo snapshot."
+    "firestore_realtime_listeners: tier_calibration_review declared=high computed=watch; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "firestore_rules_dependent_reads: tier_calibration_review declared=review computed=watch; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "firestore_offset_pagination: tier_calibration_review declared=critical computed=watch; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "app_hosting_uncached_bandwidth: tier_calibration_review declared=review computed=watch; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "cloud_run_dynamic_route_requests: tier_calibration_review declared=review computed=watch; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "cloud_run_slow_route_cpu_memory: tier_calibration_review declared=review computed=watch; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "cloud_build_deploy_churn: tier_calibration_review declared=high computed=low; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "storage_media_egress: tier_calibration_review declared=high computed=critical; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "storage_upload_retries: tier_calibration_review declared=high computed=critical; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "analytics_guest_ingest_volume: tier_calibration_review declared=review computed=low; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "analytics_identified_ingest_volume: tier_calibration_review declared=review computed=low; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "daily_task_reset_materializer_loops: tier_calibration_review declared=review computed=critical; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "notification_fanout_retry_storms: tier_calibration_review declared=high computed=low; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "creator_broadcast_fanout: tier_calibration_review declared=high computed=low; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "admin_snapshot_refresh_cadence: tier_calibration_review declared=review computed=watch; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "behavioral_rebuild_jobs: tier_calibration_review declared=high computed=critical; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "import_export_bigquery_dataconnect_sync_jobs: tier_calibration_review declared=critical computed=watch; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+    "release_note_version_update_loops: tier_calibration_review declared=high computed=low; Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs."
   ],
   "watchlist": [
     "storage_upload_retries (high, score=128000000)",
@@ -1984,5 +2264,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "25 billing multiplier surfaces classified; 0 critical blockers, 19 warnings."
+  "summary": "25 billing multiplier surfaces classified; 0 critical blockers, 18 actionable coverage findings."
 }

@@ -141,6 +141,33 @@ function validateReport(report: BillingSpikeRadarReport | null) {
   if (!Array.isArray(report.surfaces) || report.surfaces.length !== BILLING_SPIKE_SURFACES.length) {
     fail("Report surfaces must match contract surface inventory size.");
   }
+  for (const surface of report.surfaces ?? []) {
+    if (!Array.isArray(surface.sourcePatternFindings)) {
+      fail(`${surface.surface} must include sourcePatternFindings.`);
+      continue;
+    }
+    if (surface.sourceFilesMissing.length !== surface.sourcePatternFindings.length) {
+      fail(`${surface.surface} sourcePatternFindings must classify every missing source pattern.`);
+    }
+    if (typeof surface.computedTier !== "string") fail(`${surface.surface} must include computedTier.`);
+    if (typeof surface.riskTierMatches !== "boolean") fail(`${surface.surface} must include riskTierMatches.`);
+    for (const finding of surface.sourcePatternFindings) {
+      if (![
+        "real_missing_coverage",
+        "renamed_moved_source",
+        "intentionally_absent_feature",
+        "external_manual_evidence_required",
+        "stale_detector_pattern",
+      ].includes(finding.classification)) {
+        fail(`${surface.surface} source pattern finding has invalid classification: ${finding.classification}.`);
+      }
+      if (!finding.reason?.trim()) fail(`${surface.surface} source pattern finding missing reason.`);
+      if (!finding.nextAction?.trim()) fail(`${surface.surface} source pattern finding missing nextAction.`);
+    }
+  }
+  if (report.warnings.some((warning) => warning.includes("one or more source patterns are missing"))) {
+    fail("Report warnings must classify source pattern gaps instead of using the generic missing-pattern warning.");
+  }
   if (!Array.isArray(report.topSpikeRisks) || report.topSpikeRisks.length === 0) {
     fail("Report must include topSpikeRisks.");
   }

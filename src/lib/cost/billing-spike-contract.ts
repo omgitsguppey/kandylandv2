@@ -26,6 +26,28 @@ export type BillingSpikeSurfaceId =
   | "release_note_version_update_loops";
 
 export type BillingSpikeRiskTier = "low" | "watch" | "review" | "high" | "critical";
+export type BillingSpikeSourcePatternClassification =
+  | "real_missing_coverage"
+  | "renamed_moved_source"
+  | "intentionally_absent_feature"
+  | "external_manual_evidence_required"
+  | "stale_detector_pattern";
+
+export type BillingSpikeSourcePatternFinding = {
+  pattern: string;
+  classification: BillingSpikeSourcePatternClassification;
+  reason: string;
+  nextAction: string;
+  replacementPatterns?: string[];
+};
+
+export type BillingSpikeTierFinding = {
+  declaredTier: BillingSpikeRiskTier;
+  computedTier: BillingSpikeRiskTier;
+  classification: "tier_calibration_review";
+  reason: string;
+  nextAction: string;
+};
 
 export type BillingSpikeSurfaceEntry = {
   surface: BillingSpikeSurfaceId;
@@ -45,6 +67,10 @@ export type BillingSpikeSurfaceEntry = {
 export type BillingSpikeRadarEvaluation = BillingSpikeSurfaceEntry & {
   sourceFilesPresent: string[];
   sourceFilesMissing: string[];
+  sourcePatternFindings: BillingSpikeSourcePatternFinding[];
+  computedTier: BillingSpikeRiskTier;
+  riskTierMatches: boolean;
+  tierFinding: BillingSpikeTierFinding | null;
   hasOwner: boolean;
   hasRecommendedCap: boolean;
   hasEmergencySwitch: boolean;
@@ -326,7 +352,7 @@ export const BILLING_SPIKE_SURFACES: BillingSpikeSurfaceEntry[] = [
   {
     surface: "watch_session_tick_volume",
     owner: "watch-time",
-    sourceFiles: ["src/hooks/useViewerWatchSession.ts", "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts", "docs/agent-truth/watch-time-truth-v2.md"],
+    sourceFiles: ["src/hooks/useViewerWatchSession.ts", "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts", "docs/agent-truth/runtime-watch-time-v2.md"],
     billingProducts: ["Firestore writes", "Analytics ingest writes"],
     trigger: "Tick interval too frequent or uncapped flush behavior.",
     multiplierFormula: "risk = activeWatchSessions * ticksPerMinute * writesPerTick",
@@ -368,7 +394,12 @@ export const BILLING_SPIKE_SURFACES: BillingSpikeSurfaceEntry[] = [
   {
     surface: "creator_broadcast_fanout",
     owner: "creator-dashboard",
-    sourceFiles: ["src/app/api/creator/broadcasts/route.ts", "src/components/Creators/CreatorBroadcastManager.tsx", "src/lib/creator-dashboard/creator-broadcasts.ts"],
+    sourceFiles: [
+      "src/app/api/creator/broadcasts/route.ts",
+      "src/components/Creators/CreatorBroadcastManager.tsx",
+      "src/lib/creator-broadcasts/broadcast-contract.ts",
+      "src/lib/notifications/creator-broadcast-notifications.ts",
+    ],
     billingProducts: ["Firestore writes", "FCM fanout", "Cloud Run compute"],
     trigger: "Large follower sends with limited dedupe/batch controls.",
     multiplierFormula: "risk = recipients * writesPerRecipient * retryMultiplier",

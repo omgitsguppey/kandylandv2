@@ -9,6 +9,7 @@ import {
   type BillingSpikeRadarEvaluation,
   type BillingSpikeRadarReport,
   type BillingSpikeRiskTier,
+  type BillingSpikeSourcePatternFinding,
   type BillingSpikeSurfaceEntry,
 } from "../../src/lib/cost/billing-spike-contract";
 import {
@@ -102,12 +103,73 @@ function toTierScore(tier: BillingSpikeRiskTier) {
   return 15;
 }
 
+const STALE_SOURCE_PATTERN_REPLACEMENTS: Record<string, { replacementPatterns: string[]; reason: string }> = {
+  "docs/agent-truth/watch-time-truth-v2.md": {
+    replacementPatterns: ["docs/agent-truth/runtime-watch-time-v2.md"],
+    reason: "Runtime watch-time v2 evidence moved to the runtime-watch-time-v2 report.",
+  },
+  "src/lib/creator-dashboard/creator-broadcasts.ts": {
+    replacementPatterns: [
+      "src/lib/creator-broadcasts/broadcast-contract.ts",
+      "src/lib/notifications/creator-broadcast-notifications.ts",
+    ],
+    reason: "Creator broadcast source truth was split into broadcast contract and notification fanout owners.",
+  },
+};
+
+const MANUAL_EVIDENCE_PATTERNS = [
+  ".github/workflows/**",
+  "dataconnect/dataconnect.yaml",
+] as const;
+
+function classifyMissingSourcePattern(pattern: string): BillingSpikeSourcePatternFinding {
+  const staleReplacement = STALE_SOURCE_PATTERN_REPLACEMENTS[pattern];
+  if (staleReplacement) {
+    return {
+      pattern,
+      classification: "stale_detector_pattern",
+      reason: staleReplacement.reason,
+      nextAction: `Update the billing radar sourceFiles entry to ${staleReplacement.replacementPatterns.join(", ")}.`,
+      replacementPatterns: staleReplacement.replacementPatterns,
+    };
+  }
+
+  if (MANUAL_EVIDENCE_PATTERNS.includes(pattern as (typeof MANUAL_EVIDENCE_PATTERNS)[number])) {
+    return {
+      pattern,
+      classification: "external_manual_evidence_required",
+      reason: "This pattern depends on repository/hosted infrastructure evidence rather than a product source module.",
+      nextAction: "Keep as manual evidence until a local policy file or workflow artifact owns the guardrail.",
+    };
+  }
+
+  return {
+    pattern,
+    classification: "real_missing_coverage",
+    reason: "No matching source path was found for this billing multiplier surface.",
+    nextAction: "Add or point the detector at the canonical source owner before treating the surface as covered.",
+  };
+}
+
+function buildTierFinding(entry: BillingSpikeSurfaceEntry, computedTier: BillingSpikeRiskTier) {
+  if (computedTier === entry.riskTier) return null;
+  return {
+    declaredTier: entry.riskTier,
+    computedTier,
+    classification: "tier_calibration_review" as const,
+    reason: "The deterministic sample risk model does not match the contract's declared watch tier.",
+    nextAction: "Review whether the declared tier is a promo-week policy ceiling or whether computeRiskScore needs surface-specific inputs.",
+  };
+}
+
 function evaluateSurface(entry: BillingSpikeSurfaceEntry): BillingSpikeRadarEvaluation {
   const sourceFilesPresent = Array.from(new Set(entry.sourceFiles.flatMap(patternMatches)));
   const sourceFilesMissing = entry.sourceFiles.filter((sourceFile) => patternMatches(sourceFile).length === 0);
+  const sourcePatternFindings = sourceFilesMissing.map(classifyMissingSourcePattern);
   const riskScore = computeRiskScore(entry);
   const computedTier = billingRiskTierFromScore(riskScore);
   const tierMismatch = computedTier !== entry.riskTier;
+  const tierFinding = buildTierFinding(entry, computedTier);
   const hasOwner = entry.owner.trim().length > 0;
   const hasRecommendedCap = entry.recommendedCap.trim().length > 0;
   const hasEmergencySwitch = entry.emergencyDisableSwitch.trim().length > 0;
@@ -121,6 +183,10 @@ function evaluateSurface(entry: BillingSpikeSurfaceEntry): BillingSpikeRadarEval
     ...entry,
     sourceFilesPresent,
     sourceFilesMissing,
+    sourcePatternFindings,
+    computedTier,
+    riskTierMatches: !tierMismatch,
+    tierFinding,
     hasOwner,
     hasRecommendedCap,
     hasEmergencySwitch,
@@ -142,8 +208,15 @@ function buildReport(): BillingSpikeRadarReport {
   for (const evaluation of surfaces) {
     if (evaluation.status === "fail") {
       criticalBlockers.push(`${evaluation.surface}: incomplete ownership/cap/switch/source coverage.`);
-    } else if (evaluation.status === "warning") {
-      warnings.push(`${evaluation.surface}: one or more source patterns are missing in this repo snapshot.`);
+    } else {
+      for (const finding of evaluation.sourcePatternFindings) {
+        warnings.push(`${evaluation.surface}: ${finding.classification} for ${finding.pattern}; ${finding.nextAction}`);
+      }
+      if (evaluation.tierFinding) {
+        warnings.push(
+          `${evaluation.surface}: tier_calibration_review declared=${evaluation.tierFinding.declaredTier} computed=${evaluation.tierFinding.computedTier}; ${evaluation.tierFinding.nextAction}`,
+        );
+      }
     }
   }
 
@@ -195,7 +268,7 @@ function buildReport(): BillingSpikeRadarReport {
     watchlist,
     requiredCommands: [...BILLING_SPIKE_REQUIRED_COMMANDS],
     forbiddenCommands: [...BILLING_SPIKE_FORBIDDEN_COMMANDS],
-    summary: `${surfaces.length} billing multiplier surfaces classified; ${criticalBlockers.length} critical blockers, ${warnings.length} warnings.`,
+    summary: `${surfaces.length} billing multiplier surfaces classified; ${criticalBlockers.length} critical blockers, ${warnings.length} actionable coverage findings.`,
   };
 }
 
