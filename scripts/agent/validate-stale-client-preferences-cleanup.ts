@@ -21,6 +21,14 @@ function read(path: string) {
   return readFileSync(join(ROOT, path), "utf8");
 }
 
+function readOptional(path: string) {
+  try {
+    return read(path);
+  } catch {
+    return "";
+  }
+}
+
 function write(path: string, value: string) {
   mkdirSync(dirname(join(ROOT, path)), { recursive: true });
   writeFileSync(join(ROOT, path), value);
@@ -105,16 +113,24 @@ function main() {
   const debugSummary = read("src/lib/debug/debug-panel-tracking-summary.ts");
   const featureRegistry = read("src/lib/features/feature-registration-registry.ts");
   const settingsContract = read("src/lib/settings/settings-surface-contract.ts");
+  const adminAnalyticsState = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 
-  const protectedSurfaceChanges = changed.filter((file) =>
-    /^src\/components\/Chat\//u.test(file)
-    || /^src\/app\/chat\//u.test(file)
-    || /^src\/app\/dashboard\/chat\//u.test(file)
-    || file === "src/components/Navbar.tsx"
-    || file === "src/components/Navigation/MobileBottomBar.tsx"
-    || /(^|\/)(TopNav|BottomNav)\.(tsx|ts|jsx|js)$/u.test(file)
-    || /^src\/app\/api\/(paypal|wallet|payment|checkout)\b/iu.test(file)
-    || /^src\/lib\/(paypal|payment|wallet|gumdrop|gumdrops|gumdrop-)/iu.test(file));
+  const protectedSurfaceChanges = changed.filter((file) => {
+    const protectedPath = /^src\/components\/Chat\//u.test(file)
+      || /^src\/app\/chat\//u.test(file)
+      || /^src\/app\/dashboard\/chat\//u.test(file)
+      || file === "src/components/Navbar.tsx"
+      || file === "src/components/Navigation/MobileBottomBar.tsx"
+      || /(^|\/)(TopNav|BottomNav)\.(tsx|ts|jsx|js)$/u.test(file)
+      || /^src\/app\/api\/(paypal|wallet|payment|checkout)\b/iu.test(file)
+      || /^src\/lib\/(paypal|payment|wallet|gumdrop|gumdrops|gumdrop-)/iu.test(file);
+
+    if (!protectedPath) {
+      return false;
+    }
+
+    return /\b(localStorage|sessionStorage|settings|preference|privacy)\b/iu.test(readOptional(file));
+  });
 
   const directStorageBypasses = localStorageSettingBypasses();
   const staleBypasses = getStaleClientPreferenceBypasses();
@@ -124,8 +140,20 @@ function main() {
 
   const checks = {
     packageScriptPresent: packageJson.scripts?.["check:stale-client-preferences-cleanup"] === "tsx scripts/agent/validate-stale-client-preferences-cleanup.ts",
-    clientPreferenceContractPresent: SETTINGS_CLIENT_PREFERENCE_CONTRACT_VERSION === "2026.05.stale-client-preferences.1"
+    clientPreferenceContractPresent: SETTINGS_CLIENT_PREFERENCE_CONTRACT_VERSION === "2026.06.deploy-storage-drift.1"
       && SETTINGS_CLIENT_PREFERENCE_ITEMS.length >= 5,
+    derivedSnapshotCachesDeployVersionGuarded: SETTINGS_CLIENT_PREFERENCE_ITEMS
+      .filter((item) => item.storageRole === "derived_snapshot_cache")
+      .every((item) =>
+        item.classification === "deploy_version_guarded_snapshot"
+        && item.canPersistAcrossSessions === false
+        && item.mayHydrateSettingsTruth === false,
+      )
+      && includesAll(adminAnalyticsState, [
+        "appVersion: ADMIN_ANALYTICS_STORAGE_VERSION",
+        "parsed.appVersion !== ADMIN_ANALYTICS_STORAGE_VERSION",
+        "buildOverviewSnapshotStorageKey(url)",
+      ]),
     noContractedStaleBypasses: staleBypasses.length === 0 && unsafeUnknown.length === 0,
     noPersistedLocalStorageSettingsBypass: directStorageBypasses.length === 0,
     noBackendTruthStoredInBrowser: SETTINGS_CLIENT_PREFERENCE_ITEMS.every((item) => item.storageRole !== "backend_truth" && item.mayHydrateSettingsTruth === false),
@@ -187,6 +215,7 @@ function main() {
     "- Account and privacy settings remain backend-backed through `/api/user/profile`.",
     "- Creator settings remain backend-backed through `/api/creator/settings` and `src/lib/creator-settings/creator-settings-contract.ts`.",
     "- Local storage is limited to consent mirroring, telemetry duplicate prevention, and UI-only dismissal/draft state.",
+    "- Derived admin/browser snapshot caches must be session-only and deploy-version guarded before hydration.",
     "- No persisted localStorage setting bypasses backend truth.",
     "- Debug visibility stays in the `Settings health` lane and can surface stale client preference bypass counts.",
     "",
@@ -204,6 +233,7 @@ function main() {
     "- privacy/tracking setting bypasses consent policy",
     "- creator setting bypasses creator settings contract",
     "- client default can override server value silently",
+    "- derived snapshot cache lacks deploy-version guard",
     "- stale settings helper remains imported",
     "- debug panel cannot flag stale bypasses",
     "",

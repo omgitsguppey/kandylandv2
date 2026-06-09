@@ -1,14 +1,15 @@
 # Stale Client Preferences Cleanup
 
-Generated: 2026-05-23T02:24:18.145Z
+Generated: 2026-06-09T01:03:30.179Z
 Status: pass
-Head: 002ddfd5d2b36ce35f61306aa47f7dab41f101ab
+Head: 6b2b2a37fd92b21c257fc68109ce4b47002c7c68
 
 ## Result
 
 - Account and privacy settings remain backend-backed through `/api/user/profile`.
 - Creator settings remain backend-backed through `/api/creator/settings` and `src/lib/creator-settings/creator-settings-contract.ts`.
 - Local storage is limited to consent mirroring, telemetry duplicate prevention, and UI-only dismissal/draft state.
+- Derived admin/browser snapshot caches must be session-only and deploy-version guarded before hydration.
 - No persisted localStorage setting bypasses backend truth.
 - Debug visibility stays in the `Settings health` lane and can surface stale client preference bypass counts.
 
@@ -20,11 +21,13 @@ Head: 002ddfd5d2b36ce35f61306aa47f7dab41f101ab
 - notification_prompt_dismissal: local_ui_only_display_state, localStorage, ui_dismissal; truth=users/{uid}.notificationSettings controls actual notification preference truth.
 - task_guidance_pending_action: local_ui_only_display_state, sessionStorage, ui_draft; truth=Daily task completion and account state remain server/catalog truth.
 - telemetry_identity_link_dedupe: local_ui_only_display_state, localStorage, telemetry_dedupe; truth=Identity links are submitted to /api/analytics/identity-link when consent permits.
+- admin_analytics_overview_snapshot_cache: deploy_version_guarded_snapshot, sessionStorage, derived_snapshot_cache; truth=Admin Analytics display truth remains the verified backend route/hot-cache snapshot; browser storage may only seed a deploy-version-matched last validated snapshot while the route refreshes.
 
 ## Checks
 
 - pass: packageScriptPresent
 - pass: clientPreferenceContractPresent
+- pass: derivedSnapshotCachesDeployVersionGuarded
 - pass: noContractedStaleBypasses
 - pass: noPersistedLocalStorageSettingsBypass
 - pass: noBackendTruthStoredInBrowser
@@ -42,6 +45,7 @@ Head: 002ddfd5d2b36ce35f61306aa47f7dab41f101ab
 - privacy/tracking setting bypasses consent policy
 - creator setting bypasses creator settings contract
 - client default can override server value silently
+- derived snapshot cache lacks deploy-version guard
 - stale settings helper remains imported
 - debug panel cannot flag stale bypasses
 

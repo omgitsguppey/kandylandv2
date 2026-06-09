@@ -13,11 +13,23 @@ describe("stale client preferences cleanup", () => {
   it("declares client preference storage roles without allowing local storage settings truth", async () => {
     const contract = await import("../../src/lib/settings/client-preferences-contract");
 
-    expect(contract.SETTINGS_CLIENT_PREFERENCE_CONTRACT_VERSION).toBe("2026.05.stale-client-preferences.1");
+    expect(contract.SETTINGS_CLIENT_PREFERENCE_CONTRACT_VERSION).toBe("2026.06.deploy-storage-drift.1");
     expect(contract.SETTINGS_CLIENT_PREFERENCE_DEBUG_LANE.laneId).toBe("settings_health");
     expect(contract.SETTINGS_CLIENT_PREFERENCE_ITEMS.some((item) => item.classification === "stale_bypass")).toBe(false);
     expect(contract.SETTINGS_CLIENT_PREFERENCE_ITEMS.some((item) => item.storageRole === "backend_truth")).toBe(false);
     expect(contract.SETTINGS_CLIENT_PREFERENCE_ITEMS.every((item) => item.debugVisibility === "settings_health")).toBe(true);
+    expect(contract.SETTINGS_CLIENT_PREFERENCE_ITEMS).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "admin_analytics_overview_snapshot_cache",
+          classification: "deploy_version_guarded_snapshot",
+          storageRole: "derived_snapshot_cache",
+          storageKind: "sessionStorage",
+          canPersistAcrossSessions: false,
+          mayHydrateSettingsTruth: false,
+        }),
+      ]),
+    );
   });
 
   it("keeps privacy and creator settings writes on canonical backend contracts", () => {
@@ -44,5 +56,14 @@ describe("stale client preferences cleanup", () => {
     expect(validator).toContain("agent/state/stale-client-preferences-cleanup.generated.json");
     expect(validator).toContain("docs/agent-truth/stale-client-preferences-cleanup.md");
     expect(validator).toContain("persisted localStorage setting bypasses backend truth");
+    expect(validator).toContain("derived snapshot cache lacks deploy-version guard");
+  });
+
+  it("rejects admin analytics browser snapshots that do not match the deployed app version", () => {
+    const adminAnalyticsState = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
+
+    expect(adminAnalyticsState).toContain("appVersion: ADMIN_ANALYTICS_STORAGE_VERSION");
+    expect(adminAnalyticsState).toContain("parsed.appVersion !== ADMIN_ANALYTICS_STORAGE_VERSION");
+    expect(adminAnalyticsState).toContain("kandydrops.admin.analytics.${ADMIN_ANALYTICS_STORAGE_VERSION}");
   });
 });

@@ -1,8 +1,9 @@
-export const SETTINGS_CLIENT_PREFERENCE_CONTRACT_VERSION = "2026.05.stale-client-preferences.1";
+export const SETTINGS_CLIENT_PREFERENCE_CONTRACT_VERSION = "2026.06.deploy-storage-drift.1";
 
 export type ClientPreferenceClassification =
   | "canonical_backend_backed"
   | "local_ui_only_display_state"
+  | "deploy_version_guarded_snapshot"
   | "legacy_fallback"
   | "stale_bypass"
   | "unsafe_unknown";
@@ -13,6 +14,7 @@ export type ClientPreferenceStorageRole =
   | "ui_dismissal"
   | "telemetry_dedupe"
   | "runtime_queue"
+  | "derived_snapshot_cache"
   | "backend_truth";
 
 export type ClientPreferenceItem = {
@@ -136,6 +138,22 @@ export const SETTINGS_CLIENT_PREFERENCE_ITEMS: ClientPreferenceItem[] = [
     mayHydrateSettingsTruth: false,
     staleBypassRisk: "low",
     cleanupAction: "Allowed for duplicate submit prevention only; it cannot define person-level settings.",
+  },
+  {
+    id: "admin_analytics_overview_snapshot_cache",
+    storageKeyOrPattern: "kandydrops.admin.analytics.${PUBLIC_APP_VERSION}.overview.lastValidatedBackendSnapshot:*",
+    storageKind: "sessionStorage",
+    storageRole: "derived_snapshot_cache",
+    classification: "deploy_version_guarded_snapshot",
+    canonicalTruth: "Admin Analytics display truth remains the verified backend route/hot-cache snapshot; browser storage may only seed a deploy-version-matched last validated snapshot while the route refreshes.",
+    backendRouteOrContract: "/api/admin/analytics/historical + src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+    consentPolicy: "admin-only operational snapshot; no consent preference authority",
+    featureRegistrationId: "admin_analytics",
+    debugVisibility: "settings_health",
+    canPersistAcrossSessions: false,
+    mayHydrateSettingsTruth: false,
+    staleBypassRisk: "medium",
+    cleanupAction: "Keep session-only and require PUBLIC_APP_VERSION in both the storage key and stored payload before hydration.",
   },
 ];
 
