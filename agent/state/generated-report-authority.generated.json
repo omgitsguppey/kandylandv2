@@ -1,9 +1,9 @@
 {
   "reportKey": "generated-report-authority",
-  "generatedAt": "2026-06-08T19:08:32.766Z",
-  "generatedAtUtc": "2026-06-08T19:08:32.766Z",
-  "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
-  "currentHead": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+  "generatedAt": "2026-06-09T01:05:25.183Z",
+  "generatedAtUtc": "2026-06-09T01:05:25.183Z",
+  "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
+  "currentHead": "3328ff23f96408bbb85095d2c9da6557d5e53168",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "sourceFileDiscovery": "git",
@@ -57,14 +57,14 @@
     "reportCount": 657,
     "reportedSampleCount": 80,
     "omittedReportCount": 577,
-    "staleCount": 583,
+    "staleCount": 599,
     "unknownFreshnessCount": 0,
     "runtimeViolationCount": 0,
     "doctrineOverrideViolationCount": 0,
     "targetActionabilityAuditCount": 10,
     "targetArchiveCandidateCount": 1,
     "targetEmptyProofRiskCount": 0,
-    "metadataWarningCount": 11092,
+    "metadataWarningCount": 11086,
     "missingCleanupPolicyCount": 653,
     "cappedWithoutOmittedCount": 0
   },
@@ -72,7 +72,7 @@
     {
       "path": "agent/context/doctrine-conflicts.generated.json",
       "generatedAt": "2026-05-08T01:17:53.932Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -105,7 +105,7 @@
     {
       "path": "agent/context/optimized-task-context.generated.json",
       "generatedAt": "2026-06-08T02:12:16.457Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -140,7 +140,7 @@
     {
       "path": "agent/context/task-pack.generated.json",
       "generatedAt": "2026-06-08T17:53:23.464Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -174,7 +174,7 @@
     {
       "path": "agent/index/analytics-truth-layer-v2.json",
       "generatedAt": "2026-04-30T00:00:00.000Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -207,7 +207,7 @@
     {
       "path": "agent/index/blast-radius.json",
       "generatedAt": "2026-06-08T17:54:51.874Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -241,7 +241,7 @@
     {
       "path": "agent/index/canonical-helpers.json",
       "generatedAt": "2026-06-08T17:53:32.141Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -275,7 +275,7 @@
     {
       "path": "agent/index/dependency-graph.summary.json",
       "generatedAt": "2026-06-08T17:53:58.276Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -309,7 +309,7 @@
     {
       "path": "agent/index/governance-truth.json",
       "generatedAt": "2026-06-08T17:53:32.687Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -343,7 +343,7 @@
     {
       "path": "agent/index/known-pitfalls.json",
       "generatedAt": "2026-06-08T17:53:32.709Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -377,7 +377,7 @@
     {
       "path": "agent/index/package-manager-truth.json",
       "generatedAt": "2026-06-08T17:53:32.166Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -411,7 +411,7 @@
     {
       "path": "agent/index/recent-passes.json",
       "generatedAt": "2026-06-08T17:53:32.712Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -474,7 +474,7 @@
     {
       "path": "agent/index/retrieval-index.json",
       "generatedAt": "2026-06-08T17:54:58.199Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -508,7 +508,7 @@
     {
       "path": "agent/index/runtime-observability.json",
       "generatedAt": "2026-06-08T17:53:32.730Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -542,7 +542,7 @@
     {
       "path": "agent/index/surface-map.json",
       "generatedAt": "2026-06-08T17:53:32.141Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -576,7 +576,7 @@
     {
       "path": "agent/index/ui-surface-coverage.json",
       "generatedAt": "2026-06-08T17:55:06.489Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -610,7 +610,7 @@
     {
       "path": "agent/index/verification-commands.json",
       "generatedAt": "2026-06-08T17:53:32.160Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -644,7 +644,7 @@
     {
       "path": "agent/index/workflow-guidance.json",
       "generatedAt": "2026-06-08T17:53:32.686Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -678,7 +678,7 @@
     {
       "path": "agent/state/4xx-cost-guardrails.generated.json",
       "generatedAt": "2026-05-12T01:47:42.903Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -777,7 +777,7 @@
     {
       "path": "agent/state/accessibility-tap-target-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -906,7 +906,7 @@
     {
       "path": "agent/state/addition-bloat-guard.generated.json",
       "generatedAt": "2026-05-28T20:47:00.000Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -972,7 +972,7 @@
     {
       "path": "agent/state/admin-analytics-finalization.generated.json",
       "generatedAt": "2026-05-01T00:00:00-05:00",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1038,7 +1038,7 @@
     {
       "path": "agent/state/admin-analytics-realtime-dependency-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1170,7 +1170,7 @@
     {
       "path": "agent/state/admin-cms-workflow-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1204,7 +1204,7 @@
     {
       "path": "agent/state/admin-heartbeat-contract.generated.json",
       "generatedAt": "2026-06-07T01:59:00.375Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1238,7 +1238,7 @@
     {
       "path": "agent/state/admin-hot-cache-cost-estimate.generated.json",
       "generatedAt": "2026-06-07T01:59:00.394Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1272,7 +1272,7 @@
     {
       "path": "agent/state/admin-hot-cache-heartbeat-refactor.generated.json",
       "generatedAt": "2026-06-07T01:59:00.416Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1307,7 +1307,7 @@
     {
       "path": "agent/state/admin-overview-hot-cache.generated.json",
       "generatedAt": "2026-06-07T01:59:00.435Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1341,7 +1341,7 @@
     {
       "path": "agent/state/admin-realtime-hot-cache-migration.generated.json",
       "generatedAt": "2026-06-07T01:59:00.456Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1440,7 +1440,7 @@
     {
       "path": "agent/state/admin-surface-hydration.generated.json",
       "generatedAt": "2026-06-07T01:59:00.518Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1507,7 +1507,7 @@
     {
       "path": "agent/state/admin-truth-replacement.generated.json",
       "generatedAt": "2026-05-08T03:02:18.323Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1604,7 +1604,7 @@
     {
       "path": "agent/state/admin-users-latency-repair.generated.json",
       "generatedAt": "2026-05-24T21:48:31.352Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1671,7 +1671,7 @@
     {
       "path": "agent/state/affected-audit-plan.generated.json",
       "generatedAt": "2026-05-05T05:17:17.720Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1705,7 +1705,7 @@
     {
       "path": "agent/state/agent-takeover-safety-check.generated.json",
       "generatedAt": "2026-05-28T20:50:00.000Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1772,7 +1772,7 @@
     {
       "path": "agent/state/ai-cover-learning-cutover.generated.json",
       "generatedAt": "2026-05-12T00:31:18.976Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1872,7 +1872,7 @@
     {
       "path": "agent/state/ai-debug-critic-review.generated.json",
       "generatedAt": "2026-05-24T20:31:23.647Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1906,7 +1906,7 @@
     {
       "path": "agent/state/ai-debug-critic.generated.json",
       "generatedAt": "2026-05-21T14:22:31.420Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1940,7 +1940,7 @@
     {
       "path": "agent/state/ai-debug-planner.generated.json",
       "generatedAt": "2026-05-24T20:31:23.647Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1974,7 +1974,7 @@
     {
       "path": "agent/state/ai-debug-queue-truth.generated.json",
       "generatedAt": "2026-05-24T20:31:23.678Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2008,7 +2008,7 @@
     {
       "path": "agent/state/ai-debug-workbench-ui-model.generated.json",
       "generatedAt": "2026-05-25T02:50:10.665Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2042,7 +2042,7 @@
     {
       "path": "agent/state/ai-description-feedback-firestore-cleanup.generated.json",
       "generatedAt": "2026-05-24T22:10:20.155Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2075,7 +2075,7 @@
     {
       "path": "agent/state/ai-repair-context-packet.generated.json",
       "generatedAt": "2026-05-25T02:50:01.087Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2109,7 +2109,7 @@
     {
       "path": "agent/state/ai-repair-critic-approval.generated.json",
       "generatedAt": "2026-05-25T02:50:07.040Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2143,7 +2143,7 @@
     {
       "path": "agent/state/ai-repair-planner.generated.json",
       "generatedAt": "2026-05-25T02:50:05.002Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2177,7 +2177,7 @@
     {
       "path": "agent/state/ai-repair-proposal-workflow.generated.json",
       "generatedAt": "2026-05-25T02:50:08.867Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2211,7 +2211,7 @@
     {
       "path": "agent/state/ai-repair-triage-engine.generated.json",
       "generatedAt": "2026-05-25T02:50:02.929Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2409,7 +2409,7 @@
     {
       "path": "agent/state/analytics-ecosystem-parity.generated.json",
       "generatedAt": "2026-04-30T17:30:27.124Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2608,7 +2608,7 @@
     {
       "path": "agent/state/analytics-ingest-identified-repair.generated.json",
       "generatedAt": "2026-05-24T21:14:27.276Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2645,7 +2645,7 @@
       "sourceCommit": "f1e140ac6a2827e40c4531ae47997d7312526f29",
       "status": "snapshot",
       "evidenceClass": "generated_snapshot",
-      "freshness": "fresh",
+      "freshness": "stale",
       "staleAfterHours": 24,
       "metadataSource": "filesystem_fallback",
       "missingEmbeddedFields": [
@@ -2675,7 +2675,7 @@
     {
       "path": "agent/state/analytics-legacy-mapping-report.generated.json",
       "generatedAt": "2026-04-30T17:30:25.583Z",
-      "sourceCommit": "4e8d5c7617760fe87af7663e2ff9bd7e965fa16e",
+      "sourceCommit": "3328ff23f96408bbb85095d2c9da6557d5e53168",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2712,7 +2712,7 @@
       "sourceCommit": "f1e140ac6a2827e40c4531ae47997d7312526f29",
       "status": "snapshot",
       "evidenceClass": "generated_snapshot",
-      "freshness": "fresh",
+      "freshness": "stale",
       "staleAfterHours": 24,
       "metadataSource": "filesystem_fallback",
       "missingEmbeddedFields": [

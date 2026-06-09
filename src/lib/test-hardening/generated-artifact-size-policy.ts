@@ -1,4 +1,12 @@
 import {
+  buildGeneratedReportCleanupMetadata,
+  buildGeneratedReportCompleteness,
+  type GeneratedReportBaselineStatus,
+  type GeneratedReportCleanupMetadata,
+  type GeneratedReportCompletenessMetadata,
+  type GeneratedReportFreshness,
+} from "@/lib/generated-reports/generated-report-contract";
+import {
   currentGitHead,
   lineCount,
   listFiles,
@@ -27,6 +35,30 @@ export type GeneratedArtifactSizePolicyReport = {
   reportKey: "generated-artifact-size-policy";
   generatedAtUtc: string;
   currentHead: string;
+  reportCompleteness: GeneratedReportCompletenessMetadata["reportCompleteness"];
+  totalFindingCount: number;
+  emittedFindingCount: number;
+  omittedFindingCount: number;
+  capReason: string | null;
+  capStrategy: GeneratedReportCompletenessMetadata["capStrategy"];
+  capLimit: number | null;
+  rankingInputCompleteness: GeneratedReportCompletenessMetadata["reportCompleteness"];
+  highRiskCounts: NonNullable<GeneratedReportCompletenessMetadata["highRiskCounts"]>;
+  sourceFileDiscovery: "not_applicable";
+  gitStatus: "available" | "missing" | "not_required";
+  toolingDegraded: boolean;
+  degradationReason: string | null;
+  currentHeadSource: "git" | "unknown" | "not_required";
+  sourceCommit: string | null;
+  freshness: GeneratedReportFreshness;
+  baselineStatus: GeneratedReportBaselineStatus;
+  owner: string;
+  safetyClass: GeneratedReportCleanupMetadata["safetyClass"];
+  costClass: GeneratedReportCleanupMetadata["costClass"];
+  rollback: string;
+  cleanupPolicy: GeneratedReportCleanupMetadata["cleanupPolicy"];
+  cleanupCommand: string | null;
+  sourceTruthRole: GeneratedReportCleanupMetadata["sourceTruthRole"];
   defaultMaxLines: 500;
   defaultMaxBytes: 250000;
   generatedArtifactsAudited: number;
@@ -69,10 +101,45 @@ export function buildGeneratedArtifactSizePolicyReport(): GeneratedArtifactSizeP
     })
     .filter((entry) => entry.lineCount > 500 || entry.byteCount > 250000);
 
+  const currentHead = currentGitHead();
+  const completeness = buildGeneratedReportCompleteness({
+    totalFindingCount: oversizedArtifacts.length,
+    emittedFindingCount: oversizedArtifacts.length,
+    capStrategy: "none",
+    rankingInputCompleteness: "complete",
+    highRiskCounts: {
+      critical: 0,
+      major: oversizedArtifacts.filter((artifact) => artifact.classification === "unsafe_unknown").length,
+      signoff: oversizedArtifacts.filter((artifact) => artifact.classification !== "compact_artifact").length,
+      privacy: 0,
+      payment: 0,
+      lockedContent: 0,
+      sourceTruth: oversizedArtifacts.length,
+    },
+  });
+  const cleanup = buildGeneratedReportCleanupMetadata({
+    owner: "src/lib/test-hardening/generated-artifact-size-policy.ts",
+    safetyClass: "source_safe",
+    costClass: "local_free",
+    rollback: "Regenerate agent/state/generated-artifact-size-policy.generated.json with npm run check:generated-artifact-size-policy.",
+    cleanupPolicy: "regenerate",
+    cleanupCommand: "npm run check:generated-artifact-size-policy",
+    sourceTruthRole: "generated_snapshot",
+  });
   const report: GeneratedArtifactSizePolicyReport = {
     reportKey: "generated-artifact-size-policy",
     generatedAtUtc: TEST_HARDENING_GENERATED_AT_UTC,
-    currentHead: currentGitHead(),
+    currentHead,
+    ...completeness,
+    sourceFileDiscovery: "not_applicable",
+    gitStatus: currentHead === "unknown" ? "missing" : "available",
+    toolingDegraded: currentHead === "unknown",
+    degradationReason: currentHead === "unknown" ? "git unavailable while reading current head" : null,
+    currentHeadSource: currentHead === "unknown" ? "unknown" : "git",
+    sourceCommit: currentHead === "unknown" ? null : currentHead,
+    freshness: currentHead === "unknown" ? "degraded" : "fresh",
+    baselineStatus: "not_required",
+    ...cleanup,
     defaultMaxLines: 500,
     defaultMaxBytes: 250000,
     generatedArtifactsAudited: artifacts.length,
@@ -96,6 +163,10 @@ export function validateGeneratedArtifactSizePolicyReport(report: GeneratedArtif
   if (report.defaultMaxLines !== 500) failures.push("generated artifact max line policy is not 500.");
   if (report.defaultMaxBytes !== 250000) failures.push("generated artifact max byte policy is not 250000.");
   if (report.generatedArtifactsAudited === 0) failures.push("no generated artifacts audited.");
+  if (!report.cleanupPolicy) failures.push("generated artifact size policy report must declare cleanupPolicy.");
+  if (!report.owner || !report.rollback) failures.push("generated artifact size policy report must declare owner and rollback.");
+  if (report.reportCompleteness === "capped" && report.omittedFindingCount <= 0) failures.push("capped generated artifact size policy report must declare omitted findings.");
+  if (report.gitStatus === "missing" && !report.toolingDegraded) failures.push("missing Git must be surfaced as degraded tooling.");
   if (report.unsafeUnknowns > 0) failures.push("new test-hardening generated artifact exceeds compact policy.");
   for (const path of [
     "agent/state/test-fixture-inventory.generated.json",
