@@ -1,4 +1,5 @@
 import {
+  BEHAVIORAL_ENGAGEMENT_SIGNAL_WEIGHTS,
   computeEngagementScoreFromSignals,
   logNorm,
 } from "@/lib/behavioral/behavioral-math-calibration";
@@ -43,6 +44,25 @@ export type UserEngagementReason = {
   summary: string;
 };
 
+export type UserEngagementConstraintCode =
+  | "action_cap_headroom"
+  | "unwrap_cap_headroom"
+  | "watch_cap_headroom"
+  | "purchase_cap_headroom"
+  | "return_cap_headroom"
+  | "free_intent_cap_headroom";
+
+export type UserEngagementConstraint = {
+  code: UserEngagementConstraintCode;
+  label: string;
+  headroom: number;
+  signal: number;
+  value: number;
+  cap: number;
+  weight: number;
+  summary: string;
+};
+
 export type UserEngagementScoreBreakdown = {
   actionComponent: number;
   unwrapComponent: number;
@@ -58,6 +78,8 @@ export type UserEngagementScoreResult = {
   verdict: string;
   reasons: UserEngagementReason[];
   topReasons: UserEngagementReason[];
+  constraints: UserEngagementConstraint[];
+  topConstraints: UserEngagementConstraint[];
   breakdown: UserEngagementScoreBreakdown;
   inputs: UserEngagementScoreInput;
 };
@@ -165,6 +187,31 @@ function roundContribution(value: number) {
   return Math.round(value * 1000) / 1000;
 }
 
+function buildConstraint(input: {
+  code: UserEngagementConstraintCode;
+  label: string;
+  signal: number;
+  value: number;
+  cap: number;
+  weight: number;
+  unit: string;
+}): UserEngagementConstraint {
+  const signal = clampUnit(input.signal);
+  const headroom = roundContribution(input.weight * (1 - signal));
+  const unitLabel = input.value === 1 ? input.unit : `${input.unit}s`;
+
+  return {
+    code: input.code,
+    label: input.label,
+    headroom,
+    signal: roundContribution(signal),
+    value: input.value,
+    cap: input.cap,
+    weight: input.weight,
+    summary: `${input.label} is at ${input.value}/${input.cap} ${unitLabel}; remaining normalized headroom ${headroom}.`,
+  };
+}
+
 export function computeUserEngagementScore(input: UserEngagementScoreInput): UserEngagementScoreResult {
   const normalizedInput: UserEngagementScoreInput = {
     normalizedActionCount7d: Math.max(0, Math.round(input.normalizedActionCount7d || 0)),
@@ -183,6 +230,7 @@ export function computeUserEngagementScore(input: UserEngagementScoreInput): Use
     returnComponent: clampUnit(normalizedInput.activeDays7d / 7),
     freeIntentComponent: logNorm(normalizedInput.freeGdEarned30d, 1000),
   };
+  const weights = BEHAVIORAL_ENGAGEMENT_SIGNAL_WEIGHTS;
 
   const score = computeEngagementScoreFromSignals({
     purchaseSignal: breakdown.purchaseComponent,
@@ -198,46 +246,102 @@ export function computeUserEngagementScore(input: UserEngagementScoreInput): Use
     {
       code: "meaningful_actions" as const,
       label: "Meaningful actions",
-      contribution: roundContribution(0.10 * breakdown.actionComponent),
+      contribution: roundContribution(weights.meaningfulActionSignal * breakdown.actionComponent),
       value: normalizedInput.normalizedActionCount7d,
       summary: `${normalizedInput.normalizedActionCount7d} normalized actions in the last 7 days`,
     },
     {
       code: "unwraps" as const,
       label: "Unwraps",
-      contribution: roundContribution(0.23 * breakdown.unwrapComponent),
+      contribution: roundContribution(weights.unwrapSignal * breakdown.unwrapComponent),
       value: normalizedInput.unwrappedCount30d,
       summary: `${normalizedInput.unwrappedCount30d} unwraps in the last 30 days`,
     },
     {
       code: "valid_watch_time" as const,
       label: "Valid watch time",
-      contribution: roundContribution(0.23 * breakdown.watchComponent),
+      contribution: roundContribution(weights.validWatchSignal * breakdown.watchComponent),
       value: normalizedInput.validWatchMinutes30d,
       summary: `${normalizedInput.validWatchMinutes30d} valid watch minutes in the last 30 days`,
     },
     {
       code: "purchases" as const,
       label: "Purchases",
-      contribution: roundContribution(0.24 * breakdown.purchaseComponent),
+      contribution: roundContribution(weights.purchaseSignal * breakdown.purchaseComponent),
       value: normalizedInput.purchaseCount90d,
       summary: `${normalizedInput.purchaseCount90d} purchases in the last 90 days`,
     },
     {
       code: "repeat_visits" as const,
       label: "Repeat visits",
-      contribution: roundContribution(0.13 * breakdown.returnComponent),
+      contribution: roundContribution(weights.return7dSignal * breakdown.returnComponent),
       value: normalizedInput.activeDays7d,
       summary: `${normalizedInput.activeDays7d} active days in the last 7 days`,
     },
     {
       code: "free_gd_intent" as const,
       label: "Free GD intent",
-      contribution: roundContribution(0.07 * breakdown.freeIntentComponent),
+      contribution: roundContribution(weights.freeIntentSignal * breakdown.freeIntentComponent),
       value: normalizedInput.freeGdEarned30d,
       summary: `${normalizedInput.freeGdEarned30d} free GD earned in the last 30 days`,
     },
   ].sort((left, right) => right.contribution - left.contribution || right.value - left.value || left.label.localeCompare(right.label));
+  const constraints: UserEngagementConstraint[] = [
+    buildConstraint({
+      code: "purchase_cap_headroom",
+      label: "Purchase signal",
+      signal: breakdown.purchaseComponent,
+      value: normalizedInput.purchaseCount90d,
+      cap: 10,
+      weight: weights.purchaseSignal,
+      unit: "purchase",
+    }),
+    buildConstraint({
+      code: "unwrap_cap_headroom",
+      label: "Unwrap signal",
+      signal: breakdown.unwrapComponent,
+      value: normalizedInput.unwrappedCount30d,
+      cap: 25,
+      weight: weights.unwrapSignal,
+      unit: "unwrap",
+    }),
+    buildConstraint({
+      code: "watch_cap_headroom",
+      label: "Watch signal",
+      signal: breakdown.watchComponent,
+      value: normalizedInput.validWatchMinutes30d,
+      cap: 180,
+      weight: weights.validWatchSignal,
+      unit: "minute",
+    }),
+    buildConstraint({
+      code: "return_cap_headroom",
+      label: "Return signal",
+      signal: breakdown.returnComponent,
+      value: normalizedInput.activeDays7d,
+      cap: 7,
+      weight: weights.return7dSignal,
+      unit: "day",
+    }),
+    buildConstraint({
+      code: "action_cap_headroom",
+      label: "Action signal",
+      signal: breakdown.actionComponent,
+      value: normalizedInput.normalizedActionCount7d,
+      cap: 100,
+      weight: weights.meaningfulActionSignal,
+      unit: "action",
+    }),
+    buildConstraint({
+      code: "free_intent_cap_headroom",
+      label: "Free GD intent",
+      signal: breakdown.freeIntentComponent,
+      value: normalizedInput.freeGdEarned30d,
+      cap: 1000,
+      weight: weights.freeIntentSignal,
+      unit: "GD",
+    }),
+  ].sort((left, right) => right.headroom - left.headroom || right.weight - left.weight || left.label.localeCompare(right.label));
 
   return {
     score,
@@ -245,6 +349,8 @@ export function computeUserEngagementScore(input: UserEngagementScoreInput): Use
     verdict: getVerdict(tier),
     reasons,
     topReasons: reasons.slice(0, 3),
+    constraints,
+    topConstraints: constraints.slice(0, 3),
     breakdown,
     inputs: normalizedInput,
   };

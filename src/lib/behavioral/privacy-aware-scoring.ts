@@ -22,6 +22,30 @@ export function applyPrivacyAwareEngagementFloor(
   return Math.max(score, PRIVACY_LIMITED_ENGAGEMENT_SCORE_FLOOR);
 }
 
+export function describePrivacyAwareEngagementScore(input: {
+  rawScore: number;
+  dataAvailabilityReason: BehavioralDataAvailabilityReason;
+  verifiedSignalPresent: boolean;
+}) {
+  const displayedScore = applyPrivacyAwareEngagementFloor(
+    input.rawScore,
+    input.dataAvailabilityReason,
+    input.verifiedSignalPresent,
+  );
+  const appliedPrivacyFloor = displayedScore !== input.rawScore
+    && isPrivacyLimitedDataAvailabilityReason(input.dataAvailabilityReason)
+    && input.verifiedSignalPresent !== true;
+
+  return {
+    rawScore: input.rawScore,
+    displayedScore,
+    appliedPrivacyFloor,
+    privacyFloor: appliedPrivacyFloor ? PRIVACY_LIMITED_ENGAGEMENT_SCORE_FLOOR : null,
+    dataAvailabilityReason: input.dataAvailabilityReason,
+    verifiedSignalPresent: input.verifiedSignalPresent,
+  };
+}
+
 export function applyPrivacyAwareValueFloor(
   score: number,
   dataAvailabilityReason: BehavioralDataAvailabilityReason,

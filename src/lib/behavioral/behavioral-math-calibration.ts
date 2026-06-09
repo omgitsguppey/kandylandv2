@@ -40,6 +40,15 @@ export type BehavioralEngagementScoreSignals = {
   freeIntentSignal: number;
 };
 
+export const BEHAVIORAL_ENGAGEMENT_SIGNAL_WEIGHTS = {
+  purchaseSignal: 0.24,
+  unwrapSignal: 0.23,
+  validWatchSignal: 0.23,
+  return7dSignal: 0.13,
+  meaningfulActionSignal: 0.1,
+  freeIntentSignal: 0.07,
+} as const satisfies Record<keyof BehavioralEngagementScoreSignals, number>;
+
 export type BehavioralValueScoreSignals = {
   verifiedSpendSignal: number;
   purchaseCountSignal: number;
@@ -152,12 +161,12 @@ export function computeBehavioralTruthScore(input: BehavioralTruthScoreInput) {
 
 export function computeEngagementScoreFromSignals(input: BehavioralEngagementScoreSignals) {
   return Math.round(100 * (
-    (0.24 * clamp01(input.purchaseSignal)) +
-    (0.23 * clamp01(input.unwrapSignal)) +
-    (0.23 * clamp01(input.validWatchSignal)) +
-    (0.13 * clamp01(input.return7dSignal)) +
-    (0.1 * clamp01(input.meaningfulActionSignal)) +
-    (0.07 * clamp01(input.freeIntentSignal))
+    (BEHAVIORAL_ENGAGEMENT_SIGNAL_WEIGHTS.purchaseSignal * clamp01(input.purchaseSignal)) +
+    (BEHAVIORAL_ENGAGEMENT_SIGNAL_WEIGHTS.unwrapSignal * clamp01(input.unwrapSignal)) +
+    (BEHAVIORAL_ENGAGEMENT_SIGNAL_WEIGHTS.validWatchSignal * clamp01(input.validWatchSignal)) +
+    (BEHAVIORAL_ENGAGEMENT_SIGNAL_WEIGHTS.return7dSignal * clamp01(input.return7dSignal)) +
+    (BEHAVIORAL_ENGAGEMENT_SIGNAL_WEIGHTS.meaningfulActionSignal * clamp01(input.meaningfulActionSignal)) +
+    (BEHAVIORAL_ENGAGEMENT_SIGNAL_WEIGHTS.freeIntentSignal * clamp01(input.freeIntentSignal))
   ));
 }
 

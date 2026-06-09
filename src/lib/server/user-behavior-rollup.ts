@@ -20,8 +20,8 @@ import {
   resolveBehavioralModelActivation,
 } from "@/lib/behavioral/behavioral-math-calibration";
 import {
-  applyPrivacyAwareEngagementFloor,
   applyPrivacyAwareValueFloor,
+  describePrivacyAwareEngagementScore,
 } from "@/lib/behavioral/privacy-aware-scoring";
 import type {
   UserBehaviorRollup,
@@ -90,6 +90,71 @@ function resolveBehaviorPrivacyAvailability(input: {
   return "full_signal";
 }
 
+function buildVerifiedEngagementFallbackInput(input: {
+  totalActions?: unknown;
+  views: number;
+  unwraps: number;
+  watchTimeMs: number;
+  purchasesCount: number;
+  authEvents: number;
+  lastSeenAt?: unknown;
+  rewardGdEarned?: unknown;
+}): UserEngagementScoreInput {
+  const totalActions = Math.max(0, Math.round(readNumber(input.totalActions)));
+  const verifiedActionSignals = Math.max(
+    totalActions,
+    input.views + input.unwraps + input.purchasesCount + input.authEvents,
+  );
+  const hasAnyVerifiedActivity = Boolean(
+    verifiedActionSignals > 0
+    || input.watchTimeMs > 0
+    || readNumber(input.lastSeenAt) > 0
+  );
+
+  return {
+    normalizedActionCount7d: verifiedActionSignals,
+    unwrappedCount30d: input.unwraps,
+    validWatchMinutes30d: Math.max(0, Math.round(input.watchTimeMs / 60_000)),
+    purchaseCount90d: input.purchasesCount,
+    activeDays7d: hasAnyVerifiedActivity ? 1 : 0,
+    freeGdEarned30d: Math.max(0, Math.round(readNumber(input.rewardGdEarned))),
+  };
+}
+
+function mergeEngagementInputWithVerifiedFallback(input: {
+  dailyInput?: UserEngagementScoreInput;
+  fallbackInput: UserEngagementScoreInput;
+}) {
+  const dailyInput = input.dailyInput;
+  if (!dailyInput) {
+    return {
+      engagementInput: input.fallbackInput,
+      fallbackReasons: [] as string[],
+    };
+  }
+
+  const fields = [
+    "normalizedActionCount7d",
+    "unwrappedCount30d",
+    "validWatchMinutes30d",
+    "purchaseCount90d",
+    "activeDays7d",
+    "freeGdEarned30d",
+  ] as const;
+  const fallbackReasons: string[] = [];
+  const engagementInput = fields.reduce((acc, field) => {
+    const dailyValue = Math.max(0, Math.round(dailyInput[field] || 0));
+    const fallbackValue = Math.max(0, Math.round(input.fallbackInput[field] || 0));
+    acc[field] = Math.max(dailyValue, fallbackValue);
+    if (fallbackValue > dailyValue) {
+      fallbackReasons.push(`${field}:metric_snapshot_fallback`);
+    }
+    return acc;
+  }, {} as UserEngagementScoreInput);
+
+  return { engagementInput, fallbackReasons };
+}
+
 export function buildUserBehaviorRollup(input: {
   userId: string;
   totalActions?: unknown;
@@ -131,6 +196,23 @@ export function buildUserBehaviorRollup(input: {
     Math.round(explicitWatchTimeMs > 0 ? explicitWatchTimeMs : labeledLegacyWatchTimeMs),
   );
   const authEvents = Math.max(0, Math.round(readNumber(input.authEvents)));
+  const purchasesCount = Math.max(0, Math.round(readNumber(input.purchasesCount)));
+  const unwraps = Math.max(0, Math.round(readNumber(input.unwraps)));
+  const revenueUsd = Math.max(0, readNumber(input.revenueUsd));
+  const verifiedEngagementFallbackInput = buildVerifiedEngagementFallbackInput({
+    totalActions: input.totalActions,
+    views,
+    unwraps,
+    watchTimeMs,
+    purchasesCount,
+    authEvents,
+    lastSeenAt: input.lastSeenAt,
+    rewardGdEarned: input.rewardGdEarned,
+  });
+  const mergedEngagementInput = mergeEngagementInputWithVerifiedFallback({
+    dailyInput: input.engagementInput,
+    fallbackInput: verifiedEngagementFallbackInput,
+  });
   const privacyAvailabilityReason = resolveBehaviorPrivacyAvailability({
     identifiedAnalyticsEnabled: input.identifiedAnalyticsEnabled,
     honorGlobalPrivacyControl: input.honorGlobalPrivacyControl,
@@ -224,6 +306,21 @@ export function buildUserBehaviorRollup(input: {
     });
   }
 
+  if (mergedEngagementInput.fallbackReasons.length > 0) {
+    issues.push({
+      code: "source_degraded",
+      severity: "info",
+      message: "Daily engagement materialization was missing or weaker than verified metric snapshot signals, so engagement scoring used the stronger bounded source per field.",
+      evidence: {
+        sourceReason: "daily_engagement_input_merged_with_metric_snapshot",
+        fallbackReasons: mergedEngagementInput.fallbackReasons,
+        dailyInput: input.engagementInput ?? null,
+        metricSnapshotFallback: verifiedEngagementFallbackInput,
+        mergedInput: mergedEngagementInput.engagementInput,
+      },
+    });
+  }
+
   (input.sourceIssues ?? []).forEach((issue) => {
     if (!issue) return;
     if (typeof issue !== "string") {
@@ -308,9 +405,6 @@ export function buildUserBehaviorRollup(input: {
   const confidence: UserBehaviorRollupConfidence = truthSummary.source === "unavailable" && !hasValue
     ? "unknown"
     : truthSummary.confidenceLabel;
-  const purchasesCount = Math.max(0, Math.round(readNumber(input.purchasesCount)));
-  const unwraps = Math.max(0, Math.round(readNumber(input.unwraps)));
-  const revenueUsd = Math.max(0, readNumber(input.revenueUsd));
   const sourceReliability = resolveSourceReliability({
     hasTransactions: input.hasTransactions,
     hasWatchSessions: input.hasWatchSessions,
@@ -328,14 +422,7 @@ export function buildUserBehaviorRollup(input: {
     schemaCompleteness: truthSummary.requiredFieldsPresent / Math.max(1, truthSummary.requiredFieldsTotal),
     sourceDisagreementPenalty: clamp01(issues.length / 5),
   });
-  const rawEngagement = computeUserEngagementScore(input.engagementInput ?? {
-    normalizedActionCount7d: Math.max(0, Math.round(readNumber(input.totalActions))),
-    unwrappedCount30d: unwraps,
-    validWatchMinutes30d: Math.max(0, Math.round(watchTimeMs / 60_000)),
-    purchaseCount90d: purchasesCount,
-    activeDays7d: readNumber(input.lastSeenAt) > 0 ? 1 : 0,
-    freeGdEarned30d: Math.max(0, Math.round(readNumber(input.rewardGdEarned))),
-  });
+  const rawEngagement = computeUserEngagementScore(mergedEngagementInput.engagementInput);
   const rawValue = computeUserValueScore(input.valueInput ?? {
     totalSpendUsd: revenueUsd,
     purchaseCount: purchasesCount,
@@ -360,13 +447,20 @@ export function buildUserBehaviorRollup(input: {
     Math.round(readNumber(input.paidGdPurchased)) > 0 ||
     unwraps > 0
   );
+  const engagementScoreDisplay = describePrivacyAwareEngagementScore({
+    rawScore: rawEngagement.score,
+    dataAvailabilityReason: privacyAvailabilityReason,
+    verifiedSignalPresent: hasVerifiedEngagementSignal,
+  });
   const engagement = {
     ...rawEngagement,
-    score: applyPrivacyAwareEngagementFloor(
-      rawEngagement.score,
-      privacyAvailabilityReason,
-      hasVerifiedEngagementSignal,
-    ),
+    score: engagementScoreDisplay.displayedScore,
+    rawScore: engagementScoreDisplay.rawScore,
+    displayedScore: engagementScoreDisplay.displayedScore,
+    appliedPrivacyFloor: engagementScoreDisplay.appliedPrivacyFloor,
+    privacyFloor: engagementScoreDisplay.privacyFloor,
+    dataAvailabilityReason: engagementScoreDisplay.dataAvailabilityReason,
+    verifiedSignalPresent: engagementScoreDisplay.verifiedSignalPresent,
     tier: privacyAvailabilityReason === "full_signal" || hasVerifiedEngagementSignal ? rawEngagement.tier : "light",
     verdict:
       privacyAvailabilityReason === "full_signal" || hasVerifiedEngagementSignal
@@ -390,7 +484,7 @@ export function buildUserBehaviorRollup(input: {
     pPurchase7d: value.repeatPurchaseLikelihood,
     pUnlock24h: clamp01(views === 0 ? 0 : unwraps / Math.max(1, views)),
     pWatchComplete: clamp01(watchTimeMs / (30 * 60_000)),
-    pReturn7d: clamp01((input.engagementInput?.activeDays7d ?? (readNumber(input.lastSeenAt) > 0 ? 1 : 0)) / 7),
+    pReturn7d: clamp01(mergedEngagementInput.engagementInput.activeDays7d / 7),
     pCreatorFollow: clamp01(logNorm(readNumber(input.totalActions), 100) * 0.25 + logNorm(unwraps, 25) * 0.35 + truthScore * 0.4),
     pNegativeFeedback: clamp01(issues.filter((issue) => issue.severity === "fail" || issue.severity === "warn").length / 5),
   };

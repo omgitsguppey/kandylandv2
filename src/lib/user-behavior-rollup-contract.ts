@@ -38,6 +38,15 @@ export type UserBehaviorRollupIssue = {
   evidence: Record<string, unknown>;
 };
 
+export type UserBehaviorEngagementScore = UserEngagementScoreResult & {
+  rawScore: number;
+  displayedScore: number;
+  appliedPrivacyFloor: boolean;
+  privacyFloor: number | null;
+  dataAvailabilityReason: BehavioralDataAvailabilityReason;
+  verifiedSignalPresent: boolean;
+};
+
 export type UserBehaviorRollup = {
   userId: string;
   totalActions: number;
@@ -66,6 +75,6 @@ export type UserBehaviorRollup = {
   freshnessState: BehavioralFreshnessState;
   dataAvailabilityReason: BehavioralDataAvailabilityReason;
   issues: UserBehaviorRollupIssue[];
-  engagement: UserEngagementScoreResult;
+  engagement: UserBehaviorEngagementScore;
   value: UserValueScoreResult;
 };
