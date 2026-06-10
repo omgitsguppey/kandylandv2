@@ -1,5 +1,11 @@
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import type {
+    ConsentDecision,
+    ConsentMode,
+    ConsentSource,
+    ConsentTrackingSnapshot,
+} from "@/lib/privacy/consent-tracking-contract";
+import type {
     CreatorOnboardingApprovalStatus,
     CreatorOnboardingIdStatus,
     CreatorOnboardingLegalStatus,
@@ -383,6 +389,10 @@ export interface UserProfile {
     fcmTokens?: string[];
 
     privacySettings?: {
+        consentMode?: ConsentMode;
+        consentDecision?: ConsentDecision | null;
+        consentSource?: ConsentSource;
+        consentPolicyVersion?: ConsentTrackingSnapshot["consentPolicyVersion"];
         allowRecommendations: boolean;
         showInAnonymousStats: boolean;
         anonymousAnalyticsEnabled: boolean;
