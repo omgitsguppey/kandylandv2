@@ -1,13 +1,13 @@
 # Test Fixture Inventory
 
 Generated: 2026-05-27T00:00:00.000Z
-Current head: 4e8d5c7617760fe87af7663e2ff9bd7e965fa16e
+Current head: 5da2ab91449288b72b22b68a6f933c1250317126
 Fixtures audited: 397
 Duplicate fixtures found: 2
 Unsafe unknowns: 0
-Severity counts: low=280, medium=98, high=19
+Severity counts: low=281, medium=97, high=19
 Action counts: keep=167, consolidate=2, replace_with_factory=19, remove=0, mark_fixture_only=209, unsafe_unknown=0
-Remaining gap count: 117
+Remaining gap count: 116
 
 ## Top Fixture Risks
 
@@ -46,8 +46,8 @@ Remaining gap count: 117
 - scripts/agent/validate-debug-panel-output-triage.ts: Fixture is source-only evidence and should stay explicitly fixture-only until an owning canonical factory exists.
 - scripts/agent/validate-debug-runtime-evidence.ts: Fixture is source-only evidence and should stay explicitly fixture-only until an owning canonical factory exists.
 - scripts/agent/validate-drops-mobile-refinement.ts: Fixture is source-only evidence and should stay explicitly fixture-only until an owning canonical factory exists.
-- scripts/agent/validate-evidence-readiness-checklists.ts: Fixture is source-only evidence and should stay explicitly fixture-only until an owning canonical factory exists.
 - scripts/agent/validate-featured-carousel-polish.ts: Fixture is source-only evidence and should stay explicitly fixture-only until an owning canonical factory exists.
 - scripts/agent/validate-final-cost-audit-lock.ts: Fixture is source-only evidence and should stay explicitly fixture-only until an owning canonical factory exists.
 - scripts/agent/validate-final-math-normalization-lock.ts: Fixture is source-only evidence and should stay explicitly fixture-only until an owning canonical factory exists.
 - scripts/agent/validate-final-phase-cleanup-lock.ts: Local fake/mock shape should be replaced with the canonical factory for this domain when the owning validator is touched.
+- scripts/agent/validate-final-signal-zero-lock.ts: Fixture is source-only evidence and should stay explicitly fixture-only until an owning canonical factory exists.
