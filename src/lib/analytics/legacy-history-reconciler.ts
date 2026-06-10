@@ -2,6 +2,29 @@ export type LegacyHistoryIdentityConfidence = "exact_match" | "probable_match" |
 export type LegacyHistoryDuplicateRisk = "low" | "medium" | "high" | "unknown";
 export type LegacyHistoryRecoveryAction = "link_candidate" | "import_candidate" | "archive_only" | "ignore";
 export type LegacyHistoryTargetTruthLayer = "product_truth" | "verified_hot_cache" | "debug_truth" | "evidence_only";
+export type LegacyHistoryPurgatoryClassification =
+  | "exact_match"
+  | "probable_match"
+  | "weak_match"
+  | "unknown"
+  | "duplicate_candidate"
+  | "rejected";
+export type LegacyHistoryPurgatoryReasonCode =
+  | "exact_current_event_match"
+  | "probable_identity_window_match"
+  | "partial_identity_or_route_match"
+  | "unknown_identity"
+  | "external_evidence_only"
+  | "debug_only_source"
+  | "duplicate_risk"
+  | "missing_first_party_corroboration"
+  | "current_totals_blocked";
+export type LegacyHistorySuggestedRecoveryAction =
+  | "link_as_evidence_only"
+  | "manual_review_identity_bridge"
+  | "archive_as_debug_evidence"
+  | "require_first_party_fact_or_ledger"
+  | "reject_from_current_totals";
 
 export type LegacyHistoryCandidate = {
   legacySource: string;
@@ -59,10 +82,55 @@ export type LegacyHistoryCandidateMapping = {
   targetTruthLayer: LegacyHistoryTargetTruthLayer;
   identityConfidence: LegacyHistoryIdentityConfidence;
   duplicateRisk: LegacyHistoryDuplicateRisk;
+  purgatoryClassification: LegacyHistoryPurgatoryClassification;
+  reasonCodes: LegacyHistoryPurgatoryReasonCode[];
+  suggestedRecoveryAction: LegacyHistorySuggestedRecoveryAction;
   recoveryAction: LegacyHistoryRecoveryAction;
   currentTotalsEligible: boolean;
   overwriteCurrentTruth: false;
   reason: string;
+};
+
+export type LegacyHistoryPurgatoryQueueItem = Pick<
+  LegacyHistoryCandidateMapping,
+  | "legacySource"
+  | "legacyId"
+  | "targetTruthLayer"
+  | "identityConfidence"
+  | "duplicateRisk"
+  | "purgatoryClassification"
+  | "reasonCodes"
+  | "suggestedRecoveryAction"
+  | "currentTotalsEligible"
+  | "reason"
+> & {
+  manualReviewRequired: boolean;
+};
+
+export type LegacyHistoryPurgatorySummary = {
+  exactMatch: number;
+  probableMatch: number;
+  weakMatch: number;
+  unknown: number;
+  duplicateCandidate: number;
+  rejected: number;
+  productTruthEligible: number;
+  manualReviewRequired: number;
+};
+
+export type LegacyHistoryPurgatoryQueueReport = {
+  reportKey: "analytics-legacy-purgatory-queue";
+  generatedAtUtc: string;
+  currentHead: string;
+  sourceReportKey: "analytics-legacy-history-reconciliation";
+  summary: LegacyHistoryPurgatorySummary;
+  queue: LegacyHistoryPurgatoryQueueItem[];
+  productTruthPolicy: {
+    legacyCannotOverwriteCurrentTruth: true;
+    weakMatchesRemainEvidenceOnly: true;
+    unknownLegacyIsNotZero: true;
+    duplicateCandidatesRequireFirstPartyDeduping: true;
+  };
 };
 
 export type LegacyHistoryReconciliationResult = {
@@ -73,6 +141,7 @@ export type LegacyHistoryReconciliationResult = {
     probableMatchCount: number;
     weakMatchCount: number;
     unknownLegacyCount: number;
+    purgatoryQueueCount: number;
     highDuplicateRiskCount: number;
     currentTotalsEligibleCount: number;
     overwritesCurrentTruth: false;
@@ -242,6 +311,51 @@ function recoveryAction(layer: LegacyHistoryTargetTruthLayer, confidence: Legacy
   return "archive_only";
 }
 
+function purgatoryClassification(input: {
+  layer: LegacyHistoryTargetTruthLayer;
+  confidence: LegacyHistoryIdentityConfidence;
+  risk: LegacyHistoryDuplicateRisk;
+}): LegacyHistoryPurgatoryClassification {
+  if (input.risk === "high") return "duplicate_candidate";
+  if (input.confidence === "exact_match") return "exact_match";
+  if (input.confidence === "probable_match") return "probable_match";
+  if (input.confidence === "weak_match") return "weak_match";
+  if (input.layer === "evidence_only" || input.layer === "debug_truth" || input.confidence === "unknown") return "unknown";
+  return "rejected";
+}
+
+function reasonCodesFor(input: {
+  layer: LegacyHistoryTargetTruthLayer;
+  confidence: LegacyHistoryIdentityConfidence;
+  risk: LegacyHistoryDuplicateRisk;
+  currentTotalsEligible: boolean;
+}): LegacyHistoryPurgatoryReasonCode[] {
+  const codes = new Set<LegacyHistoryPurgatoryReasonCode>();
+  if (input.confidence === "exact_match") codes.add("exact_current_event_match");
+  if (input.confidence === "probable_match") codes.add("probable_identity_window_match");
+  if (input.confidence === "weak_match") codes.add("partial_identity_or_route_match");
+  if (input.confidence === "unknown") codes.add("unknown_identity");
+  if (input.layer === "evidence_only") codes.add("external_evidence_only");
+  if (input.layer === "debug_truth") codes.add("debug_only_source");
+  if (input.risk === "high" || input.risk === "medium") codes.add("duplicate_risk");
+  if (input.layer === "product_truth" && input.confidence !== "exact_match") codes.add("missing_first_party_corroboration");
+  if (!input.currentTotalsEligible) codes.add("current_totals_blocked");
+  return Array.from(codes);
+}
+
+function suggestedRecoveryActionFor(input: {
+  layer: LegacyHistoryTargetTruthLayer;
+  confidence: LegacyHistoryIdentityConfidence;
+  risk: LegacyHistoryDuplicateRisk;
+}): LegacyHistorySuggestedRecoveryAction {
+  if (input.risk === "high") return "require_first_party_fact_or_ledger";
+  if (input.layer === "evidence_only") return "require_first_party_fact_or_ledger";
+  if (input.layer === "debug_truth") return "archive_as_debug_evidence";
+  if (input.confidence === "exact_match") return "link_as_evidence_only";
+  if (input.confidence === "probable_match" || input.confidence === "weak_match") return "manual_review_identity_bridge";
+  return "reject_from_current_totals";
+}
+
 function reasonFor(input: {
   layer: LegacyHistoryTargetTruthLayer;
   confidence: LegacyHistoryIdentityConfidence;
@@ -266,6 +380,7 @@ export function reconcileLegacyHistoryCandidates(input: {
     const risk = duplicateRisk(candidate, confidence);
     const action = recoveryAction(layer, confidence, risk);
     const currentTotalsEligible = layer === "product_truth" && action === "import_candidate" && risk === "low";
+    const classification = purgatoryClassification({ layer, confidence, risk });
 
     return {
       legacySource: candidate.legacySource,
@@ -273,6 +388,9 @@ export function reconcileLegacyHistoryCandidates(input: {
       targetTruthLayer: layer,
       identityConfidence: confidence,
       duplicateRisk: risk,
+      purgatoryClassification: classification,
+      reasonCodes: reasonCodesFor({ layer, confidence, risk, currentTotalsEligible }),
+      suggestedRecoveryAction: suggestedRecoveryActionFor({ layer, confidence, risk }),
       recoveryAction: action,
       currentTotalsEligible,
       overwriteCurrentTruth: false,
@@ -288,9 +406,56 @@ export function reconcileLegacyHistoryCandidates(input: {
       probableMatchCount: candidateMappings.filter((entry) => entry.identityConfidence === "probable_match").length,
       weakMatchCount: candidateMappings.filter((entry) => entry.identityConfidence === "weak_match").length,
       unknownLegacyCount: candidateMappings.filter((entry) => entry.identityConfidence === "unknown").length,
+      purgatoryQueueCount: candidateMappings.filter((entry) => !entry.currentTotalsEligible).length,
       highDuplicateRiskCount: candidateMappings.filter((entry) => entry.duplicateRisk === "high").length,
       currentTotalsEligibleCount: candidateMappings.filter((entry) => entry.currentTotalsEligible).length,
       overwritesCurrentTruth: false,
+    },
+  };
+}
+
+export function buildLegacyHistoryPurgatoryQueueReport(input: {
+  currentHead: string;
+  generatedAtUtc: string;
+  reconciliation: LegacyHistoryReconciliationResult;
+}): LegacyHistoryPurgatoryQueueReport {
+  const queue: LegacyHistoryPurgatoryQueueItem[] = input.reconciliation.candidateMappings
+    .filter((entry) => !entry.currentTotalsEligible)
+    .map((entry) => ({
+      legacySource: entry.legacySource,
+      legacyId: entry.legacyId,
+      targetTruthLayer: entry.targetTruthLayer,
+      identityConfidence: entry.identityConfidence,
+      duplicateRisk: entry.duplicateRisk,
+      purgatoryClassification: entry.purgatoryClassification,
+      reasonCodes: entry.reasonCodes,
+      suggestedRecoveryAction: entry.suggestedRecoveryAction,
+      currentTotalsEligible: entry.currentTotalsEligible,
+      reason: entry.reason,
+      manualReviewRequired: entry.purgatoryClassification !== "rejected",
+    }));
+
+  return {
+    reportKey: "analytics-legacy-purgatory-queue",
+    generatedAtUtc: input.generatedAtUtc,
+    currentHead: input.currentHead,
+    sourceReportKey: "analytics-legacy-history-reconciliation",
+    summary: {
+      exactMatch: queue.filter((entry) => entry.purgatoryClassification === "exact_match").length,
+      probableMatch: queue.filter((entry) => entry.purgatoryClassification === "probable_match").length,
+      weakMatch: queue.filter((entry) => entry.purgatoryClassification === "weak_match").length,
+      unknown: queue.filter((entry) => entry.purgatoryClassification === "unknown").length,
+      duplicateCandidate: queue.filter((entry) => entry.purgatoryClassification === "duplicate_candidate").length,
+      rejected: queue.filter((entry) => entry.purgatoryClassification === "rejected").length,
+      productTruthEligible: queue.filter((entry) => entry.currentTotalsEligible).length,
+      manualReviewRequired: queue.filter((entry) => entry.manualReviewRequired).length,
+    },
+    queue,
+    productTruthPolicy: {
+      legacyCannotOverwriteCurrentTruth: true,
+      weakMatchesRemainEvidenceOnly: true,
+      unknownLegacyIsNotZero: true,
+      duplicateCandidatesRequireFirstPartyDeduping: true,
     },
   };
 }
@@ -382,8 +547,23 @@ export function validateLegacyHistoryReconciliationReport(
   if (report.candidateMappings.some((mapping) => !mapping.duplicateRisk)) {
     failures.push("duplicate risk missing.");
   }
+  if (report.candidateMappings.some((mapping) => !mapping.purgatoryClassification)) {
+    failures.push("purgatory classification missing.");
+  }
+  if (report.candidateMappings.some((mapping) => mapping.reasonCodes.length === 0)) {
+    failures.push("purgatory reason codes missing.");
+  }
+  if (report.candidateMappings.some((mapping) => !mapping.suggestedRecoveryAction)) {
+    failures.push("suggested recovery action missing.");
+  }
   if (report.candidateMappings.some((mapping) => mapping.identityConfidence === "unknown" && mapping.currentTotalsEligible)) {
     failures.push("unknown legacy counted as clean.");
+  }
+  if (report.candidateMappings.some((mapping) => mapping.purgatoryClassification === "weak_match" && mapping.currentTotalsEligible)) {
+    failures.push("weak legacy match promoted to current totals.");
+  }
+  if (report.candidateMappings.some((mapping) => mapping.purgatoryClassification === "unknown" && !mapping.reasonCodes.includes("current_totals_blocked"))) {
+    failures.push("unknown legacy row lacks current totals block reason.");
   }
   if (!report.sourceCleanupFindings.some((finding) => finding.source === "analytics_aggregate_stats/realtime_summary" && finding.status === "debug_only_or_fallback")) {
     failures.push("old realtime/raw-log source still marked product truth.");

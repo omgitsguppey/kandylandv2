@@ -1,11 +1,12 @@
-import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  buildLegacyHistoryPurgatoryQueueReport,
   buildLegacyHistoryReconciliationReport,
   validateLegacyHistoryReconciliationReport,
+  type LegacyHistoryPurgatoryQueueReport,
   type LegacyHistoryCandidate,
   type LegacyHistoryReconciliationReport,
 } from "../../src/lib/analytics/legacy-history-reconciler";
@@ -16,6 +17,7 @@ const repoRoot = join(__dirname, "..", "..");
 
 const mappingReportPath = "agent/state/analytics-legacy-mapping-report.generated.json";
 const artifactPath = "agent/state/analytics-legacy-history-reconciliation.generated.json";
+const purgatoryQueuePath = "agent/state/analytics-legacy-purgatory-queue.generated.json";
 const docsPath = "docs/agent-truth/analytics-legacy-history-reconciliation.md";
 const reconcilerPath = "src/lib/analytics/legacy-history-reconciler.ts";
 const testPath = "tests/unit/analytics-legacy-history-reconciliation.spec.ts";
@@ -24,7 +26,15 @@ const sourceHierarchyDocPath = "docs/agent-truth/analytics-source-hierarchy.md";
 const rewireDocPath = "docs/agent-truth/analytics-rewire-phase-one.md";
 
 function currentHead() {
-  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  const headPath = join(repoRoot, ".git", "HEAD");
+  if (!existsSync(headPath)) return "unknown";
+  const head = readFileSync(headPath, "utf8").trim();
+  if (!head.startsWith("ref:")) return head;
+  const refPath = join(repoRoot, ".git", head.slice("ref:".length).trim());
+  if (existsSync(refPath)) {
+    return readFileSync(refPath, "utf8").trim();
+  }
+  return "unknown";
 }
 
 function readRequired(relativePath: string) {
@@ -75,9 +85,12 @@ function toCandidate(raw: Record<string, unknown>): LegacyHistoryCandidate {
   };
 }
 
-function renderMarkdown(report: LegacyHistoryReconciliationReport) {
+function renderMarkdown(report: LegacyHistoryReconciliationReport, purgatory: LegacyHistoryPurgatoryQueueReport) {
   const rows = report.candidateMappings
-    .map((entry) => `| ${entry.legacySource} | ${entry.legacyId} | ${entry.targetTruthLayer} | ${entry.identityConfidence} | ${entry.duplicateRisk} | ${entry.recoveryAction} | ${entry.currentTotalsEligible ? "yes" : "no"} |`)
+    .map((entry) => `| ${entry.legacySource} | ${entry.legacyId} | ${entry.targetTruthLayer} | ${entry.purgatoryClassification} | ${entry.identityConfidence} | ${entry.duplicateRisk} | ${entry.suggestedRecoveryAction} | ${entry.currentTotalsEligible ? "yes" : "no"} |`)
+    .join("\n");
+  const purgatoryRows = purgatory.queue
+    .map((entry) => `| ${entry.legacySource} | ${entry.legacyId} | ${entry.purgatoryClassification} | ${entry.reasonCodes.join(", ")} | ${entry.suggestedRecoveryAction} | ${entry.manualReviewRequired ? "yes" : "no"} |`)
     .join("\n");
   const cleanupRows = report.sourceCleanupFindings
     .map((entry) => `| ${entry.source} | ${entry.status} | ${entry.action} |`)
@@ -101,15 +114,22 @@ This is a dry-run source artifact. It maps legacy history into current truth lan
 - Probable matches: ${report.summary.probableMatchCount}
 - Weak matches: ${report.summary.weakMatchCount}
 - Unknown legacy rows: ${report.summary.unknownLegacyCount}
+- Purgatory queue rows: ${report.summary.purgatoryQueueCount}
 - High duplicate risk: ${report.summary.highDuplicateRiskCount}
 - Current totals eligible: ${report.summary.currentTotalsEligibleCount}
 - Overwrites current truth: ${report.summary.overwritesCurrentTruth ? "yes" : "no"}
 
 ## Candidate Mappings
 
-| Legacy source | Legacy id | Target truth layer | Identity confidence | Duplicate risk | Action | Current totals eligible |
-| --- | --- | --- | --- | --- | --- | --- |
+| Legacy source | Legacy id | Target truth layer | Purgatory classification | Identity confidence | Duplicate risk | Suggested recovery action | Current totals eligible |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows}
+
+## Purgatory Queue
+
+| Legacy source | Legacy id | Classification | Reason codes | Suggested action | Manual review |
+| --- | --- | --- | --- | --- | --- |
+${purgatoryRows}
 
 ## Source Cleanup
 
@@ -129,13 +149,16 @@ ${nextRows}
 `;
 }
 
-function writeReport(report: LegacyHistoryReconciliationReport) {
+function writeReport(report: LegacyHistoryReconciliationReport, purgatory: LegacyHistoryPurgatoryQueueReport) {
   const artifactFullPath = join(repoRoot, artifactPath);
+  const purgatoryFullPath = join(repoRoot, purgatoryQueuePath);
   const docsFullPath = join(repoRoot, docsPath);
   mkdirSync(dirname(artifactFullPath), { recursive: true });
+  mkdirSync(dirname(purgatoryFullPath), { recursive: true });
   mkdirSync(dirname(docsFullPath), { recursive: true });
   writeFileSync(artifactFullPath, `${JSON.stringify(report, null, 2)}\n`);
-  writeFileSync(docsFullPath, renderMarkdown(report));
+  writeFileSync(purgatoryFullPath, `${JSON.stringify(purgatory, null, 2)}\n`);
+  writeFileSync(docsFullPath, renderMarkdown(report, purgatory));
 }
 
 function assertIncludes(source: string, expected: string, label: string, failures: string[]) {
@@ -155,6 +178,11 @@ function run() {
       events: [],
       identityLinks: [],
     },
+  });
+  const purgatory = buildLegacyHistoryPurgatoryQueueReport({
+    currentHead: report.currentHead,
+    generatedAtUtc: report.generatedAtUtc,
+    reconciliation: report,
   });
   const failures = validateLegacyHistoryReconciliationReport(report, {
     reconcilerSource: readRequired(reconcilerPath),
@@ -179,6 +207,15 @@ function run() {
   if (report.candidateMappings.some((entry) => entry.identityConfidence === "unknown" && entry.currentTotalsEligible)) {
     failures.push("unknown legacy data cannot appear as current totals.");
   }
+  if (purgatory.summary.productTruthEligible !== 0 || purgatory.queue.some((entry) => entry.currentTotalsEligible)) {
+    failures.push("purgatory queue cannot mark legacy rows product-truth eligible.");
+  }
+  if (purgatory.queue.length !== report.summary.purgatoryQueueCount) {
+    failures.push("purgatory queue count does not match reconciliation summary.");
+  }
+  if (!purgatory.productTruthPolicy.weakMatchesRemainEvidenceOnly || !purgatory.productTruthPolicy.unknownLegacyIsNotZero) {
+    failures.push("purgatory queue policy does not protect weak/unknown legacy rows.");
+  }
 
   if (failures.length > 0) {
     console.error("Analytics legacy history reconciliation validation failed:");
@@ -188,8 +225,9 @@ function run() {
     process.exit(1);
   }
 
-  writeReport(report);
+  writeReport(report, purgatory);
   console.log(`Wrote ${artifactPath}`);
+  console.log(`Wrote ${purgatoryQueuePath}`);
   console.log(`Wrote ${docsPath}`);
   console.log("Analytics legacy history reconciliation validation passed.");
 }

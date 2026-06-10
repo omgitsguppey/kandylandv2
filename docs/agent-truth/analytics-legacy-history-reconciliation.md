@@ -1,7 +1,7 @@
 # Analytics Legacy History Reconciliation
 
-Generated: 2026-05-21T04:51:36.407Z
-Current head: c85b7c584648f4283da9a1f6795e9b9406654406
+Generated: 2026-06-10T04:21:02.886Z
+Current head: ac7c7802007957d92acf6e0871b1fb306affcb33
 
 This is a dry-run source artifact. It maps legacy history into current truth lanes with confidence and duplicate-risk labels. It does not read production data, write production data, run BigQuery jobs, or promote legacy evidence into current totals.
 
@@ -12,24 +12,40 @@ This is a dry-run source artifact. It maps legacy history into current truth lan
 - Probable matches: 0
 - Weak matches: 7
 - Unknown legacy rows: 3
+- Purgatory queue rows: 10
 - High duplicate risk: 0
 - Current totals eligible: 0
 - Overwrites current truth: no
 
 ## Candidate Mappings
 
-| Legacy source | Legacy id | Target truth layer | Identity confidence | Duplicate risk | Action | Current totals eligible |
-| --- | --- | --- | --- | --- | --- | --- |
-| analytics_event_facts | fixture_evt_drop_click | product_truth | weak_match | low | archive_only | no |
-| analytics_guest_batches | fixture_guest_batch | product_truth | weak_match | low | archive_only | no |
-| transactions | fixture_txn_completed | product_truth | weak_match | low | archive_only | no |
-| unlocks | fixture_unlock | product_truth | weak_match | low | archive_only | no |
-| daily_task_events | fixture_task_complete | product_truth | weak_match | low | archive_only | no |
-| task_lifecycle_logs | fixture_task_start | product_truth | weak_match | low | archive_only | no |
-| notifications | fixture_notification_read | debug_truth | unknown | unknown | archive_only | no |
-| onboarding_steps | fixture_onboarding_step | product_truth | weak_match | low | archive_only | no |
-| admin_audit_logs | fixture_admin_action | debug_truth | unknown | unknown | archive_only | no |
-| ga4_intraday | fixture_ga_intraday | evidence_only | unknown | unknown | archive_only | no |
+| Legacy source | Legacy id | Target truth layer | Purgatory classification | Identity confidence | Duplicate risk | Suggested recovery action | Current totals eligible |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| analytics_event_facts | fixture_evt_drop_click | product_truth | weak_match | weak_match | low | manual_review_identity_bridge | no |
+| analytics_guest_batches | fixture_guest_batch | product_truth | weak_match | weak_match | low | manual_review_identity_bridge | no |
+| transactions | fixture_txn_completed | product_truth | weak_match | weak_match | low | manual_review_identity_bridge | no |
+| unlocks | fixture_unlock | product_truth | weak_match | weak_match | low | manual_review_identity_bridge | no |
+| daily_task_events | fixture_task_complete | product_truth | weak_match | weak_match | low | manual_review_identity_bridge | no |
+| task_lifecycle_logs | fixture_task_start | product_truth | weak_match | weak_match | low | manual_review_identity_bridge | no |
+| notifications | fixture_notification_read | debug_truth | unknown | unknown | unknown | archive_as_debug_evidence | no |
+| onboarding_steps | fixture_onboarding_step | product_truth | weak_match | weak_match | low | manual_review_identity_bridge | no |
+| admin_audit_logs | fixture_admin_action | debug_truth | unknown | unknown | unknown | archive_as_debug_evidence | no |
+| ga4_intraday | fixture_ga_intraday | evidence_only | unknown | unknown | unknown | require_first_party_fact_or_ledger | no |
+
+## Purgatory Queue
+
+| Legacy source | Legacy id | Classification | Reason codes | Suggested action | Manual review |
+| --- | --- | --- | --- | --- | --- |
+| analytics_event_facts | fixture_evt_drop_click | weak_match | partial_identity_or_route_match, missing_first_party_corroboration, current_totals_blocked | manual_review_identity_bridge | yes |
+| analytics_guest_batches | fixture_guest_batch | weak_match | partial_identity_or_route_match, missing_first_party_corroboration, current_totals_blocked | manual_review_identity_bridge | yes |
+| transactions | fixture_txn_completed | weak_match | partial_identity_or_route_match, missing_first_party_corroboration, current_totals_blocked | manual_review_identity_bridge | yes |
+| unlocks | fixture_unlock | weak_match | partial_identity_or_route_match, missing_first_party_corroboration, current_totals_blocked | manual_review_identity_bridge | yes |
+| daily_task_events | fixture_task_complete | weak_match | partial_identity_or_route_match, missing_first_party_corroboration, current_totals_blocked | manual_review_identity_bridge | yes |
+| task_lifecycle_logs | fixture_task_start | weak_match | partial_identity_or_route_match, missing_first_party_corroboration, current_totals_blocked | manual_review_identity_bridge | yes |
+| notifications | fixture_notification_read | unknown | unknown_identity, debug_only_source, current_totals_blocked | archive_as_debug_evidence | yes |
+| onboarding_steps | fixture_onboarding_step | weak_match | partial_identity_or_route_match, missing_first_party_corroboration, current_totals_blocked | manual_review_identity_bridge | yes |
+| admin_audit_logs | fixture_admin_action | unknown | unknown_identity, debug_only_source, current_totals_blocked | archive_as_debug_evidence | yes |
+| ga4_intraday | fixture_ga_intraday | unknown | unknown_identity, external_evidence_only, current_totals_blocked | require_first_party_fact_or_ledger | yes |
 
 ## Source Cleanup
 
