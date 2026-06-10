@@ -22,6 +22,7 @@ import {
     computeEffectiveUsdPer100Gd,
     normalizeCount,
     normalizeMoney,
+    normalizeOptionalCount,
     normalizePromoCode,
     roundCurrency,
     toShortId,
@@ -360,13 +361,23 @@ export async function buildPlatformEconomyTreasurySummary(input: {
         });
 
     const aggregate = balanceAggregate.data();
-    const outstandingGd = normalizeCount(aggregate.totalBalance);
-    const paidGd = normalizeCount(aggregate.purchasedBalance);
-    const rewardFreeGd = normalizeCount(aggregate.rewardBalance);
-    const paidBonusGd = Math.max(0, normalizeCount(commerceMetrics.bonusGumDrops));
+    const outstandingGd = normalizeOptionalCount(aggregate.totalBalance);
+    const paidGd = normalizeOptionalCount(aggregate.purchasedBalance);
+    const rewardFreeGd = normalizeOptionalCount(aggregate.rewardBalance);
+    const paidBonusGd = commerceSummarySnap.exists
+        ? normalizeOptionalCount(commerceMetrics.bonusGumDrops)
+        : null;
     const warnings: PlatformEconomyWarning[] = [];
 
-    if (paidGd + rewardFreeGd !== outstandingGd) {
+    if (outstandingGd === null || paidGd === null || rewardFreeGd === null) {
+        warnings.push({
+            code: "treasury_source_missing",
+            severity: "warn",
+            label: "Treasury balance source missing",
+            detail: "The users aggregate did not return all source-aware GumDrop balance fields. Missing treasury source data is unavailable, not zero.",
+            sourceSurface: "platform_economy.treasury",
+        });
+    } else if (paidGd + rewardFreeGd !== outstandingGd) {
         warnings.push({
             code: "wallet_balance_source_mismatch",
             severity: "warn",
@@ -376,7 +387,15 @@ export async function buildPlatformEconomyTreasurySummary(input: {
         });
     }
 
-    if (paidBonusGd > 0 && paidGd < paidBonusGd) {
+    if (paidBonusGd === null) {
+        warnings.push({
+            code: "treasury_source_missing",
+            severity: "warn",
+            label: "Commerce rollup source missing",
+            detail: "Paid-source bonus GD and paid-source average are unavailable because analytics_commerce_rollup.summary is missing.",
+            sourceSurface: "platform_economy.treasury",
+        });
+    } else if (paidGd !== null && paidBonusGd > 0 && paidGd < paidBonusGd) {
         warnings.push({
             code: "paid_bonus_classified_as_free",
             severity: "warn",
@@ -392,7 +411,17 @@ export async function buildPlatformEconomyTreasurySummary(input: {
             const raw = doc.data() as Record<string, unknown>;
             const balance = readSourceAwareBalance(raw);
             const rowWarnings: PlatformEconomyWarning[] = [];
-            if (balance.purchased + balance.reward !== balance.total) {
+            const hasPurchasedSource = typeof raw.gumDropsPurchasedBalance === "number" && Number.isFinite(raw.gumDropsPurchasedBalance);
+            const hasRewardSource = typeof raw.gumDropsRewardBalance === "number" && Number.isFinite(raw.gumDropsRewardBalance);
+            if ((!hasPurchasedSource || !hasRewardSource) && balance.total > 0) {
+                rowWarnings.push({
+                    code: "treasury_source_missing",
+                    severity: "warn",
+                    label: "Wallet source split missing",
+                    detail: "This wallet uses a legacy balance fallback because paid and reward/free split fields are not both present.",
+                    sourceSurface: "platform_economy.wallets",
+                });
+            } else if (balance.purchased + balance.reward !== balance.total) {
                 rowWarnings.push({
                     code: "wallet_balance_source_mismatch",
                     severity: "warn",
@@ -418,23 +447,29 @@ export async function buildPlatformEconomyTreasurySummary(input: {
 
     const gumdropValueBasis = calculateGumdropValueBasis({
         paidUsdCollected: normalizeMoney(commerceMetrics.grossRevenueUsd),
-        paidGdIssued: Math.max(0, normalizeCount(commerceMetrics.deliveredGumDrops) - paidBonusGd),
-        paidBonusGdIssued: paidBonusGd,
-        rewardFreeGdIssued: rewardFreeGd,
+        paidGdIssued: Math.max(0, normalizeCount(commerceMetrics.deliveredGumDrops) - (paidBonusGd ?? 0)),
+        paidBonusGdIssued: paidBonusGd ?? 0,
+        rewardFreeGdIssued: rewardFreeGd ?? 0,
     });
-    const paidSourceAvgUsdPer100Gd = gumdropValueBasis.averageUsdPer100PaidSourceGd;
-    const floorState = gumdropValueBasis.floorState === "error"
-        ? "critical"
-        : gumdropValueBasis.floorState === "warn"
-            ? "warn"
-            : gumdropValueBasis.floorState === "healthy"
-                ? "healthy"
-                : "unknown";
+    const paidSourceAvgUsdPer100Gd = paidBonusGd === null ? null : gumdropValueBasis.averageUsdPer100PaidSourceGd;
+    const floorState = paidBonusGd === null
+        ? "unknown"
+        : gumdropValueBasis.floorState === "error"
+            ? "critical"
+            : gumdropValueBasis.floorState === "warn"
+                ? "warn"
+                : gumdropValueBasis.floorState === "healthy"
+                    ? "healthy"
+                    : "unknown";
+    const hasMissingTreasurySource = outstandingGd === null
+        || paidGd === null
+        || paidBonusGd === null
+        || rewardFreeGd === null;
 
     return {
         generatedAtUtc,
         sourceTruth: "platform_economy",
-        freshnessState: metricsSnapshotMeta.snapshot.freshnessState === "live" ? "live" : "review",
+        freshnessState: !hasMissingTreasurySource && metricsSnapshotMeta.snapshot.freshnessState === "live" ? "live" : "review",
         outstandingGd,
         paidGd,
         paidBonusGd,

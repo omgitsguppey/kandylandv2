@@ -38,6 +38,14 @@ interface TransactionFact {
   relatedDropId?: string;
 }
 
+function isFirestoreAlreadyExists(error: unknown) {
+  const candidate = error as {code?: unknown; message?: unknown}
+  return candidate.code === 6
+    || candidate.code === "already-exists"
+    || candidate.code === "ALREADY_EXISTS"
+    || (typeof candidate.message === "string" && candidate.message.includes("ALREADY_EXISTS"))
+}
+
 function readOptionalNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined
 }
@@ -195,6 +203,7 @@ export const onTransactionCreated = onDocumentCreated(
     const bundleLabel = readString(data.bundleLabel) || `${economics.deliveredGumDrops} GD`
     const bundleKey = readString(data.bundleKey) || encodeKeyFragment(bundleLabel)
     const bundleTier = readString(data.bundleTier) || (economics.bonusGumDrops > 0 ? "bonus" : "standard")
+    const projectionReceiptRef = db.collection("analytics_projection_receipts").doc(`transactions:${event.id}:commerce_rollup`)
     const batch = db.batch()
 
     batch.set(db.collection("analytics_commerce_daily").doc(timeKeys.dayKey), {
@@ -374,7 +383,26 @@ export const onTransactionCreated = onDocumentCreated(
       }, {merge: true})
     }
 
-    await batch.commit()
+    batch.create(projectionReceiptRef, {
+      processedAt: FieldValue.serverTimestamp(),
+      sourceCollection: "transactions",
+      sourceId: event.id,
+      projection: "commerce_rollup",
+      dayKey: timeKeys.dayKey,
+      userId: userId || null,
+      transactionType: type,
+      status,
+    })
+
+    try {
+      await batch.commit()
+    } catch (error) {
+      if (!isFirestoreAlreadyExists(error)) {
+        throw error
+      }
+      console.warn(`[Analytics] Duplicate transaction rollup skipped: ${event.id}`)
+      return
+    }
     await touchAnalyticsRuntime(timestamp)
   },
 )

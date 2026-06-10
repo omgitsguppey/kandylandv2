@@ -10,6 +10,7 @@ export type PlatformEconomyWarningCode =
     | "promo_below_floor"
     | "package_below_floor"
     | "missing_usd_basis"
+    | "treasury_source_missing"
     | "paid_bonus_classified_as_free"
     | "reward_gd_used_for_restricted_creator_spend"
     | "promo_redemption_limit_missing"
@@ -178,6 +179,13 @@ export function normalizeCount(value: unknown) {
         return Math.max(0, Math.round(value));
     }
     return 0;
+}
+
+export function normalizeOptionalCount(value: unknown) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return Math.max(0, Math.round(value));
+    }
+    return null;
 }
 
 export function normalizeMoney(value: unknown) {
