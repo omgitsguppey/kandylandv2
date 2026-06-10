@@ -1,0 +1,186 @@
+{
+  "reportKey": "recovery-dry-run-signoff",
+  "generatedAtUtc": "2026-06-10T04:26:31.815Z",
+  "currentHead": "7e5a1eb96335ed180c6b12aa9d617affb3f29979",
+  "status": "pass",
+  "summary": {
+    "classifiedPathCount": 15,
+    "missingExpectedPathCount": 0,
+    "dryRunCount": 5,
+    "readOnlyCount": 5,
+    "fixtureOnlyCount": 3,
+    "manualReviewCount": 2,
+    "writeEnabledCount": 0,
+    "unguardedProductTruthWriteCount": 0
+  },
+  "classifications": [
+    {
+      "path": "src/lib/analytics/recovery-timeline-spine.ts",
+      "mode": "dry_run",
+      "owner": "recovery_timeline_spine",
+      "reason": "Defines recovery timeline, treasury reconciliation, and GumDrop recovery queue contracts without product writes.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "scripts/agent/validate-recovery-timeline-spine.ts",
+      "mode": "fixture_only",
+      "owner": "recovery_timeline_spine",
+      "reason": "Builds local fixture evidence and writes only the compact generated recovery timeline report.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "tests/unit/recovery-timeline-spine.spec.ts",
+      "mode": "fixture_only",
+      "owner": "recovery_timeline_spine",
+      "reason": "Tests dry-run recovery and analytics-only rejection behavior using local fixtures.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "agent/state/recovery-timeline-spine.generated.json",
+      "mode": "manual_review",
+      "owner": "recovery_timeline_spine",
+      "reason": "Generated source evidence snapshot; never runtime product truth.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "src/lib/analytics/legacy-history-reconciler.ts",
+      "mode": "dry_run",
+      "owner": "legacy_recovery",
+      "reason": "Classifies legacy history into purgatory/manual review buckets without current totals eligibility.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "scripts/agent/validate-analytics-legacy-history-reconciliation.ts",
+      "mode": "fixture_only",
+      "owner": "legacy_recovery",
+      "reason": "Builds local purgatory queue artifacts from checked-in mapping reports.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "agent/state/analytics-legacy-purgatory-queue.generated.json",
+      "mode": "manual_review",
+      "owner": "legacy_recovery",
+      "reason": "Generated manual-review queue for weak/unknown legacy events.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "scripts/agent/lost-data-recovery-dry-run.ts",
+      "mode": "dry_run",
+      "owner": "lost_data_recovery",
+      "reason": "Recovery planning artifact with productionAllowedNow=false.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "scripts/agent/validate-lost-data-recovery-dry-run.ts",
+      "mode": "dry_run",
+      "owner": "lost_data_recovery",
+      "reason": "Validates recovery lanes remain static/manual and production-disabled.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "src/lib/analytics/ga4-truth.ts",
+      "mode": "read_only",
+      "owner": "ga4_recovery_truth",
+      "reason": "Labels GA4 as unavailable/evidence-only/imported sample state, not product truth.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "scripts/agent/validate-ga4-recovery-truth.ts",
+      "mode": "dry_run",
+      "owner": "ga4_recovery_truth",
+      "reason": "Validates GA4 recovery semantics without provider calls.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "src/lib/admin-debug-control-tower.ts",
+      "mode": "read_only",
+      "owner": "admin_debug_recovery_display",
+      "reason": "Reads compact generated recovery summaries for Admin Debug display.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx",
+      "mode": "read_only",
+      "owner": "admin_debug_recovery_display",
+      "reason": "Displays recovery evidence as diagnostic-only and collapsed by default.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugControlTower.tsx",
+      "mode": "read_only",
+      "owner": "admin_debug_recovery_display",
+      "reason": "Renders compact recovery state from Control Tower model.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    },
+    {
+      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "mode": "read_only",
+      "owner": "admin_debug_recovery_display",
+      "reason": "Source-level validator for compact Admin Debug recovery display labels.",
+      "productTruthWritesAllowed": false,
+      "approvedWriteGuard": false,
+      "detectedWriteSignals": []
+    }
+  ],
+  "adminDebugGuards": {
+    "recoveryEvidenceNotMoneyTruth": true,
+    "analyticsOnlyDiagnosticLabelPresent": true,
+    "moneyActionAllowedCountVisible": true
+  },
+  "generatedArtifactGuards": {
+    "recoveryTimelineDryRunOnly": true,
+    "gumdropQueueRejectsAnalyticsOnlyBalanceRecovery": true,
+    "legacyPurgatoryNotProductTruthEligible": true
+  },
+  "forbiddenWriteSignals": [
+    "firebase_admin_db",
+    "firebase_client_set_doc",
+    "firebase_client_update_doc",
+    "firebase_client_add_doc",
+    "firebase_client_delete_doc",
+    "firestore_write_batch",
+    "firestore_transaction",
+    "firestore_increment",
+    "firestore_collection_chain",
+    "firestore_document_chain",
+    "firestore_set",
+    "firestore_update",
+    "firestore_add",
+    "firestore_delete"
+  ],
+  "manualRecoveryProcess": [
+    "Keep analytics, GA4, legacy, and generated reports as evidence snapshots only.",
+    "Require redacted ledger/server proof before any money-affecting recovery proposal.",
+    "Create a separate approved backfill plan before enabling any product-truth writes.",
+    "Do not credit, debit, unlock, refund, adjust, or materialize current totals from analytics-only evidence."
+  ],
+  "failures": []
+}
