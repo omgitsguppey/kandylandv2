@@ -1,8 +1,8 @@
 # Error Language Contract
 
-Generated: 2026-06-10T03:58:28.208Z
+Generated: 2026-06-10T04:37:28.909Z
 
-Current head: `48af9a1a6bd27583e0d97501a8b14f411a248a44`
+Current head: `395417b125d51082b6f2db937fb8f8a667b5e5aa`
 
 ## Status
 

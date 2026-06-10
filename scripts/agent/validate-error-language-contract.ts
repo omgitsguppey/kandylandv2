@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { execFileSync } from "node:child_process";
 
 import {
@@ -19,6 +19,44 @@ type Finding = {
   detail: string;
 };
 
+type ErrorCoverageCategory =
+  | "raw_user_facing_error"
+  | "raw_debug_only_error"
+  | "unknown_catch_block"
+  | "provider_error_without_safe_translation"
+  | "retryable_non_retryable_mismatch"
+  | "missing_debug_fingerprint"
+  | "missing_recovery_action";
+
+type ErrorCoverageSurface =
+  | "auth"
+  | "wallet_payment"
+  | "creator"
+  | "chat_support"
+  | "admin_debug"
+  | "api_route"
+  | "user_ui"
+  | "server_truth"
+  | "unknown";
+
+type ProtectedDomain = "auth" | "payment_provider" | "external_provider" | "firebase_runtime" | "locked_content" | "none";
+
+type ErrorCoverageFinding = {
+  id: string;
+  category: ErrorCoverageCategory;
+  severity: "p0" | "p1" | "p2";
+  path: string;
+  line: number;
+  surface: ErrorCoverageSurface;
+  protectedDomain: ProtectedDomain;
+  userRisk: "low" | "medium" | "high";
+  debugRisk: "low" | "medium" | "high";
+  runtimeRisk: "low" | "medium" | "high";
+  evidence: string;
+  safeTranslatorPresent: boolean;
+  recommendedAction: string;
+};
+
 function readSource(path: string) {
   return readFileSync(path, "utf8");
 }
@@ -32,7 +70,11 @@ function writeJson(path: string, value: unknown) {
 }
 
 function currentHead() {
-  return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+  } catch {
+    return "git_unavailable_from_node_child_process";
+  }
 }
 
 const rawUserCopyPattern = /\b(Firebase|Zod|JSON\.parse|stack|Internal server error|PayPal|SyntaxError|Error:|bookingStartAt)\b/i;
@@ -55,6 +97,212 @@ const deferredRawSources = [
       : "No raw pattern found in this source during Phase 1 validation.",
   };
 });
+
+const SCAN_ROOTS = [
+  "src/app",
+  "src/components",
+  "src/lib/server",
+  "src/lib/errors",
+  "functions/src",
+];
+
+const SCAN_EXTENSIONS = [".ts", ".tsx"];
+const SCAN_EXCLUDE_SEGMENTS = [
+  ".next",
+  "node_modules",
+  "agent/state",
+  "agent/index",
+  "coverage",
+  "playwright-report",
+  "test-results",
+];
+
+function walkSourceFiles(directory: string, results: string[] = []) {
+  if (!existsSync(directory)) return results;
+  for (const entry of readdirSync(directory)) {
+    const absolute = join(directory, entry);
+    const normalized = absolute.replace(/\\/g, "/");
+    if (SCAN_EXCLUDE_SEGMENTS.some((segment) => normalized.includes(segment))) continue;
+    const stats = statSync(absolute);
+    if (stats.isDirectory()) {
+      walkSourceFiles(absolute, results);
+      continue;
+    }
+    if (SCAN_EXTENSIONS.some((extension) => absolute.endsWith(extension))) {
+      results.push(normalized);
+    }
+  }
+  return results;
+}
+
+function surfaceForPath(path: string): ErrorCoverageSurface {
+  if (/auth|session|login/i.test(path)) return "auth";
+  if (/PurchaseModal|paypal|wallet|payment|gumdrop/i.test(path)) return "wallet_payment";
+  if (/creator/i.test(path)) return "creator";
+  if (/Chat|chat|support/i.test(path)) return "chat_support";
+  if (/admin[\\/]debug|admin-debug/i.test(path)) return "admin_debug";
+  if (/src\/app\/api\//i.test(path)) return "api_route";
+  if (/src\/components|src\/app/i.test(path)) return "user_ui";
+  if (/src\/lib\/server|functions\/src/i.test(path)) return "server_truth";
+  return "unknown";
+}
+
+function protectedDomainForPath(path: string, line: string): ProtectedDomain {
+  const text = `${path} ${line}`;
+  if (/paypal|payment|purchase|wallet|gumdrop/i.test(text)) return "payment_provider";
+  if (/auth|session|token|login|permission|forbidden/i.test(text)) return "auth";
+  if (/firebase|firestore|storage|adminDb|adminAuth/i.test(text)) return "firebase_runtime";
+  if (/unlock|entitlement|locked|content\/route|private media/i.test(text)) return "locked_content";
+  if (/provider|posthog|openai|vertex|ai/i.test(text)) return "external_provider";
+  return "none";
+}
+
+function stableFindingId(path: string, category: ErrorCoverageCategory, line: number) {
+  return `error_language__${category}__${path.toLowerCase().replace(/[^a-z0-9]+/g, "_")}__${line}`;
+}
+
+function fileHasSafeTranslator(source: string) {
+  return /resolveHumanError|sanitizeErrorForUser|buildHumanApiErrorPayload|HumanErrorNotice|get[A-Za-z]+ProblemCopy|handleApiError/.test(source);
+}
+
+function lineEvidence(line: string) {
+  return line.trim().replace(/\s+/g, " ").slice(0, 180);
+}
+
+function riskForFinding(category: ErrorCoverageCategory, protectedDomain: ProtectedDomain) {
+  const protectedRisk = protectedDomain !== "none";
+  if (category === "provider_error_without_safe_translation") {
+    return { userRisk: "high", debugRisk: "medium", runtimeRisk: protectedRisk ? "high" : "medium" } as const;
+  }
+  if (category === "raw_user_facing_error") {
+    return { userRisk: "high", debugRisk: "medium", runtimeRisk: protectedRisk ? "high" : "medium" } as const;
+  }
+  if (category === "retryable_non_retryable_mismatch") {
+    return { userRisk: "medium", debugRisk: "medium", runtimeRisk: protectedRisk ? "high" : "medium" } as const;
+  }
+  if (category === "unknown_catch_block" || category === "missing_debug_fingerprint") {
+    return { userRisk: "medium", debugRisk: "high", runtimeRisk: "medium" } as const;
+  }
+  if (category === "missing_recovery_action") {
+    return { userRisk: "medium", debugRisk: "low", runtimeRisk: "low" } as const;
+  }
+  return { userRisk: "low", debugRisk: "medium", runtimeRisk: "low" } as const;
+}
+
+function severityForFinding(category: ErrorCoverageCategory, protectedDomain: ProtectedDomain): ErrorCoverageFinding["severity"] {
+  if (protectedDomain === "payment_provider" || protectedDomain === "auth") return "p1";
+  if (protectedDomain === "external_provider") return "p2";
+  if (category === "provider_error_without_safe_translation" || category === "raw_user_facing_error") return "p1";
+  if (category === "raw_debug_only_error") return "p2";
+  return "p2";
+}
+
+function recommendedActionForFinding(category: ErrorCoverageCategory, protectedDomain: ProtectedDomain) {
+  if (protectedDomain === "payment_provider") {
+    return "Protected payment/provider lane: classify only, then use the existing error language contract in a targeted approved payment-modal or provider route pass.";
+  }
+  if (protectedDomain === "external_provider") {
+    return "External-provider lane: translate provider failure through the existing error language contract without exposing provider payloads.";
+  }
+  if (protectedDomain === "auth") {
+    return "Protected auth lane: preserve missing/expired/malformed/permission distinctions and route through canonical safe auth error translation.";
+  }
+  if (category === "raw_user_facing_error") {
+    return "Replace user-facing raw message with resolveHumanError/HumanErrorNotice or the existing surface problem-copy helper.";
+  }
+  if (category === "raw_debug_only_error") {
+    return "Keep raw detail debug-only, redacted, and fingerprinted; do not show it as user copy.";
+  }
+  if (category === "unknown_catch_block") {
+    return "Classify the catch path with a safe error key, retryability, and owning surface before changing behavior.";
+  }
+  if (category === "provider_error_without_safe_translation") {
+    return "Map provider failures to provider_unavailable/payment_not_completed without exposing provider payloads.";
+  }
+  if (category === "retryable_non_retryable_mismatch") {
+    return "Preserve retryable/non-retryable truth: auth/permission/config failures should not invite blind retries.";
+  }
+  if (category === "missing_debug_fingerprint") {
+    return "Add or route through existing debug/error fingerprinting before relying on this path as operator evidence.";
+  }
+  return "Add a recovery action through the existing human error descriptor or surface problem-copy helper.";
+}
+
+function categoryCandidatesForLine(line: string, source: string, safeTranslatorPresent: boolean): ErrorCoverageCategory[] {
+  const categories = new Set<ErrorCoverageCategory>();
+  const trimmed = line.trim();
+
+  if (/catch\s*\([^)]*(error|err|e)?[^)]*\)/i.test(trimmed) && !safeTranslatorPresent) {
+    categories.add("unknown_catch_block");
+  }
+  if (/\b(set[A-Za-z]*Error|toast\.error|alert)\s*\([^)]*(error\.message|err\.message|String\((error|err)\)|body\.(error|message)|data\.(error|message))/i.test(trimmed)) {
+    categories.add("raw_user_facing_error");
+  }
+  if (/\b(error\.message|err\.message|String\((error|err)\)|body\.(error|message)|data\.(error|message))\b/i.test(trimmed) && /return|json|set[A-Za-z]*Error|toast|alert|userMessage|message:/i.test(trimmed) && !/operatorMessage|debugOnlyDetails|console\./i.test(trimmed)) {
+    categories.add("raw_user_facing_error");
+  }
+  if (/console\.(error|warn)\([^)]*(error|err|\.message|String\()/i.test(trimmed)) {
+    categories.add("raw_debug_only_error");
+  }
+  if (/PayPal|paypal|provider|INSTRUMENT_DECLINED/i.test(trimmed) && /error|message|catch|failed|unavailable|declined/i.test(trimmed) && /\b(error\.message|err\.message|String\((error|err)\)|body\.(error|message)|data\.(error|message))\b/i.test(source) && !safeTranslatorPresent) {
+    categories.add("provider_error_without_safe_translation");
+  }
+  if (/\b(Retry|Try again|try again|retry checkout|Retry checkout)\b/.test(trimmed) && /auth|forbidden|permission|expired|malformed|config|provider/i.test(source) && !/session_expired|forbidden|provider_unavailable|resolveHumanError|getPaymentProblemCopy/i.test(source)) {
+    categories.add("retryable_non_retryable_mismatch");
+  }
+  if (/catch\s*\(|console\.error/i.test(trimmed) && !/fingerprint|debugId|recordDebugEvidence|handleApiError/i.test(source)) {
+    categories.add("missing_debug_fingerprint");
+  }
+  if (/\b(set[A-Za-z]*Error|toast\.error|userMessage|error:)\b/i.test(trimmed) && !/primaryAction|secondaryAction|actionLabel|HumanErrorNotice|get[A-Za-z]+ProblemCopy|resolveHumanError/i.test(source)) {
+    categories.add("missing_recovery_action");
+  }
+
+  return Array.from(categories);
+}
+
+function scanErrorTranslationCoverage(): ErrorCoverageFinding[] {
+  const files = SCAN_ROOTS.flatMap((root) => walkSourceFiles(root)).sort();
+  const findings: ErrorCoverageFinding[] = [];
+
+  for (const path of files) {
+    const source = readSource(path);
+    const safeTranslatorPresent = fileHasSafeTranslator(source);
+    const lines = source.split(/\r?\n/);
+
+    lines.forEach((line, index) => {
+      const categories = categoryCandidatesForLine(line, source, safeTranslatorPresent);
+      for (const category of categories) {
+        const lineNumber = index + 1;
+        const protectedDomain = protectedDomainForPath(path, line);
+        findings.push({
+          id: stableFindingId(path, category, lineNumber),
+          category,
+          severity: severityForFinding(category, protectedDomain),
+          path,
+          line: lineNumber,
+          surface: surfaceForPath(path),
+          protectedDomain,
+          ...riskForFinding(category, protectedDomain),
+          evidence: lineEvidence(line),
+          safeTranslatorPresent,
+          recommendedAction: recommendedActionForFinding(category, protectedDomain),
+        });
+      }
+    });
+  }
+
+  return findings
+    .sort((left, right) => {
+      const severityRank = { p0: 3, p1: 2, p2: 1 };
+      const protectedRank = (value: ProtectedDomain) => value === "none" ? 0 : 1;
+      return severityRank[right.severity] - severityRank[left.severity]
+        || protectedRank(right.protectedDomain) - protectedRank(left.protectedDomain)
+        || left.path.localeCompare(right.path)
+        || left.line - right.line
+        || left.category.localeCompare(right.category);
+    })
+    .slice(0, 40);
+}
 
 const findings: Finding[] = [];
 
@@ -162,6 +410,30 @@ const bugReportEligibleCount = entries.filter((entry) => entry.bugReportEligible
 const rewardEligibleCount = entries.filter((entry) => entry.rewardEligible).length;
 const surfacesCovered = Array.from(new Set(entries.map((entry) => entry.surface))).sort();
 const rawErrorFindings = deferredRawSources.filter((entry) => entry.status === "deferred_phase_two_wiring");
+const errorCoverageQueue = scanErrorTranslationCoverage();
+const coverageCategoryCounts = errorCoverageQueue.reduce<Record<ErrorCoverageCategory, number>>((counts, finding) => {
+  counts[finding.category] = (counts[finding.category] ?? 0) + 1;
+  return counts;
+}, {
+  raw_user_facing_error: 0,
+  raw_debug_only_error: 0,
+  unknown_catch_block: 0,
+  provider_error_without_safe_translation: 0,
+  retryable_non_retryable_mismatch: 0,
+  missing_debug_fingerprint: 0,
+  missing_recovery_action: 0,
+});
+const protectedDomainCounts = errorCoverageQueue.reduce<Record<ProtectedDomain, number>>((counts, finding) => {
+  counts[finding.protectedDomain] = (counts[finding.protectedDomain] ?? 0) + 1;
+  return counts;
+}, {
+  auth: 0,
+  payment_provider: 0,
+  external_provider: 0,
+  firebase_runtime: 0,
+  locked_content: 0,
+  none: 0,
+});
 
 const nextFixOrder = [
   "Adopt resolveHumanError in creator dashboard managers that currently display body.error or body.message.",
@@ -183,9 +455,27 @@ const report = {
     p0Count: findings.filter((finding) => finding.severity === "p0").length,
     p1Count: findings.filter((finding) => finding.severity === "p1").length,
     p2Count: rawErrorFindings.length,
+    errorCoverageFindingCount: errorCoverageQueue.length,
+    protectedErrorFindingCount: errorCoverageQueue.filter((finding) => finding.protectedDomain !== "none").length,
+    coverageCategoryCounts,
+    protectedDomainCounts,
   },
   entries,
   rawErrorFindings,
+  errorTranslationCoverage: {
+    categories: [
+      "raw_user_facing_error",
+      "raw_debug_only_error",
+      "unknown_catch_block",
+      "provider_error_without_safe_translation",
+      "retryable_non_retryable_mismatch",
+      "missing_debug_fingerprint",
+      "missing_recovery_action",
+    ],
+    sourceInputs: SCAN_ROOTS,
+    queueCap: 40,
+    compactQueue: errorCoverageQueue.slice(0, 40),
+  },
   deferredSurfaces: [
     {
       surface: "creator_dashboard",
@@ -237,6 +527,16 @@ Phase 1 creates the shared human error contract, dictionary, resolver, API paylo
 - Bug-report eligible entries: ${report.summary.bugReportEligibleCount}
 - Reward eligible entries: ${report.summary.rewardEligibleCount}
 - Surfaces covered: ${surfacesCovered.join(", ")}
+- Error translation queue findings: ${report.summary.errorCoverageFindingCount}
+- Protected-domain queue findings: ${report.summary.protectedErrorFindingCount}
+
+## Error Translation Coverage Queue
+
+Categories: ${report.errorTranslationCoverage.categories.join(", ")}
+
+Top findings:
+
+${report.errorTranslationCoverage.compactQueue.slice(0, 10).map((entry, index) => `${index + 1}. ${entry.category} in \`${entry.path}:${entry.line}\` (${entry.surface}, protected=${entry.protectedDomain}) - ${entry.recommendedAction}`).join("\n")}
 
 ## Deferred Wiring
 
