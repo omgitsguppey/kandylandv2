@@ -14,6 +14,7 @@ describe("GA4 recovery truth", () => {
     const { buildGa4EvidenceState, resolveGa4Status } = await import("@/lib/analytics/ga4-truth");
 
     expect(resolveGa4Status({})).toBe("config_missing");
+    expect(buildGa4EvidenceState({}).evidenceStatus).toBe("config_missing");
     expect(buildGa4EvidenceState({}).trafficValue).toBeNull();
     expect(buildGa4EvidenceState({}).displayValue).toBe("Unavailable");
     expect(buildGa4EvidenceState({}).sourceRole).toBe("external_evidence_only");
@@ -30,7 +31,26 @@ describe("GA4 recovery truth", () => {
 
     expect(state.firstPartyAnalyticsPrimary).toBe(true);
     expect(state.ga4EvidenceOnly).toBe(true);
+    expect(state.evidenceStatus).toBe("evidence_only");
     expect(state.productTruthSource).toBe("first_party_analytics");
+  });
+
+  it("classifies imported GA4 samples as evidence-only and stale when aged out", async () => {
+    const { buildGa4EvidenceState } = await import("@/lib/analytics/ga4-truth");
+    const nowMs = Date.parse("2026-06-07T00:00:00.000Z");
+
+    expect(buildGa4EvidenceState({
+      measurementId: "G-TEST123",
+      importedSamplePresent: true,
+      nowMs,
+    }).evidenceStatus).toBe("imported_sample");
+
+    expect(buildGa4EvidenceState({
+      measurementId: "G-TEST123",
+      importedSamplePresent: true,
+      lastImportedAtMs: nowMs - (48 * 60 * 60 * 1000),
+      nowMs,
+    }).evidenceStatus).toBe("stale");
   });
 
   it("blocks default Admin Data API calls and requires explicit refresh plus TTL", async () => {

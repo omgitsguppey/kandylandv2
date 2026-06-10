@@ -7,6 +7,13 @@ export type Ga4Status =
   | "evidence_only"
   | "broken_refactor";
 
+export type Ga4EvidenceLifecycleState =
+  | "config_missing"
+  | "unavailable"
+  | "evidence_only"
+  | "stale"
+  | "imported_sample";
+
 export type Ga4TruthConfig = {
   measurementId?: string | null;
   propertyId?: string | null;
@@ -14,10 +21,15 @@ export type Ga4TruthConfig = {
   clientCodePresent?: boolean;
   serverDataApiDependencyPresent?: boolean;
   disabled?: boolean;
+  importedSamplePresent?: boolean;
+  lastImportedAtMs?: number | null;
+  nowMs?: number;
+  staleAfterMs?: number;
 };
 
 export type Ga4EvidenceState = {
   status: Ga4Status;
+  evidenceStatus: Ga4EvidenceLifecycleState;
   truthState: "unavailable" | "deferred" | "partial" | "available";
   sourceRole: "external_evidence_only";
   productTruthSource: "first_party_analytics";
@@ -33,6 +45,7 @@ export type Ga4EvidenceState = {
 };
 
 export const GA4_ADMIN_REFRESH_TTL_MS = 5 * 60 * 1000;
+export const GA4_EVIDENCE_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 
 function hasValue(value: string | null | undefined) {
   return typeof value === "string" && value.trim().length > 0;
@@ -105,10 +118,18 @@ export function buildGa4EvidenceState(config: Ga4TruthConfig): Ga4EvidenceState 
   const clientGa4Configured = hasValue(config.measurementId);
   const serverDataApiConfigured = hasValue(config.propertyId);
   const serverMeasurementProtocolConfigured = clientGa4Configured && config.apiSecretPresent === true;
+  const nowMs = config.nowMs ?? Date.now();
+  const staleAfterMs = config.staleAfterMs ?? GA4_EVIDENCE_STALE_AFTER_MS;
+  const importedSamplePresent = config.importedSamplePresent === true || Boolean(config.lastImportedAtMs && config.lastImportedAtMs > 0);
+  const importedSampleStale = importedSamplePresent
+    && typeof config.lastImportedAtMs === "number"
+    && config.lastImportedAtMs > 0
+    && nowMs - config.lastImportedAtMs > staleAfterMs;
 
   if (status === "config_missing") {
     return {
       status,
+      evidenceStatus: "config_missing",
       truthState: "unavailable",
       sourceRole: "external_evidence_only",
       productTruthSource: "first_party_analytics",
@@ -127,6 +148,7 @@ export function buildGa4EvidenceState(config: Ga4TruthConfig): Ga4EvidenceState 
   if (status === "broken_refactor") {
     return {
       status,
+      evidenceStatus: "unavailable",
       truthState: "partial",
       sourceRole: "external_evidence_only",
       productTruthSource: "first_party_analytics",
@@ -142,8 +164,47 @@ export function buildGa4EvidenceState(config: Ga4TruthConfig): Ga4EvidenceState 
     };
   }
 
+  if (importedSampleStale) {
+    return {
+      status,
+      evidenceStatus: "stale",
+      truthState: "partial",
+      sourceRole: "external_evidence_only",
+      productTruthSource: "first_party_analytics",
+      firstPartyAnalyticsPrimary: true,
+      ga4EvidenceOnly: true,
+      clientGa4Configured,
+      serverDataApiConfigured,
+      serverMeasurementProtocolConfigured,
+      trafficValue: null,
+      displayValue: "Needs refresh",
+      reason: "GA4 imported sample evidence is stale. Keep first-party analytics as product truth and refresh only with owner-approved explicit evidence collection.",
+      nextAction: "Refresh the redacted GA4 evidence sample only after cost and credential approval.",
+    };
+  }
+
+  if (importedSamplePresent) {
+    return {
+      status,
+      evidenceStatus: "imported_sample",
+      truthState: "partial",
+      sourceRole: "external_evidence_only",
+      productTruthSource: "first_party_analytics",
+      firstPartyAnalyticsPrimary: true,
+      ga4EvidenceOnly: true,
+      clientGa4Configured,
+      serverDataApiConfigured,
+      serverMeasurementProtocolConfigured,
+      trafficValue: null,
+      displayValue: "Evidence only",
+      reason: "A redacted GA4 sample is attached as external evidence only. It can corroborate directional volume, not product truth.",
+      nextAction: "Compare against first-party event facts and keep any product repair gated by canonical ledger/source records.",
+    };
+  }
+
   return {
     status,
+    evidenceStatus: status === "intentionally_disabled" ? "unavailable" : "evidence_only",
     truthState: serverDataApiConfigured ? "deferred" : "available",
     sourceRole: "external_evidence_only",
     productTruthSource: "first_party_analytics",

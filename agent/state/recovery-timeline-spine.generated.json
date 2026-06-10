@@ -1,0 +1,705 @@
+{
+  "generatedAtUtc": "2026-06-10T04:13:53.087Z",
+  "reportKey": "recovery-timeline-spine",
+  "version": "2026.06.recovery-timeline-spine.1",
+  "status": "pass",
+  "sourcePrecedence": [
+    "first_party_event_fact",
+    "transaction_ledger",
+    "gumdrop_ledger",
+    "unlock_record",
+    "reward_record",
+    "behavioral_timeline_fact",
+    "legacy_analytics",
+    "ga4_evidence",
+    "unknown_legacy"
+  ],
+  "schema": {
+    "requiredFields": [
+      "timelineId",
+      "source",
+      "timestamp",
+      "eventName",
+      "actor",
+      "identityConfidence",
+      "eventConfidence",
+      "productDomain",
+      "classification",
+      "recoveryEligibility",
+      "missingVsZeroState",
+      "corroboration",
+      "evidenceLabels"
+    ],
+    "classificationStates": [
+      "canonical",
+      "corroborating_evidence",
+      "weak_match",
+      "unknown_legacy",
+      "duplicate_candidate",
+      "rejected"
+    ],
+    "productTruthEligibleSources": [
+      "first_party_event_fact",
+      "transaction_ledger",
+      "gumdrop_ledger",
+      "unlock_record",
+      "reward_record"
+    ],
+    "evidenceOnlySources": [
+      "ga4_evidence",
+      "legacy_analytics",
+      "unknown_legacy"
+    ],
+    "ga4EventMappings": [
+      {
+        "ga4EventName": "page_view",
+        "canonicalEventName": "page_viewed",
+        "confidence": "medium",
+        "productDomain": "telemetry_behavior",
+        "commerceTruthRequiresLedger": false
+      },
+      {
+        "ga4EventName": "screen_view",
+        "canonicalEventName": "page_viewed",
+        "confidence": "directional",
+        "productDomain": "telemetry_behavior",
+        "commerceTruthRequiresLedger": false
+      },
+      {
+        "ga4EventName": "search",
+        "canonicalEventName": "search_submitted",
+        "confidence": "directional",
+        "productDomain": "telemetry_behavior",
+        "commerceTruthRequiresLedger": false
+      },
+      {
+        "ga4EventName": "login",
+        "canonicalEventName": "auth_login_completed",
+        "confidence": "directional",
+        "productDomain": "identity_handoff",
+        "commerceTruthRequiresLedger": false
+      },
+      {
+        "ga4EventName": "sign_up",
+        "canonicalEventName": "signup_completed",
+        "confidence": "directional",
+        "productDomain": "identity_handoff",
+        "commerceTruthRequiresLedger": false
+      },
+      {
+        "ga4EventName": "purchase",
+        "canonicalEventName": "gumdrops_purchase_completed",
+        "confidence": "medium",
+        "productDomain": "wallet_payment",
+        "commerceTruthRequiresLedger": true
+      },
+      {
+        "ga4EventName": "refund",
+        "canonicalEventName": "payment_refund_evidence_seen",
+        "confidence": "low",
+        "productDomain": "wallet_payment",
+        "commerceTruthRequiresLedger": true
+      },
+      {
+        "ga4EventName": "unlock_drop_success",
+        "canonicalEventName": "drop_unwrapped",
+        "confidence": "low",
+        "productDomain": "drop_unlock",
+        "commerceTruthRequiresLedger": true
+      }
+    ]
+  },
+  "compactTimelineSample": [
+    {
+      "timelineId": "recovery:first_party_event_fact:event_fact:support-ticket-created:support_ticket_created:2026-06-07T00:00:00.000Z",
+      "source": "first_party_event_fact",
+      "eventName": "support_ticket_created",
+      "actorType": "signed_in_user",
+      "identityConfidence": "canonical",
+      "eventConfidence": "canonical",
+      "productDomain": "support_recovery",
+      "classification": "canonical",
+      "recoveryEligibility": "product_truth_eligible",
+      "missingVsZeroState": "source_present",
+      "treasuryLedgerCorroborated": false,
+      "evidenceLabels": [
+        "source_truth"
+      ]
+    },
+    {
+      "timelineId": "recovery:transaction_ledger:txn_sample:gumdrops_purchase_completed:2026-06-07T00:05:00.000Z",
+      "source": "transaction_ledger",
+      "eventName": "gumdrops_purchase_completed",
+      "actorType": "signed_in_user",
+      "identityConfidence": "ledger_confirmed",
+      "eventConfidence": "ledger_confirmed",
+      "productDomain": "wallet_payment",
+      "classification": "canonical",
+      "recoveryEligibility": "product_truth_eligible",
+      "missingVsZeroState": "source_present",
+      "treasuryLedgerCorroborated": true,
+      "evidenceLabels": [
+        "source_truth"
+      ]
+    },
+    {
+      "timelineId": "recovery:ga4_evidence:ga4_row_sample:gumdrops_purchase_completed:2026-06-07T00:05:00.000Z",
+      "source": "ga4_evidence",
+      "eventName": "gumdrops_purchase_completed",
+      "actorType": "unknown",
+      "identityConfidence": "unknown",
+      "eventConfidence": "medium",
+      "productDomain": "wallet_payment",
+      "classification": "rejected",
+      "recoveryEligibility": "rejected",
+      "missingVsZeroState": "source_present",
+      "treasuryLedgerCorroborated": false,
+      "evidenceLabels": [
+        "ga4_evidence_only",
+        "corroborating_evidence"
+      ]
+    },
+    {
+      "timelineId": "recovery:unknown_legacy:legacy_watch_sample:watch_duration_legacy:2026-06-07T00:10:00.000Z",
+      "source": "unknown_legacy",
+      "eventName": "watch_duration_legacy",
+      "actorType": "unknown",
+      "identityConfidence": "unknown",
+      "eventConfidence": "unknown",
+      "productDomain": "telemetry_behavior",
+      "classification": "unknown_legacy",
+      "recoveryEligibility": "manual_review_required",
+      "missingVsZeroState": "source_present",
+      "treasuryLedgerCorroborated": false,
+      "evidenceLabels": [
+        "legacy_directional_only",
+        "corroborating_evidence",
+        "manual_review"
+      ]
+    }
+  ],
+  "productTruthPolicy": {
+    "ga4CanAffectProductTruth": false,
+    "legacyCanOverwriteCurrentTruth": false,
+    "missingCanRenderAsZero": false,
+    "paymentAndGumdropRequireLedgerCorroboration": true,
+    "writesRecoveredEventsToProductTruth": false
+  },
+  "analyticsEventFactReconciliation": {
+    "matchingRules": {
+      "exactEventFactIdWins": true,
+      "sameActorSessionActionWindowMs": 60000,
+      "timestampConflictWindowMs": 300000,
+      "missingSourceIsNotZero": true
+    },
+    "summary": {
+      "firstPartyFactCount": 3,
+      "timelineEntryCount": 4,
+      "firstPartyPresent": 1,
+      "legacyOnly": 0,
+      "ga4Only": 1,
+      "firstPartyMissing": 0,
+      "identityMissing": 1,
+      "timestampConflict": 0,
+      "duplicateCandidate": 2,
+      "productTruthEligible": 1
+    },
+    "compactMatches": [
+      {
+        "firstPartyEventFactId": "event_fact:support-ticket-created",
+        "timelineId": "recovery:first_party_event_fact:event_fact:support-ticket-created:support_ticket_created:2026-06-07T00:00:00.000Z",
+        "eventName": "support_ticket_created",
+        "gapClassification": "first_party_present",
+        "duplicateCandidate": false,
+        "productTruthEligible": true,
+        "reason": "First-party analytics_event_facts row is present and remains primary truth."
+      },
+      {
+        "firstPartyEventFactId": "event_fact:duplicate-click-a",
+        "timelineId": "recovery:first_party_event_fact:event_fact:duplicate-click-a:drop_clicked:2026-06-07T00:03:00.000Z",
+        "eventName": "drop_clicked",
+        "gapClassification": "duplicate_candidate",
+        "duplicateCandidate": true,
+        "productTruthEligible": false,
+        "reason": "Same actor/session/action/time window appears more than once; do not import duplicates."
+      },
+      {
+        "firstPartyEventFactId": null,
+        "timelineId": "recovery:ga4_evidence:ga4_gap:page_viewed:2026-06-07T00:20:00.000Z",
+        "eventName": "page_viewed",
+        "gapClassification": "ga4_only",
+        "duplicateCandidate": false,
+        "productTruthEligible": false,
+        "reason": "GA4 evidence can corroborate volume but cannot replace first-party event facts."
+      },
+      {
+        "firstPartyEventFactId": null,
+        "timelineId": "recovery:unknown_legacy:legacy_watch_sample:watch_duration_legacy:2026-06-07T00:10:00.000Z",
+        "eventName": "watch_duration_legacy",
+        "gapClassification": "identity_missing",
+        "duplicateCandidate": false,
+        "productTruthEligible": false,
+        "reason": "Timeline evidence lacks actor/session identity and cannot hydrate user metrics."
+      },
+      {
+        "firstPartyEventFactId": "event_fact:duplicate-click-b",
+        "timelineId": null,
+        "eventName": "drop_clicked",
+        "gapClassification": "duplicate_candidate",
+        "duplicateCandidate": true,
+        "productTruthEligible": false,
+        "reason": "Same actor/session/action/time window appears more than once; do not import duplicates."
+      }
+    ],
+    "productTruthPolicy": {
+      "firstPartyEventFactsPrimary": true,
+      "legacyCanOnlyCorroborate": true,
+      "ga4CanOnlyCorroborate": true,
+      "duplicateEventsNotImported": true,
+      "missingWindowNotZero": true
+    }
+  },
+  "treasuryTimelineReconciliation": {
+    "eventMap": [
+      {
+        "eventType": "purchase",
+        "ledgerOwner": "transaction_ledger",
+        "analyticsEvidenceEvents": [
+          "gumdrops_purchase_completed",
+          "checkout_completed",
+          "purchase"
+        ],
+        "productTruthRule": "Only server transaction and GumDrop ledger records can credit paid_gd or paid_bonus_gd."
+      },
+      {
+        "eventType": "reward",
+        "ledgerOwner": "reward_record",
+        "analyticsEvidenceEvents": [
+          "daily_reward_claimed",
+          "task_reward_claimed",
+          "onboarding_reward_claimed"
+        ],
+        "productTruthRule": "Reward analytics can corroborate; reward credits require reward ledger/source-of-funds truth."
+      },
+      {
+        "eventType": "unlock_spend",
+        "ledgerOwner": "unlock_record",
+        "analyticsEvidenceEvents": [
+          "drop_unwrapped",
+          "unlock_content",
+          "unlock_drop_success"
+        ],
+        "productTruthRule": "Unlock spend truth requires source-aware ledger split and entitlement/unlock record."
+      },
+      {
+        "eventType": "creator_accrual",
+        "ledgerOwner": "gumdrop_ledger",
+        "analyticsEvidenceEvents": [
+          "creator_experience_paid",
+          "creator_revenue_accrued"
+        ],
+        "productTruthRule": "Creator accruals require creator ledger/entitlement truth; analytics is evidence only."
+      },
+      {
+        "eventType": "admin_adjustment",
+        "ledgerOwner": "gumdrop_ledger",
+        "analyticsEvidenceEvents": [
+          "admin_balance_adjusted",
+          "admin_gumdrop_adjustment"
+        ],
+        "productTruthRule": "Admin adjustments require audited admin ledger rows and must not be inferred from telemetry."
+      },
+      {
+        "eventType": "refund_void",
+        "ledgerOwner": "transaction_ledger",
+        "analyticsEvidenceEvents": [
+          "payment_refund_evidence_seen",
+          "refund"
+        ],
+        "productTruthRule": "Refund/void recovery requires provider/transaction reversal and original source bucket."
+      }
+    ],
+    "summary": {
+      "ledger_confirmed": 3,
+      "analytics_correlated": 2,
+      "analytics_missing": 1,
+      "analytics_only_not_ledger": 0,
+      "ledger_missing_protected": 2,
+      "duplicate_risk": 0,
+      "source_bucket_mismatch": 1,
+      "ledgerEventCount": 3,
+      "timelineEvidenceCount": 4,
+      "productTruthEligibleCount": 3
+    },
+    "compactFindings": [
+      {
+        "findingId": "treasury_timeline:ledger_confirmed:purchase_gumdrops_purchase_completed_txn_sample_user:sample_user_29679845",
+        "status": "ledger_confirmed",
+        "eventType": "purchase",
+        "ledgerId": "ledger_purchase_sample",
+        "timelineId": "recovery:first_party_event_fact:event_fact:purchase-completed:gumdrops_purchase_completed:2026-06-07T00:05:00.000Z",
+        "eventName": "gumdrops_purchase_completed",
+        "sourceBucket": "paid_gd",
+        "evidenceSourceBucket": "paid_gd",
+        "productTruthAllowed": true,
+        "reason": "Server treasury ledger/source-of-funds record is the primary money truth.",
+        "nextAction": "Use analytics only as corroborating evidence; do not credit or debit from analytics."
+      },
+      {
+        "findingId": "treasury_timeline:analytics_correlated:purchase_gumdrops_purchase_completed_txn_sample_user:sample_user_29679845",
+        "status": "analytics_correlated",
+        "eventType": "purchase",
+        "ledgerId": "ledger_purchase_sample",
+        "timelineId": "recovery:first_party_event_fact:event_fact:purchase-completed:gumdrops_purchase_completed:2026-06-07T00:05:00.000Z",
+        "eventName": "gumdrops_purchase_completed",
+        "sourceBucket": "paid_gd",
+        "evidenceSourceBucket": "paid_gd",
+        "productTruthAllowed": false,
+        "reason": "Analytics evidence correlates to an existing treasury ledger row and can explain activity.",
+        "nextAction": "Keep ledger as money truth; use timeline evidence only for diagnostics or confidence."
+      },
+      {
+        "findingId": "treasury_timeline:ledger_confirmed:reward_daily_reward_claimed_ledger_reward_sample_user:sample_user_29679845",
+        "status": "ledger_confirmed",
+        "eventType": "reward",
+        "ledgerId": "ledger_reward_sample",
+        "timelineId": null,
+        "eventName": "daily_reward_claimed",
+        "sourceBucket": "task_reward_gd",
+        "evidenceSourceBucket": null,
+        "productTruthAllowed": true,
+        "reason": "Server treasury ledger/source-of-funds record is the primary money truth.",
+        "nextAction": "Use analytics only as corroborating evidence; do not credit or debit from analytics."
+      },
+      {
+        "findingId": "treasury_timeline:analytics_missing:reward_daily_reward_claimed_ledger_reward_sample_user:sample_user_29679845",
+        "status": "analytics_missing",
+        "eventType": "reward",
+        "ledgerId": "ledger_reward_sample",
+        "timelineId": null,
+        "eventName": "daily_reward_claimed",
+        "sourceBucket": "task_reward_gd",
+        "evidenceSourceBucket": null,
+        "productTruthAllowed": true,
+        "reason": "Ledger truth exists without matching analytics evidence; this is an analytics gap, not missing money.",
+        "nextAction": "Check emitter/materializer coverage. Do not reverse or backfill ledger rows from this gap."
+      },
+      {
+        "findingId": "treasury_timeline:ledger_confirmed:unlock_spend_drop_unwrapped_unlock_sample_user:sample_user_29679846",
+        "status": "ledger_confirmed",
+        "eventType": "unlock_spend",
+        "ledgerId": "ledger_unlock_sample",
+        "timelineId": "recovery:first_party_event_fact:event_fact:unlock:drop_unwrapped:2026-06-07T00:06:00.000Z",
+        "eventName": "drop_unwrapped",
+        "sourceBucket": "paid_gd",
+        "evidenceSourceBucket": "reward_gd",
+        "productTruthAllowed": true,
+        "reason": "Server treasury ledger/source-of-funds record is the primary money truth.",
+        "nextAction": "Use analytics only as corroborating evidence; do not credit or debit from analytics."
+      },
+      {
+        "findingId": "treasury_timeline:analytics_correlated:unlock_spend_drop_unwrapped_unlock_sample_user:sample_user_29679846",
+        "status": "analytics_correlated",
+        "eventType": "unlock_spend",
+        "ledgerId": "ledger_unlock_sample",
+        "timelineId": "recovery:first_party_event_fact:event_fact:unlock:drop_unwrapped:2026-06-07T00:06:00.000Z",
+        "eventName": "drop_unwrapped",
+        "sourceBucket": "paid_gd",
+        "evidenceSourceBucket": "reward_gd",
+        "productTruthAllowed": false,
+        "reason": "Analytics evidence correlates to an existing treasury ledger row and can explain activity.",
+        "nextAction": "Keep ledger as money truth; use timeline evidence only for diagnostics or confidence."
+      },
+      {
+        "findingId": "treasury_timeline:source_bucket_mismatch:unlock_spend_drop_unwrapped_unlock_sample_user:sample_user_29679846",
+        "status": "source_bucket_mismatch",
+        "eventType": "unlock_spend",
+        "ledgerId": "ledger_unlock_sample",
+        "timelineId": "recovery:first_party_event_fact:event_fact:unlock:drop_unwrapped:2026-06-07T00:06:00.000Z",
+        "eventName": "drop_unwrapped",
+        "sourceBucket": "paid_gd",
+        "evidenceSourceBucket": "reward_gd",
+        "productTruthAllowed": false,
+        "reason": "Timeline evidence source bucket differs from the server ledger source bucket.",
+        "nextAction": "Preserve paid/reward split from the ledger and review the analytics mapping."
+      },
+      {
+        "findingId": "treasury_timeline:ledger_missing_protected:purchase_gumdrops_purchase_completed_txn_missing_guest:ga4_sample_user_29679847",
+        "status": "ledger_missing_protected",
+        "eventType": "purchase",
+        "ledgerId": null,
+        "timelineId": "recovery:ga4_evidence:ga4_purchase_without_ledger:gumdrops_purchase_completed:2026-06-07T00:07:00.000Z",
+        "eventName": "gumdrops_purchase_completed",
+        "sourceBucket": null,
+        "evidenceSourceBucket": "paid_gd",
+        "productTruthAllowed": false,
+        "reason": "Analytics evidence references a protected money surface without a matching treasury ledger row.",
+        "nextAction": "Escalate for protected ledger/provider evidence review; do not create wallet truth from analytics."
+      },
+      {
+        "findingId": "treasury_timeline:ledger_missing_protected:creator_accrual_creator_revenue_accrued_creator_accrual_missing_user:sample_creator_29679848",
+        "status": "ledger_missing_protected",
+        "eventType": "creator_accrual",
+        "ledgerId": null,
+        "timelineId": "recovery:legacy_analytics:legacy_creator_accrual_missing:creator_revenue_accrued:2026-06-07T00:08:00.000Z",
+        "eventName": "creator_revenue_accrued",
+        "sourceBucket": null,
+        "evidenceSourceBucket": "paid_gd",
+        "productTruthAllowed": false,
+        "reason": "Analytics evidence references a protected money surface without a matching treasury ledger row.",
+        "nextAction": "Escalate for protected ledger/provider evidence review; do not create wallet truth from analytics."
+      }
+    ],
+    "productTruthPolicy": {
+      "treasuryLedgersPrimary": true,
+      "analyticsCanOnlyCorroborate": true,
+      "ga4CanCreditOrDebitGumdrops": false,
+      "legacyCanCreditOrDebitGumdrops": false,
+      "sourceBucketsMustMatch": true,
+      "noBalanceMutation": true,
+      "missingAnalyticsIsNotMissingMoney": true
+    }
+  },
+  "gumdropRecoveryQueue": {
+    "schema": {
+      "requiredFields": [
+        "recoveryId",
+        "actor",
+        "timeWindow",
+        "suspectedAction",
+        "eventName",
+        "evidenceSources",
+        "confidence",
+        "ledgerCorroboration",
+        "requiredHumanProof",
+        "allowedRecoveryAction",
+        "forbiddenAction"
+      ],
+      "moneyTruthRule": "ledger_or_server_proof_required_before_balance_recovery",
+      "analyticsOnlyRecoveryAllowed": false
+    },
+    "summary": {
+      "queueItemCount": 4,
+      "ledgerProofRequiredCount": 2,
+      "analyticsOnlyRejectedCount": 2,
+      "duplicateRiskCount": 0,
+      "sourceBucketMismatchCount": 1,
+      "moneyAffectingRecoveryAllowedCount": 0
+    },
+    "compactItems": [
+      {
+        "recoveryId": "gumdrop_recovery:analytics_missing:ledger_reward_sample",
+        "actor": {
+          "actorScope": "signed_in_user",
+          "userId": "sample_user",
+          "anonymousVisitorId": null,
+          "sessionId": "reward_session",
+          "identityLinkId": null
+        },
+        "timeWindow": {
+          "startUtc": "2026-06-07T00:04:30.000Z",
+          "endUtc": "2026-06-07T00:06:30.000Z",
+          "basis": "ledger_occurred_at"
+        },
+        "suspectedAction": "reward",
+        "eventName": "daily_reward_claimed",
+        "amountGd": 25,
+        "sourceBucket": "task_reward_gd",
+        "evidenceSources": [
+          {
+            "evidenceId": "ledger_reward_sample",
+            "kind": "treasury_ledger",
+            "source": "reward_record",
+            "productTruthAllowed": true,
+            "note": "Server ledger/source-of-funds row is the only balance-affecting truth."
+          }
+        ],
+        "confidence": "high",
+        "ledgerCorroboration": {
+          "status": "ledger_present",
+          "ledgerId": "ledger_reward_sample",
+          "sourceBucket": "task_reward_gd",
+          "serverProofRequiredForMoneyAction": true
+        },
+        "requiredHumanProof": [
+          "no money proof needed because ledger already exists",
+          "emitter/materializer evidence only if analytics repair is requested"
+        ],
+        "allowedRecoveryAction": "attach_evidence_to_existing_ledger",
+        "forbiddenAction": "Do not credit, debit, backfill, unlock, refund, or adjust balances from analytics/GA4/legacy evidence alone."
+      },
+      {
+        "recoveryId": "gumdrop_recovery:source_bucket_mismatch:ledger_unlock_sample",
+        "actor": {
+          "actorScope": "signed_in_user",
+          "userId": "sample_user",
+          "anonymousVisitorId": null,
+          "sessionId": "unlock_session",
+          "identityLinkId": null
+        },
+        "timeWindow": {
+          "startUtc": "2026-06-07T00:05:00.000Z",
+          "endUtc": "2026-06-07T00:07:00.000Z",
+          "basis": "ledger_occurred_at"
+        },
+        "suspectedAction": "unlock_spend",
+        "eventName": "drop_unwrapped",
+        "amountGd": 100,
+        "sourceBucket": "paid_gd",
+        "evidenceSources": [
+          {
+            "evidenceId": "ledger_unlock_sample",
+            "kind": "treasury_ledger",
+            "source": "unlock_record",
+            "productTruthAllowed": true,
+            "note": "Server ledger/source-of-funds row is the only balance-affecting truth."
+          },
+          {
+            "evidenceId": "recovery:first_party_event_fact:event_fact:unlock:drop_unwrapped:2026-06-07T00:06:00.000Z",
+            "kind": "first_party_event_fact",
+            "source": "first_party_event_fact",
+            "productTruthAllowed": false,
+            "note": "Timeline evidence is diagnostic/corroborating and cannot credit or debit GumDrops."
+          }
+        ],
+        "confidence": "medium",
+        "ledgerCorroboration": {
+          "status": "source_bucket_mismatch",
+          "ledgerId": "ledger_unlock_sample",
+          "sourceBucket": "paid_gd",
+          "serverProofRequiredForMoneyAction": true
+        },
+        "requiredHumanProof": [
+          "redacted treasury ledger row with source bucket",
+          "server source-of-funds calculation or unlock spend split",
+          "operator confirmation that analytics bucket mapping is diagnostic only"
+        ],
+        "allowedRecoveryAction": "manual_review_only",
+        "forbiddenAction": "Do not credit, debit, backfill, unlock, refund, or adjust balances from analytics/GA4/legacy evidence alone."
+      },
+      {
+        "recoveryId": "gumdrop_recovery:ledger_missing_protected:recovery:ga4_evidence:ga4_purchase_without_ledger:gumdrops_purchase_completed:2026-06-07T00:07:0",
+        "actor": {
+          "actorScope": "guest",
+          "userId": null,
+          "anonymousVisitorId": "ga4_sample_user",
+          "sessionId": "ga4_purchase_session",
+          "identityLinkId": null
+        },
+        "timeWindow": {
+          "startUtc": "2026-06-07T00:06:00.000Z",
+          "endUtc": "2026-06-07T00:08:00.000Z",
+          "basis": "timeline_timestamp"
+        },
+        "suspectedAction": "purchase",
+        "eventName": "gumdrops_purchase_completed",
+        "amountGd": null,
+        "sourceBucket": "paid_gd",
+        "evidenceSources": [
+          {
+            "evidenceId": "recovery:ga4_evidence:ga4_purchase_without_ledger:gumdrops_purchase_completed:2026-06-07T00:07:00.000Z",
+            "kind": "ga4_evidence",
+            "source": "ga4_evidence",
+            "productTruthAllowed": false,
+            "note": "Timeline evidence is diagnostic/corroborating and cannot credit or debit GumDrops."
+          }
+        ],
+        "confidence": "low",
+        "ledgerCorroboration": {
+          "status": "ledger_missing",
+          "ledgerId": null,
+          "sourceBucket": null,
+          "serverProofRequiredForMoneyAction": true
+        },
+        "requiredHumanProof": [
+          "server transaction id, GumDrop ledger id, unlock id, reward id, or creator ledger id",
+          "source bucket proof from server truth",
+          "manual operator approval after ledger proof is attached"
+        ],
+        "allowedRecoveryAction": "reject_analytics_only_balance_recovery",
+        "forbiddenAction": "Do not credit, debit, backfill, unlock, refund, or adjust balances from analytics/GA4/legacy evidence alone."
+      },
+      {
+        "recoveryId": "gumdrop_recovery:ledger_missing_protected:recovery:legacy_analytics:legacy_creator_accrual_missing:creator_revenue_accrued:2026-06-07T00:0",
+        "actor": {
+          "actorScope": "creator_role",
+          "userId": "sample_creator",
+          "anonymousVisitorId": null,
+          "sessionId": "creator_session",
+          "identityLinkId": null
+        },
+        "timeWindow": {
+          "startUtc": "2026-06-07T00:07:00.000Z",
+          "endUtc": "2026-06-07T00:09:00.000Z",
+          "basis": "timeline_timestamp"
+        },
+        "suspectedAction": "creator_accrual",
+        "eventName": "creator_revenue_accrued",
+        "amountGd": null,
+        "sourceBucket": "paid_gd",
+        "evidenceSources": [
+          {
+            "evidenceId": "recovery:legacy_analytics:legacy_creator_accrual_missing:creator_revenue_accrued:2026-06-07T00:08:00.000Z",
+            "kind": "legacy_analytics",
+            "source": "legacy_analytics",
+            "productTruthAllowed": false,
+            "note": "Timeline evidence is diagnostic/corroborating and cannot credit or debit GumDrops."
+          }
+        ],
+        "confidence": "low",
+        "ledgerCorroboration": {
+          "status": "ledger_missing",
+          "ledgerId": null,
+          "sourceBucket": null,
+          "serverProofRequiredForMoneyAction": true
+        },
+        "requiredHumanProof": [
+          "server transaction id, GumDrop ledger id, unlock id, reward id, or creator ledger id",
+          "source bucket proof from server truth",
+          "manual operator approval after ledger proof is attached"
+        ],
+        "allowedRecoveryAction": "reject_analytics_only_balance_recovery",
+        "forbiddenAction": "Do not credit, debit, backfill, unlock, refund, or adjust balances from analytics/GA4/legacy evidence alone."
+      }
+    ],
+    "productTruthPolicy": {
+      "dryRunOnly": true,
+      "creditsOrDebitsUsers": false,
+      "backfillsTransactions": false,
+      "analyticsOnlyCanChangeBalance": false,
+      "requiresLedgerOrServerProofBeforeMoneyAction": true,
+      "exposesPii": false
+    },
+    "validationFailures": []
+  },
+  "manualRecoveryInputs": [
+    "redacted operator evidence packet",
+    "transaction id or GumDrop ledger id for wallet/economy recovery",
+    "unlock id or entitlement record for drop access recovery",
+    "identity link id for guest-to-user continuity review",
+    "source freshness window and materializer status"
+  ],
+  "checks": {
+    "packageScriptPresent": true,
+    "schemaVersioned": true,
+    "sourcePrecedenceDeclared": true,
+    "classificationStatesPresent": true,
+    "missingIsNotZeroStatesPresent": true,
+    "ga4EvidenceOnly": true,
+    "legacyDryRunOnly": true,
+    "materializationReused": true,
+    "paymentLedgerGuard": true,
+    "ga4MappingsPresent": true,
+    "validationPasses": true,
+    "eventFactReconciliationPresent": true,
+    "eventFactGapClassesPresent": true,
+    "treasuryEventMapPresent": true,
+    "treasuryReconciliationStatusesPresent": true,
+    "treasuryAnalyticsExcludedFromMoneyTruth": true,
+    "gumdropRecoveryQueuePresent": true,
+    "gumdropRecoveryQueueRejectsAnalyticsOnlyBalanceRecovery": true,
+    "gumdropRecoveryQueueValidationPasses": true
+  },
+  "validationFindings": [],
+  "failures": []
+}

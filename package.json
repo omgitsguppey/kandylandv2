@@ -46,6 +46,7 @@
         "check:server-loading-speed": "tsx scripts/agent/validate-server-loading-speed.ts",
         "check:user-creator-feature-parity": "tsx scripts/agent/validate-user-creator-feature-parity.ts",
         "check:event-timeline-management": "tsx scripts/agent/validate-event-timeline-management.ts",
+        "check:recovery-timeline-spine": "tsx scripts/agent/validate-recovery-timeline-spine.ts",
         "check:google-cloud-cost-data-handoff": "tsx scripts/agent/validate-google-cloud-cost-data-handoff.ts",
         "check:phase-one-final-cleanup": "tsx scripts/agent/validate-phase-one-final-cleanup.ts",
         "check:platform-pulse-compact": "tsx scripts/agent/validate-platform-pulse-compact.ts",

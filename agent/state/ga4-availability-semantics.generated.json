@@ -1,7 +1,7 @@
 {
   "reportKey": "ga4-availability-semantics",
-  "generatedAtUtc": "2026-05-25T05:23:08.875Z",
-  "currentHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136",
+  "generatedAtUtc": "2026-06-07T23:57:57.940Z",
+  "currentHead": "unknown",
   "semantics": {
     "status": "reports_loaded_empty",
     "setupPassAllowed": true,

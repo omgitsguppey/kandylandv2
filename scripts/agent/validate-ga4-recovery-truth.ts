@@ -8,6 +8,10 @@ import {
   shouldRunGa4AdminRefresh,
   type Ga4Status,
 } from "../../src/lib/analytics/ga4-truth";
+import {
+  buildRecoveryTimelineEntryFromGa4Event,
+  getGa4RecoveryEventMapping,
+} from "../../src/lib/analytics/recovery-timeline-spine";
 
 type Severity = "P0" | "P1" | "P2";
 
@@ -32,6 +36,8 @@ type Ga4RecoveryTruthReport = {
     defaultDataApiCallsBlocked: boolean;
     consentGateRespected: boolean;
     retryCostGuarded: boolean;
+    evidenceStatesClassified: boolean;
+    recoveryTimelineMapped: boolean;
     p0Count: number;
     p1Count: number;
     p2Count: number;
@@ -41,6 +47,7 @@ type Ga4RecoveryTruthReport = {
   adminIntegrationFindings: Finding[];
   clientIntegrationFindings: Finding[];
   costFindings: Finding[];
+  recoveryTimelineFindings: Finding[];
   prCleanupActions: string[];
   nextFixOrder: string[];
 };
@@ -52,7 +59,20 @@ const artifactRelativePath = "agent/state/ga4-recovery-truth.generated.json";
 const docsRelativePath = "docs/agent-truth/ga4-recovery-truth.md";
 
 function currentHead() {
-  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  } catch {
+    try {
+      const head = readFileSync(join(repoRoot, ".git", "HEAD"), "utf8").trim();
+      if (head.startsWith("ref: ")) {
+        const refPath = head.slice("ref: ".length).trim();
+        return readFileSync(join(repoRoot, ".git", refPath), "utf8").trim();
+      }
+      return head || "unknown";
+    } catch {
+      return "unknown";
+    }
+  }
 }
 
 function read(relativePath: string) {
@@ -100,6 +120,8 @@ function writeMarkdown(report: Ga4RecoveryTruthReport) {
     `- Default Data API calls blocked: ${report.summary.defaultDataApiCallsBlocked ? "yes" : "no"}`,
     `- Consent gate respected: ${report.summary.consentGateRespected ? "yes" : "no"}`,
     `- Retry/cost guard present: ${report.summary.retryCostGuarded ? "yes" : "no"}`,
+    `- Evidence states classified: ${report.summary.evidenceStatesClassified ? "yes" : "no"}`,
+    `- Recovery timeline mapped: ${report.summary.recoveryTimelineMapped ? "yes" : "no"}`,
     "",
     "## Inventory",
     "",
@@ -116,6 +138,10 @@ function writeMarkdown(report: Ga4RecoveryTruthReport) {
     "## Cost Guards",
     "",
     ...report.costFindings.map((entry) => `- ${entry.status}: ${entry.detail}`),
+    "",
+    "## Recovery Timeline",
+    "",
+    ...report.recoveryTimelineFindings.map((entry) => `- ${entry.status}: ${entry.detail}`),
     "",
     "## Next Fix Order",
     "",
@@ -146,6 +172,30 @@ export function validateGa4RecoveryTruth(options: { writeReport?: boolean } = {}
   });
 
   const missingConfigState = buildGa4EvidenceState({});
+  const unavailableState = buildGa4EvidenceState({ disabled: true });
+  const evidenceOnlyState = buildGa4EvidenceState({ measurementId: "G-TEST123", propertyId: "123456" });
+  const importedSampleState = buildGa4EvidenceState({
+    measurementId: "G-TEST123",
+    importedSamplePresent: true,
+    nowMs: Date.parse("2026-06-07T00:00:00.000Z"),
+  });
+  const staleSampleState = buildGa4EvidenceState({
+    measurementId: "G-TEST123",
+    importedSamplePresent: true,
+    lastImportedAtMs: Date.parse("2026-06-05T00:00:00.000Z"),
+    nowMs: Date.parse("2026-06-07T00:00:00.000Z"),
+  });
+  const ga4PageEvidence = buildRecoveryTimelineEntryFromGa4Event({
+    ga4EventName: "page_view",
+    ga4EventId: "ga4_page_sample",
+    occurredAt: "2026-06-07T00:00:00.000Z",
+  });
+  const ga4PurchaseEvidence = buildRecoveryTimelineEntryFromGa4Event({
+    ga4EventName: "purchase",
+    ga4EventId: "ga4_purchase_sample",
+    occurredAt: "2026-06-07T00:05:00.000Z",
+    transactionId: "txn_from_ga4",
+  });
   const inventory = [
     finding(
       "ga4-client-support-present",
@@ -235,6 +285,35 @@ export function validateGa4RecoveryTruth(options: { writeReport?: boolean } = {}
     ),
   ];
 
+  const recoveryTimelineFindings = [
+    finding(
+      "ga4-evidence-states-classified",
+      missingConfigState.evidenceStatus === "config_missing"
+        && unavailableState.evidenceStatus === "unavailable"
+        && evidenceOnlyState.evidenceStatus === "evidence_only"
+        && importedSampleState.evidenceStatus === "imported_sample"
+        && staleSampleState.evidenceStatus === "stale",
+      "GA4 evidence states classify config_missing, unavailable, evidence_only, imported_sample, and stale without producing product truth.",
+      "P0",
+    ),
+    finding(
+      "ga4-events-map-to-recovery-timeline",
+      getGa4RecoveryEventMapping("page_view").canonicalEventName === "page_viewed"
+        && ga4PageEvidence.source === "ga4_evidence"
+        && ga4PageEvidence.recoveryEligibility === "evidence_only",
+      "Known GA4 event names map into recovery timeline evidence entries with source labels.",
+      "P0",
+    ),
+    finding(
+      "ga4-commerce-rejected-without-ledger",
+      getGa4RecoveryEventMapping("purchase").commerceTruthRequiresLedger === true
+        && ga4PurchaseEvidence.classification === "rejected"
+        && ga4PurchaseEvidence.recoveryEligibility === "rejected",
+      "GA4 commerce/GumDrop evidence is rejected from product truth without first-party ledger corroboration.",
+      "P0",
+    ),
+  ];
+
   const fixesApplied = [
     finding("ga4-truth-helper", has("src/lib/analytics/ga4-truth.ts"), "Added shared GA4 truth and cost-guard helper."),
     finding("ga4-client-tracker", has("src/components/Analytics/Ga4EvidenceTracker.tsx"), "Added consent-gated GA4 evidence tracker."),
@@ -246,6 +325,7 @@ export function validateGa4RecoveryTruth(options: { writeReport?: boolean } = {}
     ...adminIntegrationFindings,
     ...clientIntegrationFindings,
     ...costFindings,
+    ...recoveryTimelineFindings,
     ...fixesApplied,
   ];
 
@@ -263,6 +343,8 @@ export function validateGa4RecoveryTruth(options: { writeReport?: boolean } = {}
       defaultDataApiCallsBlocked: costFindings[0].status === "fixed",
       consentGateRespected: clientIntegrationFindings[1].status === "fixed",
       retryCostGuarded: costFindings[1].status === "fixed",
+      evidenceStatesClassified: recoveryTimelineFindings[0].status === "fixed",
+      recoveryTimelineMapped: recoveryTimelineFindings[1].status === "fixed" && recoveryTimelineFindings[2].status === "fixed",
       p0Count: count(allFindings, "P0"),
       p1Count: count(allFindings, "P1"),
       p2Count: count(allFindings, "P2"),
@@ -272,6 +354,7 @@ export function validateGa4RecoveryTruth(options: { writeReport?: boolean } = {}
     adminIntegrationFindings,
     clientIntegrationFindings,
     costFindings,
+    recoveryTimelineFindings,
     prCleanupActions: ["No open GA4, analytics, PostHog, admin analytics, script/env PRs found at start."],
     nextFixOrder: [
       "If owner-approved GA4 evidence is needed, add measurement/property configuration and run only explicit refreshes.",

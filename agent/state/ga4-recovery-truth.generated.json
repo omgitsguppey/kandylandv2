@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T20:37:23.516Z",
+  "generatedAtUtc": "2026-06-10T04:13:53.070Z",
   "reportKey": "ga4-recovery-truth",
-  "currentHead": "a0ae42237439f514e5399a5a021e8ad5bd83d648",
+  "currentHead": "8fa74ac59a8192f36c52ff3d9f8c2ccdcdf73260",
   "summary": {
     "ga4Status": "config_missing",
     "clientGa4Configured": false,
@@ -12,6 +12,8 @@
     "defaultDataApiCallsBlocked": true,
     "consentGateRespected": true,
     "retryCostGuarded": true,
+    "evidenceStatesClassified": true,
+    "recoveryTimelineMapped": true,
     "p0Count": 0,
     "p1Count": 0,
     "p2Count": 0
@@ -108,6 +110,26 @@
       "status": "fixed",
       "severity": "P0",
       "detail": "GA4 evidence refresh requires explicit refresh and respects the retry TTL."
+    }
+  ],
+  "recoveryTimelineFindings": [
+    {
+      "id": "ga4-evidence-states-classified",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "GA4 evidence states classify config_missing, unavailable, evidence_only, imported_sample, and stale without producing product truth."
+    },
+    {
+      "id": "ga4-events-map-to-recovery-timeline",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Known GA4 event names map into recovery timeline evidence entries with source labels."
+    },
+    {
+      "id": "ga4-commerce-rejected-without-ledger",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "GA4 commerce/GumDrop evidence is rejected from product truth without first-party ledger corroboration."
     }
   ],
   "prCleanupActions": [

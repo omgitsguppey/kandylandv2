@@ -1,7 +1,7 @@
 # GA4 Recovery Truth
 
-Generated: 2026-05-19T20:37:23.516Z
-Current code version: a0ae42237439f514e5399a5a021e8ad5bd83d648
+Generated: 2026-06-10T04:13:53.070Z
+Current code version: 8fa74ac59a8192f36c52ff3d9f8c2ccdcdf73260
 
 ## Summary
 
@@ -14,6 +14,8 @@ Current code version: a0ae42237439f514e5399a5a021e8ad5bd83d648
 - Default Data API calls blocked: yes
 - Consent gate respected: yes
 - Retry/cost guard present: yes
+- Evidence states classified: yes
+- Recovery timeline mapped: yes
 
 ## Inventory
 
@@ -37,6 +39,12 @@ Current code version: a0ae42237439f514e5399a5a021e8ad5bd83d648
 
 - fixed: Default admin analytics load does not call GA4 Data API.
 - fixed: GA4 evidence refresh requires explicit refresh and respects the retry TTL.
+
+## Recovery Timeline
+
+- fixed: GA4 evidence states classify config_missing, unavailable, evidence_only, imported_sample, and stale without producing product truth.
+- fixed: Known GA4 event names map into recovery timeline evidence entries with source labels.
+- fixed: GA4 commerce/GumDrop evidence is rejected from product truth without first-party ledger corroboration.
 
 ## Next Fix Order
 
