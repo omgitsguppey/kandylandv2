@@ -211,6 +211,48 @@ type ChatTelemetryPayloadInput = {
     errorMessage?: string | null;
 };
 
+type ChatClientDiagnosticCode =
+    | "chat_threads_non_json"
+    | "chat_threads_load_failed"
+    | "followed_creators_non_json"
+    | "followed_creators_load_failed"
+    | "chat_thread_detail_non_json"
+    | "chat_thread_detail_load_failed"
+    | "chat_read_update_failed"
+    | "chat_delete_failed"
+    | "attachment_cleanup_non_json"
+    | "attachment_cleanup_failed"
+    | "unsupported_attachment_type"
+    | "attachment_prepare_non_json"
+    | "attachment_prepare_failed"
+    | "storage_upload_failed"
+    | "attachment_complete_non_json"
+    | "attachment_complete_failed"
+    | "chat_send_non_json"
+    | "chat_send_failed";
+
+class ChatClientSafeError extends Error {
+    code: ChatClientDiagnosticCode;
+
+    constructor(code: ChatClientDiagnosticCode, message: string) {
+        super(message);
+        this.name = "ChatClientSafeError";
+        this.code = code;
+    }
+}
+
+function buildChatSafeError(code: ChatClientDiagnosticCode, message: string) {
+    return new ChatClientSafeError(code, message);
+}
+
+function readChatDiagnosticCode(error: unknown, fallback: ChatClientDiagnosticCode) {
+    if (!error || typeof error !== "object") {
+        return fallback;
+    }
+    const candidate = Reflect.get(error, "code");
+    return typeof candidate === "string" ? candidate : fallback;
+}
+
 function buildChatMessageIdempotencyKey(threadId: string) {
     let random = globalThis.crypto?.randomUUID?.() ?? "";
     if (!random && globalThis.crypto?.getRandomValues) {
@@ -1467,10 +1509,10 @@ export function ChatExperience() {
             try {
                 body = JSON.parse(rawText) as ThreadListResponse & { error?: string };
             } catch {
-                throw new Error(`Chat threads returned non-JSON (${response.status}): ${rawText.slice(0, 150).trim()}`);
+                throw buildChatSafeError("chat_threads_non_json", "Chat threads could not be loaded right now.");
             }
             if (!response.ok) {
-                throw new Error("Chat threads could not be loaded right now.");
+                throw buildChatSafeError("chat_threads_load_failed", "Chat threads could not be loaded right now.");
             }
             if (threadsLoadRequestIdRef.current !== requestId) {
                 return;
@@ -1549,10 +1591,10 @@ export function ChatExperience() {
             try {
                 body = JSON.parse(rawText) as CreatorRelationshipsListResponse & { error?: string };
             } catch {
-                throw new Error(`Followed creators returned non-JSON (${response.status}): ${rawText.slice(0, 150).trim()}`);
+                throw buildChatSafeError("followed_creators_non_json", "Failed to load followed creators.");
             }
             if (!response.ok) {
-                throw new Error(body.error || "Failed to load followed creators.");
+                throw buildChatSafeError("followed_creators_load_failed", "Failed to load followed creators.");
             }
 
             setFollowedCreators(Array.isArray(body.followedCreators) ? body.followedCreators : []);
@@ -1599,10 +1641,10 @@ export function ChatExperience() {
             try {
                 body = JSON.parse(rawText) as ThreadDetailResponse & { error?: string };
             } catch {
-                throw new Error(`Chat thread detail returned non-JSON (${response.status}): ${rawText.slice(0, 150).trim()}`);
+                throw buildChatSafeError("chat_thread_detail_non_json", "This chat thread could not be loaded right now.");
             }
             if (!response.ok) {
-                throw new Error("This chat thread could not be loaded right now.");
+                throw buildChatSafeError("chat_thread_detail_load_failed", "This chat thread could not be loaded right now.");
             }
             if (threadDetailRequestIdRef.current !== requestId || selectedThreadIdRef.current !== threadId) {
                 return;
@@ -1920,7 +1962,7 @@ export function ChatExperience() {
                         listenerScope: "viewer_scoped_thread_list",
                         propagationState: "failed",
                         sourceComponent: "chat_thread_list",
-                        errorMessage: error instanceof Error ? error.message : String(error),
+                        errorMessage: readChatDiagnosticCode(error, "chat_threads_load_failed"),
                     });
                     observerControl.triggerReconnect(error);
                 },
@@ -2009,7 +2051,7 @@ export function ChatExperience() {
                         listenerScope: "selected_thread_messages_only",
                         propagationState: "failed",
                         sourceComponent: "chat_thread_messages",
-                        errorMessage: error instanceof Error ? error.message : String(error),
+                        errorMessage: readChatDiagnosticCode(error, "chat_thread_detail_load_failed"),
                     });
                     observerControl.triggerReconnect(error);
                 },
@@ -2229,7 +2271,7 @@ export function ChatExperience() {
                     method: "POST",
                 });
                 if (!response.ok) {
-                    throw new Error("Chat read update failed.");
+                    throw buildChatSafeError("chat_read_update_failed", "Chat read update failed.");
                 }
             }));
             const failedCount = results.filter((result) => result.status === "rejected").length;
@@ -2261,12 +2303,12 @@ export function ChatExperience() {
                     method: "DELETE",
                 });
                 if (!response.ok) {
-                    throw new Error("Chat delete failed.");
+                    throw buildChatSafeError("chat_delete_failed", "Selected conversations could not be deleted right now.");
                 }
             }));
             const failedCount = results.filter((result) => result.status === "rejected").length;
             if (failedCount === selectedThreadIds.length) {
-                throw new Error("Selected conversations could not be deleted right now.");
+                throw buildChatSafeError("chat_delete_failed", "Selected conversations could not be deleted right now.");
             }
 
             setThreads((current) => current.filter((thread) => !selectedThreadIds.includes(thread.id)));
@@ -2307,7 +2349,7 @@ export function ChatExperience() {
                     threadId: selectedThreadId,
                     typing,
                     reason,
-                    errorMessage: error instanceof Error ? error.message : String(error),
+                    errorMessage: readChatDiagnosticCode(error, "chat_threads_load_failed"),
                 });
                 deferChatRealtimeIssue("chat presence write", error, {
                     threadId: selectedThreadId,
@@ -2333,7 +2375,7 @@ export function ChatExperience() {
                     threadId: selectedThreadId,
                     typing: false,
                     reason: "on_disconnect",
-                    errorMessage: error instanceof Error ? error.message : String(error),
+                    errorMessage: readChatDiagnosticCode(error, "chat_thread_detail_load_failed"),
                 });
             }
         });
@@ -2351,7 +2393,7 @@ export function ChatExperience() {
                 threadId: selectedThreadId,
                 typing: false,
                 reason: "read",
-                errorMessage: error instanceof Error ? error.message : String(error),
+                errorMessage: readChatDiagnosticCode(error, "chat_read_update_failed"),
             });
             deferChatRealtimeIssue("chat presence read", error, {
                 threadId: selectedThreadId,
@@ -2412,7 +2454,7 @@ export function ChatExperience() {
                 threadId: selectedThreadId,
                 typing: nextTyping,
                 reason,
-                errorMessage: error instanceof Error ? error.message : String(error),
+                errorMessage: readChatDiagnosticCode(error, "chat_delete_failed"),
             });
             deferChatRealtimeIssue("chat typing write", error, {
                 threadId: selectedThreadId,
@@ -2575,10 +2617,10 @@ export function ChatExperience() {
             try {
                 body = JSON.parse(rawText) as { error?: string };
             } catch {
-                throw new Error(`Attachment cleanup returned non-JSON (${response.status}): ${rawText.slice(0, 150).trim()}`);
+                throw buildChatSafeError("attachment_cleanup_non_json", "Failed to clean up chat attachment.");
             }
             if (!response.ok) {
-                throw new Error(body.error || "Failed to clean up chat attachment.");
+                throw buildChatSafeError("attachment_cleanup_failed", "Failed to clean up chat attachment.");
             }
 
             return true;
@@ -2598,7 +2640,7 @@ export function ChatExperience() {
 
         const attachmentKind = resolveChatAttachmentKind(composerFile.type);
         if (!attachmentKind) {
-            throw new Error("Only image and video files can be attached in chat.");
+            throw buildChatSafeError("unsupported_attachment_type", "Only image and video files can be attached in chat.");
         }
 
         let preparedStoragePath: string | null = null;
@@ -2646,7 +2688,7 @@ export function ChatExperience() {
             try {
                 prepareBody = JSON.parse(prepareRawText) as typeof prepareBody;
             } catch {
-                throw new Error(`Prepare API returned non-JSON (${prepareResponse.status}): ${prepareRawText.slice(0, 150).trim()}`);
+                throw buildChatSafeError("attachment_prepare_non_json", "We couldn't send your message. Try again shortly.");
             }
             if (!prepareResponse.ok || !prepareBody.storagePath) {
                 const typedMessage = buildChatSendErrorMessage({
@@ -2668,7 +2710,7 @@ export function ChatExperience() {
                     durationMs: Date.now() - uploadStartedAt,
                 }));
                 lifecycleFailureTracked = true;
-                throw new Error(typedMessage);
+                throw buildChatSafeError("attachment_prepare_failed", typedMessage);
             }
             preparedStoragePath = prepareBody.storagePath;
             uploadId = prepareBody.uploadId ?? uploadId;
@@ -2753,7 +2795,7 @@ export function ChatExperience() {
             try {
                 completeBody = JSON.parse(completeRawText) as typeof completeBody;
             } catch {
-                throw new Error(`Complete API returned non-JSON (${completeResponse.status}): ${completeRawText.slice(0, 150).trim()}`);
+                throw buildChatSafeError("attachment_complete_non_json", "We couldn't send your message. Try again shortly.");
             }
             if (!completeResponse.ok || !completeBody.assetUrl) {
                 const typedMessage = buildChatSendErrorMessage({
@@ -2776,7 +2818,7 @@ export function ChatExperience() {
                     durationMs: Date.now() - uploadStartedAt,
                 }));
                 lifecycleFailureTracked = true;
-                throw new Error(typedMessage);
+                throw buildChatSafeError("attachment_complete_failed", typedMessage);
             }
             trackEvent("media_upload_complete_completed", buildChatMediaUploadPayload({
                 eventName: "media_upload_complete_completed",
@@ -2812,7 +2854,7 @@ export function ChatExperience() {
                     sizeBytes: composerFile.size,
                     maxBytes,
                     status: "failed",
-                    failureReason: error instanceof Error ? error.message.slice(0, 80) : "prepare_failed",
+                    failureReason: readChatDiagnosticCode(error, "attachment_prepare_failed"),
                     durationMs: Date.now() - uploadStartedAt,
                 }));
             }
@@ -2829,7 +2871,7 @@ export function ChatExperience() {
                     maxBytes,
                     storagePath: preparedStoragePath,
                     status: "failed",
-                    failureReason: error instanceof Error ? error.message.slice(0, 80) : "storage_upload_failed",
+                    failureReason: readChatDiagnosticCode(error, "storage_upload_failed"),
                     durationMs: Date.now() - uploadStartedAt,
                 }));
             }
@@ -2846,7 +2888,7 @@ export function ChatExperience() {
                     maxBytes,
                     storagePath: preparedStoragePath,
                     status: "failed",
-                    failureReason: error instanceof Error ? error.message.slice(0, 80) : "complete_failed",
+                    failureReason: readChatDiagnosticCode(error, "attachment_complete_failed"),
                     durationMs: Date.now() - uploadStartedAt,
                 }));
             }
@@ -2882,7 +2924,7 @@ export function ChatExperience() {
                 message_kind: attachmentKind,
                 file_size_bytes: composerFile.size,
                 mime_type: composerFile.type || "application/octet-stream",
-                error_message: error instanceof Error ? error.message.slice(0, 160) : "Attachment upload failed.",
+                error_code: readChatDiagnosticCode(error, "storage_upload_failed"),
                 debug_lane: "Chat telemetry/admin truth",
             });
             throw error;
@@ -3012,8 +3054,8 @@ export function ChatExperience() {
             const rawResponse = await response.text().catch(() => "");
             try {
                 body = JSON.parse(rawResponse) as ChatSendResponse;
-            } catch (jsonParseError) {
-                throw new Error(`Server returned a non-JSON response (${response.status}). This suggests a Vercel runtime crash: ${rawResponse.slice(0, 150).trim()}`);
+            } catch {
+                throw buildChatSafeError("chat_send_non_json", "We couldn't send your message. Try again shortly.");
             }
 
             if (!response.ok) {
@@ -3032,7 +3074,7 @@ export function ChatExperience() {
                         messageKind: currentComposerKind,
                         hasAttachment: Boolean(currentComposerFile),
                         errorCode: body.errorCode,
-                        errorMessage: body.error || "Insufficient paid GumDrops.",
+                        errorMessage: buildChatSendErrorMessage({ errorCode: body.errorCode }),
                     });
                     trackEvent("chat_send_blocked", {
                         source_component: "chat_thread_composer",
@@ -3064,7 +3106,7 @@ export function ChatExperience() {
                     return;
                 }
 
-                throw new Error(buildChatSendErrorMessage(body));
+                throw buildChatSafeError("chat_send_failed", buildChatSendErrorMessage(body));
             }
 
             deferChatRealtimeTelemetry({

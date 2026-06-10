@@ -33,6 +33,43 @@ type SupportThreadDetailResponse = {
 
 const SUPPORT_POLL_INTERVAL_MS = 10_000;
 
+type SupportProblemAction = "load_list" | "load_detail" | "create" | "reply" | "status" | "missing_thread";
+
+type SupportErrorPayload = {
+    error?: string;
+    errorCode?: string;
+    errorKey?: string;
+    userMessage?: string;
+    retryable?: boolean;
+    resource?: string;
+};
+
+class SupportRequestError extends Error {
+    status: number;
+    errorKey: string | null;
+    retryable: boolean | null;
+    resource: string | null;
+
+    constructor(message: string, {
+        status,
+        errorKey,
+        retryable,
+        resource,
+    }: {
+        status: number;
+        errorKey?: string | null;
+        retryable?: boolean | null;
+        resource?: string | null;
+    }) {
+        super(message);
+        this.name = "SupportRequestError";
+        this.status = status;
+        this.errorKey = errorKey ?? null;
+        this.retryable = retryable ?? null;
+        this.resource = resource ?? null;
+    }
+}
+
 function formatRelativeTime(timestamp?: number | null) {
     if (!timestamp) {
         return "Not recorded";
@@ -77,14 +114,45 @@ function normalizeInitialCategory(value: string | null): SupportThreadCategory {
 
 async function readJson<T>(url: string, init?: RequestInit): Promise<T> {
     const response = await authFetch(url, init);
-    const body = await response.json().catch(() => ({})) as T & { error?: string };
+    const body = await response.json().catch(() => ({})) as T & SupportErrorPayload;
     if (!response.ok) {
-        throw new Error("Support request could not be completed right now.");
+        throw new SupportRequestError(
+            typeof body.userMessage === "string" && body.userMessage.trim()
+                ? body.userMessage
+                : "Support request could not be completed right now.",
+            {
+                status: response.status,
+                errorKey: typeof body.errorKey === "string" ? body.errorKey : typeof body.errorCode === "string" ? body.errorCode : null,
+                retryable: typeof body.retryable === "boolean" ? body.retryable : null,
+                resource: typeof body.resource === "string" ? body.resource : null,
+            },
+        );
     }
     return body;
 }
 
-function getSupportProblemCopy(action: "load_list" | "load_detail" | "create" | "reply" | "status") {
+function getSupportProblemCopy(action: SupportProblemAction, error?: unknown) {
+    if (error instanceof SupportRequestError) {
+        if (error.status === 401 || error.errorKey === "auth_required" || error.errorKey === "unauthorized" || error.errorKey === "session_expired") {
+            return "Sign in again to continue with support.";
+        }
+        if (error.status === 403 || error.errorKey === "forbidden") {
+            return "This support ticket is not available on this account.";
+        }
+        if (error.status === 404 || error.errorKey === "not_found" || error.resource === "support_thread" || error.resource === "thread") {
+            return "This support ticket could not be found. Open a new ticket if you still need help.";
+        }
+        if (error.status === 429 || error.errorKey === "rate_limited") {
+            return "Too many support requests came through. Wait a minute, then try again.";
+        }
+        if (error.status === 400 || error.status === 422 || error.errorKey === "validation_failed") {
+            return "Check the support details and try again.";
+        }
+        if (error.retryable === false && error.errorKey === "missing_firestore_index") {
+            return "Support inbox setup needs operator attention before this can load.";
+        }
+    }
+
     switch (action) {
         case "load_list":
             return "Support tickets could not be loaded right now.";
@@ -96,6 +164,8 @@ function getSupportProblemCopy(action: "load_list" | "load_detail" | "create" | 
             return "Support reply could not be sent right now.";
         case "status":
             return "Ticket status could not be updated right now.";
+        case "missing_thread":
+            return "This support ticket could not be found. Open a new ticket if you still need help.";
     }
 }
 
@@ -150,7 +220,7 @@ export function SupportInbox() {
                 channel: "network",
                 severity: "warn",
                 message: "Support thread list failed to load",
-                detail: threadListError.message,
+                detail: { message: getSupportProblemCopy("load_list", threadListError) },
         });
     }, [threadListError]);
 
@@ -163,7 +233,7 @@ export function SupportInbox() {
                 channel: "network",
                 severity: "warn",
                 message: "Support thread detail failed to load",
-                detail: selectedThreadError.message,
+                detail: { message: getSupportProblemCopy("load_detail", selectedThreadError) },
         });
     }, [selectedThreadError]);
 
@@ -238,12 +308,12 @@ export function SupportInbox() {
             setMessage("");
             toast.success("Support ticket created.");
         } catch (error) {
-            const messageText = getSupportProblemCopy("create");
+            const messageText = getSupportProblemCopy("create", error);
             reportClientIssue({
                 channel: "network",
                 severity: "error",
                 message: "Support ticket creation failed",
-                detail: { message: error instanceof Error ? error.message : messageText },
+                detail: { message: messageText },
             });
             toast.error(messageText);
         } finally {
@@ -270,12 +340,12 @@ export function SupportInbox() {
             await mutateThreadList();
             toast.success("Reply sent.");
         } catch (error) {
-            const messageText = getSupportProblemCopy("reply");
+            const messageText = getSupportProblemCopy("reply", error);
             reportClientIssue({
                 channel: "network",
                 severity: "error",
                 message: "Support reply failed",
-                detail: { message: error instanceof Error ? error.message : messageText },
+                detail: { message: messageText },
             });
             trackEvent("support_thread_reply_failed", {
                 source_component: "support_inbox",
@@ -312,12 +382,12 @@ export function SupportInbox() {
             await mutateThreadList();
             toast.success(action === "resolve" ? "Ticket resolved." : "Ticket reopened.");
         } catch (error) {
-            const messageText = getSupportProblemCopy("status");
+            const messageText = getSupportProblemCopy("status", error);
             reportClientIssue({
                 channel: "network",
                 severity: "error",
                 message: "Support status update failed",
-                detail: { message: error instanceof Error ? error.message : messageText },
+                detail: { message: messageText },
             });
             toast.error(messageText);
         } finally {
@@ -420,7 +490,7 @@ export function SupportInbox() {
 
                     {threadListError ? (
                         <div className="rounded-[1.2rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-                            {getSupportProblemCopy("load_list")}
+                            {getSupportProblemCopy("load_list", threadListError)}
                         </div>
                     ) : null}
 
@@ -494,7 +564,11 @@ export function SupportInbox() {
                         </div>
                     ) : selectedThreadError ? (
                         <div className="mt-4 rounded-[1.2rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-                            {getSupportProblemCopy("load_detail")}
+                            {getSupportProblemCopy("load_detail", selectedThreadError)}
+                        </div>
+                    ) : selectedThread?.success && selectedThread.thread === null ? (
+                        <div className="mt-4 rounded-[1.2rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                            {getSupportProblemCopy("missing_thread")}
                         </div>
                     ) : activeSelectedThread?.thread ? (
                         <>

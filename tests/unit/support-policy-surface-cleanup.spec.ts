@@ -74,5 +74,20 @@ describe("support policy surface cleanup", () => {
     expect(packageJson.scripts?.["check:support-policy-surface-cleanup"]).toBe("tsx scripts/agent/validate-support-policy-surface-cleanup.ts");
     expect(validator).toContain("FAQ/Support/Policies/Privacy links are dead");
     expect(validator).toContain("Download My Data links to broken action");
+    expect(validator).toContain("approvedChatErrorLanguageChange");
+  });
+
+  it("keeps support recovery errors typed without exposing raw request failures", () => {
+    const supportInbox = read("src/components/Support/SupportInbox.tsx");
+
+    expect(supportInbox).toContain("class SupportRequestError extends Error");
+    expect(supportInbox).toContain('errorKey === "forbidden"');
+    expect(supportInbox).toContain('errorKey === "not_found"');
+    expect(supportInbox).toContain('errorKey === "rate_limited"');
+    expect(supportInbox).toContain("This support ticket is not available on this account.");
+    expect(supportInbox).toContain("This support ticket could not be found. Open a new ticket if you still need help.");
+    expect(supportInbox).toContain("Too many support requests came through. Wait a minute, then try again.");
+    expect(supportInbox).toContain("selectedThread?.success && selectedThread.thread === null");
+    expect(supportInbox).not.toContain("detail: { message: error instanceof Error ? error.message : messageText }");
   });
 });

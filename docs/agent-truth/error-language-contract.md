@@ -1,8 +1,8 @@
 # Error Language Contract
 
-Generated: 2026-05-21T02:22:17.116Z
+Generated: 2026-06-10T03:58:28.208Z
 
-Current head: `dc77dba983af6f0a79040c44c792e78ae0c5baec`
+Current head: `48af9a1a6bd27583e0d97501a8b14f411a248a44`
 
 ## Status
 
@@ -21,6 +21,25 @@ Phase 1 creates the shared human error contract, dictionary, resolver, API paylo
 - Bug-report eligible entries: 18
 - Reward eligible entries: 1
 - Surfaces covered: admin_debug, admin_truth, analytics, auth, creator_booking, creator_chat, creator_dashboard, creator_drops, creator_profile, creator_request, creator_settings, fan_pass, gumdrop_purchase, navigation, runtime, unknown, wallet
+- Error translation queue findings: 40
+- Protected-domain queue findings: 40
+
+## Error Translation Coverage Queue
+
+Categories: raw_user_facing_error, raw_debug_only_error, unknown_catch_block, provider_error_without_safe_translation, retryable_non_retryable_mismatch, missing_debug_fingerprint, missing_recovery_action
+
+Top findings:
+
+1. missing_debug_fingerprint in `src/app/%5F%5F/auth/[...path]/route.ts:54` (auth, protected=auth) - Protected auth lane: preserve missing/expired/malformed/permission distinctions and route through canonical safe auth error translation.
+2. unknown_catch_block in `src/app/%5F%5F/auth/[...path]/route.ts:54` (auth, protected=auth) - Protected auth lane: preserve missing/expired/malformed/permission distinctions and route through canonical safe auth error translation.
+3. retryable_non_retryable_mismatch in `src/app/api/admin/ai/drop-covers/generate/route.ts:74` (api_route, protected=auth) - Protected auth lane: preserve missing/expired/malformed/permission distinctions and route through canonical safe auth error translation.
+4. raw_user_facing_error in `src/app/api/viewer/watch-session/route.ts:660` (auth, protected=auth) - Protected auth lane: preserve missing/expired/malformed/permission distinctions and route through canonical safe auth error translation.
+5. missing_debug_fingerprint in `src/app/api/wallet/packages/route.ts:52` (wallet_payment, protected=payment_provider) - Protected payment/provider lane: classify only, then use the existing error language contract in a targeted approved payment-modal or provider route pass.
+6. missing_recovery_action in `src/components/Admin/AdminCreatorViewAsControls.tsx:85` (creator, protected=auth) - Protected auth lane: preserve missing/expired/malformed/permission distinctions and route through canonical safe auth error translation.
+7. raw_user_facing_error in `src/components/Admin/AdminCreatorViewAsControls.tsx:85` (creator, protected=auth) - Protected auth lane: preserve missing/expired/malformed/permission distinctions and route through canonical safe auth error translation.
+8. provider_error_without_safe_translation in `src/components/Auth/AuthModal.tsx:29` (auth, protected=auth) - Protected auth lane: preserve missing/expired/malformed/permission distinctions and route through canonical safe auth error translation.
+9. missing_recovery_action in `src/components/Auth/AuthModal.tsx:80` (auth, protected=auth) - Protected auth lane: preserve missing/expired/malformed/permission distinctions and route through canonical safe auth error translation.
+10. missing_recovery_action in `src/components/Auth/AuthModal.tsx:181` (auth, protected=auth) - Protected auth lane: preserve missing/expired/malformed/permission distinctions and route through canonical safe auth error translation.
 
 ## Deferred Wiring
 

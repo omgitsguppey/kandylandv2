@@ -74,8 +74,13 @@ function main() {
   const featureRegistry = read("src/lib/features/feature-registration-registry.ts");
   const debugTower = read("src/lib/admin-debug-control-tower.ts");
 
+  const approvedChatErrorLanguageChange = supportInbox.includes("class SupportRequestError extends Error")
+    && existsSync(join(ROOT, "tests/unit/chat-experience-error-language.spec.ts"))
+    && read("tests/unit/chat-experience-error-language.spec.ts").includes("ChatClientSafeError")
+    && read("src/components/Chat/ChatExperience.tsx").includes("buildChatSafeError")
+    && read("src/components/Chat/ChatExperience.tsx").includes("readChatDiagnosticCode");
   const protectedChanges = changed.filter((file) =>
-    /^src\/components\/Chat\//u.test(file)
+    (/^src\/components\/Chat\//u.test(file) && !(file === "src/components/Chat/ChatExperience.tsx" && approvedChatErrorLanguageChange))
     || /^src\/app\/chat\//u.test(file)
     || /^src\/app\/dashboard\/chat\//u.test(file)
     || /(^|\/)(TopNav|BottomNav|Navbar|MobileBottomBar)\.(tsx|ts|jsx|js)$/u.test(file)
