@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-06-03T04:31:09.859Z",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "generatedAtUtc": "2026-06-10T04:02:51.921Z",
+  "currentHead": "c755f63fefff812038edb484ff5577fea601631c",
   "productionReadsRequired": false,
   "liveDataMutationAllowed": false,
   "deployRequired": false,
@@ -98,72 +98,72 @@
     "nextAction": "Keep chat usage hydrating through person metrics, not raw transcript dumps."
   },
   "scoreBefore": {
-    "sourceHealth": 100,
-    "runtimeHealth": 87.4,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
-    "costRisk": 80.5,
-    "regressionRisk": 88,
-    "overallHealthScore": 90.03
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
+    "costRisk": 42,
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreAfter": {
-    "sourceHealth": 100,
-    "runtimeHealth": 87.4,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
-    "costRisk": 80.5,
-    "regressionRisk": 88,
-    "overallHealthScore": 90.03
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
+    "costRisk": 42,
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreDimensions": {
     "sourceHealth": {
-      "before": 100,
-      "after": 100,
+      "before": 91.7,
+      "after": 91.7,
       "target": 80,
       "status": "at_or_above_target",
       "nextAction": "No chat-specific score action needed."
     },
     "runtimeHealth": {
-      "before": 87.4,
-      "after": 87.4,
+      "before": 72.8,
+      "after": 72.8,
       "target": 80,
-      "status": "at_or_above_target",
-      "nextAction": "No chat-specific score action needed."
+      "status": "below_target",
+      "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
     },
     "evidenceCompleteness": {
-      "before": 84.6,
-      "after": 84.6,
+      "before": 43.4,
+      "after": 43.4,
       "target": 80,
-      "status": "at_or_above_target",
-      "nextAction": "No chat-specific score action needed."
+      "status": "below_target",
+      "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
     },
     "freshness": {
-      "before": 91.88,
-      "after": 91.88,
+      "before": 59.38,
+      "after": 59.38,
       "target": 80,
-      "status": "at_or_above_target",
-      "nextAction": "No chat-specific score action needed."
+      "status": "below_target",
+      "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
     },
     "costRisk": {
-      "before": 80.5,
-      "after": 80.5,
+      "before": 42,
+      "after": 42,
       "target": 80,
-      "status": "at_or_above_target",
-      "nextAction": "No chat-specific score action needed."
+      "status": "below_target",
+      "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
     },
     "regressionRisk": {
-      "before": 88,
-      "after": 88,
+      "before": 94,
+      "after": 94,
       "target": 80,
       "status": "at_or_above_target",
       "nextAction": "No chat-specific score action needed."
     },
     "overallHealthScore": {
-      "before": 90.03,
-      "after": 90.03,
+      "before": 68.67,
+      "after": 68.67,
       "target": 80,
-      "status": "at_or_above_target",
-      "nextAction": "No chat-specific score action needed."
+      "status": "below_target",
+      "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
     }
   },
   "remainingGaps": [],
@@ -173,646 +173,981 @@
   ],
   "dirtyFiles": [
     {
-      "path": "agent/state/activity-verification-engine.generated.json",
-      "classification": "unsafe_unknown"
+      "path": ".agent/workflows/auto-tasks.md",
+      "classification": "non_chat_artifact_outside_chat_reliability"
     },
     {
-      "path": "agent/state/admin-truth-source-sample.generated.json",
-      "classification": "unsafe_unknown"
+      "path": ".agent/workflows/pre-commit.md",
+      "classification": "non_chat_artifact_outside_chat_reliability"
     },
     {
-      "path": "agent/state/algorithmic-evidence-policy.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/README.md",
+      "classification": "non_chat_artifact_outside_chat_reliability"
     },
     {
-      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/context/doctrine.cards.jsonl",
+      "classification": "repo_context_artifact_outside_chat_reliability"
     },
     {
-      "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/context/doctrine.index.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
     },
     {
-      "path": "agent/state/analytics-hydration-consolidation.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/context/file-size-budget.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
     },
     {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/context/legacy-registry.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
     },
     {
-      "path": "agent/state/beta-evidence-gap-map.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/beta-evidence-lane-prep.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/context/task-pack.generated.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
     },
     {
-      "path": "agent/state/beta-freshness-language.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/context/validator-map.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/blast-radius.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/canonical-helpers.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/dependency-graph.summary.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/governance-truth.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/known-pitfalls.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/package-manager-truth.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/recent-passes.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/repo-inventory.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/retrieval-index.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/runtime-observability.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/surface-map.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/ui-surface-coverage.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/verification-commands.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/index/workflow-guidance.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/prompts/task-prompt.deep.md",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/prompts/task-prompt.short.md",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/prompts/task-prompt.standard.md",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/prompts/verification-plan.generated.md",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/schemas/task-context.schema.json",
+      "classification": "repo_context_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "agent/state/admin-cms-workflow-audit.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
+    },
+    {
+      "path": "agent/state/analytics-legacy-history-reconciliation.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
+    },
+    {
+      "path": "agent/state/analytics-legacy-purgatory-queue.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
+    },
+    {
+      "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
+    },
+    {
+      "path": "agent/state/background-job-idempotency-audit.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
+    },
+    {
+      "path": "agent/state/bug-report-truth-terminal-state.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
+    },
+    {
+      "path": "agent/state/canonical-math-authority-ledger.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
+    },
+    {
+      "path": "agent/state/canonical-math-ledger.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
       "path": "agent/state/chat-functionality-score-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/chat-gating-moderation.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/config-env-contract.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/chat-realtime-cost-control.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/content-media-pipeline-audit.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/cookie-banner-settings-sync.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/cost-owner-review-source-closure.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/cost-risk-exit-pass.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/creator-drop-status-metrics.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/creator-experience-simplification.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/creator-settings-control-plane.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/daily-task-debug-score-lock.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/daily-task-reset-truth.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/daily-task-reward-ledger.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/debug-panel-output-triage.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/debug-runtime-evidence.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/debug-score-impact-triage.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/debug-signal-actionability.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/debug-signal-grouping.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/event-envelope-normalization.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/evidence-capture-status.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/existing-algorithm-refinement.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/final-cost-audit-lock.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/debug-evidence-staleness-queue.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
       "path": "agent/state/final-parity-telemetry-lock.generated.json",
-      "classification": "unsafe_unknown"
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/final-pr-stale-cleanup.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/ga4-availability-semantics.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/final-telemetry-closure-lock.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/ga4-recovery-truth.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/global-cost-surfaces.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/global-marquee-truncated-titles.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/gumdrop-ledger-math.generated.json",
+      "classification": "protected_manual_review_payment_or_fan_pass_gating"
     },
     {
-      "path": "agent/state/media-discovery-score-lock.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/identity-handoff-spine.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/mobile-loading-hydration-stability.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/media-upload-lifecycle.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/mobile-ui-final-lock.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/operator-revenue-smoke.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/overnight-final-integration-lock.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/overnight-wiring-integrity.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/orphaned-logic-score.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/post-economy-creator-flow-qa.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/private-media-access.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/provider-smoke-evidence.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/regression-risk-high-blast-refresh.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/recovery-dry-run-signoff.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/recovery-timeline-spine.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/runtime-watch-time-v2.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/route-sample-freshness-classifier.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/score-80-cost-readiness.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/settings-creator-dashboard-split.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/score-80-reconciliation-lock.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/signal-telemetry-disconnects.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/score-80-refresh-pass.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/signal-telemetry-graph.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/settings-connection-parity.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/sql-mirror-status.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/source-backed-runtime-confidence.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/sql-sync.payload.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/source-truth-authority-map.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/stale-route-sample-classification.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/targeted-behavior-evidence.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/support-policy-surface-cleanup.generated.json",
+      "classification": "support_inbox_truth_review"
     },
     {
-      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/task-context.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/telemetry-dependency-graph.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/user-creator-ui-parity.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/telemetry-identified-parity.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/treasury-reconciliation-engine.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "agent/state/user-management-refactor.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/treasury-structure-contract.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
+    },
+    {
+      "path": "agent/state/user-management-status-truth.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
       "path": "agent/state/user-profile-api-contract.generated.json",
-      "classification": "unsafe_unknown"
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/admin-truth-source-sample.md",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/verification-plan.generated.json",
+      "classification": "stale_generated_report_noise_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/admin-cms-drop-workflow.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/analytics-hydration-consolidation-audit.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/analytics-legacy-history-reconciliation.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/analytics-hydration-consolidation.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/background-jobs-idempotency.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/beta-evidence-gap-map.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/bug-report-truth-terminal-state.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/beta-freshness-language.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/canonical-math-ledger.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
       "path": "docs/agent-truth/chat-functionality-score-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/chat-gating-moderation.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/config-env-contract.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/chat-realtime-cost-control.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/content-media-pipeline.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/cost-owner-review-source-closure.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-exit-pass.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/creator-drop-status-metrics.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/creator-settings-control-plane.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reset-truth.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reward-ledger.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/debug-runtime-evidence.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/debug-score-impact-triage.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-actionability.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-grouping.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/event-liveness-audit.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/existing-algorithm-refinement.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/feature-registration-gate.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/final-cost-audit-lock.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/cookie-banner-settings-sync.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
       "path": "docs/agent-truth/final-parity-telemetry-lock.md",
-      "classification": "unsafe_unknown"
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/ga4-availability-semantics.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/ga4-recovery-truth.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/gumdrop-ledger-math.md",
+      "classification": "protected_manual_review_payment_or_fan_pass_gating"
     },
     {
-      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/identity-handoff-spine.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/media-discovery-score-lock.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/mobile-loading-hydration-stability.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/mobile-ui-final-lock.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/operator-revenue-smoke.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/overnight-final-integration-lock.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/overnight-wiring-integrity.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/media-upload-lifecycle.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/post-economy-creator-flow-qa.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/private-media-access.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/regression-risk-high-blast-refresh.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/route-sample-freshness-classifier.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/stale-route-sample-classification.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/runtime-watch-time-v2.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/support-policy-surface-cleanup.md",
+      "classification": "support_inbox_truth_review"
     },
     {
-      "path": "docs/agent-truth/score-80-cost-readiness.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/telemetry-dependency-graph.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/treasury-reconciliation-engine.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/score-80-refresh-pass.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/treasury-structure-contract.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "docs/agent-truth/settings-connection-parity.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/source-truth-authority-map.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/targeted-behavior-evidence.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/user-management-refactor.md",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/user-management-status-truth.md",
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
       "path": "docs/agent-truth/user-profile-api-contract.md",
-      "classification": "unsafe_unknown"
+      "classification": "generated_report_doc_outside_chat_lock"
     },
     {
-      "path": "scripts/agent/score-public-beta-readiness.ts",
-      "classification": "unsafe_unknown"
+      "path": "functions/src/analytics-transactions.ts",
+      "classification": "non_chat_artifact_outside_chat_reliability"
     },
     {
-      "path": "scripts/agent/validate-analytics-hydration-consolidation.ts",
-      "classification": "unsafe_unknown"
+      "path": "functions/tsconfig.json",
+      "classification": "non_chat_artifact_outside_chat_reliability"
     },
     {
-      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-      "classification": "unsafe_unknown"
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/build-agent-indexes.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/build-task-context.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/chat-cost-status-cleanup-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/collect-signal-telemetry-graph.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch14-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch15-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch19-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch20-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch30-telemetry-parity-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/fast-start.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/ops-health-cleanup-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/rank-signal-telemetry-disconnects.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/release-readiness-report-runner.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/score-orphaned-logic.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/score-telemetry-identified-parity.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/task-guidance-batch31-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-admin-cms-workflow.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-legacy-history-reconciliation.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-auth-provider-conflict-resolution.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-background-job-idempotency.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-body-system-wiring-repair.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-canonical-math-authority-ledger.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-canonical-math-ledger.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-central-normalizer-spine.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-chat-functionality-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-codebase-organization-hardening.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-content-media-pipeline.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-cost-export-sql-parity-math.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-count-deduplication-normalization.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-creator-revenue-entitlement-math.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-debug-cockpit-pr-finalization.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-drop-watch-unlock-math.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-duration-math-normalization.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-error-language-contract.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-existing-algorithm-refinement.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-final-beta-exit-gate-readiness.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-final-math-normalization-lock.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-final-morning-beta-lock.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
       "path": "scripts/agent/validate-final-parity-telemetry-lock.ts",
-      "classification": "unsafe_unknown"
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-final-pr-stale-cleanup.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "scripts/agent/validate-post-economy-creator-flow-qa.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-final-product-integrity-lock.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "scripts/agent/validate-public-beta-score.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-freshness-window-repair.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-frontend-component-consolidation.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-frontend-telemetry-consolidation.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-ga4-recovery-truth.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-global-user-counting-math.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-guest-user-identity-transfer.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-gumdrop-economy-accuracy.ts",
+      "classification": "protected_manual_review_payment_or_fan_pass_gating"
+    },
+    {
+      "path": "scripts/agent/validate-gumdrop-ledger-math.ts",
+      "classification": "protected_manual_review_payment_or_fan_pass_gating"
+    },
+    {
+      "path": "scripts/agent/validate-identity-transfer-telemetry-closure.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-interpretive-brain-debug-triage.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-launch-blocker-evidence-closure.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-media-upload-lifecycle.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-mega-legacy-pipeline-hardening.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-metric-canonicalization-legacy-recovery.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-metric-display-accuracy.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-orphaned-logic.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-overnight-wiring-integrity.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-platform-economy-treasury.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-private-media-access.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-product-body-map.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-provider-smoke-evidence.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-recovery-dry-run-signoff.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-recovery-timeline-spine.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-role-permission-parity.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "scripts/agent/validate-score-80-path-lock.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
       "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
-      "classification": "unsafe_unknown"
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
       "path": "scripts/agent/validate-score-80-refresh-pass.ts",
-      "classification": "unsafe_unknown"
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "scripts/agent/validate-user-facing-feature-connection-audit.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-score-dimension-80-lock.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-score-impact-stale-artifact-sweep.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "src/lib/agent-score/core.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-session-journey-duration-math.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "src/lib/agent-score/evidence-quality.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-signal-problem-rank.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-surface-state-parity.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "src/lib/agent-score/regression-risk-refresh-plan.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-surface-telemetry-parity.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "tests/unit/creator-dashboard-error-cost-inventory.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-telemetry-dependency-graph.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "tests/unit/creator-experiences-panel.spec.tsx",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-telemetry-identified-parity.ts",
+      "classification": "agent_validator_artifact_outside_chat_reliability"
     },
     {
-      "path": "tests/unit/post-economy-creator-flow-qa.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/repo-inventory.ts",
+      "classification": "non_chat_artifact_outside_chat_reliability"
     },
     {
-      "path": "tests/unit/public-beta-score.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "shared/runtime/drop-queue-lifecycle.js",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/drop-queue-lifecycle.js.map",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/drop-queue-schedule.js",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/drop-queue-schedule.js.map",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/drop-status.js",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/drop-status.js.map",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/queue-runtime.js",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/queue-runtime.js.map",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/runtime-warning-contract.js",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/runtime-warning-contract.js.map",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/timezone.js",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "shared/runtime/timezone.js.map",
+      "classification": "non_chat_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugControlTower.tsx",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/admin/overview/route.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/app/api/user/activity/activity-route-test-helpers.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/app/api/user/activity/route.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/admin-analytics-commerce-snapshot.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/admin-debug-control-tower.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/admin-metric-truth-state.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/admin-parity.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/agent-score/score-80-reconciliation-lock.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/agent-score/score-dimension-80-lock.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/analytics/ga4-truth.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/analytics/identity-transfer.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/analytics/legacy-history-reconciler.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/analytics/recovery-timeline-spine.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/platform-economy.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/server/admin-analytics-historical-validation.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/server/admin-analytics-materializers.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/server/platform-economy.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/lib/testing/canonical-test-factories.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "src/types/db.ts",
+      "classification": "source_change_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/admin-analytics-commerce-snapshot.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/admin-debug-control-tower.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/admin-metric-snapshot.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/agent-prompt-compiler.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/analytics-legacy-history-reconciliation.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/chat-functionality-score-lock.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/final-parity-telemetry-lock.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/functions-analytics-rollup-idempotency.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/ga4-recovery-truth.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/platform-economy-treasury.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
     },
     {
       "path": "tests/unit/purchase-modal.spec.tsx",
-      "classification": "unsafe_unknown"
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/recovery-timeline-spine.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/score-80-reconciliation-lock.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/score-dimension-80-lock.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/signal-telemetry-disconnect-rank.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/signal-telemetry-graph.spec.ts",
+      "classification": "test_artifact_outside_chat_reliability"
+    },
+    {
+      "path": "tests/unit/user-management-refactor.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
+  "dirtyFileCount": 237,
+  "dirtyClassificationCounts": {
+    "non_chat_artifact_outside_chat_reliability": 18,
+    "repo_context_artifact_outside_chat_reliability": 25,
+    "unrelated_agent_context_file_to_ignore": 1,
+    "stale_generated_report_noise_outside_chat_lock": 38,
+    "current_generated_artifact_to_commit": 2,
+    "protected_manual_review_payment_or_fan_pass_gating": 4,
+    "support_inbox_truth_review": 2,
+    "generated_report_doc_outside_chat_lock": 23,
+    "documentation_artifact_expected": 2,
+    "real_source_change_needs_review": 2,
+    "agent_validator_artifact_outside_chat_reliability": 80,
+    "validator_artifact_expected": 2,
+    "source_change_outside_chat_reliability": 21,
+    "test_artifact_outside_chat_reliability": 15,
+    "test_artifact_expected": 2
+  },
+  "unsafeUnknownCount": 0,
+  "reliabilityRiskClassifications": {
+    "staleReportNoise": 184,
+    "sourceGaps": 4,
+    "realChatReliabilityRisks": 2,
+    "protectedManualReview": 4,
+    "supportOverlap": 2,
+    "obsoleteReportNoise": 61
+  },
   "oldChatLogicReferences": [
     {
       "reference": "legacy creator chat aliases",
@@ -825,7 +1160,5 @@
       "reason": "Default admin summaries expose counts and source state only; message content remains guarded drilldown."
     }
   ],
-  "validationFailures": [
-    "dirty files unclassified."
-  ]
+  "validationFailures": []
 }

@@ -29,6 +29,15 @@ const SCORE_DIMENSIONS = [
 type ScoreDimension = typeof SCORE_DIMENSIONS[number];
 type Status = "pass" | "fail" | "source_ready" | "owner_review";
 type ScoreSnapshot = Record<ScoreDimension, number>;
+type OldChatLogicClassification =
+  | "still_required"
+  | "superseded"
+  | "stale_removed"
+  | "real_chat_source"
+  | "stale_artifact"
+  | "protected_gating_payment_surface"
+  | "support_overlap"
+  | "obsolete_report_noise";
 
 export interface ChatFunctionalityStatus {
   status: Status;
@@ -63,7 +72,18 @@ export interface ChatFunctionalityScoreLockReport {
   remainingGaps: string[];
   nextExactSteps: string[];
   dirtyFiles: Array<{ path: string; classification: string }>;
-  oldChatLogicReferences: Array<{ reference: string; classification: "still_required" | "superseded" | "stale_removed" | "unsafe_unknown"; reason: string }>;
+  dirtyFileCount: number;
+  dirtyClassificationCounts: Record<string, number>;
+  unsafeUnknownCount: number;
+  reliabilityRiskClassifications: {
+    staleReportNoise: number;
+    sourceGaps: number;
+    realChatReliabilityRisks: number;
+    protectedManualReview: number;
+    supportOverlap: number;
+    obsoleteReportNoise: number;
+  };
+  oldChatLogicReferences: Array<{ reference: string; classification: OldChatLogicClassification; reason: string }>;
   validationFailures: string[];
 }
 
@@ -122,6 +142,7 @@ function listDirtyFiles() {
 export function classifyChatFunctionalityLockDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (/^agent\/context\//u.test(normalized) || /^agent\/index\//u.test(normalized) || /^agent\/prompts\//u.test(normalized) || /^agent\/schemas\//u.test(normalized)) return "repo_context_artifact_outside_chat_reliability";
   if (normalized === "scripts/agent/chat-cost-status-cleanup-shared.ts") return "validator_artifact_expected";
   if (BATCH5_SLUGS.some((slug) => normalized === `scripts/agent/validate-${slug}.ts`)) return "validator_artifact_expected";
   if (BATCH5_SLUGS.some((slug) => normalized === `tests/unit/${slug}.spec.ts`)) return "test_artifact_expected";
@@ -169,9 +190,25 @@ export function classifyChatFunctionalityLockDirtyFile(path: string) {
   ) return "validator_artifact_expected";
   if (
     normalized === "tests/unit/chat-telemetry-admin-truth.spec.ts"
+    || normalized === "tests/unit/chat-experience-error-language.spec.ts"
     || normalized === "tests/unit/user-management-refactor.spec.ts"
     || normalized === "package.json"
   ) return normalized.endsWith(".spec.ts") ? "test_artifact_expected" : "real_source_change_needs_review";
+  if (
+    normalized.startsWith("src/lib/chat/")
+    || normalized === "src/lib/chat.ts"
+    || normalized === "src/lib/server/chat.ts"
+    || normalized.startsWith("src/app/api/chat/")
+    || normalized.startsWith("src/app/api/messages/")
+    || normalized.startsWith("src/components/Chat/")
+    || normalized.startsWith("src/hooks/useChat")
+  ) return "chat_source_reliability_review";
+  if (
+    normalized.startsWith("src/components/Support/")
+    || normalized.startsWith("src/app/api/support/")
+    || normalized.startsWith("src/app/api/admin/support/")
+    || /support-policy|support-thread|support-inbox/iu.test(normalized)
+  ) return "support_inbox_truth_review";
   if (
     normalized === "src/lib/chat/chat-telemetry-contract.ts"
     || normalized === "src/lib/debug/config-runtime-sample-status-classifier.ts"
@@ -184,16 +221,40 @@ export function classifyChatFunctionalityLockDirtyFile(path: string) {
     || normalized === "src/lib/debug/debug-panel-tracking-summary.ts"
     || normalized === "src/app/api/admin/debug/route.ts"
     || normalized === "src/lib/server/admin-debug/summary.ts"
-    || normalized === "src/lib/server/chat.ts"
-    || normalized === "src/components/Chat/ChatExperience.tsx"
   ) return "real_source_change_needs_review";
+  if (/fan-pass|fan_pass|gumdrop|gumdrops|paypal|payment|wallet|PurchaseModal|source-of-funds/iu.test(normalized)) return "protected_manual_review_payment_or_fan_pass_gating";
+  if (/chat/iu.test(normalized)) return "chat_related_manual_review";
+  if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_report_noise_outside_chat_lock";
+  if (normalized.startsWith("docs/agent-truth/") && normalized.endsWith(".md")) return "generated_report_doc_outside_chat_lock";
+  if (/^tests\/unit\//u.test(normalized)) return "test_artifact_outside_chat_reliability";
+  if (/^scripts\/agent\//u.test(normalized)) return "agent_validator_artifact_outside_chat_reliability";
+  if (/^src\//u.test(normalized)) return "source_change_outside_chat_reliability";
   if (
     normalized === "CHANGELOG.md"
     || normalized === "public/kandydrops-release-notes.json"
     || normalized === "src/lib/release-notes/public-release-notes.ts"
     || normalized === "src/lib/release-notes/release-version-contract.ts"
   ) return "release_artifact_expected";
-  return "unsafe_unknown";
+  return "non_chat_artifact_outside_chat_reliability";
+}
+
+function summarizeDirtyClassifications(dirty: Array<{ path: string; classification: string }>) {
+  const dirtyClassificationCounts = dirty.reduce<Record<string, number>>((counts, entry) => {
+    counts[entry.classification] = (counts[entry.classification] ?? 0) + 1;
+    return counts;
+  }, {});
+  return {
+    dirtyClassificationCounts,
+    unsafeUnknownCount: dirtyClassificationCounts.unsafe_unknown ?? 0,
+    reliabilityRiskClassifications: {
+      staleReportNoise: dirty.filter((entry) => /generated_report|stale_generated|repo_context|agent_validator|non_chat_artifact/iu.test(entry.classification)).length,
+      sourceGaps: dirty.filter((entry) => /chat_source|support_inbox|real_source_change|chat_related_manual_review/iu.test(entry.classification)).length,
+      realChatReliabilityRisks: dirty.filter((entry) => /chat_source_reliability_review|support_inbox_truth_review/iu.test(entry.classification)).length,
+      protectedManualReview: dirty.filter((entry) => entry.classification === "protected_manual_review_payment_or_fan_pass_gating").length,
+      supportOverlap: dirty.filter((entry) => entry.classification === "support_inbox_truth_review").length,
+      obsoleteReportNoise: dirty.filter((entry) => /stale_generated_report_noise_outside_chat_lock|generated_report_doc_outside_chat_lock/iu.test(entry.classification)).length,
+    },
+  };
 }
 
 function statusFrom(condition: boolean, evidence: string[], missing: string[], nextAction: string): ChatFunctionalityStatus {
@@ -239,6 +300,7 @@ export function buildChatFunctionalityScoreLockReport(input: BuildInput = {}): C
     path,
     classification: classifyChatFunctionalityLockDirtyFile(path),
   }));
+  const dirtySummary = summarizeDirtyClassifications(dirty);
   const oldChatLogicReferences = input.oldLogicReferences ?? [
     {
       reference: "legacy creator chat aliases",
@@ -349,6 +411,8 @@ export function buildChatFunctionalityScoreLockReport(input: BuildInput = {}): C
       ? remainingGaps.map((gap) => `Fix ${gap}.`)
       : ["Collect formal runtime/provider smoke and admin truth evidence outside this source-only lock.", "Keep future chat activity distinct from source readiness; do not fake runtime evidence."],
     dirtyFiles: dirty,
+    dirtyFileCount: dirty.length,
+    ...dirtySummary,
     oldChatLogicReferences,
     validationFailures: [],
   };
@@ -370,9 +434,9 @@ export function validateChatFunctionalityScoreLockReport(report: ChatFunctionali
   for (const dimension of SCORE_DIMENSIONS) {
     if (!report.scoreDimensions[dimension]) failures.push(`score dimension missing: ${dimension}.`);
   }
-  if (report.oldChatLogicReferences.some((entry) => entry.classification === "unsafe_unknown")) failures.push("old chat unknown/orphan logic remains active.");
-  if (report.dirtyFiles.some((entry) => entry.classification === "unsafe_unknown")) failures.push("dirty files unclassified.");
-  if (report.dirtyFiles.some((entry) => /src\/lib\/gumdrop|src\/lib\/gumdrops|src\/app\/api\/paypal|src\/components\/Wallet|src\/components\/PurchaseModal/iu.test(entry.path))) failures.push("GumDrop math or payment runtime changed.");
+  if (report.oldChatLogicReferences.some((entry) => String(entry.classification) === "unsafe_unknown")) failures.push("old chat unknown/orphan logic remains active.");
+  if (report.unsafeUnknownCount > 0 || report.dirtyFiles.some((entry) => String(entry.classification) === "unsafe_unknown")) failures.push("dirty files unclassified.");
+  if (report.dirtyFiles.some((entry) => entry.classification === "protected_manual_review_payment_or_fan_pass_gating" && /src\/lib\/chat|src\/components\/Chat|src\/app\/api\/chat/iu.test(entry.path))) failures.push("chat-owned Fan Pass/payment gating source changed.");
   return failures;
 }
 
@@ -416,6 +480,18 @@ function renderDoc(report: ChatFunctionalityScoreLockReport) {
     "## Remaining Gaps",
     "",
     ...(report.remainingGaps.length ? report.remainingGaps.map((gap) => `- ${gap}`) : ["- None in source-level chat functionality lock."]),
+    "",
+    "## Dirty Classification",
+    "",
+    `- Dirty files classified: ${report.dirtyFileCount}`,
+    `- Unsafe unknown count: ${report.unsafeUnknownCount}`,
+    `- Stale/report noise: ${report.reliabilityRiskClassifications.staleReportNoise}`,
+    `- Source gaps/manual review: ${report.reliabilityRiskClassifications.sourceGaps}`,
+    `- Real chat reliability risk candidates: ${report.reliabilityRiskClassifications.realChatReliabilityRisks}`,
+    `- Protected payment/Fan Pass manual review: ${report.reliabilityRiskClassifications.protectedManualReview}`,
+    `- Support overlap owner review: ${report.reliabilityRiskClassifications.supportOverlap}`,
+    `- Obsolete/stale report noise: ${report.reliabilityRiskClassifications.obsoleteReportNoise}`,
+    ...Object.entries(report.dirtyClassificationCounts).sort(([left], [right]) => left.localeCompare(right)).map(([classification, count]) => `- ${classification}: ${count}`),
     "",
     "## Next Exact Steps",
     "",

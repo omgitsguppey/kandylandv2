@@ -143,4 +143,21 @@ describe("chat functionality score lock", () => {
 
     expect(validateChatFunctionalityScoreLockReport(report)).toContain("transcript truth claims connected without source.");
   });
+
+  it("rejects raw unsafe unknown chat logic classifications", () => {
+    const report = buildChatFunctionalityScoreLockReport({
+      currentHead: "test-head",
+      dirtyFiles: ["src/components/Support/SupportInbox.tsx"],
+      oldLogicReferences: [
+        {
+          reference: "legacy floating chat bridge",
+          classification: "unsafe_unknown",
+          reason: "Regression fixture: old chat logic must use a named owner bucket.",
+        },
+      ] as any,
+    });
+
+    expect(report.dirtyFiles[0]?.classification).toBe("support_inbox_truth_review");
+    expect(validateChatFunctionalityScoreLockReport(report)).toContain("old chat unknown/orphan logic remains active.");
+  });
 });
