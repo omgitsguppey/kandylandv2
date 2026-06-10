@@ -19,6 +19,8 @@
         "agent:fast-start": "tsx scripts/agent/fast-start.ts",
         "agent:verify": "tsx scripts/agent/verification-selector.ts",
         "signal:source-graph": "tsx scripts/agent/collect-signal-source-graph.ts",
+        "signal:telemetry-graph": "tsx scripts/agent/collect-signal-telemetry-graph.ts",
+        "signal:telemetry-rank": "tsx scripts/agent/rank-signal-telemetry-disconnects.ts",
         "signal:rank": "tsx scripts/agent/rank-signal-problems.ts",
         "check:signal-problem-rank": "tsx scripts/agent/validate-signal-problem-rank.ts",
         "build:agent-context": "tsx scripts/agent/build-compact-agent-context.ts",

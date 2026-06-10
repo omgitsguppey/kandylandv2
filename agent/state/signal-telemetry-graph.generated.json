@@ -1,0 +1,4558 @@
+{
+  "schemaVersion": "signal.telemetry-graph.v1",
+  "generatedAtUtc": "2026-06-10T04:34:49.600Z",
+  "reportPath": "agent/state/signal-telemetry-graph.generated.json",
+  "sourceInputs": [
+    "src/lib/telemetry-catalog.ts",
+    "src/lib/telemetry/surface-telemetry-catalog-events.ts",
+    "src/lib/analytics/person-metrics-contract.ts",
+    "src/lib/analytics/telemetry-dependency-graph.ts",
+    "src/lib/analytics/identity-handoff-contract.ts",
+    "src/lib/analytics/identity-handoff-engine.ts",
+    "src/lib/identity-truth/identity-chain-contract.ts",
+    "functions/src/analytics-event-facts.ts",
+    "src/lib/analytics/telemetry-intent-aliases.ts",
+    "src/lib/analytics/event-translation-bridge.ts",
+    "src/lib/debug-evidence-contract.ts",
+    "source files with telemetry emitters, analytics ingestion routes, admin/debug consumers, tests, validators",
+    "agent/index/repo-inventory.json"
+  ],
+  "commandBudget": {
+    "allowedCommands": [
+      "npm run signal:telemetry-graph",
+      "npm run typecheck",
+      "npm run agent:test -- tests/unit/signal-telemetry-graph.spec.ts"
+    ],
+    "forbiddenCommands": [
+      "npm run check",
+      "playwright",
+      "cypress",
+      "lighthouse",
+      "firebase deploy",
+      "gcloud",
+      "provider API calls"
+    ]
+  },
+  "summary": {
+    "catalogedEventCount": 768,
+    "emittedEventCount": 1785,
+    "uncatalogedEmissionCount": 93,
+    "aliasOnlyEmissionCount": 31,
+    "directTrackEventFileCount": 95,
+    "noncanonicalTelemetryCallCount": 5,
+    "ingestionRouteCount": 18,
+    "personMetricCount": 37,
+    "adminConsumerCount": 158,
+    "debugConsumerCount": 343,
+    "validatorConsumerCount": 856,
+    "generatedEvidenceReportCount": 131,
+    "staleGeneratedEvidenceCount": 131,
+    "dependencyPathCount": 768,
+    "runtimeUnprovenPathCount": 28,
+    "externalProviderUnprovenPathCount": 0,
+    "findingCount": 196,
+    "byFindingClassification": {
+      "disconnected_emitter": 20,
+      "false_positive_manual_review": 2,
+      "duplicate_intent": 20,
+      "source_only_proof_risk": 5,
+      "missing_admin_debug_consumer": 20,
+      "stale_generated_evidence": 20,
+      "actor_missing": 20,
+      "event_missing": 20,
+      "debug_lane_missing": 8,
+      "materializer_missing": 21,
+      "consent_blocked": 40
+    },
+    "byGapClassification": {
+      "event_missing": 131,
+      "actor_missing": 121,
+      "consent_blocked": 145,
+      "identity_link_missing": 0,
+      "materializer_missing": 356,
+      "debug_lane_missing": 56,
+      "runtime_unproven": 28,
+      "external_provider_unproven": 0
+    }
+  },
+  "nodes": {
+    "catalogRows": {
+      "count": 768,
+      "examples": [
+        {
+          "id": "catalog:account_delete_cancelled",
+          "eventName": "account_delete_cancelled",
+          "source": "telemetry_catalog",
+          "category": "auth",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:account_delete_clicked",
+          "eventName": "account_delete_clicked",
+          "source": "telemetry_catalog",
+          "category": "auth",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:account_delete_completed",
+          "eventName": "account_delete_completed",
+          "source": "telemetry_catalog",
+          "category": "auth",
+          "aliases": [
+            "support_ticket_submitted"
+          ],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:account_delete_confirm_opened",
+          "eventName": "account_delete_confirm_opened",
+          "source": "telemetry_catalog",
+          "category": "auth",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:account_delete_confirmed",
+          "eventName": "account_delete_confirmed",
+          "source": "telemetry_catalog",
+          "category": "auth",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:account_delete_failed",
+          "eventName": "account_delete_failed",
+          "source": "telemetry_catalog",
+          "category": "auth",
+          "aliases": [
+            "support_ticket_submitted"
+          ],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:account_delete_request_submitted",
+          "eventName": "account_delete_request_submitted",
+          "source": "telemetry_catalog",
+          "category": "auth",
+          "aliases": [
+            "support_ticket_submitted"
+          ],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:account_settings_surface_action_attempted",
+          "eventName": "account_settings_surface_action_attempted",
+          "source": "surface_telemetry_catalog",
+          "category": "engagement",
+          "surface": "account_settings",
+          "aliases": [],
+          "file": "src/lib/telemetry/surface-telemetry-catalog-events.ts"
+        },
+        {
+          "id": "catalog:account_settings_surface_action_failed",
+          "eventName": "account_settings_surface_action_failed",
+          "source": "surface_telemetry_catalog",
+          "category": "engagement",
+          "surface": "account_settings",
+          "aliases": [
+            "setting_save_failed"
+          ],
+          "file": "src/lib/telemetry/surface-telemetry-catalog-events.ts"
+        },
+        {
+          "id": "catalog:account_settings_surface_action_succeeded",
+          "eventName": "account_settings_surface_action_succeeded",
+          "source": "surface_telemetry_catalog",
+          "category": "engagement",
+          "surface": "account_settings",
+          "aliases": [
+            "setting_save_succeeded"
+          ],
+          "file": "src/lib/telemetry/surface-telemetry-catalog-events.ts"
+        },
+        {
+          "id": "catalog:account_settings_surface_degraded_viewed",
+          "eventName": "account_settings_surface_degraded_viewed",
+          "source": "surface_telemetry_catalog",
+          "category": "engagement",
+          "surface": "account_settings",
+          "aliases": [],
+          "file": "src/lib/telemetry/surface-telemetry-catalog-events.ts"
+        },
+        {
+          "id": "catalog:account_settings_surface_empty_viewed",
+          "eventName": "account_settings_surface_empty_viewed",
+          "source": "surface_telemetry_catalog",
+          "category": "engagement",
+          "surface": "account_settings",
+          "aliases": [],
+          "file": "src/lib/telemetry/surface-telemetry-catalog-events.ts"
+        },
+        {
+          "id": "catalog:account_settings_surface_error_viewed",
+          "eventName": "account_settings_surface_error_viewed",
+          "source": "surface_telemetry_catalog",
+          "category": "engagement",
+          "surface": "account_settings",
+          "aliases": [],
+          "file": "src/lib/telemetry/surface-telemetry-catalog-events.ts"
+        },
+        {
+          "id": "catalog:account_settings_surface_loaded",
+          "eventName": "account_settings_surface_loaded",
+          "source": "surface_telemetry_catalog",
+          "category": "engagement",
+          "surface": "account_settings",
+          "aliases": [],
+          "file": "src/lib/telemetry/surface-telemetry-catalog-events.ts"
+        },
+        {
+          "id": "catalog:account_settings_surface_not_configured_viewed",
+          "eventName": "account_settings_surface_not_configured_viewed",
+          "source": "surface_telemetry_catalog",
+          "category": "engagement",
+          "surface": "account_settings",
+          "aliases": [],
+          "file": "src/lib/telemetry/surface-telemetry-catalog-events.ts"
+        },
+        {
+          "id": "catalog:account_settings_surface_permission_denied",
+          "eventName": "account_settings_surface_permission_denied",
+          "source": "surface_telemetry_catalog",
+          "category": "engagement",
+          "surface": "account_settings",
+          "aliases": [],
+          "file": "src/lib/telemetry/surface-telemetry-catalog-events.ts"
+        },
+        {
+          "id": "catalog:account_settings_surface_viewed",
+          "eventName": "account_settings_surface_viewed",
+          "source": "surface_telemetry_catalog",
+          "category": "engagement",
+          "surface": "account_settings",
+          "aliases": [
+            "settings_surface_viewed",
+            "user_settings_viewed"
+          ],
+          "file": "src/lib/telemetry/surface-telemetry-catalog-events.ts"
+        },
+        {
+          "id": "catalog:admin_action_performed",
+          "eventName": "admin_action_performed",
+          "source": "telemetry_catalog",
+          "category": "admin",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:admin_ai_cover_generate_failed",
+          "eventName": "admin_ai_cover_generate_failed",
+          "source": "telemetry_catalog",
+          "category": "admin",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:admin_ai_cover_generate_succeeded",
+          "eventName": "admin_ai_cover_generate_succeeded",
+          "source": "telemetry_catalog",
+          "category": "admin",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:admin_ai_cover_generation_accepted",
+          "eventName": "admin_ai_cover_generation_accepted",
+          "source": "telemetry_catalog",
+          "category": "admin",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:admin_ai_cover_generation_disliked",
+          "eventName": "admin_ai_cover_generation_disliked",
+          "source": "telemetry_catalog",
+          "category": "admin",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:admin_ai_cover_generation_liked",
+          "eventName": "admin_ai_cover_generation_liked",
+          "source": "telemetry_catalog",
+          "category": "admin",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:admin_ai_cover_history_cleared",
+          "eventName": "admin_ai_cover_history_cleared",
+          "source": "telemetry_catalog",
+          "category": "admin",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        },
+        {
+          "id": "catalog:admin_ai_cover_toggle_updated",
+          "eventName": "admin_ai_cover_toggle_updated",
+          "source": "telemetry_catalog",
+          "category": "admin",
+          "aliases": [],
+          "file": "src/lib/telemetry-catalog.ts"
+        }
+      ]
+    },
+    "emitters": {
+      "count": 1785,
+      "examples": [
+        {
+          "id": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_cancelled",
+          "eventName": "account_delete_cancelled",
+          "file": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+          "callKind": "trackEvent_literal",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_cancelled",
+          "eventName": "account_delete_cancelled",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_clicked",
+          "eventName": "account_delete_clicked",
+          "file": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+          "callKind": "trackEvent_literal",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__analytics__event-liveness-engine-ts-eventname_assignment-account_delete_clicked",
+          "eventName": "account_delete_clicked",
+          "file": "src/lib/analytics/event-liveness-engine.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_clicked",
+          "eventName": "account_delete_clicked",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__testing__telemetry-trigger-test-matrix-ts-eventname_assignment-account_delete_clicked",
+          "eventName": "account_delete_clicked",
+          "file": "src/lib/testing/telemetry-trigger-test-matrix.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_completed",
+          "eventName": "account_delete_completed",
+          "file": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+          "callKind": "trackEvent_literal",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_completed",
+          "eventName": "account_delete_completed",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_confirm_opened",
+          "eventName": "account_delete_confirm_opened",
+          "file": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+          "callKind": "trackEvent_literal",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_confirm_opened",
+          "eventName": "account_delete_confirm_opened",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_confirmed",
+          "eventName": "account_delete_confirmed",
+          "file": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+          "callKind": "trackEvent_literal",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_confirmed",
+          "eventName": "account_delete_confirmed",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:tests__unit__event-liveness-audit-spec-ts-eventname_assignment-account_delete_confirmed",
+          "eventName": "account_delete_confirmed",
+          "file": "tests/unit/event-liveness-audit.spec.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_failed",
+          "eventName": "account_delete_failed",
+          "file": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+          "callKind": "trackEvent_literal",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_failed",
+          "eventName": "account_delete_failed",
+          "file": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+          "callKind": "trackEvent_literal",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_failed",
+          "eventName": "account_delete_failed",
+          "file": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+          "callKind": "trackEvent_literal",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_failed",
+          "eventName": "account_delete_failed",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_request_submitted",
+          "eventName": "account_delete_request_submitted",
+          "file": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+          "callKind": "trackEvent_literal",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_request_submitted",
+          "eventName": "account_delete_request_submitted",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_action_performed",
+          "eventName": "admin_action_performed",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_generate_failed",
+          "eventName": "admin_ai_cover_generate_failed",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_generate_succeeded",
+          "eventName": "admin_ai_cover_generate_succeeded",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_generation_accepted",
+          "eventName": "admin_ai_cover_generation_accepted",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_generation_disliked",
+          "eventName": "admin_ai_cover_generation_disliked",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        },
+        {
+          "id": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_generation_liked",
+          "eventName": "admin_ai_cover_generation_liked",
+          "file": "src/lib/telemetry-catalog.ts",
+          "callKind": "eventName_assignment",
+          "catalogStatus": "cataloged"
+        }
+      ]
+    },
+    "ingestionRoutes": {
+      "count": 18,
+      "examples": [
+        {
+          "id": "route:src__app__api__admin__analytics__historical__route-ts",
+          "path": "src/app/api/admin/analytics/historical/route.ts",
+          "kind": "admin_analytics_route",
+          "references": [
+            "admin-analytics-historical-response",
+            "admin_analytics_historical",
+            "admin_debug_raw_evidence_only",
+            "analytics",
+            "analytics_admin_metric_snapshots",
+            "analytics_commerce_daily",
+            "analytics_commerce_rollup",
+            "analytics_drop_daily",
+            "analytics_event_facts",
+            "analytics_event_stats",
+            "analytics_guest_batches",
+            "analytics_page_daily"
+          ]
+        },
+        {
+          "id": "route:src__app__api__admin__analytics__preferences__route-ts",
+          "path": "src/app/api/admin/analytics/preferences/route.ts",
+          "kind": "admin_analytics_route",
+          "references": []
+        },
+        {
+          "id": "route:src__app__api__admin__analytics__realtime__route-ts",
+          "path": "src/app/api/admin/analytics/realtime/route.ts",
+          "kind": "admin_analytics_route",
+          "references": [
+            "admin-analytics-realtime:summary",
+            "admin_analytics_realtime",
+            "analytics_admin_metric_snapshots"
+          ]
+        },
+        {
+          "id": "route:src__app__api__admin__analytics__refresh__route-ts",
+          "path": "src/app/api/admin/analytics/refresh/route.ts",
+          "kind": "admin_analytics_route",
+          "references": [
+            "duplicate_prevented"
+          ]
+        },
+        {
+          "id": "route:src__app__api__admin__analytics__route-ts",
+          "path": "src/app/api/admin/analytics/route.ts",
+          "kind": "admin_analytics_route",
+          "references": []
+        },
+        {
+          "id": "route:src__app__api__admin__debug__assistant__fix__route-ts",
+          "path": "src/app/api/admin/debug/assistant/fix/route.ts",
+          "kind": "debug_evidence_route",
+          "references": [
+            "admin_debug"
+          ]
+        },
+        {
+          "id": "route:src__app__api__admin__debug__assistant__route-ts",
+          "path": "src/app/api/admin/debug/assistant/route.ts",
+          "kind": "debug_evidence_route",
+          "references": [
+            "analytics_commerce_rollup",
+            "analytics_event_stats",
+            "analytics_guest_batches",
+            "analytics_pipeline_daily",
+            "analytics_task_rollup",
+            "analytics_watch_assets",
+            "analytics_watch_sessions",
+            "security_events"
+          ]
+        },
+        {
+          "id": "route:src__app__api__admin__debug__bug-reports__route-ts",
+          "path": "src/app/api/admin/debug/bug-reports/route.ts",
+          "kind": "debug_evidence_route",
+          "references": []
+        },
+        {
+          "id": "route:src__app__api__admin__debug__control-tower__route-ts",
+          "path": "src/app/api/admin/debug/control-tower/route.ts",
+          "kind": "debug_evidence_route",
+          "references": []
+        },
+        {
+          "id": "route:src__app__api__admin__debug__preferences__route-ts",
+          "path": "src/app/api/admin/debug/preferences/route.ts",
+          "kind": "debug_evidence_route",
+          "references": []
+        },
+        {
+          "id": "route:src__app__api__admin__debug__route-ts",
+          "path": "src/app/api/admin/debug/route.ts",
+          "kind": "debug_evidence_route",
+          "references": [
+            "activityScope",
+            "admin-analytics-audience-snapshot",
+            "admin-analytics-auth-outcome-split",
+            "admin-analytics-commerce-snapshot",
+            "admin-analytics-daily-task-pipeline",
+            "admin-analytics-event-mix",
+            "admin-analytics-guest-bounce-quality",
+            "admin-analytics-hot-cache",
+            "admin-analytics-journey-funnel",
+            "admin-analytics-live-interaction-stream",
+            "admin-analytics-live-pulse",
+            "admin-analytics-notification-funnel"
+          ]
+        },
+        {
+          "id": "route:src__app__api__analytics__ingest-identified__route-ts",
+          "path": "src/app/api/analytics/ingest-identified/route.ts",
+          "kind": "analytics_ingestion_route",
+          "references": [
+            "analytics",
+            "empty_events",
+            "event",
+            "events",
+            "identityLinkId",
+            "identityState",
+            "identity_link_id",
+            "identity_linked",
+            "identity_state",
+            "invalid_analytics_payload",
+            "skipped_uncataloged_diagnostic_event"
+          ]
+        },
+        {
+          "id": "route:src__app__api__analytics__ingest__route-ts",
+          "path": "src/app/api/analytics/ingest/route.ts",
+          "kind": "analytics_ingestion_route",
+          "references": [
+            "analytics",
+            "analytics_consent_denied",
+            "analytics_guest_batches_daily",
+            "canonical_event_envelope",
+            "empty_analytics_payload",
+            "invalid_analytics_payload"
+          ]
+        },
+        {
+          "id": "route:src__app__api__bug-reports__route-ts",
+          "path": "src/app/api/bug-reports/route.ts",
+          "kind": "debug_evidence_route",
+          "references": []
+        },
+        {
+          "id": "route:src__app__api__debug__evidence__route-ts",
+          "path": "src/app/api/debug/evidence/route.ts",
+          "kind": "debug_evidence_route",
+          "references": [
+            "telemetry"
+          ]
+        },
+        {
+          "id": "route:src__app__api__drops__track__route-ts",
+          "path": "src/app/api/drops/track/route.ts",
+          "kind": "activity_route",
+          "references": []
+        },
+        {
+          "id": "route:src__app__api__user__activity__route-ts",
+          "path": "src/app/api/user/activity/route.ts",
+          "kind": "activity_route",
+          "references": [
+            "daily_task_events",
+            "user_activity_query_fallback"
+          ]
+        },
+        {
+          "id": "route:src__app__api__viewer__watch-session__route-ts",
+          "path": "src/app/api/viewer/watch-session/route.ts",
+          "kind": "activity_route",
+          "references": [
+            "analytics",
+            "identified_analytics_consent_denied"
+          ]
+        }
+      ]
+    },
+    "personMetrics": {
+      "count": 37,
+      "examples": [
+        {
+          "id": "person-metric:active_days",
+          "metricId": "active_days",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "semantic_page_viewed",
+            "session_started",
+            "watch_session_started"
+          ],
+          "materializer": "person_metrics.active_days",
+          "debugOwner": "analytics"
+        },
+        {
+          "id": "person-metric:auth_runtime_events",
+          "metricId": "auth_runtime_events",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "auth_email_login_completed",
+            "auth_email_login_failed",
+            "auth_email_login_started",
+            "auth_email_signup_completed",
+            "auth_email_signup_failed",
+            "auth_email_signup_started",
+            "auth_google_completed",
+            "auth_google_failed",
+            "auth_google_sign_in_attempted",
+            "auth_google_sign_in_failed",
+            "auth_google_sign_in_success",
+            "auth_google_started"
+          ],
+          "materializer": "person_metrics.auth_runtime_events",
+          "debugOwner": "auth"
+        },
+        {
+          "id": "person-metric:broadcasts_clicked",
+          "metricId": "broadcasts_clicked",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "creator_broadcast_cta_clicked",
+            "notification_action_clicked"
+          ],
+          "materializer": "person_metrics.broadcasts_clicked",
+          "debugOwner": "notifications"
+        },
+        {
+          "id": "person-metric:broadcasts_viewed",
+          "metricId": "broadcasts_viewed",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "creator_broadcast_detail_viewed",
+            "creator_broadcast_opened"
+          ],
+          "materializer": "person_metrics.broadcasts_viewed",
+          "debugOwner": "creator"
+        },
+        {
+          "id": "person-metric:chat_actions",
+          "metricId": "chat_actions",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "chat_attachment_upload_failed",
+            "chat_attachment_upload_started",
+            "chat_compose_sheet_opened",
+            "chat_creator_selected",
+            "chat_message_blocked",
+            "chat_message_failed",
+            "chat_message_send_attempted",
+            "chat_message_sent",
+            "chat_moderation_blocked",
+            "chat_paid_gd_gate_viewed",
+            "chat_presence_connected",
+            "chat_purchase_cta_clicked"
+          ],
+          "materializer": "person_metrics.chat_actions",
+          "debugOwner": "support"
+        },
+        {
+          "id": "person-metric:checkout_starts",
+          "metricId": "checkout_starts",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "begin_checkout"
+          ],
+          "materializer": "person_metrics.checkout_starts",
+          "debugOwner": "commerce"
+        },
+        {
+          "id": "person-metric:creator_drop_manager_actions",
+          "metricId": "creator_drop_manager_actions",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "admin_creator_drop_reviewed",
+            "creator_drop_submitted",
+            "creator_drop_updated"
+          ],
+          "materializer": "person_metrics.creator_drop_manager_actions",
+          "debugOwner": "creator"
+        },
+        {
+          "id": "person-metric:creator_profile_views",
+          "metricId": "creator_profile_views",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "creator_card_clicked",
+            "creator_card_viewed",
+            "creator_discovery_surface_viewed",
+            "creator_profile_link_clicked",
+            "creator_profile_opened",
+            "creator_profile_viewed",
+            "creator_recommendation_clicked",
+            "creator_recommendation_viewed",
+            "creator_relationship_list_failed",
+            "creator_relationship_list_loaded"
+          ],
+          "materializer": "person_metrics.creator_profile_views",
+          "debugOwner": "creator"
+        },
+        {
+          "id": "person-metric:daily_task_abandonments",
+          "metricId": "daily_task_abandonments",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "daily_task_abandoned"
+          ],
+          "materializer": "person_metrics.daily_task_abandonments",
+          "debugOwner": "retention"
+        },
+        {
+          "id": "person-metric:daily_task_average_duration",
+          "metricId": "daily_task_average_duration",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "daily_task_abandoned",
+            "daily_task_completed",
+            "daily_task_failed"
+          ],
+          "materializer": "person_metrics.daily_task_average_duration",
+          "debugOwner": "retention"
+        },
+        {
+          "id": "person-metric:daily_task_completions",
+          "metricId": "daily_task_completions",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "daily_checkin_claimed",
+            "daily_task_completed",
+            "task_completed"
+          ],
+          "materializer": "person_metrics.daily_task_completions",
+          "debugOwner": "retention"
+        },
+        {
+          "id": "person-metric:daily_task_failures",
+          "metricId": "daily_task_failures",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "daily_task_failed"
+          ],
+          "materializer": "person_metrics.daily_task_failures",
+          "debugOwner": "retention"
+        },
+        {
+          "id": "person-metric:daily_task_guidance_interactions",
+          "metricId": "daily_task_guidance_interactions",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "daily_task_guidance_opened",
+            "task_card_expanded",
+            "task_guidance_completed",
+            "task_guidance_dismissed",
+            "task_guidance_tapped",
+            "task_guidance_viewed",
+            "task_help_opened"
+          ],
+          "materializer": "person_metrics.daily_task_guidance_interactions",
+          "debugOwner": "retention"
+        },
+        {
+          "id": "person-metric:daily_task_reset_locked_views",
+          "metricId": "daily_task_reset_locked_views",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "daily_task_next_eligible_viewed",
+            "daily_task_reset_locked"
+          ],
+          "materializer": "person_metrics.daily_task_reset_locked_views",
+          "debugOwner": "retention"
+        },
+        {
+          "id": "person-metric:daily_task_rewards_granted",
+          "metricId": "daily_task_rewards_granted",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "daily_task_claimed",
+            "daily_task_reward_granted"
+          ],
+          "materializer": "person_metrics.daily_task_rewards_granted",
+          "debugOwner": "retention"
+        },
+        {
+          "id": "person-metric:daily_task_starts",
+          "metricId": "daily_task_starts",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "daily_task_started"
+          ],
+          "materializer": "person_metrics.daily_task_starts",
+          "debugOwner": "retention"
+        },
+        {
+          "id": "person-metric:daily_task_views",
+          "metricId": "daily_task_views",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "daily_task_card_viewed",
+            "daily_task_surface_viewed",
+            "daily_tasks_viewed"
+          ],
+          "materializer": "person_metrics.daily_task_views",
+          "debugOwner": "retention"
+        },
+        {
+          "id": "person-metric:drop_opens",
+          "metricId": "drop_opens",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "drop_clicked",
+            "drop_preview_opened",
+            "drop_preview_page_viewed",
+            "view_drop_details"
+          ],
+          "materializer": "person_metrics.drop_opens",
+          "debugOwner": "analytics"
+        },
+        {
+          "id": "person-metric:drop_unlocks",
+          "metricId": "drop_unlocks",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "drop_unlocked",
+            "entitlement_granted",
+            "unlock_drop_success"
+          ],
+          "materializer": "person_metrics.drop_unlocks",
+          "debugOwner": "analytics"
+        },
+        {
+          "id": "person-metric:fan_pass_purchases",
+          "metricId": "fan_pass_purchases",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "creator_fan_pass_started",
+            "creator_subscription_renewed",
+            "creator_subscription_started",
+            "fan_pass_access_denied",
+            "fan_pass_access_granted",
+            "fan_pass_cancelled",
+            "fan_pass_expired",
+            "fan_pass_purchase_attempted",
+            "fan_pass_purchase_failed",
+            "fan_pass_purchase_succeeded"
+          ],
+          "materializer": "person_metrics.fan_pass_purchases",
+          "debugOwner": "creator"
+        },
+        {
+          "id": "person-metric:fan_pass_views",
+          "metricId": "fan_pass_views",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "creator_fan_pass_viewed",
+            "creator_subscription_viewed",
+            "fan_pass_cta_clicked",
+            "fan_pass_surface_viewed"
+          ],
+          "materializer": "person_metrics.fan_pass_views",
+          "debugOwner": "creator"
+        },
+        {
+          "id": "person-metric:follows",
+          "metricId": "follows",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "creator_follow_attempted",
+            "creator_follow_failed",
+            "creator_follow_succeeded",
+            "creator_followed",
+            "creator_unfollow_attempted",
+            "creator_unfollow_succeeded",
+            "creator_unfollowed"
+          ],
+          "materializer": "person_metrics.follows",
+          "debugOwner": "creator"
+        },
+        {
+          "id": "person-metric:notification_interactions",
+          "metricId": "notification_interactions",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "notification_action_clicked",
+            "notification_cleared",
+            "notification_intent_evaluated",
+            "notification_mark_all_read",
+            "notification_opened",
+            "notification_permission_denied",
+            "notification_permission_failed",
+            "notification_permission_granted",
+            "notification_permission_requested",
+            "notification_prompt_blocked",
+            "notification_prompt_dismissed",
+            "notification_prompt_eligible"
+          ],
+          "materializer": "person_metrics.notification_interactions",
+          "debugOwner": "notifications"
+        },
+        {
+          "id": "person-metric:package_selections",
+          "metricId": "package_selections",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "purchase_package_selected"
+          ],
+          "materializer": "person_metrics.package_selections",
+          "debugOwner": "wallet"
+        },
+        {
+          "id": "person-metric:page_views",
+          "metricId": "page_views",
+          "file": "src/lib/analytics/person-metrics-contract.ts",
+          "eventNames": [
+            "page_viewed",
+            "semantic_page_viewed"
+          ],
+          "materializer": "person_metrics.page_views",
+          "debugOwner": "analytics"
+        }
+      ]
+    },
+    "consumers": {
+      "count": 1437,
+      "examples": [
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-auth-outcomes-mobile-ts",
+          "path": "scripts/agent/validate-admin-analytics-auth-outcomes-mobile.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-debug-cost-reduction-ts",
+          "path": "scripts/agent/validate-admin-analytics-debug-cost-reduction.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-finalization-ts",
+          "path": "scripts/agent/validate-admin-analytics-finalization.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-hot-cache-ts",
+          "path": "scripts/agent/validate-admin-analytics-hot-cache.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-mobile-overview-ts",
+          "path": "scripts/agent/validate-admin-analytics-mobile-overview.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-monolith-cleanup-ts",
+          "path": "scripts/agent/validate-admin-analytics-monolith-cleanup.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-no-pure-realtime-ts",
+          "path": "scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-operations-mobile-ts",
+          "path": "scripts/agent/validate-admin-analytics-operations-mobile.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-realtime-hot-cache-ts",
+          "path": "scripts/agent/validate-admin-analytics-realtime-hot-cache.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-snapshot-migration-ts",
+          "path": "scripts/agent/validate-admin-analytics-snapshot-migration.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-analytics-source-hierarchy-ts",
+          "path": "scripts/agent/validate-admin-analytics-source-hierarchy.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-admin-debug-control-tower-ts",
+          "path": "scripts/agent/validate-admin-debug-control-tower.ts",
+          "kind": "admin_panel_consumer",
+          "references": [
+            "notification_action_clicked",
+            "notification_opened",
+            "notification_read",
+            "notifications_dropdown_opened"
+          ]
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-creator-monetization-admin-debug-ts",
+          "path": "scripts/agent/validate-creator-monetization-admin-debug.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:scripts__agent__validate-telemetry-admin-debug-truth-ts",
+          "path": "scripts/agent/validate-telemetry-admin-debug-truth.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__analytics__analyticshelpers-tsx",
+          "path": "src/app/admin/analytics/AnalyticsHelpers.tsx",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__analytics__components__adminanalyticsaudiencetab-tsx",
+          "path": "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__analytics__components__adminanalyticscommercetab-tsx",
+          "path": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+          "kind": "admin_panel_consumer",
+          "references": [
+            "checkout_starts",
+            "unwraps",
+            "wallet_opens"
+          ]
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__analytics__components__adminanalyticsoperationstab-tsx",
+          "path": "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__analytics__hooks__useadminanalyticsrealtime-ts",
+          "path": "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__analytics__hooks__useadminanalyticsstate-tsx",
+          "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+          "kind": "admin_panel_consumer",
+          "references": [
+            "drop_opens",
+            "wallet_opens"
+          ]
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__analytics__loading-tsx",
+          "path": "src/app/admin/analytics/loading.tsx",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__analytics__page-tsx",
+          "path": "src/app/admin/analytics/page.tsx",
+          "kind": "admin_panel_consumer",
+          "references": [
+            "admin_analytics_viewed"
+          ]
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__debug__components__adminaiassistantrealtimepanel-tsx",
+          "path": "src/app/admin/debug/components/AdminAiAssistantRealtimePanel.tsx",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__debug__components__debugadvancedbehavior-tsx",
+          "path": "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
+          "kind": "admin_panel_consumer",
+          "references": []
+        },
+        {
+          "id": "admin_panel_consumer:src__app__admin__debug__components__debugadvanceddatavalidation-tsx",
+          "path": "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+          "kind": "admin_panel_consumer",
+          "references": [
+            "purchase"
+          ]
+        }
+      ]
+    },
+    "generatedEvidenceReports": {
+      "count": 131,
+      "examples": [
+        {
+          "id": "generated-report:agent__state__admin-analytics-debug-cost-reduction-generated-json",
+          "path": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__admin-analytics-finalization-generated-json",
+          "path": "agent/state/admin-analytics-finalization.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__admin-analytics-monolith-cleanup-generated-json",
+          "path": "agent/state/admin-analytics-monolith-cleanup.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__admin-analytics-realtime-dependency-audit-generated-json",
+          "path": "agent/state/admin-analytics-realtime-dependency-audit.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__admin-analytics-realtime-hot-cache-generated-json",
+          "path": "agent/state/admin-analytics-realtime-hot-cache.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__admin-analytics-source-hierarchy-generated-json",
+          "path": "agent/state/admin-analytics-source-hierarchy.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__advanced-telemetry-parity-ui-cleanup-generated-json",
+          "path": "agent/state/advanced-telemetry-parity-ui-cleanup.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__ai-debug-budget-guard-generated-json",
+          "path": "agent/state/ai-debug-budget-guard.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__ai-debug-critic-review-generated-json",
+          "path": "agent/state/ai-debug-critic-review.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__ai-debug-critic-generated-json",
+          "path": "agent/state/ai-debug-critic.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__ai-debug-planner-generated-json",
+          "path": "agent/state/ai-debug-planner.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__ai-debug-queue-truth-generated-json",
+          "path": "agent/state/ai-debug-queue-truth.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__ai-debug-workbench-ui-model-generated-json",
+          "path": "agent/state/ai-debug-workbench-ui-model.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-cadence-cost-policy-generated-json",
+          "path": "agent/state/analytics-cadence-cost-policy.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-cost-hot-path-reduction-generated-json",
+          "path": "agent/state/analytics-cost-hot-path-reduction.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-cost-runtime-inventory-generated-json",
+          "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-ecosystem-parity-generated-json",
+          "path": "agent/state/analytics-ecosystem-parity.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-hot-path-cost-reduction-generated-json",
+          "path": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-hydration-consolidation-audit-generated-json",
+          "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-hydration-consolidation-generated-json",
+          "path": "agent/state/analytics-hydration-consolidation.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-identity-transfer-inventory-generated-json",
+          "path": "agent/state/analytics-identity-transfer-inventory.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-ingest-firestore-closure-generated-json",
+          "path": "agent/state/analytics-ingest-firestore-closure.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-ingest-identified-repair-generated-json",
+          "path": "agent/state/analytics-ingest-identified-repair.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-legacy-history-reconciliation-generated-json",
+          "path": "agent/state/analytics-legacy-history-reconciliation.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        },
+        {
+          "id": "generated-report:agent__state__analytics-legacy-mapping-report-generated-json",
+          "path": "agent/state/analytics-legacy-mapping-report.generated.json",
+          "evidenceKind": "generated_snapshot",
+          "freshness": "stale_relative_to_touched"
+        }
+      ]
+    },
+    "dependencyPaths": {
+      "count": 768,
+      "examples": [
+        {
+          "id": "dependency-path:account_delete_cancelled",
+          "eventName": "account_delete_cancelled",
+          "surface": "auth",
+          "actorType": "unknown",
+          "identityLink": {
+            "requiredFields": [],
+            "state": "unknown"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "source_only"
+          },
+          "ingestionPath": {
+            "laneId": "unmapped",
+            "routeApi": "unmapped",
+            "persistenceDestination": "unmapped",
+            "state": "queued"
+          },
+          "materializerRollup": {
+            "lane": "unspecified",
+            "destination": "unspecified",
+            "hasPersonMetric": true
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "unspecified",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "actor_missing",
+            "event_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_delete_clicked",
+          "eventName": "account_delete_clicked",
+          "surface": "auth",
+          "actorType": "signed_in_user",
+          "identityLink": {
+            "requiredFields": [
+              "anonymousVisitorId or actorUserId",
+              "eventName",
+              "objectId when applicable"
+            ],
+            "state": "signed_in_user"
+          },
+          "consentPrivacyGate": {
+            "requirement": "consent-aware lane",
+            "consentAware": true,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "behavior_signal",
+            "routeApi": "/api/analytics/ingest, /api/analytics/ingest-identified, server trackServerEvent for canonical outcomes",
+            "persistenceDestination": "analytics_guest_batches, analytics_event_facts, behavioral_timeline_facts",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "behavioral intelligence materializers, recommendation ranker inputs, admin event mix",
+            "destination": "behavioral intelligence materializers, recommendation ranker inputs, admin event mix",
+            "hasPersonMetric": true
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        },
+        {
+          "id": "dependency-path:account_delete_completed",
+          "eventName": "account_delete_completed",
+          "surface": "auth",
+          "actorType": "unknown",
+          "identityLink": {
+            "requiredFields": [],
+            "state": "unknown"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "source_only"
+          },
+          "ingestionPath": {
+            "laneId": "unmapped",
+            "routeApi": "unmapped",
+            "persistenceDestination": "unmapped",
+            "state": "queued"
+          },
+          "materializerRollup": {
+            "lane": "unspecified",
+            "destination": "unspecified",
+            "hasPersonMetric": true
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "unspecified",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "actor_missing",
+            "event_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_delete_confirm_opened",
+          "eventName": "account_delete_confirm_opened",
+          "surface": "auth",
+          "actorType": "signed_in_user",
+          "identityLink": {
+            "requiredFields": [
+              "anonymousVisitorId or actorUserId",
+              "eventName",
+              "objectId when applicable"
+            ],
+            "state": "signed_in_user"
+          },
+          "consentPrivacyGate": {
+            "requirement": "consent-aware lane",
+            "consentAware": true,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "behavior_signal",
+            "routeApi": "/api/analytics/ingest, /api/analytics/ingest-identified, server trackServerEvent for canonical outcomes",
+            "persistenceDestination": "analytics_guest_batches, analytics_event_facts, behavioral_timeline_facts",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "behavioral intelligence materializers, recommendation ranker inputs, admin event mix",
+            "destination": "behavioral intelligence materializers, recommendation ranker inputs, admin event mix",
+            "hasPersonMetric": true
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        },
+        {
+          "id": "dependency-path:account_delete_confirmed",
+          "eventName": "account_delete_confirmed",
+          "surface": "auth",
+          "actorType": "unknown",
+          "identityLink": {
+            "requiredFields": [],
+            "state": "unknown"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "source_only"
+          },
+          "ingestionPath": {
+            "laneId": "unmapped",
+            "routeApi": "unmapped",
+            "persistenceDestination": "unmapped",
+            "state": "queued"
+          },
+          "materializerRollup": {
+            "lane": "unspecified",
+            "destination": "unspecified",
+            "hasPersonMetric": true
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "unspecified",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "actor_missing",
+            "event_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_delete_failed",
+          "eventName": "account_delete_failed",
+          "surface": "auth",
+          "actorType": "unknown",
+          "identityLink": {
+            "requiredFields": [],
+            "state": "unknown"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "source_only"
+          },
+          "ingestionPath": {
+            "laneId": "unmapped",
+            "routeApi": "unmapped",
+            "persistenceDestination": "unmapped",
+            "state": "queued"
+          },
+          "materializerRollup": {
+            "lane": "unspecified",
+            "destination": "unspecified",
+            "hasPersonMetric": true
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "unspecified",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "actor_missing",
+            "event_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_delete_request_submitted",
+          "eventName": "account_delete_request_submitted",
+          "surface": "auth",
+          "actorType": "signed_in_user",
+          "identityLink": {
+            "requiredFields": [
+              "anonymousVisitorId or actorUserId",
+              "eventName",
+              "objectId when applicable"
+            ],
+            "state": "signed_in_user"
+          },
+          "consentPrivacyGate": {
+            "requirement": "consent-aware lane",
+            "consentAware": true,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "behavior_signal",
+            "routeApi": "/api/analytics/ingest, /api/analytics/ingest-identified, server trackServerEvent for canonical outcomes",
+            "persistenceDestination": "analytics_guest_batches, analytics_event_facts, behavioral_timeline_facts",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "behavioral intelligence materializers, recommendation ranker inputs, admin event mix",
+            "destination": "behavioral intelligence materializers, recommendation ranker inputs, admin event mix",
+            "hasPersonMetric": true
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        },
+        {
+          "id": "dependency-path:account_settings_surface_action_attempted",
+          "eventName": "account_settings_surface_action_attempted",
+          "surface": "account_settings",
+          "actorType": "unknown",
+          "identityLink": {
+            "requiredFields": [],
+            "state": "unknown"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "source_only"
+          },
+          "ingestionPath": {
+            "laneId": "unmapped",
+            "routeApi": "unmapped",
+            "persistenceDestination": "unmapped",
+            "state": "queued"
+          },
+          "materializerRollup": {
+            "lane": "unspecified",
+            "destination": "unspecified",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "unspecified",
+            "debugLaneConnected": false
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "actor_missing",
+            "debug_lane_missing",
+            "event_missing",
+            "materializer_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_settings_surface_action_failed",
+          "eventName": "account_settings_surface_action_failed",
+          "surface": "account_settings",
+          "actorType": "unknown",
+          "identityLink": {
+            "requiredFields": [],
+            "state": "unknown"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "source_only"
+          },
+          "ingestionPath": {
+            "laneId": "unmapped",
+            "routeApi": "unmapped",
+            "persistenceDestination": "unmapped",
+            "state": "queued"
+          },
+          "materializerRollup": {
+            "lane": "unspecified",
+            "destination": "unspecified",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "unspecified",
+            "debugLaneConnected": false
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "actor_missing",
+            "debug_lane_missing",
+            "event_missing",
+            "materializer_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_settings_surface_action_succeeded",
+          "eventName": "account_settings_surface_action_succeeded",
+          "surface": "account_settings",
+          "actorType": "unknown",
+          "identityLink": {
+            "requiredFields": [],
+            "state": "unknown"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "source_only"
+          },
+          "ingestionPath": {
+            "laneId": "unmapped",
+            "routeApi": "unmapped",
+            "persistenceDestination": "unmapped",
+            "state": "queued"
+          },
+          "materializerRollup": {
+            "lane": "unspecified",
+            "destination": "unspecified",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "unspecified",
+            "debugLaneConnected": false
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "actor_missing",
+            "debug_lane_missing",
+            "event_missing",
+            "materializer_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_settings_surface_degraded_viewed",
+          "eventName": "account_settings_surface_degraded_viewed",
+          "surface": "account_settings",
+          "actorType": "signed_in_user",
+          "identityLink": {
+            "requiredFields": [
+              "sessionId",
+              "anonymousVisitorId or actorUserId",
+              "route"
+            ],
+            "state": "signed_in_user"
+          },
+          "consentPrivacyGate": {
+            "requirement": "consent-aware lane",
+            "consentAware": true,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "page_view",
+            "routeApi": "/api/analytics/ingest for anonymous batches; /api/analytics/ingest-identified for authenticated events",
+            "persistenceDestination": "analytics_guest_batches, analytics_sessions, analytics_event_facts",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+            "destination": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Analytics hot-cache/snapshots, Admin Debug telemetry evidence, public beta analytics evidence",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "consent_blocked",
+            "materializer_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_settings_surface_empty_viewed",
+          "eventName": "account_settings_surface_empty_viewed",
+          "surface": "account_settings",
+          "actorType": "signed_in_user",
+          "identityLink": {
+            "requiredFields": [
+              "sessionId",
+              "anonymousVisitorId or actorUserId",
+              "route"
+            ],
+            "state": "signed_in_user"
+          },
+          "consentPrivacyGate": {
+            "requirement": "consent-aware lane",
+            "consentAware": true,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "page_view",
+            "routeApi": "/api/analytics/ingest for anonymous batches; /api/analytics/ingest-identified for authenticated events",
+            "persistenceDestination": "analytics_guest_batches, analytics_sessions, analytics_event_facts",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+            "destination": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Analytics hot-cache/snapshots, Admin Debug telemetry evidence, public beta analytics evidence",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "consent_blocked",
+            "materializer_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_settings_surface_error_viewed",
+          "eventName": "account_settings_surface_error_viewed",
+          "surface": "account_settings",
+          "actorType": "signed_in_user",
+          "identityLink": {
+            "requiredFields": [
+              "sessionId",
+              "anonymousVisitorId or actorUserId",
+              "route"
+            ],
+            "state": "signed_in_user"
+          },
+          "consentPrivacyGate": {
+            "requirement": "consent-aware lane",
+            "consentAware": true,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "page_view",
+            "routeApi": "/api/analytics/ingest for anonymous batches; /api/analytics/ingest-identified for authenticated events",
+            "persistenceDestination": "analytics_guest_batches, analytics_sessions, analytics_event_facts",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+            "destination": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Analytics hot-cache/snapshots, Admin Debug telemetry evidence, public beta analytics evidence",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "consent_blocked",
+            "materializer_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_settings_surface_loaded",
+          "eventName": "account_settings_surface_loaded",
+          "surface": "account_settings",
+          "actorType": "unknown",
+          "identityLink": {
+            "requiredFields": [],
+            "state": "unknown"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "source_only"
+          },
+          "ingestionPath": {
+            "laneId": "unmapped",
+            "routeApi": "unmapped",
+            "persistenceDestination": "unmapped",
+            "state": "queued"
+          },
+          "materializerRollup": {
+            "lane": "unspecified",
+            "destination": "unspecified",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "unspecified",
+            "debugLaneConnected": false
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "actor_missing",
+            "debug_lane_missing",
+            "event_missing",
+            "materializer_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_settings_surface_not_configured_viewed",
+          "eventName": "account_settings_surface_not_configured_viewed",
+          "surface": "account_settings",
+          "actorType": "signed_in_user",
+          "identityLink": {
+            "requiredFields": [
+              "sessionId",
+              "anonymousVisitorId or actorUserId",
+              "route"
+            ],
+            "state": "signed_in_user"
+          },
+          "consentPrivacyGate": {
+            "requirement": "consent-aware lane",
+            "consentAware": true,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "page_view",
+            "routeApi": "/api/analytics/ingest for anonymous batches; /api/analytics/ingest-identified for authenticated events",
+            "persistenceDestination": "analytics_guest_batches, analytics_sessions, analytics_event_facts",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+            "destination": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Analytics hot-cache/snapshots, Admin Debug telemetry evidence, public beta analytics evidence",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "consent_blocked",
+            "materializer_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_settings_surface_permission_denied",
+          "eventName": "account_settings_surface_permission_denied",
+          "surface": "account_settings",
+          "actorType": "unknown",
+          "identityLink": {
+            "requiredFields": [],
+            "state": "unknown"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "source_only"
+          },
+          "ingestionPath": {
+            "laneId": "unmapped",
+            "routeApi": "unmapped",
+            "persistenceDestination": "unmapped",
+            "state": "queued"
+          },
+          "materializerRollup": {
+            "lane": "unspecified",
+            "destination": "unspecified",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "unspecified",
+            "debugLaneConnected": false
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "actor_missing",
+            "debug_lane_missing",
+            "event_missing",
+            "materializer_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:account_settings_surface_viewed",
+          "eventName": "account_settings_surface_viewed",
+          "surface": "account_settings",
+          "actorType": "signed_in_user",
+          "identityLink": {
+            "requiredFields": [
+              "sessionId",
+              "anonymousVisitorId or actorUserId",
+              "route"
+            ],
+            "state": "signed_in_user"
+          },
+          "consentPrivacyGate": {
+            "requirement": "consent-aware lane",
+            "consentAware": true,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "page_view",
+            "routeApi": "/api/analytics/ingest for anonymous batches; /api/analytics/ingest-identified for authenticated events",
+            "persistenceDestination": "analytics_guest_batches, analytics_sessions, analytics_event_facts",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+            "destination": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Analytics hot-cache/snapshots, Admin Debug telemetry evidence, public beta analytics evidence",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": [
+            "consent_blocked",
+            "materializer_missing"
+          ]
+        },
+        {
+          "id": "dependency-path:admin_action_performed",
+          "eventName": "admin_action_performed",
+          "surface": "admin",
+          "actorType": "admin_or_system",
+          "identityLink": {
+            "requiredFields": [
+              "actorAdminId or actorType=system",
+              "sourceTruth",
+              "route or job id"
+            ],
+            "state": "admin_or_system"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "admin_evidence",
+            "routeApi": "Admin/server routes using trackServerEvent and admin evidence validators",
+            "persistenceDestination": "analytics_event_facts, debug evidence artifacts, admin metric snapshots",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "destination": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        },
+        {
+          "id": "dependency-path:admin_ai_cover_generate_failed",
+          "eventName": "admin_ai_cover_generate_failed",
+          "surface": "admin",
+          "actorType": "admin_or_system",
+          "identityLink": {
+            "requiredFields": [
+              "actorAdminId or actorType=system",
+              "sourceTruth",
+              "route or job id"
+            ],
+            "state": "admin_or_system"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "admin_evidence",
+            "routeApi": "Admin/server routes using trackServerEvent and admin evidence validators",
+            "persistenceDestination": "analytics_event_facts, debug evidence artifacts, admin metric snapshots",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "destination": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        },
+        {
+          "id": "dependency-path:admin_ai_cover_generate_succeeded",
+          "eventName": "admin_ai_cover_generate_succeeded",
+          "surface": "admin",
+          "actorType": "admin_or_system",
+          "identityLink": {
+            "requiredFields": [
+              "actorAdminId or actorType=system",
+              "sourceTruth",
+              "route or job id"
+            ],
+            "state": "admin_or_system"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "admin_evidence",
+            "routeApi": "Admin/server routes using trackServerEvent and admin evidence validators",
+            "persistenceDestination": "analytics_event_facts, debug evidence artifacts, admin metric snapshots",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "destination": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        },
+        {
+          "id": "dependency-path:admin_ai_cover_generation_accepted",
+          "eventName": "admin_ai_cover_generation_accepted",
+          "surface": "admin",
+          "actorType": "admin_or_system",
+          "identityLink": {
+            "requiredFields": [
+              "actorAdminId or actorType=system",
+              "sourceTruth",
+              "route or job id"
+            ],
+            "state": "admin_or_system"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "admin_evidence",
+            "routeApi": "Admin/server routes using trackServerEvent and admin evidence validators",
+            "persistenceDestination": "analytics_event_facts, debug evidence artifacts, admin metric snapshots",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "destination": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        },
+        {
+          "id": "dependency-path:admin_ai_cover_generation_disliked",
+          "eventName": "admin_ai_cover_generation_disliked",
+          "surface": "admin",
+          "actorType": "admin_or_system",
+          "identityLink": {
+            "requiredFields": [
+              "actorAdminId or actorType=system",
+              "sourceTruth",
+              "route or job id"
+            ],
+            "state": "admin_or_system"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "admin_evidence",
+            "routeApi": "Admin/server routes using trackServerEvent and admin evidence validators",
+            "persistenceDestination": "analytics_event_facts, debug evidence artifacts, admin metric snapshots",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "destination": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        },
+        {
+          "id": "dependency-path:admin_ai_cover_generation_liked",
+          "eventName": "admin_ai_cover_generation_liked",
+          "surface": "admin",
+          "actorType": "admin_or_system",
+          "identityLink": {
+            "requiredFields": [
+              "actorAdminId or actorType=system",
+              "sourceTruth",
+              "route or job id"
+            ],
+            "state": "admin_or_system"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "admin_evidence",
+            "routeApi": "Admin/server routes using trackServerEvent and admin evidence validators",
+            "persistenceDestination": "analytics_event_facts, debug evidence artifacts, admin metric snapshots",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "destination": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        },
+        {
+          "id": "dependency-path:admin_ai_cover_history_cleared",
+          "eventName": "admin_ai_cover_history_cleared",
+          "surface": "admin",
+          "actorType": "admin_or_system",
+          "identityLink": {
+            "requiredFields": [
+              "actorAdminId or actorType=system",
+              "sourceTruth",
+              "route or job id"
+            ],
+            "state": "admin_or_system"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "admin_evidence",
+            "routeApi": "Admin/server routes using trackServerEvent and admin evidence validators",
+            "persistenceDestination": "analytics_event_facts, debug evidence artifacts, admin metric snapshots",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "destination": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        },
+        {
+          "id": "dependency-path:admin_ai_cover_toggle_updated",
+          "eventName": "admin_ai_cover_toggle_updated",
+          "surface": "admin",
+          "actorType": "admin_or_system",
+          "identityLink": {
+            "requiredFields": [
+              "actorAdminId or actorType=system",
+              "sourceTruth",
+              "route or job id"
+            ],
+            "state": "admin_or_system"
+          },
+          "consentPrivacyGate": {
+            "requirement": "unspecified",
+            "consentAware": false,
+            "privacyClass": "first_party_product_truth"
+          },
+          "ingestionPath": {
+            "laneId": "admin_evidence",
+            "routeApi": "Admin/server routes using trackServerEvent and admin evidence validators",
+            "persistenceDestination": "analytics_event_facts, debug evidence artifacts, admin metric snapshots",
+            "state": "persisted"
+          },
+          "materializerRollup": {
+            "lane": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "destination": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+            "hasPersonMetric": false
+          },
+          "debugAdminDisplay": {
+            "visibility": "unspecified",
+            "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+            "debugLaneConnected": true
+          },
+          "evidenceStatus": {
+            "sourceOnly": true,
+            "runtimeProven": false,
+            "externalProviderProven": false
+          },
+          "gapClassifications": []
+        }
+      ]
+    }
+  },
+  "edges": {
+    "count": 4106,
+    "byKind": {
+      "emits": 1690,
+      "materializes": 1017,
+      "aliases_to": 378,
+      "ingests": 1,
+      "hydrates": 138,
+      "validates": 96,
+      "diagnoses": 655,
+      "stale_after": 131
+    },
+    "examples": [
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_cancelled",
+        "to": "catalog:account_delete_cancelled",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_cancelled",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_cancelled",
+        "to": "catalog:account_delete_cancelled",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_cancelled",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_clicked",
+        "to": "catalog:account_delete_clicked",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_clicked",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__lib__analytics__event-liveness-engine-ts-eventname_assignment-account_delete_clicked",
+        "to": "catalog:account_delete_clicked",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__analytics__event-liveness-engine-ts-eventname_assignment-account_delete_clicked",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_clicked",
+        "to": "catalog:account_delete_clicked",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_clicked",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__lib__testing__telemetry-trigger-test-matrix-ts-eventname_assignment-account_delete_clicked",
+        "to": "catalog:account_delete_clicked",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__testing__telemetry-trigger-test-matrix-ts-eventname_assignment-account_delete_clicked",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_completed",
+        "to": "catalog:account_delete_completed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_completed",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_completed",
+        "to": "catalog:account_delete_completed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_completed",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_confirm_opened",
+        "to": "catalog:account_delete_confirm_opened",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_confirm_opened",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_confirm_opened",
+        "to": "catalog:account_delete_confirm_opened",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_confirm_opened",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_confirmed",
+        "to": "catalog:account_delete_confirmed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_confirmed",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_confirmed",
+        "to": "catalog:account_delete_confirmed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_confirmed",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:tests__unit__event-liveness-audit-spec-ts-eventname_assignment-account_delete_confirmed",
+        "to": "catalog:account_delete_confirmed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:tests__unit__event-liveness-audit-spec-ts-eventname_assignment-account_delete_confirmed",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_failed",
+        "to": "catalog:account_delete_failed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_failed",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_failed",
+        "to": "catalog:account_delete_failed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_failed",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_failed",
+        "to": "catalog:account_delete_failed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_failed",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_failed",
+        "to": "catalog:account_delete_failed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_failed",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_request_submitted",
+        "to": "catalog:account_delete_request_submitted",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__app__dashboard__profile__hooks__useprofilestate-tsx-trackevent_literal-account_delete_request_submitted",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_request_submitted",
+        "to": "catalog:account_delete_request_submitted",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-account_delete_request_submitted",
+        "to": "person-metric:support_account_actions",
+        "kind": "materializes",
+        "evidenceKind": "source",
+        "confidence": "medium"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_action_performed",
+        "to": "catalog:admin_action_performed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_generate_failed",
+        "to": "catalog:admin_ai_cover_generate_failed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_generate_succeeded",
+        "to": "catalog:admin_ai_cover_generate_succeeded",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_generation_accepted",
+        "to": "catalog:admin_ai_cover_generation_accepted",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_generation_disliked",
+        "to": "catalog:admin_ai_cover_generation_disliked",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_generation_liked",
+        "to": "catalog:admin_ai_cover_generation_liked",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__components__admin__aidropcovergeneratorpanel-tsx-trackevent_literal-admin_ai_cover_history_cleared",
+        "to": "catalog:admin_ai_cover_history_cleared",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_history_cleared",
+        "to": "catalog:admin_ai_cover_history_cleared",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_cover_toggle_updated",
+        "to": "catalog:admin_ai_cover_toggle_updated",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_description_generate_failed",
+        "to": "catalog:admin_ai_description_generate_failed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_description_generate_succeeded",
+        "to": "catalog:admin_ai_description_generate_succeeded",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_description_generation_accepted",
+        "to": "catalog:admin_ai_description_generation_accepted",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_description_generation_disliked",
+        "to": "catalog:admin_ai_description_generation_disliked",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_description_generation_liked",
+        "to": "catalog:admin_ai_description_generation_liked",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__components__admin__aidropdescriptiongeneratorpanel-tsx-trackevent_literal-admin_ai_description_history_cleared",
+        "to": "catalog:admin_ai_description_history_cleared",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_description_history_cleared",
+        "to": "catalog:admin_ai_description_history_cleared",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_description_prompt_policy_updated",
+        "to": "catalog:admin_ai_description_prompt_policy_updated",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_description_toggle_updated",
+        "to": "catalog:admin_ai_description_toggle_updated",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_ai_viewed",
+        "to": "catalog:admin_ai_viewed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:src__lib__telemetry-catalog-ts-eventname_assignment-admin_analytics_viewed",
+        "to": "catalog:admin_analytics_viewed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:tests__unit__analytics-event-contract-spec-ts-eventname_assignment-admin_analytics_viewed",
+        "to": "catalog:admin_analytics_viewed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      },
+      {
+        "from": "emitter:tests__unit__normalize-runtime-fact-actor-classification-spec-ts-eventname_assignment-admin_analytics_viewed",
+        "to": "catalog:admin_analytics_viewed",
+        "kind": "emits",
+        "evidenceKind": "source",
+        "confidence": "high"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "finding:uncataloged-creator_broadcast_cta_clicked-src__lib__analytics__event-liveness-engine-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: creator_broadcast_cta_clicked",
+      "affectedFiles": [
+        "src/lib/analytics/event-liveness-engine.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-creator_revenue_accrued-scripts__agent__validate-recovery-timeline-spine-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: creator_revenue_accrued",
+      "affectedFiles": [
+        "scripts/agent/validate-recovery-timeline-spine.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-drop_opened-scripts__agent__validate-count-deduplication-normalization-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: drop_opened",
+      "affectedFiles": [
+        "scripts/agent/validate-count-deduplication-normalization.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-drop_opened-scripts__agent__validate-drop-watch-unlock-math-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: drop_opened",
+      "affectedFiles": [
+        "scripts/agent/validate-drop-watch-unlock-math.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-drop_opened-scripts__agent__validate-privacy-behavior-legacy-recovery-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: drop_opened",
+      "affectedFiles": [
+        "scripts/agent/validate-privacy-behavior-legacy-recovery.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-drop_opened-tests__unit__drop-watch-unlock-math-spec-ts",
+      "classification": "disconnected_emitter",
+      "risk": "low",
+      "title": "Emitted telemetry event is not cataloged: drop_opened",
+      "affectedFiles": [
+        "tests/unit/drop-watch-unlock-math.spec.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-gumdrops_purchased-scripts__agent__validate-global-user-counting-math-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: gumdrops_purchased",
+      "affectedFiles": [
+        "scripts/agent/validate-global-user-counting-math.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-gumdrops_purchased-scripts__agent__validate-global-user-counting-math-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: gumdrops_purchased",
+      "affectedFiles": [
+        "scripts/agent/validate-global-user-counting-math.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-gumdrops_purchased-tests__unit__global-user-counting-math-spec-ts",
+      "classification": "disconnected_emitter",
+      "risk": "low",
+      "title": "Emitted telemetry event is not cataloged: gumdrops_purchased",
+      "affectedFiles": [
+        "tests/unit/global-user-counting-math.spec.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-home_viewed-src__lib__testing__canonical-test-factories-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: home_viewed",
+      "affectedFiles": [
+        "src/lib/testing/canonical-test-factories.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-home_viewed-src__lib__testing__canonical-test-factories-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: home_viewed",
+      "affectedFiles": [
+        "src/lib/testing/canonical-test-factories.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-home_viewed-src__lib__testing__canonical-test-factories-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: home_viewed",
+      "affectedFiles": [
+        "src/lib/testing/canonical-test-factories.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-hover_event-scripts__agent__validate-user-journey-behavioral-intelligence-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: hover_event",
+      "affectedFiles": [
+        "scripts/agent/validate-user-journey-behavioral-intelligence.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-hover_event-tests__unit__user-journey-behavioral-intelligence-spec-ts",
+      "classification": "disconnected_emitter",
+      "risk": "low",
+      "title": "Emitted telemetry event is not cataloged: hover_event",
+      "affectedFiles": [
+        "tests/unit/user-journey-behavioral-intelligence.spec.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-kandydrops-privacy-updated-src__lib__privacy__consent-tracking-contract-ts",
+      "classification": "disconnected_emitter",
+      "risk": "medium",
+      "title": "Emitted telemetry event is not cataloged: kandydrops-privacy-updated",
+      "affectedFiles": [
+        "src/lib/privacy/consent-tracking-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-known_event-tests__unit__telemetry-spec-ts",
+      "classification": "disconnected_emitter",
+      "risk": "low",
+      "title": "Emitted telemetry event is not cataloged: known_event",
+      "affectedFiles": [
+        "tests/unit/telemetry.spec.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-known_event-tests__unit__telemetry-spec-ts",
+      "classification": "disconnected_emitter",
+      "risk": "low",
+      "title": "Emitted telemetry event is not cataloged: known_event",
+      "affectedFiles": [
+        "tests/unit/telemetry.spec.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-known_event-tests__unit__telemetry-spec-ts",
+      "classification": "disconnected_emitter",
+      "risk": "low",
+      "title": "Emitted telemetry event is not cataloged: known_event",
+      "affectedFiles": [
+        "tests/unit/telemetry.spec.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-known_event-tests__unit__telemetry-spec-ts",
+      "classification": "disconnected_emitter",
+      "risk": "low",
+      "title": "Emitted telemetry event is not cataloged: known_event",
+      "affectedFiles": [
+        "tests/unit/telemetry.spec.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:uncataloged-known_event-tests__unit__telemetry-spec-ts",
+      "classification": "disconnected_emitter",
+      "risk": "low",
+      "title": "Emitted telemetry event is not cataloged: known_event",
+      "affectedFiles": [
+        "tests/unit/telemetry.spec.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this is test-only, legacy recovery, or should be added through the canonical telemetry catalog owner.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:diagnostics-only-admin_ui_error-src__components__adminerrorcatcher-tsx",
+      "classification": "false_positive_manual_review",
+      "risk": "low",
+      "title": "Diagnostics-only telemetry event is explicitly owned outside active analytics facts: admin_ui_error",
+      "affectedFiles": [
+        "src/components/AdminErrorCatcher.tsx",
+        "src/app/api/analytics/ingest-identified/route.ts",
+        "tests/unit/analytics-ingest-identified-route.spec.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Keep this event out of the active telemetry catalog unless the diagnostics-only ingest contract intentionally changes.",
+      "minimalVerification": [
+        "npm run agent:test -- tests/unit/analytics-ingest-identified-route.spec.ts"
+      ]
+    },
+    {
+      "id": "finding:diagnostics-only-admin_ui_error-tests__unit__analytics-ingest-identified-route-spec-ts",
+      "classification": "false_positive_manual_review",
+      "risk": "low",
+      "title": "Diagnostics-only telemetry event is explicitly owned outside active analytics facts: admin_ui_error",
+      "affectedFiles": [
+        "tests/unit/analytics-ingest-identified-route.spec.ts",
+        "src/app/api/analytics/ingest-identified/route.ts",
+        "tests/unit/analytics-ingest-identified-route.spec.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Keep this event out of the active telemetry catalog unless the diagnostics-only ingest contract intentionally changes.",
+      "minimalVerification": [
+        "npm run agent:test -- tests/unit/analytics-ingest-identified-route.spec.ts"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-active_days",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: active_days",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-auth_runtime_events",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: auth_runtime_events",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-broadcasts_clicked",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: broadcasts_clicked",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-broadcasts_viewed",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: broadcasts_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-chat_actions",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: chat_actions",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-creator_drop_manager_actions",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: creator_drop_manager_actions",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-creator_profile_views",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: creator_profile_views",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-daily_task_average_duration",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: daily_task_average_duration",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-daily_task_completions",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: daily_task_completions",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-daily_task_guidance_interactions",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: daily_task_guidance_interactions",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-daily_task_reset_locked_views",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: daily_task_reset_locked_views",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-daily_task_rewards_granted",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: daily_task_rewards_granted",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-daily_task_views",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: daily_task_views",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-drop_opens",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: drop_opens",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-drop_unlocks",
+      "classification": "duplicate_intent",
+      "risk": "high",
+      "title": "Person metric consumes multiple event names: drop_unlocks",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-fan_pass_purchases",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: fan_pass_purchases",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-fan_pass_views",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: fan_pass_views",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-follows",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: follows",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-notification_interactions",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: notification_interactions",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:multi-event-metric-page_views",
+      "classification": "duplicate_intent",
+      "risk": "medium",
+      "title": "Person metric consumes multiple event names: page_views",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Verify materializers dedupe aliases and preserve missing-vs-zero state before changing emitters.",
+      "minimalVerification": [
+        "npm run check:event-translation-bridge",
+        "npm run check:count-deduplication-normalization"
+      ]
+    },
+    {
+      "id": "finding:noncanonical-call-src__components__analytics__csposthogprovider-tsx",
+      "classification": "source_only_proof_risk",
+      "risk": "medium",
+      "title": "Source file appears to call a raw telemetry provider directly.",
+      "affectedFiles": [
+        "src/components/Analytics/CSPostHogProvider.tsx"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this bypasses the canonical telemetry envelope before editing.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:noncanonical-call-src__components__corelayoutwrapper-tsx",
+      "classification": "source_only_proof_risk",
+      "risk": "medium",
+      "title": "Source file appears to call a raw telemetry provider directly.",
+      "affectedFiles": [
+        "src/components/CoreLayoutWrapper.tsx"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this bypasses the canonical telemetry envelope before editing.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:noncanonical-call-src__lib__privacy-consent-ts",
+      "classification": "source_only_proof_risk",
+      "risk": "medium",
+      "title": "Source file appears to call a raw telemetry provider directly.",
+      "affectedFiles": [
+        "src/lib/privacy-consent.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this bypasses the canonical telemetry envelope before editing.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:noncanonical-call-src__lib__telemetry-ts",
+      "classification": "source_only_proof_risk",
+      "risk": "medium",
+      "title": "Source file appears to call a raw telemetry provider directly.",
+      "affectedFiles": [
+        "src/lib/telemetry.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this bypasses the canonical telemetry envelope before editing.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:noncanonical-call-src__types__gtag-d-ts",
+      "classification": "source_only_proof_risk",
+      "risk": "medium",
+      "title": "Source file appears to call a raw telemetry provider directly.",
+      "affectedFiles": [
+        "src/types/gtag.d.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Confirm whether this bypasses the canonical telemetry envelope before editing.",
+      "minimalVerification": [
+        "npm run check:telemetry"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-auth_google_sign_in_attempted",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: auth_google_sign_in_attempted",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-auth_google_sign_in_success",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: auth_google_sign_in_success",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-auth_password_reset_failed",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: auth_password_reset_failed",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-auth_password_reset_requested",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: auth_password_reset_requested",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-auth_profile_bootstrap_completed",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: auth_profile_bootstrap_completed",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-auth_profile_bootstrap_started",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: auth_profile_bootstrap_started",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-auth_sign_up_attempted",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: auth_sign_up_attempted",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-auth_sign_up_failed",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: auth_sign_up_failed",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-auth_surface_viewed",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: auth_surface_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-chat_read_marked",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: chat_read_marked",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-chat_surface_viewed",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: chat_surface_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-chat_thread_list_loaded",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: chat_thread_list_loaded",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-chat_unread_updated",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: chat_unread_updated",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-creator_broadcast_opened",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: creator_broadcast_opened",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-creator_fan_pass_viewed",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: creator_fan_pass_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-creator_media_sent",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: creator_media_sent",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-creator_monetization_setting_changed",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: creator_monetization_setting_changed",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-creator_monetization_settings_viewed",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: creator_monetization_settings_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-creator_monetization_user_surface_applied",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: creator_monetization_user_surface_applied",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:metric-event-without-validator-creator_settings_control_plane_saved",
+      "classification": "missing_admin_debug_consumer",
+      "risk": "low",
+      "title": "Metric event has no direct validator reference in scanned tests: creator_settings_control_plane_saved",
+      "affectedFiles": [
+        "src/lib/analytics/person-metrics-contract.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Use as a test-coverage hint only; dynamic validator coverage may exist.",
+      "minimalVerification": [
+        "npm run agent:verify -- --paths=src/lib/analytics/person-metrics-contract.ts"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__admin-analytics-debug-cost-reduction-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/admin-analytics-debug-cost-reduction.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__admin-analytics-finalization-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/admin-analytics-finalization.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__admin-analytics-monolith-cleanup-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/admin-analytics-monolith-cleanup.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__admin-analytics-realtime-dependency-audit-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/admin-analytics-realtime-dependency-audit.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__admin-analytics-realtime-hot-cache-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/admin-analytics-realtime-hot-cache.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__admin-analytics-source-hierarchy-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/admin-analytics-source-hierarchy.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__advanced-telemetry-parity-ui-cleanup-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/advanced-telemetry-parity-ui-cleanup.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__ai-debug-budget-guard-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/ai-debug-budget-guard.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__ai-debug-critic-review-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/ai-debug-critic-review.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__ai-debug-critic-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/ai-debug-critic.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__ai-debug-planner-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/ai-debug-planner.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__ai-debug-queue-truth-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/ai-debug-queue-truth.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__ai-debug-workbench-ui-model-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/ai-debug-workbench-ui-model.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__analytics-cadence-cost-policy-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/analytics-cadence-cost-policy.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__analytics-cost-hot-path-reduction-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/analytics-cost-hot-path-reduction.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__analytics-cost-runtime-inventory-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/analytics-cost-runtime-inventory.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__analytics-ecosystem-parity-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/analytics-ecosystem-parity.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__analytics-hot-path-cost-reduction-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/analytics-hot-path-cost-reduction.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__analytics-hydration-consolidation-audit-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/analytics-hydration-consolidation-audit.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:stale-report-agent__state__analytics-hydration-consolidation-generated-json",
+      "classification": "stale_generated_evidence",
+      "risk": "low",
+      "title": "Generated telemetry/analytics evidence predates touched source inventory.",
+      "affectedFiles": [
+        "agent/state/analytics-hydration-consolidation.generated.json"
+      ],
+      "evidenceKind": "generated_snapshot",
+      "recommendedNextAction": "Refresh only when the current task consumes this report.",
+      "minimalVerification": [
+        "npm run check:agent-context"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-actor_missing-account_delete_cancelled",
+      "classification": "actor_missing",
+      "risk": "low",
+      "title": "Telemetry dependency path has actor_missing: account_delete_cancelled",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-event_missing-account_delete_cancelled",
+      "classification": "event_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has event_missing: account_delete_cancelled",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-actor_missing-account_delete_completed",
+      "classification": "actor_missing",
+      "risk": "low",
+      "title": "Telemetry dependency path has actor_missing: account_delete_completed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-event_missing-account_delete_completed",
+      "classification": "event_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has event_missing: account_delete_completed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-actor_missing-account_delete_confirmed",
+      "classification": "actor_missing",
+      "risk": "low",
+      "title": "Telemetry dependency path has actor_missing: account_delete_confirmed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-event_missing-account_delete_confirmed",
+      "classification": "event_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has event_missing: account_delete_confirmed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-actor_missing-account_delete_failed",
+      "classification": "actor_missing",
+      "risk": "low",
+      "title": "Telemetry dependency path has actor_missing: account_delete_failed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-event_missing-account_delete_failed",
+      "classification": "event_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has event_missing: account_delete_failed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-actor_missing-account_settings_surface_action_attempted",
+      "classification": "actor_missing",
+      "risk": "low",
+      "title": "Telemetry dependency path has actor_missing: account_settings_surface_action_attempted",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-debug_lane_missing-account_settings_surface_action_attempted",
+      "classification": "debug_lane_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has debug_lane_missing: account_settings_surface_action_attempted",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-event_missing-account_settings_surface_action_attempted",
+      "classification": "event_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has event_missing: account_settings_surface_action_attempted",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-materializer_missing-account_settings_surface_action_attempted",
+      "classification": "materializer_missing",
+      "risk": "high",
+      "title": "Telemetry dependency path has materializer_missing: account_settings_surface_action_attempted",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-actor_missing-account_settings_surface_action_failed",
+      "classification": "actor_missing",
+      "risk": "low",
+      "title": "Telemetry dependency path has actor_missing: account_settings_surface_action_failed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-debug_lane_missing-account_settings_surface_action_failed",
+      "classification": "debug_lane_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has debug_lane_missing: account_settings_surface_action_failed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-event_missing-account_settings_surface_action_failed",
+      "classification": "event_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has event_missing: account_settings_surface_action_failed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-materializer_missing-account_settings_surface_action_failed",
+      "classification": "materializer_missing",
+      "risk": "high",
+      "title": "Telemetry dependency path has materializer_missing: account_settings_surface_action_failed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-actor_missing-account_settings_surface_action_succeeded",
+      "classification": "actor_missing",
+      "risk": "low",
+      "title": "Telemetry dependency path has actor_missing: account_settings_surface_action_succeeded",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-debug_lane_missing-account_settings_surface_action_succeeded",
+      "classification": "debug_lane_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has debug_lane_missing: account_settings_surface_action_succeeded",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-event_missing-account_settings_surface_action_succeeded",
+      "classification": "event_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has event_missing: account_settings_surface_action_succeeded",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-materializer_missing-account_settings_surface_action_succeeded",
+      "classification": "materializer_missing",
+      "risk": "high",
+      "title": "Telemetry dependency path has materializer_missing: account_settings_surface_action_succeeded",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-consent_blocked-account_settings_surface_degraded_viewed",
+      "classification": "consent_blocked",
+      "risk": "low",
+      "title": "Telemetry dependency path has consent_blocked: account_settings_surface_degraded_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-materializer_missing-account_settings_surface_degraded_viewed",
+      "classification": "materializer_missing",
+      "risk": "high",
+      "title": "Telemetry dependency path has materializer_missing: account_settings_surface_degraded_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-consent_blocked-account_settings_surface_empty_viewed",
+      "classification": "consent_blocked",
+      "risk": "low",
+      "title": "Telemetry dependency path has consent_blocked: account_settings_surface_empty_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-materializer_missing-account_settings_surface_empty_viewed",
+      "classification": "materializer_missing",
+      "risk": "high",
+      "title": "Telemetry dependency path has materializer_missing: account_settings_surface_empty_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-consent_blocked-account_settings_surface_error_viewed",
+      "classification": "consent_blocked",
+      "risk": "low",
+      "title": "Telemetry dependency path has consent_blocked: account_settings_surface_error_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-materializer_missing-account_settings_surface_error_viewed",
+      "classification": "materializer_missing",
+      "risk": "high",
+      "title": "Telemetry dependency path has materializer_missing: account_settings_surface_error_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-actor_missing-account_settings_surface_loaded",
+      "classification": "actor_missing",
+      "risk": "low",
+      "title": "Telemetry dependency path has actor_missing: account_settings_surface_loaded",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-debug_lane_missing-account_settings_surface_loaded",
+      "classification": "debug_lane_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has debug_lane_missing: account_settings_surface_loaded",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-event_missing-account_settings_surface_loaded",
+      "classification": "event_missing",
+      "risk": "medium",
+      "title": "Telemetry dependency path has event_missing: account_settings_surface_loaded",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-materializer_missing-account_settings_surface_loaded",
+      "classification": "materializer_missing",
+      "risk": "high",
+      "title": "Telemetry dependency path has materializer_missing: account_settings_surface_loaded",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-consent_blocked-account_settings_surface_not_configured_viewed",
+      "classification": "consent_blocked",
+      "risk": "low",
+      "title": "Telemetry dependency path has consent_blocked: account_settings_surface_not_configured_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-materializer_missing-account_settings_surface_not_configured_viewed",
+      "classification": "materializer_missing",
+      "risk": "high",
+      "title": "Telemetry dependency path has materializer_missing: account_settings_surface_not_configured_viewed",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    },
+    {
+      "id": "finding:dependency-gap-actor_missing-account_settings_surface_permission_denied",
+      "classification": "actor_missing",
+      "risk": "low",
+      "title": "Telemetry dependency path has actor_missing: account_settings_surface_permission_denied",
+      "affectedFiles": [
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "evidenceKind": "source",
+      "recommendedNextAction": "Inspect the canonical telemetry dependency lane before changing emitters or materializers.",
+      "minimalVerification": [
+        "npm run check:telemetry-dependency-graph"
+      ]
+    }
+  ]
+}
