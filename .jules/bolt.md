@@ -25,3 +25,7 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2026-06-10 - Array filter mapping inside React components
+**Learning:** React component renders containing nested arrays or iterative loops over objects should avoid `.includes` inside `.filter()`. Found instances where an array was `.filter((item) => incompleteItems.includes(item.id))` where `incompleteItems` was another array evaluated inside the render loop. This creates an O(N*M) check.
+**Action:** Replace indirect lookup checks with direct boolean or object properties where available (e.g. `.filter((item) => !item.complete)`).

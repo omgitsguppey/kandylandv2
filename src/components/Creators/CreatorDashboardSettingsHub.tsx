@@ -854,7 +854,7 @@ export function CreatorDashboardSettingsHub() {
             <p className="mt-0.5 text-amber-100/85">{sourceReviewNotice.body}</p>
             {settingsCompletion?.missingSetupItems?.length ? (
               <p className="mt-1 text-amber-100/80" data-creator-settings-setup-control-map="true">
-                Setup controls: {settingsCompletion.items.filter((item) => settingsCompletion.missingSetupItems.includes(item.id)).map((item) => item.label).join(", ")}.
+                Setup controls: {settingsCompletion.items.filter((item) => !item.complete).map((item) => item.label).join(", ")}.
               </p>
             ) : null}
           </div>

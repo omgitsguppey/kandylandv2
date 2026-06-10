@@ -212,41 +212,85 @@ export function explainModuleCoverage(_policy: AnalyticsModuleCoverageSourcePoli
 }
 
 export function reconcileModuleCoverageCounts(results: ModuleCoverageResult[]): ModuleCoverageSummary {
-  const required = results.filter((module) => module.requiredForBeta);
-  const optional = results.filter((module) => !module.requiredForBeta);
-  const requiredScore = required.reduce((total, module) => total + module.scoreContribution, 0);
-  const optionalScore = optional.reduce((total, module) => total + module.scoreContribution, 0);
-  const requiredGapModules = required.filter((module) => module.status !== "verified").map((module) => module.moduleId);
-  const optionalGapModules = optional.filter((module) => module.status !== "verified").map((module) => module.moduleId);
-  const emptyRequired = required.filter((module) => module.status === "empty").length;
-  const partialRequired = required.filter((module) => module.status === "partial").length;
+  let requiredModules = 0;
+  let optionalModules = 0;
+  let requiredScore = 0;
+  let optionalScore = 0;
+
+  let verifiedModules = 0;
+  let partialModules = 0;
+  let emptyModules = 0;
+
+  let verifiedRequired = 0;
+  let partialRequired = 0;
+  let emptyRequired = 0;
+
+  let verifiedOptional = 0;
+  let partialOptional = 0;
+  let emptyOptional = 0;
+
+  const requiredGapModules: string[] = [];
+  const optionalGapModules: string[] = [];
+
+  let sampledModules = 0;
+  let evidenceSamples = 0;
+
+  for (const module of results) {
+    evidenceSamples += module.evidenceSamples;
+    if (module.sampleCount > 0) sampledModules++;
+
+    if (module.status === "verified") verifiedModules++;
+    else if (module.status === "partial") partialModules++;
+    else if (module.status === "empty") emptyModules++;
+
+    if (module.requiredForBeta) {
+      requiredModules++;
+      requiredScore += module.scoreContribution;
+
+      if (module.status === "verified") verifiedRequired++;
+      else if (module.status === "partial") partialRequired++;
+      else if (module.status === "empty") emptyRequired++;
+
+      if (module.status !== "verified") requiredGapModules.push(module.moduleId);
+    } else {
+      optionalModules++;
+      optionalScore += module.scoreContribution;
+
+      if (module.status === "verified") verifiedOptional++;
+      else if (module.status === "partial") partialOptional++;
+      else if (module.status === "empty") emptyOptional++;
+
+      if (module.status !== "verified") optionalGapModules.push(module.moduleId);
+    }
+  }
+
   const blockedReason = emptyRequired > 0
-    ? `module_empty:${required.filter((module) => module.status === "empty").map((module) => module.moduleId).join(",")}`
+    ? `module_empty:${results.filter((module) => module.requiredForBeta && module.status === "empty").map((module) => module.moduleId).join(",")}`
     : partialRequired > 0
-      ? `module_partial:${required.filter((module) => module.status === "partial").map((module) => module.moduleId).join(",")}`
+      ? `module_partial:${results.filter((module) => module.requiredForBeta && module.status === "partial").map((module) => module.moduleId).join(",")}`
       : undefined;
 
   return {
     totalModules: results.length,
-    requiredModules: required.length,
-    optionalModules: optional.length,
-    verifiedModules: results.filter((module) => module.status === "verified").length,
-    partialModules: results.filter((module) => module.status === "partial").length,
-    emptyModules: results.filter((module) => module.status === "empty").length,
-    verifiedRequired: required.filter((module) => module.status === "verified").length,
+    requiredModules,
+    optionalModules,
+    verifiedModules,
+    partialModules,
+    emptyModules,
+    verifiedRequired,
     partialRequired,
     emptyRequired,
-    verifiedOptional: optional.filter((module) => module.status === "verified").length,
-    partialOptional: optional.filter((module) => module.status === "partial").length,
-    emptyOptional: optional.filter((module) => module.status === "empty").length,
+    verifiedOptional,
+    partialOptional,
+    emptyOptional,
     requiredGaps: requiredGapModules.length,
     optionalGaps: optionalGapModules.length,
     requiredGapModules,
     optionalGapModules,
-    sampledModules: results.filter((module) => module.sampleCount > 0).length,
-    evidenceSamples: results.reduce((total, module) => total + module.evidenceSamples, 0),
-    parityScore: required.length > 0 ? Math.round((requiredScore / required.length) * 100) : 100,
-    optionalParityScore: optional.length > 0 ? Math.round((optionalScore / optional.length) * 100) : 100,
+    sampledModules,
+    evidenceSamples,
+    parityScore: requiredModules > 0 ? Math.round((requiredScore / requiredModules) * 100) : 100,
+    optionalParityScore: optionalModules > 0 ? Math.round((optionalScore / optionalModules) * 100) : 100,
     parityScoreFormula: "Required verified=1.0, required partial=0.5 unless a critical required source is missing then 0.35, required empty=0; optional modules are scored separately.",
     passAllowed: requiredGapModules.length === 0,
     blockedReason,
