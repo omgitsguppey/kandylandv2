@@ -18,6 +18,10 @@ export function resolveAdminMetricState(input: {
   refreshInFlight?: boolean;
   valueTruthState?: AdminSurfaceState | null;
 }): AdminMetricState {
+  if (input.hasUsableValue && input.refreshInFlight && input.transportState === "loading") {
+    return "refreshing";
+  }
+
   return resolveAdminTruthState({
     hasUsableValue: input.hasUsableValue,
     transportState: input.transportState,

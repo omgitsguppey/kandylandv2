@@ -198,15 +198,15 @@ function normalizeCachedOverview(input: {
     ttlSeconds: ADMIN_HOT_CACHE_TTL_SECONDS,
   });
   const heartbeatState = classifyAdminHeartbeatEvidence({ heartbeat: input.heartbeat, nowMs: input.nowMs });
-  const staleIssue = freshnessState === "stale"
-    ? "Admin overview hot-cache snapshot is stale; showing last cached values."
+  const refreshDueIssue = freshnessState === "refresh_due"
+    ? "Admin overview hot-cache snapshot is refresh due; showing last cached values."
     : null;
   const heartbeatIssue = heartbeatState === "heartbeat_missing" || heartbeatState === "heartbeat_failed"
     ? `Admin overview heartbeat state: ${heartbeatState}.`
     : null;
   const issues = [
     ...(rawPayload.issues ?? []),
-    ...(staleIssue ? [staleIssue] : []),
+    ...(refreshDueIssue ? [refreshDueIssue] : []),
     ...(heartbeatIssue ? [heartbeatIssue] : []),
   ];
 
@@ -243,9 +243,9 @@ function normalizeCachedOverview(input: {
     platformPulse: rawPayload.platformPulse,
     truthSnapshot: rawPayload.truthSnapshot,
     truthNotes: {
-      overview: freshnessState === "fresh"
+      overview: freshnessState === "cached"
         ? "Hourly hot-cache snapshot loaded; page load read snapshot and heartbeat docs only."
-        : "Hourly hot-cache snapshot needs review; stale values remain visible.",
+        : "Hourly hot-cache snapshot needs review; cached values remain visible.",
       platformPulse: rawPayload.truthNotes?.platformPulse ?? "Platform Pulse uses the cached rolling 30-day admin overview snapshot.",
       drops: rawPayload.truthNotes?.drops ?? "Cached from admin overview hot-cache snapshot.",
       revenue: rawPayload.truthNotes?.revenue ?? "Cached from admin overview hot-cache snapshot.",
@@ -256,11 +256,11 @@ function normalizeCachedOverview(input: {
     issues,
     overviewIssues: [
       ...(rawPayload.overviewIssues ?? []),
-      ...(staleIssue ? [{
+      ...(refreshDueIssue ? [{
         source: "analytics_cache" as const,
-        summary: staleIssue,
+        summary: refreshDueIssue,
         sourceTruth: "materialized_summary" as const,
-        freshnessState: "stale" as const,
+        freshnessState: "review" as const,
       }] : []),
       ...(heartbeatIssue ? [{
         source: "analytics_cache" as const,
@@ -274,8 +274,8 @@ function normalizeCachedOverview(input: {
       canonicalSource: "admin_overview_snapshot",
       fallbackSource: input.heartbeat ? "admin_surface_heartbeats" : null,
       freshnessTimestamp: generatedAt,
-      degradedReason: staleIssue ?? heartbeatIssue,
-      status: staleIssue || heartbeatIssue ? "stale" : "cached",
+      degradedReason: refreshDueIssue ?? heartbeatIssue,
+      status: heartbeatIssue ? "stale" : "cached",
       countComposition: {
         snapshotDocsRead: 1,
         heartbeatDocsRead: 1,

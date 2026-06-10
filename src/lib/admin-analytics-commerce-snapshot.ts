@@ -117,8 +117,12 @@ function resolveTruth(input: {
     return input.loading ? "loading" : "unavailable";
   }
 
-  if (input.error || input.response.cacheState === "stale") {
+  if (input.error) {
     return "stale";
+  }
+
+  if (input.response.cacheState === "refresh_due" || input.response.staleButVerified) {
+    return "cached";
   }
 
   return input.overviewTruthState ?? (input.response.cacheState === "fresh" ? "cached" : "live");
@@ -188,7 +192,8 @@ function scopeMatches(
 
 function freshnessFromResponse(response?: HistoricalAnalyticsResponse): CommerceMetricCard["freshnessState"] {
   if (!response) return "unknown";
-  if (response.cacheState === "stale" || response.staleButVerified) return "stale";
+  if (response.cacheState === "stale") return "stale";
+  if (response.cacheState === "refresh_due" || response.staleButVerified) return "delayed";
   if (response.cacheRevalidating) return "delayed";
   if (response.cacheState === "fresh") return "delayed";
   return "live";
@@ -197,7 +202,8 @@ function freshnessFromResponse(response?: HistoricalAnalyticsResponse): Commerce
 function snapshotCacheState(response?: HistoricalAnalyticsResponse, error?: Error): CommerceSnapshotState["cacheState"] {
   if (!response) return "unknown";
   if (error) return "stale";
-  if (response.cacheState === "stale" || response.staleButVerified) return "stale";
+  if (response.cacheState === "stale") return "stale";
+  if (response.cacheState === "refresh_due" || response.staleButVerified) return "delayed";
   if (response.cacheRevalidating || response.cacheState === "fresh") return "delayed";
   return "live";
 }
@@ -243,7 +249,7 @@ export function buildAdminAnalyticsCommerceSnapshotModel(input: {
   const { selectedRange, response, commerce, funnel, loading, error, overviewTruthState } = input;
   const hasResponse = Boolean(response);
   const truthState = resolveTruth({ response, loading, error, overviewTruthState });
-  const stale = Boolean(response && (error || response.cacheState === "stale" || response.staleButVerified));
+  const stale = Boolean(response && (error || response.cacheState === "stale"));
   const cache = Boolean(response?.cacheState && response.cacheState !== "miss");
   const flags: CommerceTruthFlags = {
     serverConfirmed: hasResponse && !error,

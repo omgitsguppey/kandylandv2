@@ -30,8 +30,9 @@ export type AdminAnalyticsSnapshotModuleKey = (typeof ADMIN_ANALYTICS_SNAPSHOT_M
 export type AdminAnalyticsMaterializerStatus =
   | "ready"
   | "existing_route_cache"
-  | "placeholder_unavailable"
-  | "deprecated_debug_only";
+  | "manual_refresh_only"
+  | "debug_drilldown_only"
+  | "retired_from_default_admin_analytics";
 
 export const ADMIN_ANALYTICS_CANONICAL_DISPLAY_AUTHORITY = "analytics_admin_metric_snapshots";
 export const ADMIN_ANALYTICS_RAW_SOURCE_USE_POLICY = "materializer_input_debug_evidence_only";
@@ -57,17 +58,20 @@ export interface AdminAnalyticsMaterializerEntry {
   parityChecksRequired: string[];
   legacySupportStatus: "none" | "directional" | "supported" | "debug_only";
   currentImplementationStatus: AdminAnalyticsMaterializerStatus;
+  defaultAdminAnalyticsCoverage: AdminAnalyticsMaterializerStatus;
+  canRunDefaultRefresh: boolean;
+  unavailableReason: string;
   refresh: (context: AdminAnalyticsMaterializerContext) => Promise<AdminMetricSnapshot>;
 }
 
-function unavailableRefresh(reason: string) {
+function unavailableRefresh(reason: string, status: AdminAnalyticsMaterializerStatus) {
   return async (context: AdminAnalyticsMaterializerContext) =>
     createUnavailableAdminMetricSnapshot({
       moduleKey: context.moduleKey,
       rangeKey: context.rangeKey,
       reason,
       sourceBreakdown: {
-        materializerStatus: "placeholder_unavailable",
+        materializerStatus: status,
         reason,
         force: context.force,
         requestedBy: context.requestedBy,
@@ -84,6 +88,9 @@ function buildEntry(input: Omit<
   | "rawSourceUse"
   | "legacySummaryUse"
   | "costSimplificationRuntimeNote"
+  | "defaultAdminAnalyticsCoverage"
+  | "canRunDefaultRefresh"
+  | "unavailableReason"
 > & {
   sourcePolicy?: MaterializerSourcePolicy;
   supportedRanges?: AdminMetricSnapshotRange[];
@@ -100,7 +107,10 @@ function buildEntry(input: Omit<
       "Compact Admin Analytics display reads analytics_admin_metric_snapshots first; raw ledgers are materializer input or Debug evidence only.",
     sourcePolicy: input.sourcePolicy ?? buildCanonicalMaterializerSourcePolicy(),
     supportedRanges: input.supportedRanges ?? [...ADMIN_METRIC_SNAPSHOT_RANGES],
-    refresh: unavailableRefresh(input.unavailableReason),
+    defaultAdminAnalyticsCoverage: input.currentImplementationStatus,
+    canRunDefaultRefresh: input.currentImplementationStatus === "ready",
+    unavailableReason: input.unavailableReason,
+    refresh: unavailableRefresh(input.unavailableReason, input.currentImplementationStatus),
   };
 }
 
@@ -128,7 +138,7 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     }),
     parityChecksRequired: ["guest estimate formula", "identified traffic subtraction", "GA4 daily parity"],
     legacySupportStatus: "directional",
-    currentImplementationStatus: "placeholder_unavailable",
+    currentImplementationStatus: "manual_refresh_only",
     unavailableReason: "Audience Snapshot source normalizer exists, but a verified persisted snapshot materializer is not wired in Phase 3.",
   }),
   buildEntry({
@@ -141,7 +151,7 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     }),
     parityChecksRequired: ["payments vs internal purchases", "promo excluded from revenue", "GA commerce drift"],
     legacySupportStatus: "supported",
-    currentImplementationStatus: "placeholder_unavailable",
+    currentImplementationStatus: "manual_refresh_only",
     unavailableReason: "Commerce Snapshot requires payment/internal parity before a verified snapshot can be written.",
   }),
   buildEntry({
@@ -167,7 +177,7 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     }),
     parityChecksRequired: ["raw event vs ordered journey", "non-sequential step detection"],
     legacySupportStatus: "directional",
-    currentImplementationStatus: "placeholder_unavailable",
+    currentImplementationStatus: "manual_refresh_only",
     unavailableReason: "Journey Funnel needs count-mode verification before snapshot values can be marked verified.",
   }),
   buildEntry({
@@ -180,7 +190,7 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     }),
     parityChecksRequired: ["attempt reconciliation", "registered users not method", "timing coverage"],
     legacySupportStatus: "directional",
-    currentImplementationStatus: "placeholder_unavailable",
+    currentImplementationStatus: "manual_refresh_only",
     unavailableReason: "Auth Outcomes requires method/source reconciliation before verified snapshots are promoted.",
   }),
   buildEntry({
@@ -193,7 +203,7 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     }),
     parityChecksRequired: ["starts vs completions", "duration bucket reconciliation", "auth signup mismatch"],
     legacySupportStatus: "supported",
-    currentImplementationStatus: "placeholder_unavailable",
+    currentImplementationStatus: "manual_refresh_only",
     unavailableReason: "Onboarding Performance has a consolidated model but no persisted snapshot writer yet.",
   }),
   buildEntry({
@@ -206,7 +216,7 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     }),
     parityChecksRequired: ["pipeline totals vs leaderboard", "reward reconciliation", "timing coverage"],
     legacySupportStatus: "supported",
-    currentImplementationStatus: "placeholder_unavailable",
+    currentImplementationStatus: "manual_refresh_only",
     unavailableReason: "Daily Task Pipeline needs task-state parity before writing verified snapshots.",
   }),
   buildEntry({
@@ -219,7 +229,7 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     }),
     parityChecksRequired: ["dedupe prevented", "read persistence", "queued drop return-live trigger"],
     legacySupportStatus: "directional",
-    currentImplementationStatus: "placeholder_unavailable",
+    currentImplementationStatus: "manual_refresh_only",
     unavailableReason: "Notification Funnel requires notification pipeline parity before verified snapshots are promoted.",
   }),
   buildEntry({
@@ -232,7 +242,7 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     }),
     parityChecksRequired: ["raw event denominator", "surface mapping hydration", "unmapped events"],
     legacySupportStatus: "directional",
-    currentImplementationStatus: "placeholder_unavailable",
+    currentImplementationStatus: "manual_refresh_only",
     unavailableReason: "Event Mix needs event-to-surface mapping parity before verified snapshots are promoted.",
   }),
   buildEntry({
@@ -246,7 +256,7 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     }),
     parityChecksRequired: ["admin exclusion", "actor classification", "duplicate task grouping"],
     legacySupportStatus: "none",
-    currentImplementationStatus: "placeholder_unavailable",
+    currentImplementationStatus: "debug_drilldown_only",
     unavailableReason: "Live Interaction Stream is intentionally realtime-adjacent and needs row-level admin exclusion parity before snapshot promotion.",
   }),
   buildEntry({
@@ -259,7 +269,7 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     }),
     parityChecksRequired: ["PASS rules", "stale validation", "module coverage"],
     legacySupportStatus: "debug_only",
-    currentImplementationStatus: "deprecated_debug_only",
+    currentImplementationStatus: "debug_drilldown_only",
     unavailableReason: "Data validation belongs in Admin Debug; Analytics may only consume a compact health summary after Debug emits one.",
   }),
 ];
@@ -274,6 +284,10 @@ export function isAdminAnalyticsSnapshotModuleKey(value: string): value is Admin
 
 export function getAdminAnalyticsMaterializer(moduleKey: string) {
   return isAdminAnalyticsSnapshotModuleKey(moduleKey) ? ADMIN_ANALYTICS_MATERIALIZER_BY_KEY[moduleKey] : null;
+}
+
+export function canRunAdminAnalyticsDefaultRefresh(materializer: AdminAnalyticsMaterializerEntry) {
+  return materializer.canRunDefaultRefresh;
 }
 
 export async function materializeAdminAnalyticsSnapshot(context: AdminAnalyticsMaterializerContext) {

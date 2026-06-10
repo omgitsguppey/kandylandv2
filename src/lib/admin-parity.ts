@@ -94,7 +94,7 @@ export function coerceAdminSurfaceState(value: unknown): AdminSurfaceState {
     return "cached";
   }
 
-  if (value === "polled") {
+  if (value === "snapshot" || value === "polled") {
     return "fallback";
   }
 

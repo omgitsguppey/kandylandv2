@@ -145,7 +145,12 @@ describe("admin metric snapshot contract", () => {
       expect(entry.supportedRanges.length).toBeGreaterThan(0);
       expect(entry.canonicalSources.length).toBeGreaterThan(0);
       expect(entry.parityChecksRequired.length).toBeGreaterThan(0);
+      expect(entry.currentImplementationStatus).not.toBe("placeholder_unavailable");
+      expect(entry.defaultAdminAnalyticsCoverage).toBe(entry.currentImplementationStatus);
     }
+
+    expect(ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.filter((entry) => entry.currentImplementationStatus === "manual_refresh_only").length).toBeGreaterThan(0);
+    expect(ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.filter((entry) => entry.currentImplementationStatus === "debug_drilldown_only").length).toBeGreaterThan(0);
 
     const snapshot = await materializeAdminAnalyticsSnapshot({
       moduleKey: "commerce_snapshot",
@@ -156,6 +161,7 @@ describe("admin metric snapshot contract", () => {
 
     expect(snapshot.truthState).toBe("unavailable");
     expect(snapshot.unavailableReason).toContain("Commerce Snapshot requires payment/internal parity");
+    expect(snapshot.sourceBreakdown.materializerStatus).toBe("manual_refresh_only");
     expect(snapshot.parity[0].fakeZeroPrevented).toBe(true);
   });
 });

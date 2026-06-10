@@ -97,4 +97,47 @@ describe("buildAdminAnalyticsCommerceSnapshotModel", () => {
     expect(confirmedZero.checkoutConversionValue).toBeNull();
     expect(confirmedZero.fakeZeroPrevented.revenue).toBe(false);
   });
+
+  it("treats refresh-due verified cache as delayed cache instead of stale truth", () => {
+    const response: HistoricalAnalyticsResponse = {
+      success: true,
+      generatedAtMs: 1_771_000_000_000,
+      cacheState: "refresh_due",
+      staleButVerified: true,
+      cacheRevalidating: true,
+      commerce: {
+        revenueUsd: 337,
+        adjustedProfitUsd: 196.28,
+        gdSpent: 84_100,
+      },
+      funnel: {
+        authModalOpens: 0,
+        authSignIns: 0,
+        authSignUps: 0,
+        previewOpens: 0,
+        viewerOpens: 0,
+        assetSwitches: 0,
+        unlocks: 0,
+        shares: 0,
+        walletOpens: 462,
+        checkoutStarts: 69,
+        purchases: 47,
+        checkIns: 0,
+        experienceViews: 0,
+      },
+    };
+
+    const model = buildAdminAnalyticsCommerceSnapshotModel({
+      selectedRange: "30d",
+      response,
+      commerce: response.commerce,
+      funnel: response.funnel,
+      loading: false,
+    });
+
+    expect(model.stale).toBe(false);
+    expect(model.cacheState).toBe("delayed");
+    expect(model.metrics.revenue.truthState).toBe("cached");
+    expect(model.commerceSnapshotState.cards[0]?.freshnessState).toBe("delayed");
+  });
 });

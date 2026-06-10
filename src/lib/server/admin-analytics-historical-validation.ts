@@ -329,9 +329,10 @@ function maxValidationTimestamp(validations: DataValidationCheck[]) {
   }, 0);
 }
 
-function normalizeCacheState(cacheState?: "miss" | "fresh" | "stale" | null): DataValidationCacheState {
+function normalizeCacheState(cacheState?: "miss" | "fresh" | "refresh_due" | "stale" | null): DataValidationCacheState {
   if (cacheState === "fresh") return "hit";
   if (cacheState === "miss") return "miss";
+  if (cacheState === "refresh_due") return "stale";
   if (cacheState === "stale") return "stale";
   return "unknown";
 }
@@ -569,7 +570,7 @@ function buildAnalyticsSourceHealth(input: {
 export function buildDataValidationPanelState(input: {
   validations?: DataValidationCheck[] | null;
   range?: string | null;
-  cacheState?: "miss" | "fresh" | "stale" | null;
+  cacheState?: "miss" | "fresh" | "refresh_due" | "stale" | null;
   lastValidatedAt?: number | null;
   generatedAtMs?: number | null;
   sourcePath?: string;
