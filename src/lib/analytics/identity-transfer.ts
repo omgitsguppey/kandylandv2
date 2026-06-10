@@ -9,7 +9,6 @@ import {
   buildIdentityTransferCountingKeys,
   createIdentityLinkStorageKey,
   hasSubmittedIdentityLink,
-  markIdentityLinkSubmitted,
   resolveIdentityTransferTelemetryState,
   shouldSubmitIdentityLink,
   type AnalyticsIdentityActorType,
@@ -30,7 +29,6 @@ export {
   buildIdentityTransferCountingKeys,
   createIdentityLinkStorageKey,
   hasSubmittedIdentityLink,
-  markIdentityLinkSubmitted,
   resolveIdentityTransferTelemetryState,
   shouldSubmitIdentityLink,
 };
