@@ -35,7 +35,7 @@ import {
     TELEMETRY_EVENT_NAMES,
 } from "@/lib/telemetry-catalog";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildAdminDebugSummaryPayload } from "@/lib/server/admin-debug/summary";
 import { buildIdentityHandoffDebugSummary } from "@/lib/server/admin-debug/identity-handoff-summary";
@@ -113,7 +113,6 @@ import { listAdminMetricSnapshotDebugMetadata } from "@/lib/server/admin-analyti
 import { ADMIN_ANALYTICS_MATERIALIZER_REGISTRY } from "@/lib/server/admin-analytics-materializers";
 import { buildAdminOverviewFallbackIdentity, buildAdminOverviewUserIdentityMap, shortenAdminOverviewUserId, type AdminOverviewUserIdentity } from "@/lib/server/admin-overview-users";
 import { readAdminUserTruthSnapshot } from "@/lib/server/admin-user-truth-snapshot";
-import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
@@ -6196,6 +6195,9 @@ export async function GET(request: NextRequest) {
                         label: entry.label,
                         supportedRanges: entry.supportedRanges,
                         currentImplementationStatus: entry.currentImplementationStatus,
+                        defaultAdminAnalyticsCoverage: entry.defaultAdminAnalyticsCoverage,
+                        canRunDefaultRefresh: entry.canRunDefaultRefresh,
+                        unavailableReason: entry.unavailableReason,
                         canonicalSources: entry.canonicalSources,
                         parityChecksRequired: entry.parityChecksRequired,
                         legacySupportStatus: entry.legacySupportStatus,

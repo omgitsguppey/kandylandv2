@@ -1,7 +1,8 @@
 "use client";
 
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
-import type { AdminDebugRuntimeEvidenceGroup } from "@/lib/admin-debug-control-tower";
+import type { AdminDebugControlTowerModel, AdminDebugRuntimeEvidenceGroup } from "@/lib/admin-debug-control-tower";
+import type { AdminTruthState } from "@/lib/admin-truth-state";
 import { Pill, Section } from "./DebugPrimitives";
 
 type AdminAnalyticsRecoveryEvidenceLane = {
@@ -53,6 +54,17 @@ function formatRelative(value?: number | null) {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h ago`;
   return `${Math.floor(hours / 24)}d ago`;
+}
+
+const GUMDROP_ANALYTICS_ONLY_EVIDENCE_LABEL = "diagnostic_only_not_treasury_truth";
+
+function gumdropRecoveryBadgeState(state?: AdminDebugControlTowerModel["gumdropRecovery"]["displayState"]): AdminTruthState {
+  if (state === "healthy") return "live";
+  if (state === "stale") return "stale";
+  if (state === "source_missing") return "unavailable";
+  if (state === "unavailable") return "unavailable";
+  if (state === "protected_manual_review") return "blocked";
+  return "review";
 }
 
 export function DebugRuntimeEvidenceGroups({
@@ -113,6 +125,84 @@ export function DebugRuntimeEvidenceGroups({
         ))}
       </div>
     </div>
+  );
+}
+
+export function DebugGumdropRecoverySummary({
+  gumdropRecovery,
+}: {
+  gumdropRecovery: AdminDebugControlTowerModel["gumdropRecovery"];
+}) {
+  const badgeState = gumdropRecoveryBadgeState(gumdropRecovery.displayState);
+
+  return (
+    <section
+      className="rounded-md border border-white/10 bg-black/25 p-3 text-xs text-gray-300"
+      data-admin-debug-gumdrop-recovery="true"
+      data-admin-debug-gumdrop-recovery-state={gumdropRecovery.displayState}
+      data-admin-debug-gumdrop-recovery-source={gumdropRecovery.sourceReportPath}
+      data-admin-debug-gumdrop-recovery-analytics-only={gumdropRecovery.analyticsOnlyEvidenceLabel || GUMDROP_ANALYTICS_ONLY_EVIDENCE_LABEL}
+      data-admin-debug-gumdrop-recovery-money-action-allowed={gumdropRecovery.recoveryQueue.moneyAffectingRecoveryAllowedCount}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="font-bold text-white">GumDrop treasury recovery</h3>
+          <p className="mt-1 text-gray-400">
+            Ledger/server proof remains money truth. Analytics evidence is diagnostic-only until protected proof exists.
+          </p>
+        </div>
+        <AdminTruthBadge
+          state={badgeState}
+          label={gumdropRecovery.displayState.replaceAll("_", " ")}
+          title={gumdropRecovery.nextAction}
+        />
+      </div>
+
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-md border border-white/10 bg-black/20 px-2.5 py-2">
+          <p className="font-semibold text-white">Queue</p>
+          <p>{gumdropRecovery.recoveryQueue.queueItemCount} dry-run item(s)</p>
+          <p className="text-gray-500">proof required {gumdropRecovery.recoveryQueue.ledgerProofRequiredCount}</p>
+        </div>
+        <div className="rounded-md border border-white/10 bg-black/20 px-2.5 py-2">
+          <p className="font-semibold text-white">Protected review</p>
+          <p>{gumdropRecovery.treasury.ledgerMissingProtected} missing-ledger protected</p>
+          <p className="text-gray-500">analytics rejected {gumdropRecovery.recoveryQueue.analyticsOnlyRejectedCount}</p>
+        </div>
+        <div className="rounded-md border border-white/10 bg-black/20 px-2.5 py-2">
+          <p className="font-semibold text-white">Source buckets</p>
+          <p>{gumdropRecovery.treasury.sourceBucketMismatch} mismatch</p>
+          <p className="text-gray-500">duplicates {gumdropRecovery.treasury.duplicateRisk + gumdropRecovery.recoveryQueue.duplicateRiskCount}</p>
+        </div>
+        <div className="rounded-md border border-white/10 bg-black/20 px-2.5 py-2">
+          <p className="font-semibold text-white">Canonical math</p>
+          <p>{gumdropRecovery.canonicalMathLedger.status}</p>
+          <p className="text-gray-500">{gumdropRecovery.canonicalMathLedger.state} | {gumdropRecovery.canonicalMathLedger.freshness}</p>
+        </div>
+      </div>
+
+      <details
+        className="mt-3 rounded-md border border-white/10 bg-white/[0.03] px-2 py-1"
+        data-admin-debug-gumdrop-recovery-details="collapsed_by_default"
+      >
+        <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">
+          Recovery labels and next action
+        </summary>
+        <div className="mt-2 space-y-2 pb-2">
+          <div className="flex flex-wrap gap-1.5">
+            {gumdropRecovery.labels.map((label) => (
+              <span key={label} className="rounded-md border border-white/10 bg-black/25 px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-gray-200">
+                {label}
+              </span>
+            ))}
+          </div>
+          <p className="text-amber-100">{gumdropRecovery.nextAction}</p>
+          <p className="text-gray-500">
+            Source {gumdropRecovery.sourceReportPath} | generatedAtUtc {gumdropRecovery.generatedAtUtc ?? "missing"} | freshness {gumdropRecovery.freshness}
+          </p>
+        </div>
+      </details>
+    </section>
   );
 }
 

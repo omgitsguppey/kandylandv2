@@ -13,7 +13,7 @@ import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 import { cn } from "@/lib/utils";
 import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth";
 import { DebugOperatorCockpit } from "./DebugOperatorCockpit";
-import { DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
+import { DebugGumdropRecoverySummary, DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
 import {
     FILTERS,
     type FilterId,
@@ -106,7 +106,7 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
         ? "unavailable"
         : controlTruthState;
     const canonicalBetaCapDetails = Array.isArray(model?.canonicalPublicBetaCapDetails)
-        ? model.canonicalPublicBetaCapDetails.slice(0, 3)
+        ? model.canonicalPublicBetaCapDetails
         : [];
     const runtimeEvidenceGroups = Array.isArray(model?.runtimeEvidenceGroups) ? model.runtimeEvidenceGroups : [];
     const visibleReports = filteredSections?.reduce((count, section) => count + section.reports.length, 0) ?? 0;
@@ -200,10 +200,10 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                                     <h3 className="font-bold text-white">Launch blockers</h3>
                                     <p className="text-xs text-gray-400">{model.canonicalPublicBetaReadinessReason}</p>
                                     <p className="mt-1 text-[11px] text-gray-500">
-                                        {model.canonicalPublicBetaStatus} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"}
+                                        {model.canonicalPublicBetaStatus} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"} | source {model.canonicalPublicBetaSourceDrift}
                                     </p>
                                 </div>
-                                <AdminTruthBadge state={canonicalBetaCapDetails.length || blockerReports.length ? "failed" : "live"} />
+                                <AdminTruthBadge state={model.canonicalPublicBetaTruthState === "stale" ? "stale" : canonicalBetaCapDetails.length || blockerReports.length ? "failed" : "live"} />
                             </div>
                             {canonicalBetaCapDetails.length > 0 ? (
                                 <ul className="mt-2 space-y-1 text-xs text-gray-300">
@@ -272,6 +272,8 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                         ) : null}
 
                         <DebugOperatorCockpit cockpit={model.operatorCockpit} />
+
+                        <DebugGumdropRecoverySummary gumdropRecovery={model.gumdropRecovery} />
 
                         {resolvedBusinessSnapshot ? (
                             <DebugControlTowerBusinessTruth

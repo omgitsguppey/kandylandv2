@@ -179,6 +179,8 @@ for (const expected of [
   "canonicalPublicBetaScore",
   "canonicalPublicBetaReadinessReason",
   "canonicalPublicBetaCapDetails",
+  "canonicalPublicBetaSourceDrift",
+  "canonicalPublicBetaTruthState",
   "evidenceCapDetails",
   "readCanonicalPublicBetaScore",
   "reportAggregateScore",
@@ -211,7 +213,9 @@ for (const expected of [
 requireNotIncludes(helper, "const overallScore = scoreValues", "Admin debug control tower model helper must not compute the primary score from report averages");
 for (const expected of [
   "canonicalPublicBetaReadinessReason",
-  "canonicalPublicBetaCapDetails.slice(0, 3)",
+  "canonicalPublicBetaCapDetails",
+  "canonicalPublicBetaSourceDrift",
+  "canonicalPublicBetaTruthState",
   "data-debug-visible-summary=\"single-triage-strip\"",
   "Evidence drawer",
   "Source detail",
@@ -1803,6 +1807,7 @@ for (const expected of [
 
 for (const expected of [
   "DebugRecoveryEvidenceSummary",
+  "DebugGumdropRecoverySummary",
   "data-admin-debug-recovery-evidence",
   "data-admin-debug-recovery-production-allowed",
   "data-admin-debug-recovery-summary-compact=\"true\"",
@@ -1814,6 +1819,12 @@ for (const expected of [
   "productionAllowedNow=false",
   "adminAnalyticsPromotedNow",
   "sourceTruthLabel",
+  "data-admin-debug-gumdrop-recovery=\"true\"",
+  "data-admin-debug-gumdrop-recovery-state",
+  "data-admin-debug-gumdrop-recovery-analytics-only",
+  "diagnostic_only_not_treasury_truth",
+  "data-admin-debug-gumdrop-recovery-money-action-allowed",
+  "data-admin-debug-gumdrop-recovery-details=\"collapsed_by_default\"",
 ]) {
   requireIncludes(debugRuntimeEvidenceGroups, expected, "Admin Debug recovery evidence visual summary");
 }

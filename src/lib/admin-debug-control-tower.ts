@@ -142,6 +142,50 @@ export type AdminDebugBacklogSummaryCard = {
     p0P1Open: number;
 };
 
+export type AdminDebugGumdropRecoveryDisplayState =
+    | "healthy"
+    | "unavailable"
+    | "source_missing"
+    | "stale"
+    | "recovery_required"
+    | "protected_manual_review";
+
+export type AdminDebugGumdropRecoverySummary = {
+    displayState: AdminDebugGumdropRecoveryDisplayState;
+    truthState: AdminDebugTruthState;
+    sourceReportPath: "agent/state/recovery-timeline-spine.generated.json";
+    generatedAtUtc: string | null;
+    freshness: "fresh" | "stale" | "missing" | "unknown";
+    status: string;
+    treasury: {
+        ledgerConfirmed: number;
+        analyticsCorrelated: number;
+        analyticsMissing: number;
+        ledgerMissingProtected: number;
+        duplicateRisk: number;
+        sourceBucketMismatch: number;
+        productTruthEligibleCount: number;
+    };
+    recoveryQueue: {
+        queueItemCount: number;
+        ledgerProofRequiredCount: number;
+        analyticsOnlyRejectedCount: number;
+        duplicateRiskCount: number;
+        sourceBucketMismatchCount: number;
+        moneyAffectingRecoveryAllowedCount: 0;
+    };
+    canonicalMathLedger: {
+        state: AdminDebugGumdropRecoveryDisplayState;
+        status: string;
+        path: "agent/state/canonical-math-ledger.generated.json";
+        generatedAtUtc: string | null;
+        freshness: "fresh" | "stale" | "missing" | "unknown";
+    };
+    labels: string[];
+    nextAction: string;
+    analyticsOnlyEvidenceLabel: "diagnostic_only_not_treasury_truth";
+};
+
 export type AdminDebugControlTowerModel = {
     generatedAt: string;
     title: "Control Tower";
@@ -157,6 +201,8 @@ export type AdminDebugControlTowerModel = {
     canonicalPublicBetaGeneratedAtUtc: string | null;
     canonicalPublicBetaSourceCommit: string | null;
     canonicalPublicBetaCurrentHead: string | null;
+    canonicalPublicBetaSourceDrift: AdminDebugReportCard["sourceDrift"];
+    canonicalPublicBetaTruthState: AdminDebugTruthState;
     reportAggregateScore: number | null;
     reportAggregateTruthState: AdminDebugTruthState;
     reportAggregateSummary: string;
@@ -178,6 +224,7 @@ export type AdminDebugControlTowerModel = {
     businessSnapshot: AdminUserTruthSnapshot | null;
     businessTruthState: AdminTruthState;
     reportFreshnessState: "live" | "stale" | "missing" | "failed" | "unknown" | "unavailable";
+    gumdropRecovery: AdminDebugGumdropRecoverySummary;
 };
 
 type ReportDefinition = {
@@ -212,6 +259,9 @@ export const ADMIN_DEBUG_CONTROL_TOWER_REPORTS: ReportDefinition[] = [
     { id: "sitewide-image-optimization", label: "Image Loading", section: "device_ui", fileName: "sitewide-image-optimization.generated.json", command: "npm run check:sitewide-image-optimization" },
     { id: "content-protection", label: "Content Protection", section: "beta_readiness", fileName: "content-protection-score.generated.json", command: "npm run check:content-protection", required: true },
     { id: "gumdrop-economy", label: "GumDrops Economy", section: "money_cost", fileName: "gumdrop-economy-score.generated.json", command: "npm run check:gumdrop-economy", required: true },
+    { id: "canonical-math-ledger", label: "Canonical Math Ledger", section: "money_cost", fileName: "canonical-math-ledger.generated.json", command: "npm run check:canonical-math-ledger", required: true },
+    { id: "treasury-reconciliation-engine", label: "Treasury Reconciliation", section: "money_cost", fileName: "treasury-reconciliation-engine.generated.json", command: "npm run check:treasury-reconciliation-engine", required: true },
+    { id: "gumdrop-recovery-timeline", label: "GumDrop Recovery Timeline", section: "money_cost", fileName: "recovery-timeline-spine.generated.json", command: "npm run check:recovery-timeline-spine" },
     { id: "google-cost", label: "Google Cost", section: "money_cost", fileName: "google-cost-bleed.generated.json", command: "npm run check:google-cost", required: true },
     { id: "cloud-cost", label: "Cloud Run / SQL / BigQuery", section: "money_cost", fileName: "cloudrun-sql-bigquery-guardrails.generated.json", command: "npm run check:cloud-cost", required: true },
     { id: "sql-mirror", label: "Data Connect Mirror", section: "money_cost", fileName: "data-connect-mirror-status.generated.json", command: "npm run check:data-connect-mirror-status" },
@@ -638,7 +688,7 @@ function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowM
     }
 }
 
-function readCanonicalPublicBetaScore(rootDir: string) {
+function readCanonicalPublicBetaScore(rootDir: string, repoCurrentHead: string | null) {
     const fullPath = join(rootDir, "agent", "state", "public-beta-score.generated.json");
     if (!existsSync(fullPath)) {
         return {
@@ -651,21 +701,45 @@ function readCanonicalPublicBetaScore(rootDir: string) {
             canonicalPublicBetaGeneratedAtUtc: null,
             canonicalPublicBetaSourceCommit: null,
             canonicalPublicBetaCurrentHead: null,
+            canonicalPublicBetaSourceDrift: "unknown" as const,
+            canonicalPublicBetaTruthState: "missing" as const,
         };
     }
 
     try {
         const raw = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
+        const commitState = readReportCommitState(raw, repoCurrentHead);
+        const capDetails = toStringArray(raw.evidenceCapDetails);
+        const sourceDriftCap = commitState.sourceDrift === "stale"
+            ? [
+                [
+                    "Stale evidence: Public beta score source metadata",
+                    commitState.sourceCommit ? `sourceCommit=${commitState.sourceCommit}` : null,
+                    commitState.currentHead ? `reportCurrentHead=${commitState.currentHead}` : null,
+                    commitState.repoCurrentHead ? `repoCurrentHead=${commitState.repoCurrentHead}` : null,
+                ].filter((entry): entry is string => Boolean(entry)).join(" - "),
+            ]
+            : [];
+        const rawReadinessStatus = toStringValue(raw.readinessStatus, "unknown");
+        const rawReadinessReason = toStringValue(raw.readinessStatusReason, "No readiness status reason was supplied.");
         return {
             canonicalPublicBetaScore: toNumber(raw.overallScore),
-            canonicalPublicBetaStatus: toStringValue(raw.overallStatus ?? raw.status, "unknown"),
-            canonicalPublicBetaReadinessStatus: toStringValue(raw.readinessStatus, "unknown"),
-            canonicalPublicBetaReadinessReason: toStringValue(raw.readinessStatusReason, "No readiness status reason was supplied."),
+            canonicalPublicBetaStatus: commitState.sourceDrift === "stale"
+                ? "stale"
+                : toStringValue(raw.overallStatus ?? raw.status, "unknown"),
+            canonicalPublicBetaReadinessStatus: commitState.sourceDrift === "stale"
+                ? "Stale evidence"
+                : rawReadinessStatus,
+            canonicalPublicBetaReadinessReason: commitState.sourceDrift === "stale"
+                ? `Canonical public beta score artifact source metadata is stale. ${rawReadinessReason}`
+                : rawReadinessReason,
             canonicalPublicBetaEvidenceScore: toNumber(raw.evidenceScore),
-            canonicalPublicBetaCapDetails: toStringArray(raw.evidenceCapDetails).slice(0, 12),
+            canonicalPublicBetaCapDetails: [...sourceDriftCap, ...capDetails],
             canonicalPublicBetaGeneratedAtUtc: toStringValue(raw.generatedAtUtc ?? raw.generatedAt, "") || null,
-            canonicalPublicBetaSourceCommit: normalizeCommit(raw.sourceCommit),
-            canonicalPublicBetaCurrentHead: normalizeCommit(raw.currentHead),
+            canonicalPublicBetaSourceCommit: commitState.sourceCommit,
+            canonicalPublicBetaCurrentHead: commitState.currentHead,
+            canonicalPublicBetaSourceDrift: commitState.sourceDrift,
+            canonicalPublicBetaTruthState: commitState.sourceDrift === "stale" ? "stale" as const : "live" as const,
         };
     } catch {
         return {
@@ -678,6 +752,8 @@ function readCanonicalPublicBetaScore(rootDir: string) {
             canonicalPublicBetaGeneratedAtUtc: null,
             canonicalPublicBetaSourceCommit: null,
             canonicalPublicBetaCurrentHead: null,
+            canonicalPublicBetaSourceDrift: "unknown" as const,
+            canonicalPublicBetaTruthState: "failed" as const,
         };
     }
 }
@@ -813,6 +889,112 @@ function readJsonRecord(rootDir: string, relativePath: string): Record<string, u
     }
 }
 
+function generatedAtUtcFromRecord(raw: Record<string, unknown> | null) {
+    return toStringValue(raw?.generatedAtUtc ?? raw?.generatedAt ?? raw?.generated_at) || null;
+}
+
+function generatedFreshness(generatedAtUtc: string | null, nowMs: number): "fresh" | "stale" | "missing" | "unknown" {
+    if (!generatedAtUtc) return "missing";
+    const parsed = Date.parse(generatedAtUtc);
+    if (!Number.isFinite(parsed)) return "unknown";
+    return nowMs - parsed > FRESH_MS ? "stale" : "fresh";
+}
+
+function gumdropDisplayStateToTruthState(state: AdminDebugGumdropRecoveryDisplayState): AdminDebugTruthState {
+    if (state === "healthy") return "live";
+    if (state === "stale") return "stale";
+    if (state === "source_missing") return "missing";
+    if (state === "unavailable") return "unavailable";
+    return "failed";
+}
+
+function readNestedRecord(source: Record<string, unknown> | null, key: string) {
+    const value = source?.[key];
+    return isRecord(value) ? value : null;
+}
+
+function readGeneratedGumdropRecoverySummary(rootDir: string, nowMs: number): AdminDebugGumdropRecoverySummary {
+    const sourceReportPath = "agent/state/recovery-timeline-spine.generated.json" as const;
+    const canonicalMathPath = "agent/state/canonical-math-ledger.generated.json" as const;
+    const recovery = readJsonRecord(rootDir, sourceReportPath);
+    const canonicalMath = readJsonRecord(rootDir, canonicalMathPath);
+    const generatedAtUtc = generatedAtUtcFromRecord(recovery);
+    const freshness = recovery ? generatedFreshness(generatedAtUtc, nowMs) : "missing";
+    const canonicalMathGeneratedAtUtc = generatedAtUtcFromRecord(canonicalMath);
+    const canonicalMathFreshness = canonicalMath ? generatedFreshness(canonicalMathGeneratedAtUtc, nowMs) : "missing";
+    const treasurySummary = readNestedRecord(readNestedRecord(recovery, "treasuryTimelineReconciliation"), "summary");
+    const queueSummary = readNestedRecord(readNestedRecord(recovery, "gumdropRecoveryQueue"), "summary");
+    const recoveryPolicy = readNestedRecord(readNestedRecord(recovery, "gumdropRecoveryQueue"), "productTruthPolicy");
+    const canonicalStatus = toStringValue(canonicalMath?.status, canonicalMath ? "unknown" : "source_missing");
+    const canonicalState: AdminDebugGumdropRecoveryDisplayState = !canonicalMath
+        ? "source_missing"
+        : canonicalMathFreshness === "stale"
+            ? "stale"
+            : canonicalStatus === "fail" || canonicalStatus === "failed"
+                ? "recovery_required"
+                : "healthy";
+    const treasury = {
+        ledgerConfirmed: toNumber(treasurySummary?.ledger_confirmed) ?? 0,
+        analyticsCorrelated: toNumber(treasurySummary?.analytics_correlated) ?? 0,
+        analyticsMissing: toNumber(treasurySummary?.analytics_missing) ?? 0,
+        ledgerMissingProtected: toNumber(treasurySummary?.ledger_missing_protected) ?? 0,
+        duplicateRisk: toNumber(treasurySummary?.duplicate_risk) ?? 0,
+        sourceBucketMismatch: toNumber(treasurySummary?.source_bucket_mismatch) ?? 0,
+        productTruthEligibleCount: toNumber(treasurySummary?.productTruthEligibleCount) ?? 0,
+    };
+    const recoveryQueue = {
+        queueItemCount: toNumber(queueSummary?.queueItemCount) ?? 0,
+        ledgerProofRequiredCount: toNumber(queueSummary?.ledgerProofRequiredCount) ?? 0,
+        analyticsOnlyRejectedCount: toNumber(queueSummary?.analyticsOnlyRejectedCount) ?? 0,
+        duplicateRiskCount: toNumber(queueSummary?.duplicateRiskCount) ?? 0,
+        sourceBucketMismatchCount: toNumber(queueSummary?.sourceBucketMismatchCount) ?? 0,
+        moneyAffectingRecoveryAllowedCount: 0 as const,
+    };
+    const labels = [
+        "treasury_ledger_primary",
+        "analytics_only_diagnostic",
+        "manual_recovery_dry_run",
+        recoveryPolicy?.analyticsOnlyCanChangeBalance === false ? "analytics_only_balance_recovery_rejected" : "analytics_policy_unknown",
+        canonicalState === "healthy" ? "canonical_math_ledger_healthy" : "canonical_math_ledger_needs_review",
+    ];
+    const displayState: AdminDebugGumdropRecoveryDisplayState = !recovery
+        ? "source_missing"
+        : freshness === "stale"
+            ? "stale"
+            : recoveryQueue.ledgerProofRequiredCount > 0 || treasury.ledgerMissingProtected > 0
+                ? "protected_manual_review"
+                : recoveryQueue.queueItemCount > 0 || treasury.sourceBucketMismatch > 0 || treasury.duplicateRisk > 0 || canonicalState !== "healthy"
+                    ? "recovery_required"
+                    : "healthy";
+
+    return {
+        displayState,
+        truthState: gumdropDisplayStateToTruthState(displayState),
+        sourceReportPath,
+        generatedAtUtc,
+        freshness,
+        status: toStringValue(recovery?.status, recovery ? "unknown" : "source_missing"),
+        treasury,
+        recoveryQueue,
+        canonicalMathLedger: {
+            state: canonicalState,
+            status: canonicalStatus,
+            path: canonicalMathPath,
+            generatedAtUtc: canonicalMathGeneratedAtUtc,
+            freshness: canonicalMathFreshness,
+        },
+        labels,
+        nextAction: displayState === "protected_manual_review"
+            ? "Collect redacted ledger/server proof before any GumDrop recovery action."
+            : displayState === "recovery_required"
+                ? "Review queue counts, source-bucket mismatches, and canonical math ledger state before signoff."
+                : displayState === "stale" || displayState === "source_missing"
+                    ? "Run npm run check:recovery-timeline-spine and npm run check:canonical-math-ledger locally."
+                    : "Keep analytics evidence diagnostic-only; no recovery action is required.",
+        analyticsOnlyEvidenceLabel: "diagnostic_only_not_treasury_truth",
+    };
+}
+
 function readGeneratedRefreshQueue(rootDir: string): SelfHealingRefreshQueueEntry[] {
     const raw = readJsonRecord(rootDir, join("agent", "state", "self-healing-refresh-queue.generated.json"));
     return Array.isArray(raw?.queue)
@@ -945,7 +1127,8 @@ export function buildAdminDebugControlTowerModel(options?: {
     const nowMs = options?.nowMs ?? Date.now();
     const repoCurrentHead = readCurrentHead(rootDir);
     const reports = ADMIN_DEBUG_CONTROL_TOWER_REPORTS.map((definition) => readGeneratedReport(rootDir, definition, nowMs, repoCurrentHead));
-    const canonicalPublicBeta = readCanonicalPublicBetaScore(rootDir);
+    const canonicalPublicBeta = readCanonicalPublicBetaScore(rootDir, repoCurrentHead);
+    const gumdropRecovery = readGeneratedGumdropRecoverySummary(rootDir, nowMs);
     const allFindings = reports.flatMap((report) => report.topFindings);
     const sortedFindings = [...allFindings].sort((left, right) => SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity]);
     const generatedEvidence = options?.debugEvidence?.length ? [] : readGeneratedDebugEvidence(rootDir);
@@ -1028,5 +1211,6 @@ export function buildAdminDebugControlTowerModel(options?: {
         businessSnapshot: null,
         businessTruthState: "unavailable",
         reportFreshnessState: truthState,
+        gumdropRecovery,
     };
 }

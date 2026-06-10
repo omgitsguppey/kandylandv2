@@ -66,6 +66,7 @@ describe("admin debug control tower model", () => {
                 "Runtime unverified: Runtime/provider smoke - Run formal deployed runtime smoke later.",
                 "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot.",
                 "Stale evidence: Freshness, PR, and HEAD integrity - 3 required generated report(s) are older than the freshness window.",
+                "Needs review: Cost owner evidence - External billing review remains required.",
             ],
             sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             currentHead: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -88,7 +89,11 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Runtime unverified"),
             expect.stringContaining("Admin truth/sample evidence"),
+            expect.stringContaining("Cost owner evidence"),
         ]));
+        expect(model.canonicalPublicBetaCapDetails).toHaveLength(4);
+        expect(model.canonicalPublicBetaSourceDrift).toBe("current");
+        expect(model.canonicalPublicBetaTruthState).toBe("live");
         expect(model.reportAggregateScore).toBe(50);
         expect(model.reportAggregateSummary).toContain("Required generated report average");
         expect(model.overallScore).toBe(25);
@@ -111,6 +116,14 @@ describe("admin debug control tower model", () => {
         expect(publicBeta?.truthState).toBe("stale");
         expect(publicBeta?.sourceDrift).toBe("stale");
         expect(publicBeta?.topFindings[0]?.title).toContain("source commit needs review");
+        expect(model.canonicalPublicBetaStatus).toBe("stale");
+        expect(model.canonicalPublicBetaReadinessStatus).toBe("Stale evidence");
+        expect(model.canonicalPublicBetaReadinessReason).toContain("source metadata is stale");
+        expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Public beta score source metadata"),
+        ]));
+        expect(model.canonicalPublicBetaSourceDrift).toBe("stale");
+        expect(model.canonicalPublicBetaTruthState).toBe("stale");
     });
 
     it("wires the compact UI to canonical beta score fields instead of aggregate score", () => {
@@ -119,7 +132,10 @@ describe("admin debug control tower model", () => {
 
         expect(component).toContain("canonicalPublicBetaScore");
         expect(component).toContain("canonicalPublicBetaReadinessReason");
-        expect(component).toContain("canonicalPublicBetaCapDetails.slice(0, 3)");
+        expect(component).toContain("canonicalPublicBetaCapDetails");
+        expect(component).toContain("canonicalPublicBetaSourceDrift");
+        expect(component).toContain("canonicalPublicBetaTruthState");
+        expect(component).not.toContain("canonicalPublicBetaCapDetails.slice(0, 3)");
         expect(component).toContain('data-debug-visible-summary="single-triage-strip"');
         expect(component).toContain("Evidence drawer");
         expect(component).toContain("Source detail");
@@ -296,5 +312,80 @@ describe("admin debug control tower model", () => {
         expect(runtimeEvidence).not.toContain("overflow-auto");
         expect(debugNow).toContain("<DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />");
         expect(debugNow).not.toContain("title=\"Business truth now\"");
+    });
+
+    it("surfaces GumDrop recovery queue state without promoting analytics-only evidence", () => {
+        const root = createTempRoot();
+        writeReport(root, "recovery-timeline-spine.generated.json", {
+            reportKey: "recovery-timeline-spine",
+            generatedAtUtc: "2026-06-08T00:00:00.000Z",
+            status: "pass",
+            treasuryTimelineReconciliation: {
+                summary: {
+                    ledger_confirmed: 3,
+                    analytics_correlated: 2,
+                    analytics_missing: 1,
+                    ledger_missing_protected: 2,
+                    duplicate_risk: 0,
+                    source_bucket_mismatch: 1,
+                    productTruthEligibleCount: 3,
+                },
+            },
+            gumdropRecoveryQueue: {
+                summary: {
+                    queueItemCount: 4,
+                    ledgerProofRequiredCount: 2,
+                    analyticsOnlyRejectedCount: 2,
+                    duplicateRiskCount: 0,
+                    sourceBucketMismatchCount: 1,
+                    moneyAffectingRecoveryAllowedCount: 0,
+                },
+                productTruthPolicy: {
+                    dryRunOnly: true,
+                    creditsOrDebitsUsers: false,
+                    backfillsTransactions: false,
+                    analyticsOnlyCanChangeBalance: false,
+                },
+            },
+        });
+        writeReport(root, "canonical-math-ledger.generated.json", {
+            reportKey: "canonical-math-ledger",
+            generatedAtUtc: "2026-06-08T00:00:00.000Z",
+            status: "pass",
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.parse("2026-06-08T01:00:00.000Z") });
+
+        expect(model.gumdropRecovery.displayState).toBe("protected_manual_review");
+        expect(model.gumdropRecovery.truthState).toBe("failed");
+        expect(model.gumdropRecovery.treasury).toMatchObject({
+            ledgerConfirmed: 3,
+            ledgerMissingProtected: 2,
+            sourceBucketMismatch: 1,
+            productTruthEligibleCount: 3,
+        });
+        expect(model.gumdropRecovery.recoveryQueue).toMatchObject({
+            queueItemCount: 4,
+            ledgerProofRequiredCount: 2,
+            analyticsOnlyRejectedCount: 2,
+            moneyAffectingRecoveryAllowedCount: 0,
+        });
+        expect(model.gumdropRecovery.analyticsOnlyEvidenceLabel).toBe("diagnostic_only_not_treasury_truth");
+        expect(model.gumdropRecovery.nextAction).toContain("ledger/server proof");
+    });
+
+    it("keeps GumDrop recovery display source-visible and compact in Admin Debug", () => {
+        const root = process.cwd();
+        const controlTower = readFileSync(join(root, "src/app/admin/debug/components/DebugControlTower.tsx"), "utf8");
+        const runtimeEvidence = readFileSync(join(root, "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx"), "utf8");
+
+        expect(controlTower).toContain("DebugGumdropRecoverySummary");
+        expect(runtimeEvidence).toContain("data-admin-debug-gumdrop-recovery=\"true\"");
+        expect(runtimeEvidence).toContain("data-admin-debug-gumdrop-recovery-state");
+        expect(runtimeEvidence).toContain("data-admin-debug-gumdrop-recovery-analytics-only");
+        expect(runtimeEvidence).toContain("diagnostic_only_not_treasury_truth");
+        expect(runtimeEvidence).toContain("money-action-allowed");
+        expect(runtimeEvidence).toContain("Ledger/server proof remains money truth");
+        expect(runtimeEvidence).toContain("data-admin-debug-gumdrop-recovery-details=\"collapsed_by_default\"");
     });
 });
