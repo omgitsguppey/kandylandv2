@@ -177,6 +177,8 @@ function hydration(overrides: Partial<PersonMetricsHydrationReport> = {}): Perso
     scopes: {} as PersonMetricsHydrationReport["scopes"],
     lowConfidenceMetrics: [],
     missingHydration: [],
+    userParityStatus: {} as PersonMetricsHydrationReport["userParityStatus"],
+    userParityGaps: [],
     legacySummary: { candidatesReviewed: 0, candidatesHydrated: 0, exactPromotionsBlocked: 0, unknownLegacyArchived: 0 },
     validation: { checkoutStartCountsAsPaymentSuccess: false, pageTimeCountsAsWatchTime: false, duplicateGuestUserCountsSuppressed: 1, unknownLegacyBecameExact: false, zeroWithoutProvenZero: false },
     scoreImpactByDimension: {

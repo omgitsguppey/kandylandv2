@@ -12,6 +12,14 @@ import type { InterpretiveBrainFinding } from "@/lib/product-integrity/interpret
 import type { FormalEvidenceCategory } from "@/lib/release-readiness/final-release-readiness";
 import type { CreatorSettings, Transaction, UserProfile } from "@/types/db";
 import type { LegacyEventRecoveryCandidate } from "@/lib/legacy/legacy-event-recovery-contract";
+import {
+  buildSupportThreadKey,
+  describeSupportState,
+  describeSupportStateDetail,
+  type SupportMessageRecord,
+  type SupportReadinessSnapshot,
+  type SupportThreadRecord,
+} from "@/lib/support-readiness";
 
 export const CANONICAL_TEST_TIMESTAMP = "2026-05-27T00:00:00.000Z";
 export const CANONICAL_TEST_TIMESTAMP_MS = Date.parse(CANONICAL_TEST_TIMESTAMP);
@@ -295,6 +303,79 @@ export function buildCanonicalLegacyRecoveryCandidateFixture(overrides: Partial<
   };
 }
 
+export function buildCanonicalSupportThreadFixture(overrides: Partial<SupportThreadRecord> = {}): SupportThreadRecord {
+  const userId = overrides.userId ?? "test-user-1";
+  const status = overrides.status ?? "waiting_on_support";
+  return {
+    id: "test-support-thread-1",
+    userId,
+    threadKey: buildSupportThreadKey(userId),
+    status,
+    category: "technical",
+    channel: "in_app",
+    subject: "Canonical support fixture",
+    lastMessageAt: CANONICAL_TEST_TIMESTAMP_MS,
+    createdAt: CANONICAL_TEST_TIMESTAMP_MS,
+    updatedAt: CANONICAL_TEST_TIMESTAMP_MS,
+    lastMessagePreview: "Canonical diagnostic-safe support preview.",
+    unreadForUser: false,
+    unreadForAdmin: true,
+    userEmail: null,
+    userDisplayName: "Test User",
+    userHandle: "test_user_1",
+    sourcePath: "/support",
+    messageCount: 1,
+    ...overrides,
+  };
+}
+
+export function buildCanonicalSupportMessageFixture(overrides: Partial<SupportMessageRecord> = {}): SupportMessageRecord {
+  return {
+    id: "test-support-message-1",
+    threadId: "test-support-thread-1",
+    senderRole: "user",
+    senderId: "test-user-1",
+    senderLabel: "Test User",
+    body: "Canonical diagnostic-safe support message.",
+    createdAt: CANONICAL_TEST_TIMESTAMP_MS,
+    ...overrides,
+  };
+}
+
+export function buildCanonicalSupportReadinessFixture(overrides: Partial<SupportReadinessSnapshot> = {}): SupportReadinessSnapshot {
+  const thread = buildCanonicalSupportThreadFixture();
+  const state = thread.status;
+  return {
+    summary: {
+      threadKey: thread.threadKey,
+      state,
+      stateLabel: describeSupportState(state),
+      stateDescription: describeSupportStateDetail(state),
+      totalThreads: 1,
+      openThreads: 1,
+      bugReportCount: 0,
+      lastSupportAt: CANONICAL_TEST_TIMESTAMP_MS,
+      lastSupportSource: "support_thread",
+      primaryHandle: "@test_user_1",
+      channels: {
+        accountEmail: false,
+        inApp: true,
+        browserPush: false,
+      },
+    },
+    threads: [thread],
+    signals: [{
+      id: thread.id,
+      kind: "thread",
+      summary: thread.lastMessagePreview ?? "Canonical support signal.",
+      status: thread.status,
+      timestamp: thread.lastMessageAt,
+      path: thread.sourcePath,
+    }],
+    ...overrides,
+  };
+}
+
 export const CANONICAL_TEST_FACTORY_NAMES = [
   "buildCanonicalUserFixture",
   "buildCanonicalCreatorFixture",
@@ -309,4 +390,7 @@ export const CANONICAL_TEST_FACTORY_NAMES = [
   "buildCanonicalReleaseEvidenceFixture",
   "buildCanonicalCostFindingFixture",
   "buildCanonicalLegacyRecoveryCandidateFixture",
+  "buildCanonicalSupportThreadFixture",
+  "buildCanonicalSupportMessageFixture",
+  "buildCanonicalSupportReadinessFixture",
 ] as const;
