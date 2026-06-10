@@ -33,6 +33,14 @@ describe("PurchaseModal compact paid-GD labels", () => {
         expect(source).toContain("HumanErrorNotice");
         expect(source).toContain("resolveClientActionError");
         expect(source).toContain("payment_not_completed");
+        expect(source).toContain("provider_unavailable");
+        expect(source).toContain("setHumanPaymentError(resolved)");
+        expect(source).toContain("setError(resolved.descriptor.userMessage)");
+        expect(source).toContain("toast.error(resolved.descriptor.userTitle, { description: resolved.descriptor.userMessage })");
         expect(source).not.toContain("{error && <div role=\"alert\"");
+        expect(source).not.toMatch(/setError\([^;\n]*(?:err|error|order|result|body)\.(?:message|error|userMessage)/u);
+        expect(source).not.toMatch(/toast\.error\([^;\n]*(?:err|error|order|result|body)\.(?:message|error|userMessage)/u);
+        expect(source).not.toMatch(/description:\s*(?:err|error|order|result|body)\.(?:message|error|userMessage)/u);
+        expect(source).not.toMatch(/error_message:\s*(?:err|error|order|result|body)\.(?:message|error|userMessage)/u);
     });
 });
