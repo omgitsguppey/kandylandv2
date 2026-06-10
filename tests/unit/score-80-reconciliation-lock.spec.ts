@@ -81,9 +81,7 @@ describe("score 80 reconciliation lock", () => {
     expect(report.previousScore).toBe(77.76);
     expect(report.currentScore).toBe(77.76);
     expect(report.distanceTo80).toBe(2.24);
-    expect(report.remainingManualOnlyItems).toHaveLength(1);
-    expect(report.remainingManualOnlyItems[0]?.proofType).toBe("manual_only");
-    expect(report.remainingManualOnlyItems[0]?.requiresManualUI).toBe(true);
+    expect(report.remainingManualOnlyItems).toHaveLength(0);
     expect(report.remainingAlgorithmicItems.length).toBeGreaterThan(0);
     expect(report.remainingRuntimeRequiredItems.length).toBeGreaterThan(0);
     expect(report.remainingProviderRequiredItems.length).toBeGreaterThan(0);
@@ -99,7 +97,7 @@ describe("score 80 reconciliation lock", () => {
     expect(report.formalGateImpact.clearsFormalProvider).toBe(false);
     expect(report.formalGateImpact.clearsManualVisual).toBe(false);
     expect(report.topNextActions[0]?.rank).toBe(1);
-    expect(report.topNextActions[0]?.proofType).toBe("manual_only");
+    expect(report.topNextActions[0]?.proofType).toBe("runtime_required");
   });
 
   it("classifies P0/P1/P2 counts from the critic triage without inventing fixes", () => {
@@ -109,6 +107,27 @@ describe("score 80 reconciliation lock", () => {
     expect(report.p1Count).toBe(20);
     expect(report.p2Count).toBe(57);
     expect(report.status).toBe("locked_with_formal_gates_remaining");
+  });
+
+  it("keeps missing GitHub PR evidence external instead of clearing gates", () => {
+    const report = buildScore80ReconciliationLock({
+      ...buildReport(),
+      openPrs: [
+        {
+          number: 0,
+          title: "GitHub open PR evidence not queried",
+          url: "",
+          classification: "external_evidence_required",
+          reason: "Live gh query is opt-in and cannot clear source, runtime, provider, or release gates.",
+        },
+      ],
+    });
+
+    expect(validateScore80ReconciliationLock(report)).toEqual([]);
+    expect(report.openPrs[0]?.classification).toBe("external_evidence_required");
+    expect(report.formalGateImpact.clearsFormalProvider).toBe(false);
+    expect(report.formalGateImpact.clearsDeployedRuntime).toBe(false);
+    expect(report.formalGateImpact.clearsFormalAdminTruth).toBe(false);
   });
 
   it("fails if non-UI algorithmic requirements are mislabeled manual-only", () => {

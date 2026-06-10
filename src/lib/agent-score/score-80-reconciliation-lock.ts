@@ -26,6 +26,7 @@ export type Score80ChangedFileClassification =
   | "unsafe_unknown";
 
 export type Score80PrClassification =
+  | "external_evidence_required"
   | "deferred_unrelated"
   | "deferred_forbidden_surface"
   | "deferred_high_risk"

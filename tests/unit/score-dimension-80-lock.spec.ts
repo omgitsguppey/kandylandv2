@@ -83,6 +83,26 @@ describe("score dimension 80 lock", () => {
     expect(validateScoreDimension80LockReport(report)).toEqual([]);
   });
 
+  it("treats missing GitHub PR lookup as external evidence instead of source failure", () => {
+    const report = buildScoreDimension80LockReport({
+      ...baseInput,
+      openPrClassifications: [
+        {
+          number: 0,
+          title: "GitHub open PR evidence not queried",
+          url: "",
+          classification: "external_evidence_required",
+        },
+      ],
+    });
+
+    expect(validateScoreDimension80LockReport(report)).toEqual([]);
+    expect(report.openPrClassifications[0]?.classification).toBe("external_evidence_required");
+    expect(report.formalGatesRemaining).toEqual(
+      expect.arrayContaining(["formal_provider_smoke", "deployed_runtime_smoke"]),
+    );
+  });
+
   it("fails validation when a below-80 dimension lacks root cause detail", () => {
     const report = buildScoreDimension80LockReport(baseInput);
     delete report.below80RootCauses.evidenceCompleteness;

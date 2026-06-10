@@ -154,6 +154,15 @@ function classifyOpenPr(pr: Record<string, unknown>): Score80OpenPr {
 }
 
 function readOpenPrs(): Score80OpenPr[] {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") {
+    return [{
+      number: 0,
+      title: "GitHub open PR evidence not queried",
+      url: "",
+      classification: "external_evidence_required",
+      reason: "Live `gh pr list` is opt-in only. Set ALLOW_GH_PR_LIST=1 for an operator-approved external PR query; absence of this query cannot clear source, runtime, provider, or release gates.",
+    }];
+  }
   const raw = run("gh", [
     "pr",
     "list",
@@ -177,8 +186,8 @@ function readOpenPrs(): Score80OpenPr[] {
       number: 0,
       title: "gh pr list parse failure",
       url: "",
-      classification: "unsafe_unknown",
-      reason: "",
+      classification: "external_evidence_required",
+      reason: "GitHub PR evidence could not be parsed. Treat as external evidence required instead of a source validation failure.",
     }];
   }
 }
@@ -269,7 +278,7 @@ function renderDoc(report: Score80ReconciliationLockReport) {
     "",
     ...(report.openPrs.length
       ? report.openPrs.map((pr) => `- #${pr.number} ${pr.title}: ${pr.classification}; ${pr.reason}`)
-      : ["- No open PRs returned by gh at validator read time."]),
+      : ["- No open PR evidence attached. This cannot clear PR/release gates."]),
     "",
   ].join("\n");
 }

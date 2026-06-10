@@ -65,7 +65,11 @@ export type ScoreDimensionOpenPrClassification = {
   number: number;
   title: string;
   url: string;
-  classification: "external_open_pr_not_touched_score_lock" | "relevant_score_pr_review_required" | "unsafe_unknown";
+  classification:
+    | "external_evidence_required"
+    | "external_open_pr_not_touched_score_lock"
+    | "relevant_score_pr_review_required"
+    | "unsafe_unknown";
 };
 
 export type ScoreDimension80LockInput = {

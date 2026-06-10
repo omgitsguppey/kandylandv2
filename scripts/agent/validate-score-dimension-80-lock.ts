@@ -181,11 +181,19 @@ function regressionEvidence() {
 }
 
 function openPrClassifications(): ScoreDimensionOpenPrClassification[] {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") {
+    return [{
+      number: 0,
+      title: "GitHub open PR evidence not queried",
+      url: "",
+      classification: "external_evidence_required",
+    }];
+  }
   const raw = shell("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,url,mergeStateStatus"]);
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [{ number: 0, title: "Unable to parse gh PR list", url: "", classification: "unsafe_unknown" }];
+    if (!Array.isArray(parsed)) return [{ number: 0, title: "Unable to parse gh PR list", url: "", classification: "external_evidence_required" }];
     return parsed.map((entry) => {
       const pr = record(entry);
       return {
@@ -196,7 +204,7 @@ function openPrClassifications(): ScoreDimensionOpenPrClassification[] {
       };
     });
   } catch {
-    return [{ number: 0, title: "Unable to parse gh PR list", url: "", classification: "unsafe_unknown" }];
+    return [{ number: 0, title: "Unable to parse gh PR list", url: "", classification: "external_evidence_required" }];
   }
 }
 
@@ -232,6 +240,10 @@ ${report.costOwnerReviewRemaining.map((lane) => `- ${lane.laneId}: ${lane.status
 ## In-Flight Lanes
 
 ${report.inFlightLanes.map((lane) => `- ${lane.laneId}: ${lane.nextAction}`).join("\n") || "- None"}
+
+## Open PR Evidence
+
+${report.openPrClassifications.map((entry) => `- #${entry.number} ${entry.title}: ${entry.classification}`).join("\n") || "- No open PR evidence attached. This cannot clear PR/release gates."}
 `;
 }
 
