@@ -23,6 +23,20 @@ describe("final parity telemetry lock", () => {
     expect(report.telemetryParityStatus).toBe("pass");
     expect(report.stateParityStatus).toBe("pass");
     expect(report.rolePermissionStatus).toBe("pass");
+    expect(report.sourceParityStatus).toBe("pass");
+    expect(report.finalEvidenceStatus).not.toBe("pass");
+    expect(report.overallStatus).toBe(report.finalEvidenceStatus);
+    expect(report.canClearSourceGate).toBe(true);
+    expect(report.canClearRuntimeGate).toBe(false);
+    expect(report.canClearProviderGate).toBe(false);
+    expect(report.proofClasses.map((proof) => proof.proofClass)).toEqual([
+      "source_parity",
+      "runtime_route_health",
+      "provider_smoke",
+      "admin_truth_sample",
+    ]);
+    expect(report.missingProofClasses.length).toBeGreaterThan(0);
+    expect(report.remainingGaps.some((gap) => /formal proof classes still incomplete/iu.test(gap))).toBe(true);
     expect(report.debugLaneStatus).toBe("simplified");
     expect(report.staleLogicRemoved).toBe(true);
     expect(report.surfacesCovered.sort()).toEqual([...MAJOR_SURFACE_PARITY_IDS].sort());
@@ -30,10 +44,23 @@ describe("final parity telemetry lock", () => {
     expect(report.scoreBefore).toBe(77.83);
     expect(report.scoreAfter).toBe(77.83);
     expect(report.scoreDimensions).toEqual(expect.arrayContaining(["sourceHealth", "runtimeHealth", "evidenceCompleteness", "regressionRisk"]));
-    expect(report.remainingGaps).toEqual(expect.arrayContaining([
-      "Runtime/provider/admin truth evidence remains outside this source-only parity lock.",
-    ]));
     expect(validateFinalParityTelemetryLockReport(report)).toEqual([]);
+  });
+
+  it("rejects reports that claim final pass while formal proof is incomplete", () => {
+    const report = buildFinalParityTelemetryLockReport({
+      currentHead: "test-head",
+      dirtyFiles: [],
+    });
+    const invalidReport = {
+      ...report,
+      overallStatus: "pass" as const,
+      finalEvidenceStatus: "pass" as const,
+    };
+
+    expect(validateFinalParityTelemetryLockReport(invalidReport)).toEqual(expect.arrayContaining([
+      "final evidence status cannot pass while proof classes are missing.",
+    ]));
   });
 
   it("fails when a major surface is missing from any lock layer", () => {

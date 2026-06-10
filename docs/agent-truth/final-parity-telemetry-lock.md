@@ -1,11 +1,17 @@
 # Final Parity Telemetry Lock
 
-Generated: 2026-06-03T03:20:56.883Z
-Head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
-Status: pass
+Generated: 2026-06-10T04:11:05.960Z
+Head: 70a1e9fc52300814a6b66f7dbeb04a8a35e17b48
+Head source: git
+Git status: available
+Tooling degraded: false
+Status: review
 
 ## Summary
 
+- Overall status: review
+- Source parity status: pass
+- Final evidence status: review
 - Surface parity: pass
 - Telemetry parity: pass
 - State parity: pass
@@ -14,8 +20,21 @@ Status: pass
 - Stale parity logic removed: true
 - Surfaces covered: 17
 - Surfaces missing: 0
-- Score: 81.1 -> 81.1
+- Score: 68.67 -> 68.67
 - Score dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, costRisk, freshness, regressionRisk
+- Can clear source gate: true
+- Can clear runtime gate: false
+- Can clear provider gate: false
+- Can clear admin truth gate: false
+
+## Proof Classes
+
+| Proof class | Status | Evidence kind | Required | Next action |
+| --- | --- | --- | --- | --- |
+| source_parity | present | source_only | true | Source parity is green; keep it separate from runtime/provider/admin proof. |
+| runtime_route_health | stale | runtime | true | Refresh formal runtime route-health evidence; source parity cannot clear runtime health. |
+| provider_smoke | stale | provider | true | Attach formal redacted provider smoke evidence; operator reports do not clear this gate. |
+| admin_truth_sample | stale | admin | true | Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts. |
 
 ## Surface Locks
 
@@ -41,13 +60,16 @@ Status: pass
 
 ## Remaining Gaps
 
-- Runtime/provider/admin truth evidence remains outside this source-only parity lock.
-- Public beta score remains owner_review until external/runtime evidence gates are attached.
+- Formal proof classes still incomplete: runtime_route_health, provider_smoke, admin_truth_sample.
+- Source parity is source-only evidence and does not prove runtime route health, provider smoke, or admin truth samples.
+- Public beta score must remain capped/review until current-head external/runtime/admin evidence gates are attached.
 
 ## Next Exact Steps
 
 - Keep check:surface-parity-doctrine, check:surface-telemetry-parity, check:surface-state-parity, and check:role-permission-parity green before new surface work.
-- Attach runtime/provider/admin truth evidence before using parity source readiness as beta-exit proof.
+- Refresh formal runtime route-health evidence; source parity cannot clear runtime health.
+- Attach formal redacted provider smoke evidence; operator reports do not clear this gate.
+- Attach or refresh a current-head redacted Admin Truth sample with source freshness and sample counts.
 - Run npm run check:final-parity-telemetry-lock after any parity, telemetry, state, role, or debug-lane change.
 
 ## Validation

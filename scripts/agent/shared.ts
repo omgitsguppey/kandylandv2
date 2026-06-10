@@ -254,7 +254,7 @@ export function discoverRepoFiles() {
 export function listWorkingTreeFiles() {
   const state = readRepoToolchainState();
   return Array.isArray(state.workingTreeStatus)
-    ? state.workingTreeStatus.map((line) => line.replace(/^.../u, "").trim()).filter(Boolean)
+    ? state.workingTreeStatus.map((line) => line.replace(/^[ MARCUD?!]{1,2}\s+/u, "").trim()).filter(Boolean)
     : [];
 }
 
