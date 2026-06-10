@@ -420,7 +420,7 @@ export function AdminDropsAtGlancePanel() {
                                                 disabled={queueingDropId === row.drop.id}
                                                 className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 bg-black/35 px-2 text-[10px] font-semibold text-white transition-colors hover:border-brand-purple/35 hover:text-brand-pink disabled:opacity-60"
                                             >
-                                                {queueingDropId === row.drop.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Repeat className="h-3 w-3" />}
+                                                {queueingDropId === row.drop.id ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : <Repeat className="h-3 w-3" />}
                                                 <span className="hidden md:inline">{row.isQueued ? "Unqueue" : "Queue"}</span>
                                             </button>
                                         </div>

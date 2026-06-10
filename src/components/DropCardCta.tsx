@@ -61,7 +61,7 @@ export function DropCardCta({
         >
             {unlocking ? (
                 <>
-                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
                     <span>Unwrapping...</span>
                 </>
             ) : !user || ctaState === "create_profile" ? (

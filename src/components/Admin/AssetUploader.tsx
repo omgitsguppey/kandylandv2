@@ -1259,7 +1259,7 @@ export function AssetUploader({
                       </div>
                       <div className="flex items-center justify-between bg-black/70 px-1.5 py-1 text-[9px] text-white">
                         <span className="inline-flex items-center gap-1">
-                          {asset.uploadStatus === "processing" || asset.uploadStatus === "uploading" ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                          {asset.uploadStatus === "processing" || asset.uploadStatus === "uploading" ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : null}
                           {asset.uploadStatus === "processing"
                             ? "Processing"
                             : asset.uploadProgressMode === "measured"

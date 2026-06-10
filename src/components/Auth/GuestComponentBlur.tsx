@@ -25,7 +25,7 @@ export function GuestComponentBlur({
     if (loading) {
         return (
             <div className={cn("relative w-full h-full min-h-[150px] flex items-center justify-center bg-zinc-900 rounded-3xl", className)}>
-                <Loader2 className="w-8 h-8 text-brand-purple animate-spin" />
+                <Loader2 className="w-8 h-8 text-brand-purple animate-spin" aria-hidden="true" />
             </div>
         );
     }

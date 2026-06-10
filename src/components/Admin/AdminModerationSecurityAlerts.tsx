@@ -96,7 +96,7 @@ export function AdminModerationSecurityAlerts({
                     );
                 })}
                 {isLoading && alerts.length === 0 ? (
-                    <div className="p-3 text-xs text-gray-400"><Loader2 className="mr-2 inline h-3 w-3 animate-spin" />Loading alerts...</div>
+                    <div className="p-3 text-xs text-gray-400"><Loader2 className="mr-2 inline h-3 w-3 animate-spin" aria-hidden="true" />Loading alerts...</div>
                 ) : null}
                 {adminSessionState === "waiting_for_admin_session" ? (
                     <div className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-gray-400">Waiting for admin session...</div>

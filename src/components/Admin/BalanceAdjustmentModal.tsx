@@ -134,7 +134,7 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
                         onClick={handleConfirm}
                         disabled={processing || adjustment === 0 || !reason.trim()}
                     >
-                        {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm Adjustment"}
+                        {processing ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : "Confirm Adjustment"}
                     </Button>
                 </div>
             </div>

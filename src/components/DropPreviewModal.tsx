@@ -104,7 +104,7 @@ function UnwrapButtonContent({ unlocking, hasUser, canAfford, confirming, unlock
   if (unlocking) {
     return (
       <>
-        <Loader2 className="h-5 w-5 animate-spin" />
+        <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
         Unwrapping...
       </>
     );

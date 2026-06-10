@@ -508,7 +508,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
           disabled={submitting}
           className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
         >
-          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+          {submitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Plus className="h-4 w-4" />}
           Create task
         </button>
       </TaskCard>
@@ -520,7 +520,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
       >
         {isLoading ? (
           <div className="py-6 text-center">
-            <Loader2 className="mx-auto h-6 w-6 animate-spin text-brand-purple" />
+            <Loader2 className="mx-auto h-6 w-6 animate-spin text-brand-purple" aria-hidden="true" />
           </div>
         ) : (data?.customTasks?.length ?? 0) === 0 ? (
           <p className="text-sm text-gray-400">No custom tasks created yet.</p>
@@ -568,7 +568,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
                         isActive ? "border-white/10 bg-white/5 text-white" : "border-brand-purple bg-brand-purple text-white",
                       )}
                     >
-                      {updatingTaskId === task.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                      {updatingTaskId === task.id ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
                       {isActive ? "Pause" : "Activate"}
                     </button>
                   </div>

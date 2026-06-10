@@ -257,7 +257,7 @@ function StickyPreviewCta({ truth, onCtaClick, onOpenLibrary, onKeepUnwrapping }
 }
 
 function CoverCtaIcon({ truth, unlocking }: { truth: LockedDropPreviewTruth; unlocking: boolean }) {
-    if (unlocking) return <Loader2 className="h-4 w-4 animate-spin" />;
+    if (unlocking) return <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />;
     if (truth.shouldShowTopUpCta) return <Wallet className="h-4 w-4" />;
     if (truth.shouldShowCreatorShareCta) return <Share2 className="h-4 w-4" />;
     return <Lock className="h-4 w-4" />;

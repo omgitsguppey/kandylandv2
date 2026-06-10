@@ -503,7 +503,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                         )}
                     >
                         {loading ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
                         ) : (
                             <>Claim <span className="text-white mx-1">{rewardAmount}</span> Reward GD</>
                         )}

@@ -503,7 +503,7 @@ function CreatorDiscoveryRailView({
                                                     : "border-brand-purple/30 bg-brand-purple/15 text-white",
                                         )}
                                     >
-                                        {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" /> : creator.following ? "Following" : "Follow"}
+                                        {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : creator.following ? "Following" : "Follow"}
                                     </button>
                                 )}
                             </article>

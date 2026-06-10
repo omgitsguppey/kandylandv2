@@ -286,7 +286,7 @@ export function AiDropDescriptionGeneratorPanel({
                     disabled={!featureEnabled || !runtimeReady || !titleReady || generating}
                     className="h-9 border-brand-purple/25 bg-brand-purple/15 px-3 text-xs"
                 >
-                    {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    {generating ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Sparkles className="h-4 w-4" />}
                     {visibleJobs.length > 0 ? "Generate again" : "Generate description"}
                 </CompactAiActionButton>
                 {visibleJobs.length > 0 ? (
@@ -313,7 +313,7 @@ export function AiDropDescriptionGeneratorPanel({
 
             {loadingDashboard && !dashboard ? (
                 <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/25 p-3 text-xs text-gray-400">
-                    <span className="inline-flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin" />Loading AI status...</span>
+                    <span className="inline-flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />Loading AI status...</span>
                 </div>
             ) : null}
 
@@ -378,7 +378,7 @@ export function AiDropDescriptionGeneratorPanel({
                                             isSelected ? "border-brand-purple/30 bg-brand-purple/20" : "border-white/10 bg-black/35",
                                         )}
                                     >
-                                        {feedbackPending && selectedJobId !== job.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                                        {feedbackPending && selectedJobId !== job.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Check className="h-3.5 w-3.5" />}
                                         {isSelected ? "Applied" : "Use"}
                                     </CompactAiActionButton>
                                 </div>

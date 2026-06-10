@@ -427,7 +427,7 @@ export function SupportInbox() {
                     <div className="space-y-3">
                         {threadListLoading && !threadList?.threads.length ? (
                             <div className="flex items-center gap-2 rounded-[1.2rem] border border-white/10 bg-black/25 px-4 py-4 text-sm text-gray-300">
-                                <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
+                                <Loader2 className="h-4 w-4 animate-spin text-brand-purple" aria-hidden="true" />
                                 Loading tickets...
                             </div>
                         ) : threadList?.threads.length ? threadList.threads.map((thread) => {
@@ -489,7 +489,7 @@ export function SupportInbox() {
                         </div>
                     ) : selectedThreadLoading && !activeSelectedThread?.thread ? (
                         <div className="mt-4 flex items-center gap-2 rounded-[1.2rem] border border-white/10 bg-black/25 px-4 py-4 text-sm text-gray-300">
-                            <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
+                            <Loader2 className="h-4 w-4 animate-spin text-brand-purple" aria-hidden="true" />
                             Loading thread...
                         </div>
                     ) : selectedThreadError ? (
