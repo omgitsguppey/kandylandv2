@@ -2,6 +2,40 @@ import { getTransactionDisplayLabel, normalizeTransactionRecord } from "@/lib/tr
 
 type TaskEventType = "assigned" | "started" | "completed" | "failed" | "reminder_sent";
 
+export type UserActivityTaskEvent = {
+    id: string;
+    type: TaskEventType;
+    title: string;
+    reward: number;
+    progress: number;
+    maxProgress: number;
+    timestamp: number;
+};
+
+export type UserActivityItem =
+    | {
+        id: string;
+        timestamp: number;
+        kind: "transaction";
+        label: string;
+        transaction: ReturnType<typeof normalizeTransactionRecord>;
+    }
+    | {
+        id: string;
+        timestamp: number;
+        kind: "task";
+        label: string;
+        taskEvent: UserActivityTaskEvent;
+    };
+
+export type UserActivityPayload = {
+    success: true;
+    view: "summary" | "history";
+    activities: UserActivityItem[];
+    transactions: Array<ReturnType<typeof normalizeTransactionRecord>>;
+    taskEvents: UserActivityTaskEvent[];
+};
+
 export function toTimestampNumber(value: unknown) {
     if (typeof value === "number" && Number.isFinite(value)) {
         return value;
@@ -23,7 +57,7 @@ export function toTimestampNumber(value: unknown) {
     return 0;
 }
 
-export function toTaskEvent(raw: Record<string, unknown>, id: string) {
+export function toTaskEvent(raw: Record<string, unknown>, id: string): UserActivityTaskEvent | null {
     const type = raw.type;
     if (
         typeof type !== "string"
@@ -71,7 +105,7 @@ export function renderTaskEventLabel(taskEvent: NonNullable<ReturnType<typeof to
 export function buildActivityItems(
     transactionsSnapshot: { docs: Array<{ id: string; data: () => Record<string, unknown> }> },
     taskEventsSnapshot: { docs: Array<{ id: string; data: () => Record<string, unknown> }> },
-) {
+): UserActivityItem[] {
     const transactionItems = transactionsSnapshot.docs.flatMap((doc) => {
         try {
             const transaction = normalizeTransactionRecord(doc.data(), doc.id);

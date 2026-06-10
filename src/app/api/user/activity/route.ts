@@ -5,40 +5,15 @@ import { handleApiError } from "@/lib/server/auth";
 import { buildNotModifiedResponse, buildWeakEtag, PRIVATE_REVALIDATE_CACHE_CONTROL, requestMatchesEtag } from "@/lib/http-cache";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
-import type { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { readThroughStaleWhileRevalidateEphemeralRouteCache } from "@/lib/server/ephemeral-route-cache";
 import { recordRuntimeWarning } from "@/lib/server/runtime-warning-store";
-import { buildActivityItems, toTimestampNumber, type toTaskEvent } from "./activity-route-test-helpers";
-
-type ActivityItem =
-    | {
-        id: string;
-        timestamp: number;
-        kind: "transaction";
-        label: string;
-        transaction: ReturnType<typeof normalizeTransactionRecord>;
-    }
-    | {
-        id: string;
-        timestamp: number;
-        kind: "task";
-        label: string;
-        taskEvent: ReturnType<typeof toTaskEvent>;
-    };
+import { buildActivityItems, toTimestampNumber, type UserActivityPayload } from "./activity-route-test-helpers";
 
 const USER_ACTIVITY_CACHE_TTL_MS = 20_000;
 const USER_ACTIVITY_CACHE_STALE_TTL_MS = 10 * 60_000;
-
-type UserActivityPayload = {
-    success: true;
-    view: "summary" | "history";
-    activities: ActivityItem[];
-    transactions: Array<ReturnType<typeof normalizeTransactionRecord>>;
-    taskEvents: Array<ReturnType<typeof toTaskEvent>>;
-};
 
 function validateUserActivityPayload(value: UserActivityPayload) {
     const issues: string[] = [];
