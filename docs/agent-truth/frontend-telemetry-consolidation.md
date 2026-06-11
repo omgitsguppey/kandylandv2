@@ -1,7 +1,7 @@
 # Frontend Telemetry Consolidation
 
-Generated: 2026-06-08T21:12:14.272Z
-Current head: 74e6a63e204c
+Generated: 2026-06-11T15:11:05.051Z
+Current head: 4e947b3a8945
 
 - Direct telemetry calls audited: 417
 - Direct telemetry paths classified: 81

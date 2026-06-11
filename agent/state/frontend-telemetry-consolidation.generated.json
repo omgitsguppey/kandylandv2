@@ -1,7 +1,7 @@
 {
   "reportKey": "frontend-telemetry-consolidation",
-  "generatedAtUtc": "2026-06-08T21:12:14.272Z",
-  "currentHead": "74e6a63e204c",
+  "generatedAtUtc": "2026-06-11T15:11:05.051Z",
+  "currentHead": "4e947b3a8945",
   "directTelemetryCallsAudited": 417,
   "directTelemetryCallsReduced": 81,
   "telemetryOwners": [

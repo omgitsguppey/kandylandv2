@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
@@ -9,16 +8,9 @@ import {
   validateFrontendComponentConsolidationReport,
   validateFrontendSurfaceInventoryReport,
 } from "@/lib/frontend-hardening/frontend-surface-inventory";
+import { listWorkingTreeFiles, readRepoToolchainState } from "./shared";
 
 const ROOT = process.cwd();
-
-function run(command: string, args: readonly string[]) {
-  try {
-    return execFileSync(command, args, { cwd: ROOT, encoding: "utf8" }).trim();
-  } catch {
-    return "";
-  }
-}
 
 function write(path: string, value: string) {
   const fullPath = join(ROOT, path);
@@ -45,27 +37,27 @@ function readPublicBetaScore() {
 }
 
 function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) files.add(line.replace(/\\/gu, "/"));
-  }
-  return [...files].sort();
+  return listWorkingTreeFiles();
 }
 
 function classifyDirtyFile(path: string) {
   if (path === "AGENTS.md" || path === "REPO_MEMORY_LEDGER.md" || path === "agent/index/known-pitfalls.json") return "memory_update_expected";
   if (path === "package.json" || path === "package-lock.json") return "real_source_change_needs_review";
+  if (path.startsWith("agent/context/")) return "generated_context_noise_leave_unstaged";
+  if (path.startsWith("agent/index/")) return "generated_index_noise_leave_unstaged";
   if (path === "src/components/Support/SupportInbox.tsx") return "hydration_race_logic_to_fix";
   if (path === "src/lib/analytics/event-translation-bridge.ts" || path === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (path.startsWith("src/lib/frontend-hardening/")) return "real_source_change_needs_review";
   if (path.startsWith("scripts/agent/validate-frontend-") || path === "scripts/agent/validate-client-state-ownership.ts" || path === "scripts/agent/validate-hydration-race-cleanup.ts" || path === "scripts/agent/validate-codex-frontend-memory-writeback.ts") return "real_source_change_needs_review";
+  if (path === "scripts/agent/build-agent-indexes.ts" || path === "scripts/agent/validate-freshness-window-repair.ts" || path === "scripts/repo-inventory.ts") return "tooling_change_needs_separate_review";
   if (path.startsWith("tests/unit/frontend-") || path === "tests/unit/client-state-ownership.spec.ts" || path === "tests/unit/hydration-race-cleanup.spec.ts" || path === "tests/unit/codex-frontend-memory-writeback.spec.ts") return "real_source_change_needs_review";
   if (path.startsWith("agent/state/frontend-") || path === "agent/state/client-state-ownership.generated.json" || path === "agent/state/hydration-race-cleanup.generated.json" || path === "agent/state/codex-frontend-memory-writeback.generated.json") return "current_generated_artifact_to_commit";
   if (path.startsWith("docs/agent-truth/frontend-") || path === "docs/agent-truth/client-state-ownership.md" || path === "docs/agent-truth/hydration-race-cleanup.md" || path === "docs/agent-truth/codex-frontend-memory-writeback.md") return "current_generated_artifact_to_commit";
   if (path === "agent/state/event-translation-bridge.generated.json" || path === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
   if (path === "docs/agent-truth/event-translation-bridge.md" || path === "docs/agent-truth/person-metrics-hydration.md") return "current_generated_artifact_to_commit";
-  if (path === "agent/context/optimized-task-context.generated.json") return "current_generated_artifact_to_commit";
   if (path === "agent/state/public-beta-score.generated.json" || path === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";
+  if (path.startsWith("agent/state/") && path.endsWith(".generated.json")) return "generated_report_noise_leave_unstaged";
+  if (path.startsWith("docs/agent-truth/") && path.endsWith(".md")) return "generated_report_doc_noise_leave_unstaged";
   if (path === "CHANGELOG.md" || path === "public/kandydrops-release-notes.json" || path.startsWith("src/lib/release-notes/")) return "release_artifact_expected";
   return "unsafe_unknown";
 }
@@ -97,7 +89,8 @@ function renderDoc(report: ReturnType<typeof buildFrontendComponentConsolidation
 }
 
 const generatedAtUtc = new Date().toISOString();
-const currentHead = run("git", ["rev-parse", "--short", "HEAD"]) || "unknown";
+const toolchain = readRepoToolchainState();
+const currentHead = toolchain.currentHead?.slice(0, 12) ?? "unknown";
 const report = buildFrontendComponentConsolidationReport({ generatedAtUtc, currentHead });
 const inventory = buildFrontendSurfaceInventoryReport({ generatedAtUtc, currentHead });
 const betaScore = readPublicBetaScore();
@@ -108,7 +101,10 @@ const validations = [
 ];
 const classifications = Object.fromEntries(changedFiles().map((file) => [file, classifyDirtyFile(file)]));
 
-write("agent/state/frontend-component-consolidation.generated.json", JSON.stringify({ ...report, dirtyFileClassification: classifications, validationFailures: validations }, null, 2));
+const toolingFailures = toolchain.gitStatus !== "available"
+  ? [`git_required: frontend component consolidation cannot clear current-head/dirty-tree proof while Git is unavailable (${toolchain.degradationReason ?? "git unavailable"}).`]
+  : [];
+write("agent/state/frontend-component-consolidation.generated.json", JSON.stringify({ ...report, gitStatus: toolchain.gitStatus, currentHeadSource: toolchain.currentHeadSource, toolingDegraded: toolchain.toolingDegraded, degradationReason: toolchain.degradationReason, dirtyFileClassification: classifications, validationFailures: [...validations, ...toolingFailures] }, null, 2));
 write("docs/agent-truth/frontend-component-consolidation.md", renderDoc(report, classifications));
 write("agent/state/frontend-gut-consolidation.generated.json", JSON.stringify({ ...gut, dirtyFileClassification: classifications }, null, 2));
 write("docs/agent-truth/frontend-gut-consolidation.md", [
@@ -125,7 +121,7 @@ write("docs/agent-truth/frontend-gut-consolidation.md", [
   "",
 ].join("\n"));
 
-const failures = [...validations];
+const failures = [...validations, ...toolingFailures];
 for (const [file, classification] of Object.entries(classifications)) {
   if (classification === "unsafe_unknown") failures.push(`Dirty/untracked file is unclassified: ${file}`);
 }
