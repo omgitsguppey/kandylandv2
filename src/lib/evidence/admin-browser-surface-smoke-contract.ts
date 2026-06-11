@@ -218,6 +218,10 @@ function keyForEvidence(surfaceId?: string, deviceBand?: string) {
   return `${surfaceId ?? ""}::${deviceBand ?? ""}`;
 }
 
+function isAuthenticatedEvidenceState(state: AdminBrowserSurfaceEvidenceState) {
+  return state === "authenticated_surface_verified" || state === "authenticated_shell_verified";
+}
+
 export function normalizeAdminBrowserSurfaceEvidence(
   input: AdminBrowserSurfaceEvidenceInput,
 ): AdminBrowserSurfaceEvidence | null {
@@ -256,12 +260,10 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   const missingAuthenticatedSurfaceIds = requiredAuthenticated
     .filter(({ surface, deviceBand }) => {
       const entry = evidenceBySurfaceBand.get(keyForEvidence(surface.surfaceId, deviceBand));
-      return entry?.state !== "authenticated_surface_verified" && entry?.state !== "authenticated_shell_verified";
+      return !entry || !isAuthenticatedEvidenceState(entry.state);
     })
     .map(({ surface, deviceBand }) => `${surface.surfaceId}:${deviceBand}`);
-  const authenticatedSurfaceEvidenceCount = evidence.filter((entry) =>
-    entry.state === "authenticated_surface_verified" || entry.state === "authenticated_shell_verified",
-  ).length;
+  const authenticatedSurfaceEvidenceCount = evidence.filter((entry) => isAuthenticatedEvidenceState(entry.state)).length;
   const unauthBoundaryEvidenceCount = evidence.filter((entry) =>
     entry.state === "unauth_boundary_verified" || entry.state === "unauth_redirect_verified",
   ).length;
@@ -313,6 +315,9 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
 export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfaceSmokeReport) {
   const failures: string[] = [];
   const expectedSurfaceIds = new Set<string>(ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => surface.surfaceId));
+  const surfacesById = new Map<string, AdminBrowserSurfaceDefinition>(
+    ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => [surface.surfaceId, surface]),
+  );
   const reportSurfaceIds = new Set(report.surfaces.map((surface) => surface.surfaceId));
 
   for (const expected of expectedSurfaceIds) {
@@ -328,6 +333,24 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   }
   for (const entry of report.evidence) {
     if (!expectedSurfaceIds.has(entry.surfaceId)) failures.push(`evidence references unknown surface: ${entry.surfaceId}`);
+    const surface = surfacesById.get(entry.surfaceId);
+    if (surface && !(surface.deviceBands as readonly AdminBrowserSurfaceDeviceBand[]).includes(entry.deviceBand)) {
+      failures.push(`${entry.surfaceId}:${entry.deviceBand} is not an expected admin browser device band.`);
+    }
+    if (!entry.route.startsWith("/admin")) {
+      failures.push(`${entry.surfaceId}:${entry.deviceBand} evidence route must stay under /admin.`);
+    }
+    if (isAuthenticatedEvidenceState(entry.state)) {
+      if (!entry.checkedAtUtc || Number.isNaN(Date.parse(entry.checkedAtUtc))) {
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include checkedAtUtc.`);
+      }
+      if (!entry.urlAfterNavigation?.trim()) {
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include urlAfterNavigation.`);
+      }
+      if (!entry.visibleMarker?.trim()) {
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include a visible admin marker.`);
+      }
+    }
     if (entry.formalGateImpact.clearsRuntimeSmoke || entry.formalGateImpact.clearsProviderSmoke || entry.formalGateImpact.clearsAdminTruthSample || entry.formalGateImpact.clearsPaymentOrTreasuryTruth) {
       failures.push(`${entry.surfaceId}:${entry.deviceBand} overclaims formal gate impact.`);
     }

@@ -65,6 +65,37 @@ describe("admin browser surface smoke contract", () => {
     expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual([]);
   });
 
+  it("requires diagnostic fields before authenticated browser evidence can be accepted", () => {
+    const incomplete = buildAdminBrowserSurfaceSmokeReport({
+      evidence: [{
+        surfaceId: "admin_debug",
+        route: "/admin/debug",
+        deviceBand: "desktop",
+        state: "authenticated_surface_verified",
+      }],
+    });
+
+    expect(validateAdminBrowserSurfaceSmokeReport(incomplete)).toEqual(expect.arrayContaining([
+      "admin_debug:desktop authenticated evidence must include checkedAtUtc.",
+      "admin_debug:desktop authenticated evidence must include urlAfterNavigation.",
+      "admin_debug:desktop authenticated evidence must include a visible admin marker.",
+    ]));
+
+    const complete = buildAdminBrowserSurfaceSmokeReport({
+      evidence: [{
+        surfaceId: "admin_debug",
+        route: "/admin/debug",
+        deviceBand: "desktop",
+        state: "authenticated_surface_verified",
+        checkedAtUtc: "2026-06-11T12:00:00.000Z",
+        urlAfterNavigation: "/admin/debug",
+        visibleMarker: "data-admin-page-content",
+      }],
+    });
+
+    expect(validateAdminBrowserSurfaceSmokeReport(complete)).toEqual([]);
+  });
+
   it("rejects unknown surfaces and formal gate overclaims", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       evidence: [{
