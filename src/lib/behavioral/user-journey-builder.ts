@@ -497,8 +497,19 @@ export function buildBehavioralIntelligenceInput(input: {
   const bySession = new Map<string, UserJourneyEvent[]>();
   const byPerson = new Map<string, UserJourneyEvent[]>();
   for (const event of selected) {
-    bySession.set(event.sessionId, [...(bySession.get(event.sessionId) ?? []), event]);
-    byPerson.set(event.linkedPersonId, [...(byPerson.get(event.linkedPersonId) ?? []), event]);
+    const sessionEvents = bySession.get(event.sessionId);
+    if (sessionEvents) {
+      sessionEvents.push(event);
+    } else {
+      bySession.set(event.sessionId, [event]);
+    }
+
+    const personEvents = byPerson.get(event.linkedPersonId);
+    if (personEvents) {
+      personEvents.push(event);
+    } else {
+      byPerson.set(event.linkedPersonId, [event]);
+    }
   }
   return {
     storageMode: "compact_summary",
