@@ -82,7 +82,7 @@ const EVAL_CASES: EvalCase[] = [
     ],
     expectedFastCommands: ["npm run check:telemetry", "npm run check:analytics-semantics", "npm run typecheck"],
     expectedSignoffCommands: ["npm run check:analytics:continuity", "npm run check:continuity"],
-    expectedScope: "broad",
+    expectedScope: "moderate",
     forbiddenFiles: ["src/lib/gumdrop-ledger.ts", "src/lib/server/paypal.ts"],
   },
 ];
