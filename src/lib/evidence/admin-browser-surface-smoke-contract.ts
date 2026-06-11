@@ -23,6 +23,7 @@ export type AdminBrowserSurfaceDefinition = {
   deviceBands: AdminBrowserSurfaceDeviceBand[];
   requiresAdminAuth: true;
   protectedDomain?: "gumdrop_treasury";
+  authenticatedVisibleMarkers: readonly string[];
   browserSmokeReason: string;
 };
 
@@ -121,6 +122,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "overview",
     deviceBands: ["mobile", "desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Admin Overview", "data-admin-platform-pulse-grid"],
     browserSmokeReason: "Main admin landing page and shell navigation must render without hiding source-state labels.",
   },
   {
@@ -130,6 +132,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "analytics",
     deviceBands: ["mobile", "desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Analytics Overview", "data-admin-mobile-surface=analytics", "data-admin-analytics-summary=primary"],
     browserSmokeReason: "Analytics panels are dense and must keep snapshot/cache states visible.",
   },
   {
@@ -139,6 +142,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "content",
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Manage Drops", "Admin Drops"],
     browserSmokeReason: "Drop moderation and approval controls need admin-only browser confirmation.",
   },
   {
@@ -148,6 +152,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "people",
     deviceBands: ["mobile", "desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["User Management", "data-admin-users-snapshot-state", "data-admin-users-stats-layout=compact-grid"],
     browserSmokeReason: "User metrics must not collapse missing data into healthy zero states.",
   },
   {
@@ -157,6 +162,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "people",
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Engagement verdict", "Recommendation verdict", "Value verdict"],
     browserSmokeReason: "User detail drilldown is identity and support sensitive and requires authenticated browser review.",
   },
   {
@@ -166,6 +172,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "people",
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Creator Review", "data-roster-mode=decision_queue"],
     browserSmokeReason: "Creator roster decisions need explicit review/waiting/approved states.",
   },
   {
@@ -175,6 +182,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "ops",
     deviceBands: ["mobile", "desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Debug Console", "data-admin-mobile-surface=debug", "data-admin-debug-sprawl-reduction=target-75-95"],
     browserSmokeReason: "Control Tower must show stale/missing/fallback evidence without raw dumps first.",
   },
   {
@@ -184,6 +192,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "ops",
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Cover Ops", "Cover Ops Verification"],
     browserSmokeReason: "AI tooling must show enablement, budget, model, and fallback states safely.",
   },
   {
@@ -193,6 +202,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "ops",
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Support Workspace", "Admin Console"],
     browserSmokeReason: "Support inbox states must distinguish missing thread, permission denial, retryable failure, submitted, and received.",
   },
   {
@@ -202,6 +212,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "ops",
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Moderation Control Tower", "data-admin-moderation-v2=real-risk-workspace"],
     browserSmokeReason: "Moderation must avoid treating weak browser heuristics as confirmed server proof.",
   },
   {
@@ -211,6 +222,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "content",
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Content Manager", "Admin Storage"],
     browserSmokeReason: "Content management affordances must be hidden, disabled, or unavailable when not implemented.",
   },
   {
@@ -220,6 +232,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "content",
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Manage Queue", "Admin Queue"],
     browserSmokeReason: "Queue states must expose pending/review/source-missing truth.",
   },
   {
@@ -229,6 +242,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "ops",
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
+    authenticatedVisibleMarkers: ["Privacy Console", "Admin Setup"],
     browserSmokeReason: "Privacy and consent surfaces must keep source and policy boundaries visible.",
   },
   {
@@ -239,6 +253,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
     protectedDomain: "gumdrop_treasury",
+    authenticatedVisibleMarkers: ["GumDrops Commerce Control Center", "Platform Economy"],
     browserSmokeReason: "Economy views are protected: browser smoke may inspect labels only and cannot prove GumDrop/payment truth.",
   },
 ] as const satisfies readonly AdminBrowserSurfaceDefinition[];
@@ -256,6 +271,12 @@ function keyForEvidence(surfaceId?: string, deviceBand?: string) {
 
 function isAuthenticatedEvidenceState(state: AdminBrowserSurfaceEvidenceState) {
   return state === "authenticated_surface_verified" || state === "authenticated_shell_verified";
+}
+
+function matchesExpectedVisibleMarker(visibleMarker: string | undefined, expectedMarkers: readonly string[]) {
+  const normalized = visibleMarker?.trim().toLowerCase();
+  if (!normalized) return false;
+  return expectedMarkers.some((marker) => normalized.includes(marker.toLowerCase()));
 }
 
 export function normalizeAdminBrowserSurfaceEvidence(
@@ -425,6 +446,8 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
       }
       if (!entry.visibleMarker?.trim()) {
         failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include a visible admin marker.`);
+      } else if (surface && !matchesExpectedVisibleMarker(entry.visibleMarker, surface.authenticatedVisibleMarkers)) {
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence marker must match one of: ${surface.authenticatedVisibleMarkers.join(", ")}.`);
       }
     }
     if (entry.formalGateImpact.clearsRuntimeSmoke || entry.formalGateImpact.clearsProviderSmoke || entry.formalGateImpact.clearsAdminTruthSample || entry.formalGateImpact.clearsPaymentOrTreasuryTruth) {

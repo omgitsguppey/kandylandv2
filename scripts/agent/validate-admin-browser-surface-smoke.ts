@@ -75,7 +75,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     "## Surfaces",
     "",
     ...report.surfaces.map((surface) =>
-      `- ${surface.surfaceId}: route=${surface.route}; devices=${surface.deviceBands.join(",")}; group=${surface.group}; reason=${surface.browserSmokeReason}`),
+      `- ${surface.surfaceId}: route=${surface.route}; devices=${surface.deviceBands.join(",")}; group=${surface.group}; markers=${surface.authenticatedVisibleMarkers.join(" | ")}; reason=${surface.browserSmokeReason}`),
     "",
     "## Missing Authenticated Browser Evidence",
     "",
@@ -105,7 +105,7 @@ function writeTemplate() {
       urlAfterNavigation: "",
       visibleMarker: "",
       screenshotArtifactPath: "",
-      note: "Template entry only. Replace after real local browser or operator evidence exists.",
+      note: `Template entry only. Replace after real local browser or operator evidence exists. Expected markers: ${surface.authenticatedVisibleMarkers.join(" | ")}`,
     })),
   );
   write(TEMPLATE_PATH, `${JSON.stringify({

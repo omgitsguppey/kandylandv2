@@ -35,6 +35,10 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.requiredAuthenticatedSurfaceCount).toBe(18);
     expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
     expect(report.protectedSurfaceIds).toEqual(["admin_economy"]);
+    expect(report.surfaces.find((surface) => surface.surfaceId === "admin_debug")?.authenticatedVisibleMarkers).toEqual(expect.arrayContaining([
+      "Debug Console",
+      "data-admin-mobile-surface=debug",
+    ]));
     expect(report.surfaces.map((surface) => surface.route)).toEqual([
       "/admin",
       "/admin/analytics",
@@ -102,11 +106,27 @@ describe("admin browser surface smoke contract", () => {
         state: "authenticated_surface_verified",
         checkedAtUtc: "2026-06-11T12:00:00.000Z",
         urlAfterNavigation: "/admin/debug",
-        visibleMarker: "data-admin-page-content",
+        visibleMarker: "data-admin-mobile-surface=debug",
       }],
     });
 
     expect(validateAdminBrowserSurfaceSmokeReport(complete)).toEqual([]);
+
+    const wrongMarker = buildAdminBrowserSurfaceSmokeReport({
+      evidence: [{
+        surfaceId: "admin_debug",
+        route: "/admin/debug",
+        deviceBand: "desktop",
+        state: "authenticated_surface_verified",
+        checkedAtUtc: "2026-06-11T12:00:00.000Z",
+        urlAfterNavigation: "/admin/debug",
+        visibleMarker: "Content Manager",
+      }],
+    });
+
+    expect(validateAdminBrowserSurfaceSmokeReport(wrongMarker)).toEqual(expect.arrayContaining([
+      "admin_debug:desktop authenticated evidence marker must match one of: Debug Console, data-admin-mobile-surface=debug, data-admin-debug-sprawl-reduction=target-75-95.",
+    ]));
   });
 
   it("rejects unknown surfaces and formal gate overclaims", () => {
