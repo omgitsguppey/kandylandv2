@@ -1218,7 +1218,10 @@ const { user } = useAuth();
   const devices = historicalResponse?.devices ?? [];
   const pages = historicalResponse?.pages ?? [];
   const geo = historicalResponse?.geo ?? [];
-  const topDrops = historicalResponse?.topDrops ?? [];
+  const topDrops = useMemo(
+    () => historicalResponse?.topDrops ?? [],
+    [historicalResponse?.topDrops],
+  );
   const commerce = historicalResponse?.commerce ?? {
     revenueUsd: 0,
     adjustedProfitUsd: 0,
@@ -1235,7 +1238,10 @@ const { user } = useAuth();
     historicalResponse?.onboardingStats ?? EMPTY_ONBOARDING_STATS;
   const onboardingStepStats =
     historicalResponse?.onboardingStepStats ?? EMPTY_ONBOARDING_STEP_STATS;
-  const authBreakdown = historicalResponse?.authBreakdown ?? [];
+  const authBreakdown = useMemo(
+    () => historicalResponse?.authBreakdown ?? [],
+    [historicalResponse?.authBreakdown],
+  );
   const onboardingDurationBuckets =
     historicalResponse?.onboardingDurationBuckets ?? EMPTY_COUNT_BUCKETS;
   const repeatVisitSegments =
@@ -2795,8 +2801,10 @@ const { user } = useAuth();
     recentCommerceFeedRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
       : recentCommerceFeedOverride.data;
-  const recentCommerceFeedItems =
-    recentCommerceFeedData?.commerce?.feed ?? commerce.feed ?? [];
+  const recentCommerceFeedItems = useMemo(
+    () => recentCommerceFeedData?.commerce?.feed ?? commerce.feed ?? [],
+    [commerce.feed, recentCommerceFeedData?.commerce?.feed],
+  );
   const recentCommerceFeedModel = useMemo(
     () => buildAdminAnalyticsRecentCommerceFeedState({
       items: recentCommerceFeedItems,
