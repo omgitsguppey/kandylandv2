@@ -18,7 +18,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { dispatchActivitySync } from "@/lib/activity-sync";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
 } from "@/lib/creator-experiences";
@@ -622,7 +621,6 @@ export default function CreatorProfileClient() {
                 }));
             }
             toast.success(nextFollowing ? `Following ${creator.displayName}!` : `Unfollowed ${creator.displayName}`);
-            dispatchActivitySync();
         } catch (error: any) {
             trackEvent("creator_follow_failed", buildCreatorRelationshipTelemetryPayload({
                 eventName: "creator_follow_failed",

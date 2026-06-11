@@ -22,7 +22,6 @@ import {
 } from "@/lib/creator-public-pages";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
-import { dispatchActivitySync } from "@/lib/activity-sync";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { CompactNumber } from "@/components/ui/CompactNumber";
 import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
@@ -895,7 +894,6 @@ export function CreatorDiscoveryRail({
                 followerCount: nextFollowerCount ?? null,
                 action,
             }));
-            dispatchActivitySync();
         } catch (error) {
             trackEvent("creator_follow_failed", buildCreatorRelationshipTelemetryPayload({
                 eventName: "creator_follow_failed",
