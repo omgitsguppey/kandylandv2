@@ -89,6 +89,7 @@ export function ContentSatisfactionPrompt({
   const [reasonFeedbackVisible, setReasonFeedbackVisible] = useState(Boolean(recommendationReason));
   const [contentKey, setContentKey] = useState("");
 
+  /* eslint-disable react-hooks/set-state-in-effect -- Prompt visibility is a local state machine derived from cooldown storage and consumption inputs. */
   useEffect(() => {
     if (!meaningfulConsumptionKey || !dropId) {
       setVisible(false);
@@ -113,6 +114,7 @@ export function ContentSatisfactionPrompt({
     setVisible(globalReady && contentReady);
     setReasonFeedbackVisible(Boolean(recommendationReason));
   }, [assetKey, completionQuality, dropId, mediaIndex, meaningfulConsumptionKey, recommendationReason]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const markPromptSeen = () => {
     const nowMs = Date.now();

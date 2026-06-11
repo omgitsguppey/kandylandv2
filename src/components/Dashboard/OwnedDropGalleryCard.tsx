@@ -7,7 +7,7 @@ import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRati
 import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
 import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 import { Lock, Unlock, Image as ImageIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { trackEvent } from "@/lib/telemetry";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
@@ -20,13 +20,9 @@ interface OwnedDropGalleryCardProps {
 export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGalleryCardProps) {
     const ratio = getSupportedDropAspectRatio(drop);
     const ratioStyle = { aspectRatio: getAspectRatioCssValue(ratio) };
-    const [imageError, setImageError] = useState(false);
-    const coverSrc = imageError ? resolvePublicDropCoverSrc(null) : resolvePublicDropCoverSrc(drop.imageUrl);
+    const [erroredImageUrl, setErroredImageUrl] = useState<string | null>(null);
+    const coverSrc = erroredImageUrl === drop.imageUrl ? resolvePublicDropCoverSrc(null) : resolvePublicDropCoverSrc(drop.imageUrl);
     const imagePolicy = getImageLoadingPolicy("my_kandydrops_library");
-
-    useEffect(() => {
-        setImageError(false);
-    }, [drop.imageUrl]);
 
     const fileCounts = useMemo(() => {
         const summary = getDropMediaSummary(drop);
@@ -67,7 +63,7 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
                     quality={imagePolicy.quality}
                     className="object-cover"
                     sizes={imagePolicy.sizes}
-                    onError={() => setImageError(true)}
+                        onError={() => setErroredImageUrl(drop.imageUrl ?? null)}
                     {...getImagePolicyDataAttributes(imagePolicy)}
                 />
 

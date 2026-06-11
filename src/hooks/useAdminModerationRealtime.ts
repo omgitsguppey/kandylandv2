@@ -158,6 +158,7 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
         return threads[0]?.id ?? null;
     }, [selectedThreadId, threads]);
 
+    /* eslint-disable react-hooks/set-state-in-effect -- Realtime listener state intentionally synchronizes loading/error state from admin session readiness. */
     useEffect(() => {
         if (adminSessionState !== "ready") {
             setIsLoadingThreads(true);
@@ -197,7 +198,9 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
             control.cleanup();
         };
     }, [adminSessionState]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
+    /* eslint-disable react-hooks/set-state-in-effect -- Realtime listener state intentionally synchronizes loading/error state from admin session readiness. */
     useEffect(() => {
         if (adminSessionState !== "ready") {
             setIsLoadingAlerts(true);
@@ -237,7 +240,9 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
             control.cleanup();
         };
     }, [adminSessionState]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
+    /* eslint-disable react-hooks/set-state-in-effect -- Active thread message state intentionally resets when thread/session ownership changes. */
     useEffect(() => {
         if (!activeThreadId) {
             setMessages([]);
@@ -287,6 +292,7 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
             control.cleanup();
         };
     }, [activeThreadId, adminSessionState]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     const alerts = useMemo(() => clusterAdminModerationSecurityAlerts(rawAlerts), [rawAlerts]);
     const activeMessages = activeThreadId && messagesThreadId === activeThreadId ? messages : [];

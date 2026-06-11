@@ -49,11 +49,13 @@ export function CreatorFanExperienceSettingsPanel({ target, saving, onSubmit }: 
   const [restrictions, setRestrictions] = useState<CreatorRestrictions>(() => getInitialRestrictions(target));
   const [restrictionConfirmed, setRestrictionConfirmed] = useState(false);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- Admin form settings intentionally reset when the selected creator target changes. */
   useEffect(() => {
     setSettings(getInitialSettings(target));
     setRestrictions(getInitialRestrictions(target));
     setRestrictionConfirmed(false);
   }, [target]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const revenuePauseSelected = restrictions.messagingRestricted
     || restrictions.subscriptionsRestricted

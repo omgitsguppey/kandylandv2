@@ -84,6 +84,7 @@ export function CreatorAccountControlsPanel({
   const [resetLink, setResetLink] = useState("");
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(target.notificationSettings ?? {});
 
+  /* eslint-disable react-hooks/set-state-in-effect -- Admin form fields intentionally reset when the selected creator target changes. */
   useEffect(() => {
     setDisplayName(target.displayName);
     setUsername(target.username);
@@ -97,6 +98,7 @@ export function CreatorAccountControlsPanel({
     setResetLink("");
     setNotificationSettings(target.notificationSettings ?? {});
   }, [target]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const publicProfilePath = buildCreatorPublicProfilePath(username);
   const submit = async (command: CreatorAccountControlCommand) => {

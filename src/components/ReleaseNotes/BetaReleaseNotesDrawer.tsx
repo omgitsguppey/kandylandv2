@@ -43,6 +43,7 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
   const openedTrackedRef = useRef(false);
   const [portalReady, setPortalReady] = useState(false);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- Drawer portal readiness and page reset intentionally follow client/open lifecycle. */
   useEffect(() => {
     setPortalReady(true);
   }, []);
@@ -68,6 +69,7 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
     if (!isOpen) return;
     setPage(1);
   }, [isOpen]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (!isOpen) return;

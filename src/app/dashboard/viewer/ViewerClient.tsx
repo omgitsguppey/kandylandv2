@@ -58,13 +58,13 @@ export function ViewerClient({ drop, requestedDropId, initialCreatorProfile }: V
 
     useEffect(() => {
         if (!user || userProfile || authLoading) {
-            setEntitlementTimedOut(false);
             return;
         }
 
         const timer = window.setTimeout(() => setEntitlementTimedOut(true), ENTITLEMENT_LOADING_TIMEOUT_MS);
         return () => window.clearTimeout(timer);
     }, [authLoading, user, userProfile]);
+    const effectiveEntitlementTimedOut = !user || userProfile || authLoading ? false : entitlementTimedOut;
 
     const accessState = useMemo(() => resolveDropViewAccess({
         drop,
@@ -72,8 +72,8 @@ export function ViewerClient({ drop, requestedDropId, initialCreatorProfile }: V
         authLoading,
         userId: user?.uid ?? null,
         userProfile,
-        entitlementTimedOut,
-    }), [authLoading, drop, entitlementTimedOut, requestedDropId, user?.uid, userProfile]);
+        entitlementTimedOut: effectiveEntitlementTimedOut,
+    }), [authLoading, drop, effectiveEntitlementTimedOut, requestedDropId, user?.uid, userProfile]);
     const isAuthorized = accessState.allowed;
 
     // 2. Telemetry mounting happens internally within useViewerTelemetry

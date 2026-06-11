@@ -26,6 +26,7 @@ export function useAdminPrivacyPreflight(): AdminPrivacyPreflightHookState {
         ? "waiting_for_admin_session"
         : "ready";
 
+    /* eslint-disable react-hooks/set-state-in-effect -- Route fetch state intentionally follows admin session/range readiness. */
     useEffect(() => {
         if (adminSessionState !== "ready") {
             setIsLoading(true);
@@ -62,6 +63,7 @@ export function useAdminPrivacyPreflight(): AdminPrivacyPreflightHookState {
             cancelled = true;
         };
     }, [adminSessionState, range]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     return {
         data,

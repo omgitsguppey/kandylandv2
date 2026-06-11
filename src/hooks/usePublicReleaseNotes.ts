@@ -78,6 +78,7 @@ export function usePublicReleaseNotes(enabled: boolean) {
     isLoading: enabled,
   }));
 
+  /* eslint-disable react-hooks/set-state-in-effect -- Release notes route fetch state intentionally follows drawer enablement. */
   useEffect(() => {
     if (!enabled) return;
 
@@ -115,6 +116,7 @@ export function usePublicReleaseNotes(enabled: boolean) {
 
     return () => controller.abort();
   }, [enabled]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return {
     ...state,

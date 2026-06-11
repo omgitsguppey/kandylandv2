@@ -67,7 +67,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         isInsufficientBalanceModalOpen,
         isPurchaseModalOpen,
     } = useUI();
-    const [displayMode, setDisplayMode] = useState<DeviceDisplayMode>("unknown");
+    const [displayMode] = useState<DeviceDisplayMode>(() => typeof window === "undefined" ? "unknown" : detectDeviceDisplayMode());
     const submittedConsentSyncRef = useRef<string | null>(null);
     const pathname = usePathname();
     const isHomeRoute = pathname === "/";
@@ -214,10 +214,6 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         const nextPath = query ? `${pathname}${query}` : pathname;
         writeLastVisitedPath(nextPath, user?.uid ?? null);
     }, [pathname, user?.uid]);
-
-    useEffect(() => {
-        setDisplayMode(detectDeviceDisplayMode());
-    }, []);
 
     useEffect(() => {
         if (typeof window === "undefined") {
