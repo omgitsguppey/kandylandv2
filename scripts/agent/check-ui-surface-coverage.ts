@@ -18,6 +18,9 @@ type UiCoverageFile = {
   }>;
 };
 
+const ADMIN_BROWSER_SMOKE_OWNER = "tests/ui-audits/admin-browser-surface-smoke.spec.ts";
+const GUEST_RUNTIME_SMOKE_OWNER = "tests/ui-audits/runtime.spec.ts";
+
 export function checkUiSurfaceCoverage() {
   const coverage = readJsonFile<UiCoverageFile>("agent/index/ui-surface-coverage.json");
   const failures: string[] = [];
@@ -45,6 +48,18 @@ export function checkUiSurfaceCoverage() {
 
     if (surface.blocking_required && surface.audit_target?.auth_required !== "none") {
       failures.push(`${surface.route_or_component} is marked blocking-required but still requires authenticated Playwright state.`);
+    }
+
+    if (surface.audit_target?.auth_required === "admin") {
+      if (surface.playwright_owner !== ADMIN_BROWSER_SMOKE_OWNER) {
+        failures.push(`${surface.route_or_component} admin surface must be owned by ${ADMIN_BROWSER_SMOKE_OWNER}.`);
+      }
+      if (!surface.existing_tests.includes(ADMIN_BROWSER_SMOKE_OWNER)) {
+        failures.push(`${surface.route_or_component} admin surface must list ${ADMIN_BROWSER_SMOKE_OWNER} as coverage.`);
+      }
+      if (surface.existing_tests.includes(GUEST_RUNTIME_SMOKE_OWNER)) {
+        failures.push(`${surface.route_or_component} admin surface must not list guest runtime smoke as authenticated coverage.`);
+      }
     }
   });
 

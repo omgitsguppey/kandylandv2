@@ -33,6 +33,9 @@ type UiSurfaceCoverageEntry = {
   coverage_notes: string[];
 };
 
+const ADMIN_BROWSER_SMOKE_OWNER = "tests/ui-audits/admin-browser-surface-smoke.spec.ts" as const;
+const GUEST_RUNTIME_SMOKE_OWNER = "tests/ui-audits/runtime.spec.ts" as const;
+
 function readSource(repoPath: string) {
   return readFileSync(toAbsoluteRepoPath(repoPath), "utf8");
 }
@@ -259,8 +262,9 @@ function buildSurfaceEntries() {
       const canary = runtimeCanaryFor(repoPath, source);
       const existing_tests = unique([
         ...relatedTestsFor(repoPath, testFiles),
+        ...(repoPath.startsWith("src/app/admin/") ? [ADMIN_BROWSER_SMOKE_OWNER] : []),
         ...(audit_target ? [
-          ...audit_target.audit_modes.includes("runtime") ? ["tests/ui-audits/runtime.spec.ts"] : [],
+          ...audit_target.audit_modes.includes("runtime") && audit_target.auth_required === "none" ? [GUEST_RUNTIME_SMOKE_OWNER] : [],
           ...audit_target.audit_modes.includes("accessibility") ? ["tests/ui-audits/accessibility.spec.ts"] : [],
           ...audit_target.audit_modes.includes("visual") ? ["tests/ui-audits/visual-regression.spec.ts"] : [],
         ] : []),
@@ -269,10 +273,12 @@ function buildSurfaceEntries() {
       const known_gap = compact([
         hydration_mode !== "static" && !canary.protected ? "hydration_sensitive_surface_missing_runtime_canary" : null,
         criticality !== "medium" && existing_tests.length === 0 ? "high_or_critical_surface_missing_coverage_lane" : null,
-        audit_target && audit_target.auth_required !== "none" ? "auth_required_surface_not_in_guest_playwright_lane" : null,
+        audit_target && audit_target.auth_required === "admin" ? "authenticated_admin_browser_evidence_pending" : null,
+        audit_target && audit_target.auth_required !== "none" && audit_target.auth_required !== "admin" ? "auth_required_surface_not_in_guest_playwright_lane" : null,
       ])[0] ?? null;
       const coverage_notes = compact([
         blocking_required ? "Blocking public surface included in Playwright UI continuity lane." : null,
+        audit_target && audit_target.auth_required === "admin" ? "Admin surface owned by opt-in authenticated admin browser smoke lane." : null,
         audit_target && audit_target.auth_required !== "none" ? `Auth-required surface indexed with ${audit_target.auth_required} audit requirement.` : null,
         !runtime_dependencies.length ? "No direct runtime dependency imports detected." : null,
         surfaceMap.domains.find((domain) => domain.path_prefixes.some((prefix) => repoPath.startsWith(prefix)))?.name
@@ -288,7 +294,11 @@ function buildSurfaceEntries() {
         runtime_dependencies,
         hydration_mode,
         criticality,
-        playwright_owner: audit_target ? "tests/ui-audits/runtime.spec.ts" : null,
+        playwright_owner: audit_target
+          ? audit_target.auth_required === "admin"
+            ? ADMIN_BROWSER_SMOKE_OWNER
+            : GUEST_RUNTIME_SMOKE_OWNER
+          : null,
         lighthouse_required: repoPath === "src/app/page.tsx" || repoPath === "src/app/creators/[username]/page.tsx",
         existing_tests,
         known_gap,
