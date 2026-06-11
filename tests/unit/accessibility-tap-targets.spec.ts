@@ -28,9 +28,9 @@ describe("accessibility tap target launch contracts", () => {
         expect(source).toContain("closeButtonRef.current?.focus()");
         expect(source).toContain("event.key === \"Escape\"");
         expect(source).toContain("event.key !== \"Tab\"");
-        expect(source).toContain("aria-pressed={isSelected}");
-        expect(source).toContain("aria-pressed={isBundleSelected}");
-        expect(source).toContain("role=\"alert\"");
+        expect(source).toContain("aria-pressed={selected}");
+        expect(source).toContain("selected={isBundleSelected}");
+        expect(source).toContain("<HumanErrorNotice");
     });
 
     it("drop card preview and countdown controls expose accessible names without live timer spam", () => {
@@ -58,5 +58,14 @@ describe("accessibility tap target launch contracts", () => {
         expect(read("src/components/Navigation/AdminDropdown.tsx")).toContain("aria-current={isActive ? \"page\" : undefined}");
         expect(read("src/components/StickyFilterBar.tsx")).toContain("aria-expanded={isExpanded}");
         expect(read("src/components/StickyFilterBar.tsx")).toContain("aria-pressed={isSelected}");
+    });
+
+    it("admin drop action buttons keep accessible names when compact text is hidden", () => {
+        const source = read("src/components/Admin/AdminDropsAtGlancePanel.tsx");
+
+        expect(source).toContain("aria-label=\"Edit drop\"");
+        expect(source).toContain("aria-label={row.isQueued ? \"Unqueue drop\" : \"Queue drop\"}");
+        expect(source).toContain("aria-busy={queueingDropId === row.drop.id}");
+        expect(source).toContain("aria-hidden=\"true\"");
     });
 });
