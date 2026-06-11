@@ -327,7 +327,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     protectedSurfaceIds,
     doesNotProve: [...FORMAL_GATE_LIMITS],
     nextExactSteps: [
-      "Run local browser smoke against every admin route with an authenticated admin session or attach operator screenshots.",
+      "Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session or attach operator screenshots.",
       "Keep /admin/economy in protected label-only review; browser smoke cannot prove GumDrop/payment truth.",
       "Use source validators for admin truth and runtime evidence separately; do not let browser smoke clear provider/runtime/admin-truth gates.",
     ],
