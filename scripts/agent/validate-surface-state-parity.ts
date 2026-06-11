@@ -1,4 +1,3 @@
-import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -12,6 +11,7 @@ import {
   buildSurfaceStateParityReport,
   classifyRawSurfaceStateCopy,
 } from "@/lib/parity/surface-state-resolver";
+import { listTrackedFiles, listWorkingTreeFiles, readRepoToolchainState } from "./shared";
 
 const ROOT = process.cwd();
 const STATE_PATH = path.join(ROOT, "agent/state/surface-state-parity.generated.json");
@@ -21,29 +21,10 @@ const RAW_COPY_PATTERN = /Internal server error|Something went wrong|Oops|Uh oh|
 const SOURCE_SCAN_ROOTS = ["src/app", "src/components"];
 const SOURCE_SCAN_EXCLUDE = /(?:^|\/)(api|__|%5F%5F)(?:\/|$)|\.test\.|\.spec\./u;
 
-function commandOutput(command: string) {
-  try {
-    return execSync(command, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-  } catch {
-    return "";
-  }
-}
-
-function dirtyFiles() {
-  const tracked = commandOutput("git diff --name-only")
-    .split(/\r?\n/u)
-    .filter(Boolean);
-  const untracked = commandOutput("git ls-files --others --exclude-standard")
-    .split(/\r?\n/u)
-    .filter(Boolean);
-  return [...new Set([...tracked, ...untracked])];
-}
-
 function trackedUiFiles() {
-  return commandOutput(`git ls-files ${SOURCE_SCAN_ROOTS.join(" ")}`)
-    .split(/\r?\n/u)
+  return listTrackedFiles()
     .map((entry) => entry.trim().replace(/\\/gu, "/"))
-    .filter((entry) => entry && !SOURCE_SCAN_EXCLUDE.test(entry));
+    .filter((entry) => SOURCE_SCAN_ROOTS.some((root) => entry.startsWith(`${root}/`) || entry === root) && !SOURCE_SCAN_EXCLUDE.test(entry));
 }
 
 function scanRawStateCopy() {
@@ -118,12 +99,13 @@ ${report.validationFailures.length ? report.validationFailures.map((failure) => 
 }
 
 const generatedAtUtc = new Date().toISOString();
-const currentHead = commandOutput("git rev-parse HEAD") || undefined;
+const toolchain = readRepoToolchainState();
+const currentHead = toolchain.currentHead ?? undefined;
 const rawErrorCopyFindings = scanRawStateCopy();
 const report = buildSurfaceStateParityReport({
   generatedAtUtc,
   currentHead,
-  dirtyFiles: dirtyFiles(),
+  dirtyFiles: listWorkingTreeFiles(),
   rawErrorCopyFindings,
 });
 
@@ -132,6 +114,9 @@ const failures = [
   ...validateSurfaceStateRegistry(SURFACE_STATE_REGISTRY),
   ...validateTelemetryNames(),
 ];
+if (toolchain.gitStatus !== "available") {
+  failures.push(`git_required: surface state parity cannot clear current-head/dirty-tree proof while Git is unavailable (${toolchain.degradationReason ?? "git unavailable"}).`);
+}
 
 if (SURFACE_STATE_REGISTRY.length !== SURFACE_PARITY_REGISTRY.length) {
   failures.push("Surface state registry does not match surface parity registry size.");
@@ -144,6 +129,10 @@ for (const surface of SURFACE_STATE_REGISTRY) {
 
 const finalReport = {
   ...report,
+  gitStatus: toolchain.gitStatus,
+  currentHeadSource: toolchain.currentHeadSource,
+  toolingDegraded: toolchain.toolingDegraded,
+  degradationReason: toolchain.degradationReason,
   status: failures.length > 0 ? "fail" as const : "pass" as const,
   validationFailures: [...new Set(failures)],
 };

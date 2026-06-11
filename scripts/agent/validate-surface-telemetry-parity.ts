@@ -1,4 +1,3 @@
-import { execSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -22,28 +21,11 @@ import {
   buildSurfaceTelemetryParityReport,
   listSurfaceTelemetryCatalogEvents,
 } from "@/lib/telemetry/surface-telemetry-registry";
+import { listWorkingTreeFiles, readRepoToolchainState } from "./shared";
 
 const ROOT = process.cwd();
 const STATE_PATH = path.join(ROOT, "agent/state/surface-telemetry-parity.generated.json");
 const DOC_PATH = path.join(ROOT, "docs/agent-truth/surface-telemetry-parity.md");
-
-function commandOutput(command: string) {
-  try {
-    return execSync(command, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-  } catch {
-    return "";
-  }
-}
-
-function dirtyFiles() {
-  const tracked = commandOutput("git diff --name-only")
-    .split(/\r?\n/u)
-    .filter(Boolean);
-  const untracked = commandOutput("git ls-files --others --exclude-standard")
-    .split(/\r?\n/u)
-    .filter(Boolean);
-  return [...new Set([...tracked, ...untracked])];
-}
 
 function duplicateEventNames() {
   const names = TELEMETRY_EVENT_OPTIONS.map((event) => event.eventName);
@@ -136,11 +118,12 @@ ${report.validationFailures.length ? report.validationFailures.map((failure) => 
 }
 
 const generatedAtUtc = new Date().toISOString();
-const currentHead = commandOutput("git rev-parse HEAD") || undefined;
+const toolchain = readRepoToolchainState();
+const currentHead = toolchain.currentHead ?? undefined;
 const report = buildSurfaceTelemetryParityReport({
   generatedAtUtc,
   currentHead,
-  dirtyFiles: dirtyFiles(),
+  dirtyFiles: listWorkingTreeFiles(),
 });
 
 const failures = [
@@ -150,6 +133,9 @@ const failures = [
   ...validateTranslationCoverage(),
   ...duplicateEventNames().map((eventName) => `${eventName} is duplicated in TELEMETRY_EVENT_OPTIONS.`),
 ];
+if (toolchain.gitStatus !== "available") {
+  failures.push(`git_required: surface telemetry parity cannot clear current-head/dirty-tree proof while Git is unavailable (${toolchain.degradationReason ?? "git unavailable"}).`);
+}
 
 if (SURFACE_TELEMETRY_REGISTRY.length !== SURFACE_PARITY_REGISTRY.length) {
   failures.push("Surface telemetry registry does not match surface parity registry size.");
@@ -162,6 +148,10 @@ for (const surface of SURFACE_TELEMETRY_REGISTRY) {
 
 const finalReport = {
   ...report,
+  gitStatus: toolchain.gitStatus,
+  currentHeadSource: toolchain.currentHeadSource,
+  toolingDegraded: toolchain.toolingDegraded,
+  degradationReason: toolchain.degradationReason,
   status: failures.length > 0 ? "fail" as const : "pass" as const,
   validationFailures: [...new Set(failures)],
 };

@@ -1,6 +1,6 @@
 # Surface Telemetry Parity
 
-Generated: 2026-06-02T16:52:53.765Z
+Generated: 2026-06-11T15:03:01.612Z
 
 Status: pass
 

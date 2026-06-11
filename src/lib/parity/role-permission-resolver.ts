@@ -314,8 +314,14 @@ export function classifyRolePermissionDirtyFile(path: string): RolePermissionDir
   if (normalized === "agent/state/role-permission-parity.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/role-permission-parity.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-role-permission-parity.ts") return "validator_artifact_expected";
+  if (/^agent\/context\//u.test(normalized) || /^agent\/index\//u.test(normalized)) return "unrelated_agent_context_file_to_ignore";
+  if (/^agent\/state\/.+\.generated\.json$/u.test(normalized)) return "stale_generated_artifact_to_regenerate";
+  if (/^docs\/agent-truth\/.+\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^scripts\/agent\/.+\.ts$/u.test(normalized) || normalized === "scripts/repo-inventory.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/role-permission-parity.spec.ts") return "test_artifact_expected";
   if (/^src\/lib\/parity\/role-permission-(contract|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (/^src\/lib\/parity\/surface-state-(contract|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "src/lib/telemetry/surface-telemetry-registry.ts") return "real_source_change_needs_review";
   if (
     normalized === "package.json"
     || normalized === "package-lock.json"

@@ -1,20 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
 
 import {
   ROLE_PERMISSION_REGISTRY,
   buildRolePermissionParityReport,
 } from "@/lib/parity/role-permission-resolver";
+import { listWorkingTreeFiles, readRepoToolchainState } from "./shared";
 
 const STATE_PATH = "agent/state/role-permission-parity.generated.json";
 const DOC_PATH = "docs/agent-truth/role-permission-parity.md";
-
-function git(args: string[]) {
-  const result = spawnSync("git", args, { encoding: "utf8" });
-  if (result.status !== 0) return "";
-  return result.stdout.trim();
-}
 
 function writeJson(filePath: string, data: unknown) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -87,14 +81,27 @@ ${report.validationFailures.length === 0 ? "- No validation failures." : report.
 `);
 }
 
-const dirtyFiles = git(["diff", "--name-only"]).split(/\r?\n/u).filter(Boolean)
-  .concat(git(["ls-files", "--others", "--exclude-standard"]).split(/\r?\n/u).filter(Boolean));
+const toolchain = readRepoToolchainState();
+const dirtyFiles = listWorkingTreeFiles();
 
-const report = buildRolePermissionParityReport({
-  currentHead: git(["rev-parse", "HEAD"]),
+const baseReport = buildRolePermissionParityReport({
+  currentHead: toolchain.currentHead ?? "unknown",
   dirtyFiles,
   registry: ROLE_PERMISSION_REGISTRY,
 });
+const report = {
+  ...baseReport,
+  gitStatus: toolchain.gitStatus,
+  currentHeadSource: toolchain.currentHeadSource,
+  toolingDegraded: toolchain.toolingDegraded,
+  degradationReason: toolchain.degradationReason,
+  validationFailures: [
+    ...baseReport.validationFailures,
+    ...(toolchain.gitStatus !== "available"
+      ? [`git_required: role permission parity cannot clear current-head/dirty-tree proof while Git is unavailable (${toolchain.degradationReason ?? "git unavailable"}).`]
+      : []),
+  ],
+};
 
 writeJson(STATE_PATH, report);
 writeDoc(DOC_PATH, report);

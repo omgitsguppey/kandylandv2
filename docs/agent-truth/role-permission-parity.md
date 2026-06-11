@@ -1,8 +1,8 @@
 # Role Permission Parity
 
-Generated: 2026-05-25T21:39:18.512Z
+Generated: 2026-06-11T15:03:17.374Z
 Status: pass
-Head: d11f133f925ed09141b89633d5ebaff72e38eb55
+Head: c5e5f6fccd93481f42b0da25a10f85ae0df6f0a8
 
 ## Summary
 
