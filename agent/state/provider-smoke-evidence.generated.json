@@ -1,10 +1,19 @@
 {
-  "generatedAtUtc": "2026-06-03T18:49:46.372Z",
+  "generatedAtUtc": "2026-06-11T14:40:22.954Z",
   "reportKey": "provider-smoke-evidence",
-  "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-  "sourceCommit": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
+  "currentHead": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
+  "sourceCommit": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
   "overallStatus": "operator_reported_not_formal_provider_smoke",
   "status": "operator_reported_not_formal_provider_smoke",
+  "externalEvidenceStatus": "external_evidence_required",
+  "evidenceBoundary": {
+    "evidenceKind": "provider_proof",
+    "sourceCheckCanPass": true,
+    "providerCallsPerformed": false,
+    "secretValuesPrinted": false,
+    "operatorReportClearsGate": false,
+    "doesNotProve": "Source checks, env registration, and operator-reported payment activity do not prove provider credentials, provider callbacks, PayPal UI, or webhook truth."
+  },
   "providerSmoke": {
     "status": "missing_formal_evidence",
     "passed": false,

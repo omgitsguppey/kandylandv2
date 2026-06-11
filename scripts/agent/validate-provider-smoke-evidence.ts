@@ -217,6 +217,15 @@ function writeGeneratedState(result: LaneEvaluation) {
     sourceCommit: head,
     overallStatus: passed ? "formal_provider_smoke_passed" : operatorConfirmed ? "operator_reported_not_formal_provider_smoke" : "missing_formal_evidence",
     status: passed ? "formal_provider_smoke_passed" : operatorConfirmed ? "operator_reported_not_formal_provider_smoke" : "missing_formal_evidence",
+    externalEvidenceStatus: passed ? "formal_provider_proof_attached" : "external_evidence_required",
+    evidenceBoundary: {
+      evidenceKind: "provider_proof",
+      sourceCheckCanPass: true,
+      providerCallsPerformed: false,
+      secretValuesPrinted: false,
+      operatorReportClearsGate: false,
+      doesNotProve: "Source checks, env registration, and operator-reported payment activity do not prove provider credentials, provider callbacks, PayPal UI, or webhook truth.",
+    },
     providerSmoke: {
       status: passed ? "formal_provider_smoke_passed" : "missing_formal_evidence",
       passed,
