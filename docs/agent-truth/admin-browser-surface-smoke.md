@@ -11,6 +11,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Admin surfaces: 14
 - Route targets: 14
 - Source admin pages: 14
+- Layout selector contract present: true
 - Required authenticated surface/device checks: 18
 - Evidence entries: 18
 - Authenticated checks present: 0
@@ -63,6 +64,14 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 ## Extra Surface Routes
 
 - none
+
+## Layout Selector Contract
+
+- Owner: src/app/admin/layout.tsx
+- Surface attribute: true
+- Route attribute: true
+- Group attribute: true
+- Uses resolver: true
 
 ## Missing Authenticated Browser Evidence
 

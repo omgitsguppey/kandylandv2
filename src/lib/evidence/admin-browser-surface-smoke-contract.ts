@@ -108,6 +108,7 @@ export type AdminBrowserSurfaceSmokeReport = {
     adminSurfaceCount: number;
     routeCount: number;
     sourceAdminPageCount: number;
+    layoutSelectorContractPresent: boolean;
     requiredAuthenticatedSurfaceCount: number;
     evidenceCount: number;
     authenticatedSurfaceEvidenceCount: number;
@@ -121,6 +122,13 @@ export type AdminBrowserSurfaceSmokeReport = {
   sourceAdminRoutes: string[];
   missingSourceAdminRoutes: string[];
   extraSurfaceRoutes: string[];
+  layoutSelectorContract: {
+    ownerPath: "src/app/admin/layout.tsx";
+    hasSurfaceAttribute: boolean;
+    hasRouteAttribute: boolean;
+    hasGroupAttribute: boolean;
+    usesSurfaceResolver: boolean;
+  };
   evidence: AdminBrowserSurfaceEvidence[];
   missingAuthenticatedSurfaceIds: string[];
   protectedSurfaceIds: string[];
@@ -187,6 +195,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   evidence?: AdminBrowserSurfaceEvidenceInput[];
   evidenceProvenance?: Partial<AdminBrowserSurfaceEvidenceProvenance>;
   sourceAdminRoutes?: string[];
+  layoutSelectorContract?: Partial<AdminBrowserSurfaceSmokeReport["layoutSelectorContract"]>;
 } = {}): AdminBrowserSurfaceSmokeReport {
   const evidence = (input.evidence ?? [])
     .map(normalizeAdminBrowserSurfaceEvidence)
@@ -227,6 +236,18 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   const sourceRouteSet = new Set(sourceAdminRoutes);
   const missingSourceAdminRoutes = sourceAdminRoutes.filter((route) => !surfaceRouteSet.has(route));
   const extraSurfaceRoutes = surfaceRoutes.filter((route) => !sourceRouteSet.has(route));
+  const layoutSelectorContract = {
+    ownerPath: "src/app/admin/layout.tsx" as const,
+    hasSurfaceAttribute: Boolean(input.layoutSelectorContract?.hasSurfaceAttribute),
+    hasRouteAttribute: Boolean(input.layoutSelectorContract?.hasRouteAttribute),
+    hasGroupAttribute: Boolean(input.layoutSelectorContract?.hasGroupAttribute),
+    usesSurfaceResolver: Boolean(input.layoutSelectorContract?.usesSurfaceResolver),
+  };
+  const layoutSelectorContractPresent =
+    layoutSelectorContract.hasSurfaceAttribute &&
+    layoutSelectorContract.hasRouteAttribute &&
+    layoutSelectorContract.hasGroupAttribute &&
+    layoutSelectorContract.usesSurfaceResolver;
   const totalFindingCount = missingAuthenticatedSurfaceIds.length;
 
   const status: AdminBrowserSurfaceReportStatus = authenticatedSurfaceEvidenceCount === requiredAuthenticated.length
@@ -284,6 +305,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
       adminSurfaceCount: ADMIN_BROWSER_SURFACE_DEFINITIONS.length,
       routeCount: surfaceRoutes.length,
       sourceAdminPageCount: sourceAdminRoutes.length,
+      layoutSelectorContractPresent,
       requiredAuthenticatedSurfaceCount: requiredAuthenticated.length,
       evidenceCount: evidence.length,
       authenticatedSurfaceEvidenceCount,
@@ -297,6 +319,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     sourceAdminRoutes,
     missingSourceAdminRoutes,
     extraSurfaceRoutes,
+    layoutSelectorContract,
     evidence,
     missingAuthenticatedSurfaceIds,
     protectedSurfaceIds,
@@ -358,6 +381,18 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   }
   if (report.extraSurfaceRoutes.length > 0) {
     failures.push(`admin browser smoke lists routes without source admin pages: ${report.extraSurfaceRoutes.join(", ")}.`);
+  }
+  if (!report.layoutSelectorContract.hasSurfaceAttribute) {
+    failures.push("admin browser smoke requires src/app/admin/layout.tsx to emit data-admin-browser-surface.");
+  }
+  if (!report.layoutSelectorContract.hasRouteAttribute) {
+    failures.push("admin browser smoke requires src/app/admin/layout.tsx to emit data-admin-browser-route.");
+  }
+  if (!report.layoutSelectorContract.hasGroupAttribute) {
+    failures.push("admin browser smoke requires src/app/admin/layout.tsx to emit data-admin-browser-surface-group.");
+  }
+  if (!report.layoutSelectorContract.usesSurfaceResolver) {
+    failures.push("admin browser smoke requires src/app/admin/layout.tsx to use resolveAdminBrowserSurfaceForPathname.");
   }
   for (const entry of report.evidence) {
     if (!expectedSurfaceIds.has(entry.surfaceId)) failures.push(`evidence references unknown surface: ${entry.surfaceId}`);

@@ -16,6 +16,7 @@ const ARTIFACT_PATH = "agent/state/admin-browser-surface-smoke.generated.json";
 const DOC_PATH = "docs/agent-truth/admin-browser-surface-smoke.md";
 const TEMPLATE_PATH = "agent/evidence/admin-browser-surface-smoke/template.json";
 const OPTIONAL_EVIDENCE_PATH = "agent/evidence/admin-browser-surface-smoke/evidence.json";
+const ADMIN_LAYOUT_PATH = "src/app/admin/layout.tsx" as const;
 
 function git(args: string[]) {
   try {
@@ -94,6 +95,17 @@ function sourceAdminRoutes() {
   return walkAdminPagePaths().map(adminRouteFromPagePath).sort();
 }
 
+function readLayoutSelectorContract() {
+  const layoutSource = readFileSync(join(ROOT, ADMIN_LAYOUT_PATH), "utf8");
+  return {
+    ownerPath: ADMIN_LAYOUT_PATH,
+    hasSurfaceAttribute: layoutSource.includes("data-admin-browser-surface="),
+    hasRouteAttribute: layoutSource.includes("data-admin-browser-route="),
+    hasGroupAttribute: layoutSource.includes("data-admin-browser-surface-group="),
+    usesSurfaceResolver: layoutSource.includes("resolveAdminBrowserSurfaceForPathname"),
+  };
+}
+
 function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
   return [
     "# Admin Browser Surface Smoke",
@@ -109,6 +121,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Admin surfaces: ${report.summary.adminSurfaceCount}`,
     `- Route targets: ${report.summary.routeCount}`,
     `- Source admin pages: ${report.summary.sourceAdminPageCount}`,
+    `- Layout selector contract present: ${report.summary.layoutSelectorContractPresent}`,
     `- Required authenticated surface/device checks: ${report.summary.requiredAuthenticatedSurfaceCount}`,
     `- Evidence entries: ${report.summary.evidenceCount}`,
     `- Authenticated checks present: ${report.summary.authenticatedSurfaceEvidenceCount}`,
@@ -142,6 +155,14 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     ...(report.extraSurfaceRoutes.length > 0
       ? report.extraSurfaceRoutes.map((route) => `- ${route}`)
       : ["- none"]),
+    "",
+    "## Layout Selector Contract",
+    "",
+    `- Owner: ${report.layoutSelectorContract.ownerPath}`,
+    `- Surface attribute: ${report.layoutSelectorContract.hasSurfaceAttribute}`,
+    `- Route attribute: ${report.layoutSelectorContract.hasRouteAttribute}`,
+    `- Group attribute: ${report.layoutSelectorContract.hasGroupAttribute}`,
+    `- Uses resolver: ${report.layoutSelectorContract.usesSurfaceResolver}`,
     "",
     "## Missing Authenticated Browser Evidence",
     "",
@@ -189,6 +210,7 @@ const report = buildAdminBrowserSurfaceSmokeReport({
   evidence: evidenceFile?.evidence,
   evidenceProvenance: evidenceFile?.provenance,
   sourceAdminRoutes: sourceAdminRoutes(),
+  layoutSelectorContract: readLayoutSelectorContract(),
 });
 const failures = validateAdminBrowserSurfaceSmokeReport(report);
 const output: AdminBrowserSurfaceSmokeReport = {

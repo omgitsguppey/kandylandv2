@@ -17,11 +17,20 @@ const LOCAL_BROWSER_PROVENANCE = {
   notes: ["Unit fixture for local browser evidence."],
 };
 
+const LAYOUT_SELECTOR_CONTRACT = {
+  ownerPath: "src/app/admin/layout.tsx" as const,
+  hasSurfaceAttribute: true,
+  hasRouteAttribute: true,
+  hasGroupAttribute: true,
+  usesSurfaceResolver: true,
+};
+
 describe("admin browser surface smoke contract", () => {
   it("tracks every admin page as authenticated browser-pending by default", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       currentHead: "abc123",
       generatedAtUtc: "2026-06-11T12:00:00.000Z",
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
     });
 
     expect(report.reportKey).toBe("admin-browser-surface-smoke");
@@ -43,6 +52,7 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.adminSurfaceCount).toBe(14);
     expect(report.summary.routeCount).toBe(14);
     expect(report.summary.sourceAdminPageCount).toBe(14);
+    expect(report.summary.layoutSelectorContractPresent).toBe(true);
     expect(report.summary.requiredAuthenticatedSurfaceCount).toBe(18);
     expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
     expect(report.evidenceProvenance.source).toBe("none");
@@ -98,6 +108,7 @@ describe("admin browser surface smoke contract", () => {
   it("records unauthenticated browser boundary evidence without clearing authenticated admin checks", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       evidence: ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => ({
         surfaceId: surface.surfaceId,
         route: surface.route,
@@ -126,6 +137,7 @@ describe("admin browser surface smoke contract", () => {
   it("requires diagnostic fields before authenticated browser evidence can be accepted", () => {
     const incomplete = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -142,6 +154,7 @@ describe("admin browser surface smoke contract", () => {
 
     const complete = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -157,6 +170,7 @@ describe("admin browser surface smoke contract", () => {
 
     const wrongMarker = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -176,6 +190,7 @@ describe("admin browser surface smoke contract", () => {
   it("rejects unknown surfaces and formal gate overclaims", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -214,6 +229,7 @@ describe("admin browser surface smoke contract", () => {
 
   it("fails when a source admin page is not represented in the browser smoke matrix", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       sourceAdminRoutes: [
         ...ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => surface.route),
         "/admin/new-panel",
@@ -223,6 +239,18 @@ describe("admin browser surface smoke contract", () => {
     expect(report.missingSourceAdminRoutes).toEqual(["/admin/new-panel"]);
     expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual(expect.arrayContaining([
       "admin browser smoke is missing source admin routes: /admin/new-panel.",
+    ]));
+  });
+
+  it("fails when the shared admin layout does not expose browser smoke selectors", () => {
+    const report = buildAdminBrowserSurfaceSmokeReport();
+
+    expect(report.summary.layoutSelectorContractPresent).toBe(false);
+    expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual(expect.arrayContaining([
+      "admin browser smoke requires src/app/admin/layout.tsx to emit data-admin-browser-surface.",
+      "admin browser smoke requires src/app/admin/layout.tsx to emit data-admin-browser-route.",
+      "admin browser smoke requires src/app/admin/layout.tsx to emit data-admin-browser-surface-group.",
+      "admin browser smoke requires src/app/admin/layout.tsx to use resolveAdminBrowserSurfaceForPathname.",
     ]));
   });
 });
