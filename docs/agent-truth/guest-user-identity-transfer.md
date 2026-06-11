@@ -1,7 +1,7 @@
 # Guest-to-User Identity Transfer
 
-Generated: 2026-06-08T22:26:42.966Z
-Current head: 3dc89e369a6a422df4aec2d3f89d977d0771de1e
+Generated: 2026-06-11T15:07:12.172Z
+Current head: 1d431f52c0dd74584952953bb0dcd7522160dad0
 Current head source: git
 Git status: available
 Tooling degraded: false

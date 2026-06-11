@@ -1,7 +1,7 @@
-import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readRepoToolchainState } from "./shared";
 
 type Severity = "p0" | "p1" | "p2";
 type CostLane = "cloud_run" | "cloud_sql" | "gemini_cloud_assist" | "route_4xx";
@@ -10,6 +10,10 @@ export type GuestUserIdentityTransferReport = {
   generatedAtUtc: string;
   reportKey: "guest-user-identity-transfer";
   currentHead: string;
+  currentHeadSource: "git" | "repo_inventory" | "generated_artifact" | "unknown";
+  gitStatus: "available" | "missing" | "error";
+  toolingDegraded: boolean;
+  degradationReason: string | null;
   summary: {
     linkHelperCreated: boolean;
     identityLinkRouteCreated: boolean;
@@ -73,7 +77,8 @@ const inspectedSourceFiles = [
 ];
 
 function currentHead(root = repoRoot) {
-  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+  void root;
+  return readRepoToolchainState().currentHead ?? "unknown";
 }
 
 function readIfExists(relativePath: string) {
@@ -93,6 +98,7 @@ export function buildGuestUserIdentityTransferReport(input: {
   currentHead: string;
   generatedAtUtc: string;
 }): GuestUserIdentityTransferReport {
+  const toolchain = readRepoToolchainState();
   const transferFindings: GuestUserIdentityTransferReport["transferFindings"] = [
     {
       id: "link-first-transfer",
@@ -160,6 +166,10 @@ export function buildGuestUserIdentityTransferReport(input: {
     generatedAtUtc: input.generatedAtUtc,
     reportKey: "guest-user-identity-transfer",
     currentHead: input.currentHead,
+    currentHeadSource: toolchain.currentHeadSource,
+    gitStatus: toolchain.gitStatus,
+    toolingDegraded: toolchain.toolingDegraded,
+    degradationReason: toolchain.degradationReason,
     summary: {
       linkHelperCreated: true,
       identityLinkRouteCreated: true,
@@ -232,6 +242,9 @@ export function validateGuestUserIdentityTransferReport(
   if (options.currentHead && report.currentHead !== options.currentHead) {
     failures.push("currentHead mismatch.");
   }
+  if (report.gitStatus !== "available") {
+    failures.push(`git_required: guest-user identity transfer cannot clear current-head proof while Git is unavailable (${report.degradationReason ?? "git unavailable"}).`);
+  }
   if (!report.summary.linkHelperCreated || !linkHelper.includes("buildIdentityLink")) {
     failures.push("guest-to-user link helper missing.");
   }
@@ -247,8 +260,11 @@ export function validateGuestUserIdentityTransferReport(
   if (!linkHelper.includes("createIdentityLinkStorageKey") || !linkHelper.includes("hasSubmittedIdentityLink")) {
     failures.push("link submission idempotency helper missing.");
   }
-  if (!authContext.includes("hasSubmittedIdentityLink") || !authContext.includes("markIdentityLinkSubmitted")) {
-    failures.push("auth transition can spam transfer route.");
+  if (!authContext.includes("payload.submit(authFetch)")) {
+    failures.push("auth transition does not delegate identity-link lifecycle to payload.submit.");
+  }
+  if (!linkHelper.includes("if (hasSubmittedIdentityLink(link, storage))") || !linkHelper.includes("markIdentityLinkSubmitted(link, storage)")) {
+    failures.push("identity-link payload submit must own pending and duplicate suppression.");
   }
   if (!route.includes("auth: \"user\"") || !route.includes("requireAuthHeaderPresence: true") || !route.includes("auth_required")) {
     failures.push("transfer route must require authenticated user.");
@@ -304,6 +320,9 @@ function renderMarkdown(report: GuestUserIdentityTransferReport) {
     "",
     `Generated: ${report.generatedAtUtc}`,
     `Current head: ${report.currentHead}`,
+    `Current head source: ${report.currentHeadSource}`,
+    `Git status: ${report.gitStatus}`,
+    `Tooling degraded: ${report.toolingDegraded}`,
     "",
     "## Summary",
     "",

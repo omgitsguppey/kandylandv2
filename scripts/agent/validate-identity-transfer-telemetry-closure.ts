@@ -227,8 +227,11 @@ export function validateIdentityTransferTelemetryClosureReport(
   if (identityRoute.includes("collectionGroup") || identityRoute.includes("analytics_guest_batches")) {
     failures.push("identity link route must not broad-read guest history.");
   }
-  if (!authContext.includes("hasSubmittedIdentityLink") || !authContext.includes("markIdentityLinkSubmitted")) {
-    failures.push("auth transition can spam the identity link route.");
+  if (!authContext.includes("payload.submit(authFetch)")) {
+    failures.push("auth transition does not delegate identity-link lifecycle to payload.submit.");
+  }
+  if (!identityLink.includes("if (hasSubmittedIdentityLink(link, storage))") || !identityLink.includes("markIdentityLinkSubmitted(link, storage)")) {
+    failures.push("identity-link payload submit must own pending and duplicate suppression.");
   }
   if (!identifiedIngest.includes("resolveIdentityTransferTelemetryState") || !identifiedIngest.includes("sourceIdentity")) {
     failures.push("identified ingest must preserve session continuity with shared identity-state resolution.");
