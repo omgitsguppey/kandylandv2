@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-05-24T09:24:25.748Z",
-  "currentHead": "309d6b03",
+  "generatedAtUtc": "2026-06-11T14:26:38.205Z",
+  "currentHead": "93d85913a",
   "providerConflictsMapped": [
     {
       "code": "auth/use-google-sign-in",
@@ -82,51 +82,51 @@
     "gumdropRuntimeTouched": false
   },
   "scoreBefore": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreDimensions": {
     "sourceHealth": {
-      "before": 92.5,
-      "after": 92.5,
+      "before": 91.7,
+      "after": 91.7,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No auth-provider-conflict action needed for this dimension."
     },
     "runtimeHealth": {
-      "before": 84.2,
-      "after": 84.2,
+      "before": 72.8,
+      "after": 72.8,
       "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No auth-provider-conflict action needed for this dimension."
+      "status": "below_target",
+      "nextExactAction": "Keep the owning beta score lane visible until formal blockers are resolved."
     },
     "evidenceCompleteness": {
-      "before": 69.6,
-      "after": 69.6,
+      "before": 43.4,
+      "after": 43.4,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Attach formal provider/runtime/admin evidence; keep source-only auth conflict evidence separate."
     },
     "freshness": {
-      "before": 83.75,
-      "after": 83.75,
+      "before": 59.38,
+      "after": 59.38,
       "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No auth-provider-conflict action needed for this dimension."
+      "status": "below_target",
+      "nextExactAction": "Keep the owning beta score lane visible until formal blockers are resolved."
     },
     "costRisk": {
       "before": 42,
@@ -136,15 +136,15 @@
       "nextExactAction": "Complete external cost owner review; auth conflict source changes do not claim billing proof."
     },
     "regressionRisk": {
-      "before": 86,
-      "after": 86,
+      "before": 94,
+      "after": 94,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No auth-provider-conflict action needed for this dimension."
     },
     "overallHealthScore": {
-      "before": 79.25,
-      "after": 79.25,
+      "before": 68.67,
+      "after": 68.67,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Keep the owning beta score lane visible until formal blockers are resolved."
@@ -152,187 +152,220 @@
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/context/doctrine.cards.jsonl",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/auth-persistence-stability.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/context/doctrine.index.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/file-size-budget.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/legacy-registry.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/task-pack.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/validator-map.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/index/blast-radius.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/canonical-helpers.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/dependency-graph.summary.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/governance-truth.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/known-pitfalls.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/package-manager-truth.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/recent-passes.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/repo-inventory.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/retrieval-index.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/runtime-observability.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/surface-map.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/ui-surface-coverage.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/verification-commands.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/index/workflow-guidance.json",
+      "classification": "unrelated_agent_index_file_to_review"
+    },
+    {
+      "path": "agent/state/admin-cms-workflow-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/auth-provider-conflict-resolution.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/auth-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/canonical-math-authority-ledger.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/auth-runtime-telemetry.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/config-env-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/debug-evidence-staleness-queue.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/email-password-auth-refactor.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/event-envelope-normalization.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/global-cost-surfaces.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/identity-handoff-spine.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/provider-smoke-evidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/auth-persistence-stability.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/state/score-80-reconciliation-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-dimension-80-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/settings-creator-dashboard-split.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/sql-mirror-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/sql-sync.payload.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/support-policy-surface-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/treasury-reconciliation-engine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/treasury-structure-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-management-status-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-profile-api-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/admin-cms-drop-workflow.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/auth-provider-conflict-resolution.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/auth-readiness-lock.md",
-      "classification": "release_artifact_expected"
+      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/auth-runtime-telemetry.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/email-password-auth-refactor.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
-      "classification": "release_artifact_expected"
+      "path": "docs/agent-truth/config-env-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/identity-handoff-spine.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "release_artifact_expected"
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "release_artifact_expected"
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
+      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-persistence-stability.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-provider-conflict-resolution.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-readiness-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-runtime-telemetry.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-email-password-auth-refactor.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/auth-readiness-lock.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "docs/agent-truth/score-dimension-80-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     }
   ],
-  "openPrClassification": [
-    {
-      "number": 289,
-      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
-      "classification": "not_auth_related",
-      "action": "none",
-      "reason": "Open PR does not own auth provider conflict handling."
-    },
-    {
-      "number": 288,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "classification": "not_auth_related",
-      "action": "none",
-      "reason": "Open PR does not own auth provider conflict handling."
-    },
-    {
-      "number": 287,
-      "title": "🛡️ Sentinel: [HIGH] Fix Open Redirect via Protocol-Relative URLs",
-      "classification": "not_auth_related",
-      "action": "none",
-      "reason": "Open PR does not own auth provider conflict handling."
-    },
-    {
-      "number": 286,
-      "title": "⚡ Bolt: Replace nested array.find with Map lookups in debug route",
-      "classification": "not_auth_related",
-      "action": "none",
-      "reason": "Open PR does not own auth provider conflict handling."
-    },
-    {
-      "number": 285,
-      "title": "🎨 Palette: Add aria-busy state to CreatorProfileHeader follow button",
-      "classification": "not_auth_related",
-      "action": "none",
-      "reason": "Open PR does not own auth provider conflict handling."
-    }
-  ],
+  "dirtyFileCount": 113,
+  "dirtyFilesTruncated": true,
+  "dirtyFileClassificationCounts": {
+    "unrelated_agent_context_file_to_ignore": 7,
+    "unrelated_agent_index_file_to_review": 14,
+    "stale_generated_artifact_to_regenerate": 32,
+    "current_generated_artifact_to_commit": 1,
+    "release_artifact_expected": 1,
+    "unrelated_agent_validator_tooling_to_review": 56,
+    "validator_artifact_expected": 1,
+    "unrelated_agent_index_tooling_to_review": 1
+  },
+  "unsafeDirtyFileCount": 0,
+  "openPrClassification": [],
   "oldLogicClassification": [
     {
       "reference": "auth/use-google-sign-in",
@@ -351,12 +384,16 @@
     }
   ],
   "remainingGaps": [
+    "runtimeHealth: Keep the owning beta score lane visible until formal blockers are resolved.",
     "evidenceCompleteness: Attach formal provider/runtime/admin evidence; keep source-only auth conflict evidence separate.",
+    "freshness: Keep the owning beta score lane visible until formal blockers are resolved.",
     "costRisk: Complete external cost owner review; auth conflict source changes do not claim billing proof.",
     "overallHealthScore: Keep the owning beta score lane visible until formal blockers are resolved."
   ],
   "nextExactSteps": [
+    "runtimeHealth: Keep the owning beta score lane visible until formal blockers are resolved.",
     "evidenceCompleteness: Attach formal provider/runtime/admin evidence; keep source-only auth conflict evidence separate.",
+    "freshness: Keep the owning beta score lane visible until formal blockers are resolved.",
     "costRisk: Complete external cost owner review; auth conflict source changes do not claim billing proof.",
     "overallHealthScore: Keep the owning beta score lane visible until formal blockers are resolved."
   ],

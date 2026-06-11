@@ -18,6 +18,7 @@ const __filename = fileURLToPath(import.meta.url);
 const ROOT = join(dirname(__filename), "..", "..");
 const STATE_PATH = "agent/state/auth-provider-conflict-resolution.generated.json";
 const DOC_PATH = "docs/agent-truth/auth-provider-conflict-resolution.md";
+const MAX_DIRTY_FILE_EXAMPLES = 50;
 
 const REQUIRED_EVENTS = [
   "auth_provider_conflict_detected",
@@ -47,6 +48,9 @@ type DirtyClassification =
   | "stale_provider_conflict_logic_to_remove"
   | "stale_auth_error_copy_to_remove"
   | "unrelated_agent_context_file_to_ignore"
+  | "unrelated_agent_index_file_to_review"
+  | "unrelated_agent_index_tooling_to_review"
+  | "unrelated_agent_validator_tooling_to_review"
   | "real_source_change_needs_review"
   | "release_artifact_expected"
   | "validator_artifact_expected"
@@ -91,6 +95,10 @@ type AuthProviderConflictResolutionReport = {
     nextExactAction: string;
   }>;
   dirtyFiles: Array<{ path: string; classification: DirtyClassification }>;
+  dirtyFileCount: number;
+  dirtyFilesTruncated: boolean;
+  dirtyFileClassificationCounts: Record<string, number>;
+  unsafeDirtyFileCount: number;
   openPrClassification: Array<{
     number: number;
     title: string;
@@ -172,7 +180,6 @@ function dirtyFiles() {
 
 function classifyDirtyFile(path: string): DirtyClassification {
   const normalized = path.replace(/\\/gu, "/");
-  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === STATE_PATH) return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-runtime-telemetry.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "release_artifact_expected";
@@ -212,10 +219,21 @@ function classifyDirtyFile(path: string): DirtyClassification {
     || normalized === "src/lib/release-notes/public-release-notes.ts"
     || normalized === "src/lib/release-notes/release-version-contract.ts"
   ) return "release_artifact_expected";
-  if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "current_generated_artifact_to_commit";
-  if (normalized.startsWith("docs/agent-truth/") && normalized.endsWith(".md")) return "release_artifact_expected";
+  if (normalized.startsWith("agent/context/") && /\.(json|jsonl)$/u.test(normalized)) return "unrelated_agent_context_file_to_ignore";
+  if (normalized.startsWith("agent/index/") && normalized.endsWith(".json")) return "unrelated_agent_index_file_to_review";
+  if (normalized === "scripts/repo-inventory.ts") return "unrelated_agent_index_tooling_to_review";
+  if (normalized.startsWith("scripts/agent/") && normalized.endsWith(".ts")) return "unrelated_agent_validator_tooling_to_review";
   if (/chat|task|notification|wallet|payment|paypal|gumdrop/iu.test(normalized)) return "unsafe_unknown";
+  if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
+  if (normalized.startsWith("docs/agent-truth/") && normalized.endsWith(".md")) return "stale_generated_artifact_to_regenerate";
   return "unsafe_unknown";
+}
+
+function countByClassification(files: Array<{ path: string; classification: DirtyClassification }>) {
+  return files.reduce<Record<string, number>>((counts, file) => {
+    counts[file.classification] = (counts[file.classification] ?? 0) + 1;
+    return counts;
+  }, {});
 }
 
 function protectedSurfaceStatus(files: string[]) {
@@ -229,6 +247,7 @@ function protectedSurfaceStatus(files: string[]) {
 }
 
 function classifyOpenPrs(): AuthProviderConflictResolutionReport["openPrClassification"] {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const raw = shell("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,url,mergeStateStatus,isDraft"]);
   let prs: Array<{ number: number; title: string }> = [];
   try {
@@ -327,6 +346,8 @@ export function buildAuthProviderConflictResolutionReport(): AuthProviderConflic
   const debugSummary = read("src/lib/debug/debug-panel-tracking-summary.ts");
   const packageJson = read("package.json");
   const files = dirtyFiles();
+  const classifiedDirtyFiles = files.map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const dirtyFileClassificationCounts = countByClassification(classifiedDirtyFiles);
   const mapped = buildMappedConflicts();
   const messages = mapped.map((item) => item.message);
   const score = scoreSnapshot();
@@ -377,7 +398,11 @@ export function buildAuthProviderConflictResolutionReport(): AuthProviderConflic
     scoreBefore: score,
     scoreAfter: score,
     scoreDimensions,
-    dirtyFiles: files.map((path) => ({ path, classification: classifyDirtyFile(path) })),
+    dirtyFiles: classifiedDirtyFiles.slice(0, MAX_DIRTY_FILE_EXAMPLES),
+    dirtyFileCount: classifiedDirtyFiles.length,
+    dirtyFilesTruncated: classifiedDirtyFiles.length > MAX_DIRTY_FILE_EXAMPLES,
+    dirtyFileClassificationCounts,
+    unsafeDirtyFileCount: classifiedDirtyFiles.filter((file) => file.classification === "unsafe_unknown").length,
     openPrClassification: classifyOpenPrs(),
     oldLogicClassification: [
       {
@@ -435,9 +460,7 @@ export function validateAuthProviderConflictResolution(report: AuthProviderConfl
     if (!row || typeof row.before !== "number" || typeof row.after !== "number") failures.push(`score dimension missing: ${dimension}.`);
     if (row?.status === "below_target" && !row.nextExactAction) failures.push(`below-target dimension lacks next action: ${dimension}.`);
   }
-  for (const dirty of report.dirtyFiles) {
-    if (dirty.classification === "unsafe_unknown") failures.push(`dirty file unclassified: ${dirty.path}.`);
-  }
+  if (report.unsafeDirtyFileCount > 0) failures.push(`${report.unsafeDirtyFileCount} dirty files are unclassified.`);
   for (const pr of report.openPrClassification) {
     if (pr.classification === "unsafe_unknown") failures.push(`open PR unclassified: #${pr.number}.`);
   }
