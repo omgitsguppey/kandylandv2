@@ -301,13 +301,19 @@ function buildReportEntry(
   const sourceCommit = embeddedCurrentHead ?? embeddedSourceCommit ?? headCommit;
   const evidenceClass = embeddedCurrentHead || embeddedSourceCommit ? embeddedEvidenceClass ?? "generated_snapshot" : "historical_evidence_only";
   const status = embeddedCurrentHead || embeddedSourceCommit ? embeddedStatus ?? "snapshot" : "historical_evidence_only";
-  const freshness = embeddedFreshness === "fresh" || embeddedFreshness === "stale" || embeddedFreshness === "unknown"
-    ? embeddedFreshness
-    : deriveGeneratedReportFreshness({
-      generatedAt,
-      nowMs,
-      staleAfterHours: GENERATED_REPORT_DEFAULT_STALE_HOURS,
-    });
+  const headMismatch = Boolean(sourceCommit && headCommit && sourceCommit !== headCommit);
+  const derivedFreshness = deriveGeneratedReportFreshness({
+    generatedAt,
+    nowMs,
+    staleAfterHours: GENERATED_REPORT_DEFAULT_STALE_HOURS,
+    sourceCommit,
+    currentHead: headCommit,
+  });
+  const freshness = headMismatch
+    ? "stale"
+    : embeddedFreshness === "fresh" || embeddedFreshness === "stale" || embeddedFreshness === "unknown"
+      ? embeddedFreshness
+      : derivedFreshness;
 
   let metadataSource: GeneratedReportMetadataSource = "embedded";
   if (missingEmbeddedFields.length > 0) {
@@ -324,7 +330,11 @@ function buildReportEntry(
     staleAfterHours: GENERATED_REPORT_DEFAULT_STALE_HOURS,
     metadataSource,
     missingEmbeddedFields,
-    metadataWarnings: [...metadataCheck.failures, ...metadataCheck.warnings],
+    metadataWarnings: [
+      ...metadataCheck.failures,
+      ...metadataCheck.warnings,
+      ...(headMismatch ? [`sourceCommit ${sourceCommit} does not match currentHead ${headCommit}`] : []),
+    ],
   };
 }
 

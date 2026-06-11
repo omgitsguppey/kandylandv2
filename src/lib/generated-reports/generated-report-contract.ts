@@ -205,7 +205,15 @@ export function deriveGeneratedReportFreshness(input: {
   generatedAt?: string | null;
   nowMs?: number;
   staleAfterHours?: number;
+  sourceCommit?: string | null;
+  currentHead?: string | null;
 }): GeneratedReportFreshness {
+  const sourceCommit = input.sourceCommit?.trim();
+  const currentHead = input.currentHead?.trim();
+  if (sourceCommit && currentHead && sourceCommit !== currentHead) {
+    return "stale";
+  }
+
   const generatedAt = input.generatedAt?.trim();
   if (!generatedAt) {
     return "unknown";
