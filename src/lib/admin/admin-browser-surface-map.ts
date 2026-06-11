@@ -3,6 +3,7 @@ export type AdminBrowserSurfaceDeviceBand = "mobile" | "desktop";
 export type AdminBrowserSurfaceDefinition = {
   surfaceId: string;
   route: string;
+  browserSmokePath: string;
   title: string;
   group: "overview" | "analytics" | "ops" | "content" | "people" | "protected_money";
   deviceBands: AdminBrowserSurfaceDeviceBand[];
@@ -17,6 +18,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_overview",
     route: "/admin",
+    browserSmokePath: "/admin",
     title: "Admin Overview",
     group: "overview",
     deviceBands: ["mobile", "desktop"],
@@ -28,6 +30,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_analytics",
     route: "/admin/analytics",
+    browserSmokePath: "/admin/analytics",
     title: "Admin Analytics",
     group: "analytics",
     deviceBands: ["mobile", "desktop"],
@@ -39,6 +42,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_drops",
     route: "/admin/drops",
+    browserSmokePath: "/admin/drops",
     title: "Admin Drops",
     group: "content",
     deviceBands: ["desktop"],
@@ -50,6 +54,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_users",
     route: "/admin/users",
+    browserSmokePath: "/admin/users",
     title: "Admin Users",
     group: "people",
     deviceBands: ["mobile", "desktop"],
@@ -61,6 +66,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_user_detail",
     route: "/admin/user/[userId]",
+    browserSmokePath: "/admin/user/browser-smoke-user",
     title: "Admin User Detail",
     group: "people",
     deviceBands: ["desktop"],
@@ -72,6 +78,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_roster",
     route: "/admin/roster",
+    browserSmokePath: "/admin/roster",
     title: "Admin Roster",
     group: "people",
     deviceBands: ["desktop"],
@@ -83,6 +90,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_debug",
     route: "/admin/debug",
+    browserSmokePath: "/admin/debug",
     title: "Admin Debug",
     group: "ops",
     deviceBands: ["mobile", "desktop"],
@@ -94,6 +102,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_ai",
     route: "/admin/ai",
+    browserSmokePath: "/admin/ai",
     title: "Admin AI",
     group: "ops",
     deviceBands: ["desktop"],
@@ -105,6 +114,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_support",
     route: "/admin/support",
+    browserSmokePath: "/admin/support",
     title: "Admin Support",
     group: "ops",
     deviceBands: ["desktop"],
@@ -116,6 +126,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_moderation",
     route: "/admin/moderation",
+    browserSmokePath: "/admin/moderation",
     title: "Admin Moderation",
     group: "ops",
     deviceBands: ["desktop"],
@@ -127,6 +138,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_content",
     route: "/admin/content",
+    browserSmokePath: "/admin/content",
     title: "Admin Content",
     group: "content",
     deviceBands: ["desktop"],
@@ -138,6 +150,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_queue",
     route: "/admin/queue",
+    browserSmokePath: "/admin/queue",
     title: "Admin Queue",
     group: "content",
     deviceBands: ["desktop"],
@@ -149,6 +162,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_privacy",
     route: "/admin/privacy",
+    browserSmokePath: "/admin/privacy",
     title: "Admin Privacy",
     group: "ops",
     deviceBands: ["desktop"],
@@ -160,6 +174,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
   {
     surfaceId: "admin_economy",
     route: "/admin/economy",
+    browserSmokePath: "/admin/economy",
     title: "Admin Economy",
     group: "protected_money",
     deviceBands: ["desktop"],

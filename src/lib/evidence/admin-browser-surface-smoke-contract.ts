@@ -347,6 +347,12 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   for (const surface of report.surfaces) {
     if (!surface.requiresAdminAuth) failures.push(`${surface.surfaceId} must require admin auth.`);
     if (surface.route.startsWith("/admin") === false) failures.push(`${surface.surfaceId} route must stay under /admin.`);
+    if (!surface.browserSmokePath.startsWith("/admin")) {
+      failures.push(`${surface.surfaceId} browser smoke path must stay under /admin.`);
+    }
+    if (surface.browserSmokePath.includes("[") || surface.browserSmokePath.includes("]")) {
+      failures.push(`${surface.surfaceId} browser smoke path must be directly navigable, not a route pattern.`);
+    }
     if (surface.authenticatedSelectors.length === 0) {
       failures.push(`${surface.surfaceId} must declare an authenticated browser selector.`);
     }

@@ -136,7 +136,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     "## Surfaces",
     "",
     ...report.surfaces.map((surface) =>
-      `- ${surface.surfaceId}: route=${surface.route}; devices=${surface.deviceBands.join(",")}; group=${surface.group}; selectors=${surface.authenticatedSelectors.join(" | ")}; markers=${surface.authenticatedVisibleMarkers.join(" | ")}; reason=${surface.browserSmokeReason}`),
+      `- ${surface.surfaceId}: route=${surface.route}; smokePath=${surface.browserSmokePath}; devices=${surface.deviceBands.join(",")}; group=${surface.group}; selectors=${surface.authenticatedSelectors.join(" | ")}; markers=${surface.authenticatedVisibleMarkers.join(" | ")}; reason=${surface.browserSmokeReason}`),
     "",
     "## Source Route Coverage",
     "",
@@ -185,7 +185,7 @@ function writeTemplate() {
   const surfaces = ADMIN_BROWSER_SURFACE_DEFINITIONS.flatMap((surface) =>
     surface.deviceBands.map((deviceBand) => ({
       surfaceId: surface.surfaceId,
-      route: surface.route,
+      route: surface.browserSmokePath,
       deviceBand,
       state: "manual_admin_auth_required",
       checkedAtUtc: "",

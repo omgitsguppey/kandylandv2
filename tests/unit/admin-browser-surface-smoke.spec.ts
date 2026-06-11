@@ -81,6 +81,7 @@ describe("admin browser surface smoke contract", () => {
       "/admin/privacy",
       "/admin/economy",
     ]);
+    expect(report.surfaces.find((surface) => surface.surfaceId === "admin_user_detail")?.browserSmokePath).toBe("/admin/user/browser-smoke-user");
     expect(report.sourceAdminRoutes).toEqual(report.surfaces.map((surface) => surface.route).sort());
     expect(report.missingSourceAdminRoutes).toEqual([]);
     expect(report.extraSurfaceRoutes).toEqual([]);
@@ -100,6 +101,8 @@ describe("admin browser surface smoke contract", () => {
 
     for (const surface of ADMIN_BROWSER_SURFACE_DEFINITIONS) {
       expect(surface.authenticatedSelectors).toContain(`[data-admin-browser-surface="${surface.surfaceId}"]`);
+      expect(surface.browserSmokePath.startsWith("/admin")).toBe(true);
+      expect(surface.browserSmokePath).not.toContain("[");
       if (surface.route.includes("[userId]")) continue;
       expect(resolveAdminBrowserSurfaceForPathname(surface.route)?.surfaceId).toBe(surface.surfaceId);
     }
