@@ -1,25 +1,25 @@
 {
   "reportKey": "canonical-math-ledger",
-  "generatedAtUtc": "2026-05-27T05:21:28.753Z",
-  "currentHead": "eb93068b1c0df79e92c921213b08923327907189",
-  "status": "fail",
+  "generatedAtUtc": "2026-06-11T14:07:39.280Z",
+  "currentHead": "fca594c435f4a2418c6d96a10602a2ee422c014e",
+  "status": "pass",
   "scoreBefore": {
     "sourceHealth": 91.7,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 67.5,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 76.61
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreAfter": {
     "sourceHealth": 91.7,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 67.5,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 76.61
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreDimensions": {
     "sourceHealth": 25,
@@ -514,183 +514,349 @@
   ],
   "personMetricsHydration": {
     "missingHydrationCount": 37,
-    "debugLaneGaps": 37,
-    "evidenceCompletenessReason": "37 person metric hydration gap(s) still need source or bridge repair."
+    "debugLaneGaps": 74,
+    "evidenceCompletenessReason": "74 person metric hydration gap(s) still need source or bridge repair."
   },
   "dirtyFiles": [
     {
-      "path": "AGENTS.md",
-      "classification": "unsafe_unknown"
+      "path": "agent/context/doctrine.cards.jsonl",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
     },
     {
-      "path": "REPO_MEMORY_LEDGER.md",
-      "classification": "unsafe_unknown"
+      "path": "agent/context/doctrine.index.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/context/file-size-budget.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/context/legacy-registry.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
     },
     {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
+      "path": "agent/context/task-pack.generated.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/context/validator-map.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/blast-radius.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/canonical-helpers.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/dependency-graph.summary.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/governance-truth.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
       "path": "agent/index/known-pitfalls.json",
-      "classification": "unsafe_unknown"
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
     },
     {
-      "path": "agent/state/generated-artifact-size-policy.generated.json",
+      "path": "agent/index/package-manager-truth.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/recent-passes.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/repo-inventory.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/retrieval-index.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/runtime-observability.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/surface-map.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/ui-surface-coverage.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/verification-commands.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/index/workflow-guidance.json",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "agent/state/admin-cms-workflow-audit.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/qa-harness-consolidation.generated.json",
+      "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/test-fixture-gut-consolidation.generated.json",
+      "path": "agent/state/background-job-idempotency-audit.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/test-fixture-inventory.generated.json",
+      "path": "agent/state/bug-report-truth-terminal-state.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/test-fixture-memory-writeback.generated.json",
+      "path": "agent/state/canonical-math-authority-ledger.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/test-quality-guards.generated.json",
+      "path": "agent/state/canonical-math-ledger.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/config-env-contract.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/validator-ownership-map.generated.json",
+      "path": "agent/state/content-media-pipeline-audit.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/generated-artifact-size-policy.md",
+      "path": "agent/state/cookie-banner-settings-sync.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/qa-harness-consolidation.md",
+      "path": "agent/state/debug-evidence-staleness-queue.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/test-fixture-gut-consolidation.md",
+      "path": "agent/state/global-cost-surfaces.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/test-fixture-inventory.md",
+      "path": "agent/state/gumdrop-ledger-math.generated.json",
+      "classification": "companion_gumdrop_math_artifact_expected"
+    },
+    {
+      "path": "agent/state/identity-handoff-spine.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/test-fixture-memory-writeback.md",
+      "path": "agent/state/media-upload-lifecycle.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/test-quality-guards.md",
+      "path": "agent/state/orphaned-logic-score.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/validator-ownership-map.md",
+      "path": "agent/state/person-metrics-hydration.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
+      "path": "agent/state/private-media-access.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/validate-generated-artifact-size-policy.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/provider-smoke-evidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/validate-qa-harness-consolidation.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/route-sample-freshness-classifier.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/validate-test-fixture-gut-consolidation.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/score-80-reconciliation-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/validate-test-fixture-inventory.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/score-dimension-80-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/validate-test-fixture-memory-writeback.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/settings-creator-dashboard-split.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/validate-test-quality-guards.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/sql-mirror-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/validate-validator-ownership-map.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/sql-sync.payload.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/lib/test-hardening/generated-artifact-size-policy.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/stale-route-sample-classification.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/lib/test-hardening/qa-harness-map.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/support-policy-surface-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/lib/test-hardening/test-fixture-gut-consolidation.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/telemetry-dependency-graph.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/lib/test-hardening/test-fixture-inventory.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/telemetry-identified-parity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/lib/test-hardening/test-fixture-memory-writeback.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/treasury-reconciliation-engine.generated.json",
+      "classification": "canonical_owner_platform_economy_treasury_reconciliation"
     },
     {
-      "path": "src/lib/test-hardening/test-hardening-shared.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/treasury-structure-contract.generated.json",
+      "classification": "canonical_owner_platform_economy_treasury_reconciliation"
     },
     {
-      "path": "src/lib/test-hardening/test-quality-guards.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/user-management-status-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/lib/test-hardening/validator-ownership-map.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/user-profile-api-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/lib/testing/canonical-test-factories.ts",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/admin-cms-drop-workflow.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "src/lib/testing/mock-evidence-classifier.ts",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "tests/unit/generated-artifact-size-policy.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/background-jobs-idempotency.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "tests/unit/qa-harness-consolidation.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/bug-report-truth-terminal-state.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "tests/unit/test-fixture-inventory.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "tests/unit/test-fixture-memory-writeback.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/canonical-math-ledger.md",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "tests/unit/test-quality-guards.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/config-env-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "tests/unit/validator-ownership-map.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "docs/agent-truth/content-media-pipeline.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cookie-banner-settings-sync.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/gumdrop-ledger-math.md",
+      "classification": "companion_gumdrop_math_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/identity-handoff-spine.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/media-upload-lifecycle.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/private-media-access.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/route-sample-freshness-classifier.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-dimension-80-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/stale-route-sample-classification.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/support-policy-surface-cleanup.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-dependency-graph.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/treasury-reconciliation-engine.md",
+      "classification": "canonical_owner_platform_economy_treasury_reconciliation"
+    },
+    {
+      "path": "docs/agent-truth/treasury-structure-contract.md",
+      "classification": "canonical_owner_platform_economy_treasury_reconciliation"
+    },
+    {
+      "path": "docs/agent-truth/user-management-status-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-profile-api-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "scripts/agent/build-agent-indexes.ts",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
+    },
+    {
+      "path": "scripts/agent/chat-cost-status-cleanup-shared.ts",
+      "classification": "unrelated_dirty_outside_canonical_math_ledger"
     }
   ],
+  "dirtyFileCount": 147,
+  "dirtyFilesTruncated": true,
+  "dirtyClassificationCounts": {
+    "unrelated_dirty_outside_canonical_math_ledger": 70,
+    "unrelated_agent_context_file_to_ignore": 1,
+    "stale_generated_artifact_to_regenerate": 48,
+    "current_generated_artifact_to_commit": 2,
+    "companion_gumdrop_math_artifact_expected": 2,
+    "canonical_owner_platform_economy_treasury_reconciliation": 5,
+    "real_source_change_needs_review": 15,
+    "failed_validator_to_repair": 1,
+    "canonical_owner_unlock_spend_and_entitlement": 2,
+    "companion_gumdrop_math_validator_expected": 1
+  },
+  "protectedManualReviewCount": 0,
+  "openPrEvidenceStatus": "not_queried_external_command_opt_in_required",
   "openPullRequests": [],
-  "validationFailures": [
-    "Dirty files unclassified: AGENTS.md, REPO_MEMORY_LEDGER.md, agent/index/known-pitfalls.json, scripts/agent/validate-generated-artifact-size-policy.ts, scripts/agent/validate-qa-harness-consolidation.ts, scripts/agent/validate-test-fixture-gut-consolidation.ts, scripts/agent/validate-test-fixture-inventory.ts, scripts/agent/validate-test-fixture-memory-writeback.ts, scripts/agent/validate-test-quality-guards.ts, scripts/agent/validate-validator-ownership-map.ts, src/lib/test-hardening/generated-artifact-size-policy.ts, src/lib/test-hardening/qa-harness-map.ts, src/lib/test-hardening/test-fixture-gut-consolidation.ts, src/lib/test-hardening/test-fixture-inventory.ts, src/lib/test-hardening/test-fixture-memory-writeback.ts, src/lib/test-hardening/test-hardening-shared.ts, src/lib/test-hardening/test-quality-guards.ts, src/lib/test-hardening/validator-ownership-map.ts, src/lib/testing/canonical-test-factories.ts, src/lib/testing/mock-evidence-classifier.ts, tests/unit/generated-artifact-size-policy.spec.ts, tests/unit/qa-harness-consolidation.spec.ts, tests/unit/test-fixture-inventory.spec.ts, tests/unit/test-fixture-memory-writeback.spec.ts, tests/unit/test-quality-guards.spec.ts, tests/unit/validator-ownership-map.spec.ts"
-  ],
+  "validationFailures": [],
   "releaseNoteImpact": [
     "Created canonical math ledger for score, confidence, session, watch, dedupe, and legacy recovery formulas.",
     "Fixed person-metric hydration gap math to report real gaps.",

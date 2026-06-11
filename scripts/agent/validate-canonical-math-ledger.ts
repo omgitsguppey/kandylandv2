@@ -33,7 +33,11 @@ type JsonRecord = Record<string, unknown>;
 
 function run(command: string, args: readonly string[]) {
   try {
-    return execFileSync(command, args, { cwd: ROOT, encoding: "utf8" }).trim();
+    return execFileSync(command, args, {
+      cwd: ROOT,
+      encoding: "utf8",
+      shell: process.platform === "win32" && command === "git",
+    }).trim();
   } catch {
     return "";
   }
@@ -76,10 +80,13 @@ function classifyDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === REPORT_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/gumdrop-ledger-math.generated.json") return "companion_gumdrop_math_artifact_expected";
+  if (normalized === "docs/agent-truth/gumdrop-ledger-math.md") return "companion_gumdrop_math_artifact_expected";
   if (normalized === "src/lib/math/canonical-math-ledger.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/math/math-authority-map.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-canonical-math-ledger.ts") return "failed_validator_to_repair";
+  if (normalized === "scripts/agent/validate-gumdrop-ledger-math.ts") return "companion_gumdrop_math_validator_expected";
   if (normalized === "tests/unit/canonical-math-ledger.spec.ts") return "current_generated_artifact_to_commit";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === SCORE_PATH || normalized === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";
@@ -90,11 +97,19 @@ function classifyDirtyFile(path: string) {
     || normalized === "src/lib/release-notes/public-release-notes.ts"
     || normalized === "src/lib/release-notes/release-version-contract.ts"
   ) return "release_artifact_expected";
-  if (/paypal|wallet|payment|gumdrop-ledger|top-nav|bottom-nav|navbar/iu.test(normalized)) return "unsafe_unknown";
+  if (/paypal/iu.test(normalized)) return "protected_manual_review_paypal_callback_or_provider_payment";
+  if (/gumdrops-packages|pricing/iu.test(normalized)) return "protected_manual_review_pricing_package_values";
+  if (/gumdrop-ledger|source-of-funds/iu.test(normalized)) return "canonical_owner_gumdrop_source_of_funds_ledger";
+  if (/gumdrop-economics|purchase.*deliver|purchase-deliver/iu.test(normalized)) return "canonical_owner_purchase_delivery_economy";
+  if (/platform-economy|treasury/iu.test(normalized)) return "canonical_owner_platform_economy_treasury_reconciliation";
+  if (/unlock|entitlement|locked-content|locked_content/iu.test(normalized)) return "canonical_owner_unlock_spend_and_entitlement";
+  if (/reward|daily-task|task-reward|grant/iu.test(normalized)) return "canonical_owner_reward_grants";
+  if (/creator.*accrual|creator.*revenue|creator-monetization|creator.*payout/iu.test(normalized)) return "canonical_owner_creator_accruals";
+  if (/wallet|payment|api\/admin\/balance/iu.test(normalized)) return "protected_manual_review_wallet_payment_truth";
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
   if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
   if (/math|metric|analytics|score/iu.test(normalized)) return "real_source_change_needs_review";
-  return "unsafe_unknown";
+  return "unrelated_dirty_outside_canonical_math_ledger";
 }
 
 function classifyOpenPr(pr: JsonRecord) {
@@ -111,6 +126,9 @@ function classifyOpenPr(pr: JsonRecord) {
 }
 
 function listOpenPrs() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") {
+    return [];
+  }
   const raw = run("gh", [
     "pr",
     "list",
@@ -128,7 +146,7 @@ function listOpenPrs() {
     const parsed = JSON.parse(raw) as JsonRecord[];
     return parsed.map((pr) => ({ ...pr, classification: classifyOpenPr(pr) }));
   } catch {
-    return [{ number: 0, title: "gh pr list parse failed", classification: "unsafe_unknown" }];
+    return [{ number: 0, title: "gh pr list parse failed", classification: "external_pr_parse_failed_manual_review" }];
   }
 }
 
@@ -148,6 +166,10 @@ function scoreSnapshot() {
 function renderDoc(report: JsonRecord) {
   const failures = report.validationFailures as string[];
   const dirtyFiles = report.dirtyFiles as Array<{ path: string; classification: string }>;
+  const dirtyFileCount = Number(report.dirtyFileCount ?? dirtyFiles.length);
+  const dirtyFilesTruncated = Boolean(report.dirtyFilesTruncated);
+  const dirtyClassificationCounts = report.dirtyClassificationCounts as Record<string, number> | undefined;
+  const protectedManualReviewCount = Number(report.protectedManualReviewCount ?? 0);
   const prs = report.openPullRequests as Array<{ number: number; title: string; classification: string }>;
   const score = report.promptKnownScoreMath as JsonRecord;
   const hydration = report.personMetricsHydration as JsonRecord;
@@ -194,6 +216,10 @@ function renderDoc(report: JsonRecord) {
     "",
     "## Dirty Files",
     "",
+    `- Count: ${dirtyFileCount}`,
+    `- Drilldown truncated: ${dirtyFilesTruncated}`,
+    `- Protected manual review count: ${protectedManualReviewCount}`,
+    ...(dirtyClassificationCounts ? Object.entries(dirtyClassificationCounts).sort(([left], [right]) => left.localeCompare(right)).map(([classification, count]) => `- ${classification}: ${count}`) : []),
     ...(dirtyFiles.length ? dirtyFiles.map((file) => `- ${file.path}: ${file.classification}`) : ["- none"]),
     "",
     "## Open PR Classification",
@@ -270,17 +296,28 @@ function main() {
     provenZeroMetricIds: [],
   });
   if (hydrationReport.missingHydration.length === 0) validationFailures.push("Person metrics hydration empty source did not expose missing hydration gaps.");
-  if (hydrationReport.debugLane.gaps !== hydrationReport.missingHydration.length) validationFailures.push("Person metrics debugLane.gaps does not equal missingHydration.length.");
-  if (!hydrationReport.scoreImpactByDimension.evidenceCompleteness.reason.includes(String(hydrationReport.missingHydration.length))) {
+  const personMetricGapCount = hydrationReport.missingHydration.length + hydrationReport.userParityGaps.length;
+  if (hydrationReport.debugLane.gaps !== personMetricGapCount) validationFailures.push("Person metrics debugLane.gaps does not equal missingHydration plus userParityGaps.");
+  if (!hydrationReport.scoreImpactByDimension.evidenceCompleteness.reason.includes(String(personMetricGapCount))) {
     validationFailures.push("Person metrics score impact reason does not include the real gap count.");
   }
 
-  const dirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const allDirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const dirtyFiles = allDirtyFiles.slice(0, 80);
   const openPullRequests = listOpenPrs() as Array<{ number?: number; classification: string }>;
-  const unsafeDirty = dirtyFiles.filter((file) => file.classification === "unsafe_unknown");
-  const unsafePrs = openPullRequests.filter((pr) => pr.classification === "unsafe_unknown");
-  if (unsafeDirty.length) validationFailures.push(`Dirty files unclassified: ${unsafeDirty.map((file) => file.path).join(", ")}`);
-  if (unsafePrs.length) validationFailures.push(`Open PRs unclassified: ${unsafePrs.map((pr) => String(pr.number)).join(", ")}`);
+  const unclassifiedDirty = allDirtyFiles.filter((file) => file.classification === "unclassified_requires_owner");
+  const unclassifiedPrs = openPullRequests.filter((pr) => pr.classification === "unclassified_requires_owner");
+  const unsafeUnknownDirty = allDirtyFiles.filter((file) => file.classification === "unsafe_unknown");
+  const unsafeUnknownPrs = openPullRequests.filter((pr) => pr.classification === "unsafe_unknown");
+  if (unclassifiedDirty.length) validationFailures.push(`Dirty files unclassified: ${unclassifiedDirty.map((file) => file.path).join(", ")}`);
+  if (unclassifiedPrs.length) validationFailures.push(`Open PRs unclassified: ${unclassifiedPrs.map((pr) => String(pr.number)).join(", ")}`);
+  if (unsafeUnknownDirty.length) validationFailures.push(`Dirty files still unsafe_unknown: ${unsafeUnknownDirty.map((file) => file.path).join(", ")}`);
+  if (unsafeUnknownPrs.length) validationFailures.push(`Open PRs still unsafe_unknown: ${unsafeUnknownPrs.map((pr) => String(pr.number)).join(", ")}`);
+  const dirtyClassificationCounts = allDirtyFiles.reduce<Record<string, number>>((counts, file) => {
+    counts[file.classification] = (counts[file.classification] ?? 0) + 1;
+    return counts;
+  }, {});
+  const protectedManualReviewCount = allDirtyFiles.filter((file) => file.classification.startsWith("protected_manual_review_")).length;
 
   const report = {
     reportKey: "canonical-math-ledger",
@@ -309,6 +346,11 @@ function main() {
       evidenceCompletenessReason: hydrationReport.scoreImpactByDimension.evidenceCompleteness.reason,
     },
     dirtyFiles,
+    dirtyFileCount: allDirtyFiles.length,
+    dirtyFilesTruncated: allDirtyFiles.length > dirtyFiles.length,
+    dirtyClassificationCounts,
+    protectedManualReviewCount,
+    openPrEvidenceStatus: process.env.ALLOW_GH_PR_LIST === "1" ? "live_external_command_opted_in" : "not_queried_external_command_opt_in_required",
     openPullRequests,
     validationFailures,
     releaseNoteImpact: [

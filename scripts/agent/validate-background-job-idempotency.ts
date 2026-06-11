@@ -83,6 +83,28 @@ function requireJob(jobs: unknown[], jobKey: string) {
   return job;
 }
 
+function requireDeferredUnavailableJob(jobs: unknown[], jobKey: string) {
+  const job = requireJob(jobs, jobKey);
+  if (!job) return;
+
+  const expected: Record<string, unknown> = {
+    productLaneState: "unavailable_deferred",
+    canClearProductLiveGate: false,
+    sourceFixStatus: "not_source_fixable_without_new_feature_scope",
+  };
+
+  for (const [field, value] of Object.entries(expected)) {
+    if (job[field] !== value) {
+      failures.push(`${jobKey}.${field} must be ${JSON.stringify(value)}.`);
+    }
+  }
+
+  const nextExactStep = String(job.nextExactStep ?? "");
+  if (!nextExactStep.includes("Keep") || !nextExactStep.includes("unavailable")) {
+    failures.push(`${jobKey}.nextExactStep must keep the deferred lane unavailable until product scope implements it.`);
+  }
+}
+
 const REQUIRED_JOB_FIELDS = [
   "jobKey",
   "filePath",
@@ -157,6 +179,7 @@ const runtimeWarningStore = readRequired("src/lib/server/runtime-warning-store.t
 const functionsRuntimeWarningStore = readRequired("functions/src/runtime-warning-store.ts");
 const adminDebugRoute = readRequired("src/app/api/admin/debug/route.ts");
 const analyticsEvents = readRequired("functions/src/analytics-event-facts.ts");
+const analyticsTransactions = readRequired("functions/src/analytics-transactions.ts");
 const analyticsRealtime = readRequired("functions/src/analytics-realtime-summary.ts");
 const analyticsBigQuery = readRequired("functions/src/analytics-bigquery-export.ts");
 const creatorCron = readRequired("src/app/api/cron/process-creator-subscriptions/route.ts");
@@ -175,6 +198,12 @@ const checklist = readRequired("EVERY_FILE_FUNCTION_CHECKLIST.md");
 const jobs = requireArray(audit.jobs, "audit.jobs", REQUIRED_JOBS.length);
 for (const jobKey of REQUIRED_JOBS) {
   requireJob(jobs, jobKey);
+}
+for (const jobKey of [
+  "drop.endingNotification",
+  "wallet.tierUpdates",
+]) {
+  requireDeferredUnavailableJob(jobs, jobKey);
 }
 
 if (typeof audit.summary === "object" && audit.summary && "jobsAudited" in audit.summary) {
@@ -269,7 +298,9 @@ for (const expected of [
 }
 
 for (const expected of [
-  "progress.isClaimedToday",
+  "preventDuplicateRewardClaim",
+  "duplicateGuard.allowed",
+  "progress.lastCheckInMs",
   "runTransaction",
   "buildCompletedGumdropTransaction",
   "recordRouteWarning",
@@ -328,6 +359,14 @@ for (const expected of [
 }
 
 requireIncludes(analyticsEvents, "analytics_dedupe", "analytics event fact ingest dedupe");
+for (const expected of [
+  "analytics_projection_receipts",
+  "transactions:${event.id}:commerce_rollup",
+  "batch.create(projectionReceiptRef",
+  "Duplicate transaction rollup skipped",
+]) {
+  requireIncludes(analyticsTransactions, expected, "transaction analytics rollup duplicate delivery guard");
+}
 requireIncludes(analyticsRealtime, "Promise.all", "analytics realtime summary parallel reads");
 requireIncludes(analyticsRealtime, ".doc(HOT_SUMMARY_DOC_ID).set", "analytics realtime summary replacement snapshot");
 requireIncludes(analyticsBigQuery, "recordBigQueryExportStatus", "BigQuery export failure visibility");

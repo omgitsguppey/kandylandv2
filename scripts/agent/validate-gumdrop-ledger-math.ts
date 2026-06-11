@@ -12,6 +12,7 @@ import {
   classifyGumdropSource,
   validateDisplayedBalance,
 } from "@/lib/math/gumdrop-ledger-math";
+import { listWorkingTreeFiles, readRepoToolchainState, tryRunGit } from "./shared";
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/gumdrop-ledger-math.generated.json";
@@ -22,7 +23,11 @@ type JsonRecord = Record<string, unknown>;
 
 function run(command: string, args: readonly string[]) {
   try {
-    return execFileSync(command, args, { cwd: ROOT, encoding: "utf8" }).trim();
+    return execFileSync(command, args, {
+      cwd: ROOT,
+      encoding: "utf8",
+      shell: process.platform === "win32" && command === "git",
+    }).trim();
   } catch {
     return "";
   }
@@ -52,11 +57,7 @@ function writeText(path: string, value: string) {
 }
 
 function changedFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) files.add(line.replace(/\\/gu, "/"));
-  }
-  return [...files].sort();
+  return listWorkingTreeFiles();
 }
 
 function classifyDirtyFile(path: string) {
@@ -91,8 +92,9 @@ function classifyDirtyFile(path: string) {
   ) return "release_artifact_expected";
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
   if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
-  if (/paypal|payment|wallet|gumdrop-ledger\.ts|gumdrops-packages|gumdrop-economics|api\/admin\/balance/iu.test(normalized)) return "unsafe_unknown";
-  return "unsafe_unknown";
+  if (/platform-economy|treasury/iu.test(normalized)) return "treasury_status_metadata_needs_math_owner_review";
+  if (/paypal|payment|wallet|gumdrop-ledger\.ts|gumdrops-packages|gumdrop-economics|source-of-funds|api\/admin\/balance/iu.test(normalized)) return "unsafe_protected_gumdrop_math_surface";
+  return "unrelated_dirty_outside_gumdrop_ledger_math";
 }
 
 function classifyOpenPr(pr: JsonRecord) {
@@ -108,6 +110,7 @@ function classifyOpenPr(pr: JsonRecord) {
 }
 
 function listOpenPrs() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const raw = run("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,url,mergeStateStatus,isDraft"]);
   if (!raw) return [];
   const parsed = JSON.parse(raw) as JsonRecord[];
@@ -137,6 +140,8 @@ function scoreSnapshot() {
 function renderDoc(report: JsonRecord) {
   const failures = report.validationFailures as string[];
   const dirtyRows = report.dirtyFiles as Array<{ path: string; classification: string }>;
+  const dirtyFileCount = Number(report.dirtyFileCount ?? dirtyRows.length);
+  const dirtyFilesTruncated = Boolean(report.dirtyFilesTruncated);
   const debugLane = report.debugLane as JsonRecord;
   return [
     "# GumDrop Ledger Math",
@@ -166,6 +171,8 @@ function renderDoc(report: JsonRecord) {
     "",
     "## Dirty Files",
     "",
+    `- Count: ${dirtyFileCount}`,
+    `- Drilldown truncated: ${dirtyFilesTruncated}`,
     ...(dirtyRows.length ? dirtyRows.map((file) => `- ${file.path}: ${file.classification}`) : ["- none"]),
     "",
     "## Validation Failures",
@@ -176,6 +183,7 @@ function renderDoc(report: JsonRecord) {
 }
 
 function main() {
+  const toolchain = readRepoToolchainState();
   const validationFailures: string[] = [];
   const purchase = classifyGumdropSource({
     transactionType: "purchase_currency",
@@ -252,22 +260,28 @@ function main() {
     { drops: 2500, priceUsd: 20, label: "Kandy Land Pack" },
   ];
   if (JSON.stringify(FIXED_GUMDROP_PACKAGES) !== JSON.stringify(expectedPackages)) validationFailures.push("price/package math changed.");
-  const protectedRuntimeDiff = run("git", [
-    "diff",
-    "--name-only",
-    "--",
-    "src/app/api/paypal/capture/route.ts",
-    "src/lib/gumdrop-ledger.ts",
-    "src/lib/gumdrop-economics.ts",
-    "src/lib/gumdrops-packages.ts",
-    "src/app/api/wallet",
-  ]).split(/\r?\n/u).filter(Boolean);
+  const protectedRuntimeDiff = toolchain.gitStatus === "available"
+    ? tryRunGit([
+      "diff",
+      "--name-only",
+      "--",
+      "src/app/api/paypal/capture/route.ts",
+      "src/lib/gumdrop-ledger.ts",
+      "src/lib/gumdrop-economics.ts",
+      "src/lib/gumdrops-packages.ts",
+      "src/app/api/wallet",
+    ]).stdout.split(/\r?\n/u).filter(Boolean)
+    : [];
   if (protectedRuntimeDiff.length > 0) validationFailures.push(`payment/wallet/GumDrop runtime files changed: ${protectedRuntimeDiff.join(", ")}`);
 
-  const dirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const allDirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const dirtyFiles = allDirtyFiles.slice(0, 80);
   const openPullRequests = listOpenPrs();
-  const unsafeDirty = dirtyFiles.filter((file) => file.classification === "unsafe_unknown");
+  const unsafeDirty = allDirtyFiles.filter((file) => file.classification === "unsafe_unknown" || file.classification === "unsafe_protected_gumdrop_math_surface");
   if (unsafeDirty.length > 0) validationFailures.push(`dirty files unclassified: ${unsafeDirty.map((file) => file.path).join(", ")}`);
+  if (toolchain.gitStatus !== "available") {
+    validationFailures.push(`git_required: GumDrop ledger math cannot clear current-head/dirty-tree/protected-runtime-diff proof while Git is unavailable (${toolchain.degradationReason ?? "git unavailable"}).`);
+  }
   if (openPullRequests.some((pr) => !pr.classification)) validationFailures.push("open PRs unclassified.");
 
   const debugLane = {
@@ -284,7 +298,11 @@ function main() {
     reportKey: "gumdrop-ledger-math",
     contractVersion: GUMDROP_LEDGER_MATH_VERSION,
     generatedAtUtc: new Date().toISOString(),
-    currentHead: run("git", ["rev-parse", "HEAD"]),
+    currentHead: toolchain.currentHead ?? "unknown",
+    currentHeadSource: toolchain.currentHeadSource,
+    gitStatus: toolchain.gitStatus,
+    toolingDegraded: toolchain.toolingDegraded,
+    degradationReason: toolchain.degradationReason,
     status: validationFailures.length === 0 ? "pass" : "fail",
     productionReadsPerformed: false,
     providerCallsPerformed: false,
@@ -301,6 +319,8 @@ function main() {
     scoreDimensions: ["sourceHealth", "runtimeHealth", "evidenceCompleteness", "freshness", "costRisk", "regressionRisk"],
     openPullRequests,
     dirtyFiles,
+    dirtyFileCount: allDirtyFiles.length,
+    dirtyFilesTruncated: allDirtyFiles.length > dirtyFiles.length,
     validationFailures,
     nextExactSteps: validationFailures.length
       ? validationFailures.map((failure) => `Fix: ${failure}`)

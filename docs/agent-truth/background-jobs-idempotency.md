@@ -41,6 +41,8 @@ Admin analytics snapshot refresh uses explicit refresh status and dedupe locks. 
 
 Analytics replacement snapshots are retry-safe when they write fixed docs from deterministic source reads. Incremental Firestore rollup triggers must keep event-level dedupe before enabling provider retries. If an incremental rollup has no explicit processed-event marker, the audit must mark that risk instead of pretending the retry path is fully idempotent.
 
+Transaction commerce rollups use `analytics_projection_receipts/transactions:{transactionId}:commerce_rollup` in the same batch as aggregate increments. Duplicate provider delivery must fail on that receipt before changing analytics counters. The transaction source document remains the money truth; this guard only protects analytics projections.
+
 ## Runtime Warnings And Debug
 
 Runtime warnings, queue heartbeats, and notification dispatch outcomes use stable ids so diagnostics update in place. Admin Debug must show:

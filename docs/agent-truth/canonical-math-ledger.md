@@ -1,8 +1,8 @@
 # Canonical Math Ledger
 
-Generated: 2026-05-27T05:21:28.753Z
-Current head: eb93068b1c0df79e92c921213b08923327907189
-Status: fail
+Generated: 2026-06-11T14:07:39.280Z
+Current head: fca594c435f4a2418c6d96a10602a2ee422c014e
+Status: pass
 
 ## Score Freeze
 
@@ -26,8 +26,8 @@ Status: fail
 ## Person Metrics Gap Math
 
 - Missing hydration gaps: 37
-- Debug lane gaps: 37
-- Evidence score reason: 37 person metric hydration gap(s) still need source or bridge repair.
+- Debug lane gaps: 74
+- Evidence score reason: 74 person metric hydration gap(s) still need source or bridge repair.
 
 ## Formula Owners
 
@@ -57,48 +57,99 @@ Status: fail
 
 ## Dirty Files
 
-- AGENTS.md: unsafe_unknown
-- REPO_MEMORY_LEDGER.md: unsafe_unknown
+- Count: 147
+- Drilldown truncated: true
+- Protected manual review count: 0
+- canonical_owner_platform_economy_treasury_reconciliation: 5
+- canonical_owner_unlock_spend_and_entitlement: 2
+- companion_gumdrop_math_artifact_expected: 2
+- companion_gumdrop_math_validator_expected: 1
+- current_generated_artifact_to_commit: 2
+- failed_validator_to_repair: 1
+- real_source_change_needs_review: 15
+- stale_generated_artifact_to_regenerate: 48
+- unrelated_agent_context_file_to_ignore: 1
+- unrelated_dirty_outside_canonical_math_ledger: 70
+- agent/context/doctrine.cards.jsonl: unrelated_dirty_outside_canonical_math_ledger
+- agent/context/doctrine.index.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/context/file-size-budget.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/context/legacy-registry.json: unrelated_dirty_outside_canonical_math_ledger
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/index/known-pitfalls.json: unsafe_unknown
-- agent/state/generated-artifact-size-policy.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/qa-harness-consolidation.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/test-fixture-gut-consolidation.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/test-fixture-inventory.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/test-fixture-memory-writeback.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/test-quality-guards.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/validator-ownership-map.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/generated-artifact-size-policy.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/qa-harness-consolidation.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/test-fixture-gut-consolidation.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/test-fixture-inventory.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/test-fixture-memory-writeback.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/test-quality-guards.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/validator-ownership-map.md: stale_generated_artifact_to_regenerate
-- package.json: real_source_change_needs_review
-- scripts/agent/validate-generated-artifact-size-policy.ts: unsafe_unknown
-- scripts/agent/validate-qa-harness-consolidation.ts: unsafe_unknown
-- scripts/agent/validate-test-fixture-gut-consolidation.ts: unsafe_unknown
-- scripts/agent/validate-test-fixture-inventory.ts: unsafe_unknown
-- scripts/agent/validate-test-fixture-memory-writeback.ts: unsafe_unknown
-- scripts/agent/validate-test-quality-guards.ts: unsafe_unknown
-- scripts/agent/validate-validator-ownership-map.ts: unsafe_unknown
-- src/lib/test-hardening/generated-artifact-size-policy.ts: unsafe_unknown
-- src/lib/test-hardening/qa-harness-map.ts: unsafe_unknown
-- src/lib/test-hardening/test-fixture-gut-consolidation.ts: unsafe_unknown
-- src/lib/test-hardening/test-fixture-inventory.ts: unsafe_unknown
-- src/lib/test-hardening/test-fixture-memory-writeback.ts: unsafe_unknown
-- src/lib/test-hardening/test-hardening-shared.ts: unsafe_unknown
-- src/lib/test-hardening/test-quality-guards.ts: unsafe_unknown
-- src/lib/test-hardening/validator-ownership-map.ts: unsafe_unknown
-- src/lib/testing/canonical-test-factories.ts: unsafe_unknown
-- src/lib/testing/mock-evidence-classifier.ts: unsafe_unknown
-- tests/unit/generated-artifact-size-policy.spec.ts: unsafe_unknown
-- tests/unit/qa-harness-consolidation.spec.ts: unsafe_unknown
-- tests/unit/test-fixture-inventory.spec.ts: unsafe_unknown
-- tests/unit/test-fixture-memory-writeback.spec.ts: unsafe_unknown
-- tests/unit/test-quality-guards.spec.ts: unsafe_unknown
-- tests/unit/validator-ownership-map.spec.ts: unsafe_unknown
+- agent/context/task-pack.generated.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/context/validator-map.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/blast-radius.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/canonical-helpers.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/dependency-graph.summary.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/governance-truth.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/known-pitfalls.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/package-manager-truth.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/recent-passes.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/repo-inventory.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/retrieval-index.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/runtime-observability.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/surface-map.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/ui-surface-coverage.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/verification-commands.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/index/workflow-guidance.json: unrelated_dirty_outside_canonical_math_ledger
+- agent/state/admin-cms-workflow-audit.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-legacy-recovery-reconciliation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/background-job-idempotency-audit.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/bug-report-truth-terminal-state.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/canonical-math-authority-ledger.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/canonical-math-ledger.generated.json: current_generated_artifact_to_commit
+- agent/state/config-env-contract.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/content-media-pipeline-audit.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/cookie-banner-settings-sync.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-evidence-staleness-queue.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/global-cost-surfaces.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/gumdrop-ledger-math.generated.json: companion_gumdrop_math_artifact_expected
+- agent/state/identity-handoff-spine.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/media-upload-lifecycle.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/orphaned-logic-score.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/private-media-access.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/provider-smoke-evidence.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/route-sample-freshness-classifier.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/score-80-reconciliation-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/score-dimension-80-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/settings-creator-dashboard-split.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/sql-mirror-status.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/sql-sync.payload.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/stale-route-sample-classification.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/support-policy-surface-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/telemetry-dependency-graph.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/telemetry-identified-parity.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/treasury-reconciliation-engine.generated.json: canonical_owner_platform_economy_treasury_reconciliation
+- agent/state/treasury-structure-contract.generated.json: canonical_owner_platform_economy_treasury_reconciliation
+- agent/state/user-management-status-truth.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/user-profile-api-contract.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/admin-cms-drop-workflow.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-legacy-recovery-reconciliation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/background-jobs-idempotency.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/bug-report-truth-terminal-state.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/canonical-math-authority-ledger.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/canonical-math-ledger.md: current_generated_artifact_to_commit
+- docs/agent-truth/config-env-contract.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/content-media-pipeline.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/cookie-banner-settings-sync.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/gumdrop-ledger-math.md: companion_gumdrop_math_artifact_expected
+- docs/agent-truth/identity-handoff-spine.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/media-upload-lifecycle.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/private-media-access.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/route-sample-freshness-classifier.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/score-80-reconciliation-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/score-dimension-80-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/stale-route-sample-classification.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/support-policy-surface-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/telemetry-dependency-graph.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/treasury-reconciliation-engine.md: canonical_owner_platform_economy_treasury_reconciliation
+- docs/agent-truth/treasury-structure-contract.md: canonical_owner_platform_economy_treasury_reconciliation
+- docs/agent-truth/user-management-status-truth.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/user-profile-api-contract.md: stale_generated_artifact_to_regenerate
+- scripts/agent/admin-status-lane-cleanup-shared.ts: unrelated_dirty_outside_canonical_math_ledger
+- scripts/agent/build-agent-indexes.ts: unrelated_dirty_outside_canonical_math_ledger
+- scripts/agent/chat-cost-status-cleanup-shared.ts: unrelated_dirty_outside_canonical_math_ledger
 
 ## Open PR Classification
 
@@ -106,4 +157,4 @@ Status: fail
 
 ## Validation Failures
 
-- Dirty files unclassified: AGENTS.md, REPO_MEMORY_LEDGER.md, agent/index/known-pitfalls.json, scripts/agent/validate-generated-artifact-size-policy.ts, scripts/agent/validate-qa-harness-consolidation.ts, scripts/agent/validate-test-fixture-gut-consolidation.ts, scripts/agent/validate-test-fixture-inventory.ts, scripts/agent/validate-test-fixture-memory-writeback.ts, scripts/agent/validate-test-quality-guards.ts, scripts/agent/validate-validator-ownership-map.ts, src/lib/test-hardening/generated-artifact-size-policy.ts, src/lib/test-hardening/qa-harness-map.ts, src/lib/test-hardening/test-fixture-gut-consolidation.ts, src/lib/test-hardening/test-fixture-inventory.ts, src/lib/test-hardening/test-fixture-memory-writeback.ts, src/lib/test-hardening/test-hardening-shared.ts, src/lib/test-hardening/test-quality-guards.ts, src/lib/test-hardening/validator-ownership-map.ts, src/lib/testing/canonical-test-factories.ts, src/lib/testing/mock-evidence-classifier.ts, tests/unit/generated-artifact-size-policy.spec.ts, tests/unit/qa-harness-consolidation.spec.ts, tests/unit/test-fixture-inventory.spec.ts, tests/unit/test-fixture-memory-writeback.spec.ts, tests/unit/test-quality-guards.spec.ts, tests/unit/validator-ownership-map.spec.ts
+- none
