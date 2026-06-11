@@ -84,6 +84,17 @@ describe("admin browser surface smoke contract", () => {
     expect(resolveAdminBrowserSurfaceForPathname("/admin/not-implemented")).toBeNull();
   });
 
+  it("keeps every admin browser surface route and selector uniquely resolvable", () => {
+    const selectors = ADMIN_BROWSER_SURFACE_DEFINITIONS.flatMap((surface) => surface.authenticatedSelectors);
+    expect(new Set(selectors).size).toBe(selectors.length);
+
+    for (const surface of ADMIN_BROWSER_SURFACE_DEFINITIONS) {
+      expect(surface.authenticatedSelectors).toContain(`[data-admin-browser-surface="${surface.surfaceId}"]`);
+      if (surface.route.includes("[userId]")) continue;
+      expect(resolveAdminBrowserSurfaceForPathname(surface.route)?.surfaceId).toBe(surface.surfaceId);
+    }
+  });
+
   it("records unauthenticated browser boundary evidence without clearing authenticated admin checks", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
