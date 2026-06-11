@@ -160,7 +160,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     });
     return rows.slice(0, 10);
   }, [filteredRegionRows, regionsFilterMode]);
-  const formatRegionLabel = (item: typeof regionsModel.rows[number]) => {
+  const formatRegionLabel = React.useCallback((item: typeof regionsModel.rows[number]) => {
     if (!item.city && !item.country) {
       return "Unknown location";
     }
@@ -171,7 +171,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
       return `${item.city}, Unknown country`;
     }
     return `${item.city}, ${item.country}`;
-  };
+  }, [regionsModel]);
   const formatRegionCount = (count: number) => {
     const unitLabel = count === 1
       ? regionsModel.countUnit.replace(/s$/u, "")
@@ -189,7 +189,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
         ? `${formatRegionLabel(item).slice(0, 18)}...`
         : formatRegionLabel(item),
     }))
-  ), [regionRowsForDisplay]);
+  ), [formatRegionLabel, regionRowsForDisplay]);
 
   return (
     <>

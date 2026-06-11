@@ -28,11 +28,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("next/image", () => ({
-  default: ({ alt, onLoadingComplete, onError: _onError, ...props }: {
+  default: function MockNextImage({ alt, onLoadingComplete, onError: _onError, ...props }: {
     alt: string;
     onLoadingComplete?: () => void;
     onError?: () => void;
-  }) => {
+  }) {
     useEffect(() => {
       onLoadingComplete?.();
     }, [onLoadingComplete]);
