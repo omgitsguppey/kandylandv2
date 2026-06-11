@@ -6,6 +6,7 @@ import {
   validateAdminBrowserSurfaceSmokeReport,
   type AdminBrowserSurfaceSmokeReport,
 } from "@/lib/evidence/admin-browser-surface-smoke-contract";
+import { resolveAdminBrowserSurfaceForPathname } from "@/lib/admin/admin-browser-surface-map";
 
 const LOCAL_BROWSER_PROVENANCE = {
   inputPath: "agent/evidence/admin-browser-surface-smoke/evidence.json",
@@ -51,6 +52,9 @@ describe("admin browser surface smoke contract", () => {
       "Debug Console",
       "data-admin-mobile-surface=debug",
     ]));
+    expect(report.surfaces.find((surface) => surface.surfaceId === "admin_debug")?.authenticatedSelectors).toEqual([
+      '[data-admin-browser-surface="admin_debug"]',
+    ]);
     expect(report.surfaces.map((surface) => surface.route)).toEqual([
       "/admin",
       "/admin/analytics",
@@ -71,6 +75,13 @@ describe("admin browser surface smoke contract", () => {
     expect(report.missingSourceAdminRoutes).toEqual([]);
     expect(report.extraSurfaceRoutes).toEqual([]);
     expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual([]);
+  });
+
+  it("resolves canonical browser surface ids for concrete admin paths", () => {
+    expect(resolveAdminBrowserSurfaceForPathname("/admin")?.surfaceId).toBe("admin_overview");
+    expect(resolveAdminBrowserSurfaceForPathname("/admin/debug")?.surfaceId).toBe("admin_debug");
+    expect(resolveAdminBrowserSurfaceForPathname("/admin/user/example-user")?.surfaceId).toBe("admin_user_detail");
+    expect(resolveAdminBrowserSurfaceForPathname("/admin/not-implemented")).toBeNull();
   });
 
   it("records unauthenticated browser boundary evidence without clearing authenticated admin checks", () => {

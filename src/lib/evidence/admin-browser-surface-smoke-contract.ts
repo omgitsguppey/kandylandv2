@@ -1,4 +1,11 @@
-export type AdminBrowserSurfaceDeviceBand = "mobile" | "desktop";
+import {
+  ADMIN_BROWSER_SURFACE_DEFINITIONS,
+  type AdminBrowserSurfaceDefinition,
+  type AdminBrowserSurfaceDeviceBand,
+} from "@/lib/admin/admin-browser-surface-map";
+
+export { ADMIN_BROWSER_SURFACE_DEFINITIONS };
+export type { AdminBrowserSurfaceDefinition, AdminBrowserSurfaceDeviceBand };
 
 export type AdminBrowserSurfaceEvidenceState =
   | "source_contract_only"
@@ -14,18 +21,6 @@ export type AdminBrowserSurfaceReportStatus =
   | "browser_boundary_partial"
   | "authenticated_browser_pending"
   | "authenticated_browser_covered";
-
-export type AdminBrowserSurfaceDefinition = {
-  surfaceId: string;
-  route: string;
-  title: string;
-  group: "overview" | "analytics" | "ops" | "content" | "people" | "protected_money";
-  deviceBands: AdminBrowserSurfaceDeviceBand[];
-  requiresAdminAuth: true;
-  protectedDomain?: "gumdrop_treasury";
-  authenticatedVisibleMarkers: readonly string[];
-  browserSmokeReason: string;
-};
 
 export type AdminBrowserSurfaceEvidenceInput = Partial<{
   surfaceId: string;
@@ -133,150 +128,6 @@ export type AdminBrowserSurfaceSmokeReport = {
   nextExactSteps: string[];
   validationFailures: string[];
 };
-
-export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
-  {
-    surfaceId: "admin_overview",
-    route: "/admin",
-    title: "Admin Overview",
-    group: "overview",
-    deviceBands: ["mobile", "desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Admin Overview", "data-admin-platform-pulse-grid"],
-    browserSmokeReason: "Main admin landing page and shell navigation must render without hiding source-state labels.",
-  },
-  {
-    surfaceId: "admin_analytics",
-    route: "/admin/analytics",
-    title: "Admin Analytics",
-    group: "analytics",
-    deviceBands: ["mobile", "desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Analytics Overview", "data-admin-mobile-surface=analytics", "data-admin-analytics-summary=primary"],
-    browserSmokeReason: "Analytics panels are dense and must keep snapshot/cache states visible.",
-  },
-  {
-    surfaceId: "admin_drops",
-    route: "/admin/drops",
-    title: "Admin Drops",
-    group: "content",
-    deviceBands: ["desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Manage Drops", "Admin Drops"],
-    browserSmokeReason: "Drop moderation and approval controls need admin-only browser confirmation.",
-  },
-  {
-    surfaceId: "admin_users",
-    route: "/admin/users",
-    title: "Admin Users",
-    group: "people",
-    deviceBands: ["mobile", "desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["User Management", "data-admin-users-snapshot-state", "data-admin-users-stats-layout=compact-grid"],
-    browserSmokeReason: "User metrics must not collapse missing data into healthy zero states.",
-  },
-  {
-    surfaceId: "admin_user_detail",
-    route: "/admin/user/[userId]",
-    title: "Admin User Detail",
-    group: "people",
-    deviceBands: ["desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Engagement verdict", "Recommendation verdict", "Value verdict"],
-    browserSmokeReason: "User detail drilldown is identity and support sensitive and requires authenticated browser review.",
-  },
-  {
-    surfaceId: "admin_roster",
-    route: "/admin/roster",
-    title: "Admin Roster",
-    group: "people",
-    deviceBands: ["desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Creator Review", "data-roster-mode=decision_queue"],
-    browserSmokeReason: "Creator roster decisions need explicit review/waiting/approved states.",
-  },
-  {
-    surfaceId: "admin_debug",
-    route: "/admin/debug",
-    title: "Admin Debug",
-    group: "ops",
-    deviceBands: ["mobile", "desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Debug Console", "data-admin-mobile-surface=debug", "data-admin-debug-sprawl-reduction=target-75-95"],
-    browserSmokeReason: "Control Tower must show stale/missing/fallback evidence without raw dumps first.",
-  },
-  {
-    surfaceId: "admin_ai",
-    route: "/admin/ai",
-    title: "Admin AI",
-    group: "ops",
-    deviceBands: ["desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Cover Ops", "Cover Ops Verification"],
-    browserSmokeReason: "AI tooling must show enablement, budget, model, and fallback states safely.",
-  },
-  {
-    surfaceId: "admin_support",
-    route: "/admin/support",
-    title: "Admin Support",
-    group: "ops",
-    deviceBands: ["desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Support Workspace", "Admin Console"],
-    browserSmokeReason: "Support inbox states must distinguish missing thread, permission denial, retryable failure, submitted, and received.",
-  },
-  {
-    surfaceId: "admin_moderation",
-    route: "/admin/moderation",
-    title: "Admin Moderation",
-    group: "ops",
-    deviceBands: ["desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Moderation Control Tower", "data-admin-moderation-v2=real-risk-workspace"],
-    browserSmokeReason: "Moderation must avoid treating weak browser heuristics as confirmed server proof.",
-  },
-  {
-    surfaceId: "admin_content",
-    route: "/admin/content",
-    title: "Admin Content",
-    group: "content",
-    deviceBands: ["desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Content Manager", "Admin Storage"],
-    browserSmokeReason: "Content management affordances must be hidden, disabled, or unavailable when not implemented.",
-  },
-  {
-    surfaceId: "admin_queue",
-    route: "/admin/queue",
-    title: "Admin Queue",
-    group: "content",
-    deviceBands: ["desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Manage Queue", "Admin Queue"],
-    browserSmokeReason: "Queue states must expose pending/review/source-missing truth.",
-  },
-  {
-    surfaceId: "admin_privacy",
-    route: "/admin/privacy",
-    title: "Admin Privacy",
-    group: "ops",
-    deviceBands: ["desktop"],
-    requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Privacy Console", "Admin Setup"],
-    browserSmokeReason: "Privacy and consent surfaces must keep source and policy boundaries visible.",
-  },
-  {
-    surfaceId: "admin_economy",
-    route: "/admin/economy",
-    title: "Admin Economy",
-    group: "protected_money",
-    deviceBands: ["desktop"],
-    requiresAdminAuth: true,
-    protectedDomain: "gumdrop_treasury",
-    authenticatedVisibleMarkers: ["GumDrops Commerce Control Center", "Platform Economy"],
-    browserSmokeReason: "Economy views are protected: browser smoke may inspect labels only and cannot prove GumDrop/payment truth.",
-  },
-] as const satisfies readonly AdminBrowserSurfaceDefinition[];
 
 const FORMAL_GATE_LIMITS = [
   "local browser smoke does not clear deployed runtime smoke",
@@ -473,6 +324,12 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   for (const surface of report.surfaces) {
     if (!surface.requiresAdminAuth) failures.push(`${surface.surfaceId} must require admin auth.`);
     if (surface.route.startsWith("/admin") === false) failures.push(`${surface.surfaceId} route must stay under /admin.`);
+    if (surface.authenticatedSelectors.length === 0) {
+      failures.push(`${surface.surfaceId} must declare an authenticated browser selector.`);
+    }
+    if (!surface.authenticatedSelectors.includes(`[data-admin-browser-surface="${surface.surfaceId}"]`)) {
+      failures.push(`${surface.surfaceId} must include its canonical data-admin-browser-surface selector.`);
+    }
   }
   if (report.passed !== false) failures.push("admin browser smoke must not mark itself passed inside source validation.");
   if (report.canClearRuntimeGate || report.canClearProviderGate || report.canClearAdminTruthGate) {

@@ -123,7 +123,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     "## Surfaces",
     "",
     ...report.surfaces.map((surface) =>
-      `- ${surface.surfaceId}: route=${surface.route}; devices=${surface.deviceBands.join(",")}; group=${surface.group}; markers=${surface.authenticatedVisibleMarkers.join(" | ")}; reason=${surface.browserSmokeReason}`),
+      `- ${surface.surfaceId}: route=${surface.route}; devices=${surface.deviceBands.join(",")}; group=${surface.group}; selectors=${surface.authenticatedSelectors.join(" | ")}; markers=${surface.authenticatedVisibleMarkers.join(" | ")}; reason=${surface.browserSmokeReason}`),
     "",
     "## Source Route Coverage",
     "",
@@ -171,7 +171,7 @@ function writeTemplate() {
       urlAfterNavigation: "",
       visibleMarker: "",
       screenshotArtifactPath: "",
-      note: `Template entry only. Replace after real local browser or operator evidence exists. Expected markers: ${surface.authenticatedVisibleMarkers.join(" | ")}`,
+      note: `Template entry only. Replace after real local browser or operator evidence exists. Expected selectors: ${surface.authenticatedSelectors.join(" | ")}. Expected markers: ${surface.authenticatedVisibleMarkers.join(" | ")}`,
     })),
   );
   write(TEMPLATE_PATH, `${JSON.stringify({

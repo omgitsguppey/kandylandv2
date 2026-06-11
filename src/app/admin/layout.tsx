@@ -15,6 +15,7 @@ import {
   ADMIN_SHELL_GAP_TOKEN,
   ADMIN_TOP_TO_CONSOLE_GAP_CLASS,
 } from "@/lib/admin-shell-spacing";
+import { resolveAdminBrowserSurfaceForPathname } from "@/lib/admin/admin-browser-surface-map";
 
 
 const NAV_ITEMS = [
@@ -37,6 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const isAuthorized = !!user && userProfile?.role === "admin";
+  const browserSurface = resolveAdminBrowserSurfaceForPathname(pathname);
 
   useEffect(() => {
     if (authLoading) {
@@ -125,6 +127,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div
             className={ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS}
             data-admin-page-content="true"
+            data-admin-browser-surface={browserSurface?.surfaceId ?? "unknown"}
+            data-admin-browser-route={browserSurface?.route ?? pathname}
+            data-admin-browser-surface-group={browserSurface?.group ?? "unknown"}
             data-admin-shell-below-console-gap-class={ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS}
           >
             <AdminErrorCatcher />
