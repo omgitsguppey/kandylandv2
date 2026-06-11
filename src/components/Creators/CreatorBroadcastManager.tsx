@@ -316,6 +316,7 @@ export function CreatorBroadcastManager({
               type="button"
               onClick={() => void handleSend()}
               disabled={sending || !canSendBroadcast || message.trim().length < 4}
+              aria-busy={sending}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-purple px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {sending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" />}
@@ -361,6 +362,7 @@ export function CreatorBroadcastManager({
             <article key={broadcast.id} className="rounded-2xl border border-white/10 bg-black/35 p-4">
               <button
                 type="button"
+                aria-expanded={expanded}
                 onClick={() => {
                   setExpandedId(expanded ? null : broadcast.id);
                   trackEvent("creator_broadcast_detail_viewed", {

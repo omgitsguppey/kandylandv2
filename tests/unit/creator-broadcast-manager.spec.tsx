@@ -52,8 +52,8 @@ describe("CreatorBroadcastManager", () => {
 
     await waitFor(() => {
       expect(screen.getByText("No broadcasts yet")).toBeTruthy();
-      expect(screen.getByRole("button", { name: "Create broadcast" })).toBeTruthy();
-      expect(screen.getByText("Audience: Fans")).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Create broadcast" }).getAttribute("aria-busy")).toBe("false");
+      expect(screen.getByText("Audience: Followers")).toBeTruthy();
     });
   });
 
@@ -124,12 +124,14 @@ describe("CreatorBroadcastManager", () => {
       button.textContent?.includes("Live update"),
     );
     expect(liveUpdateButton).toBeTruthy();
+    expect(liveUpdateButton?.getAttribute("aria-expanded")).toBe("false");
     fireEvent.click(liveUpdateButton!);
+    expect(liveUpdateButton?.getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByText("Delivered 12")).toBeTruthy();
     expect(screen.getByText("Opened 5")).toBeTruthy();
   });
 
-  it("sends broadcasts with explicit all_fans audience", async () => {
+  it("sends broadcasts with explicit followers audience", async () => {
     mockState.authFetch
       .mockResolvedValueOnce({
         ok: true,
@@ -144,7 +146,7 @@ describe("CreatorBroadcastManager", () => {
             title: "Creator update",
             message: "New post is live",
             status: "sent",
-            audience: "all_fans",
+            audience: "followers",
           },
         }),
       });
@@ -165,7 +167,7 @@ describe("CreatorBroadcastManager", () => {
         body: JSON.stringify({
           title: "",
           message: "New post is live",
-          audience: "all_fans",
+          audience: "followers",
         }),
       }));
     });
