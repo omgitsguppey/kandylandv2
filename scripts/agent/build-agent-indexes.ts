@@ -23,6 +23,19 @@ type CommandEntry = {
   verifies_continuity: boolean;
 };
 
+function compactToolchainState() {
+  const toolchain = readRepoToolchainState();
+  return {
+    gitStatus: toolchain.gitStatus,
+    sourceFileDiscovery: toolchain.sourceFileDiscovery,
+    currentHead: toolchain.currentHead,
+    currentHeadSource: toolchain.currentHeadSource,
+    toolingDegraded: toolchain.toolingDegraded,
+    degradationReason: toolchain.degradationReason,
+    dirtyFileCount: Array.isArray(toolchain.workingTreeStatus) ? toolchain.workingTreeStatus.length : null,
+  };
+}
+
 const SURFACES = [
   ["app_routes", ["src/app/api", "src/app"], "high", false, ["npm run typecheck", "npm run test:contracts", "npm run check:architecture"], ["route_boundary_auth_request_guard", "route_diagnostics_server_diagnostics"], ["route_runtime_health", "server_diagnostics"], ["firebase.json", "middleware.ts"], ["Route contracts should stay on canonical helpers."]],
   ["admin_ops", ["src/app/admin", "src/app/api/admin"], "high", true, ["npm run check:ui:audits", "npm run test:contracts", "npm run check:continuity"], ["runtime_health_admin_debug_observability", "route_boundary_auth_request_guard"], ["admin_ui_chart_health", "route_runtime_health", "server_diagnostics", "admin_panel_system_logs"], [], ["Operational surfaces often require broad signoff."]],
@@ -107,7 +120,7 @@ function buildPackageManagerTruth() {
   const functionsDualLockDrift = functionsLockfiles.includes("functions/package-lock.json") && functionsLockfiles.includes("functions/pnpm-lock.yaml");
   return {
     ...createMetadata(["package.json", "functions/package.json", "package-lock.json", "functions/package-lock.json", "functions/pnpm-lock.yaml"]),
-    toolchain: readRepoToolchainState(),
+    toolchain: compactToolchainState(),
     stable_id: toStableId("pkgtruth", "root-functions"),
     root: { manifest: "package.json", packageManagerField: null, expectedManagers: rootLockfiles.includes("pnpm-lock.yaml") ? ["npm", "pnpm"] : ["npm"], requiredLockfiles: rootLockfiles, verificationCommands: ["npm run check", "npm run check:inventory", "npm run check:architecture"], packageChangesTriggerAgentBuild: true, packageChangesTriggerSqlSync: true },
     functions: { manifest: "functions/package.json", packageManagerField: null, expectedManagers: functionsLockfiles.includes("functions/pnpm-lock.yaml") ? ["npm", "pnpm"] : ["npm"], requiredLockfiles: functionsLockfiles, verificationCommands: ["npm --prefix functions run check"], nodeEngine: "22", packageChangesTriggerAgentBuild: true, packageChangesTriggerSqlSync: true },
@@ -177,7 +190,7 @@ function buildRecentPasses() {
 
 function buildRepoInventoryIndex() {
   const items = buildRepoInventory();
-  const toolchain = readRepoToolchainState();
+  const toolchain = compactToolchainState();
   return {
     ...createMetadata([toolchain.sourceFileDiscovery === "git" ? "git ls-files --cached --others --exclude-standard" : `${toolchain.sourceFileDiscovery} fallback`, "scripts/repo-inventory.ts"]),
     gitStatus: toolchain.gitStatus,
@@ -186,7 +199,7 @@ function buildRepoInventoryIndex() {
     currentHeadSource: toolchain.currentHeadSource,
     toolingDegraded: toolchain.toolingDegraded,
     degradationReason: toolchain.degradationReason,
-    workingTreeStatus: toolchain.workingTreeStatus,
+    dirtyFileCount: toolchain.dirtyFileCount,
     items,
     counts: { total: items.length, byDomain: groupInventoryByDomain(items), byPrefix: countPathPrefixes(items) },
   };
