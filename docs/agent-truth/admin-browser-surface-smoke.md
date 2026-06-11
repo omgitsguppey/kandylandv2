@@ -15,6 +15,10 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Authenticated checks present: 0
 - Unauthenticated boundary checks present: 18
 - Unauthenticated redirect checks present: 12
+- Evidence source: local_in_app_browser
+- Evidence mode: unauthenticated_only
+- Evidence base URL: http://127.0.0.1:3210
+- Evidence captured at: 2026-06-11T18:49:50.000Z
 - Protected surfaces: admin_economy
 
 ## Surfaces

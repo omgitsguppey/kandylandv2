@@ -7,6 +7,15 @@ import {
   type AdminBrowserSurfaceSmokeReport,
 } from "@/lib/evidence/admin-browser-surface-smoke-contract";
 
+const LOCAL_BROWSER_PROVENANCE = {
+  inputPath: "agent/evidence/admin-browser-surface-smoke/evidence.json",
+  source: "local_in_app_browser" as const,
+  baseUrl: "http://127.0.0.1:3210",
+  capturedAtUtc: "2026-06-11T12:00:00.000Z",
+  noteCount: 1,
+  notes: ["Unit fixture for local browser evidence."],
+};
+
 describe("admin browser surface smoke contract", () => {
   it("tracks every admin page as authenticated browser-pending by default", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
@@ -34,6 +43,8 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.routeCount).toBe(14);
     expect(report.summary.requiredAuthenticatedSurfaceCount).toBe(18);
     expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
+    expect(report.evidenceProvenance.source).toBe("none");
+    expect(report.evidenceProvenance.evidenceMode).toBe("none");
     expect(report.protectedSurfaceIds).toEqual(["admin_economy"]);
     expect(report.surfaces.find((surface) => surface.surfaceId === "admin_debug")?.authenticatedVisibleMarkers).toEqual(expect.arrayContaining([
       "Debug Console",
@@ -60,6 +71,7 @@ describe("admin browser surface smoke contract", () => {
 
   it("records unauthenticated browser boundary evidence without clearing authenticated admin checks", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
+      evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       evidence: ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => ({
         surfaceId: surface.surfaceId,
         route: surface.route,
@@ -75,6 +87,9 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.unauthRedirectEvidenceCount).toBe(0);
     expect(report.summary.authenticatedSurfaceEvidenceCount).toBe(0);
     expect(report.summary.manualAdminAuthRequiredCount).toBeGreaterThan(0);
+    expect(report.evidenceProvenance.source).toBe("local_in_app_browser");
+    expect(report.evidenceProvenance.evidenceMode).toBe("unauthenticated_only");
+    expect(report.evidenceProvenance.baseUrl).toBe("http://127.0.0.1:3210");
     expect(report.doesNotProve).toEqual(expect.arrayContaining([
       expect.stringContaining("production admin truth sample"),
       expect.stringContaining("GumDrop treasury truth"),
@@ -84,6 +99,7 @@ describe("admin browser surface smoke contract", () => {
 
   it("requires diagnostic fields before authenticated browser evidence can be accepted", () => {
     const incomplete = buildAdminBrowserSurfaceSmokeReport({
+      evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -99,6 +115,7 @@ describe("admin browser surface smoke contract", () => {
     ]));
 
     const complete = buildAdminBrowserSurfaceSmokeReport({
+      evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -113,6 +130,7 @@ describe("admin browser surface smoke contract", () => {
     expect(validateAdminBrowserSurfaceSmokeReport(complete)).toEqual([]);
 
     const wrongMarker = buildAdminBrowserSurfaceSmokeReport({
+      evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -131,6 +149,7 @@ describe("admin browser surface smoke contract", () => {
 
   it("rejects unknown surfaces and formal gate overclaims", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
+      evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",

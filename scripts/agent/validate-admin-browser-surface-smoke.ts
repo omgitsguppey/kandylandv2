@@ -7,6 +7,7 @@ import {
   buildAdminBrowserSurfaceSmokeReport,
   validateAdminBrowserSurfaceSmokeReport,
   type AdminBrowserSurfaceEvidenceInput,
+  type AdminBrowserSurfaceEvidenceProvenance,
   type AdminBrowserSurfaceSmokeReport,
 } from "../../src/lib/evidence/admin-browser-surface-smoke-contract";
 
@@ -37,12 +38,32 @@ function readJson(path: string): Record<string, unknown> | null {
   }
 }
 
-function readEvidence() {
+function toEvidenceSource(value: unknown): AdminBrowserSurfaceEvidenceProvenance["source"] {
+  return value === "local_in_app_browser" || value === "operator_screenshot" || value === "manual_external"
+    ? value
+    : "unknown";
+}
+
+function readEvidenceFile() {
   const parsed = readJson(OPTIONAL_EVIDENCE_PATH);
   if (!parsed || !Array.isArray(parsed.evidence)) return undefined;
-  return parsed.evidence.filter((entry): entry is AdminBrowserSurfaceEvidenceInput =>
+  const notes = Array.isArray(parsed.notes)
+    ? parsed.notes.filter((note): note is string => typeof note === "string")
+    : [];
+  const evidence = parsed.evidence.filter((entry): entry is AdminBrowserSurfaceEvidenceInput =>
     Boolean(entry) && typeof entry === "object" && !Array.isArray(entry),
   );
+  return {
+    evidence,
+    provenance: {
+      inputPath: OPTIONAL_EVIDENCE_PATH,
+      source: toEvidenceSource(parsed.source),
+      baseUrl: typeof parsed.baseUrl === "string" ? parsed.baseUrl : undefined,
+      capturedAtUtc: typeof parsed.capturedAtUtc === "string" ? parsed.capturedAtUtc : undefined,
+      noteCount: notes.length,
+      notes,
+    },
+  };
 }
 
 function write(path: string, value: string) {
@@ -70,6 +91,10 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Authenticated checks present: ${report.summary.authenticatedSurfaceEvidenceCount}`,
     `- Unauthenticated boundary checks present: ${report.summary.unauthBoundaryEvidenceCount}`,
     `- Unauthenticated redirect checks present: ${report.summary.unauthRedirectEvidenceCount}`,
+    `- Evidence source: ${report.evidenceProvenance.source}`,
+    `- Evidence mode: ${report.evidenceProvenance.evidenceMode}`,
+    `- Evidence base URL: ${report.evidenceProvenance.baseUrl ?? "none"}`,
+    `- Evidence captured at: ${report.evidenceProvenance.capturedAtUtc ?? "none"}`,
     `- Protected surfaces: ${report.protectedSurfaceIds.join(", ")}`,
     "",
     "## Surfaces",
@@ -116,10 +141,12 @@ function writeTemplate() {
 }
 
 writeTemplate();
+const evidenceFile = readEvidenceFile();
 const report = buildAdminBrowserSurfaceSmokeReport({
   currentHead: git(["rev-parse", "HEAD"]),
   generatedAtUtc: new Date().toISOString(),
-  evidence: readEvidence(),
+  evidence: evidenceFile?.evidence,
+  evidenceProvenance: evidenceFile?.provenance,
 });
 const failures = validateAdminBrowserSurfaceSmokeReport(report);
 const output: AdminBrowserSurfaceSmokeReport = {

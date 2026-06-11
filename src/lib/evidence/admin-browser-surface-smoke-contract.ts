@@ -51,6 +51,21 @@ export type AdminBrowserSurfaceEvidence = Required<
     };
   };
 
+export type AdminBrowserSurfaceEvidenceMode =
+  | "none"
+  | "unauthenticated_only"
+  | "authenticated_present";
+
+export type AdminBrowserSurfaceEvidenceProvenance = {
+  inputPath: string;
+  source: "none" | "local_in_app_browser" | "operator_screenshot" | "manual_external" | "unknown";
+  baseUrl?: string;
+  capturedAtUtc?: string;
+  evidenceMode: AdminBrowserSurfaceEvidenceMode;
+  noteCount: number;
+  notes: string[];
+};
+
 export type AdminBrowserSurfaceSmokeReport = {
   reportKey: "admin-browser-surface-smoke";
   status: AdminBrowserSurfaceReportStatus;
@@ -106,6 +121,7 @@ export type AdminBrowserSurfaceSmokeReport = {
     protectedSurfaceCount: number;
   };
   surfaces: AdminBrowserSurfaceDefinition[];
+  evidenceProvenance: AdminBrowserSurfaceEvidenceProvenance;
   evidence: AdminBrowserSurfaceEvidence[];
   missingAuthenticatedSurfaceIds: string[];
   protectedSurfaceIds: string[];
@@ -265,6 +281,14 @@ const FORMAL_GATE_LIMITS = [
   "local browser smoke does not clear payment or GumDrop treasury truth",
 ] as const;
 
+const DEFAULT_EVIDENCE_PROVENANCE: AdminBrowserSurfaceEvidenceProvenance = {
+  inputPath: "agent/evidence/admin-browser-surface-smoke/evidence.json",
+  source: "none",
+  evidenceMode: "none",
+  noteCount: 0,
+  notes: [],
+};
+
 function keyForEvidence(surfaceId?: string, deviceBand?: string) {
   return `${surfaceId ?? ""}::${deviceBand ?? ""}`;
 }
@@ -306,6 +330,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   currentHead?: string;
   generatedAtUtc?: string;
   evidence?: AdminBrowserSurfaceEvidenceInput[];
+  evidenceProvenance?: Partial<AdminBrowserSurfaceEvidenceProvenance>;
 } = {}): AdminBrowserSurfaceSmokeReport {
   const evidence = (input.evidence ?? [])
     .map(normalizeAdminBrowserSurfaceEvidence)
@@ -325,6 +350,18 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     entry.state === "unauth_boundary_verified" || entry.state === "unauth_redirect_verified",
   ).length;
   const unauthRedirectEvidenceCount = evidence.filter((entry) => entry.state === "unauth_redirect_verified").length;
+  const evidenceMode: AdminBrowserSurfaceEvidenceMode = authenticatedSurfaceEvidenceCount > 0
+    ? "authenticated_present"
+    : evidence.length > 0
+      ? "unauthenticated_only"
+      : "none";
+  const evidenceProvenance: AdminBrowserSurfaceEvidenceProvenance = {
+    ...DEFAULT_EVIDENCE_PROVENANCE,
+    ...input.evidenceProvenance,
+    evidenceMode,
+    noteCount: input.evidenceProvenance?.noteCount ?? input.evidenceProvenance?.notes?.length ?? 0,
+    notes: (input.evidenceProvenance?.notes ?? []).slice(0, 5),
+  };
   const protectedSurfaceIds = ADMIN_BROWSER_SURFACE_DEFINITIONS
     .filter((surface) => "protectedDomain" in surface && surface.protectedDomain)
     .map((surface) => surface.surfaceId);
@@ -393,6 +430,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
       protectedSurfaceCount: protectedSurfaceIds.length,
     },
     surfaces: [...ADMIN_BROWSER_SURFACE_DEFINITIONS],
+    evidenceProvenance,
     evidence,
     missingAuthenticatedSurfaceIds,
     protectedSurfaceIds,
@@ -424,6 +462,21 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   if (report.passed !== false) failures.push("admin browser smoke must not mark itself passed inside source validation.");
   if (report.canClearRuntimeGate || report.canClearProviderGate || report.canClearAdminTruthGate) {
     failures.push("admin browser smoke cannot clear runtime, provider, or admin truth gates.");
+  }
+  if (report.summary.evidenceCount > 0 && report.evidenceProvenance.source === "none") {
+    failures.push("browser evidence provenance must name the evidence source when evidence entries exist.");
+  }
+  if (report.evidenceProvenance.capturedAtUtc && Number.isNaN(Date.parse(report.evidenceProvenance.capturedAtUtc))) {
+    failures.push("browser evidence provenance capturedAtUtc must be a valid timestamp when present.");
+  }
+  if (report.evidenceProvenance.notes.length > 5) {
+    failures.push("browser evidence provenance notes must stay compact.");
+  }
+  if (report.evidenceProvenance.evidenceMode === "authenticated_present" && report.summary.authenticatedSurfaceEvidenceCount === 0) {
+    failures.push("browser evidence provenance cannot claim authenticated evidence when none is present.");
+  }
+  if (report.evidenceProvenance.evidenceMode === "unauthenticated_only" && report.summary.authenticatedSurfaceEvidenceCount > 0) {
+    failures.push("browser evidence provenance cannot claim unauthenticated-only when authenticated evidence is present.");
   }
   if (report.doesNotProve.some((entry) => /provider|runtime|admin truth|GumDrop|payment/iu.test(entry)) === false) {
     failures.push("report must state formal proof boundaries.");
