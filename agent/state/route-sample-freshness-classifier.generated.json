@@ -1,6 +1,6 @@
 {
   "reportKey": "route-sample-freshness-classifier",
-  "generatedAtUtc": "2026-05-24T22:10:18.203Z",
+  "generatedAtUtc": "2026-06-11T14:16:26.282Z",
   "staleFailure": {
     "routeKey": "creator/bookings:POST",
     "method": "POST",
@@ -32,5 +32,21 @@
     "nextAction": "admin/creator-account-controls:POST has no runtime sample; run an approved smoke path or attach evidence."
   },
   "freshnessWindowMs": 86400000,
-  "validationFailures": []
+  "validationFailures": [],
+  "status": "pass",
+  "currentHead": "aa4c3fba304c8dd9ceb18a6db2ba015931fab937",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Run npm run check:route-sample-freshness-classifier after touching this classifier lane.",
+    "Use deployed route samples or redacted runtime evidence separately before clearing runtime gates."
+  ],
+  "doesNotProve": [
+    "Does not prove live route health.",
+    "Does not prove provider/runtime route behavior.",
+    "Does not prove admin truth samples are current."
+  ]
 }

@@ -1,7 +1,7 @@
 {
   "reportKey": "bug-report-truth-terminal-state",
-  "generatedAtUtc": "2026-05-25T04:50:53.655Z",
-  "currentHead": "5c7d0dbd153160989cd96bca6702a87b5d00eeb9",
+  "generatedAtUtc": "2026-06-11T14:16:26.589Z",
+  "currentHead": "aa4c3fba304c8dd9ceb18a6db2ba015931fab937",
   "loadedEmpty": {
     "status": "loaded_empty",
     "reportCount": 0,
@@ -38,5 +38,20 @@
     "redactionStatus": "not_loaded",
     "nextAction": "Inspect admin/debug/bug-reports route diagnostics; the UI has resolved to a safe failed state."
   },
-  "validationFailures": []
+  "validationFailures": [],
+  "status": "pass",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Run npm run check:bug-report-truth-terminal-state after touching this debug/source validation lane.",
+    "Use redacted runtime/admin evidence separately before clearing runtime or admin truth gates."
+  ],
+  "doesNotProve": [
+    "Does not prove live bug-report volume.",
+    "Does not prove provider/runtime behavior.",
+    "Does not prove current admin truth samples."
+  ]
 }

@@ -1,6 +1,6 @@
 {
   "reportKey": "stale-route-sample-classification",
-  "generatedAtUtc": "2026-05-24T21:48:38.387Z",
+  "generatedAtUtc": "2026-06-11T14:16:26.181Z",
   "paypalCaptureStatus": "critical_payment_evidence_required",
   "paypalFreshnessFaked": false,
   "groupedActionList": [
@@ -10,5 +10,21 @@
   ],
   "staleRoutesMarkedCurrent": false,
   "staleServerErrorsHidden": false,
-  "validationFailures": []
+  "validationFailures": [],
+  "status": "pass",
+  "currentHead": "aa4c3fba304c8dd9ceb18a6db2ba015931fab937",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Run npm run check:stale-route-sample-classification after touching this route evidence classifier lane.",
+    "Refresh or attach route runtime samples separately before clearing runtime freshness gates."
+  ],
+  "doesNotProve": [
+    "Does not prove live route health.",
+    "Does not prove payment/provider runtime freshness.",
+    "Does not prove admin truth samples are current."
+  ]
 }
