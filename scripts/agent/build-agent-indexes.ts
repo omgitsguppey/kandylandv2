@@ -5,7 +5,7 @@ import { buildRuntimeObservability } from "./extract-runtime-observability";
 import { buildWorkflowGuidance } from "./extract-workflow";
 import { buildUiSurfaceCoverage } from "./build-ui-surface-coverage";
 import { buildDependencyGraphSummary } from "./summarize-dependency-graph";
-import { compact, createMetadata, fileExists, getPackageScripts, readText, toStableId, validateWithSchema, writeJsonFile } from "./shared";
+import { compact, createMetadata, fileExists, getPackageScripts, readRepoToolchainState, readText, toStableId, validateWithSchema, writeJsonFile } from "./shared";
 
 type CommandEntry = {
   stable_id: string;
@@ -104,12 +104,15 @@ function buildPackageManagerTruth() {
   const functionsLockfiles = compact([fileExists("functions/package-lock.json") ? "functions/package-lock.json" : null, fileExists("functions/pnpm-lock.yaml") ? "functions/pnpm-lock.yaml" : null]);
   const ledgerText = readText("REPO_MEMORY_LEDGER.md");
   const staleLedgerMentionsRootPnpm = ledgerText.includes("Root currently carries `package.json`, `package-lock.json`, and `pnpm-lock.yaml`") && !fileExists("pnpm-lock.yaml");
+  const functionsDualLockDrift = functionsLockfiles.includes("functions/package-lock.json") && functionsLockfiles.includes("functions/pnpm-lock.yaml");
   return {
     ...createMetadata(["package.json", "functions/package.json", "package-lock.json", "functions/package-lock.json", "functions/pnpm-lock.yaml"]),
+    toolchain: readRepoToolchainState(),
     stable_id: toStableId("pkgtruth", "root-functions"),
     root: { manifest: "package.json", packageManagerField: null, expectedManagers: rootLockfiles.includes("pnpm-lock.yaml") ? ["npm", "pnpm"] : ["npm"], requiredLockfiles: rootLockfiles, verificationCommands: ["npm run check", "npm run check:inventory", "npm run check:architecture"], packageChangesTriggerAgentBuild: true, packageChangesTriggerSqlSync: true },
     functions: { manifest: "functions/package.json", packageManagerField: null, expectedManagers: functionsLockfiles.includes("functions/pnpm-lock.yaml") ? ["npm", "pnpm"] : ["npm"], requiredLockfiles: functionsLockfiles, verificationCommands: ["npm --prefix functions run check"], nodeEngine: "22", packageChangesTriggerAgentBuild: true, packageChangesTriggerSqlSync: true },
     syncInvariants: compact([rootLockfiles.includes("package-lock.json") ? "Root npm dependency changes must keep package-lock.json in sync." : null, rootLockfiles.includes("pnpm-lock.yaml") ? "Root pnpm dependency changes must keep pnpm-lock.yaml in sync." : null, functionsLockfiles.includes("functions/package-lock.json") ? "Functions npm dependency changes must keep functions/package-lock.json in sync." : null, functionsLockfiles.includes("functions/pnpm-lock.yaml") ? "Functions pnpm dependency changes must keep functions/pnpm-lock.yaml in sync." : null]),
+    dependencyWindowBlockers: compact([functionsDualLockDrift ? "Functions has both package-lock.json and pnpm-lock.yaml; treat any drift as a manual dependency-window task, not an agent tooling patch." : null]),
     knownFailureModes: compact([rootLockfiles.includes("pnpm-lock.yaml") ? "Root lockfile drift can fail frozen-lockfile deployment/install paths." : null, functionsLockfiles.includes("functions/pnpm-lock.yaml") ? "Functions dual-lockfile drift can break functions verification or deployment parity." : null, staleLedgerMentionsRootPnpm ? "Governance text references a root pnpm lockfile that is not tracked; rely on manifests and tracked lockfiles instead." : null]),
   };
 }
@@ -174,7 +177,19 @@ function buildRecentPasses() {
 
 function buildRepoInventoryIndex() {
   const items = buildRepoInventory();
-  return { ...createMetadata(["git ls-files --cached --others --exclude-standard", "scripts/repo-inventory.ts"]), items, counts: { total: items.length, byDomain: groupInventoryByDomain(items), byPrefix: countPathPrefixes(items) } };
+  const toolchain = readRepoToolchainState();
+  return {
+    ...createMetadata([toolchain.sourceFileDiscovery === "git" ? "git ls-files --cached --others --exclude-standard" : `${toolchain.sourceFileDiscovery} fallback`, "scripts/repo-inventory.ts"]),
+    gitStatus: toolchain.gitStatus,
+    sourceFileDiscovery: toolchain.sourceFileDiscovery,
+    currentHead: toolchain.currentHead,
+    currentHeadSource: toolchain.currentHeadSource,
+    toolingDegraded: toolchain.toolingDegraded,
+    degradationReason: toolchain.degradationReason,
+    workingTreeStatus: toolchain.workingTreeStatus,
+    items,
+    counts: { total: items.length, byDomain: groupInventoryByDomain(items), byPrefix: countPathPrefixes(items) },
+  };
 }
 
 function buildBlastRadius() {

@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { discoverRepoFiles, readRepoToolchainState } from "./agent/shared";
 
 type InventoryEntry = {
   label: string;
@@ -22,15 +22,7 @@ function isRootConfigOrRuntimeFile(file: string) {
 }
 
 function readTrackedFiles() {
-  const output = execFileSync("git", ["ls-files"], {
-    cwd: process.cwd(),
-    encoding: "utf8",
-  });
-
-  return output
-    .split(/\r?\n/)
-    .map((entry) => entry.trim())
-    .filter(Boolean);
+  return discoverRepoFiles().files;
 }
 
 function countByPrefix(files: string[], prefix: string) {
@@ -65,14 +57,25 @@ function buildInventory(files: string[]): InventoryEntry[] {
 }
 
 function printInventory(entries: InventoryEntry[]) {
+  const toolchain = readRepoToolchainState();
   console.log("Repository inventory");
+  console.log(`- Git status: ${toolchain.gitStatus}`);
+  console.log(`- Source file discovery: ${toolchain.sourceFileDiscovery}`);
+  console.log(`- Current head source: ${toolchain.currentHeadSource}`);
+  console.log(`- Tooling degraded: ${toolchain.toolingDegraded ? "yes" : "no"}`);
+  if (toolchain.degradationReason) {
+    console.log(`- Degradation reason: ${toolchain.degradationReason}`);
+  }
   entries.forEach((entry) => {
     console.log(`- ${entry.label}: ${entry.count}`);
   });
 }
 
 function printJson(entries: InventoryEntry[]) {
-  console.log(JSON.stringify(entries, null, 2));
+  console.log(JSON.stringify({
+    toolchain: readRepoToolchainState(),
+    entries,
+  }, null, 2));
 }
 
 const files = readTrackedFiles();
