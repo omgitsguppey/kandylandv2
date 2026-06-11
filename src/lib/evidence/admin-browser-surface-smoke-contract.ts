@@ -53,6 +53,42 @@ export type AdminBrowserSurfaceEvidence = Required<
 export type AdminBrowserSurfaceSmokeReport = {
   reportKey: "admin-browser-surface-smoke";
   status: AdminBrowserSurfaceReportStatus;
+  evidenceClass: "generated_snapshot";
+  canClearSourceGate: true;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: false;
+  sourceFileDiscovery: "git";
+  gitStatus: "available";
+  toolingDegraded: false;
+  degradationReason: null;
+  currentHeadSource: "git";
+  freshness: "fresh";
+  baselineStatus: "current";
+  reportCompleteness: "complete";
+  totalFindingCount: number;
+  emittedFindingCount: number;
+  omittedFindingCount: 0;
+  capReason: null;
+  capStrategy: "none";
+  capLimit: null;
+  rankingInputCompleteness: "complete";
+  highRiskCounts: {
+    critical: 0;
+    major: 0;
+    signoff: number;
+    privacy: 0;
+    payment: number;
+    lockedContent: 0;
+    sourceTruth: number;
+  };
+  owner: "admin-browser-surface-smoke";
+  safetyClass: "source_safe";
+  costClass: "local_free";
+  rollback: string;
+  cleanupPolicy: "regenerate";
+  cleanupCommand: "npm run check:admin-browser-surface-smoke";
+  sourceTruthRole: "generated_snapshot";
   passed: false;
   generatedAtUtc: string;
   currentHead?: string;
@@ -271,6 +307,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   const protectedSurfaceIds = ADMIN_BROWSER_SURFACE_DEFINITIONS
     .filter((surface) => "protectedDomain" in surface && surface.protectedDomain)
     .map((surface) => surface.surfaceId);
+  const totalFindingCount = missingAuthenticatedSurfaceIds.length;
 
   const status: AdminBrowserSurfaceReportStatus = authenticatedSurfaceEvidenceCount === requiredAuthenticated.length
     ? "authenticated_browser_covered"
@@ -283,6 +320,42 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   return {
     reportKey: "admin-browser-surface-smoke",
     status,
+    evidenceClass: "generated_snapshot",
+    canClearSourceGate: true,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
+    sourceFileDiscovery: "git",
+    gitStatus: "available",
+    toolingDegraded: false,
+    degradationReason: null,
+    currentHeadSource: "git",
+    freshness: "fresh",
+    baselineStatus: "current",
+    reportCompleteness: "complete",
+    totalFindingCount,
+    emittedFindingCount: totalFindingCount,
+    omittedFindingCount: 0,
+    capReason: null,
+    capStrategy: "none",
+    capLimit: null,
+    rankingInputCompleteness: "complete",
+    highRiskCounts: {
+      critical: 0,
+      major: 0,
+      signoff: missingAuthenticatedSurfaceIds.length,
+      privacy: 0,
+      payment: protectedSurfaceIds.length,
+      lockedContent: 0,
+      sourceTruth: missingAuthenticatedSurfaceIds.length,
+    },
+    owner: "admin-browser-surface-smoke",
+    safetyClass: "source_safe",
+    costClass: "local_free",
+    rollback: "Revert the admin browser smoke contract/report changes and rerun npm run check:admin-browser-surface-smoke.",
+    cleanupPolicy: "regenerate",
+    cleanupCommand: "npm run check:admin-browser-surface-smoke",
+    sourceTruthRole: "generated_snapshot",
     passed: false,
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
     currentHead: input.currentHead,
@@ -328,6 +401,9 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
     if (surface.route.startsWith("/admin") === false) failures.push(`${surface.surfaceId} route must stay under /admin.`);
   }
   if (report.passed !== false) failures.push("admin browser smoke must not mark itself passed inside source validation.");
+  if (report.canClearRuntimeGate || report.canClearProviderGate || report.canClearAdminTruthGate) {
+    failures.push("admin browser smoke cannot clear runtime, provider, or admin truth gates.");
+  }
   if (report.doesNotProve.some((entry) => /provider|runtime|admin truth|GumDrop|payment/iu.test(entry)) === false) {
     failures.push("report must state formal proof boundaries.");
   }

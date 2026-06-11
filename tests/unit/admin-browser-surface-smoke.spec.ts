@@ -16,6 +16,19 @@ describe("admin browser surface smoke contract", () => {
 
     expect(report.reportKey).toBe("admin-browser-surface-smoke");
     expect(report.status).toBe("authenticated_browser_pending");
+    expect(report.evidenceClass).toBe("generated_snapshot");
+    expect(report.canClearSourceGate).toBe(true);
+    expect(report.canClearRuntimeGate).toBe(false);
+    expect(report.canClearProviderGate).toBe(false);
+    expect(report.canClearAdminTruthGate).toBe(false);
+    expect(report.sourceFileDiscovery).toBe("git");
+    expect(report.gitStatus).toBe("available");
+    expect(report.freshness).toBe("fresh");
+    expect(report.cleanupCommand).toBe("npm run check:admin-browser-surface-smoke");
+    expect(report.totalFindingCount).toBe(18);
+    expect(report.emittedFindingCount).toBe(18);
+    expect(report.highRiskCounts.signoff).toBe(18);
+    expect(report.highRiskCounts.payment).toBe(1);
     expect(report.passed).toBe(false);
     expect(report.summary.adminSurfaceCount).toBe(14);
     expect(report.summary.routeCount).toBe(14);
@@ -108,6 +121,7 @@ describe("admin browser surface smoke contract", () => {
     const invalid = {
       ...report,
       passed: true,
+      canClearRuntimeGate: true,
       evidence: [
         ...report.evidence,
         {
@@ -127,6 +141,7 @@ describe("admin browser surface smoke contract", () => {
 
     expect(validateAdminBrowserSurfaceSmokeReport(invalid)).toEqual(expect.arrayContaining([
       "admin browser smoke must not mark itself passed inside source validation.",
+      "admin browser smoke cannot clear runtime, provider, or admin truth gates.",
       "evidence references unknown surface: admin_fake",
       "admin_fake:desktop overclaims formal gate impact.",
     ]));
