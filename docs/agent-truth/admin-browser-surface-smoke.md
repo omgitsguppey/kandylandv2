@@ -118,6 +118,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 
 ## Next Exact Steps
 
-- Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session, then review/merge the compact per-surface evidence into agent/evidence/admin-browser-surface-smoke/evidence.json.
+- Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session, then rerun npm run check:admin-browser-surface-smoke with the same evidence dir to classify the compact per-surface evidence.
+- After reviewing the local fragment output, copy only intentional compact evidence into agent/evidence/admin-browser-surface-smoke/evidence.json when it should become tracked evidence.
 - Keep /admin/economy in protected label-only review; browser smoke cannot prove GumDrop/payment truth.
 - Use source validators for admin truth and runtime evidence separately; do not let browser smoke clear provider/runtime/admin-truth gates.
