@@ -19,6 +19,7 @@ const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/global-user-counting-math.generated.json";
 const DOC_PATH = "docs/agent-truth/global-user-counting-math.md";
 const SCORE_PATH = "agent/state/public-beta-score.generated.json";
+const MAX_DIRTY_FILE_EXAMPLES = 50;
 
 type JsonRecord = Record<string, unknown>;
 
@@ -75,7 +76,9 @@ function classifyDirtyFile(path: string) {
   if (normalized === "tests/unit/person-metrics-hydration.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === SCORE_PATH || normalized === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";
-  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized.startsWith("agent/context/") && /\.(json|jsonl)$/u.test(normalized)) return "unrelated_agent_context_file_to_ignore";
+  if (normalized.startsWith("agent/index/") && normalized.endsWith(".json")) return "unrelated_agent_index_file_to_review";
+  if (normalized === "scripts/repo-inventory.ts") return "unrelated_agent_index_tooling_to_review";
   if (
     normalized === "CHANGELOG.md"
     || normalized === "public/kandydrops-release-notes.json"
@@ -85,8 +88,16 @@ function classifyDirtyFile(path: string) {
   if (/paypal|payment-runtime|wallet-runtime|gumdrop-ledger|top-nav|bottom-nav|navbar/iu.test(normalized)) return "unsafe_unknown";
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
   if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
+  if (normalized.startsWith("scripts/agent/") && normalized.endsWith(".ts")) return "unrelated_agent_validator_tooling_to_review";
   if (/count|dedupe|person-metrics|global-user/iu.test(normalized)) return "real_source_change_needs_review";
   return "unsafe_unknown";
+}
+
+function countByClassification(files: Array<{ path: string; classification: string }>) {
+  return files.reduce<Record<string, number>>((counts, file) => {
+    counts[file.classification] = (counts[file.classification] ?? 0) + 1;
+    return counts;
+  }, {});
 }
 
 function classifyOpenPr(pr: JsonRecord) {
@@ -106,6 +117,7 @@ function asciiTitle(value: string) {
 }
 
 function listOpenPrs() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const raw = run("gh", [
     "pr",
     "list",
@@ -171,6 +183,8 @@ function fixtureEnvelope(input: Partial<CanonicalEventEnvelope> & { userId?: str
 
 function renderDoc(report: JsonRecord) {
   const dirtyRows = (report.dirtyFiles as Array<{ path: string; classification: string }>).map((file) => `- ${file.path}: ${file.classification}`);
+  const dirtySummary = report.dirtyFileClassificationCounts as Record<string, number>;
+  const dirtySummaryRows = Object.entries(dirtySummary).map(([classification, count]) => `- ${classification}: ${count}`);
   const prRows = (report.openPullRequests as Array<{ number: number; title: string; classification: string }>).map((pr) => `- #${pr.number} ${asciiTitle(pr.title)}: ${pr.classification}`);
   const failures = report.validationFailures as string[];
   return [
@@ -204,6 +218,15 @@ function renderDoc(report: JsonRecord) {
     "- notification: intentId + recipient + 1h",
     "",
     "## Dirty Files",
+    "",
+    `Total dirty files seen: ${report.dirtyFileCount}`,
+    `Examples shown: ${dirtyRows.length}${report.dirtyFilesTruncated ? " (truncated)" : ""}`,
+    "",
+    "### Dirty File Classifications",
+    "",
+    ...(dirtySummaryRows.length ? dirtySummaryRows : ["- none"]),
+    "",
+    "### Dirty File Examples",
     "",
     ...(dirtyRows.length ? dirtyRows : ["- none"]),
     "",
@@ -355,12 +378,14 @@ function main() {
     validationFailures.push("package script missing.");
   }
 
-  const dirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const allDirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
   const openPullRequests = listOpenPrs();
-  const unsafeDirty = dirtyFiles.filter((file) => file.classification === "unsafe_unknown");
+  const unsafeDirty = allDirtyFiles.filter((file) => file.classification === "unsafe_unknown");
   const unsafePrs = openPullRequests.filter((pr) => pr.classification === "unsafe_unknown");
   if (unsafeDirty.length) validationFailures.push(`Dirty files unclassified: ${unsafeDirty.map((file) => file.path).join(", ")}`);
   if (unsafePrs.length) validationFailures.push(`Open PRs unclassified: ${unsafePrs.map((pr) => String((pr as JsonRecord).number ?? "unknown")).join(", ")}`);
+  const dirtyFileClassificationCounts = countByClassification(allDirtyFiles);
+  const dirtyFiles = allDirtyFiles.slice(0, MAX_DIRTY_FILE_EXAMPLES);
 
   const report = {
     reportKey: "global-user-counting-math",
@@ -399,6 +424,9 @@ function main() {
     },
     scoreBefore,
     scoreAfter: scoreSnapshot(),
+    dirtyFileCount: allDirtyFiles.length,
+    dirtyFilesTruncated: allDirtyFiles.length > dirtyFiles.length,
+    dirtyFileClassificationCounts,
     dirtyFiles,
     openPullRequests,
     validationFailures,
