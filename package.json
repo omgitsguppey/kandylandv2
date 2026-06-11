@@ -229,6 +229,7 @@
         "check:pwa-service-worker-safety": "tsx scripts/agent/validate-pwa-service-worker-safety.ts",
         "check:notification-pwa-score-lock": "tsx scripts/agent/validate-notification-pwa-score-lock.ts",
         "check:ui-visual-smoke-minimal": "tsx scripts/agent/validate-ui-visual-smoke-minimal.ts",
+        "check:admin-browser-surface-smoke": "tsx scripts/agent/validate-admin-browser-surface-smoke.ts",
         "check:codex-visual-gate-removal": "tsx scripts/agent/validate-codex-visual-gate-removal.ts",
         "check:beta-evidence-gap-map": "tsx scripts/agent/validate-beta-evidence-gap-map.ts",
         "check:beta-freshness-language": "tsx scripts/agent/validate-beta-freshness-language.ts",
