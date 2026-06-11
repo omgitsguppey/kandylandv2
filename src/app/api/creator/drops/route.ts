@@ -23,7 +23,6 @@ import {
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
-import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const CREATOR_DROP_LIST_LIMIT = 100;
 const MAX_CREATOR_DROP_BODY_BYTES = 80_000;

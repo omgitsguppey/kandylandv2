@@ -20,7 +20,6 @@ import {
 } from "@/lib/tasks/daily-task-window-contract";
 import {
   normalizeDailyTaskRewardVNext,
-  type NormalizedDailyTaskReward,
 } from "@/lib/tasks/daily-task-reward-contract";
 
 export type DailyTaskAssignmentSource = "daily_task_materializer" | "on_demand_backfill" | "debug_repair";

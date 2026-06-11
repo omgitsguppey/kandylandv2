@@ -3,7 +3,6 @@ import type {
   DebugBacklogSeverity,
   DebugBacklogSource,
   DebugBacklogStatus,
-  DebugFixClass,
   ScoreDimensionImpact,
   DebugBacklogSummary,
 } from "./debug-backlog-contract";

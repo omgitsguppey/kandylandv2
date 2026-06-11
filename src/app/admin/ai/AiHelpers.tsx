@@ -1,13 +1,10 @@
 import { cn } from "@/lib/utils";
 import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
-import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { adminMetricStateToSurfaceState } from "@/lib/admin-metric-truth-state";
 import {
-    hasUsableAdminTruthValue,
     resolveAdminInputTruthState,
     resolveAdminMetricTruthState,
-    resolveAdminTruthState,
     type AdminTruthState,
 } from "@/lib/admin-truth-state";
 import {

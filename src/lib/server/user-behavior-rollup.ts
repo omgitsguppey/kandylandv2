@@ -5,12 +5,10 @@ import {
 import {
   computeUserEngagementScore,
   type UserEngagementScoreInput,
-  type UserEngagementScoreResult,
 } from "@/lib/behavioral/user-engagement-score";
 import {
   computeUserValueScore,
   type UserValueScoreInput,
-  type UserValueScoreResult,
 } from "@/lib/behavioral/user-value-score";
 import {
   clamp01,

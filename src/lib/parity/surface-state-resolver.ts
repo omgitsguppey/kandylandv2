@@ -2,8 +2,6 @@ import { SURFACE_PARITY_REGISTRY } from "@/lib/parity/surface-parity-registry";
 import type {
   SurfaceParityContract,
   SurfaceParityId,
-  SurfaceParityRole,
-  SurfaceRoleVisibility,
 } from "@/lib/parity/surface-parity-contract";
 import { getSurfaceTelemetryEventDefinitionByName } from "@/lib/telemetry/surface-telemetry-registry";
 

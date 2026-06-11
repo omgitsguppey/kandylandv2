@@ -5,7 +5,6 @@ import {
     CHAT_COLLECTIONS,
     buildChatThreadId,
     buildChatPaidGdGateState,
-    buildChatPaidGdLowBalanceReminderAfterPaidRefill,
     buildChatPaidGdLowBalanceReminderAfterSend,
     normalizeChatPaidGdLowBalanceReminderState,
     isChatThreadVisibleToViewer,

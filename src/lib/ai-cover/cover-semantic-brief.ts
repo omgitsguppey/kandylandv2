@@ -5,7 +5,6 @@ import {
   resolveCoverSemanticOntologyEntry,
   tokenizeSemanticText,
   type CoverSemanticFamily,
-  type CoverSemanticOntologyEntry,
 } from "./cover-semantic-ontology";
 
 export type CoverSemanticBrief = {

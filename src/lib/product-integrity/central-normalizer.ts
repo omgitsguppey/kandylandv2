@@ -24,7 +24,6 @@ import {
   type CentralCostSignal,
   type CentralDebugSignal,
   type CentralExportFact,
-  type CentralLegacyPathwayClassification,
   type CentralMetricFact,
   type CentralNormalizerCostClass,
   type CentralNormalizerDebugLane,

@@ -9,7 +9,6 @@ import type { TelemetryEventOption } from "@/lib/telemetry-catalog";
 import { resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
 import {
   RUNTIME_FACT_CONTRACT_VERSION,
-  type RuntimeFact,
   type RuntimeFactDiagnostic,
   type RuntimeFactNormalizationResult,
   type RuntimeFactSourceTruth,

@@ -14,7 +14,7 @@ import {
   toNumber,
   toStringValue,
 } from "./admin-analytics-shared";
-import type { RegionDemandPanelState, RegionDemandRow } from "@/types/admin-analytics";
+import type { RegionDemandRow } from "@/types/admin-analytics";
 
 const DAY_KEY_PREFIX_PATTERN = /^(\d{4}-\d{2}-\d{2})/u;
 

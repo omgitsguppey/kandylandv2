@@ -1,5 +1,5 @@
 import { buildCoverSemanticAllowList, type CoverSemanticBrief } from "./cover-semantic-brief";
-import { buildCoverNegativePromptLine, type CoverNegativeMemory } from "./cover-negative-memory";
+import { type CoverNegativeMemory } from "./cover-negative-memory";
 import type { CoverFeedbackNormalization } from "./cover-feedback-normalizer";
 
 export type CoverPromptDeltaEngineInput = {

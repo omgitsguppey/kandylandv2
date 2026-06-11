@@ -1,10 +1,6 @@
 import type {
-  AiDebugCriticCheck,
   AiDebugCriticFinding,
-  AiDebugCriticFindingSeverity,
-  AiDebugCriticGateBlocker,
   AiDebugCriticInput,
-  AiDebugCriticMonolithRisk,
   AiDebugCriticReport,
   AiDebugCriticStatus,
   AiDebugCriticSummary,

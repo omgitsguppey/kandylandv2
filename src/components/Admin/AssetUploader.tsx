@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NextImage from "next/image";
 import {
   AlertCircle,
-  CheckCircle2,
   FileArchive,
   Image as ImageIcon,
   Loader2,

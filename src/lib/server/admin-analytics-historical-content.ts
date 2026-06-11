@@ -1,6 +1,6 @@
 import "server-only";
 
-import { computeEffectiveUsdPer100Gd, PLATFORM_ECONOMY_WARNING_FLOOR_USD_PER_100_GD } from "@/lib/platform-economy";
+import { PLATFORM_ECONOMY_WARNING_FLOOR_USD_PER_100_GD } from "@/lib/platform-economy";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import type { Drop } from "@/types/db";
 import type { ContentConversionState, PackagePerformanceState } from "@/types/admin-analytics";

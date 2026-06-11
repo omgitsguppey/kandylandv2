@@ -1,8 +1,6 @@
 import {
   TELEMETRY_EVENT_EXTENSION_METADATA,
-  type TelemetryConsentRequirement,
   type TelemetryEventExtensionMetadata,
-  type TelemetryIdentityRequirement,
 } from "@/lib/telemetry-catalog";
 import {
   buildOrphanMetricRegistry,

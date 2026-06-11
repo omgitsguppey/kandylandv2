@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { UserProfile } from "@/types/db";
-import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3, Activity, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Clock3, Activity, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";

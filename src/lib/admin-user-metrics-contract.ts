@@ -2,7 +2,6 @@ import type {
   BehavioralConfidenceLabel,
 } from "@/lib/behavioral/behavioral-confidence";
 import type {
-  BehavioralFreshnessState,
   BehavioralTruthSource,
 } from "@/lib/behavioral/behavioral-truth-source";
 import type {

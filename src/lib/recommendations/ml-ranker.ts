@@ -3,7 +3,6 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 
-import type { Drop } from "@/types/db";
 import { computeDropRecommendationScore } from "@/lib/behavioral/behavioral-math-calibration";
 
 import type {

@@ -6,7 +6,7 @@ import {
     normalizeCreatorSettings,
     normalizePositiveWholeNumber,
 } from "@/lib/creator-experiences";
-import type { CreatorRequestCategoryConfig, CreatorSettings } from "@/types/db";
+import type { CreatorRequestCategoryConfig } from "@/types/db";
 
 export type CreatorPricingSource = "creator_settings" | "legacy_default" | "unavailable";
 
