@@ -11,6 +11,12 @@ type OrphanedLogicFinding = {
   excerpt?: string;
   scoreImpact: number;
   suggestedFix: string;
+  canonicalOwner: string;
+  duplicateCandidate: string;
+  affectedSurface: string;
+  suggestedConsolidationTarget: string;
+  validatorToRun: string;
+  riskClass: string;
   canAutofix: boolean;
   autofixPlan?: string;
   escalation: string;
@@ -23,8 +29,15 @@ type OrphanedLogicReport = {
   generatedAt: string;
   repoRoot: string;
   findings: OrphanedLogicFinding[];
+  findingCount: number;
+  findingsTruncated: boolean;
+  findingReportLimit: number;
   criticalCount: number;
   majorCount: number;
+  severityCounts: Record<string, number>;
+  categoryCounts: Record<string, number>;
+  riskClassCounts: Record<string, number>;
+  scoreImpactTotal: number;
   safeAutofixesAvailable: number;
   scannedFileCount: number;
   checkedFiles: string[];
@@ -95,6 +108,8 @@ function validateFinding(finding: OrphanedLogicFinding, index: number) {
   }
   if (![
     "duplicate_normalizer",
+    "duplicate_hook",
+    "duplicate_permission_role_resolver",
     "legacy_preview_ownership",
     "drops_query_handoff",
     "use_drops_notes",
@@ -107,6 +122,11 @@ function validateFinding(finding: OrphanedLogicFinding, index: number) {
     "support_route_expectation",
     "realtime_hot_cache",
     "telemetry_duplicate_intent",
+    "duplicate_telemetry_emitter",
+    "route_inline_business_logic",
+    "component_business_truth",
+    "stale_generated_report_consumed",
+    "disconnected_test_validator_doc",
     "dead_import",
     "autofix_policy",
   ].includes(finding.category)) {
@@ -118,6 +138,14 @@ function validateFinding(finding: OrphanedLogicFinding, index: number) {
   }
   if (!Array.isArray(finding.evidence)) {
     failures.push(`findings[${index}].evidence must be an array.`);
+  }
+  for (const key of ["canonicalOwner", "duplicateCandidate", "affectedSurface", "suggestedConsolidationTarget", "validatorToRun", "riskClass"] as const) {
+    if (typeof finding[key] !== "string" || finding[key].trim().length === 0) {
+      failures.push(`findings[${index}].${key} must be a non-empty string.`);
+    }
+  }
+  if (!["low", "medium", "high", "protected", "manual_review"].includes(finding.riskClass)) {
+    failures.push(`findings[${index}].riskClass is invalid.`);
   }
   if (finding.canAutofix && typeof finding.autofixPlan !== "string") {
     failures.push(`findings[${index}].autofixPlan must explain safe autofix when canAutofix is true.`);
@@ -140,14 +168,20 @@ if (report) {
     failures.push("findings must be an array.");
   } else {
     report.findings.forEach(validateFinding);
-    const criticalCount = report.findings.filter((finding) => finding.severity === "critical").length;
-    const majorCount = report.findings.filter((finding) => finding.severity === "major").length;
-    if (criticalCount !== report.criticalCount) {
-      failures.push("criticalCount must match critical findings.");
-    }
-    if (majorCount !== report.majorCount) {
-      failures.push("majorCount must match major findings.");
-    }
+    if (report.findings.length > report.findingReportLimit) failures.push("findings must be capped by findingReportLimit.");
+    if (report.findingCount < report.findings.length) failures.push("findingCount must be at least the reported findings length.");
+    if (report.findingsTruncated !== report.findingCount > report.findings.length) failures.push("findingsTruncated must reflect capped output.");
+  }
+  requireNumber(report.findingCount, "findingCount", 0, 100_000);
+  requireNumber(report.findingReportLimit, "findingReportLimit", 1, 500);
+  requireNumber(report.scoreImpactTotal, "scoreImpactTotal", -100_000, 0);
+  if (typeof report.findingsTruncated !== "boolean") failures.push("findingsTruncated must be boolean.");
+  if (!report.severityCounts || typeof report.severityCounts !== "object") failures.push("severityCounts must be present.");
+  if (!report.categoryCounts || typeof report.categoryCounts !== "object") failures.push("categoryCounts must be present.");
+  if (!report.riskClassCounts || typeof report.riskClassCounts !== "object") failures.push("riskClassCounts must be present.");
+  if (report.severityCounts) {
+    if (report.severityCounts.critical !== report.criticalCount) failures.push("criticalCount must match severityCounts.critical.");
+    if (report.severityCounts.major !== report.majorCount) failures.push("majorCount must match severityCounts.major.");
   }
   requireNumber(report.scannedFileCount, "scannedFileCount", 1, 100_000);
   requireNumber(report.safeAutofixesAvailable, "safeAutofixesAvailable", 0, 10_000);
@@ -168,6 +202,8 @@ if (report) {
   }
   for (const rule of [
     "duplicate normalizers for same domain",
+    "duplicate hooks with same exported owner name",
+    "duplicate permission or role resolvers",
     "old DropPreviewModal must not own locked preview after full-page route exists",
     "`/drops?drop=` modal flow still primary",
     "duplicate PR audit chunks with broken template text",
@@ -176,6 +212,11 @@ if (report) {
     "hardcoded chat offset token",
     "orphaned support route expectations",
     "duplicate telemetry events with same intent but different names",
+    "duplicate telemetry emitters outside a declared catalog/alias owner",
+    "route handlers owning business logic inline",
+    "components owning business truth instead of canonical hooks/services",
+    "stale generated reports imported or consumed by runtime code",
+    "moved files with disconnected tests, validators, or docs",
     "dead imports in public beta surfaces",
   ]) {
     if (!report.rules.includes(rule)) {
@@ -228,6 +269,11 @@ for (const expected of [
   "orphaned support route expectations",
   "obsolete realtime logic where hot-cache doctrine applies",
   "duplicate telemetry events with same intent but different names",
+  "duplicate telemetry emitters outside a declared catalog/alias owner",
+  "route handlers owning business logic inline",
+  "components owning business truth instead of canonical hooks/services",
+  "stale generated reports imported or consumed by runtime code",
+  "moved files with disconnected tests, validators, or docs",
   "dead imports in public beta surfaces",
   "safe autofix plans only",
   "agent/state/orphaned-logic-score.generated.json",

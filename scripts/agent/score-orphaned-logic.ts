@@ -4,6 +4,8 @@ import { dirname, extname, join, relative, sep } from "node:path";
 type OrphanedLogicSeverity = "info" | "minor" | "moderate" | "major" | "critical";
 type OrphanedLogicCategory =
   | "duplicate_normalizer"
+  | "duplicate_hook"
+  | "duplicate_permission_role_resolver"
   | "legacy_preview_ownership"
   | "drops_query_handoff"
   | "use_drops_notes"
@@ -16,8 +18,15 @@ type OrphanedLogicCategory =
   | "support_route_expectation"
   | "realtime_hot_cache"
   | "telemetry_duplicate_intent"
+  | "duplicate_telemetry_emitter"
+  | "route_inline_business_logic"
+  | "component_business_truth"
+  | "stale_generated_report_consumed"
+  | "disconnected_test_validator_doc"
   | "dead_import"
   | "autofix_policy";
+
+type OrphanedLogicRiskClass = "low" | "medium" | "high" | "protected" | "manual_review";
 
 type OrphanedLogicFinding = {
   id: string;
@@ -29,6 +38,12 @@ type OrphanedLogicFinding = {
   excerpt?: string;
   scoreImpact: number;
   suggestedFix: string;
+  canonicalOwner: string;
+  duplicateCandidate: string;
+  affectedSurface: string;
+  suggestedConsolidationTarget: string;
+  validatorToRun: string;
+  riskClass: OrphanedLogicRiskClass;
   canAutofix: boolean;
   autofixPlan?: string;
   escalation: string;
@@ -41,8 +56,15 @@ type OrphanedLogicReport = {
   generatedAt: string;
   repoRoot: string;
   findings: OrphanedLogicFinding[];
+  findingCount: number;
+  findingsTruncated: boolean;
+  findingReportLimit: number;
   criticalCount: number;
   majorCount: number;
+  severityCounts: Record<OrphanedLogicSeverity, number>;
+  categoryCounts: Partial<Record<OrphanedLogicCategory, number>>;
+  riskClassCounts: Record<OrphanedLogicRiskClass, number>;
+  scoreImpactTotal: number;
   safeAutofixesAvailable: number;
   scannedFileCount: number;
   checkedFiles: string[];
@@ -59,8 +81,30 @@ type SourceFile = {
   source: string;
 };
 
+type OrphanedLogicFindingInput = Omit<
+  OrphanedLogicFinding,
+  | "id"
+  | "scoreImpact"
+  | "canAutofix"
+  | "canonicalOwner"
+  | "duplicateCandidate"
+  | "affectedSurface"
+  | "suggestedConsolidationTarget"
+  | "validatorToRun"
+  | "riskClass"
+> & {
+  canAutofix?: boolean;
+  canonicalOwner?: string;
+  duplicateCandidate?: string;
+  affectedSurface?: string;
+  suggestedConsolidationTarget?: string;
+  validatorToRun?: string;
+  riskClass?: OrphanedLogicRiskClass;
+};
+
 const root = process.cwd();
 const REPORT_PATH = "agent/state/orphaned-logic-score.generated.json";
+const FINDING_REPORT_LIMIT = 40;
 
 const severityImpact: Record<OrphanedLogicSeverity, number> = {
   info: 0,
@@ -72,6 +116,8 @@ const severityImpact: Record<OrphanedLogicSeverity, number> = {
 
 const rules = [
   "duplicate normalizers for same domain",
+  "duplicate hooks with same exported owner name",
+  "duplicate permission or role resolvers",
   "old DropPreviewModal must not own locked preview after full-page route exists",
   "`/drops?drop=` modal flow still primary",
   "duplicate useDrops optimization notes",
@@ -84,6 +130,11 @@ const rules = [
   "orphaned support route expectations",
   "obsolete realtime logic where hot-cache doctrine applies",
   "duplicate telemetry events with same intent but different names",
+  "duplicate telemetry emitters outside a declared catalog/alias owner",
+  "route handlers owning business logic inline",
+  "components owning business truth instead of canonical hooks/services",
+  "stale generated reports imported or consumed by runtime code",
+  "moved files with disconnected tests, validators, or docs",
   "dead imports in public beta surfaces",
   "legacy phase-out registry ownership and deadlines",
   "safe autofix plans only for exact unused imports or exact duplicate broken doc chunks after TypeScript confirmation",
@@ -159,6 +210,49 @@ function stableHash(input: string) {
   return (hash >>> 0).toString(36);
 }
 
+function affectedSurfaceFor(filePath: string) {
+  if (filePath.startsWith("src/app/api/")) return "api_route";
+  if (filePath.startsWith("src/app/admin/") || filePath.includes("admin")) return "admin_ui_debug";
+  if (filePath.startsWith("src/components/")) return "component_ui";
+  if (filePath.startsWith("src/hooks/")) return "hook_state";
+  if (filePath.includes("telemetry") || filePath.includes("analytics")) return "telemetry_analytics";
+  if (filePath.includes("auth") || filePath.includes("permission") || filePath.includes("role")) return "identity_auth_permission";
+  if (filePath.includes("wallet") || filePath.includes("payment") || filePath.includes("purchase") || filePath.includes("gumdrop") || filePath.includes("unlock")) return "wallet_payment_unlock";
+  if (filePath.startsWith("agent/")) return "agent_generated_evidence";
+  if (filePath.startsWith("tests/")) return "test_fixture_validator";
+  return "repo_source";
+}
+
+function canonicalOwnerFor(category: OrphanedLogicCategory, filePath: string) {
+  if (category.includes("telemetry")) return "src/lib/telemetry-catalog.ts";
+  if (category === "duplicate_hook") return filePath.startsWith("src/hooks/") ? filePath : "src/hooks/";
+  if (category === "duplicate_permission_role_resolver") return "src/lib/identity-truth/";
+  if (category === "route_inline_business_logic") return "src/lib/server/";
+  if (category === "component_business_truth") return "canonical hook/service owner for the touched feature";
+  if (category === "stale_generated_report_consumed") return "agent/state generated artifact owner; runtime code must not consume generated reports";
+  if (category === "disconnected_test_validator_doc") return "current moved source path or package script owner";
+  if (category === "realtime_hot_cache") return "src/lib/server/admin-analytics-data.ts";
+  if (category === "legacy_preview_ownership" || category === "drops_query_handoff") return "src/app/drops/[id]/preview/page.tsx";
+  return filePath;
+}
+
+function validatorFor(category: OrphanedLogicCategory, filePath: string) {
+  if (category.includes("telemetry")) return "npm run check:telemetry-dependency-graph";
+  if (category === "duplicate_permission_role_resolver") return "npm run check:role-permission-parity";
+  if (category === "route_inline_business_logic") return `npm run agent:verify -- --paths=${filePath}`;
+  if (category === "component_business_truth" || category === "duplicate_hook") return "npm run check:frontend-component-consolidation";
+  if (category === "stale_generated_report_consumed") return "npm run check:generated-report-authority";
+  if (category === "disconnected_test_validator_doc") return "npm run check:orphaned-logic";
+  return "npm run check:orphaned-logic";
+}
+
+function riskClassFor(severity: OrphanedLogicSeverity, filePath: string): OrphanedLogicRiskClass {
+  if (/paypal|payment|purchase|wallet|gumdrop|unlock|entitlement|auth|permission|middleware|rules/iu.test(filePath)) return "protected";
+  if (severity === "critical" || severity === "major") return "high";
+  if (severity === "moderate") return "medium";
+  return "low";
+}
+
 function normalizePath(filePath: string) {
   return filePath.split(sep).join("/");
 }
@@ -215,12 +309,19 @@ function readSourceFiles(filePaths: string[]): SourceFile[] {
 
 function addFinding(
   findings: OrphanedLogicFinding[],
-  input: Omit<OrphanedLogicFinding, "id" | "scoreImpact" | "canAutofix"> & { canAutofix?: boolean },
+  input: OrphanedLogicFindingInput,
 ) {
+  const canonicalOwner = input.canonicalOwner ?? canonicalOwnerFor(input.category, input.filePath);
   findings.push({
     ...input,
     id: `orphaned-logic-${stableHash(`${input.category}:${input.title}:${input.filePath}:${input.line ?? ""}`)}`,
     scoreImpact: severityImpact[input.severity],
+    canonicalOwner,
+    duplicateCandidate: input.duplicateCandidate ?? "none",
+    affectedSurface: input.affectedSurface ?? affectedSurfaceFor(input.filePath),
+    suggestedConsolidationTarget: input.suggestedConsolidationTarget ?? canonicalOwner,
+    validatorToRun: input.validatorToRun ?? validatorFor(input.category, input.filePath),
+    riskClass: input.riskClass ?? riskClassFor(input.severity, input.filePath),
     canAutofix: input.canAutofix ?? false,
   });
 }
@@ -729,6 +830,218 @@ function scanTelemetryDuplicateIntent(findings: OrphanedLogicFinding[]) {
   }
 }
 
+function scanDuplicateHooks(findings: OrphanedLogicFinding[], sourceFiles: SourceFile[]) {
+  const hookExports = new Map<string, Array<{ filePath: string; line?: number; excerpt?: string }>>();
+  const hookRegex = /export\s+(?:function|const)\s+(use[A-Z][A-Za-z0-9_]*)/gu;
+
+  for (const file of sourceFiles.filter((entry) => entry.path.startsWith("src/"))) {
+    let match: RegExpExecArray | null;
+    while ((match = hookRegex.exec(file.source)) !== null) {
+      const entries = hookExports.get(match[1]) ?? [];
+      entries.push({ filePath: file.path, line: lineOf(file.source, match[0]), excerpt: excerptOf(file.source, match[0]) });
+      hookExports.set(match[1], entries);
+    }
+  }
+
+  for (const [hookName, entries] of hookExports) {
+    const uniqueFiles = Array.from(new Set(entries.map((entry) => entry.filePath)));
+    if (uniqueFiles.length <= 1) continue;
+    const first = entries[0];
+    addFinding(findings, {
+      severity: "moderate",
+      category: "duplicate_hook",
+      title: `Duplicate exported hook name: ${hookName}`,
+      filePath: first.filePath,
+      line: first.line,
+      excerpt: first.excerpt,
+      duplicateCandidate: hookName,
+      suggestedFix: "Pick the canonical hook owner and convert other hook exports into feature-local adapters only if still needed.",
+      suggestedConsolidationTarget: uniqueFiles.find((filePath) => filePath.startsWith("src/hooks/")) ?? "src/hooks/",
+      escalation: "Hook consolidation can affect hydration/state ownership; do not merge without targeted component tests.",
+      evidence: uniqueFiles,
+    });
+  }
+}
+
+function scanDuplicatePermissionRoleResolvers(findings: OrphanedLogicFinding[], sourceFiles: SourceFile[]) {
+  const resolverRegex = /export\s+(?:function|const)\s+((?:resolve|derive|can|is|has)[A-Za-z0-9_]*(?:Role|Permission|Access|Admin|Creator|Owner|Entitlement)[A-Za-z0-9_]*)/gu;
+  const resolvers = new Map<string, Array<{ filePath: string; line?: number; excerpt?: string }>>();
+
+  for (const file of sourceFiles) {
+    if (!/(auth|identity|permission|role|creator|admin|entitlement|wallet|unlock)/iu.test(file.path + file.source.slice(0, 5000))) continue;
+    let match: RegExpExecArray | null;
+    while ((match = resolverRegex.exec(file.source)) !== null) {
+      const entries = resolvers.get(match[1]) ?? [];
+      entries.push({ filePath: file.path, line: lineOf(file.source, match[0]), excerpt: excerptOf(file.source, match[0]) });
+      resolvers.set(match[1], entries);
+    }
+  }
+
+  for (const [resolverName, entries] of resolvers) {
+    const uniqueFiles = Array.from(new Set(entries.map((entry) => entry.filePath)));
+    if (uniqueFiles.length <= 1) continue;
+    const first = entries[0];
+    addFinding(findings, {
+      severity: "major",
+      category: "duplicate_permission_role_resolver",
+      title: `Duplicate permission/role resolver export: ${resolverName}`,
+      filePath: first.filePath,
+      line: first.line,
+      excerpt: first.excerpt,
+      duplicateCandidate: resolverName,
+      suggestedFix: "Route role/permission truth through the canonical auth/identity/server owner and keep UI helpers as readers only.",
+      suggestedConsolidationTarget: uniqueFiles.find((filePath) => filePath.startsWith("src/lib/identity-truth/") || filePath.startsWith("src/lib/server/")) ?? "src/lib/identity-truth/",
+      escalation: "Protected auth/permission behavior must not be consolidated without targeted 4xx and permission tests.",
+      evidence: uniqueFiles,
+    });
+  }
+}
+
+function scanDuplicateTelemetryEmitters(findings: OrphanedLogicFinding[], sourceFiles: SourceFile[]) {
+  const emitters = new Map<string, Set<string>>();
+  const eventPatterns = [
+    /\btrackEvent\s*\(\s*["']([^"']+)["']/gu,
+    /\beventName\s*:\s*["']([^"']+)["']/gu,
+    /\b(?:sendTelemetryEvent|recordTelemetryEvent|trackTelemetry)\s*\(\s*["']([^"']+)["']/gu,
+  ];
+
+  for (const file of sourceFiles) {
+    if (file.path === "src/lib/telemetry-catalog.ts" || file.path.includes("telemetry-intent-aliases")) continue;
+    for (const pattern of eventPatterns) {
+      let match: RegExpExecArray | null;
+      while ((match = pattern.exec(file.source)) !== null) {
+        if (!/^[a-z][a-z0-9_:-]+$/u.test(match[1])) continue;
+        const files = emitters.get(match[1]) ?? new Set<string>();
+        files.add(file.path);
+        emitters.set(match[1], files);
+      }
+    }
+  }
+
+  for (const [eventName, files] of Array.from(emitters.entries()).sort((left, right) => right[1].size - left[1].size).slice(0, 25)) {
+    if (files.size <= 3) continue;
+    const evidence = Array.from(files).sort();
+    addFinding(findings, {
+      severity: "info",
+      category: "duplicate_telemetry_emitter",
+      title: `Telemetry event is emitted from many source files: ${eventName}`,
+      filePath: evidence[0],
+      duplicateCandidate: eventName,
+      suggestedFix: "Confirm whether the repeated emitters share one canonical helper, alias group, or lifecycle owner before adding another callsite.",
+      suggestedConsolidationTarget: "src/lib/telemetry-catalog.ts + src/lib/analytics/telemetry-intent-aliases.ts",
+      escalation: "Repeated emitters can be legitimate lifecycle coverage; classify before consolidation.",
+      evidence,
+    });
+  }
+}
+
+function scanInlineBusinessLogic(findings: OrphanedLogicFinding[], sourceFiles: SourceFile[]) {
+  const businessNeedles = [
+    "runTransaction(",
+    "FieldValue.increment",
+    "gumDropsPurchasedBalance",
+    "entitlement",
+    "identityLink",
+    "materializer",
+    "analytics_event_facts",
+    "admin.firestore()",
+  ];
+
+  for (const file of sourceFiles) {
+    const matchedNeedles = businessNeedles.filter((needle) => file.source.includes(needle));
+    if (matchedNeedles.length === 0) continue;
+    const lineCount = file.source.split(/\r?\n/u).length;
+    if (file.path.endsWith("/route.ts") && (matchedNeedles.length >= 2 || lineCount > 220)) {
+      addFinding(findings, {
+        severity: /paypal|payment|wallet|unlock|entitlement|auth/iu.test(file.path + file.source) ? "major" : "moderate",
+        category: "route_inline_business_logic",
+        title: "Route handler appears to own business logic inline",
+        filePath: file.path,
+        line: lineOf(file.source, matchedNeedles[0]),
+        excerpt: excerptOf(file.source, matchedNeedles[0]),
+        duplicateCandidate: matchedNeedles.join(", "),
+        suggestedFix: "Extract or route business math/persistence through the canonical server service owner during a targeted slice.",
+        suggestedConsolidationTarget: "src/lib/server/",
+        escalation: "Route thinning can affect auth, cost, telemetry, and failure codes; do not perform broad rewrites.",
+        evidence: matchedNeedles,
+      });
+    }
+
+    const isComponent = file.path.endsWith(".tsx") && (file.path.startsWith("src/components/") || file.path.startsWith("src/app/"));
+    if (isComponent && matchedNeedles.length >= 2) {
+      addFinding(findings, {
+        severity: "moderate",
+        category: "component_business_truth",
+        title: "Component appears to own business truth instead of rendering canonical state",
+        filePath: file.path,
+        line: lineOf(file.source, matchedNeedles[0]),
+        excerpt: excerptOf(file.source, matchedNeedles[0]),
+        duplicateCandidate: matchedNeedles.join(", "),
+        suggestedFix: "Move truth decisions to canonical hooks/services and keep the component as a renderer in a narrow follow-up.",
+        escalation: "UI refactors require surface doctrine and targeted component tests.",
+        evidence: matchedNeedles,
+      });
+    }
+  }
+}
+
+function scanGeneratedReportConsumption(findings: OrphanedLogicFinding[], sourceFiles: SourceFile[]) {
+  const runtimeFiles = sourceFiles.filter((file) => file.path.startsWith("src/") || file.path.startsWith("functions/src/"));
+  for (const file of runtimeFiles) {
+    const match = /["'](?:\.\.\/)*agent\/(?:state|index|context)\/[^"']+(?:\.generated)?\.json["']/u.exec(file.source)
+      ?? /readJson(?:File)?\([^)]*agent\/(?:state|index|context)\//u.exec(file.source);
+    if (!match) continue;
+    addFinding(findings, {
+      severity: file.path.startsWith("src/app/api/") || file.path.startsWith("functions/src/") ? "major" : "moderate",
+      category: "stale_generated_report_consumed",
+      title: "Runtime source appears to consume generated agent evidence",
+      filePath: file.path,
+      line: lineOf(file.source, match[0]),
+      excerpt: excerptOf(file.source, match[0]),
+      duplicateCandidate: match[0],
+      suggestedFix: "Remove runtime dependency on generated agent snapshots; use verified runtime source/config instead.",
+      suggestedConsolidationTarget: "runtime source truth, not agent/state generated evidence",
+      escalation: "Generated reports are snapshots only and must not become app business truth.",
+      riskClass: "manual_review",
+      evidence: [match[0]],
+    });
+  }
+}
+
+function scanDisconnectedMovedReferences(findings: OrphanedLogicFinding[], files: SourceFile[]) {
+  const repoPathRegex = /["'`]((?:src|functions\/src|shared|scripts\/agent|tests|docs)\/[^"'`\s)]+\.(?:ts|tsx|js|jsx|md))["'`]/gu;
+
+  for (const file of files) {
+    if (!(file.path.startsWith("tests/") || file.path.startsWith("scripts/agent/") || file.path.startsWith("docs/"))) continue;
+    let match: RegExpExecArray | null;
+    while ((match = repoPathRegex.exec(file.source)) !== null) {
+      const rawPath = match[1].replace(/\\/g, "/");
+      if (/[*${}#]/u.test(rawPath)) continue;
+      const candidates = [
+        rawPath,
+        `${rawPath}/index.ts`,
+        `${rawPath}/index.tsx`,
+      ];
+      if (candidates.some((candidate) => existsSync(join(root, candidate)))) continue;
+      if (/node_modules|\.next|generated\.json/u.test(rawPath)) continue;
+      addFinding(findings, {
+        severity: file.path.startsWith("tests/") || file.path.startsWith("docs/") ? "minor" : "moderate",
+        category: "disconnected_test_validator_doc",
+        title: "Reference points at a missing or moved repo path",
+        filePath: file.path,
+        line: lineOf(file.source, match[0]),
+        excerpt: excerptOf(file.source, match[0]),
+        duplicateCandidate: rawPath,
+        suggestedFix: "Update the reference only after confirming the target was moved, renamed, or intentionally retired.",
+        suggestedConsolidationTarget: "current canonical moved path",
+        escalation: "Missing references in tests/docs can disconnect validators from real owners after consolidation.",
+        evidence: [rawPath],
+      });
+      break;
+    }
+  }
+}
+
 function parseImportIdentifiers(statement: string) {
   if (/^import\s+type\b/u.test(statement.trim())) return [];
   const identifiers: string[] = [];
@@ -822,6 +1135,12 @@ function collectFindings() {
   scanSupportRouteExpectations(findings, allScanFiles);
   scanRealtimeHotCache(findings, sourceFiles);
   scanTelemetryDuplicateIntent(findings);
+  scanDuplicateHooks(findings, sourceFiles);
+  scanDuplicatePermissionRoleResolvers(findings, sourceFiles);
+  scanDuplicateTelemetryEmitters(findings, sourceFiles);
+  scanInlineBusinessLogic(findings, sourceFiles);
+  scanGeneratedReportConsumption(findings, sourceFiles);
+  scanDisconnectedMovedReferences(findings, allScanFiles);
   scanDeadImports(findings);
 
   return {
@@ -839,20 +1158,68 @@ function statusFor(score: number, criticalCount: number): OrphanedLogicReport["s
   return "fail";
 }
 
+const severityRank: Record<OrphanedLogicSeverity, number> = {
+  critical: 0,
+  major: 1,
+  moderate: 2,
+  minor: 3,
+  info: 4,
+};
+
+function countBy<T extends string>(values: readonly T[]) {
+  return values.reduce<Partial<Record<T, number>>>((counts, value) => {
+    counts[value] = (counts[value] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+function completeCounts<T extends string>(keys: readonly T[], values: readonly T[]) {
+  const partial = countBy(values);
+  return keys.reduce<Record<T, number>>((counts, key) => {
+    counts[key] = partial[key] ?? 0;
+    return counts;
+  }, {} as Record<T, number>);
+}
+
+function compactFindingForReport(finding: OrphanedLogicFinding): OrphanedLogicFinding {
+  return {
+    ...finding,
+    evidence: finding.evidence.slice(0, 12),
+  };
+}
+
 function buildReport(): OrphanedLogicReport {
   const { findings, scannedFileCount } = collectFindings();
   const criticalCount = findings.filter((finding) => finding.severity === "critical").length;
   const majorCount = findings.filter((finding) => finding.severity === "major").length;
-  const score = Math.max(0, Math.min(100, 100 + findings.reduce((sum, finding) => sum + finding.scoreImpact, 0)));
+  const scoreImpactTotal = findings.reduce((sum, finding) => sum + finding.scoreImpact, 0);
+  const score = Math.max(0, Math.min(100, 100 + scoreImpactTotal));
+  const reportFindings = [...findings]
+    .sort((left, right) =>
+      severityRank[left.severity] - severityRank[right.severity]
+      || left.riskClass.localeCompare(right.riskClass)
+      || left.category.localeCompare(right.category)
+      || left.filePath.localeCompare(right.filePath)
+      || left.id.localeCompare(right.id),
+    )
+    .slice(0, FINDING_REPORT_LIMIT)
+    .map(compactFindingForReport);
 
   return {
     score,
     status: statusFor(score, criticalCount),
     generatedAt: new Date().toISOString(),
     repoRoot: root,
-    findings,
+    findings: reportFindings,
+    findingCount: findings.length,
+    findingsTruncated: findings.length > reportFindings.length,
+    findingReportLimit: FINDING_REPORT_LIMIT,
     criticalCount,
     majorCount,
+    severityCounts: completeCounts(["critical", "major", "moderate", "minor", "info"], findings.map((finding) => finding.severity)),
+    categoryCounts: countBy(findings.map((finding) => finding.category)),
+    riskClassCounts: completeCounts(["low", "medium", "high", "protected", "manual_review"], findings.map((finding) => finding.riskClass)),
+    scoreImpactTotal,
     safeAutofixesAvailable: findings.filter((finding) => finding.canAutofix).length,
     scannedFileCount,
     checkedFiles: [...requiredFiles, ...publicBetaImportSurfaces],
@@ -872,7 +1239,7 @@ function writeReport(report: OrphanedLogicReport) {
 
 function printSummary(report: OrphanedLogicReport) {
   console.log(`Orphaned logic score: ${report.score}/100 (${report.status})`);
-  console.log(`Findings: ${report.findings.length} total, ${report.criticalCount} critical, ${report.majorCount} major`);
+  console.log(`Findings: ${report.findingCount} total (${report.findings.length} shown), ${report.criticalCount} critical, ${report.majorCount} major`);
   console.log(`Safe autofixes available: ${report.safeAutofixesAvailable}`);
   for (const finding of report.findings.slice(0, 5)) {
     const location = finding.line ? `${finding.filePath}:${finding.line}` : finding.filePath;
