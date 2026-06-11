@@ -112,6 +112,7 @@ export type AdminBrowserSurfaceSmokeReport = {
   summary: {
     adminSurfaceCount: number;
     routeCount: number;
+    sourceAdminPageCount: number;
     requiredAuthenticatedSurfaceCount: number;
     evidenceCount: number;
     authenticatedSurfaceEvidenceCount: number;
@@ -122,6 +123,9 @@ export type AdminBrowserSurfaceSmokeReport = {
   };
   surfaces: AdminBrowserSurfaceDefinition[];
   evidenceProvenance: AdminBrowserSurfaceEvidenceProvenance;
+  sourceAdminRoutes: string[];
+  missingSourceAdminRoutes: string[];
+  extraSurfaceRoutes: string[];
   evidence: AdminBrowserSurfaceEvidence[];
   missingAuthenticatedSurfaceIds: string[];
   protectedSurfaceIds: string[];
@@ -331,6 +335,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   generatedAtUtc?: string;
   evidence?: AdminBrowserSurfaceEvidenceInput[];
   evidenceProvenance?: Partial<AdminBrowserSurfaceEvidenceProvenance>;
+  sourceAdminRoutes?: string[];
 } = {}): AdminBrowserSurfaceSmokeReport {
   const evidence = (input.evidence ?? [])
     .map(normalizeAdminBrowserSurfaceEvidence)
@@ -365,6 +370,12 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   const protectedSurfaceIds = ADMIN_BROWSER_SURFACE_DEFINITIONS
     .filter((surface) => "protectedDomain" in surface && surface.protectedDomain)
     .map((surface) => surface.surfaceId);
+  const surfaceRoutes = [...new Set<string>(ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => surface.route))].sort();
+  const sourceAdminRoutes = [...new Set(input.sourceAdminRoutes ?? surfaceRoutes)].sort();
+  const surfaceRouteSet = new Set(surfaceRoutes);
+  const sourceRouteSet = new Set(sourceAdminRoutes);
+  const missingSourceAdminRoutes = sourceAdminRoutes.filter((route) => !surfaceRouteSet.has(route));
+  const extraSurfaceRoutes = surfaceRoutes.filter((route) => !sourceRouteSet.has(route));
   const totalFindingCount = missingAuthenticatedSurfaceIds.length;
 
   const status: AdminBrowserSurfaceReportStatus = authenticatedSurfaceEvidenceCount === requiredAuthenticated.length
@@ -420,7 +431,8 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     sourceCommit: input.currentHead,
     summary: {
       adminSurfaceCount: ADMIN_BROWSER_SURFACE_DEFINITIONS.length,
-      routeCount: new Set(ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => surface.route)).size,
+      routeCount: surfaceRoutes.length,
+      sourceAdminPageCount: sourceAdminRoutes.length,
       requiredAuthenticatedSurfaceCount: requiredAuthenticated.length,
       evidenceCount: evidence.length,
       authenticatedSurfaceEvidenceCount,
@@ -431,6 +443,9 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     },
     surfaces: [...ADMIN_BROWSER_SURFACE_DEFINITIONS],
     evidenceProvenance,
+    sourceAdminRoutes,
+    missingSourceAdminRoutes,
+    extraSurfaceRoutes,
     evidence,
     missingAuthenticatedSurfaceIds,
     protectedSurfaceIds,
@@ -480,6 +495,12 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   }
   if (report.doesNotProve.some((entry) => /provider|runtime|admin truth|GumDrop|payment/iu.test(entry)) === false) {
     failures.push("report must state formal proof boundaries.");
+  }
+  if (report.missingSourceAdminRoutes.length > 0) {
+    failures.push(`admin browser smoke is missing source admin routes: ${report.missingSourceAdminRoutes.join(", ")}.`);
+  }
+  if (report.extraSurfaceRoutes.length > 0) {
+    failures.push(`admin browser smoke lists routes without source admin pages: ${report.extraSurfaceRoutes.join(", ")}.`);
   }
   for (const entry of report.evidence) {
     if (!expectedSurfaceIds.has(entry.surfaceId)) failures.push(`evidence references unknown surface: ${entry.surfaceId}`);

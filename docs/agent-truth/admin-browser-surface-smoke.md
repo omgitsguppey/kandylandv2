@@ -10,6 +10,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Passed in source validation: false
 - Admin surfaces: 14
 - Route targets: 14
+- Source admin pages: 14
 - Required authenticated surface/device checks: 18
 - Evidence entries: 18
 - Authenticated checks present: 0
@@ -37,6 +38,31 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - admin_queue: route=/admin/queue; devices=desktop; group=content; markers=Manage Queue | Admin Queue; reason=Queue states must expose pending/review/source-missing truth.
 - admin_privacy: route=/admin/privacy; devices=desktop; group=ops; markers=Privacy Console | Admin Setup; reason=Privacy and consent surfaces must keep source and policy boundaries visible.
 - admin_economy: route=/admin/economy; devices=desktop; group=protected_money; markers=GumDrops Commerce Control Center | Platform Economy; reason=Economy views are protected: browser smoke may inspect labels only and cannot prove GumDrop/payment truth.
+
+## Source Route Coverage
+
+- /admin
+- /admin/ai
+- /admin/analytics
+- /admin/content
+- /admin/debug
+- /admin/drops
+- /admin/economy
+- /admin/moderation
+- /admin/privacy
+- /admin/queue
+- /admin/roster
+- /admin/support
+- /admin/user/[userId]
+- /admin/users
+
+## Missing Source Routes
+
+- none
+
+## Extra Surface Routes
+
+- none
 
 ## Missing Authenticated Browser Evidence
 

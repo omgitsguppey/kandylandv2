@@ -41,6 +41,7 @@ describe("admin browser surface smoke contract", () => {
     expect(report.passed).toBe(false);
     expect(report.summary.adminSurfaceCount).toBe(14);
     expect(report.summary.routeCount).toBe(14);
+    expect(report.summary.sourceAdminPageCount).toBe(14);
     expect(report.summary.requiredAuthenticatedSurfaceCount).toBe(18);
     expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
     expect(report.evidenceProvenance.source).toBe("none");
@@ -66,6 +67,9 @@ describe("admin browser surface smoke contract", () => {
       "/admin/privacy",
       "/admin/economy",
     ]);
+    expect(report.sourceAdminRoutes).toEqual(report.surfaces.map((surface) => surface.route).sort());
+    expect(report.missingSourceAdminRoutes).toEqual([]);
+    expect(report.extraSurfaceRoutes).toEqual([]);
     expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual([]);
   });
 
@@ -183,6 +187,20 @@ describe("admin browser surface smoke contract", () => {
       "admin browser smoke cannot clear runtime, provider, or admin truth gates.",
       "evidence references unknown surface: admin_fake",
       "admin_fake:desktop overclaims formal gate impact.",
+    ]));
+  });
+
+  it("fails when a source admin page is not represented in the browser smoke matrix", () => {
+    const report = buildAdminBrowserSurfaceSmokeReport({
+      sourceAdminRoutes: [
+        ...ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => surface.route),
+        "/admin/new-panel",
+      ],
+    });
+
+    expect(report.missingSourceAdminRoutes).toEqual(["/admin/new-panel"]);
+    expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual(expect.arrayContaining([
+      "admin browser smoke is missing source admin routes: /admin/new-panel.",
     ]));
   });
 });

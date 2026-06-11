@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, sep } from "node:path";
 
 import {
   ADMIN_BROWSER_SURFACE_DEFINITIONS,
@@ -72,6 +72,28 @@ function write(path: string, value: string) {
   writeFileSync(fullPath, value);
 }
 
+function walkAdminPagePaths(dir = join(ROOT, "src/app/admin")): string[] {
+  const paths: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      paths.push(...walkAdminPagePaths(fullPath));
+    } else if (entry.name === "page.tsx") {
+      paths.push(relative(join(ROOT, "src/app"), fullPath).split(sep).join("/"));
+    }
+  }
+  return paths.sort();
+}
+
+function adminRouteFromPagePath(pagePath: string) {
+  const route = `/${pagePath.replace(/\/page\.tsx$/u, "")}`;
+  return route.endsWith("/page.tsx") ? "/admin" : route;
+}
+
+function sourceAdminRoutes() {
+  return walkAdminPagePaths().map(adminRouteFromPagePath).sort();
+}
+
 function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
   return [
     "# Admin Browser Surface Smoke",
@@ -86,6 +108,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Passed in source validation: ${report.passed}`,
     `- Admin surfaces: ${report.summary.adminSurfaceCount}`,
     `- Route targets: ${report.summary.routeCount}`,
+    `- Source admin pages: ${report.summary.sourceAdminPageCount}`,
     `- Required authenticated surface/device checks: ${report.summary.requiredAuthenticatedSurfaceCount}`,
     `- Evidence entries: ${report.summary.evidenceCount}`,
     `- Authenticated checks present: ${report.summary.authenticatedSurfaceEvidenceCount}`,
@@ -101,6 +124,24 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     "",
     ...report.surfaces.map((surface) =>
       `- ${surface.surfaceId}: route=${surface.route}; devices=${surface.deviceBands.join(",")}; group=${surface.group}; markers=${surface.authenticatedVisibleMarkers.join(" | ")}; reason=${surface.browserSmokeReason}`),
+    "",
+    "## Source Route Coverage",
+    "",
+    ...(report.sourceAdminRoutes.length > 0
+      ? report.sourceAdminRoutes.map((route) => `- ${route}`)
+      : ["- none"]),
+    "",
+    "## Missing Source Routes",
+    "",
+    ...(report.missingSourceAdminRoutes.length > 0
+      ? report.missingSourceAdminRoutes.map((route) => `- ${route}`)
+      : ["- none"]),
+    "",
+    "## Extra Surface Routes",
+    "",
+    ...(report.extraSurfaceRoutes.length > 0
+      ? report.extraSurfaceRoutes.map((route) => `- ${route}`)
+      : ["- none"]),
     "",
     "## Missing Authenticated Browser Evidence",
     "",
@@ -147,6 +188,7 @@ const report = buildAdminBrowserSurfaceSmokeReport({
   generatedAtUtc: new Date().toISOString(),
   evidence: evidenceFile?.evidence,
   evidenceProvenance: evidenceFile?.provenance,
+  sourceAdminRoutes: sourceAdminRoutes(),
 });
 const failures = validateAdminBrowserSurfaceSmokeReport(report);
 const output: AdminBrowserSurfaceSmokeReport = {
