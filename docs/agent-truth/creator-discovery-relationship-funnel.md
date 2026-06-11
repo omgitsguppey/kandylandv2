@@ -1,6 +1,6 @@
 # Creator Discovery Relationship Funnel
 
-Generated: 2026-05-25T22:54:24.177Z
+Generated: 2026-06-11T19:44:10.025Z
 
 Status: pass
 
@@ -60,36 +60,14 @@ Status: pass
 
 | File | Classification |
 | --- | --- |
-| CHANGELOG.md | release_artifact_expected |
-| agent/context/optimized-task-context.generated.json | unrelated_agent_context_file_to_ignore |
 | agent/state/creator-discovery-relationship-funnel.generated.json | current_generated_artifact_to_commit |
-| agent/state/event-translation-bridge.generated.json | current_generated_artifact_to_commit |
-| agent/state/feature-registration-gate.generated.json | current_generated_artifact_to_commit |
-| agent/state/person-metrics-hydration.generated.json | current_generated_artifact_to_commit |
-| agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
 | docs/agent-truth/creator-discovery-relationship-funnel.md | documentation_artifact_expected |
-| docs/agent-truth/event-translation-bridge.md | documentation_artifact_expected |
-| docs/agent-truth/feature-registration-gate.md | documentation_artifact_expected |
-| docs/agent-truth/person-metrics-hydration.md | documentation_artifact_expected |
-| package.json | real_source_change_needs_review |
-| public/kandydrops-release-notes.json | release_artifact_expected |
 | scripts/agent/validate-creator-discovery-relationship-funnel.ts | validator_artifact_expected |
 | src/app/api/creator/relationships/route.ts | real_source_change_needs_review |
+| src/app/api/user/follow/route.ts | real_source_change_needs_review |
 | src/app/creators/[username]/CreatorProfileClient.tsx | real_source_change_needs_review |
 | src/components/CreatorDiscoveryRail.tsx | real_source_change_needs_review |
-| src/lib/analytics/event-translation-bridge.ts | real_source_change_needs_review |
-| src/lib/analytics/person-metrics-contract.ts | real_source_change_needs_review |
-| src/lib/analytics/person-metrics-hydration.ts | real_source_change_needs_review |
-| src/lib/behavioral/behavior-feature-registry.ts | real_source_change_needs_review |
-| src/lib/behavioral/event-fact-contract.ts | real_source_change_needs_review |
-| src/lib/behavioral/normalize-event-fact.ts | real_source_change_needs_review |
-| src/lib/behavioral/tracking-surface-map.ts | real_source_change_needs_review |
-| src/lib/discovery/creator-relationship-contract.ts | real_source_change_needs_review |
-| src/lib/release-notes/public-release-notes.ts | release_artifact_expected |
-| src/lib/release-notes/release-version-contract.ts | release_artifact_expected |
-| src/lib/telemetry-catalog.ts | real_source_change_needs_review |
-| src/lib/telemetry/surface-telemetry-catalog-events.ts | real_source_change_needs_review |
-| tests/unit/creator-discovery-relationship-funnel.spec.ts | test_artifact_expected |
+| tests/unit/creator-discovery-rail.spec.tsx | test_artifact_expected |
 
 ## Validation Failures
 

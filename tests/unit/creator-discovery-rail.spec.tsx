@@ -10,6 +10,7 @@ const mockState = vi.hoisted(() => ({
   authFetch: vi.fn(),
   loading: false,
   openAuthModal: vi.fn(),
+  dispatchActivitySync: vi.fn(),
   trackEvent: vi.fn(),
   user: null as { uid: string } | null,
 }));
@@ -60,6 +61,10 @@ vi.mock("@/lib/self-healing", () => ({
 
 vi.mock("@/lib/client-error-reporting", () => ({
   reportClientIssue: vi.fn(),
+}));
+
+vi.mock("@/lib/activity-sync", () => ({
+  dispatchActivitySync: () => mockState.dispatchActivitySync(),
 }));
 
 vi.mock("@/lib/telemetry", () => ({
@@ -114,6 +119,7 @@ class ImmediateIntersectionObserver {
 describe("CreatorDiscoveryRail home spotlight", () => {
   beforeEach(() => {
     mockState.authFetch.mockReset();
+    mockState.dispatchActivitySync.mockReset();
     mockState.loading = false;
     mockState.openAuthModal.mockReset();
     mockState.trackEvent.mockReset();
@@ -165,6 +171,7 @@ describe("CreatorDiscoveryRail home spotlight", () => {
     });
     expect(mockState.trackEvent.mock.calls.filter(([eventName]) => eventName === "creator_follow_attempted")).toHaveLength(1);
     expect(mockState.trackEvent.mock.calls.filter(([eventName]) => eventName === "creator_follow_succeeded")).toHaveLength(1);
+    expect(mockState.dispatchActivitySync).toHaveBeenCalledTimes(1);
   });
 
   it("does not duplicate spotlight or card view telemetry across rerenders", async () => {

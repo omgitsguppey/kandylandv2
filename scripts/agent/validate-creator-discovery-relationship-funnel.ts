@@ -43,8 +43,10 @@ function classifyDirtyFile(filePath: string) {
   if (normalized === "docs/agent-truth/creator-discovery-relationship-funnel.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-creator-discovery-relationship-funnel.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/creator-discovery-relationship-funnel.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/creator-discovery-rail.spec.tsx") return "test_artifact_expected";
   if (normalized === "src/lib/discovery/creator-relationship-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/creator/relationships/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/user/follow/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/components/CreatorDiscoveryRail.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/creators/[username]/CreatorProfileClient.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
@@ -161,6 +163,7 @@ const generatedAtUtc = new Date().toISOString();
 const currentHead = commandOutput("git rev-parse HEAD") || undefined;
 const contract = read("src/lib/discovery/creator-relationship-contract.ts");
 const relationshipRoute = read("src/app/api/creator/relationships/route.ts");
+const userFollowRoute = read("src/app/api/user/follow/route.ts");
 const discoveryRail = read("src/components/CreatorDiscoveryRail.tsx");
 const profileClient = read("src/app/creators/[username]/CreatorProfileClient.tsx");
 const telemetryCatalogEvents = new Set(TELEMETRY_EVENT_OPTIONS.map((event) => event.eventName));
@@ -208,7 +211,16 @@ requireIncludes(relationshipRoute, [
   "relationshipDebug",
   "debugReason",
   "CREATOR_RELATIONSHIP_DEBUG_LANE",
+  "touchUserRuntime",
+  "{ activity: true, profile: true }",
 ], "creator relationship route", validationFailures);
+requireIncludes(userFollowRoute, [
+  "trackServerEvent",
+  "touchUserRuntime",
+  "{ activity: true, profile: true }",
+], "user follow route", validationFailures);
+requireIncludes(discoveryRail, ["dispatchActivitySync"], "creator discovery rail", validationFailures);
+requireIncludes(profileClient, ["dispatchActivitySync"], "creator profile client", validationFailures);
 
 const stateSamples = [
   classifyCreatorRelationshipState({ viewerUserId: "fan_1", creatorId: "fan_1" }),
