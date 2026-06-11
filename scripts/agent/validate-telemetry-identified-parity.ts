@@ -21,16 +21,24 @@ function main() {
   const analyticsHistoricalValidation = readFileSync("src/lib/server/admin-analytics-historical-validation.ts", "utf8");
   const analyticsHistoricalRoute = readFileSync("src/app/api/admin/analytics/historical/route.ts", "utf8");
   const deterministicTruth = readFileSync("src/lib/deterministic-admin-truth.ts", "utf8");
-  assert(Array.isArray(report.domainScores) && report.domainScores.length === 7, "Telemetry parity report must include seven domain scores.");
+  assert(Array.isArray(report.domainScores) && report.domainScores.length === 8, "Telemetry parity report must include eight domain scores.");
   assert(!report.missingExpectedEvents.includes("identity_linked"), "identity_linked is missing from expected event coverage.");
   assert(!report.criticalFail, "Telemetry identified parity has a critical failure.");
 
   const actorTarget = report.domainScores.find((domain) => domain.key === "actor_target");
   const serverTruth = report.domainScores.find((domain) => domain.key === "server_truth");
   const identity = report.domainScores.find((domain) => domain.key === "identity_linking");
+  const userPersonParity = report.domainScores.find((domain) => domain.key === "user_person_parity");
   assert(actorTarget?.score === actorTarget?.weight, "Actor/target separation is incomplete.");
   assert(serverTruth?.score === serverTruth?.weight, "Server truth priority is incomplete.");
   assert(identity?.score === identity?.weight, "Identity linking is incomplete.");
+  assert(userPersonParity?.score === userPersonParity?.weight, "User/person parity boundary is incomplete.");
+  assert(report.userPersonParityGate?.globalCount > 0, "Telemetry parity must simulate global activity.");
+  assert(report.userPersonParityGate?.userScopedCount === 0, "Synthetic global-only case unexpectedly has user scope proof.");
+  assert(report.userPersonParityGate?.hydrationState === "bridge_missing", "Global-only activity must surface bridge_missing.");
+  assert(report.userPersonParityGate?.individualTruthStatus === "bridge_missing", "Individual truth must block global-only activity.");
+  assert(report.userPersonParityGate?.blocksUserParity === true, "Global-only activity can clear user parity.");
+  assert(report.userPersonParityGate?.canClearFromGlobalActivity === false, "Global activity must not clear user/person parity.");
   assert(analyticsHistoricalValidation.includes("eventSource"), "Telemetry parity validation must expose eventSource.");
   assert(analyticsHistoricalValidation.includes("sampleSource"), "Telemetry parity validation must expose sampleSource.");
   assert(analyticsHistoricalValidation.includes("required_sample_missing"), "Telemetry parity validation must block pass when authenticated events have no canonical samples.");

@@ -1,5 +1,9 @@
 import { existsSync } from "node:fs";
 
+import { buildEventEnvelope } from "@/lib/analytics/event-envelope-builder";
+import { hydratePersonMetrics } from "@/lib/analytics/person-metrics-hydration";
+import { buildIndividualUserMetricTruthReport } from "@/lib/identity-truth/individual-user-metric-truth";
+
 import { ROOT, readText, writeJsonFile } from "./shared";
 
 type Severity = "info" | "moderate" | "major" | "critical";
@@ -26,6 +30,16 @@ export type TelemetryIdentifiedParityReport = {
   overallScore: number;
   status: "pass" | "warning" | "fail";
   criticalFail: boolean;
+  userPersonParityGate: {
+    syntheticGlobalOnlyMetric: string;
+    globalCount: number;
+    userScopedCount: number;
+    hydrationState: string;
+    individualTruthStatus: string;
+    blocksUserParity: boolean;
+    canClearFromGlobalActivity: false;
+    nextAction: string;
+  };
   domainScores: DomainScore[];
   findings: Finding[];
   criticalFindings: Finding[];
@@ -54,6 +68,36 @@ function read(repoPath: string) {
   return existsSync(`${ROOT}/${repoPath}`) ? readText(repoPath) : "";
 }
 
+function buildUserPersonParityGate(): TelemetryIdentifiedParityReport["userPersonParityGate"] {
+  const hydration = hydratePersonMetrics({
+    envelopes: [
+      buildEventEnvelope({
+        eventName: "semantic_page_viewed",
+        eventId: "score_global_only_semantic_page_viewed",
+        sessionId: "score_session_global_only",
+        actorKind: "guest",
+        identityState: "guest_unknown_consent",
+        identityConfidence: "weak",
+        consentMode: "minimal_analytics",
+        source: "client",
+      }),
+    ],
+    generatedAtUtc: "2026-06-08T00:00:00.000Z",
+  });
+  const truth = buildIndividualUserMetricTruthReport(hydration);
+  const parity = hydration.userParityStatus.visits;
+  return {
+    syntheticGlobalOnlyMetric: "visits",
+    globalCount: parity.globalCount,
+    userScopedCount: parity.guestCount + parity.signedInCount + parity.linkedPersonCount + parity.creatorRoleCount,
+    hydrationState: parity.state,
+    individualTruthStatus: truth.metricStatus.visits.userHydrationStatus,
+    blocksUserParity: parity.blocksUserParity && truth.metricStatus.visits.userHydrationStatus === "bridge_missing",
+    canClearFromGlobalActivity: false,
+    nextAction: parity.debugNextAction,
+  };
+}
+
 export function buildTelemetryIdentifiedParityReport(): TelemetryIdentifiedParityReport {
   const contract = read("src/lib/analytics/analytics-event-contract.ts");
   const ingest = read("src/app/api/analytics/ingest-identified/route.ts");
@@ -64,14 +108,21 @@ export function buildTelemetryIdentifiedParityReport(): TelemetryIdentifiedParit
   const metrics = read("src/lib/server/analytics-metrics.ts");
   const eventFact = read("src/lib/behavioral/normalize-event-fact.ts");
   const catalog = read("src/lib/telemetry-catalog.ts");
+  const personMetricsHydration = read("src/lib/analytics/person-metrics-hydration.ts");
+  const individualUserMetricTruth = read("src/lib/identity-truth/individual-user-metric-truth.ts");
+  const userPersonParityGate = buildUserPersonParityGate();
 
   const findings: Finding[] = [];
 
   const actorTargetChecks = [
-    has(contract, "const isCreator =") && !has(contract, "Boolean(stringOrNull(input.creatorId))"),
+    has(contract, "const creatorActorId =")
+      && has(contract, "actorCreatorId")
+      && has(contract, "targetCreatorId")
+      && !has(contract, "Boolean(stringOrNull(input.creatorId))"),
     has(normalizer, "targetCreatorId"),
     has(normalizer, "actorCreatorId"),
-    has(ingest, "targetCreatorId: parityFact.targetCreatorId"),
+    has(ingest, "targetCreatorId: ingestRuntimeFact.target.targetCreatorId")
+      || has(ingest, "targetCreatorId: parityFact.targetCreatorId"),
   ];
   if (actorTargetChecks.includes(false)) {
     findings.push(makeFinding({
@@ -84,9 +135,11 @@ export function buildTelemetryIdentifiedParityReport(): TelemetryIdentifiedParit
   }
 
   const serverTruthChecks = [
-    has(ingest, 'canonicalEventName === "gumdrops_purchase_completed"') || has(ingest, 'canonicalEventName === "purchase_verified"'),
-    has(ingest, 'canonicalEventName === "unlock_drop_success"'),
-    has(ingest, 'canonicalEventName.startsWith("watch_session_")'),
+    has(ingest, "normalizeIdentifiedRuntimeFactForIngestWrite"),
+    has(ingest, "serverUnlockFact") && has(ingest, 'fact.sourceTruth === "server"'),
+    has(normalizer, "sourceTruth: IdentifiedMetricSourceTruth")
+      && has(normalizer, 'input.sourceTruth === "canonical" ? 1')
+      && has(normalizer, 'input.sourceTruth === "server" ? 0.98'),
     has(metrics, "watch_session_rollup"),
     has(metrics, "legacy_page_duration"),
   ];
@@ -181,6 +234,30 @@ export function buildTelemetryIdentifiedParityReport(): TelemetryIdentifiedParit
     }));
   }
 
+  const userPersonParityChecks = [
+    userPersonParityGate.globalCount > 0,
+    userPersonParityGate.userScopedCount === 0,
+    userPersonParityGate.hydrationState === "bridge_missing",
+    userPersonParityGate.individualTruthStatus === "bridge_missing",
+    userPersonParityGate.blocksUserParity,
+    userPersonParityGate.canClearFromGlobalActivity === false,
+    has(personMetricsHydration, "userParityGaps"),
+    has(personMetricsHydration, "materializer_missing"),
+    has(personMetricsHydration, "permission_blocked"),
+    has(individualUserMetricTruth, "global_only_not_user_proof"),
+  ];
+  if (userPersonParityChecks.includes(false)) {
+    findings.push(makeFinding({
+      severity: "critical",
+      title: "User/person parity can be cleared by global-only activity",
+      filePath: "src/lib/analytics/person-metrics-hydration.ts",
+      evidence: [
+        `synthetic ${userPersonParityGate.syntheticGlobalOnlyMetric}: global=${userPersonParityGate.globalCount}, userScoped=${userPersonParityGate.userScopedCount}, state=${userPersonParityGate.hydrationState}`,
+      ],
+      suggestedFix: "Keep global activity separate from user/person parity and surface bridge_missing/materializer_missing/source_missing/permission_blocked instead of zero.",
+    }));
+  }
+
   const missingExpectedEvents: string[] = [];
   if (!has(catalog, 'eventName: "identity_linked"')) missingExpectedEvents.push("identity_linked");
   if (!has(catalog, 'eventName: "notification_read"')) missingExpectedEvents.push("notification_read");
@@ -191,13 +268,14 @@ export function buildTelemetryIdentifiedParityReport(): TelemetryIdentifiedParit
     : ["Unsupported identified events are not explicitly reported."];
 
   const domains: DomainScore[] = [
-    { key: "actor_target", label: "Actor/Target Separation", weight: 20, score: actorTargetChecks.every(Boolean) ? 20 : 0, status: actorTargetChecks.every(Boolean) ? "pass" : "fail" },
-    { key: "server_truth", label: "Server Truth Priority", weight: 20, score: serverTruthChecks.every(Boolean) ? 20 : 0, status: serverTruthChecks.every(Boolean) ? "pass" : "fail" },
-    { key: "identity_linking", label: "Identity Linking", weight: 15, score: identityChecks.every(Boolean) ? 15 : 0, status: identityChecks.every(Boolean) ? "pass" : "fail" },
-    { key: "normalization", label: "Event Fact Normalization", weight: 15, score: normalizationChecks.every(Boolean) ? 15 : 6, status: normalizationChecks.every(Boolean) ? "pass" : "warning" },
-    { key: "watch_notification_task", label: "Watch/Notification/Task Parity", weight: 15, score: watchNotificationTaskChecks.every(Boolean) ? 15 : 7, status: watchNotificationTaskChecks.every(Boolean) ? "pass" : "warning" },
-    { key: "active_user_split", label: "Active User Meaningful Split", weight: 10, score: activeUserChecks.every(Boolean) ? 10 : 4, status: activeUserChecks.every(Boolean) ? "pass" : "warning" },
-    { key: "consent_clarity", label: "Consent/Exclusion Clarity", weight: 5, score: consentChecks.every(Boolean) ? 5 : 2, status: consentChecks.every(Boolean) ? "pass" : "warning" },
+    { key: "actor_target", label: "Actor/Target Separation", weight: 18, score: actorTargetChecks.every(Boolean) ? 18 : 0, status: actorTargetChecks.every(Boolean) ? "pass" : "fail" },
+    { key: "server_truth", label: "Server Truth Priority", weight: 18, score: serverTruthChecks.every(Boolean) ? 18 : 0, status: serverTruthChecks.every(Boolean) ? "pass" : "fail" },
+    { key: "identity_linking", label: "Identity Linking", weight: 14, score: identityChecks.every(Boolean) ? 14 : 0, status: identityChecks.every(Boolean) ? "pass" : "fail" },
+    { key: "normalization", label: "Event Fact Normalization", weight: 14, score: normalizationChecks.every(Boolean) ? 14 : 6, status: normalizationChecks.every(Boolean) ? "pass" : "warning" },
+    { key: "watch_notification_task", label: "Watch/Notification/Task Parity", weight: 14, score: watchNotificationTaskChecks.every(Boolean) ? 14 : 7, status: watchNotificationTaskChecks.every(Boolean) ? "pass" : "warning" },
+    { key: "active_user_split", label: "Active User Meaningful Split", weight: 8, score: activeUserChecks.every(Boolean) ? 8 : 4, status: activeUserChecks.every(Boolean) ? "pass" : "warning" },
+    { key: "consent_clarity", label: "Consent/Exclusion Clarity", weight: 4, score: consentChecks.every(Boolean) ? 4 : 2, status: consentChecks.every(Boolean) ? "pass" : "warning" },
+    { key: "user_person_parity", label: "User/Person Parity Boundary", weight: 10, score: userPersonParityChecks.every(Boolean) ? 10 : 0, status: userPersonParityChecks.every(Boolean) ? "pass" : "fail" },
   ];
 
   const criticalFindings = findings.filter((finding) => finding.severity === "critical");
@@ -208,6 +286,7 @@ export function buildTelemetryIdentifiedParityReport(): TelemetryIdentifiedParit
     overallScore,
     status: criticalFindings.length > 0 ? "fail" : overallScore >= 90 ? "pass" : "warning",
     criticalFail: criticalFindings.length > 0 || missingExpectedEvents.includes("identity_linked"),
+    userPersonParityGate,
     domainScores: domains,
     findings,
     criticalFindings,
