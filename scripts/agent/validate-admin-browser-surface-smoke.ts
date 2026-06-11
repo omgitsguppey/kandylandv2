@@ -190,6 +190,7 @@ function writeTemplate() {
       state: "manual_admin_auth_required",
       checkedAtUtc: "",
       urlAfterNavigation: "",
+      selectorUsed: surface.authenticatedSelectors[0] ?? "",
       visibleMarker: "",
       screenshotArtifactPath: "",
       note: `Template entry only. Replace after real local browser or operator evidence exists. Expected selectors: ${surface.authenticatedSelectors.join(" | ")}. Expected markers: ${surface.authenticatedVisibleMarkers.join(" | ")}`,

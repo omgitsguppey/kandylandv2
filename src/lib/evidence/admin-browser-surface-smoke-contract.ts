@@ -29,6 +29,7 @@ export type AdminBrowserSurfaceEvidenceInput = Partial<{
   state: AdminBrowserSurfaceEvidenceState;
   checkedAtUtc: string;
   urlAfterNavigation: string;
+  selectorUsed: string;
   visibleMarker: string;
   screenshotArtifactPath: string;
   note: string;
@@ -177,6 +178,7 @@ export function normalizeAdminBrowserSurfaceEvidence(
     state: input.state,
     checkedAtUtc: input.checkedAtUtc,
     urlAfterNavigation: input.urlAfterNavigation,
+    selectorUsed: input.selectorUsed,
     visibleMarker: input.visibleMarker,
     screenshotArtifactPath: input.screenshotArtifactPath,
     note: input.note,
@@ -415,6 +417,11 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
       }
       if (!entry.urlAfterNavigation?.trim()) {
         failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include urlAfterNavigation.`);
+      }
+      if (!entry.selectorUsed?.trim()) {
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include the canonical selector used.`);
+      } else if (surface && !surface.authenticatedSelectors.includes(entry.selectorUsed)) {
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence selector must match one of: ${surface.authenticatedSelectors.join(", ")}.`);
       }
       if (!entry.visibleMarker?.trim()) {
         failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include a visible admin marker.`);
