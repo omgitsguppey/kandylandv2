@@ -5,7 +5,7 @@
   "summary": {
     "fixedIssue": "Server-side Drop publish validation now mirrors the CMS form guardrails for admin create/update, creator submission/edit, and admin creator-submission approval.",
     "warnings": [
-      "Archive is implemented as hard delete in the current admin drops workflow; a separate reversible archive state is not present and is documented as deferred.",
+      "Reversible archive is not implemented and is not a live admin affordance; the current admin drops workflow exposes delete with confirmation only.",
       "Creator assignment is optional for admin-created public content drops, but required for creator-submitted drops and subscriber-only drops."
     ],
     "deferred": [
@@ -208,13 +208,13 @@
         "src/app/api/admin/drops/route.ts",
         "docs/agent-truth/admin-cms-drop-workflow.md"
       ],
-      "currentGuard": "Current admin workflow supports delete with confirmation and surface invalidation; reversible archive state is not implemented.",
+      "currentGuard": "Current admin workflow supports delete with confirmation and surface invalidation; reversible archive state is not implemented and must not be presented as a live/broken affordance.",
       "userFacingImpact": "Deleted Drops are removed from user-facing surfaces after invalidation.",
       "notificationImpact": "Delete does not send notifications.",
       "entitlementImpact": "Direct content retrieval fails once Drop document is removed; prior ownership records may remain for audit/history.",
       "analyticsImpact": "Historical telemetry keeps prior Drop ids; deleted Drop records are not retained by this route.",
       "validation": "admin-cms validator checks archive/delete documentation",
-      "requiredFix": "Documented delete-vs-archive behavior and deferred reversible archive.",
+      "requiredFix": "Documented delete-only behavior and deferred reversible archive as unavailable unless a future product operation explicitly implements restore/history semantics.",
       "fixedInThisPass": true
     },
     {

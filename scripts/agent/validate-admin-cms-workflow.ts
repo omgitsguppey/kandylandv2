@@ -195,10 +195,17 @@ requireIncludes(doc, "Queue and Return-Live", "admin CMS workflow doc");
 requireIncludes(doc, "Archive/Delete", "admin CMS workflow doc");
 requireIncludes(doc, "Analytics Attribution", "admin CMS workflow doc");
 requireIncludes(doc, "Entitlement Behavior", "admin CMS workflow doc");
+requireIncludes(doc, "A reversible Archive affordance must not be shown as live or broken", "admin CMS workflow doc");
 requireIncludes(packageJson, "\"check:admin-cms-workflow\"", "package scripts");
 requireIncludes(auditLedger, "Admin CMS Drop Workflow Launch Audit", "FULL_SCALE_CODEBASE_AUDIT");
 requireIncludes(repoLedger, "Admin CMS Drop workflow", "REPO_MEMORY_LEDGER");
 requireIncludes(checklist, "Admin CMS Drop Workflow Launch Audit Coverage", "EVERY_FILE_FUNCTION_CHECKLIST");
+
+const auditText = JSON.stringify(audit);
+requireIncludes(auditText, "Reversible archive is not implemented and is not a live admin affordance", "admin CMS workflow audit");
+if (auditText.includes("Archive is implemented as hard delete")) {
+  failures.push("admin CMS workflow audit must not describe reversible archive as implemented via hard delete.");
+}
 
 if (failures.length > 0) {
   console.error("Admin CMS workflow validation failed:");

@@ -70,7 +70,7 @@ Expiration is derived from the live window and `resolveDropStatusFromTiming`. Ex
 
 ## Archive/Delete
 
-The current launch workflow has delete, not a reversible archive state. Admin delete requires confirmation, admin auth, trusted origin, and surface invalidation.
+The current launch workflow has delete, not a reversible archive state. Admin delete requires confirmation, admin auth, trusted origin, and surface invalidation. A reversible Archive affordance must not be shown as live or broken until restore/history semantics are implemented.
 
 Deletion removes the Drop document from user-facing routes. Historical analytics may still reference the old Drop id. A reversible archive state is deferred until product operations require restore/history semantics.
 
