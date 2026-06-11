@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, relative, sep } from "node:path";
+import { dirname, isAbsolute, join, relative, sep } from "node:path";
 
 import {
   ADMIN_BROWSER_SURFACE_DEFINITIONS,
@@ -16,6 +16,7 @@ const ARTIFACT_PATH = "agent/state/admin-browser-surface-smoke.generated.json";
 const DOC_PATH = "docs/agent-truth/admin-browser-surface-smoke.md";
 const TEMPLATE_PATH = "agent/evidence/admin-browser-surface-smoke/template.json";
 const OPTIONAL_EVIDENCE_PATH = "agent/evidence/admin-browser-surface-smoke/evidence.json";
+const OPTIONAL_EVIDENCE_DIR = process.env.ADMIN_BROWSER_SMOKE_EVIDENCE_DIR?.trim();
 const ADMIN_LAYOUT_PATH = "src/app/admin/layout.tsx" as const;
 const BROWSER_SMOKE_SPEC_PATH = "tests/ui-audits/admin-browser-surface-smoke.spec.ts" as const;
 const BROWSER_SMOKE_SCRIPT_NAME = "check:admin-browser-surface-smoke:browser" as const;
@@ -30,15 +31,25 @@ function git(args: string[]) {
 
 function readJson(path: string): Record<string, unknown> | null {
   const fullPath = join(ROOT, path);
+  return readJsonFile(fullPath);
+}
+
+function readJsonFile(fullPath: string): Record<string, unknown> | null {
   if (!existsSync(fullPath)) return null;
   try {
-    const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as unknown;
+    const parsed = JSON.parse(readFileSync(fullPath, "utf8").replace(/^\uFEFF/u, "").trim()) as unknown;
     return parsed && typeof parsed === "object" && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : null;
   } catch {
     return null;
   }
+}
+
+function normalizeEvidenceEntries(entries: unknown[]): AdminBrowserSurfaceEvidenceInput[] {
+  return entries.filter((entry): entry is AdminBrowserSurfaceEvidenceInput =>
+    Boolean(entry) && typeof entry === "object" && !Array.isArray(entry),
+  );
 }
 
 function toEvidenceSource(value: unknown): AdminBrowserSurfaceEvidenceProvenance["source"] {
@@ -53,9 +64,7 @@ function readEvidenceFile() {
   const notes = Array.isArray(parsed.notes)
     ? parsed.notes.filter((note): note is string => typeof note === "string")
     : [];
-  const evidence = parsed.evidence.filter((entry): entry is AdminBrowserSurfaceEvidenceInput =>
-    Boolean(entry) && typeof entry === "object" && !Array.isArray(entry),
-  );
+  const evidence = normalizeEvidenceEntries(parsed.evidence);
   return {
     evidence,
     provenance: {
@@ -65,6 +74,54 @@ function readEvidenceFile() {
       capturedAtUtc: typeof parsed.capturedAtUtc === "string" ? parsed.capturedAtUtc : undefined,
       noteCount: notes.length,
       notes,
+    },
+  };
+}
+
+function readEvidenceFragmentsFromDir() {
+  if (!OPTIONAL_EVIDENCE_DIR) return undefined;
+  const fullDir = isAbsolute(OPTIONAL_EVIDENCE_DIR) ? OPTIONAL_EVIDENCE_DIR : join(ROOT, OPTIONAL_EVIDENCE_DIR);
+  if (!existsSync(fullDir)) return undefined;
+
+  const evidence = readdirSync(fullDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
+    .sort((left, right) => left.name.localeCompare(right.name))
+    .map((entry) => readJsonFile(join(fullDir, entry.name)))
+    .filter((entry): entry is Record<string, unknown> => Boolean(entry));
+  if (evidence.length === 0) return undefined;
+
+  const checkedAtValues = evidence
+    .map((entry) => typeof entry.checkedAtUtc === "string" ? entry.checkedAtUtc : undefined)
+    .filter((value): value is string => Boolean(value))
+    .sort();
+
+  return {
+    evidence: normalizeEvidenceEntries(evidence),
+    provenance: {
+      inputPath: OPTIONAL_EVIDENCE_DIR,
+      source: "local_in_app_browser" as const,
+      capturedAtUtc: checkedAtValues.at(-1),
+      noteCount: 1,
+      notes: ["Loaded opt-in per-surface evidence fragments from ADMIN_BROWSER_SMOKE_EVIDENCE_DIR."],
+    },
+  };
+}
+
+function readEvidenceInputs() {
+  const evidenceFile = readEvidenceFile();
+  const evidenceFragments = readEvidenceFragmentsFromDir();
+  if (!evidenceFragments || evidenceFragments.evidence.length === 0) return evidenceFile;
+  if (!evidenceFile || evidenceFile.evidence.length === 0) return evidenceFragments;
+
+  return {
+    evidence: [...evidenceFile.evidence, ...evidenceFragments.evidence],
+    provenance: {
+      inputPath: `${evidenceFile.provenance.inputPath};${evidenceFragments.provenance.inputPath}`,
+      source: "local_in_app_browser" as const,
+      baseUrl: evidenceFile.provenance.baseUrl,
+      capturedAtUtc: evidenceFragments.provenance.capturedAtUtc ?? evidenceFile.provenance.capturedAtUtc,
+      noteCount: evidenceFile.provenance.noteCount + evidenceFragments.provenance.noteCount,
+      notes: [...evidenceFile.provenance.notes, ...evidenceFragments.provenance.notes].slice(0, 5),
     },
   };
 }
@@ -253,7 +310,7 @@ function writeTemplate() {
 }
 
 writeTemplate();
-const evidenceFile = readEvidenceFile();
+const evidenceFile = readEvidenceInputs();
 const report = buildAdminBrowserSurfaceSmokeReport({
   currentHead: git(["rev-parse", "HEAD"]),
   generatedAtUtc: new Date().toISOString(),
