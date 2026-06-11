@@ -1,6 +1,6 @@
 # Evidence Freshness Index
 
-Generated: 2026-06-11T22:42:09.709Z
+Generated: 2026-06-11T22:44:36.545Z
 
 Generated reports are evidence snapshots only. Stale, missing, runtime, provider, or admin-truth evidence cannot be treated as current app truth by this source-only lane.
 

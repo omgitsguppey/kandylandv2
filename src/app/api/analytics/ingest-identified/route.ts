@@ -310,6 +310,7 @@ async function POST_handler(request: NextRequest) {
             const canonicalEventName = telemetryEvent.canonicalEventName;
             const eventId = rawEvent.eventId || buildFallbackEventId(caller.uid, canonicalEventName);
             const ref = adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.runtimeFacts).doc(eventId);
+            // cost-bound: single Firestore document read for idempotency, not a collection scan.
             const existingFact = await ref.get();
             if (existingFact.exists) {
                 dedupedExisting += 1;

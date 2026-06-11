@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-11T22:35:04.875Z",
-  "overallScore": 50,
-  "overallStatus": "fail",
+  "generatedAt": "2026-06-11T22:43:45.587Z",
+  "overallScore": 52,
+  "overallStatus": "beta-risk",
   "domainScores": {
     "speedCachingHydration": {
       "weight": 25,
@@ -37,10 +37,10 @@
     },
     "costRunawayWorkControls": {
       "weight": 10,
-      "score": 15,
-      "status": "fail",
-      "findingCount": 7,
-      "criticalCount": 1,
+      "score": 40,
+      "status": "beta-risk",
+      "findingCount": 6,
+      "criticalCount": 0,
       "majorCount": 6
     },
     "docsDebugEvidenceCompleteness": {
@@ -7033,23 +7033,6 @@
   "costRisks": [
     {
       "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 313,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_ragx6u"
-    },
-    {
-      "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
       "line": 132,
@@ -7151,43 +7134,8 @@
       "id": "speed_security_17y55aj"
     }
   ],
-  "criticalFindings": [
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 313,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_ragx6u"
-    }
-  ],
+  "criticalFindings": [],
   "findings": [
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 313,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_ragx6u"
-    },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
@@ -8614,5 +8562,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 84 findings across 130 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 83 findings across 130 API routes."
 }
