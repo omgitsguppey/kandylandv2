@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -43,7 +43,20 @@ function shell(command: string, args: readonly string[]) {
 }
 
 function currentHead() {
-  return shell("git", ["rev-parse", "HEAD"]);
+  const fromGit = shell("git", ["rev-parse", "HEAD"]);
+  if (fromGit) return fromGit;
+
+  try {
+    const headPath = join(repoRoot, ".git", "HEAD");
+    const head = readFileSync(headPath, "utf8").trim();
+    if (head.startsWith("ref:")) {
+      const refPath = join(repoRoot, ".git", head.slice("ref:".length).trim());
+      if (existsSync(refPath)) return readFileSync(refPath, "utf8").trim();
+    }
+    return /^[a-f0-9]{40}$/iu.test(head) ? head : "";
+  } catch {
+    return "";
+  }
 }
 
 function readJson(relativePath: string): Record<string, unknown> {
@@ -83,6 +96,7 @@ function changedFiles(input?: string[]) {
 }
 
 function openPrs() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const raw = shell("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,url,mergeStateStatus,isDraft"]);
   try {
     const parsed = JSON.parse(raw) as unknown;
@@ -200,6 +214,14 @@ export function buildRouteHealthReconciliationReport(input: BuildInput = {}) {
     routeChecksStatus: "0 active failures",
     routeHealthStatusBefore: "DEGRADED: 44 ok / 65 action / 2 fail",
     routeHealthStatusAfter: reconciliation.status,
+    delayedListener: "admin_debug_route_health",
+    expectedEvidenceArtifact: "route_runtime_health Firestore listener rows via Admin Debug runtime sample",
+    delayedClassification: "manual_runtime_proof_required",
+    evidenceBasis: "source_only_reconciliation_of_archived_debug_cockpit_batch6_sample",
+    sourceBugFound: false,
+    sourceOnlyCanClear: false,
+    runtimeProofRequired: true,
+    delayedIsHealthy: false,
     trackedRoutes: 173,
     observedRoutes: 109,
     unseenRoutes: 64,
@@ -215,6 +237,10 @@ export function validateRouteHealthReconciliationReport(report: ReturnType<typeo
   if (report.missingFailureTimestampActionable !== true) failures.push("missing failure timestamp is ignored.");
   if (report.unseenRoutesClassified.stale_unseen + report.unseenRoutesClassified.unseen_expected + report.unseenRoutesClassified.unseen_source_missing !== report.unseenRoutes) failures.push("unseen routes are all counted actionable without classification.");
   if (!report.routeListenerStatus) failures.push("route listener failure lacks separate status.");
+  if (report.status === "healthy_current" && report.routeListenerStatus !== "live") failures.push("delayed route listener is classified healthy.");
+  if (report.routeListenerStatus === "failed" && report.delayedClassification !== "manual_runtime_proof_required") failures.push("failed route listener lacks manual runtime proof classification.");
+  if (report.sourceOnlyCanClear !== false || report.runtimeProofRequired !== true) failures.push("source-only route health reconciliation can clear delayed runtime evidence.");
+  if (report.delayedIsHealthy !== false) failures.push("delayed route listener is treated as healthy.");
   return failures;
 }
 

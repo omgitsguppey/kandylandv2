@@ -1,15 +1,15 @@
 # Route health reconciliation
 
-Generated: 2026-06-09T00:37:04.044Z
-Head: e633434db51813661460de08f286dcce84be4eca
+Generated: 2026-06-11T14:58:12.300Z
+Head: 59c819e6301a092eadd5630c4f6d88a120e9c9f8
 
 ## Summary
 
 ```json
 {
   "reportKey": "route-health-reconciliation",
-  "generatedAtUtc": "2026-06-09T00:37:04.044Z",
-  "currentHead": "e633434db51813661460de08f286dcce84be4eca",
+  "generatedAtUtc": "2026-06-11T14:58:12.300Z",
+  "currentHead": "59c819e6301a092eadd5630c4f6d88a120e9c9f8",
   "scoreBefore": {
     "sourceHealth": 91.7,
     "runtimeHealth": 72.8,
