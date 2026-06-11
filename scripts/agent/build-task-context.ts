@@ -124,7 +124,8 @@ function buildTaskSignals(mode: TaskMode, taskTokens: string[], taskText: string
     ["runtime_health_admin_debug_observability", "route_diagnostics_server_diagnostics", "route_boundary_auth_request_guard"].forEach((entry) => helperFamilyNeedles.add(entry));
     requiredCommands.add("npm run test:contracts");
     if (hasAny("ui", "chart", "health") || mode === "admin") {
-      requiredCommands.add("npm run check:ui:audits");
+      requiredCommands.add("npm run check:admin-browser-surface-smoke");
+      optionalCommands.add("npm run check:admin-browser-surface-smoke:browser");
     }
   }
 
@@ -394,7 +395,10 @@ function selectVerificationCommands(input: {
     addRequired("npm run test:contracts");
   }
 
-  if (touchesUi || mode === "ui" || (mode === "admin" && (taskTokens.includes("ui") || taskTokens.includes("chart") || taskTokens.includes("health")))) {
+  if (mode === "admin" && (taskTokens.includes("ui") || taskTokens.includes("chart") || taskTokens.includes("health"))) {
+    addRequired("npm run check:admin-browser-surface-smoke");
+    addOptional("npm run check:admin-browser-surface-smoke:browser");
+  } else if (touchesUi || mode === "ui") {
     addRequired("npm run check:ui:audits");
   }
 
