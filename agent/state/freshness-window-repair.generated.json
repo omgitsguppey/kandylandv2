@@ -1,8 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-26T04:49:05.967Z",
+  "generatedAtUtc": "2026-06-11T15:13:33.821Z",
   "reportKey": "freshness-window-repair",
-  "currentHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
-  "latestMainHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
+  "currentHead": "833a3a3cb10be9c68f3e36bb3e2ae1df1a525db6",
+  "currentHeadSource": "git",
+  "gitStatus": "available",
+  "toolingDegraded": false,
+  "degradationReason": null,
+  "latestMainHead": "f1e140ac6a2827e40c4531ae47997d7312526f29",
   "status": "pass",
   "exactStaleRequiredReportCountBefore": 7,
   "staleReports": [
@@ -10,11 +14,11 @@
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
       "reportKey": "evidence-capture-status",
       "oldStatus": "stale_age",
-      "classification": "refreshed",
+      "classification": "in_flight",
       "action": "npm run check:evidence-capture-status",
       "replacementArtifactPath": "agent/state/evidence-capture-status.generated.json",
-      "nextAction": "No action needed after refresh.",
-      "validatorStatus": "passed"
+      "nextAction": "Run npm run check:evidence-capture-status from the latest code version.",
+      "validatorStatus": "not_run"
     },
     {
       "artifactPath": "agent/state/gumdrop-economy-accuracy.generated.json",
@@ -30,11 +34,11 @@
       "artifactPath": "agent/state/creator-experience-simplification.generated.json",
       "reportKey": "creator-experience-simplification",
       "oldStatus": "stale_age",
-      "classification": "refreshed",
+      "classification": "in_flight",
       "action": "npm run check:creator-experience-simplification",
       "replacementArtifactPath": "agent/state/creator-experience-simplification.generated.json",
-      "nextAction": "No action needed after refresh.",
-      "validatorStatus": "passed"
+      "nextAction": "Run npm run check:creator-experience-simplification from the latest code version.",
+      "validatorStatus": "not_run"
     },
     {
       "artifactPath": "agent/state/post-economy-creator-flow-qa.generated.json",
@@ -51,11 +55,11 @@
       "artifactPath": "agent/state/user-creator-ui-parity.generated.json",
       "reportKey": "user-creator-ui-parity",
       "oldStatus": "stale_age",
-      "classification": "refreshed",
+      "classification": "in_flight",
       "action": "npm run check:user-creator-ui-parity",
       "replacementArtifactPath": "agent/state/user-creator-ui-parity.generated.json",
-      "nextAction": "No action needed after refresh.",
-      "validatorStatus": "passed"
+      "nextAction": "Run npm run check:user-creator-ui-parity from the latest code version.",
+      "validatorStatus": "not_run"
     },
     {
       "artifactPath": "agent/state/user-facing-feature-connection-audit.generated.json",
@@ -81,10 +85,7 @@
     }
   ],
   "refreshedReports": [
-    "agent/state/evidence-capture-status.generated.json",
-    "agent/state/gumdrop-economy-accuracy.generated.json",
-    "agent/state/creator-experience-simplification.generated.json",
-    "agent/state/user-creator-ui-parity.generated.json"
+    "agent/state/gumdrop-economy-accuracy.generated.json"
   ],
   "retiredReports": [
     "agent/state/post-economy-creator-flow-qa.generated.json",
@@ -92,10 +93,13 @@
     "agent/state/creator-dashboard-error-cost-inventory.generated.json"
   ],
   "formalEvidenceReports": [],
-  "inFlightReports": [],
+  "inFlightReports": [
+    "agent/state/evidence-capture-status.generated.json",
+    "agent/state/creator-experience-simplification.generated.json",
+    "agent/state/user-creator-ui-parity.generated.json"
+  ],
   "currentRequiredReports": [
     "agent/state/evidence-capture-status.generated.json",
-    "agent/state/gumdrop-economy-accuracy.generated.json",
     "agent/state/creator-experience-simplification.generated.json",
     "agent/state/user-creator-ui-parity.generated.json",
     "agent/state/targeted-behavior-evidence.generated.json",
@@ -104,25 +108,25 @@
     "agent/state/creator-monetization-readiness-lock.generated.json"
   ],
   "scoreBefore": 78.03,
-  "scoreAfter": 89.19,
+  "scoreAfter": 68.67,
   "scoreDimensions": {
     "freshness": {
       "before": 75.63,
-      "after": 91.88,
+      "after": 59.38,
       "target": 80
     },
     "evidenceCompleteness": {
       "before": 69.6,
-      "after": 84.6,
+      "after": 43.4,
       "target": 80
     },
     "overallHealthScore": {
       "before": 78.03,
-      "after": 89.19,
+      "after": 68.67,
       "target": 80
     }
   },
-  "scoreArtifactCurrentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+  "scoreArtifactCurrentHead": "4852e5e538de7af7bede5bb30075c98fb33e2063",
   "currentHeadMatchesLatestMain": true,
   "formalEvidenceImpact": "does_not_clear_formal_gates",
   "formalEvidenceGatesPreserved": true,
@@ -133,31 +137,256 @@
   "gumdropMathChanged": false,
   "dirtyFiles": [
     {
+      "path": "agent/context/doctrine.cards.jsonl",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/doctrine.index.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/file-size-budget.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/legacy-registry.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
+      "path": "agent/context/surface-contracts.jsonl",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/task-pack.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/validator-map.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/index/blast-radius.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/canonical-helpers.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/dependency-graph.summary.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/governance-truth.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/known-pitfalls.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/package-manager-truth.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/recent-passes.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/repo-inventory.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/retrieval-index.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/runtime-observability.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/surface-map.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/ui-surface-coverage.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/verification-commands.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/index/workflow-guidance.json",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/state/config-env-contract.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
+      "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/freshness-window-repair.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/global-cost-surfaces.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/identity-handoff-spine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-80-reconciliation-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-dimension-80-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-impact-stale-artifact-sweep.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/settings-creator-dashboard-split.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/sql-mirror-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/sql-sync.payload.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/support-policy-surface-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/task-context.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/treasury-reconciliation-engine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/treasury-structure-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-management-status-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-profile-api-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/config-env-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/freshness-window-repair.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/identity-handoff-spine.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-dimension-80-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-impact-stale-artifact-sweep.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/support-policy-surface-cleanup.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/treasury-reconciliation-engine.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/treasury-structure-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-management-status-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-profile-api-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "scripts/agent/build-agent-indexes.ts",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "scripts/agent/validate-freshness-window-repair.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/repo-inventory.ts",
+      "classification": "generated_index_noise_leave_unstaged"
+    },
+    {
+      "path": "agent/state/debug-evidence-staleness-queue.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     }
   ],
-  "remainingGaps": [],
+  "remainingGaps": [
+    "agent/state/evidence-capture-status.generated.json: refresh is still in flight.",
+    "agent/state/creator-experience-simplification.generated.json: refresh is still in flight.",
+    "agent/state/user-creator-ui-parity.generated.json: refresh is still in flight."
+  ],
   "nextExactSteps": [
-    "Run npm run score:beta and npm run check:beta-score after any further source changes.",
-    "Do not use source freshness repair to clear formal manual, provider, runtime, or admin truth gates."
+    "agent/state/evidence-capture-status.generated.json: Run npm run check:evidence-capture-status from the latest code version.",
+    "agent/state/gumdrop-economy-accuracy.generated.json: No action needed after refresh.",
+    "agent/state/creator-experience-simplification.generated.json: Run npm run check:creator-experience-simplification from the latest code version.",
+    "agent/state/post-economy-creator-flow-qa.generated.json: Use creator monetization readiness lock and GumDrop source-of-funds truth for current source behavior evidence.",
+    "agent/state/user-creator-ui-parity.generated.json: Run npm run check:user-creator-ui-parity from the latest code version.",
+    "agent/state/user-facing-feature-connection-audit.generated.json: Use final parity telemetry lock, feature registration gate, and targeted behavior evidence for current surface connection proof.",
+    "agent/state/creator-dashboard-error-cost-inventory.generated.json: Use beta score cost readiness and route/cost lanes; keep creator dashboard issue visible outside required freshness math."
   ],
   "evidence": [
     "exactStaleRequiredReportCountBefore=7",
-    "refreshedReports=4",
+    "refreshedReports=1",
     "retiredReports=3",
     "freshnessBefore=75.63",
-    "freshnessAfter=91.88",
-    "currentHead=a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
-    "latestMainHead=a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
+    "freshnessAfter=59.38",
+    "currentHead=833a3a3cb10be9c68f3e36bb3e2ae1df1a525db6",
+    "latestMainHead=f1e140ac6a2827e40c4531ae47997d7312526f29",
     "formalEvidenceImpact=does_not_clear_formal_gates"
   ]
 }

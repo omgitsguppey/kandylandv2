@@ -1,7 +1,7 @@
-import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { listWorkingTreeFiles, readRepoToolchainState, tryRunGit } from "./shared";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -37,6 +37,7 @@ export type FreshnessWindowRepairDirtyClassification =
   | "failed_validator_to_repair"
   | "in_flight_artifact_to_leave_alone"
   | "unrelated_agent_context_file_to_ignore"
+  | "generated_index_noise_leave_unstaged"
   | "freshness_required_input_fix"
   | "release_artifact_expected"
   | "unsafe_unknown";
@@ -57,6 +58,10 @@ export type FreshnessWindowRepairReport = {
   generatedAtUtc: string;
   reportKey: "freshness-window-repair";
   currentHead: string;
+  currentHeadSource: "git" | "repo_inventory" | "generated_artifact" | "unknown";
+  gitStatus: "available" | "missing" | "error";
+  toolingDegraded: boolean;
+  degradationReason: string | null;
   latestMainHead: string;
   status: "pass" | "fail";
   exactStaleRequiredReportCountBefore: number;
@@ -100,14 +105,6 @@ type BuildInput = Partial<Pick<
   dirtyFiles?: string[];
 };
 
-function run(command: string, args: readonly string[]) {
-  try {
-    return execFileSync(command, args, { cwd: ROOT, encoding: "utf8" }).trim();
-  } catch {
-    return "";
-  }
-}
-
 function readJson(relativePath: string) {
   const fullPath = join(ROOT, relativePath);
   if (!existsSync(fullPath)) return null;
@@ -139,13 +136,7 @@ function reportKeyFromPath(path: string) {
 }
 
 function currentDirtyFiles() {
-  const files = new Set<string>();
-  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
-    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
-      files.add(line.replace(/\\/gu, "/"));
-    }
-  }
-  return [...files].sort();
+  return listWorkingTreeFiles();
 }
 
 function artifactIsFresh(path: string, nowMs = Date.now()) {
@@ -242,7 +233,9 @@ export function classifyFreshnessWindowRepairDirtyFile(filePath: string): Freshn
     return "freshness_required_input_fix";
   }
   if (normalized === "package.json") return "freshness_required_input_fix";
-  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized.startsWith("agent/context/")) return "unrelated_agent_context_file_to_ignore";
+  if (normalized.startsWith("agent/index/")) return "generated_index_noise_leave_unstaged";
+  if (normalized === "scripts/agent/build-agent-indexes.ts" || normalized === "scripts/repo-inventory.ts") return "generated_index_noise_leave_unstaged";
   if (
     normalized === "CHANGELOG.md"
     || normalized === "public/kandydrops-release-notes.json"
@@ -265,8 +258,12 @@ function currentRequiredReports() {
 
 export function buildFreshnessWindowRepairReport(input: BuildInput = {}): FreshnessWindowRepairReport {
   const publicBeta = readJson(PUBLIC_BETA_SCORE_PATH);
-  const currentHead = input.currentHead ?? run("git", ["rev-parse", "HEAD"]);
-  const latestMainHead = input.latestMainHead ?? (run("git", ["rev-parse", "origin/main"]) || currentHead);
+  const toolchain = readRepoToolchainState();
+  const currentHead = input.currentHead ?? toolchain.currentHead ?? "unknown";
+  const latestMainHead = input.latestMainHead ?? (toolchain.gitStatus === "available" ? (tryRunGit(["rev-parse", "origin/main"]).stdout || currentHead) : "unknown");
+  const currentHeadContainsLatestMain = toolchain.gitStatus === "available" && currentHead !== "unknown" && latestMainHead !== "unknown"
+    ? (currentHead === latestMainHead || tryRunGit(["merge-base", "--is-ancestor", latestMainHead, currentHead]).ok)
+    : currentHead === latestMainHead;
   const staleReports = input.staleReports ?? defaultClassifications();
   const dirtyFiles = (input.dirtyFiles ?? currentDirtyFiles()).map((path) => ({
     path,
@@ -294,6 +291,10 @@ export function buildFreshnessWindowRepairReport(input: BuildInput = {}): Freshn
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
     reportKey: "freshness-window-repair",
     currentHead,
+    currentHeadSource: toolchain.currentHeadSource,
+    gitStatus: toolchain.gitStatus,
+    toolingDegraded: toolchain.toolingDegraded,
+    degradationReason: toolchain.degradationReason,
     latestMainHead,
     status: "pass",
     exactStaleRequiredReportCountBefore: staleReports.length,
@@ -319,7 +320,7 @@ export function buildFreshnessWindowRepairReport(input: BuildInput = {}): Freshn
       },
     },
     scoreArtifactCurrentHead: stringField(publicBeta, "currentHead", ""),
-    currentHeadMatchesLatestMain: currentHead === latestMainHead,
+    currentHeadMatchesLatestMain: currentHeadContainsLatestMain,
     formalEvidenceImpact: "does_not_clear_formal_gates",
     formalEvidenceGatesPreserved: true,
     productionReadsPerformed: false,
@@ -337,6 +338,10 @@ export function buildFreshnessWindowRepairReport(input: BuildInput = {}): Freshn
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
     reportKey: "freshness-window-repair",
     currentHead,
+    currentHeadSource: toolchain.currentHeadSource,
+    gitStatus: toolchain.gitStatus,
+    toolingDegraded: toolchain.toolingDegraded,
+    degradationReason: toolchain.degradationReason,
     latestMainHead,
     status,
     exactStaleRequiredReportCountBefore: staleReports.length,
@@ -358,7 +363,7 @@ export function buildFreshnessWindowRepairReport(input: BuildInput = {}): Freshn
       overallHealthScore: { before: input.scoreBefore ?? 78.03, after: scoreAfter, target: DEFAULT_FRESHNESS_TARGET },
     },
     scoreArtifactCurrentHead: stringField(publicBeta, "currentHead", ""),
-    currentHeadMatchesLatestMain: currentHead === latestMainHead,
+    currentHeadMatchesLatestMain: currentHeadContainsLatestMain,
     formalEvidenceImpact: "does_not_clear_formal_gates",
     formalEvidenceGatesPreserved: true,
     productionReadsPerformed: false,
@@ -388,7 +393,10 @@ export function validateFreshnessWindowRepairReport(report: FreshnessWindowRepai
   if (!report.generatedAtUtc || Number.isNaN(Date.parse(report.generatedAtUtc))) failures.push("generatedAtUtc must be parseable UTC.");
   if (!report.currentHead) failures.push("currentHead is required.");
   if (!report.latestMainHead) failures.push("latestMainHead is required.");
-  if (!report.currentHeadMatchesLatestMain) failures.push("score artifact currentHead is behind latest main.");
+  if (report.gitStatus !== "available") {
+    failures.push(`git_required: freshness window repair cannot clear current-head/latest-main proof while Git is unavailable (${report.degradationReason ?? "git unavailable"}).`);
+  }
+  if (!report.currentHeadMatchesLatestMain) failures.push("score artifact currentHead does not contain latest main.");
   if (report.exactStaleRequiredReportCountBefore <= 0) failures.push("stale required report count remains unknown.");
   if (report.exactStaleRequiredReportCountBefore !== report.staleReports.length) failures.push("stale required report count does not match classifications.");
   for (const artifactPath of REQUIRED_REPORTS_BEFORE) {
@@ -433,6 +441,9 @@ Validator: \`npm run check:freshness-window-repair\`
 ## Summary
 
 - Current head: \`${report.currentHead}\`
+- Current head source: \`${report.currentHeadSource}\`
+- Git status: \`${report.gitStatus}\`
+- Tooling degraded: ${report.toolingDegraded}
 - Latest main head: \`${report.latestMainHead}\`
 - Stale required reports before: ${report.exactStaleRequiredReportCountBefore}
 - Freshness: ${report.scoreDimensions.freshness.before} -> ${report.scoreDimensions.freshness.after}
