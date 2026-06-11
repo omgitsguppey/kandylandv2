@@ -492,6 +492,7 @@ function untrackedFiles() {
 }
 
 function openPrs(): OpenPrSummary[] {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const output = safeExec(["gh", "pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,headRefName,mergeStateStatus,url"]);
   if (!output) return [];
   try {

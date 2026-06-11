@@ -108,6 +108,16 @@ function classifyOpenPr(pr: JsonRecord) {
 }
 
 function parseOpenPrs() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") {
+    return [{
+      number: 0,
+      title: "GitHub open PR evidence not queried",
+      url: "",
+      mergeStateStatus: "EXTERNAL_EVIDENCE_REQUIRED",
+      isDraft: false,
+      classification: "external_evidence_required",
+    }];
+  }
   const raw = run("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,url,mergeStateStatus,isDraft"]);
   if (!raw) return [];
   const parsed = JSON.parse(raw) as JsonRecord[];
@@ -137,6 +147,7 @@ function scoreSnapshot() {
 function renderDoc(report: JsonRecord) {
   const failures = report.validationFailures as string[];
   const dirtyRows = report.dirtyFiles as Array<{ path: string; classification: string }>;
+  const openPullRequests = report.openPullRequests as Array<{ number: unknown; title: string; classification: string }>;
   const debugLane = report.debugLane as JsonRecord;
   return [
     "# Session Journey Duration Math",
@@ -166,6 +177,12 @@ function renderDoc(report: JsonRecord) {
     "## Dirty Files",
     "",
     ...(dirtyRows.length ? dirtyRows.map((file) => `- ${file.path}: ${file.classification}`) : ["- none"]),
+    "",
+    "## Open PR Evidence",
+    "",
+    ...(openPullRequests.length
+      ? openPullRequests.map((entry) => `- #${String(entry.number)} ${entry.title}: ${entry.classification}`)
+      : ["- No open PR evidence attached. This cannot clear PR/release gates."]),
     "",
     "## Validation Failures",
     "",

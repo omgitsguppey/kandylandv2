@@ -44,6 +44,7 @@ function changedFiles() {
 }
 
 function openPrs() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const raw = run("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,url,mergeStateStatus,isDraft"]);
   try {
     const parsed = JSON.parse(raw) as unknown;
@@ -345,6 +346,8 @@ export function buildDebugCockpitBatch5CleanupReport(input: BuildInput = {}) {
     scoreAfter: score,
     scoreDimensions: score,
     dirtyFiles: changedFiles().map((path) => ({ path, classification: classifyBatch5DirtyFile(path) })),
+    openPrEvidenceStatus: process.env.ALLOW_GH_PR_LIST === "1" ? "live_external_command_opted_in" : "not_queried_external_command_opt_in_required",
+    openPrEvidenceCommand: "ALLOW_GH_PR_LIST=1 gh pr list --repo omgitsguppey/kandylandv2 --state open --limit 100 --json number,title,url,mergeStateStatus,isDraft",
     openPrs: openPrs(),
     remainingGaps: ["Bounded chat runtime and route 4xx/cost samples are still needed before all-zero samples can be promoted to runtime-live."],
     nextExactSteps: ["Attach bounded source windows for chat gating, chat telemetry, and route 4xx/cost samples; keep future catalog collapsed while actionable/broken/scoreDrag remain zero."],

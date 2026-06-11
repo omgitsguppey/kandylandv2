@@ -173,6 +173,7 @@ function dirtyFilesClassified() {
 }
 
 function openPrsClassified() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return true;
   try {
     const output = execFileSync("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number"], {
       cwd: ROOT,

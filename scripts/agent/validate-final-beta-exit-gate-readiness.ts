@@ -162,6 +162,7 @@ function currentDirtyFiles() {
 }
 
 function readOpenPrsFromGh(): OpenPrSummary[] {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const output = shell("gh", [
     "pr",
     "list",

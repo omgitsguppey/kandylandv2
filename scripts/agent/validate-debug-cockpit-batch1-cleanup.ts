@@ -266,6 +266,7 @@ function dirtyFiles() {
 }
 
 function openPrs() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const output = command("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,url,mergeStateStatus,isDraft"]);
   if (!output) return [];
   try {

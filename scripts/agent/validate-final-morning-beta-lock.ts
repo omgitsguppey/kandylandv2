@@ -150,6 +150,7 @@ function untrackedFiles() {
 }
 
 function openPrs(): LockOpenPr[] {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const output = safeExec("gh", [
     "pr",
     "list",

@@ -190,6 +190,7 @@ function collectDirtyFiles(): DirtyFile[] {
 }
 
 function collectOpenPrs(): OpenPr[] {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const output = safeExec("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,mergeStateStatus,url"], "[]");
   try {
     const parsed = JSON.parse(output) as unknown;

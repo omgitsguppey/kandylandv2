@@ -124,6 +124,7 @@ function dirtyClassifications() {
 }
 
 function openPrClassifications() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const raw = command([
     "gh",
     "pr",

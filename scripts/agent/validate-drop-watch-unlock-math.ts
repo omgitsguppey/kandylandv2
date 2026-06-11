@@ -117,6 +117,7 @@ function asciiTitle(value: string) {
 }
 
 function parseOpenPrs() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const raw = run("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,url,mergeStateStatus,isDraft"]);
   if (!raw) return [];
   const parsed = JSON.parse(raw) as JsonRecord[];

@@ -63,6 +63,7 @@ function packageScripts() {
 }
 
 function listOpenPullRequests() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const raw = run("gh", [
     "pr",
     "list",

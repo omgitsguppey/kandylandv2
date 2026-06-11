@@ -226,6 +226,15 @@ function collectDirtyFiles(): SweepDirtyFile[] {
 }
 
 function collectOpenPrs(): SweepOpenPr[] {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") {
+    return [{
+      number: 0,
+      title: "GitHub open PR evidence not queried",
+      url: "",
+      classification: "external_evidence_required",
+      action: "Set ALLOW_GH_PR_LIST=1 only for an operator-approved external PR query; missing GitHub evidence cannot clear source, runtime, provider, or release gates.",
+    }];
+  }
   const output = safeExec("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,url"], "[]");
   try {
     const parsed = JSON.parse(output) as unknown;
@@ -242,7 +251,7 @@ function collectOpenPrs(): SweepOpenPr[] {
         })
       : [];
   } catch {
-    return [{ classification: "unsafe_unknown", action: "Unable to parse open PR list." }];
+    return [{ classification: "external_evidence_required", action: "Unable to parse GitHub PR evidence; keep release/PR gates external-evidence-required." }];
   }
 }
 
