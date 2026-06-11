@@ -10,7 +10,6 @@ import {
   toAbsoluteRepoPath,
   toStableId,
   writeJsonFile,
-  writeTextFile,
   type Json,
 } from "./shared";
 export const COMPACT_AGENT_CONTEXT_DIR = "agent/context";

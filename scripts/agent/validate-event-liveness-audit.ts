@@ -7,7 +7,6 @@ import {
   type EventLivenessSummary,
 } from "@/lib/analytics/event-liveness-contract";
 import {
-  IMPORTANT_EVENT_LIVENESS_INPUTS,
   buildEventLivenessSummary,
 } from "@/lib/analytics/event-liveness-engine";
 

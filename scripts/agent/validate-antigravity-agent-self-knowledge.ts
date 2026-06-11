@@ -1,4 +1,4 @@
-import { fileExists, readJsonFile, readText, writeJsonFile, writeTextFile } from "./shared";
+import { fileExists, readJsonFile, readText } from "./shared";
 
 export function runValidation() {
   const failures: string[] = [];

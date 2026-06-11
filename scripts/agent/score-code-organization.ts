@@ -24,7 +24,6 @@ import {
   getCodeOrganizationSeverityRank,
   getCodeOrganizationStatus,
   normalizeCodeOrganizationPath,
-  type CodeOrganizationBucket,
   type CodeOrganizationDuplicateFormula,
   type CodeOrganizationFeature,
   type CodeOrganizationFeatureOwnership,

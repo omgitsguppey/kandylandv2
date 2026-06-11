@@ -4,7 +4,6 @@ import { dirname, join } from "node:path";
 
 import {
   buildUserManagementRefactorReport,
-  classifyUserManagementDirtyFile,
   type UserManagementRefactorReport,
 } from "@/lib/admin/user-management-contract";
 import { buildPersonMetricsHydrationReport } from "@/lib/analytics/person-metrics-hydration";

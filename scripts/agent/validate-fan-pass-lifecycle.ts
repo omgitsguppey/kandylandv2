@@ -3,7 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 import { PERSON_METRIC_DEFINITIONS } from "@/lib/analytics/person-metrics-contract";
-import { FAN_PASS_DEBUG_LANE, FAN_PASS_LIFECYCLE_EVENTS, buildFanPassLifecycleDebugLane, buildFanPassLifecycleReportShape, validateFanPassLifecycleReportShape } from "@/lib/fan-pass/fan-pass-lifecycle-contract";
+import { FAN_PASS_LIFECYCLE_EVENTS, buildFanPassLifecycleDebugLane, buildFanPassLifecycleReportShape, validateFanPassLifecycleReportShape } from "@/lib/fan-pass/fan-pass-lifecycle-contract";
 import { buildFanPassTelemetry } from "@/lib/fan-pass/fan-pass-access-resolver";
 import { FEATURE_REGISTRATION_REGISTRY } from "@/lib/features/feature-registration-registry";
 import { TELEMETRY_EVENT_OPTIONS } from "@/lib/telemetry-catalog";

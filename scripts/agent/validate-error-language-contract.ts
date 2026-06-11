@@ -5,7 +5,6 @@ import { execFileSync } from "node:child_process";
 import {
   HUMAN_ERROR_DICTIONARY,
   REQUIRED_HUMAN_ERROR_KEYS,
-  type HumanErrorKey,
 } from "../../src/lib/errors/error-dictionary";
 import type { HumanErrorDescriptor } from "../../src/lib/errors/error-language";
 

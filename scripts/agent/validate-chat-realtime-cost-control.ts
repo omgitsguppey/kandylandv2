@@ -6,7 +6,6 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import type { PublicBetaHealthDimension } from "@/lib/agent-score/core";
 import {
   CHAT_REALTIME_CONTRACT,
-  CHAT_REALTIME_PROPAGATION_STATES,
   buildChatRealtimeDebugLane,
   validateChatRealtimeSource,
 } from "@/lib/chat/chat-realtime-contract";

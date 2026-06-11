@@ -10,15 +10,15 @@ import {
   getPublicReleaseNotesVisibleNotes,
   type PublicReleaseNotesDocument,
 } from "../../src/lib/release-notes/release-version-contract";
-import { formatBetaOdometerVersion } from "../../src/lib/release-notes/beta-odometer-version";
+import { formatBetaOdometerVersion ,
+  migrateLegacyVersionToBetaCounter,
+  parseBetaOdometerVersion,
+} from "../../src/lib/release-notes/beta-odometer-version";
 import {
   getEffectiveChangedFiles,
   isUserFacingReleaseSurfaceCategory,
 } from "../../src/lib/release-notes/release-note-classifier";
-import {
-  migrateLegacyVersionToBetaCounter,
-  parseBetaOdometerVersion,
-} from "../../src/lib/release-notes/beta-odometer-version";
+
 
 const root = process.cwd();
 const failures: string[] = [];

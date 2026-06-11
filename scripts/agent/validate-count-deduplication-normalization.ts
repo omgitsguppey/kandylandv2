@@ -5,7 +5,6 @@ import { dirname, join } from "node:path";
 import {
   REQUIRED_COUNT_DOMAINS,
   buildCanonicalCountKey,
-  buildGlobalCountKey,
   buildLegacyCountKey,
   explainCountDecision,
   normalizeCountInput,

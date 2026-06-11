@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { buildEventLivenessSummary, IMPORTANT_EVENT_LIVENESS_INPUTS } from "@/lib/analytics/event-liveness-engine";
+import { buildEventLivenessSummary } from "@/lib/analytics/event-liveness-engine";
 import type { EventLivenessClassification } from "@/lib/analytics/event-liveness-contract";
 import { buildBehaviorMathReport } from "@/lib/behavioral/behavior-math-engine";
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";

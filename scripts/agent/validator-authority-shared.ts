@@ -1,7 +1,7 @@
 import { readdirSync } from "node:fs";
 import path from "node:path";
 
-import { ROOT, getPackageScripts, readJsonFile, toRepoPath, walkDirectoryFiles } from "./shared";
+import { ROOT, getPackageScripts, readJsonFile, walkDirectoryFiles } from "./shared";
 
 export const VALIDATOR_AUTHORITY_PATH = "agent/context/validator-authority.json";
 

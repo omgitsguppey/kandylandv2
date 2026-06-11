@@ -11,7 +11,6 @@ import {
 import {
   ACTIVE_SUPPORTING_PARITY_VALIDATORS,
   SUPERSEDED_PARITY_VALIDATORS,
-  SURFACE_PARITY_REGISTRY,
   buildSurfaceParityDoctrineReport,
 } from "@/lib/parity/surface-parity-registry";
 

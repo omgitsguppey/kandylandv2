@@ -6,7 +6,6 @@ import {
   LEGACY_EVENT_ALIAS_TABLE,
   LEGACY_RECOVERY_START_DATE,
   buildLegacyDedupeKey,
-  canonicalizeLegacyEventName,
   classifyLegacyMetricConfidence,
   explainLegacyCanonicalization,
   mapLegacyEventToCurrentMetric,

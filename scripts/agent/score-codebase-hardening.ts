@@ -3,7 +3,6 @@ import { dirname, extname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import {
-  API_COST_CONTRACTS,
   matchApiCostContract,
 } from "../../src/lib/server/api-cost-contract";
 import {

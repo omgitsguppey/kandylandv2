@@ -4,7 +4,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  EXTERNAL_ANALYTICS_TRUTH_CONTRACT,
   buildExternalAnalyticsTruthState,
   validateExternalAnalyticsTruthClosure as validateExternalAnalyticsTruthContract,
   type ExternalAnalyticsStatus,

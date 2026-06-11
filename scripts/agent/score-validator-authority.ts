@@ -1,12 +1,10 @@
 import {
   type Json,
   nowIso,
-  readText,
   writeJsonFile,
 } from "./shared";
 import {
   VALIDATOR_AUTHORITY_PATH,
-  extractScriptFileRefs,
   listStandaloneValidatorFiles,
   listValidatorPackageScripts,
   readRootPackageScripts,

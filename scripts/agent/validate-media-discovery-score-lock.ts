@@ -5,7 +5,6 @@ import { pathToFileURL } from "node:url";
 
 import type { PublicBetaHealthDimension } from "@/lib/agent-score/core";
 import {
-  CREATOR_RELATIONSHIP_DEBUG_LANE,
   CREATOR_RELATIONSHIP_EVENTS,
   CREATOR_RELATIONSHIP_STATES,
   buildCreatorRelationshipDebugLane,
@@ -13,7 +12,6 @@ import {
 } from "@/lib/discovery/creator-relationship-contract";
 import { SEARCH_COST_POLICY, validateSearchCostPolicy } from "@/lib/discovery/search-cost-contract";
 import {
-  SEARCH_DISCOVERY_DEBUG_LANE,
   SEARCH_DISCOVERY_EVENTS,
   buildSearchDiscoveryDebugLane,
   buildSearchTelemetryPayload,

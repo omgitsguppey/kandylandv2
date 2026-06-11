@@ -4,7 +4,6 @@ import {
   getPackageScripts,
   nowIso,
   readJsonFile,
-  toStableId,
   writeJsonFile,
   type Json,
 } from "./shared";

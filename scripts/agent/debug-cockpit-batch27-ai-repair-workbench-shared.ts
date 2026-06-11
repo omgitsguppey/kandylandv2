@@ -9,9 +9,8 @@ import { reviewAiRepairProposal } from "../../src/lib/debug/ai-repair-critic";
 import { createAiRepairProposalRecord, sanitizeAiRepairProposalForStore } from "../../src/lib/debug/ai-repair-proposal-store";
 import { buildDebugCockpitBatch27AiRepairWorkbenchReport } from "../../src/lib/debug/debug-cockpit-batch27-ai-repair-workbench";
 import { buildAiRepairWorkbenchFromSignal, buildDeterministicRepairPlan, classifyApplyEligibility, classifyRepairMode, groupRepairWorkItems, scoreRepairWorkItem } from "../../src/lib/debug/ai-repair-triage-engine";
-import { GEMINI_3_1_FLASH_LITE_PREVIEW_MODEL } from "../../src/lib/admin-ai-models";
 import type { AdminAiDebugSignalInput } from "../../src/lib/ai-debug-assistant";
-import type { AiRepairProposal, AiRepairWorkbench, AiRepairWorkItem } from "../../src/lib/debug/ai-repair-workbench-contract";
+import type { AiRepairProposal, AiRepairWorkItem } from "../../src/lib/debug/ai-repair-workbench-contract";
 
 type Report = Record<string, unknown>;
 

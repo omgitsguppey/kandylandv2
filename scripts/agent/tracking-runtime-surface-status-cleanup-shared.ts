@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 
-import { buildDebugPanelTrackingSummary, type DebugTrackingStatus } from "@/lib/debug/debug-panel-tracking-summary";
+import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
 import { classifyEmptyLiveLane } from "@/lib/debug/empty-live-lane-classifier";
 import { buildPwaServiceWorkerDebugLane, type PwaServiceWorkerDebugLane } from "@/lib/pwa/pwa-service-worker-contract";
 

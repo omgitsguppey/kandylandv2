@@ -3,7 +3,6 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import {
-  AI_DEBUG_CRITIC_CHECKS,
   buildAiDebugCriticReport,
   summarizeAiDebugCritic,
   type AiDebugCriticGateBlocker,

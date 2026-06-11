@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { HUMAN_ERROR_DICTIONARY } from "../../src/lib/errors/error-dictionary";

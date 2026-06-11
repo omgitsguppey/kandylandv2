@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { buildRefreshPlan, staleArtifactsFromPlan, uniqueRefreshCommands } from "../../src/lib/agent-score/refresh-safeguards";
+import { buildRefreshPlan, uniqueRefreshCommands } from "../../src/lib/agent-score/refresh-safeguards";
 import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
 
 type FormalEvidenceStatus = "missing" | "incomplete" | "complete";
