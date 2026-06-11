@@ -49,6 +49,7 @@ export function DropCardCta({
             type="button"
             onClick={onUnlock}
             disabled={unlocking}
+            aria-busy={unlocking}
             className={cn(
                 "relative flex min-h-10 w-full items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-[0.7rem] border px-2.5 py-1.5 text-[10px] font-bold shadow-lg transition-all active:scale-95 md:px-4 md:py-2 md:text-xs",
                 !canAfford
@@ -61,7 +62,7 @@ export function DropCardCta({
         >
             {unlocking ? (
                 <>
-                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
                     <span>Unwrapping...</span>
                 </>
             ) : !user || ctaState === "create_profile" ? (
