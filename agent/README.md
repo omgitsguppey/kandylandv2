@@ -23,6 +23,19 @@ What is not authoritative here:
 - workflow-only notes under `/.agent/`
 - the SQL/Data Connect mirror
 
+Artifact lifecycle:
+- Preserve `agent/index/*.json`, `agent/state/*.generated.json`, and generated `agent/context/*.json` as repo-memory evidence when they are tracked, but treat them as generated snapshots. They do not override runtime code, verified config, doctrine, or operator evidence.
+- Regenerate index/context snapshots with the commands below when their owning scripts or source inputs change. Do not hand-edit large generated JSON unless an owner contract explicitly requires it.
+- Keep local build/test/cache output out of broad scans: `node_modules`, `.next`, coverage, Playwright/Lighthouse reports, logs, package-manager caches, and temporary scratch output are replaceable local artifacts.
+- Manual-review artifacts such as screenshots, archived audits, import/export samples, or generated reports with source evidence should be preserved until their owner confirms they are obsolete.
+
+Privacy-safe fixtures:
+- User activity patterns in tests must be synthetic and shaped from canonical contracts in `src/lib/testing/canonical-test-factories.ts`, analytics event envelopes, identity handoff, person metrics, behavioral facts, and privacy lifecycle modules.
+- Raw live user activity must not become fixture content. Avoid real emails, direct identifiers, phone numbers, payment/provider IDs, raw contact details, private media URLs, chat bodies, secrets, and sensitive telemetry.
+- Prefer reserved fake IDs and domains such as `fixture_user_001`, `fixture_guest_001`, and `example.test`.
+- Label evidence boundaries as fixture-only, source-only, runtime-like, provider-like, admin-like, operator-like, redacted runtime snapshot, or formal provider/runtime proof. Mocks and fixtures never clear provider/runtime/admin proof gates.
+- Preserve missing-vs-zero truth: use collecting, source_missing, bridge_missing, materializer_missing, permission_blocked, or provenZero rather than displaying zero without a bounded source window.
+
 Rebuild local indexes:
 
 ```bash
@@ -81,3 +94,4 @@ Fast-path rule:
 - Use `agent:fast-start` at the start of narrow or moderate implementation work.
 - Use `agent:verify` when the touched files are already known and you only need the fast vs signoff lane split.
 - Keep fast-loop verification narrow; reserve continuity, UI audits, and other broad lanes for signoff unless the selector marks them as required.
+- Prefer targeted `git ls-files` and `rg` searches with excludes for replaceable artifacts. Avoid full `npm run check`, Playwright, Cypress, Lighthouse, provider-connected checks, and deployment checks unless the task explicitly requires that signoff lane.

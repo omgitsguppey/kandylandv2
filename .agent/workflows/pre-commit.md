@@ -16,23 +16,24 @@ Run these checks before every `git commit` and `git push` to catch build-breakin
 - Run `git status --short`
 - Run `npm run trace:adjacent -- <path>` for the main touched files
 
-2. Run the canonical repo gate.
+2. Run the light local gate first.
 
 ```bash
-corepack pnpm run check
+npm run typecheck
+npm run lint
 ```
 
-3. Run targeted tests for isolated changes, or the full test sweep for broad changes.
+3. Run targeted tests for isolated changes, or the full test sweep only for broad changes.
 
 ```bash
-# Fast: Runs only tests related to your modified file (< 2s)
+# Fast: runs tests related to the modified file when the selector can map it
 npm run agent:test <path>
 
-# Slow: Runs the full test sweep for cross-cutting changes (~60s)
+# Slow: broad signoff for cross-cutting changes
 npx vitest run
 ```
 
-4. Run the surface-specific gates when the touched files require them.
+4. Run the surface-specific gates only when the touched files require them.
 
 - UI changed:
 
@@ -64,10 +65,13 @@ This saves full output to `build.log`.
 
 7. Ensure all modified UI components have their accompanying test assertions updated if copy or layout was changed. DO NOT skip test suite failures.
 
-8. Only commit if the required checks for the touched surfaces pass, and only after the audit file has been updated at the start and at the end.
+8. Use full repo checks as signoff-only for broad, release-risk, package/lockfile, deployment, Firebase, provider, or governance changes. Do not use full `npm run check`, Playwright, Cypress, Lighthouse, provider-connected checks, or deploy commands as the default edit loop.
+
+9. Only commit if the required checks for the touched surfaces pass, and only after required memory/audit files have been updated for that lane.
 
 ```bash
-git add -A
+git add -- <explicit-paths>
+# or use: git add -p
 git commit -m "your message"
 git push
 ```
@@ -76,7 +80,10 @@ git push
 
 | Script | Purpose |
 |---|---|
-| `corepack pnpm run check` | Canonical repo gate: typecheck, ESLint, architecture, telemetry semantics, Firebase runtime, and contract tests |
+| `npm run typecheck` | Fast TypeScript sanity for most code changes |
+| `npm run lint` | Fast lint sanity when lint is part of the touched lane |
+| `npm run agent:test <path>` | Targeted test selection for narrow changes |
+| `npm run check` | Broad signoff gate for explicit broad/release-risk work, not the default edit loop |
 | `npx vitest run` | Full unit/contract test sweep for broad changes |
 | `npm run check:ui:audits` | Playwright accessibility and visual regression audits |
 | `npm run check:ui:lighthouse` | Local mobile Lighthouse audit |

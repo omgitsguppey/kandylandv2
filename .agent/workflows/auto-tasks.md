@@ -2,41 +2,58 @@
 description: "Auto-run standard project commands"
 ---
 
-// turbo-all
+// light-default
+
+Default to the light path. Use broad checks only when the task is broad, release-risk, or the verification selector explicitly marks them as signoff-required.
 
 1. Check git status:
    `git status --short`
 
-2. Check codebase inventory:
+2. Generate compact task context for narrow or moderate work:
+   `npm run agent:fast-start -- --task "<task description>" --mode=<mode> --file=<path>`
+
+3. Resolve verification lanes for known touched files:
+   `npm run agent:verify -- --paths=<path1,path2>`
+
+4. Search narrowly before escalating:
+   `git ls-files`
+   `rg "<pattern>" --glob "!node_modules/**" --glob "!.next/**" --glob "!coverage/**" --glob "!playwright-report/**" --glob "!test-results/**" --glob "!lighthouse-results/**"`
+
+5. Run fast local sanity:
+   `npm run typecheck`
+   `npm run lint`
+
+6. Run task-scoped tests or validators:
+   `npm run agent:test -- <path>`
+   `npm run <task-specific-check>`
+
+7. Signoff-only checks for broad or release-risk work:
    `npm run check:inventory`
-
-3. Check architecture rules:
    `npm run check:architecture`
+   `npm run check:continuity`
+   `npm run test:contracts`
 
-4. Check dependency cycles:
-   `npm run check:cycles`
-
-5. Run full repo verification:
+8. Browser/provider/deploy-gated checks only when explicitly required:
+   `npm run check:ui:audits`
+   `npm run check:ui:lighthouse`
+   `npm run check:firebase:rules`
    `npm run check`
 
-6. Run continuity verification:
-   `npm run check:continuity`
-
-7. Build Storybook when UI tooling changes:
+9. Build Storybook when UI tooling changes:
    `npm run build-storybook`
 
-8. Audit telemetry and analytics semantics:
+10. Audit telemetry and analytics semantics when telemetry/analytics changed:
    `npm run check:telemetry`
    `npm run check:analytics-semantics`
 
-9. Trace adjacent surfaces before broad audits:
+11. Trace adjacent surfaces before broad audits:
    `npm run trace:adjacent -- <path>`
 
-10. Run targeted verification for touched analytics and admin surfaces:
+12. Run targeted verification for touched analytics and admin surfaces:
    `npm run agent:test <path>`
    `npm --prefix functions run check`
 
-11. Run warning-focused dependency and tooling verification when cleanup touches packages or lockfiles:
+13. Run warning-focused dependency and tooling verification when cleanup touches packages or lockfiles:
    `npm run check:deps`
 
 19. Reconcile open PRs against current repo truth:
@@ -73,7 +90,7 @@ description: "Auto-run standard project commands"
    `gh pr checks <number>`
    `gh pr close <number> --comment <reason>`
    `gh pr merge <number> --merge --delete-branch`
-   `git add -A`
+   `git add -- <explicit-paths>` or `git add -p`
    `git commit -m <message>`
    `git push origin <branch>:main`
 
