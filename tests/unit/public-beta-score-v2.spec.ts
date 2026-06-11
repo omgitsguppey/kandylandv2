@@ -8,11 +8,13 @@ import { buildPublicBetaCommandBudget } from "@/lib/agent-score/reporting";
 
 const freshRequiredReports: PublicBetaEvidenceInput["requiredReports"] = [{
   path: "agent/state/source-truth-authority-map.generated.json",
-  generatedAt: "2026-05-19T12:00:00.000Z",
+  generatedAt: new Date().toISOString(),
   freshness: "fresh",
   sourceCommit: "head",
   currentHead: "head",
 }];
+
+const freshGeneratedAtUtc = new Date().toISOString();
 
 const formalPassedEvidence = {
   targetedBehaviorEvidence: {
@@ -21,7 +23,7 @@ const formalPassedEvidence = {
     passed: true,
     detail: "Targeted behavior validators passed.",
     evidence: ["targetedBehavior.status=passed"],
-    generatedAtUtc: "2026-05-19T12:00:00.000Z",
+    generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
   },
   visualManualEvidence: {
@@ -30,7 +32,7 @@ const formalPassedEvidence = {
     passed: true,
     detail: "Formal manual visual evidence attached.",
     evidence: ["manualSmoke=passed"],
-    generatedAtUtc: "2026-05-19T12:00:00.000Z",
+    generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
   },
   providerSmokeEvidence: {
@@ -39,7 +41,7 @@ const formalPassedEvidence = {
     passed: true,
     detail: "Formal provider smoke passed.",
     evidence: ["formal_provider_smoke_passed"],
-    generatedAtUtc: "2026-05-19T12:00:00.000Z",
+    generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
   },
   runtimeSmokeEvidence: {
@@ -48,7 +50,16 @@ const formalPassedEvidence = {
     passed: true,
     detail: "Formal runtime smoke passed.",
     evidence: ["formal_runtime_smoke_passed"],
-    generatedAtUtc: "2026-05-19T12:00:00.000Z",
+    generatedAtUtc: freshGeneratedAtUtc,
+    sourceCommit: "head",
+  },
+  sourceBackedRuntimeConfidenceEvidence: {
+    path: "agent/state/source-backed-runtime-confidence.generated.json",
+    status: "source_ready_runtime_confidence",
+    passed: true,
+    detail: "Source-backed runtime confidence is current.",
+    evidence: ["sourceBackedRuntimeConfidence=100"],
+    generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
   },
   adminTruthSampleEvidence: {
@@ -57,7 +68,16 @@ const formalPassedEvidence = {
     passed: true,
     detail: "Fresh admin truth sample attached.",
     evidence: ["formal_admin_truth_sample_passed", "sampleCount=1"],
-    generatedAtUtc: "2026-05-19T12:00:00.000Z",
+    generatedAtUtc: freshGeneratedAtUtc,
+    sourceCommit: "head",
+  },
+  behaviorMathEvidence: {
+    path: "agent/state/behavior-math-verification.generated.json",
+    status: "source_ready_behavior_math",
+    passed: true,
+    detail: "Behavior math source evidence is current.",
+    evidence: ["source_ready_behavior_math"],
+    generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
   },
 };

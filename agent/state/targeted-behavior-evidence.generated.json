@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-06-03T16:31:44.960Z",
+  "generatedAtUtc": "2026-06-11T22:58:29.689Z",
   "reportKey": "targeted-behavior-evidence",
   "status": "passed",
   "overallStatus": "passed",
   "passed": true,
-  "sourceCommit": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
-  "latestCodeVersion": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
-  "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
+  "sourceCommit": "1719f615428f19eb14c00742a73b2fe966670c53",
+  "latestCodeVersion": "1719f615428f19eb14c00742a73b2fe966670c53",
+  "currentHead": "1719f615428f19eb14c00742a73b2fe966670c53",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
@@ -35,7 +35,7 @@
         "overnight-wiring-integrity",
         "mobile-ui-final-lock"
       ],
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84"
+      "currentHead": "70a1e9fc52300814a6b66f7dbeb04a8a35e17b48"
     },
     {
       "id": "media-discovery-score-lock",
@@ -146,7 +146,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84"
+      "currentHead": "c755f63fefff812038edb484ff5577fea601631c"
     },
     {
       "id": "final-testing-tracking-telemetry-lock",
@@ -251,7 +251,7 @@
         "user-loading-wallet-mobile-refinement",
         "mobile-ui-final-lock"
       ],
-      "currentHead": "5e5f33ff72d513742ccfce8c32a5a1c416afd5f9"
+      "currentHead": "c5e5f6fccd93481f42b0da25a10f85ae0df6f0a8"
     },
     {
       "id": "role-permission-parity",
@@ -269,7 +269,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "d11f133f925ed09141b89633d5ebaff72e38eb55"
+      "currentHead": "c5e5f6fccd93481f42b0da25a10f85ae0df6f0a8"
     }
   ],
   "commands": [

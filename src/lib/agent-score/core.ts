@@ -707,7 +707,15 @@ export function buildPublicBetaEvidenceGates(input: {
       : evidence.openPrTriageFresh === false
         ? describeFreshnessState({ openPrTriageFresh: false }).userMessage
         : reportEvidence.detail;
-  const targetedBehaviorPassed = evidenceArtifactPassed(evidence.targetedBehaviorEvidence);
+  const targetedQuality = resolveEvidenceQuality({
+    artifact: evidence.targetedBehaviorEvidence,
+    context: {
+      currentHead,
+      lane: "targeted_behavior",
+      requiredForExit: false,
+    },
+  });
+  const targetedBehaviorPassed = targetedQuality.quality === "formal_passed";
   const targetedBehaviorDetail = evidenceArtifactDetail(
     evidence.targetedBehaviorEvidence,
     targetedBehaviorPassed
@@ -717,14 +725,6 @@ export function buildPublicBetaEvidenceGates(input: {
   const targetedBehaviorEvidence = evidence.targetedBehaviorEvidence
     ? evidenceArtifactEvidence(evidence.targetedBehaviorEvidence)
     : ["targetedBehaviorArtifactStatus=missing_formal_evidence"];
-  const targetedQuality = resolveEvidenceQuality({
-    artifact: evidence.targetedBehaviorEvidence,
-    context: {
-      currentHead,
-      lane: "targeted_behavior",
-      requiredForExit: false,
-    },
-  });
 
   const providerQuality = resolveEvidenceQuality({
     artifact: evidence.providerSmokeEvidence,

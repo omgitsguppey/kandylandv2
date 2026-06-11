@@ -1,6 +1,6 @@
 # Evidence Freshness Index
 
-Generated: 2026-06-11T22:44:36.545Z
+Generated: 2026-06-11T22:58:35.820Z
 
 Generated reports are evidence snapshots only. Stale, missing, runtime, provider, or admin-truth evidence cannot be treated as current app truth by this source-only lane.
 
@@ -10,7 +10,7 @@ Generated reports are evidence snapshots only. Stale, missing, runtime, provider
 - Indexed artifacts: 160
 - Omitted artifacts: 498
 - Blocking artifacts: 0
-- Stale consumed artifacts: 464
+- Stale consumed artifacts: 463
 - External proof required: 5
 - Manual/admin truth required: 2
 

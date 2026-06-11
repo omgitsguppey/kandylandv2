@@ -10,8 +10,8 @@ This artifact records source-backed targeted behavior validator results from the
 
 ## Summary
 
-- Source commit: `8aa6201b66ffda8c5ad9e9150e56615990547f6d`
-- Latest code version: `8aa6201b66ffda8c5ad9e9150e56615990547f6d`
+- Source commit: `1719f615428f19eb14c00742a73b2fe966670c53`
+- Latest code version: `1719f615428f19eb14c00742a73b2fe966670c53`
 - Passed: true
 - Formal evidence impact: `source_behavior_only`
 - Does not clear: `manual_screenshot`, `provider_smoke`, `runtime_smoke`, `admin_truth_sample`
