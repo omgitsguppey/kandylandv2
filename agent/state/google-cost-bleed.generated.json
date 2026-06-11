@@ -1,8 +1,8 @@
 {
   "score": 100,
   "status": "clean",
-  "generatedAt": "2026-06-03T04:38:48.972Z",
-  "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
+  "generatedAt": "2026-06-11T22:35:31.374Z",
+  "repoRoot": "C:\\Users\\uylus\\Documents\\KandyDrops_Final",
   "findings": [],
   "criticalCount": 0,
   "majorCount": 0,
@@ -5715,7 +5715,7 @@
     },
     {
       "filePath": "src/context/AuthContext.tsx",
-      "line": 605,
+      "line": 658,
       "excerpt": "const { doc, onSnapshot } = await import(\"firebase/firestore\");",
       "kind": "firestore-client"
     },
@@ -5751,7 +5751,7 @@
     },
     {
       "filePath": "src/lib/admin-debug-control-tower.ts",
-      "line": 217,
+      "line": 267,
       "excerpt": "{ id: \"sql-mirror\", label: \"Data Connect Mirror\", section: \"money_cost\", fileName: \"data-connect-mirror-status.generated.json\", command: \"npm run check:data-connect-mirror-status\" },",
       "kind": "data-connect"
     },
@@ -5805,7 +5805,7 @@
     },
     {
       "filePath": "src/lib/analytics/legacy-history-reconciler.ts",
-      "line": 341,
+      "line": 506,
       "excerpt": "action: \"No SQL or Data Connect calls are used for legacy history recovery.\",",
       "kind": "data-connect"
     },
@@ -5858,14 +5858,20 @@
       "kind": "cloud-sql"
     },
     {
+      "filePath": "src/lib/config-hardening/config-env-contract.ts",
+      "line": 154,
+      "excerpt": "doesNotProve: \"The env contract proves variable registration and redaction boundaries only. It does not prove credentials are present, valid, deployed, or accepted by Firebase, PayPal, Google, GA4, BigQuery, Vertex, Cloud SQL, or other providers.\",",
+      "kind": "cloud-sql"
+    },
+    {
       "filePath": "src/lib/cost/billing-spike-contract.ts",
-      "line": 414,
+      "line": 445,
       "excerpt": "billingProducts: [\"Cloud SQL\", \"Data Connect\", \"BigQuery jobs\", \"Firestore import/export operations\"],",
       "kind": "data-connect"
     },
     {
       "filePath": "src/lib/cost/billing-spike-contract.ts",
-      "line": 414,
+      "line": 445,
       "excerpt": "billingProducts: [\"Cloud SQL\", \"Data Connect\", \"BigQuery jobs\", \"Firestore import/export operations\"],",
       "kind": "cloud-sql"
     },
@@ -5972,18 +5978,6 @@
       "kind": "firebase-admin"
     },
     {
-      "filePath": "src/lib/release-notes/public-release-notes.ts",
-      "line": 531,
-      "excerpt": "\"Kept Cloud Run, Cloud SQL/Data Connect, Gemini/Vertex, and billing proof as owner-review requirements.\",",
-      "kind": "data-connect"
-    },
-    {
-      "filePath": "src/lib/release-notes/public-release-notes.ts",
-      "line": 531,
-      "excerpt": "\"Kept Cloud Run, Cloud SQL/Data Connect, Gemini/Vertex, and billing proof as owner-review requirements.\",",
-      "kind": "cloud-sql"
-    },
-    {
       "filePath": "src/lib/release-readiness/final-beta-exit-closure.ts",
       "line": 504,
       "excerpt": "exactArtifactRequired: \"External billing review note for Cloud Run/App Hosting, Firestore, BigQuery/export, Cloud SQL/Data Connect, and AI surfaces.\",",
@@ -5997,13 +5991,13 @@
     },
     {
       "filePath": "src/lib/release-readiness/final-release-readiness.ts",
-      "line": 768,
+      "line": 826,
       "excerpt": "nextExactAction: \"Complete external billing review for Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx lanes.\",",
       "kind": "data-connect"
     },
     {
       "filePath": "src/lib/release-readiness/final-release-readiness.ts",
-      "line": 768,
+      "line": 826,
       "excerpt": "nextExactAction: \"Complete external billing review for Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx lanes.\",",
       "kind": "cloud-sql"
     },
@@ -6123,7 +6117,7 @@
     },
     {
       "filePath": "src/lib/server/ai-drop-covers.ts",
-      "line": 66,
+      "line": 64,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "admin-storage"
     },
@@ -6201,7 +6195,7 @@
     },
     {
       "filePath": "src/lib/server/chat.ts",
-      "line": 53,
+      "line": 52,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -6561,25 +6555,25 @@
     },
     {
       "filePath": "scripts/agent/build-agent-indexes.ts",
-      "line": 129,
+      "line": 147,
       "excerpt": "combined.includes(\"RTDB\") || combined.includes(\"Data Connect\") ? { stable_id: toStableId(\"pitfall\", \"sidecar_truth_confusion\"), title: \"sidecar_truth_confusion\", description: \"Fallback, RTDB, or Data Connect sidecars can be mistaken for canonical serving truth when they are not current in-repo readers.\", symptom_pattern: \"Sidecar/export layers are treated as if they are the main product-serving analytics source.\", affected_surfaces: [\"src/lib/server/admin-analytics-shared.ts\", \"src/app/api/telemetry/track/route.ts\", \"functions/src/**\"], prevention_rule: \"Do not represent fallback or derived data as stronger truth than source truth.\", detection_hint: \"Check whether the candidate storage layer has a verified in-repo reader before treating it as canonical.\", related_commands: [\"npm run check:analytics-semantics\"], related_helpers: [\"src/lib/telemetry.ts\"], severity: \"high\", broad_work_relevance: true } : null,",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/build-compact-agent-context.ts",
-      "line": 270,
+      "line": 269,
       "excerpt": "rules: [\"Google cost-bearing surfaces must be declared before use.\", \"Data Connect remains an agent-context mirror unless explicitly promoted.\", \"Provider jobs and deploy commands are documentation-only unless a human promotes them.\"],",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/build-compact-agent-context.ts",
-      "line": 271,
+      "line": 270,
       "excerpt": "blockedPatterns: [\"undocumented Cloud SQL runtime path\", \"BigQuery mutates runtime balances\", \"gcloud deploy from audit lane\"],",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/check-agent-context.ts",
-      "line": 74,
+      "line": 81,
       "excerpt": "assert(fileExists(\"dataconnect/schema/agent-context.gql\"), \"Missing Data Connect schema for agent context mirror.\");",
       "kind": "data-connect"
     },
@@ -6639,31 +6633,31 @@
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 326,
+      "line": 325,
       "excerpt": "line: lineOf(source, \"@google-cloud/vertexai\"),",
       "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 302,
+      "line": 301,
       "excerpt": "title: \"Runtime SQL/Data Connect usage appears outside the approved agent mirror\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 304,
+      "line": 303,
       "excerpt": "expectedRule: \"Data Connect/Cloud SQL is allowed only for agent-context mirror paths unless a route contract explicitly approves runtime usage.\",",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 294,
+      "line": 293,
       "excerpt": "const hasRuntimeSqlClient = /(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 294,
+      "line": 293,
       "excerpt": "const hasRuntimeSqlClient = /(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "mysql"
     },
@@ -6747,37 +6741,37 @@
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 995,
+      "line": 994,
       "excerpt": "line: lineOf(source, \"@google-cloud/vertexai\") ?? lineOf(source, \"BetaAnalyticsDataClient\") ?? lineOf(source, \"GoogleAuth\"),",
       "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 590,
+      "line": 589,
       "excerpt": "if (/adminStorage|storage\\.bucket|bucket\\(/u.test(source) && !/entitlement|unlocked|owner|participant|MEDIA_PROXY|media_proxy|requireAdmin/u.test(source)) {",
       "kind": "admin-storage"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 939,
+      "line": 938,
       "excerpt": "title: \"Runtime SQL/Data Connect usage appears outside approved agent mirror\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 940,
+      "line": 939,
       "excerpt": "evidence: [\"Firebase Data Connect/Cloud SQL is allowed only for agent-context mirror infrastructure unless explicitly contracted.\"],",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 932,
+      "line": 931,
       "excerpt": "if (/(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 932,
+      "line": 931,
       "excerpt": "if (/(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "mysql"
     },
@@ -6825,7 +6819,7 @@
     },
     {
       "filePath": "scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts",
-      "line": 64,
+      "line": 71,
       "excerpt": "- Cloud SQL status: ${report.summary.cloudSqlStatus}",
       "kind": "cloud-sql"
     },
@@ -6933,13 +6927,13 @@
     },
     {
       "filePath": "scripts/agent/validate-cost-export-sql-parity-math.ts",
-      "line": 286,
+      "line": 287,
       "excerpt": "\"- SQL/Data Connect mirror sync is manual and cost-approved only.\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-cost-export-sql-parity-math.ts",
-      "line": 406,
+      "line": 407,
       "excerpt": "\"Cloud Run/App Hosting, Cloud SQL/Data Connect, and Gemini/Cloud Assist/Vertex still need external billing artifacts for full credit.\",",
       "kind": "cloud-sql"
     },
@@ -7011,7 +7005,7 @@
     },
     {
       "filePath": "scripts/agent/validate-external-analytics-truth-closure.ts",
-      "line": 168,
+      "line": 167,
       "excerpt": "ga4ServerDataApiDependencyPresent: packageJson.includes(\"@google-analytics/data\"),",
       "kind": "ga-data-api"
     },
@@ -7029,13 +7023,13 @@
     },
     {
       "filePath": "scripts/agent/validate-final-math-normalization-lock.ts",
-      "line": 475,
+      "line": 476,
       "excerpt": "\"Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx cost lanes retain external review requirements where no billing artifact exists.\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-final-math-normalization-lock.ts",
-      "line": 475,
+      "line": 476,
       "excerpt": "\"Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx cost lanes retain external review requirements where no billing artifact exists.\",",
       "kind": "cloud-sql"
     },
@@ -7047,7 +7041,7 @@
     },
     {
       "filePath": "scripts/agent/validate-ga4-recovery-truth.ts",
-      "line": 145,
+      "line": 171,
       "excerpt": "serverDataApiDependencyPresent: packageJson.includes(\"@google-analytics/data\"),",
       "kind": "ga-data-api"
     },
@@ -7071,7 +7065,7 @@
     },
     {
       "filePath": "scripts/agent/validate-guest-user-identity-transfer.ts",
-      "line": 138,
+      "line": 144,
       "excerpt": "action: \"Keep Cloud SQL out of analytics identity transfer unless a future explicit runtime promotion exists.\",",
       "kind": "cloud-sql"
     },
@@ -7191,7 +7185,7 @@
     },
     {
       "filePath": "scripts/agent/validate-telemetry-dependency-graph.ts",
-      "line": 303,
+      "line": 369,
       "excerpt": "prCleanupActions: [\"No open telemetry/analytics/GA4/BigQuery/Firebase/Data Connect/admin analytics PRs were present at start.\"],",
       "kind": "data-connect"
     },

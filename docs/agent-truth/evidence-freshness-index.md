@@ -1,6 +1,6 @@
 # Evidence Freshness Index
 
-Generated: 2026-06-08T19:25:35.765Z
+Generated: 2026-06-11T22:36:57.781Z
 
 Generated reports are evidence snapshots only. Stale, missing, runtime, provider, or admin-truth evidence cannot be treated as current app truth by this source-only lane.
 
@@ -9,34 +9,24 @@ Generated reports are evidence snapshots only. Stale, missing, runtime, provider
 - Artifacts scanned: 658
 - Indexed artifacts: 160
 - Omitted artifacts: 498
-- Blocking artifacts: 11
-- Stale consumed artifacts: 582
+- Blocking artifacts: 0
+- Stale consumed artifacts: 464
 - External proof required: 5
 - Manual/admin truth required: 2
 
 ## Actionability
 
-- refreshable_by_existing_local_validator: 11
+- refreshable_by_existing_local_validator: 0
 - external_proof_required: 5
 - manual_admin_truth_required: 2
-- archive_evidence_only: 0
+- archive_evidence_only: 137
 - stale_consumed_blocking: 0
 - missing_expected_blocking: 0
-- no_action_required: 640
+- no_action_required: 514
 
 ## Blocking Artifacts
 
-- agent/state/codebase-hardening.generated.json: refreshable_by_existing_local_validator; Run npm run check:hardening to refresh agent/state/codebase-hardening.generated.json.
-- agent/state/speed-security-hardening.generated.json: refreshable_by_existing_local_validator; Run npm run check:speed-security to refresh agent/state/speed-security-hardening.generated.json.
-- agent/state/cloudrun-sql-bigquery-guardrails.generated.json: refreshable_by_existing_local_validator; Run npm run check:cloud-cost to refresh agent/state/cloudrun-sql-bigquery-guardrails.generated.json.
-- agent/state/content-protection-score.generated.json: refreshable_by_existing_local_validator; Run npm run check:content-protection to refresh agent/state/content-protection-score.generated.json.
-- agent/state/device-ui-dry-audit.generated.json: refreshable_by_existing_local_validator; Run npm run check:device-ui to refresh agent/state/device-ui-dry-audit.generated.json.
-- agent/state/gumdrop-economy-score.generated.json: refreshable_by_existing_local_validator; Run npm run check:gumdrop-economy to refresh agent/state/gumdrop-economy-score.generated.json.
-- agent/state/monolith-orphan-metric-registry.generated.json: refreshable_by_existing_local_validator; Run npm run check:monolith-orphan-metric-registry to refresh agent/state/monolith-orphan-metric-registry.generated.json.
-- agent/state/behavior-math-verification.generated.json: refreshable_by_existing_local_validator; Run npm run check:behavior-math-verification to refresh agent/state/behavior-math-verification.generated.json.
-- agent/state/telemetry-parity-score.generated.json: refreshable_by_existing_local_validator; Run npm run check:telemetry-parity-score to refresh agent/state/telemetry-parity-score.generated.json.
-- agent/state/self-healing-refresh-queue.generated.json: refreshable_by_existing_local_validator; Run npm run check:self-healing-refresh-queue to refresh agent/state/self-healing-refresh-queue.generated.json.
-- agent/state/google-cost-bleed.generated.json: refreshable_by_existing_local_validator; Run npm run check:google-cost to refresh agent/state/google-cost-bleed.generated.json.
+- None
 
 ## Formal Evidence Gates
 

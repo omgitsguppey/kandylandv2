@@ -1,7 +1,7 @@
 # treasury-reconciliation-engine
 
-Generated: 2026-05-27T06:02:04.105Z
-Current head: ee6aa4618401cd53b9b98dcaa8226964e506711c
+Generated: 2026-06-11T22:33:04.281Z
+Current head: 901fbd46540e591a4e16c16d748030d0b3e7534a
 Status: pass
 
 ## Summary

@@ -1,6 +1,6 @@
 {
   "reportKey": "evidence-freshness-index",
-  "generatedAtUtc": "2026-06-08T19:25:35.765Z",
+  "generatedAtUtc": "2026-06-11T22:36:57.781Z",
   "doctrine": {
     "generatedReportsAreTruth": false,
     "defaultStaleAfterHours": 24,
@@ -11,414 +11,44 @@
     "artifactCount": 658,
     "indexedArtifactCount": 160,
     "omittedArtifactCount": 498,
-    "blockingCount": 11,
-    "staleConsumedCount": 582,
+    "blockingCount": 0,
+    "staleConsumedCount": 464,
     "missingExpectedCount": 0,
     "externalProofRequiredCount": 5,
     "manualProofRequiredCount": 2,
-    "archiveCandidateCount": 0,
+    "archiveCandidateCount": 135,
     "byClassification": {
-      "fresh_and_consumed": 69,
-      "fresh_but_unused": 0,
-      "stale_harmless": 0,
-      "stale_consumed": 582,
+      "fresh_and_consumed": 43,
+      "fresh_but_unused": 7,
+      "stale_harmless": 2,
+      "stale_consumed": 464,
       "missing_expected": 0,
       "manual_proof_required": 2,
       "external_proof_required": 5,
-      "archive_candidate": 0
+      "archive_candidate": 135
     },
     "byActionability": {
-      "refreshable_by_existing_local_validator": 11,
+      "refreshable_by_existing_local_validator": 0,
       "external_proof_required": 5,
       "manual_admin_truth_required": 2,
-      "archive_evidence_only": 0,
+      "archive_evidence_only": 137,
       "stale_consumed_blocking": 0,
       "missing_expected_blocking": 0,
-      "no_action_required": 640
+      "no_action_required": 514
     }
   },
-  "blockingArtifacts": [
-    {
-      "path": "agent/state/codebase-hardening.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T18:38:57.872Z",
-      "ageHours": 360.8,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:hardening",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch10-shared.ts",
-        "scripts/agent/debug-cockpit-batch14-shared.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:hardening to refresh agent/state/codebase-hardening.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/speed-security-hardening.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T18:38:26.973Z",
-      "ageHours": 360.8,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:speed-security",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch10-shared.ts",
-        "scripts/agent/debug-cockpit-batch14-shared.ts",
-        "scripts/agent/debug-cockpit-batch9-shared.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:speed-security to refresh agent/state/speed-security-hardening.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T18:57:42.437Z",
-      "ageHours": 360.5,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:cloud-cost",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:cloud-cost to refresh agent/state/cloudrun-sql-bigquery-guardrails.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/content-protection-score.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T19:13:43.717Z",
-      "ageHours": 360.2,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:content-protection",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch12-shared.ts",
-        "scripts/agent/score-content-protection.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:content-protection to refresh agent/state/content-protection-score.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/device-ui-dry-audit.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T19:13:43.693Z",
-      "ageHours": 360.2,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:device-ui",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch12-shared.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-debug-panel-output-triage.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:device-ui to refresh agent/state/device-ui-dry-audit.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/gumdrop-economy-score.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T19:14:40.468Z",
-      "ageHours": 360.2,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:gumdrop-economy",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch12-shared.ts",
-        "scripts/agent/debug-cockpit-batch22-commerce-shared.ts",
-        "scripts/agent/score-gumdrop-economy.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:gumdrop-economy to refresh agent/state/gumdrop-economy-score.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T19:58:07.813Z",
-      "ageHours": 359.5,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:monolith-orphan-metric-registry",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/validate-final-algorithmic-debug-lock.ts",
-        "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
-        "scripts/agent/validate-monolith-orphan-metric-registry.ts",
-        "src/lib/admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:monolith-orphan-metric-registry to refresh agent/state/monolith-orphan-metric-registry.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/behavior-math-verification.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-25T08:20:24.583Z",
-      "ageHours": 347.1,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:behavior-math-verification",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-algorithmic-evidence-policy.ts",
-        "scripts/agent/validate-behavior-math-verification.ts",
-        "scripts/agent/validate-final-algorithmic-debug-lock.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:behavior-math-verification to refresh agent/state/behavior-math-verification.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/telemetry-parity-score.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-25T08:23:24.097Z",
-      "ageHours": 347,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:telemetry-parity-score",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/control-tower-cleanup-shared.ts",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/score-telemetry-parity.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:telemetry-parity-score to refresh agent/state/telemetry-parity-score.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/self-healing-refresh-queue.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-26T04:08:22.922Z",
-      "ageHours": 327.3,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:self-healing-refresh-queue",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch10-shared.ts",
-        "scripts/agent/debug-cockpit-batch14-shared.ts",
-        "scripts/agent/debug-cockpit-batch9-shared.ts",
-        "scripts/agent/validate-algorithmic-evidence-policy.ts",
-        "scripts/agent/validate-blocked-refresh-queue-resolver.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:self-healing-refresh-queue to refresh agent/state/self-healing-refresh-queue.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/google-cost-bleed.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-06-03T04:38:48.972Z",
-      "ageHours": 134.8,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:google-cost",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/score-google-cost-bleed.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:google-cost to refresh agent/state/google-cost-bleed.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    }
-  ],
+  "blockingArtifacts": [],
   "externalProofRequired": [
     {
       "path": "agent/state/runtime-smoke-harness.generated.json",
       "classification": "external_proof_required",
       "actionability": "external_proof_required",
       "generatedAtUtc": "2026-06-01T00:00:56.708Z",
-      "ageHours": 187.4,
+      "ageHours": 262.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:runtime-smoke-harness",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json"
-      ],
-      "consumedBy": [
-        "agent_context"
-      ],
+      "consumerPaths": [],
+      "consumedBy": [],
       "required": false,
       "exists": true,
       "blocking": false,
@@ -434,21 +64,18 @@
       "classification": "external_proof_required",
       "actionability": "external_proof_required",
       "generatedAtUtc": "2026-06-03T04:45:43.621Z",
-      "ageHours": 134.7,
+      "ageHours": 209.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:runtime-smoke-substitute-matrix",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/score-public-beta-readiness.ts",
         "scripts/agent/validate-algorithmic-evidence-policy.ts",
         "scripts/agent/validate-formal-evidence-bridge.ts",
-        "scripts/agent/validate-new-additions-score-coverage.ts"
+        "scripts/agent/validate-new-additions-score-coverage.ts",
+        "scripts/agent/validate-runtime-smoke-substitute-matrix.ts",
+        "scripts/agent/validate-score-80-reconciliation-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -466,21 +93,20 @@
       "classification": "external_proof_required",
       "actionability": "external_proof_required",
       "generatedAtUtc": "2026-06-03T18:49:41.280Z",
-      "ageHours": 120.6,
+      "ageHours": 195.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:runtime-smoke-evidence",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/control-tower-cleanup-shared.ts",
         "scripts/agent/score-public-beta-readiness.ts",
         "scripts/agent/tracking-summary-lane-cleanup-shared.ts",
         "scripts/agent/validate-ai-critic-p1-triage.ts",
-        "scripts/agent/validate-ai-debug-critic.ts"
+        "scripts/agent/validate-ai-debug-critic.ts",
+        "scripts/agent/validate-algorithmic-evidence-policy.ts",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "scripts/agent/validate-debug-panel-output-triage.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -497,21 +123,14 @@
       "path": "agent/state/billing-spike-radar.generated.json",
       "classification": "external_proof_required",
       "actionability": "external_proof_required",
-      "generatedAtUtc": "2026-06-07T23:12:04.256Z",
-      "ageHours": 20.2,
+      "generatedAtUtc": "2026-06-09T04:12:37.621Z",
+      "ageHours": 66.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run score:billing-spikes",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/context/task-pack.generated.json",
-        "agent/index/blast-radius.json",
-        "agent/index/package-manager-truth.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-score-80-cost-readiness.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -528,22 +147,21 @@
       "path": "agent/state/provider-smoke-evidence.generated.json",
       "classification": "external_proof_required",
       "actionability": "external_proof_required",
-      "generatedAtUtc": "2026-06-08T03:52:47.813Z",
-      "ageHours": 15.5,
+      "generatedAtUtc": "2026-06-11T14:40:22.954Z",
+      "ageHours": 7.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:provider-smoke-evidence",
       "consumerPaths": [
-        "agent/context/task-pack.generated.json",
-        "agent/index/blast-radius.json",
-        "agent/index/package-manager-truth.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/score-public-beta-readiness.ts",
         "scripts/agent/validate-ai-critic-p1-triage.ts",
-        "scripts/agent/validate-ai-debug-critic.ts"
+        "scripts/agent/validate-ai-debug-critic.ts",
+        "scripts/agent/validate-algorithmic-evidence-policy.ts",
+        "scripts/agent/validate-beta-evidence-gap-map.ts",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "scripts/agent/validate-debug-panel-output-triage.ts",
+        "scripts/agent/validate-debug-score-impact-triage.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -563,17 +181,11 @@
       "classification": "manual_proof_required",
       "actionability": "manual_admin_truth_required",
       "generatedAtUtc": "2026-05-26T21:09:06.001Z",
-      "ageHours": 310.3,
+      "ageHours": 385.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:operator-final-qa-packet",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json"
-      ],
-      "consumedBy": [
-        "agent_context"
-      ],
+      "consumerPaths": [],
+      "consumedBy": [],
       "required": false,
       "exists": true,
       "blocking": false,
@@ -589,21 +201,20 @@
       "classification": "manual_proof_required",
       "actionability": "manual_admin_truth_required",
       "generatedAtUtc": "2026-06-03T18:49:43.945Z",
-      "ageHours": 120.6,
+      "ageHours": 195.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:admin-truth-sample-evidence",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/control-tower-cleanup-shared.ts",
         "scripts/agent/score-public-beta-readiness.ts",
         "scripts/agent/validate-admin-truth-sample-evidence.ts",
         "scripts/agent/validate-ai-critic-p1-triage.ts",
-        "scripts/agent/validate-ai-debug-critic.ts"
+        "scripts/agent/validate-ai-debug-critic.ts",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "scripts/agent/validate-debug-backlog-engine.ts",
+        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -617,377 +228,775 @@
       ]
     }
   ],
-  "archiveCandidates": [],
+  "archiveCandidates": [
+    {
+      "path": "agent/state/debug-cockpit-batch3-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T16:01:24.977Z",
+      "ageHours": 438.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:debug-cockpit-batch3-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/debug-cockpit-batch3-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/empty-live-lane-status-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T16:01:19.045Z",
+      "ageHours": 438.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:empty-live-lane-status-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/empty-live-lane-status-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/identity-handoff-status-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T16:01:15.176Z",
+      "ageHours": 438.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:identity-handoff-status-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/identity-handoff-status-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/pwa-service-worker-status-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T16:01:13.249Z",
+      "ageHours": 438.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:pwa-service-worker-status-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/pwa-service-worker-status-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/tracking-lane-freshness-display-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T16:01:21.222Z",
+      "ageHours": 438.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:tracking-lane-freshness-display-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/tracking-lane-freshness-display-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/wallet-funnel-sample-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T16:01:17.062Z",
+      "ageHours": 438.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:wallet-funnel-sample-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/wallet-funnel-sample-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/queue-runtime-continuity.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T18:00:00.000Z",
+      "ageHours": 436.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:queue-runtime-continuity",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/queue-runtime-continuity.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch14-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T19:58:02.040Z",
+      "ageHours": 434.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:debug-cockpit-batch14-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/debug-cockpit-batch14-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch15-false-positive-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T20:15:31.100Z",
+      "ageHours": 434.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:debug-cockpit-batch15-false-positive-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/debug-cockpit-batch15-false-positive-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/diagnostics-writer-status-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T20:15:30.724Z",
+      "ageHours": 434.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:diagnostics-writer-status-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/diagnostics-writer-status-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/no-sample-status-classifier.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T20:15:30.639Z",
+      "ageHours": 434.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:no-sample-status-classifier",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/no-sample-status-classifier.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/panel-log-status-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T20:15:30.826Z",
+      "ageHours": 434.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:panel-log-status-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/panel-log-status-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/admin-users-latency-repair.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T21:48:31.352Z",
+      "ageHours": 432.8,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:admin-users-latency-repair",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/admin-users-latency-repair.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/support-threads-index-repair.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T21:48:33.086Z",
+      "ageHours": 432.8,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:support-threads-index-repair",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/support-threads-index-repair.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/tasks-rotate-runtime-repair.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T21:48:29.370Z",
+      "ageHours": 432.8,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:tasks-rotate-runtime-repair",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/tasks-rotate-runtime-repair.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/user-checkin-route-error-mapping.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T21:48:36.751Z",
+      "ageHours": 432.8,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:user-checkin-route-error-mapping",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/user-checkin-route-error-mapping.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/viewer-watch-session-error-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T21:48:34.792Z",
+      "ageHours": 432.8,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:viewer-watch-session-error-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/viewer-watch-session-error-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/ai-description-feedback-firestore-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:10:20.155Z",
+      "ageHours": 432.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:ai-description-feedback-firestore-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/ai-description-feedback-firestore-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/cron-route-stale-failure-classification.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:10:23.768Z",
+      "ageHours": 432.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:cron-route-stale-failure-classification",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/cron-route-stale-failure-classification.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/no-sample-route-cohort-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:10:27.335Z",
+      "ageHours": 432.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:no-sample-route-cohort-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/no-sample-route-cohort-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/payment-route-stale-evidence-classification.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:10:25.582Z",
+      "ageHours": 432.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:payment-route-stale-evidence-classification",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/payment-route-stale-evidence-classification.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/stale-route-grouping-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:10:29.083Z",
+      "ageHours": 432.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:stale-route-grouping-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/stale-route-grouping-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/support-route-stale-index-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:10:21.847Z",
+      "ageHours": 432.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:support-route-stale-index-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/support-route-stale-index-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch21-no-sample-routes.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:24:35.923Z",
+      "ageHours": 432.2,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:debug-cockpit-batch21-no-sample-routes",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/debug-cockpit-batch21-no-sample-routes.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/high-risk-no-sample-route-smoke-plan.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:24:23.672Z",
+      "ageHours": 432.2,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:high-risk-no-sample-route-smoke-plan",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/high-risk-no-sample-route-smoke-plan.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/no-sample-route-cohort-finalization.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:24:10.658Z",
+      "ageHours": 432.2,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:no-sample-route-cohort-finalization",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/no-sample-route-cohort-finalization.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/no-sample-route-display-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:24:16.957Z",
+      "ageHours": 432.2,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:no-sample-route-display-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/no-sample-route-display-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/optional-manual-legacy-route-policy.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:24:29.709Z",
+      "ageHours": 432.2,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:optional-manual-legacy-route-policy",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/optional-manual-legacy-route-policy.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch22-commerce-truth.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:57:28.729Z",
+      "ageHours": 431.7,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:debug-cockpit-batch22-commerce-truth",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/debug-cockpit-batch22-commerce-truth.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/recent-transaction-feed-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:57:28.490Z",
+      "ageHours": 431.7,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:recent-transaction-feed-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/recent-transaction-feed-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/transaction-sequence-journey.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:57:28.551Z",
+      "ageHours": 431.7,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:transaction-sequence-journey",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/transaction-sequence-journey.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/unlock-transaction-source-metadata.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T22:57:28.446Z",
+      "ageHours": 431.7,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:unlock-transaction-source-metadata",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/unlock-transaction-source-metadata.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch23-queue-continuity.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T23:29:51.282Z",
+      "ageHours": 431.1,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:debug-cockpit-batch23-queue-continuity",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/debug-cockpit-batch23-queue-continuity.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/dispatch-outcome-lane-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T23:29:51.383Z",
+      "ageHours": 431.1,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:dispatch-outcome-lane-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/dispatch-outcome-lane-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/legacy-queue-adapter-policy.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T23:29:52.125Z",
+      "ageHours": 431.1,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:legacy-queue-adapter-policy",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/legacy-queue-adapter-policy.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/queue-heartbeat-evidence.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-24T23:29:51.254Z",
+      "ageHours": 431.1,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:queue-heartbeat-evidence",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/queue-heartbeat-evidence.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch24-drop-metadata.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-25T00:12:41.971Z",
+      "ageHours": 430.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:debug-cockpit-batch24-drop-metadata",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/debug-cockpit-batch24-drop-metadata.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/dispatch-outcome-display-cleanup.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-25T00:12:34.449Z",
+      "ageHours": 430.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:dispatch-outcome-display-cleanup",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/dispatch-outcome-display-cleanup.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/drop-activation-scheduler-key.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-25T00:12:29.048Z",
+      "ageHours": 430.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:drop-activation-scheduler-key",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/drop-activation-scheduler-key.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    },
+    {
+      "path": "agent/state/queue-drop-metadata-enrichment.generated.json",
+      "classification": "archive_candidate",
+      "actionability": "archive_evidence_only",
+      "generatedAtUtc": "2026-05-25T00:12:31.277Z",
+      "ageHours": 430.4,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:queue-drop-metadata-enrichment",
+      "consumerPaths": [],
+      "consumedBy": [],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "archive_only",
+      "reason": "Unconsumed artifact is older than seven days and should be reviewed as archive evidence.",
+      "nextExactSteps": [
+        "Treat agent/state/queue-drop-metadata-enrichment.generated.json as archive/evidence-only until an owner requests refresh or removal."
+      ]
+    }
+  ],
   "artifacts": [
-    {
-      "path": "agent/state/codebase-hardening.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T18:38:57.872Z",
-      "ageHours": 360.8,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:hardening",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch10-shared.ts",
-        "scripts/agent/debug-cockpit-batch14-shared.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:hardening to refresh agent/state/codebase-hardening.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/speed-security-hardening.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T18:38:26.973Z",
-      "ageHours": 360.8,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:speed-security",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch10-shared.ts",
-        "scripts/agent/debug-cockpit-batch14-shared.ts",
-        "scripts/agent/debug-cockpit-batch9-shared.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:speed-security to refresh agent/state/speed-security-hardening.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T18:57:42.437Z",
-      "ageHours": 360.5,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:cloud-cost",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:cloud-cost to refresh agent/state/cloudrun-sql-bigquery-guardrails.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/content-protection-score.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T19:13:43.717Z",
-      "ageHours": 360.2,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:content-protection",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch12-shared.ts",
-        "scripts/agent/score-content-protection.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:content-protection to refresh agent/state/content-protection-score.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/device-ui-dry-audit.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T19:13:43.693Z",
-      "ageHours": 360.2,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:device-ui",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch12-shared.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-debug-panel-output-triage.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:device-ui to refresh agent/state/device-ui-dry-audit.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/gumdrop-economy-score.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T19:14:40.468Z",
-      "ageHours": 360.2,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:gumdrop-economy",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch12-shared.ts",
-        "scripts/agent/debug-cockpit-batch22-commerce-shared.ts",
-        "scripts/agent/score-gumdrop-economy.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:gumdrop-economy to refresh agent/state/gumdrop-economy-score.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/monolith-orphan-metric-registry.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-24T19:58:07.813Z",
-      "ageHours": 359.5,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:monolith-orphan-metric-registry",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/validate-final-algorithmic-debug-lock.ts",
-        "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
-        "scripts/agent/validate-monolith-orphan-metric-registry.ts",
-        "src/lib/admin-debug-control-tower.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:monolith-orphan-metric-registry to refresh agent/state/monolith-orphan-metric-registry.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/behavior-math-verification.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-25T08:20:24.583Z",
-      "ageHours": 347.1,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:behavior-math-verification",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-algorithmic-evidence-policy.ts",
-        "scripts/agent/validate-behavior-math-verification.ts",
-        "scripts/agent/validate-final-algorithmic-debug-lock.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:behavior-math-verification to refresh agent/state/behavior-math-verification.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/telemetry-parity-score.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-25T08:23:24.097Z",
-      "ageHours": 347,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:telemetry-parity-score",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/control-tower-cleanup-shared.ts",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/score-telemetry-parity.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:telemetry-parity-score to refresh agent/state/telemetry-parity-score.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/self-healing-refresh-queue.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-05-26T04:08:22.922Z",
-      "ageHours": 327.3,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:self-healing-refresh-queue",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch10-shared.ts",
-        "scripts/agent/debug-cockpit-batch14-shared.ts",
-        "scripts/agent/debug-cockpit-batch9-shared.ts",
-        "scripts/agent/validate-algorithmic-evidence-policy.ts",
-        "scripts/agent/validate-blocked-refresh-queue-resolver.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:self-healing-refresh-queue to refresh agent/state/self-healing-refresh-queue.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
-    {
-      "path": "agent/state/google-cost-bleed.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "refreshable_by_existing_local_validator",
-      "generatedAtUtc": "2026-06-03T04:38:48.972Z",
-      "ageHours": 134.8,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:google-cost",
-      "consumerPaths": [
-        "agent/context/doctrine-registry.json",
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "scripts/agent/score-google-cost-bleed.ts"
-      ],
-      "consumedBy": [
-        "admin_debug_control_tower",
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": true,
-      "exists": true,
-      "blocking": true,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Required consumed artifact is stale.",
-      "nextExactSteps": [
-        "Run npm run check:google-cost to refresh agent/state/google-cost-bleed.generated.json.",
-        "Review the refreshed artifact diff before treating it as current generated evidence."
-      ]
-    },
     {
       "path": "agent/state/eval-failures.generated.json",
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-04-21T15:10:08.143Z",
-      "ageHours": 1156.3,
+      "ageHours": 1231.4,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1015,7 +1024,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-04-21T15:10:08.143Z",
-      "ageHours": 1156.3,
+      "ageHours": 1231.4,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1043,7 +1052,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-04-30T00:00:00.000Z",
-      "ageHours": 955.4,
+      "ageHours": 1030.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:analytics-truth-layer-v2",
       "consumerPaths": [
@@ -1070,7 +1079,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-04-30T17:27:13.830Z",
-      "ageHours": 938,
+      "ageHours": 1013.2,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1100,7 +1109,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-04-30T17:30:27.124Z",
-      "ageHours": 937.9,
+      "ageHours": 1013.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run analytics:ecosystem:parity",
       "consumerPaths": [
@@ -1129,7 +1138,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-04-30T17:30:25.583Z",
-      "ageHours": 937.9,
+      "ageHours": 1013.1,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1160,7 +1169,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000Z",
-      "ageHours": 931.4,
+      "ageHours": 1006.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1188,7 +1197,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000Z",
-      "ageHours": 931.4,
+      "ageHours": 1006.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1217,7 +1226,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000Z",
-      "ageHours": 931.4,
+      "ageHours": 1006.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1246,7 +1255,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T02:08:00.000Z",
-      "ageHours": 929.3,
+      "ageHours": 1004.5,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1274,7 +1283,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1303,7 +1312,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:admin-analytics-finalization",
       "consumerPaths": [
@@ -1332,14 +1341,12 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
         "agent/context/doctrine-registry.json",
-        "agent/context/task-pack.generated.json",
         "agent/index/blast-radius.json",
-        "agent/index/package-manager-truth.json",
         "agent/index/repo-inventory.json",
         "agent/index/retrieval-index.json",
         "scripts/agent/validate-admin-cms-workflow.ts"
@@ -1362,15 +1369,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
         "agent/context/doctrine-registry.json",
         "agent/context/file-size-budget.json",
-        "agent/context/task-pack.generated.json",
         "agent/index/blast-radius.json",
-        "agent/index/package-manager-truth.json",
         "agent/index/repo-inventory.json",
         "agent/index/retrieval-index.json",
         "scripts/agent/validate-background-job-idempotency.ts"
@@ -1393,14 +1398,12 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
         "agent/context/doctrine-registry.json",
-        "agent/context/task-pack.generated.json",
         "agent/index/blast-radius.json",
-        "agent/index/package-manager-truth.json",
         "agent/index/repo-inventory.json",
         "agent/index/retrieval-index.json",
         "scripts/agent/validate-content-media-pipeline.ts"
@@ -1423,7 +1426,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1451,7 +1454,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1480,7 +1483,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:launch-finalization-baseline",
       "consumerPaths": [
@@ -1509,7 +1512,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1538,7 +1541,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1567,7 +1570,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1596,7 +1599,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1625,7 +1628,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 926.4,
+      "ageHours": 1001.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1654,7 +1657,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T19:25:00.000-05:00",
-      "ageHours": 907,
+      "ageHours": 982.2,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1683,7 +1686,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-01T20:35:00.000-05:00",
-      "ageHours": 905.8,
+      "ageHours": 981,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1712,7 +1715,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-02T00:00:00.000-05:00",
-      "ageHours": 902.4,
+      "ageHours": 977.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1741,7 +1744,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-02T00:00:00.000-05:00",
-      "ageHours": 902.4,
+      "ageHours": 977.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1769,7 +1772,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-02T00:00:00.000-05:00",
-      "ageHours": 902.4,
+      "ageHours": 977.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1797,7 +1800,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-02T16:39:34.413Z",
-      "ageHours": 890.8,
+      "ageHours": 966,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1825,7 +1828,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-02T12:00:00.000-05:00",
-      "ageHours": 890.4,
+      "ageHours": 965.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:rollback-incident-response",
       "consumerPaths": [
@@ -1854,7 +1857,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-04T20:20:52.670Z",
-      "ageHours": 839.1,
+      "ageHours": 914.3,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1882,7 +1885,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-04T21:07:36.960Z",
-      "ageHours": 838.3,
+      "ageHours": 913.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run score:tracking-surface-coverage",
       "consumerPaths": [
@@ -1910,7 +1913,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T05:17:17.720Z",
-      "ageHours": 830.1,
+      "ageHours": 905.3,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -1938,7 +1941,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T06:02:56.887Z",
-      "ageHours": 829.4,
+      "ageHours": 904.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:human-dev-readiness",
       "consumerPaths": [
@@ -1966,7 +1969,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T07:50:00.467Z",
-      "ageHours": 827.6,
+      "ageHours": 902.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:doctrine-retrieval-optimizer",
       "consumerPaths": [
@@ -1994,7 +1997,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T08:39:50.757Z",
-      "ageHours": 826.8,
+      "ageHours": 902,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:behavioral-math-calibration",
       "consumerPaths": [
@@ -2023,7 +2026,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T11:03:21.196Z",
-      "ageHours": 824.4,
+      "ageHours": 899.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -2051,7 +2054,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-05T14:10:09.853Z",
-      "ageHours": 821.3,
+      "ageHours": 896.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:codex-auth-readiness",
       "consumerPaths": [
@@ -2080,7 +2083,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-06T00:00:00-05:00",
-      "ageHours": 806.4,
+      "ageHours": 881.6,
       "staleAfterHours": 24,
       "producerCommand": null,
       "consumerPaths": [
@@ -2102,11 +2105,73 @@
       ]
     },
     {
+      "path": "agent/state/sql-mirror-status.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-07T22:51:20.973Z",
+      "ageHours": 839.8,
+      "staleAfterHours": 24,
+      "producerCommand": null,
+      "consumerPaths": [
+        "agent/context/doctrine-registry.json",
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "agent/index/workflow-guidance.json",
+        "scripts/agent/check-agent-context.ts",
+        "scripts/agent/score-google-cost-bleed.ts",
+        "scripts/agent/sync-sql.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/state/sql-mirror-status.generated.json."
+      ]
+    },
+    {
+      "path": "agent/state/sql-sync.payload.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-07T22:51:20.973Z",
+      "ageHours": 839.8,
+      "staleAfterHours": 24,
+      "producerCommand": null,
+      "consumerPaths": [
+        "agent/context/doctrine-registry.json",
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "agent/index/workflow-guidance.json",
+        "scripts/agent/score-google-cost-bleed.ts",
+        "scripts/agent/sync-sql.ts",
+        "scripts/agent/validate-google-cost-bleed.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/state/sql-sync.payload.generated.json."
+      ]
+    },
+    {
       "path": "agent/context/doctrine-conflicts.generated.json",
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-08T01:17:53.932Z",
-      "ageHours": 762.1,
+      "ageHours": 837.3,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:agent-context",
       "consumerPaths": [
@@ -2134,7 +2199,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-08T03:02:18.323Z",
-      "ageHours": 760.4,
+      "ageHours": 835.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:admin-truth-replacement",
       "consumerPaths": [
@@ -2162,7 +2227,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-08T03:20:26.683Z",
-      "ageHours": 760.1,
+      "ageHours": 835.3,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:phase-one-lock",
       "consumerPaths": [
@@ -2185,11 +2250,435 @@
       ]
     },
     {
+      "path": "agent/context/task-pack.generated.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T04:00:55.445Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:agent-context",
+      "consumerPaths": [
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-compact-agent-context.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/context/task-pack.generated.json."
+      ]
+    },
+    {
+      "path": "agent/index/blast-radius.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T04:00:47.874Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/context/file-size-budget.json",
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/sync-sql.ts",
+        "scripts/agent/validate-agent-indexes.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/blast-radius.json."
+      ]
+    },
+    {
+      "path": "agent/index/canonical-helpers.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:58:27.150Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/check-agent-context.ts",
+        "scripts/agent/collect-signal-source-graph.ts",
+        "scripts/agent/rank-signal-problems.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/canonical-helpers.json."
+      ]
+    },
+    {
+      "path": "agent/index/dependency-graph.summary.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:59:16.567Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/context/file-size-budget.json",
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/plan-affected-audits.ts",
+        "scripts/agent/sync-sql.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/dependency-graph.summary.json."
+      ]
+    },
+    {
+      "path": "agent/index/governance-truth.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:58:27.373Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/check-agent-context.ts",
+        "scripts/agent/sync-sql.ts",
+        "scripts/agent/validate-agent-indexes.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/governance-truth.json."
+      ]
+    },
+    {
+      "path": "agent/index/known-pitfalls.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:58:27.458Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/4xx-treasury-validator-shared.ts",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/check-agent-context.ts",
+        "scripts/agent/deep-4xx-validator-shared.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/known-pitfalls.json."
+      ]
+    },
+    {
+      "path": "agent/index/package-manager-truth.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:58:27.290Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/sync-sql.ts",
+        "scripts/agent/validate-agent-indexes.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/package-manager-truth.json."
+      ]
+    },
+    {
+      "path": "agent/index/recent-passes.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:58:27.486Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/sync-sql.ts",
+        "scripts/agent/validate-agent-indexes.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/recent-passes.json."
+      ]
+    },
+    {
+      "path": "agent/index/repo-inventory.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:58:26.999Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run check:inventory",
+      "consumerPaths": [
+        "agent/context/file-size-budget.json",
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/check-agent-context.ts",
+        "scripts/agent/collect-signal-source-graph.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/repo-inventory.json."
+      ]
+    },
+    {
+      "path": "agent/index/retrieval-index.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T04:00:52.917Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/context/file-size-budget.json",
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/sync-sql.ts",
+        "scripts/agent/validate-agent-indexes.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/retrieval-index.json."
+      ]
+    },
+    {
+      "path": "agent/index/runtime-observability.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:58:27.573Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-ui-runtime-audit.ts",
+        "scripts/agent/sync-sql.ts",
+        "scripts/agent/validate-agent-indexes.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/runtime-observability.json."
+      ]
+    },
+    {
+      "path": "agent/index/surface-map.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:58:27.149Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "agent/index/ui-surface-coverage.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-ui-surface-coverage.ts",
+        "scripts/agent/collect-signal-source-graph.ts",
+        "scripts/agent/plan-affected-audits.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/surface-map.json."
+      ]
+    },
+    {
+      "path": "agent/index/verification-commands.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:58:27.228Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/context/file-size-budget.json",
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "agent/index/workflow-guidance.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/collect-signal-source-graph.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/verification-commands.json."
+      ]
+    },
+    {
+      "path": "agent/index/workflow-guidance.json",
+      "classification": "stale_consumed",
+      "actionability": "no_action_required",
+      "generatedAtUtc": "2026-05-08T03:58:27.367Z",
+      "ageHours": 834.6,
+      "staleAfterHours": 24,
+      "producerCommand": "npm run agent:index",
+      "consumerPaths": [
+        "agent/index/blast-radius.json",
+        "agent/index/repo-inventory.json",
+        "agent/index/retrieval-index.json",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/check-agent-context.ts",
+        "scripts/agent/rank-signal-problems.ts",
+        "scripts/agent/sync-sql.ts",
+        "scripts/agent/validate-agent-indexes.ts"
+      ],
+      "consumedBy": [
+        "agent_context",
+        "agent_validator"
+      ],
+      "required": false,
+      "exists": true,
+      "blocking": false,
+      "truthUse": "evidence_snapshot_only",
+      "reason": "Consumed artifact is stale and must be treated as evidence only.",
+      "nextExactSteps": [
+        "No immediate action required for agent/index/workflow-guidance.json."
+      ]
+    },
+    {
       "path": "agent/state/fast-start.generated.json",
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-08T04:01:51.364Z",
-      "ageHours": 759.4,
+      "ageHours": 834.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run agent:fast-start",
       "consumerPaths": [
@@ -2217,17 +2706,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-08T04:44:07.266Z",
-      "ageHours": 758.7,
+      "ageHours": 833.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-dashboard-projection-lock",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-creator-dashboard-projection-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2244,17 +2729,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-08T04:44:09.154Z",
-      "ageHours": 758.7,
+      "ageHours": 833.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-monetization-gates-lock",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-creator-monetization-gates-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2271,7 +2752,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-08T04:44:05.150Z",
-      "ageHours": 758.7,
+      "ageHours": 833.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-public-profile-lock",
       "consumerPaths": [
@@ -2298,17 +2779,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-08T04:44:23.527Z",
-      "ageHours": 758.7,
+      "ageHours": 833.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:user-creator-phase-one",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-user-creator-phase-one.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2325,7 +2802,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-08T04:44:03.127Z",
-      "ageHours": 758.7,
+      "ageHours": 833.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:user-critical-path-lock",
       "consumerPaths": [
@@ -2352,18 +2829,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T00:31:18.976Z",
-      "ageHours": 666.9,
+      "ageHours": 742.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:ai-cover-learning-cutover",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/score-ai-cover-learning.ts",
         "scripts/agent/validate-ai-cover-learning-cutover.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2380,7 +2853,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T00:56:39.265Z",
-      "ageHours": 666.5,
+      "ageHours": 741.7,
       "staleAfterHours": 24,
       "producerCommand": "npm run score:code-organization",
       "consumerPaths": [
@@ -2408,20 +2881,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T00:55:27.385Z",
-      "ageHours": 666.5,
+      "ageHours": 741.7,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:codebase-junk-cleanup",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/scan-codebase-junk.ts",
         "scripts/agent/validate-codebase-junk-cleanup.ts",
         "scripts/agent/validate-repo-spring-cleaning-rewire.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2438,14 +2906,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T00:56:56.267Z",
-      "ageHours": 666.5,
+      "ageHours": 741.7,
       "staleAfterHours": 24,
       "producerCommand": "npm run score:legacy-phaseout",
       "consumerPaths": [
         "agent/context/doctrine-registry.json",
         "agent/context/doctrine.cards.jsonl",
         "agent/context/surface-contracts.jsonl",
-        "agent/context/task-pack.generated.json",
         "agent/index/blast-radius.json",
         "agent/index/repo-inventory.json",
         "agent/index/retrieval-index.json",
@@ -2469,17 +2936,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T01:44:45.644Z",
-      "ageHours": 665.7,
+      "ageHours": 740.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:client-loading-speed",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-client-loading-speed.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2496,17 +2959,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T01:45:39.248Z",
-      "ageHours": 665.7,
+      "ageHours": 740.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:event-timeline-management",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-event-timeline-management.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2523,17 +2982,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T01:45:57.032Z",
-      "ageHours": 665.7,
+      "ageHours": 740.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:google-cloud-cost-data-handoff",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-google-cloud-cost-data-handoff.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2550,17 +3005,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T01:45:06.677Z",
-      "ageHours": 665.7,
+      "ageHours": 740.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:server-loading-speed",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-server-loading-speed.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2577,17 +3028,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T01:45:23.407Z",
-      "ageHours": 665.7,
+      "ageHours": 740.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:user-creator-feature-parity",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-user-creator-feature-parity.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2604,18 +3051,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T01:47:42.903Z",
-      "ageHours": 665.6,
+      "ageHours": 740.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run score:4xx-cost",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/score-4xx-cost-guardrails.ts",
         "scripts/agent/validate-4xx-cost-guardrails.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2632,17 +3075,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T01:50:11.826Z",
-      "ageHours": 665.6,
+      "ageHours": 740.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:phase-one-final-cleanup",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-phase-one-final-cleanup.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2659,18 +3098,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T01:46:36.540Z",
-      "ageHours": 665.6,
+      "ageHours": 740.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:user-tracking-index-cutover",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/score-user-tracking-indexes.ts",
         "scripts/agent/validate-user-tracking-index-cutover.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2687,18 +3122,18 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T19:42:22.634Z",
-      "ageHours": 647.7,
+      "ageHours": 722.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:final-launch-readiness-report",
       "consumerPaths": [
         "agent/context/doctrine-registry.json",
+        "agent/context/file-size-budget.json",
         "agent/index/blast-radius.json",
         "agent/index/repo-inventory.json",
         "agent/index/retrieval-index.json",
         "scripts/agent/control-tower-cleanup-shared.ts",
         "scripts/agent/validate-beta-score-cleanup.ts",
-        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
-        "scripts/agent/validate-debug-panel-output-triage.ts"
+        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts"
       ],
       "consumedBy": [
         "agent_context",
@@ -2718,7 +3153,7 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T19:42:22.634Z",
-      "ageHours": 647.7,
+      "ageHours": 722.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:launch-pr-triage",
       "consumerPaths": [
@@ -2749,18 +3184,18 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-12T19:42:22.634Z",
-      "ageHours": 647.7,
+      "ageHours": 722.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:final-launch-readiness-report",
       "consumerPaths": [
         "agent/context/doctrine-registry.json",
+        "agent/context/file-size-budget.json",
         "agent/index/blast-radius.json",
         "agent/index/repo-inventory.json",
         "agent/index/retrieval-index.json",
         "scripts/agent/control-tower-cleanup-shared.ts",
         "scripts/agent/validate-beta-score-cleanup.ts",
-        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
-        "scripts/agent/validate-debug-panel-output-triage.ts"
+        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts"
       ],
       "consumedBy": [
         "agent_context",
@@ -2780,21 +3215,17 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-14T01:18:08.752Z",
-      "ageHours": 618.1,
+      "ageHours": 693.3,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:analytics-rewire-phase-one",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
-        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts"
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "scripts/agent/validate-debug-panel-output-triage.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2811,20 +3242,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-14T01:19:23.361Z",
-      "ageHours": 618.1,
+      "ageHours": 693.3,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:identity-privacy-raw-ledger-rewire",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
         "scripts/agent/snapshot-admin-vendor-cost-rewire.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2841,20 +3267,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-14T01:20:03.324Z",
-      "ageHours": 618.1,
+      "ageHours": 693.3,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:lost-data-recovery-dry-run",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/lost-data-recovery-dry-run.ts",
         "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "scripts/agent/validate-debug-panel-output-triage.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2871,18 +3292,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-14T01:37:39.159Z",
-      "ageHours": 617.8,
+      "ageHours": 693,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:snapshot-admin-vendor-cost-rewire",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/snapshot-admin-vendor-cost-rewire.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2899,18 +3315,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-14T03:29:04.409Z",
-      "ageHours": 615.9,
+      "ageHours": 691.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:phase-one-score-ui-triage",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-phase-one-score-ui-triage.ts",
         "scripts/agent/validate-repo-spring-cleaning-rewire.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2927,18 +3339,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-17T04:27:04.829Z",
-      "ageHours": 543,
+      "ageHours": 618.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:final-phase-cleanup-lock",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-final-phase-cleanup-lock.ts",
         "scripts/agent/validate-source-truth-authority-map.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2955,20 +3363,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-17T06:13:30.798Z",
-      "ageHours": 541.2,
+      "ageHours": 616.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:product-surface-integrity",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-final-phase-cleanup-lock.ts",
         "scripts/agent/validate-product-surface-integrity.ts",
         "scripts/agent/validate-source-truth-authority-map.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -2985,20 +3388,16 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-17T06:28:21.393Z",
-      "ageHours": 541,
+      "ageHours": 616.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:beta-score-cleanup",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-beta-score-cleanup.ts",
         "scripts/agent/validate-cost-4xx-reduction.ts",
         "scripts/agent/validate-overnight-beta-readiness-lock.ts",
         "scripts/agent/validate-source-truth-authority-map.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3015,17 +3414,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-17T06:29:03.611Z",
-      "ageHours": 540.9,
+      "ageHours": 616.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:user-creator-visual-confirmation",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-user-creator-visual-confirmation.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3042,17 +3437,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-17T21:05:00.000Z",
-      "ageHours": 526.3,
+      "ageHours": 601.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:human-error-surface-wiring",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-human-error-surface-wiring.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3069,19 +3460,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-18T04:40:06.626Z",
-      "ageHours": 518.8,
+      "ageHours": 593.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:analytics-identity-transfer-inventory",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-analytics-identity-transfer-inventory.ts",
         "scripts/agent/validate-analytics-semantics-final-lock.ts",
         "scripts/agent/validate-guest-user-identity-transfer.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3098,17 +3485,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-18T14:50:09.443Z",
-      "ageHours": 508.6,
+      "ageHours": 583.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:pr-cleanup-final",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-pr-cleanup-final.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3125,17 +3508,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-18T18:20:00.000Z",
-      "ageHours": 505.1,
+      "ageHours": 580.3,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:open-pr-final-action",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-open-pr-final-action.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3152,17 +3531,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-18T18:30:00.000Z",
-      "ageHours": 504.9,
+      "ageHours": 580.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:final-open-pr-zero",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-final-open-pr-zero.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3179,17 +3554,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T13:15:00.000Z",
-      "ageHours": 486.2,
+      "ageHours": 561.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:analytics-cost-hot-path-reduction",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-analytics-cost-hot-path-reduction.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3206,21 +3577,18 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T13:43:56.853Z",
-      "ageHours": 485.7,
+      "ageHours": 560.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:analytics-hot-path-cost-reduction",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-analytics-hot-path-cost-reduction.ts",
         "scripts/agent/validate-cost-owner-review-source-closure.ts",
         "scripts/agent/validate-cost-risk-exit-pass.ts",
         "scripts/agent/validate-cost-risk-owner-review-closure.ts",
-        "scripts/agent/validate-final-cost-audit-lock.ts"
+        "scripts/agent/validate-final-cost-audit-lock.ts",
+        "scripts/agent/validate-score-80-cost-readiness.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3237,18 +3605,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T14:05:34.626Z",
-      "ageHours": 485.3,
+      "ageHours": 560.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:deeptracker-telemetry-volume-reduction",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-deeptracker-telemetry-volume-reduction.ts",
         "scripts/agent/validate-final-cost-audit-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3265,19 +3629,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T15:32:40.265Z",
-      "ageHours": 483.9,
+      "ageHours": 559.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:analytics-cadence-cost-policy",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-analytics-cadence-cost-policy.ts",
         "scripts/agent/validate-cloud-sql-gemini-cost-guards.ts",
         "scripts/agent/validate-final-cost-audit-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3294,18 +3654,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T20:07:44.129Z",
-      "ageHours": 479.3,
+      "ageHours": 554.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-dashboard-overview-stats",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-beta-freshness-language.ts",
         "scripts/agent/validate-creator-dashboard-overview-stats.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3322,18 +3678,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T20:07:34.821Z",
-      "ageHours": 479.3,
+      "ageHours": 554.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-dashboard-role-boundary",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-beta-freshness-language.ts",
         "scripts/agent/validate-creator-dashboard-role-boundary.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3350,17 +3702,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T20:07:44.091Z",
-      "ageHours": 479.3,
+      "ageHours": 554.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-landing-dashboard-mobile",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-creator-landing-dashboard-mobile.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3377,17 +3725,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T20:07:34.833Z",
-      "ageHours": 479.3,
+      "ageHours": 554.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-nav-role-consolidation",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-creator-nav-role-consolidation.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3404,17 +3748,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T20:07:34.806Z",
-      "ageHours": 479.3,
+      "ageHours": 554.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:user-creator-logic-cleanup",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-user-creator-logic-cleanup.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3431,18 +3771,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T22:12:26.239Z",
-      "ageHours": 477.2,
+      "ageHours": 552.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run score:guest-user-analytics",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/score-guest-user-analytics-cutover.ts",
         "scripts/agent/validate-guest-user-analytics-cutover.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3459,19 +3795,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T23:31:46.154Z",
-      "ageHours": 475.9,
+      "ageHours": 551.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:analytics-semantics-final-lock",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-analytics-semantics-final-lock.ts",
         "scripts/agent/validate-final-cost-audit-lock.ts",
         "scripts/agent/validate-final-telemetry-closure-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3488,19 +3820,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-19T23:31:35.031Z",
-      "ageHours": 475.9,
+      "ageHours": 551.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:external-analytics-truth-closure",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-external-analytics-truth-closure.ts",
         "scripts/agent/validate-final-telemetry-closure-lock.ts",
         "scripts/agent/validate-overnight-wiring-integrity.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3517,19 +3845,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-20T00:35:09.172Z",
-      "ageHours": 474.8,
+      "ageHours": 550,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:mobile-hardcoded-css-cleanup",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-mobile-hardcoded-css-cleanup.ts",
         "scripts/agent/validate-mobile-residual-score-impact.ts",
         "scripts/agent/validate-mobile-ui-final-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3546,18 +3870,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-20T00:35:19.414Z",
-      "ageHours": 474.8,
+      "ageHours": 550,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:mobile-surface-organization",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-mobile-surface-organization.ts",
         "scripts/agent/validate-mobile-ui-final-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3574,18 +3894,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-20T00:35:04.126Z",
-      "ageHours": 474.8,
+      "ageHours": 550,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:mobile-ui-scaling-doctrine",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-mobile-ui-final-lock.ts",
         "scripts/agent/validate-mobile-ui-scaling-doctrine.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3602,17 +3918,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-20T04:13:46.673Z",
-      "ageHours": 471.2,
+      "ageHours": 546.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-settings-source-health",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-creator-settings-source-health.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3629,18 +3941,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-20T04:50:54.124Z",
-      "ageHours": 470.6,
+      "ageHours": 545.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-fan-pass-crm-broadcast",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-beta-freshness-language.ts",
         "scripts/agent/validate-creator-fan-pass-crm-broadcast.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3657,17 +3965,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-20T22:06:55.480Z",
-      "ageHours": 453.3,
+      "ageHours": 528.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:final-morning-beta-lock",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-final-morning-beta-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3684,20 +3988,16 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T00:17:06.067Z",
-      "ageHours": 451.1,
+      "ageHours": 526.3,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-broadcast-timeline-prep",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-creator-broadcast-timeline-prep.ts",
         "scripts/agent/validate-creator-profile-mobile-timeline.ts",
         "scripts/agent/validate-overnight-final-integration-lock.ts",
         "scripts/agent/validate-overnight-wiring-integrity.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3714,19 +4014,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T00:17:12.544Z",
-      "ageHours": 451.1,
+      "ageHours": 526.3,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-profile-mobile-timeline",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-creator-profile-mobile-timeline.ts",
         "scripts/agent/validate-overnight-final-integration-lock.ts",
         "scripts/agent/validate-overnight-wiring-integrity.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3743,21 +4039,20 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T00:27:10.726Z",
-      "ageHours": 451,
+      "ageHours": 526.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:score-80-path-lock",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/control-tower-cleanup-shared.ts",
         "scripts/agent/validate-ai-critic-p1-triage.ts",
         "scripts/agent/validate-control-tower-operator-queue-cleanup.ts",
-        "scripts/agent/validate-debug-backlog-engine.ts"
+        "scripts/agent/validate-debug-backlog-engine.ts",
+        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
+        "scripts/agent/validate-debug-signal-actionability.ts",
+        "scripts/agent/validate-score-80-path-lock.ts",
+        "scripts/agent/validate-score-impact-stale-artifact-sweep.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3774,18 +4069,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T01:45:44.698Z",
-      "ageHours": 449.7,
+      "ageHours": 524.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:score-impact-stale-artifact-sweep",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-score-impact-stale-artifact-sweep.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3802,17 +4092,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T02:16:07.434Z",
-      "ageHours": 449.2,
+      "ageHours": 524.3,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:error-handling-final-readiness",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-error-handling-final-readiness.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3829,17 +4115,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T02:16:07.434Z",
-      "ageHours": 449.2,
+      "ageHours": 524.3,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:error-truth-debug-visibility",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-error-truth-debug-visibility.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3856,17 +4138,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T02:22:18.465Z",
-      "ageHours": 449.1,
+      "ageHours": 524.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:bug-report-reward-flow",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-bug-report-reward-flow.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3883,17 +4161,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T02:36:34.230Z",
-      "ageHours": 448.8,
+      "ageHours": 524,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:mobile-residual-score-impact",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-mobile-residual-score-impact.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3910,18 +4184,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T04:39:01.160Z",
-      "ageHours": 446.8,
+      "ageHours": 522,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:behavioral-tracking-semantics-closure",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-behavioral-tracking-semantics-closure.ts",
         "scripts/agent/validate-final-telemetry-closure-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3938,20 +4208,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T04:39:12.751Z",
-      "ageHours": 446.8,
+      "ageHours": 522,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:event-facts-materializer-closure",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-event-facts-materializer-closure.ts",
         "scripts/agent/validate-final-telemetry-closure-lock.ts",
         "scripts/agent/validate-real-usage-confidence.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3968,17 +4233,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T05:03:57.339Z",
-      "ageHours": 446.4,
+      "ageHours": 521.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:admin-analytics-monolith-cleanup",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-admin-analytics-monolith-cleanup.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -3995,21 +4256,17 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T13:08:36.629Z",
-      "ageHours": 438.3,
+      "ageHours": 513.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:debug-recovery-playbooks",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
         "scripts/agent/validate-debug-operator-cockpit.ts",
         "scripts/agent/validate-debug-recovery-playbooks.ts",
-        "scripts/agent/validate-final-algorithmic-debug-lock.ts"
+        "scripts/agent/validate-final-algorithmic-debug-lock.ts",
+        "src/lib/admin-debug-control-tower.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4026,19 +4283,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T14:22:31.506Z",
-      "ageHours": 437.1,
+      "ageHours": 512.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:ai-critic-p1-triage",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-ai-critic-p1-triage.ts",
         "scripts/agent/validate-score-80-reconciliation-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4055,21 +4307,18 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T14:22:31.420Z",
-      "ageHours": 437.1,
+      "ageHours": 512.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:ai-debug-critic-review",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-ai-critic-p1-triage.ts",
         "scripts/agent/validate-ai-debug-critic.ts",
         "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
         "scripts/agent/validate-debug-operator-cockpit.ts",
-        "scripts/agent/validate-final-algorithmic-debug-lock.ts"
+        "scripts/agent/validate-final-algorithmic-debug-lock.ts",
+        "src/lib/admin-debug-control-tower.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4086,18 +4335,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T15:23:22.027Z",
-      "ageHours": 436,
+      "ageHours": 511.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:analytics-ingest-firestore-closure",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-analytics-ingest-firestore-closure.ts",
         "scripts/agent/validate-final-telemetry-closure-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4114,18 +4359,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T15:50:52.810Z",
-      "ageHours": 435.6,
+      "ageHours": 510.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:march-first-legacy-normalization",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-final-algorithmic-debug-lock.ts",
         "scripts/agent/validate-march-first-legacy-normalization.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4142,18 +4383,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T16:30:35.568Z",
-      "ageHours": 434.9,
+      "ageHours": 510.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:score-80-refresh-queue-execution",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-score-80-refresh-queue-execution.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4170,21 +4406,18 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T16:43:13.514Z",
-      "ageHours": 434.7,
+      "ageHours": 509.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:admin-analytics-debug-cost-reduction",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-admin-analytics-debug-cost-reduction.ts",
         "scripts/agent/validate-cost-owner-review-source-closure.ts",
         "scripts/agent/validate-cost-risk-exit-pass.ts",
         "scripts/agent/validate-cost-risk-owner-review-closure.ts",
-        "scripts/agent/validate-final-cost-audit-lock.ts"
+        "scripts/agent/validate-final-cost-audit-lock.ts",
+        "scripts/agent/validate-score-80-cost-readiness.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4201,13 +4434,10 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T16:43:13.954Z",
-      "ageHours": 434.7,
+      "ageHours": 509.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:cost-4xx-reduction",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-cost-4xx-reduction.ts",
         "scripts/agent/validate-cost-owner-review-source-closure.ts",
         "scripts/agent/validate-cost-risk-exit-pass.ts",
@@ -4215,7 +4445,6 @@
         "scripts/agent/validate-score-80-cost-readiness.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4232,21 +4461,18 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T16:43:13.509Z",
-      "ageHours": 434.7,
+      "ageHours": 509.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:scheduled-runtime-cost-reduction",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-cost-owner-review-source-closure.ts",
         "scripts/agent/validate-cost-risk-exit-pass.ts",
         "scripts/agent/validate-cost-risk-owner-review-closure.ts",
         "scripts/agent/validate-final-cost-audit-lock.ts",
-        "scripts/agent/validate-scheduled-runtime-cost-reduction.ts"
+        "scripts/agent/validate-scheduled-runtime-cost-reduction.ts",
+        "scripts/agent/validate-score-80-cost-readiness.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4263,17 +4489,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T17:04:21.968Z",
-      "ageHours": 434.4,
+      "ageHours": 509.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:blocked-refresh-queue-resolver",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-blocked-refresh-queue-resolver.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4290,18 +4512,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T18:47:29.483Z",
-      "ageHours": 432.6,
+      "ageHours": 507.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:codex-visual-gate-removal",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-codex-visual-gate-removal.ts",
         "scripts/agent/validate-new-additions-score-coverage.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4318,20 +4536,16 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T18:47:36.198Z",
-      "ageHours": 432.6,
+      "ageHours": 507.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:ui-visual-smoke-minimal",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/score-public-beta-readiness.ts",
         "scripts/agent/validate-codex-visual-gate-removal.ts",
         "scripts/agent/validate-new-additions-score-coverage.ts",
         "scripts/agent/validate-ui-visual-smoke-minimal.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4348,19 +4562,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T19:30:30.573Z",
-      "ageHours": 431.9,
+      "ageHours": 507.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:behavioral-extensibility-layer",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-behavioral-extensibility-layer.ts",
         "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
         "scripts/agent/validate-new-additions-score-coverage.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4377,19 +4587,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T19:30:06.940Z",
-      "ageHours": 431.9,
+      "ageHours": 507.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:consent-tracking-contract",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-consent-tracking-contract.ts",
         "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
         "scripts/agent/validate-new-additions-score-coverage.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4406,19 +4612,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-21T19:31:27.305Z",
-      "ageHours": 431.9,
+      "ageHours": 507.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:final-algorithmic-debug-lock",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-final-algorithmic-debug-lock.ts",
         "scripts/agent/validate-new-additions-score-coverage.ts",
         "scripts/agent/validate-score-80-reconciliation-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4435,19 +4637,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-22T14:45:00-05:00",
-      "ageHours": 407.7,
+      "ageHours": 482.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:payment-module-symmetry",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-gumdrop-source-of-funds-truth.ts",
         "scripts/agent/validate-payment-module-symmetry.ts",
         "scripts/agent/validate-wallet-density.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4464,19 +4662,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-22T20:34:55.398Z",
-      "ageHours": 406.8,
+      "ageHours": 482,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:identity-handoff-refinement",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
         "scripts/agent/validate-identity-handoff-refinement.ts",
         "scripts/agent/validate-new-additions-score-coverage.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4493,17 +4687,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-22T23:41:10.853Z",
-      "ageHours": 403.7,
+      "ageHours": 478.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:final-user-tracking-handoff-lock",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-final-user-tracking-handoff-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4520,17 +4710,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-22T23:53:34.527Z",
-      "ageHours": 403.5,
+      "ageHours": 478.7,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:chat-composer-modal-lift",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-chat-composer-modal-lift.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4547,17 +4733,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T00:11:23.421Z",
-      "ageHours": 403.2,
+      "ageHours": 478.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:account-settings-delete-flow",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-account-settings-delete-flow.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4574,17 +4756,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T00:43:57.640Z",
-      "ageHours": 402.7,
+      "ageHours": 477.9,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:account-settings-mobile-padding",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-account-settings-mobile-padding.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4601,17 +4779,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T01:11:53.495Z",
-      "ageHours": 402.2,
+      "ageHours": 477.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:creator-surface-routing",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-creator-surface-routing.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4628,17 +4802,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T01:14:26.620Z",
-      "ageHours": 402.2,
+      "ageHours": 477.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:settings-creator-dashboard-split",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-settings-creator-dashboard-split.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4655,17 +4825,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T01:14:18.735Z",
-      "ageHours": 402.2,
+      "ageHours": 477.4,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:settings-route-alias-cleanup",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-settings-route-alias-cleanup.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4682,18 +4848,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T02:55:32.725Z",
-      "ageHours": 400.5,
+      "ageHours": 475.7,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:open-pr-finalization",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-launch-blocker-evidence-closure.ts",
         "scripts/agent/validate-open-pr-finalization.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4710,18 +4872,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T06:57:53.442Z",
-      "ageHours": 396.5,
+      "ageHours": 471.7,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:final-behavioral-privacy-telemetry-lock",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
         "scripts/agent/validate-new-additions-score-coverage.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4738,17 +4896,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T06:57:36.957Z",
-      "ageHours": 396.5,
+      "ageHours": 471.7,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:march-first-event-recovery",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-march-first-event-recovery.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4765,18 +4919,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T06:57:03.536Z",
-      "ageHours": 396.5,
+      "ageHours": 471.7,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:new-additions-score-coverage",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-new-additions-score-coverage.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4793,17 +4942,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T06:57:43.051Z",
-      "ageHours": 396.5,
+      "ageHours": 471.7,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:person-metrics-contract",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-person-metrics-contract.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4820,21 +4965,18 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T19:33:06.073Z",
-      "ageHours": 383.9,
+      "ageHours": 459.1,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:final-testing-tracking-telemetry-lock",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-debug-signal-actionability.ts",
         "scripts/agent/validate-debug-signal-grouping.ts",
         "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
         "scripts/agent/validate-future-activity-signal-reclassification.ts",
-        "scripts/agent/validate-non-event-score-policy.ts"
+        "scripts/agent/validate-non-event-score-policy.ts",
+        "scripts/agent/validate-targeted-behavior-evidence.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4851,21 +4993,17 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T19:59:10.849Z",
-      "ageHours": 383.4,
+      "ageHours": 458.6,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:future-activity-signal-reclassification",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-debug-signal-grouping.ts",
         "scripts/agent/validate-final-signal-zero-lock.ts",
         "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
-        "scripts/agent/validate-future-activity-signal-reclassification.ts"
+        "scripts/agent/validate-future-activity-signal-reclassification.ts",
+        "scripts/agent/validate-non-event-score-policy.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4882,18 +5020,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-23T20:49:29.556Z",
-      "ageHours": 382.6,
+      "ageHours": 457.8,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:non-event-score-policy",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-final-signal-zero-lock.ts",
         "scripts/agent/validate-non-event-score-policy.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4910,18 +5044,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-24T02:07:23.739Z",
-      "ageHours": 377.3,
+      "ageHours": 452.5,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:chat-presence-typing",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-chat-functionality-score-lock.ts",
         "scripts/agent/validate-chat-presence-typing.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4938,19 +5068,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-24T07:36:20.914Z",
-      "ageHours": 371.8,
+      "ageHours": 447,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:notification-targeting-intent",
       "consumerPaths": [
-        "agent/context/file-size-budget.json",
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-notification-pwa-score-lock.ts",
         "scripts/agent/validate-notification-targeting-intent.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4967,18 +5092,14 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-24T09:24:25.676Z",
-      "ageHours": 370,
+      "ageHours": 445.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:auth-persistence-stability",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-auth-persistence-stability.ts",
         "scripts/agent/validate-auth-readiness-lock.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -4991,53 +5112,20 @@
       ]
     },
     {
-      "path": "agent/state/auth-provider-conflict-resolution.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "no_action_required",
-      "generatedAtUtc": "2026-05-24T09:24:25.748Z",
-      "ageHours": 370,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:auth-provider-conflict-resolution",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/validate-auth-persistence-stability.ts",
-        "scripts/agent/validate-auth-provider-conflict-resolution.ts",
-        "scripts/agent/validate-auth-readiness-lock.ts"
-      ],
-      "consumedBy": [
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": false,
-      "exists": true,
-      "blocking": false,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Consumed artifact is stale and must be treated as evidence only.",
-      "nextExactSteps": [
-        "No immediate action required for agent/state/auth-provider-conflict-resolution.generated.json."
-      ]
-    },
-    {
       "path": "agent/state/auth-runtime-telemetry.generated.json",
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-24T09:24:25.334Z",
-      "ageHours": 370,
+      "ageHours": 445.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:auth-runtime-telemetry",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-auth-persistence-stability.ts",
         "scripts/agent/validate-auth-provider-conflict-resolution.ts",
         "scripts/agent/validate-auth-readiness-lock.ts",
         "scripts/agent/validate-auth-runtime-telemetry.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -5054,19 +5142,15 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-24T09:24:46.738Z",
-      "ageHours": 370,
+      "ageHours": 445.2,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:email-password-auth-refactor",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-auth-persistence-stability.ts",
         "scripts/agent/validate-auth-readiness-lock.ts",
         "scripts/agent/validate-email-password-auth-refactor.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -5083,17 +5167,13 @@
       "classification": "stale_consumed",
       "actionability": "no_action_required",
       "generatedAtUtc": "2026-05-24T14:36:45.595Z",
-      "ageHours": 364.8,
+      "ageHours": 440,
       "staleAfterHours": 24,
       "producerCommand": "npm run check:debug-cockpit-pr-finalization",
       "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
         "scripts/agent/validate-debug-cockpit-pr-finalization.ts"
       ],
       "consumedBy": [
-        "agent_context",
         "agent_validator"
       ],
       "required": false,
@@ -5103,118 +5183,6 @@
       "reason": "Consumed artifact is stale and must be treated as evidence only.",
       "nextExactSteps": [
         "No immediate action required for agent/state/debug-cockpit-pr-finalization.generated.json."
-      ]
-    },
-    {
-      "path": "agent/state/debug-operator-cockpit.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "no_action_required",
-      "generatedAtUtc": "2026-05-24T14:52:00.092Z",
-      "ageHours": 364.6,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:debug-operator-cockpit",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/control-tower-cleanup-shared.ts",
-        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
-        "scripts/agent/validate-debug-operator-cockpit.ts",
-        "scripts/agent/validate-final-algorithmic-debug-lock.ts",
-        "scripts/agent/validate-new-additions-score-coverage.ts"
-      ],
-      "consumedBy": [
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": false,
-      "exists": true,
-      "blocking": false,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Consumed artifact is stale and must be treated as evidence only.",
-      "nextExactSteps": [
-        "No immediate action required for agent/state/debug-operator-cockpit.generated.json."
-      ]
-    },
-    {
-      "path": "agent/state/debug-cockpit-batch1-cleanup.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "no_action_required",
-      "generatedAtUtc": "2026-05-24T15:02:38.829Z",
-      "ageHours": 364.4,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:debug-cockpit-batch1-cleanup",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts"
-      ],
-      "consumedBy": [
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": false,
-      "exists": true,
-      "blocking": false,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Consumed artifact is stale and must be treated as evidence only.",
-      "nextExactSteps": [
-        "No immediate action required for agent/state/debug-cockpit-batch1-cleanup.generated.json."
-      ]
-    },
-    {
-      "path": "agent/state/behavior-math-status-cleanup.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "no_action_required",
-      "generatedAtUtc": "2026-05-24T15:35:30.612Z",
-      "ageHours": 363.8,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:behavior-math-status-cleanup",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/validate-behavior-math-status-cleanup.ts"
-      ],
-      "consumedBy": [
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": false,
-      "exists": true,
-      "blocking": false,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Consumed artifact is stale and must be treated as evidence only.",
-      "nextExactSteps": [
-        "No immediate action required for agent/state/behavior-math-status-cleanup.generated.json."
-      ]
-    },
-    {
-      "path": "agent/state/consent-tracking-mode-cleanup.generated.json",
-      "classification": "stale_consumed",
-      "actionability": "no_action_required",
-      "generatedAtUtc": "2026-05-24T15:35:25.863Z",
-      "ageHours": 363.8,
-      "staleAfterHours": 24,
-      "producerCommand": "npm run check:consent-tracking-mode-cleanup",
-      "consumerPaths": [
-        "agent/index/blast-radius.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "scripts/agent/validate-consent-tracking-mode-cleanup.ts"
-      ],
-      "consumedBy": [
-        "agent_context",
-        "agent_validator"
-      ],
-      "required": false,
-      "exists": true,
-      "blocking": false,
-      "truthUse": "evidence_snapshot_only",
-      "reason": "Consumed artifact is stale and must be treated as evidence only.",
-      "nextExactSteps": [
-        "No immediate action required for agent/state/consent-tracking-mode-cleanup.generated.json."
       ]
     }
   ]

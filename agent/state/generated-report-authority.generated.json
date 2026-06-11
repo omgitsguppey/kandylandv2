@@ -1,9 +1,9 @@
 {
   "reportKey": "generated-report-authority",
-  "generatedAt": "2026-06-11T20:02:21.999Z",
-  "generatedAtUtc": "2026-06-11T20:02:21.999Z",
-  "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
-  "currentHead": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+  "generatedAt": "2026-06-11T22:36:21.981Z",
+  "generatedAtUtc": "2026-06-11T22:36:21.981Z",
+  "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
+  "currentHead": "901fbd46540e591a4e16c16d748030d0b3e7534a",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "sourceFileDiscovery": "git",
@@ -24,7 +24,7 @@
     "privacy": 0,
     "payment": 0,
     "lockedContent": 0,
-    "sourceTruth": 653
+    "sourceTruth": 652
   },
   "baselineStatus": "not_required",
   "owner": "scripts/agent/validate-generated-report-authority.ts",
@@ -57,22 +57,22 @@
     "reportCount": 657,
     "reportedSampleCount": 80,
     "omittedReportCount": 577,
-    "staleCount": 654,
+    "staleCount": 638,
     "unknownFreshnessCount": 0,
     "runtimeViolationCount": 0,
     "doctrineOverrideViolationCount": 0,
     "targetActionabilityAuditCount": 10,
     "targetArchiveCandidateCount": 1,
     "targetEmptyProofRiskCount": 0,
-    "metadataWarningCount": 11503,
-    "missingCleanupPolicyCount": 653,
+    "metadataWarningCount": 11481,
+    "missingCleanupPolicyCount": 652,
     "cappedWithoutOmittedCount": 0
   },
   "reports": [
     {
       "path": "agent/context/doctrine-conflicts.generated.json",
       "generatedAt": "2026-05-08T01:17:53.932Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -104,8 +104,8 @@
     },
     {
       "path": "agent/context/optimized-task-context.generated.json",
-      "generatedAt": "2026-06-11T19:43:42.752Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "generatedAt": "2026-06-11T20:27:28.163Z",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "fresh",
@@ -140,7 +140,7 @@
     {
       "path": "agent/context/task-pack.generated.json",
       "generatedAt": "2026-05-08T04:00:55.445Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -174,7 +174,7 @@
     {
       "path": "agent/index/analytics-truth-layer-v2.json",
       "generatedAt": "2026-04-30T00:00:00.000Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -207,7 +207,7 @@
     {
       "path": "agent/index/blast-radius.json",
       "generatedAt": "2026-05-08T04:00:47.874Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -241,7 +241,7 @@
     {
       "path": "agent/index/canonical-helpers.json",
       "generatedAt": "2026-05-08T03:58:27.150Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -275,7 +275,7 @@
     {
       "path": "agent/index/dependency-graph.summary.json",
       "generatedAt": "2026-05-08T03:59:16.567Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -309,7 +309,7 @@
     {
       "path": "agent/index/governance-truth.json",
       "generatedAt": "2026-05-08T03:58:27.373Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -343,7 +343,7 @@
     {
       "path": "agent/index/known-pitfalls.json",
       "generatedAt": "2026-05-08T03:58:27.458Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -377,7 +377,7 @@
     {
       "path": "agent/index/package-manager-truth.json",
       "generatedAt": "2026-05-08T03:58:27.290Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -411,7 +411,7 @@
     {
       "path": "agent/index/recent-passes.json",
       "generatedAt": "2026-05-08T03:58:27.486Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -445,7 +445,7 @@
     {
       "path": "agent/index/repo-inventory.json",
       "generatedAt": "2026-05-08T03:58:26.999Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -479,7 +479,7 @@
     {
       "path": "agent/index/retrieval-index.json",
       "generatedAt": "2026-05-08T04:00:52.917Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -513,7 +513,7 @@
     {
       "path": "agent/index/runtime-observability.json",
       "generatedAt": "2026-05-08T03:58:27.573Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -547,7 +547,7 @@
     {
       "path": "agent/index/surface-map.json",
       "generatedAt": "2026-05-08T03:58:27.149Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -580,11 +580,11 @@
     },
     {
       "path": "agent/index/ui-surface-coverage.json",
-      "generatedAt": "2026-05-08T03:58:27.574Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "generatedAt": "2026-06-11T21:13:10.801Z",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
-      "freshness": "stale",
+      "freshness": "fresh",
       "staleAfterHours": 24,
       "metadataSource": "authority_manifest",
       "missingEmbeddedFields": [
@@ -615,7 +615,7 @@
     {
       "path": "agent/index/verification-commands.json",
       "generatedAt": "2026-05-08T03:58:27.228Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -649,7 +649,7 @@
     {
       "path": "agent/index/workflow-guidance.json",
       "generatedAt": "2026-05-08T03:58:27.367Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -683,7 +683,7 @@
     {
       "path": "agent/state/4xx-cost-guardrails.generated.json",
       "generatedAt": "2026-05-12T01:47:42.903Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -744,7 +744,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit ee6aa4618401cd53b9b98dcaa8226964e506711c does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit ee6aa4618401cd53b9b98dcaa8226964e506711c does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -778,13 +778,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit ee6aa4618401cd53b9b98dcaa8226964e506711c does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit ee6aa4618401cd53b9b98dcaa8226964e506711c does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/accessibility-tap-target-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -844,7 +844,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 80ff5ebbd6a11a027951de58f1c8e1e859295785 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 80ff5ebbd6a11a027951de58f1c8e1e859295785 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -877,7 +877,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 41548a214020ae5be78fc5b546d61b6c5b48fb40 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 41548a214020ae5be78fc5b546d61b6c5b48fb40 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -910,13 +910,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 225f9e53f18b60edc7399c1ea258c0b9bacfae84 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 225f9e53f18b60edc7399c1ea258c0b9bacfae84 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/addition-bloat-guard.generated.json",
       "generatedAt": "2026-05-28T20:47:00.000Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -977,13 +977,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 3878a581193dd171f69e3c0b63073ac738c14152 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 3878a581193dd171f69e3c0b63073ac738c14152 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/admin-analytics-finalization.generated.json",
       "generatedAt": "2026-05-01T00:00:00-05:00",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1044,13 +1044,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 5e1ccedfceebc9fe56a06fa2235b1eadb6d2c36e does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 5e1ccedfceebc9fe56a06fa2235b1eadb6d2c36e does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/admin-analytics-realtime-dependency-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1111,7 +1111,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit c7d71be250a089c91e14875aa44d9c7bf81d039c does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit c7d71be250a089c91e14875aa44d9c7bf81d039c does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -1145,7 +1145,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 64cf12401365add96a6f816934628a0910225904 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 64cf12401365add96a6f816934628a0910225904 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -1179,46 +1179,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit e0b2faccf8604728ef1ba7efbcac53c3722049ad does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
-      ]
-    },
-    {
-      "path": "agent/state/admin-browser-surface-smoke.generated.json",
-      "generatedAt": "2026-06-11T18:58:59.576Z",
-      "sourceCommit": "595e4f29a10784bceaf5f2c208fcac720d0d31e9",
-      "status": "browser_boundary_partial",
-      "evidenceClass": "generated_snapshot",
-      "freshness": "stale",
-      "staleAfterHours": 24,
-      "metadataSource": "authority_manifest",
-      "missingEmbeddedFields": [
-        "evidenceClass"
-      ],
-      "metadataWarnings": [
-        "missing generated report metadata string reportCompleteness",
-        "missing generated report metadata string capStrategy",
-        "missing generated report metadata string sourceFileDiscovery",
-        "missing generated report metadata string gitStatus",
-        "missing generated report metadata string currentHeadSource",
-        "missing generated report metadata string freshness",
-        "missing generated report metadata string baselineStatus",
-        "missing generated report metadata string owner",
-        "missing generated report metadata string safetyClass",
-        "missing generated report metadata string costClass",
-        "missing generated report metadata string rollback",
-        "missing generated report metadata string cleanupPolicy",
-        "missing generated report metadata string sourceTruthRole",
-        "missing generated report metadata number totalFindingCount",
-        "missing generated report metadata number emittedFindingCount",
-        "missing generated report metadata number omittedFindingCount",
-        "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 595e4f29a10784bceaf5f2c208fcac720d0d31e9 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit e0b2faccf8604728ef1ba7efbcac53c3722049ad does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/admin-cms-workflow-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1252,7 +1219,7 @@
     {
       "path": "agent/state/admin-heartbeat-contract.generated.json",
       "generatedAt": "2026-06-07T01:59:00.375Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1286,7 +1253,7 @@
     {
       "path": "agent/state/admin-hot-cache-cost-estimate.generated.json",
       "generatedAt": "2026-06-07T01:59:00.394Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1320,7 +1287,7 @@
     {
       "path": "agent/state/admin-hot-cache-heartbeat-refactor.generated.json",
       "generatedAt": "2026-06-07T01:59:00.416Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1355,7 +1322,7 @@
     {
       "path": "agent/state/admin-overview-hot-cache.generated.json",
       "generatedAt": "2026-06-07T01:59:00.435Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1389,7 +1356,7 @@
     {
       "path": "agent/state/admin-realtime-hot-cache-migration.generated.json",
       "generatedAt": "2026-06-07T01:59:00.456Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1450,7 +1417,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit c5cd5726b4c9cf20638cbc5f05d31cfc94d2a68f does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit c5cd5726b4c9cf20638cbc5f05d31cfc94d2a68f does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -1481,13 +1448,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit bcd7aad7d363fc377e5b123eb4c06f78678f42f5 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit bcd7aad7d363fc377e5b123eb4c06f78678f42f5 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/admin-surface-hydration.generated.json",
       "generatedAt": "2026-06-07T01:59:00.518Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1549,13 +1516,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 7747ca78ac19f78c396f9c5c50301347ce492a45 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 7747ca78ac19f78c396f9c5c50301347ce492a45 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/admin-truth-replacement.generated.json",
       "generatedAt": "2026-05-08T03:02:18.323Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1615,7 +1582,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit e4ff8fc598ad5b523a9955b5e4377a537282c029 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit e4ff8fc598ad5b523a9955b5e4377a537282c029 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -1648,13 +1615,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 225f9e53f18b60edc7399c1ea258c0b9bacfae84 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 225f9e53f18b60edc7399c1ea258c0b9bacfae84 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/admin-users-latency-repair.generated.json",
       "generatedAt": "2026-05-24T21:48:31.352Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1716,13 +1683,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 9dc79a00f40df751841c8d8f10d98de636336397 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 9dc79a00f40df751841c8d8f10d98de636336397 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/affected-audit-plan.generated.json",
       "generatedAt": "2026-05-05T05:17:17.720Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1756,7 +1723,7 @@
     {
       "path": "agent/state/agent-takeover-safety-check.generated.json",
       "generatedAt": "2026-05-28T20:50:00.000Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1818,13 +1785,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit a62f0177ba3e5bc7e86d8b5ec2c643258797c09a does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit a62f0177ba3e5bc7e86d8b5ec2c643258797c09a does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/ai-cover-learning-cutover.generated.json",
       "generatedAt": "2026-05-12T00:31:18.976Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1886,7 +1853,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit bbd8d8c7da74cf60bb978373242a76e5e0f305d7 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit bbd8d8c7da74cf60bb978373242a76e5e0f305d7 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -1920,13 +1887,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit e0b2faccf8604728ef1ba7efbcac53c3722049ad does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit e0b2faccf8604728ef1ba7efbcac53c3722049ad does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/ai-debug-critic-review.generated.json",
       "generatedAt": "2026-05-24T20:31:23.647Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1960,7 +1927,7 @@
     {
       "path": "agent/state/ai-debug-critic.generated.json",
       "generatedAt": "2026-05-21T14:22:31.420Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -1994,7 +1961,7 @@
     {
       "path": "agent/state/ai-debug-planner.generated.json",
       "generatedAt": "2026-05-24T20:31:23.647Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2028,7 +1995,7 @@
     {
       "path": "agent/state/ai-debug-queue-truth.generated.json",
       "generatedAt": "2026-05-24T20:31:23.678Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2062,7 +2029,7 @@
     {
       "path": "agent/state/ai-debug-workbench-ui-model.generated.json",
       "generatedAt": "2026-05-25T02:50:10.665Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2096,7 +2063,7 @@
     {
       "path": "agent/state/ai-description-feedback-firestore-cleanup.generated.json",
       "generatedAt": "2026-05-24T22:10:20.155Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2129,7 +2096,7 @@
     {
       "path": "agent/state/ai-repair-context-packet.generated.json",
       "generatedAt": "2026-05-25T02:50:01.087Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2163,7 +2130,7 @@
     {
       "path": "agent/state/ai-repair-critic-approval.generated.json",
       "generatedAt": "2026-05-25T02:50:07.040Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2197,7 +2164,7 @@
     {
       "path": "agent/state/ai-repair-planner.generated.json",
       "generatedAt": "2026-05-25T02:50:05.002Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2231,7 +2198,7 @@
     {
       "path": "agent/state/ai-repair-proposal-workflow.generated.json",
       "generatedAt": "2026-05-25T02:50:08.867Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2265,7 +2232,7 @@
     {
       "path": "agent/state/ai-repair-triage-engine.generated.json",
       "generatedAt": "2026-05-25T02:50:02.929Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2327,7 +2294,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 225f9e53f18b60edc7399c1ea258c0b9bacfae84 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 225f9e53f18b60edc7399c1ea258c0b9bacfae84 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -2360,7 +2327,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 74c04caadffa3080b2f979f7649026b17aafdbdf does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 74c04caadffa3080b2f979f7649026b17aafdbdf does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -2394,7 +2361,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 785975ca9f5f371e9731a73c6ae32439df52dfff does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 785975ca9f5f371e9731a73c6ae32439df52dfff does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -2428,7 +2395,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit d8f818a75f5b7e195937878e15058d63a4cc40fd does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit d8f818a75f5b7e195937878e15058d63a4cc40fd does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -2462,13 +2429,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 225f9e53f18b60edc7399c1ea258c0b9bacfae84 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 225f9e53f18b60edc7399c1ea258c0b9bacfae84 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/analytics-ecosystem-parity.generated.json",
       "generatedAt": "2026-04-30T17:30:27.124Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2530,7 +2497,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit b83c1225ffd93a16f6aecdd9b0081695613e32da does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit b83c1225ffd93a16f6aecdd9b0081695613e32da does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -2564,7 +2531,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 1583d9eba1ddfce8da345a9c71cdf164ccd291fa does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 1583d9eba1ddfce8da345a9c71cdf164ccd291fa does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -2598,7 +2565,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 1583d9eba1ddfce8da345a9c71cdf164ccd291fa does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 1583d9eba1ddfce8da345a9c71cdf164ccd291fa does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -2632,7 +2599,7 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 5804de2bee6bb7ee37b6764af26094c391d03abf does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 5804de2bee6bb7ee37b6764af26094c391d03abf does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
@@ -2666,13 +2633,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit 13dc614b575932b3bc589acabe8cccb675a2f614 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit 13dc614b575932b3bc589acabe8cccb675a2f614 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/analytics-ingest-identified-repair.generated.json",
       "generatedAt": "2026-05-24T21:14:27.276Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2734,13 +2701,13 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded",
-        "sourceCommit ac7c7802007957d92acf6e0871b1fb306affcb33 does not match currentHead 1e32f34d20c5b8dd2755d1b8db491db6ba62632d"
+        "sourceCommit ac7c7802007957d92acf6e0871b1fb306affcb33 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     },
     {
       "path": "agent/state/analytics-legacy-mapping-report.generated.json",
       "generatedAt": "2026-04-30T17:30:25.583Z",
-      "sourceCommit": "1e32f34d20c5b8dd2755d1b8db491db6ba62632d",
+      "sourceCommit": "901fbd46540e591a4e16c16d748030d0b3e7534a",
       "status": "historical_evidence_only",
       "evidenceClass": "historical_evidence_only",
       "freshness": "stale",
@@ -2769,6 +2736,40 @@
         "missing generated report metadata number emittedFindingCount",
         "missing generated report metadata number omittedFindingCount",
         "missing generated report metadata boolean toolingDegraded"
+      ]
+    },
+    {
+      "path": "agent/state/analytics-legacy-purgatory-queue.generated.json",
+      "generatedAt": "2026-06-10T04:21:02.886Z",
+      "sourceCommit": "ac7c7802007957d92acf6e0871b1fb306affcb33",
+      "status": "snapshot",
+      "evidenceClass": "generated_snapshot",
+      "freshness": "stale",
+      "staleAfterHours": 24,
+      "metadataSource": "filesystem_fallback",
+      "missingEmbeddedFields": [
+        "status",
+        "evidenceClass"
+      ],
+      "metadataWarnings": [
+        "missing generated report metadata string reportCompleteness",
+        "missing generated report metadata string capStrategy",
+        "missing generated report metadata string sourceFileDiscovery",
+        "missing generated report metadata string gitStatus",
+        "missing generated report metadata string currentHeadSource",
+        "missing generated report metadata string freshness",
+        "missing generated report metadata string baselineStatus",
+        "missing generated report metadata string owner",
+        "missing generated report metadata string safetyClass",
+        "missing generated report metadata string costClass",
+        "missing generated report metadata string rollback",
+        "missing generated report metadata string cleanupPolicy",
+        "missing generated report metadata string sourceTruthRole",
+        "missing generated report metadata number totalFindingCount",
+        "missing generated report metadata number emittedFindingCount",
+        "missing generated report metadata number omittedFindingCount",
+        "missing generated report metadata boolean toolingDegraded",
+        "sourceCommit ac7c7802007957d92acf6e0871b1fb306affcb33 does not match currentHead 901fbd46540e591a4e16c16d748030d0b3e7534a"
       ]
     }
   ],
@@ -3037,7 +3038,6 @@
     "agent/state/admin-analytics-realtime-hot-cache.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
     "agent/state/admin-analytics-source-hierarchy.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
     "agent/state/admin-balance-body-cap.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
-    "agent/state/admin-browser-surface-smoke.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
     "agent/state/admin-cms-workflow-audit.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
     "agent/state/admin-heartbeat-contract.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
     "agent/state/admin-hot-cache-cost-estimate.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
@@ -3083,6 +3083,7 @@
     "agent/state/analytics-ingest-firestore-closure.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
     "agent/state/analytics-ingest-identified-repair.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
     "agent/state/analytics-legacy-history-reconciliation.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
-    "agent/state/analytics-legacy-mapping-report.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus"
+    "agent/state/analytics-legacy-mapping-report.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus",
+    "agent/state/analytics-legacy-purgatory-queue.generated.json: missing generated report metadata string reportCompleteness; missing generated report metadata string capStrategy; missing generated report metadata string sourceFileDiscovery; missing generated report metadata string gitStatus"
   ]
 }

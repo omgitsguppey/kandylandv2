@@ -1,10 +1,114 @@
 {
-  "score": 100,
-  "status": "clean",
-  "generatedAt": "2026-05-24T19:13:43.717Z",
-  "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
-  "findings": [],
-  "criticalCount": 0,
+  "score": 0,
+  "status": "fail",
+  "generatedAt": "2026-06-11T22:35:04.835Z",
+  "repoRoot": "C:\\Users\\uylus\\Documents\\KandyDrops_Final",
+  "findings": [
+    {
+      "severity": "critical",
+      "category": "api_entitlement",
+      "title": "Content proxy must preserve entitlement guard: if (!ownsDrop && !hasUnlockedDrop)",
+      "suggestedFix": "Restore authenticated, same-origin, caller-scoped content proxy enforcement before reading or streaming content URLs.",
+      "escalation": "Content proxy changes require security review and targeted route tests.",
+      "filePath": "src/app/api/drops/content/route.ts",
+      "evidence": [
+        "if (!ownsDrop && !hasUnlockedDrop)"
+      ],
+      "id": "content-protection-w84pk",
+      "scoreImpact": -25,
+      "canAutofix": false
+    },
+    {
+      "severity": "critical",
+      "category": "api_entitlement",
+      "title": "Content proxy must preserve entitlement guard: return finalize(NextResponse.json({ error: \"You do not own this content\" }, { status: 403 }))",
+      "suggestedFix": "Restore authenticated, same-origin, caller-scoped content proxy enforcement before reading or streaming content URLs.",
+      "escalation": "Content proxy changes require security review and targeted route tests.",
+      "filePath": "src/app/api/drops/content/route.ts",
+      "evidence": [
+        "return finalize(NextResponse.json({ error: \"You do not own this content\" }, { status: 403 }))"
+      ],
+      "id": "content-protection-pbmhjh",
+      "scoreImpact": -25,
+      "canAutofix": false
+    },
+    {
+      "severity": "critical",
+      "category": "api_entitlement",
+      "title": "Content proxy reads/fetches internal URLs before entitlement is proven",
+      "suggestedFix": "Move ownership/unlock checks before any content URL selection or upstream fetch.",
+      "escalation": "Potential content exposure must be reviewed as a release blocker.",
+      "filePath": "src/app/api/drops/content/route.ts",
+      "line": 126,
+      "excerpt": "const availableUrls = Array.isArray(dropRecord.contentUrls) && dropRecord.contentUrls.length > 0",
+      "evidence": [
+        "if (!ownsDrop && !hasUnlockedDrop)",
+        "const availableUrls = Array.isArray(dropRecord.contentUrls)",
+        "const targetUrl = availableUrls[mediaIndex]",
+        "fetch(targetUrl"
+      ],
+      "id": "content-protection-1ftwk7",
+      "scoreImpact": -25,
+      "canAutofix": false
+    },
+    {
+      "severity": "critical",
+      "category": "viewer_entitlement",
+      "title": "Viewer client must gate content loading by entitlement: const isAuthorized = useMemo",
+      "suggestedFix": "Keep viewer content hooks disabled until the user is creator or has server-written unlock timestamp.",
+      "escalation": "Viewer authorization changes require route and client tests.",
+      "filePath": "src/app/dashboard/viewer/ViewerClient.tsx",
+      "evidence": [
+        "const isAuthorized = useMemo"
+      ],
+      "id": "content-protection-l48dao",
+      "scoreImpact": -25,
+      "canAutofix": false
+    },
+    {
+      "severity": "critical",
+      "category": "viewer_entitlement",
+      "title": "Viewer client must gate content loading by entitlement: const isCreator = user.uid === drop.creatorId",
+      "suggestedFix": "Keep viewer content hooks disabled until the user is creator or has server-written unlock timestamp.",
+      "escalation": "Viewer authorization changes require route and client tests.",
+      "filePath": "src/app/dashboard/viewer/ViewerClient.tsx",
+      "evidence": [
+        "const isCreator = user.uid === drop.creatorId"
+      ],
+      "id": "content-protection-178qcd8",
+      "scoreImpact": -25,
+      "canAutofix": false
+    },
+    {
+      "severity": "critical",
+      "category": "viewer_entitlement",
+      "title": "Viewer client must gate content loading by entitlement: const hasUnlocked = userProfile?.unlockedContentTimestamps?.[drop.id] !== undefined",
+      "suggestedFix": "Keep viewer content hooks disabled until the user is creator or has server-written unlock timestamp.",
+      "escalation": "Viewer authorization changes require route and client tests.",
+      "filePath": "src/app/dashboard/viewer/ViewerClient.tsx",
+      "evidence": [
+        "const hasUnlocked = userProfile?.unlockedContentTimestamps?.[drop.id] !== undefined"
+      ],
+      "id": "content-protection-1edxk6r",
+      "scoreImpact": -25,
+      "canAutofix": false
+    },
+    {
+      "severity": "critical",
+      "category": "viewer_entitlement",
+      "title": "Viewer client must gate content loading by entitlement: return isCreator || hasUnlocked",
+      "suggestedFix": "Keep viewer content hooks disabled until the user is creator or has server-written unlock timestamp.",
+      "escalation": "Viewer authorization changes require route and client tests.",
+      "filePath": "src/app/dashboard/viewer/ViewerClient.tsx",
+      "evidence": [
+        "return isCreator || hasUnlocked"
+      ],
+      "id": "content-protection-18mivol",
+      "scoreImpact": -25,
+      "canAutofix": false
+    }
+  ],
+  "criticalCount": 7,
   "majorCount": 0,
   "safeAutofixesAvailable": 0,
   "checkedFiles": [
@@ -54,5 +158,5 @@
       "broad integration tests"
     ]
   },
-  "summary": "Locked content protection is clean for preview, public feed, content proxy, and viewer source contracts."
+  "summary": "Locked content protection found 7 issue(s); content exposure findings require escalation."
 }
