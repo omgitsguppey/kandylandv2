@@ -12,6 +12,3 @@
 ## 2024-05-09 - Added aria-busy to Button component
 **Learning:** The core Button component visually indicated loading states with a spinner, but did not properly announce this asynchronous loading state to screen readers.
 **Action:** Always apply the `aria-busy={isLoading}` attribute to interactive elements like buttons when they enter a loading state to ensure screen readers are informed of the asynchronous process.
-## 2024-05-18 - Added aria-busy and aria-hidden to unwrap buttons
-**Learning:** Found several unwrap buttons across `DropCardCta`, `DropPreviewModal`, and `LockedDropPreviewView` that visually indicated a loading state (using the `Loader2` component from `lucide-react`) but lacked the proper ARIA attributes to announce this state to screen readers. The `Loader2` icon was also being read aloud unnecessarily.
-**Action:** Always add `aria-busy={isLoading}` to the wrapping interactive element (like `<button>`) when it enters a loading state. Additionally, always add `aria-hidden="true"` to visual loading indicators (like `<Loader2 />`) to prevent redundant screen reader announcements.

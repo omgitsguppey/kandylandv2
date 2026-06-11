@@ -104,7 +104,7 @@ function UnwrapButtonContent({ unlocking, hasUser, canAfford, confirming, unlock
   if (unlocking) {
     return (
       <>
-        <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+        <Loader2 className="h-5 w-5 animate-spin" />
         Unwrapping...
       </>
     );
@@ -474,7 +474,6 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                       onClick={handleUnwrap}
                       disabled={unlocking}
                       aria-pressed={confirming}
-                      aria-busy={unlocking}
                       className={cn(
                         "flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border relative overflow-hidden px-4 py-3 text-center text-base font-bold leading-5 transition-all active:scale-95 shadow-lg",
                         (!canAfford || !confirming) && "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_20px_rgba(164,118,255,0.4)] hover:opacity-95",
