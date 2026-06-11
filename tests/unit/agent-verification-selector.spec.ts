@@ -14,15 +14,18 @@ describe("agent verification selector", () => {
     expect(plan.forbiddenSurfaces).toContain("src/lib/gumdrop-ledger.ts");
   });
 
-  it("splits admin UI work into fast coverage/runtime and signoff audits", () => {
+  it("routes admin UI work to the dedicated authenticated browser smoke lane", () => {
     const plan = selectVerificationPlan({
       paths: ["src/app/admin/debug/page.tsx"],
     });
 
     expect(plan.fastCommands).toContain("npm run check:ui:coverage");
-    expect(plan.fastCommands).toContain("npm run check:ui:runtime");
-    expect(plan.signoffCommands).toContain("npm run check:ui:audits");
+    expect(plan.fastCommands).toContain("npm run check:admin-browser-surface-smoke");
+    expect(plan.fastCommands).not.toContain("npm run check:ui:runtime");
+    expect(plan.signoffCommands).toContain("npm run check:admin-browser-surface-smoke:browser");
+    expect(plan.signoffCommands).not.toContain("npm run check:ui:audits");
     expect(plan.signoffCommands).toContain("npm run check:continuity");
+    expect(plan.manualEvidenceRequirements).toContain("admin_browser_auth: authenticated admin browser signoff requires ADMIN_BROWSER_SMOKE_STORAGE_STATE and does not clear provider/runtime/admin-truth gates.");
   });
 
   it("adds analytics semantics fast checks and continuity at signoff", () => {

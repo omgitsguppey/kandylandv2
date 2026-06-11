@@ -319,8 +319,15 @@ export function selectVerificationPlan(input: SelectorInput): VerificationPlan {
 
   if (touchesUi || touchesAdmin) {
     addSelection(selections, available, "fast", "npm run check:ui:coverage", "Indexed UI/admin surfaces changed.");
+  }
+
+  if (touchesAdmin) {
+    addSelection(selections, available, "fast", "npm run check:admin-browser-surface-smoke", "Admin browser surface map, selectors, and evidence boundary should stay current.");
+    addSelection(selections, available, "signoff", "npm run check:admin-browser-surface-smoke:browser", "Authenticated admin browser signoff uses the dedicated opt-in surface smoke lane.");
+    pushUnique(manualEvidenceRequirements, "admin_browser_auth: authenticated admin browser signoff requires ADMIN_BROWSER_SMOKE_STORAGE_STATE and does not clear provider/runtime/admin-truth gates.");
+  } else if (touchesUi) {
     addSelection(selections, available, "fast", "npm run check:ui:runtime", "Hydration/runtime UI continuity should stay truthful.");
-    addSelection(selections, available, "signoff", "npm run check:ui:audits", "UI/admin signoff requires Playwright audit coverage.");
+    addSelection(selections, available, "signoff", "npm run check:ui:audits", "Public/user UI signoff requires Playwright audit coverage.");
   }
 
   if (touchesDeviceLayout) {
