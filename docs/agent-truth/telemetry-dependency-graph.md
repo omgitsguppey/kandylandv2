@@ -1,7 +1,7 @@
 # Telemetry Dependency Graph
 
-Generated: 2026-05-21T19:03:46.412Z
-Current code version: 71a910fcbbe06296e4ffd189192543233af30cb6
+Generated: 2026-06-11T14:21:09.984Z
+Current code version: 0d4c92893c289e01e3159450d624e622b9294125
 
 ## Summary
 
@@ -200,7 +200,7 @@ Current code version: 71a910fcbbe06296e4ffd189192543233af30cb6
 - Evidence-only: yes
 ## Findings
 
-- fixed: DeepTracker anonymous telemetry reaches /api/analytics/ingest, persists accepted guest batches, and writes bounded timeline facts.
+- fixed: DeepTracker anonymous telemetry routes through the canonical telemetry client, which reaches /api/analytics/ingest, persists accepted guest batches, and writes bounded timeline facts.
 - fixed: Anonymous consent denial returns ignored without writing priority guest telemetry.
 - fixed: Identified ingest persists canonical event facts and writes behavioral timeline facts.
 - fixed: Identity-link route persists guest-to-user links and emits canonical identity events.
@@ -213,6 +213,10 @@ Current code version: 71a910fcbbe06296e4ffd189192543233af30cb6
 - fixed: GA4/PostHog/vendor analytics remain external evidence and do not replace first-party product truth.
 - fixed: BigQuery export consumes analytics_event_facts instead of missing or client-only events.
 - fixed: Canonical telemetry dependency graph module exists.
+- fixed: SIGNAL telemetry graph emits one compact dependency path per catalog event.
+- fixed: SIGNAL graph includes required gap classifications: event_missing, actor_missing, consent_blocked, identity_link_missing, materializer_missing, debug_lane_missing, runtime_unproven, external_provider_unproven.
+- fixed: SIGNAL graph catches disconnected, duplicate, or evidence-unproven telemetry paths instead of relying on broad terminal output.
+- fixed: SIGNAL dependency paths remain source-only and do not claim runtime/provider proof.
 
 ## Fixes Applied
 

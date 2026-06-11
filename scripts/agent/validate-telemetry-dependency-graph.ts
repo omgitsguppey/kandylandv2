@@ -10,6 +10,7 @@ import {
   validateTelemetryDependencyGraphClosure,
   type TelemetryDependencyLane,
 } from "../../src/lib/analytics/telemetry-dependency-graph";
+import { buildSignalTelemetryGraphReportFromRepo } from "./collect-signal-telemetry-graph";
 
 type Severity = "P0" | "P1" | "P2";
 
@@ -28,6 +29,9 @@ type TelemetryDependencyGraphReport = {
     lanesMapped: number;
     priorityLanesClosed: boolean;
     catalogEventsMapped: boolean;
+    signalDependencyPathsMapped: boolean;
+    signalGapTaxonomyPresent: boolean;
+    signalDuplicateOrDisconnectedPathsCaught: boolean;
     fakeTrackedClaimsBlocked: boolean;
     adminConsumersHaveProducers: boolean;
     bigQueryExportHasEventFacts: boolean;
@@ -54,7 +58,20 @@ const artifactRelativePath = "agent/state/telemetry-dependency-graph.generated.j
 const docsRelativePath = "docs/agent-truth/telemetry-dependency-graph.md";
 
 function currentHead() {
-  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  } catch (error) {
+    try {
+      const head = read(".git/HEAD").trim();
+      if (head.startsWith("ref: ")) {
+        const refPath = head.replace(/^ref:\s*/u, "");
+        return read(`.git/${refPath}`).trim();
+      }
+      return head;
+    } catch {
+      return `git_unavailable:${(error as Error).message}`;
+    }
+  }
 }
 
 function read(relativePath: string) {
@@ -147,7 +164,23 @@ function writeMarkdown(report: TelemetryDependencyGraphReport) {
 export function validateTelemetryDependencyGraph(options: { writeReport?: boolean } = {}) {
   const graphClosure = validateTelemetryDependencyGraphClosure(TELEMETRY_EVENT_OPTIONS);
   const unmappedEvents = findUnmappedTelemetryEvents(TELEMETRY_EVENT_OPTIONS);
+  const signalGraph = buildSignalTelemetryGraphReportFromRepo();
+  const requiredSignalGaps = [
+    "event_missing",
+    "actor_missing",
+    "consent_blocked",
+    "identity_link_missing",
+    "materializer_missing",
+    "debug_lane_missing",
+    "runtime_unproven",
+    "external_provider_unproven",
+  ];
+  const signalGapTaxonomyPresent = requiredSignalGaps.every((gap) => gap in signalGraph.summary.byGapClassification);
+  const signalDuplicateOrDisconnectedPathsCaught = signalGraph.findings.some((finding) =>
+    /duplicate|missing|disconnected|unproven/u.test(finding.classification),
+  );
   const deepTracker = read("src/components/Analytics/DeepTracker.tsx");
+  const telemetryClient = read("src/lib/telemetry.ts");
   const ingestRoute = read("src/app/api/analytics/ingest/route.ts");
   const identifiedIngestRoute = read("src/app/api/analytics/ingest-identified/route.ts");
   const identityLinkRoute = read("src/app/api/analytics/identity-link/route.ts");
@@ -168,10 +201,12 @@ export function validateTelemetryDependencyGraph(options: { writeReport?: boolea
   const routeClosureFindings = [
     finding(
       "deeptracker-ingest-route",
-      deepTracker.includes("/api/analytics/ingest")
+      deepTracker.includes("trackEvent(")
+        && !deepTracker.includes("/api/analytics/ingest")
+        && telemetryClient.includes("/api/analytics/ingest")
         && ingestRoute.includes("analytics_guest_batches")
         && ingestRoute.includes("writeBehavioralTimelineFacts("),
-      "DeepTracker anonymous telemetry reaches /api/analytics/ingest, persists accepted guest batches, and writes bounded timeline facts.",
+      "DeepTracker anonymous telemetry routes through the canonical telemetry client, which reaches /api/analytics/ingest, persists accepted guest batches, and writes bounded timeline facts.",
       "P0",
     ),
     finding(
@@ -263,6 +298,33 @@ export function validateTelemetryDependencyGraph(options: { writeReport?: boolea
     ),
   ];
 
+  const signalGraphFindings = [
+    finding(
+      "signal-dependency-paths-mapped",
+      signalGraph.summary.dependencyPathCount === signalGraph.summary.catalogedEventCount && signalGraph.summary.dependencyPathCount > 0,
+      "SIGNAL telemetry graph emits one compact dependency path per catalog event.",
+      "P0",
+    ),
+    finding(
+      "signal-gap-taxonomy-present",
+      signalGapTaxonomyPresent,
+      `SIGNAL graph includes required gap classifications: ${requiredSignalGaps.join(", ")}.`,
+      "P0",
+    ),
+    finding(
+      "signal-disconnects-caught",
+      signalDuplicateOrDisconnectedPathsCaught,
+      "SIGNAL graph catches disconnected, duplicate, or evidence-unproven telemetry paths instead of relying on broad terminal output.",
+      "P1",
+    ),
+    finding(
+      "signal-source-only-boundary",
+      signalGraph.nodes.dependencyPaths.examples.every((entry) => entry.evidenceStatus.sourceOnly && !entry.evidenceStatus.runtimeProven),
+      "SIGNAL dependency paths remain source-only and do not claim runtime/provider proof.",
+      "P0",
+    ),
+  ];
+
   const fixesApplied = [
     finding("canonical-graph-created", has("src/lib/analytics/telemetry-dependency-graph.ts"), "Created the canonical telemetry dependency graph."),
     finding("validator-created", has("scripts/agent/validate-telemetry-dependency-graph.ts"), "Added a focused validator for telemetry route closure."),
@@ -274,6 +336,7 @@ export function validateTelemetryDependencyGraph(options: { writeReport?: boolea
     ...staleTrackingFindings,
     ...adminConsumerFindings,
     ...exportFindings,
+    ...signalGraphFindings,
     ...fixesApplied,
   ];
 
@@ -285,6 +348,9 @@ export function validateTelemetryDependencyGraph(options: { writeReport?: boolea
       lanesMapped: TELEMETRY_DEPENDENCY_GRAPH.length,
       priorityLanesClosed,
       catalogEventsMapped: unmappedEvents.length === 0,
+      signalDependencyPathsMapped: signalGraph.summary.dependencyPathCount === signalGraph.summary.catalogedEventCount && signalGraph.summary.dependencyPathCount > 0,
+      signalGapTaxonomyPresent,
+      signalDuplicateOrDisconnectedPathsCaught,
       fakeTrackedClaimsBlocked: graphClosure.ok && priorityLanesClosed,
       adminConsumersHaveProducers: adminConsumerFindings.every((entry) => entry.status === "fixed"),
       bigQueryExportHasEventFacts: exportFindings.some((entry) => entry.id === "bigquery-export-event-facts" && entry.status === "fixed"),
@@ -298,7 +364,7 @@ export function validateTelemetryDependencyGraph(options: { writeReport?: boolea
     routeClosureFindings,
     staleTrackingFindings,
     adminConsumerFindings,
-    exportFindings,
+    exportFindings: [...exportFindings, ...signalGraphFindings],
     fixesApplied,
     prCleanupActions: ["No open telemetry/analytics/GA4/BigQuery/Firebase/Data Connect/admin analytics PRs were present at start."],
     nextFixOrder: [

@@ -1,11 +1,14 @@
 {
-  "generatedAtUtc": "2026-05-21T19:03:46.412Z",
+  "generatedAtUtc": "2026-06-11T14:21:09.984Z",
   "reportKey": "telemetry-dependency-graph",
-  "currentHead": "71a910fcbbe06296e4ffd189192543233af30cb6",
+  "currentHead": "0d4c92893c289e01e3159450d624e622b9294125",
   "summary": {
     "lanesMapped": 14,
     "priorityLanesClosed": true,
     "catalogEventsMapped": true,
+    "signalDependencyPathsMapped": true,
+    "signalGapTaxonomyPresent": true,
+    "signalDuplicateOrDisconnectedPathsCaught": true,
     "fakeTrackedClaimsBlocked": true,
     "adminConsumersHaveProducers": true,
     "bigQueryExportHasEventFacts": true,
@@ -508,7 +511,7 @@
       "id": "deeptracker-ingest-route",
       "status": "fixed",
       "severity": "P0",
-      "detail": "DeepTracker anonymous telemetry reaches /api/analytics/ingest, persists accepted guest batches, and writes bounded timeline facts."
+      "detail": "DeepTracker anonymous telemetry routes through the canonical telemetry client, which reaches /api/analytics/ingest, persists accepted guest batches, and writes bounded timeline facts."
     },
     {
       "id": "guest-consent-denied-no-write",
@@ -587,6 +590,30 @@
       "status": "fixed",
       "severity": "P0",
       "detail": "Canonical telemetry dependency graph module exists."
+    },
+    {
+      "id": "signal-dependency-paths-mapped",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "SIGNAL telemetry graph emits one compact dependency path per catalog event."
+    },
+    {
+      "id": "signal-gap-taxonomy-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "SIGNAL graph includes required gap classifications: event_missing, actor_missing, consent_blocked, identity_link_missing, materializer_missing, debug_lane_missing, runtime_unproven, external_provider_unproven."
+    },
+    {
+      "id": "signal-disconnects-caught",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "SIGNAL graph catches disconnected, duplicate, or evidence-unproven telemetry paths instead of relying on broad terminal output."
+    },
+    {
+      "id": "signal-source-only-boundary",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "SIGNAL dependency paths remain source-only and do not claim runtime/provider proof."
     }
   ],
   "fixesApplied": [
