@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-18T13:35:30.269Z",
+  "generatedAtUtc": "2026-06-11T14:42:06.148Z",
   "reportKey": "analytics-legacy-recovery-reconciliation",
-  "currentHead": "d14d5d10899b0784d0743319a45c83854443a49a",
+  "currentHead": "4683ec0d72d0ff13c290bfdfe54da6e3039deeeb",
   "summary": {
     "candidateCount": 10,
     "exactMatchCount": 0,

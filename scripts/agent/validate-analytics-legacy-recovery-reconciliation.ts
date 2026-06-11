@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -21,7 +20,15 @@ const docsPath = "docs/agent-truth/analytics-legacy-recovery-reconciliation.md";
 const reconcilerPath = "src/lib/analytics/legacy-recovery-reconciler.ts";
 
 function currentHead() {
-  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  const headPath = join(repoRoot, ".git", "HEAD");
+  if (!existsSync(headPath)) return "unknown";
+  const head = readFileSync(headPath, "utf8").trim();
+  if (!head.startsWith("ref:")) return head;
+  const refPath = join(repoRoot, ".git", head.slice("ref:".length).trim());
+  if (existsSync(refPath)) {
+    return readFileSync(refPath, "utf8").trim();
+  }
+  return "unknown";
 }
 
 function readRequired(relativePath: string) {
