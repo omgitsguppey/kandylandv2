@@ -370,7 +370,7 @@ export function ReportBugButton({
                   disabled={submitting}
                   className="flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
                 >
-                  {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <><Sparkles className="h-4 w-4" />Send report</>}
+                  {submitting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <><Sparkles className="h-4 w-4" />Send report</>}
                 </button>
               </div>
             </div>

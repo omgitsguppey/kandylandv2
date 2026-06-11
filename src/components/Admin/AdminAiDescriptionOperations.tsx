@@ -650,7 +650,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
             {isLoading && !data ? (
                 <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3 text-sm text-gray-300">
                     <span className="inline-flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                         Loading description operations...
                     </span>
                 </div>

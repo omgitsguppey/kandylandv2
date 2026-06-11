@@ -114,7 +114,7 @@ function StatusPill({ status }: { status: AdminAiDropCoverJobRecord["status"] })
 
     return (
         <span className={cn("inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold", toneClassName)}>
-            {status === "running" ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+            {status === "running" ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : null}
             {label}
         </span>
     );
@@ -440,7 +440,7 @@ export function AiDropCoverGeneratorPanel({
                         disabled={!titleReady || generating}
                         className="h-9 border-brand-purple/25 bg-brand-purple/15 px-3 text-xs"
                     >
-                        {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                        {generating ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Sparkles className="h-4 w-4" />}
                         Generate cover
                     </CompactAiActionButton>
                     <div className="inline-flex min-h-11 items-center gap-1 rounded-full border border-white/10 bg-black/35 p-1">
@@ -528,7 +528,7 @@ export function AiDropCoverGeneratorPanel({
             {loadingDashboard && !dashboard ? (
                 <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/30 p-3 text-xs text-gray-300">
                     <span className="inline-flex items-center gap-2">
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
                         Loading AI status...
                     </span>
                 </div>
@@ -537,7 +537,7 @@ export function AiDropCoverGeneratorPanel({
             {activeProgress ? (
                 <div className="mt-3 rounded-[1rem] border border-cyan-400/20 bg-cyan-500/10 p-3 text-sm text-cyan-100">
                     <div className="flex flex-wrap items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                         <span>
                             {activeRunningJob?.status === "running"
                                 ? "Running"
@@ -630,7 +630,7 @@ export function AiDropCoverGeneratorPanel({
                                                 isSelected ? "border-brand-purple/30 bg-brand-purple/20" : "border-white/10 bg-black/35",
                                             )}
                                         >
-                                            {feedbackPending && selectedJobId !== job.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                                            {feedbackPending && selectedJobId !== job.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Check className="h-3.5 w-3.5" />}
                                             {isSelected ? "Cover selected" : "Use as cover"}
                                         </CompactAiActionButton>
                                     </div>

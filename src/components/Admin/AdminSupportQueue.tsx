@@ -255,7 +255,7 @@ export function AdminSupportQueue() {
                     <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
                         {isLoadingThreads && !threads.length ? (
                             <div className="flex justify-center p-4">
-                                <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
+                                <Loader2 className="h-4 w-4 animate-spin text-brand-purple" aria-hidden="true" />
                             </div>
                         ) : filteredThreads.length ? (
                             <div className="space-y-1.5">
@@ -357,7 +357,7 @@ export function AdminSupportQueue() {
 
                                 {isLoadingMessages && !messages.length ? (
                                     <div className="flex justify-center py-4">
-                                        <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
+                                        <Loader2 className="h-4 w-4 animate-spin text-brand-purple" aria-hidden="true" />
                                     </div>
                                 ) : messages.length ? (
                                     <div className="space-y-4">
@@ -405,7 +405,7 @@ export function AdminSupportQueue() {
                         </>
                     ) : (
                         <div className="flex flex-1 items-center justify-center p-8">
-                            <Loader2 className="h-5 w-5 animate-spin text-brand-purple" />
+                            <Loader2 className="h-5 w-5 animate-spin text-brand-purple" aria-hidden="true" />
                         </div>
                     )}
                 </section>

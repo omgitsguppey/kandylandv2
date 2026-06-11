@@ -9,6 +9,37 @@ function read(relativePath: string) {
     return readFileSync(join(root, relativePath), "utf8");
 }
 
+const loaderSpinnerFiles = [
+    "src/components/Admin/AdminAiDescriptionOperations.tsx",
+    "src/components/Admin/AdminDropsAtGlancePanel.tsx",
+    "src/components/Admin/AdminModerationSecurityAlerts.tsx",
+    "src/components/Admin/AdminSupportQueue.tsx",
+    "src/components/Admin/AdminTasksManager.tsx",
+    "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
+    "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx",
+    "src/components/Admin/AssetUploader.tsx",
+    "src/components/Admin/BalanceAdjustmentModal.tsx",
+    "src/components/Admin/CreateDropModal.tsx",
+    "src/components/Admin/TransactionHistoryModal.tsx",
+    "src/components/Auth/AuthModal.tsx",
+    "src/components/Auth/GuestComponentBlur.tsx",
+    "src/components/CreatorDiscoveryRail.tsx",
+    "src/components/Creators/CreatorBookingsManager.tsx",
+    "src/components/Creators/CreatorBroadcastManager.tsx",
+    "src/components/Creators/CreatorFanPassManager.tsx",
+    "src/components/Creators/CreatorRequestsManager.tsx",
+    "src/components/Dashboard/DailyCheckIn.tsx",
+    "src/components/Dashboard/DailyTasksModule.tsx",
+    "src/components/Dashboard/RecentActivityFeed.tsx",
+    "src/components/DropCardCta.tsx",
+    "src/components/DropPreviewModal.tsx",
+    "src/components/Drops/LockedDropPreviewView.tsx",
+    "src/components/Feedback/ReportBugButton.tsx",
+    "src/components/Settings/UserSettingsPage.tsx",
+    "src/components/Support/SupportInbox.tsx",
+    "src/components/ui/UiContinuityNotice.tsx",
+] as const;
+
 describe("accessibility tap target launch contracts", () => {
     it("mobile bottom navigation exposes current page state and labelled wallet action", () => {
         const source = read("src/components/Navigation/MobileBottomBar.tsx");
@@ -67,5 +98,21 @@ describe("accessibility tap target launch contracts", () => {
         expect(source).toContain("aria-label={row.isQueued ? \"Unqueue drop\" : \"Queue drop\"}");
         expect(source).toContain("aria-busy={queueingDropId === row.drop.id}");
         expect(source).toContain("aria-hidden=\"true\"");
+    });
+
+    it("loading spinners are hidden from assistive technology when visible text owns status", () => {
+        const missing = loaderSpinnerFiles.flatMap((file) => {
+            const source = read(file);
+            return source
+                .split(/\r?\n/u)
+                .map((line, index) => ({ file, line: index + 1, text: line.trim() }))
+                .filter((entry) =>
+                    entry.text.includes("<Loader2")
+                    && entry.text.includes("animate-spin")
+                    && !entry.text.includes("aria-hidden=\"true\""),
+                );
+        });
+
+        expect(missing).toEqual([]);
     });
 });

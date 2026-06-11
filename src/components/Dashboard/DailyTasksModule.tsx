@@ -618,7 +618,7 @@ export function DailyTasksModule() {
                 disabled={feedbackLoading}
                 className="flex-1 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
               >
-                {feedbackLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Send feedback"}
+                {feedbackLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : "Send feedback"}
               </button>
             </div>
           </div>
@@ -671,7 +671,7 @@ export function DailyTasksModule() {
 
       {rotating && activeTasks.length === 0 ? (
         <div className="glass-panel rounded-[1.35rem] border border-white/10 p-4 text-center sm:p-5" data-mobile-residual-cleanup="score-impact">
-          <Loader2 className="mx-auto h-7 w-7 animate-spin text-brand-purple" />
+          <Loader2 className="mx-auto h-7 w-7 animate-spin text-brand-purple" aria-hidden="true" />
           <p className="mt-3 text-sm text-gray-400">Preparing today&apos;s tasks...</p>
         </div>
       ) : null}
@@ -884,7 +884,7 @@ export function DailyTasksModule() {
                               : "border-white/10 bg-white/5 text-white hover:bg-white/10",
                           )}
                         >
-                          {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icon className="h-4 w-4" />}
+                          {isBusy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Icon className="h-4 w-4" />}
                           {getTaskActionLabel(task)}
                         </button>
                       )}

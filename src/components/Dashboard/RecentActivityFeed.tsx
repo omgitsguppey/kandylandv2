@@ -333,7 +333,7 @@ function ExpandedActivityView({
 
             {loadingHistory ? (
                 <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" />
+                    <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" aria-hidden="true" />
                 </div>
             ) : historyError && activities.length === 0 ? (
                 <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-8 text-center text-sm text-gray-400">
@@ -744,7 +744,7 @@ export function RecentActivityFeed() {
 
             {loadingSummary ? (
                 <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" />
+                    <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" aria-hidden="true" />
                 </div>
             ) : !summaryActivity && !historyActivities.length ? (
                 <RecentActivityEmptyState

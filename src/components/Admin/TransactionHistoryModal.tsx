@@ -86,7 +86,7 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                 <div className="custom-scrollbar -mr-2 mb-6 flex-1 space-y-3 overflow-y-auto pr-2">
                     {loading ? (
                         <div className="flex justify-center py-12">
-                            <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+                            <Loader2 className="h-6 w-6 animate-spin text-brand-purple" aria-hidden="true" />
                         </div>
                     ) : error ? (
                         <div className="rounded-xl border border-red-500/20 bg-red-500/10 py-8 text-center text-sm text-red-200">

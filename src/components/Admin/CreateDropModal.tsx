@@ -863,7 +863,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                         <div className="custom-scrollbar flex-1 overflow-y-auto px-3 pb-24 pt-3 md:px-5 md:pb-6 md:pt-5">
                             {fetching ? (
                                 <div className="flex items-center justify-center min-h-[300px]">
-                                    <Loader2 className="w-8 h-8 animate-spin text-white" />
+                                    <Loader2 className="w-8 h-8 animate-spin text-white" aria-hidden="true" />
                                 </div>
                             ) : (
                                 <form id="create-drop-form" onSubmit={handleSubmit(onSubmit, onError)} className="space-y-3">
@@ -968,7 +968,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                                         Remove or rename duplicate files before saving this drop.
                                                     </p>
                                                 </div>
-                                                {checkingDuplicateNames ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                                {checkingDuplicateNames ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
                                             </div>
                                             <div className="mt-3 space-y-2">
                                                 {duplicateWarnings.map((warning) => (
@@ -1152,7 +1152,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                 disabled={isSubmitting || fetching || uploadsBusy}
                                 className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-purple to-[#d946ef] px-3 text-sm font-bold text-white shadow-[0_0_18px_rgba(236,72,153,0.25)] transition-all hover:shadow-[0_0_22px_rgba(236,72,153,0.35)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                             >
-                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /> : <Save className="w-5 h-5" />}
                                 {isSubmitting ? "Saving..." : isEditMode ? (mode === "creator" ? "Update submission" : "Update Drop") : (mode === "creator" ? "Submit for review" : "Create Drop")}
                             </button>
                             </div>

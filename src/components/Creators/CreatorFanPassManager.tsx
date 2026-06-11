@@ -165,7 +165,7 @@ export function CreatorFanPassManager({
           disabled={!canLoadSubscribers || loading}
           className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2.5 text-xs font-bold text-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <RefreshCw className="h-3.5 w-3.5" />}
           Refresh
         </button>
       </div>
@@ -199,7 +199,7 @@ export function CreatorFanPassManager({
         <p className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-gray-300">{unavailableMessage}</p>
       ) : loading ? (
         <div className="mt-4 flex items-center gap-2 text-sm text-gray-300">
-          <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
+          <Loader2 className="h-4 w-4 animate-spin text-brand-purple" aria-hidden="true" />
           Loading Fan Pass subscribers
         </div>
       ) : subscribers.length === 0 ? (
