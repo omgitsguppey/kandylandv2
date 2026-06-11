@@ -8,6 +8,7 @@ import { buildDataValidationUiSemantics, buildValidationReadinessSummary } from 
 import { buildDebugCockpitBatch28BugValidationReport } from "../../src/lib/debug/debug-cockpit-batch28-bug-validation";
 import { buildBugReportTruthState } from "../../src/lib/debug/bug-report-truth-contract";
 import { buildBugReportTruthSource } from "../../src/lib/debug/bug-report-truth-source";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
 type Report = Record<string, unknown>;
 
@@ -51,6 +52,13 @@ function classifyDirtyFile(filePath: string) {
 }
 
 function openPrClassification() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") {
+    return [{
+      classification: "external_command_opt_in_required",
+      command: "gh pr list --repo omgitsguppey/kandylandv2 --state open --limit 100 --json number,title,author,mergeStateStatus,isDraft,updatedAt,url",
+      nextExactAction: "Set ALLOW_GH_PR_LIST=1 only for an operator-approved fresh GitHub PR query; cached/source-only reports cannot clear release proof gates.",
+    }];
+  }
   const raw = command([
     "gh",
     "pr",
@@ -78,13 +86,29 @@ function openPrClassification() {
 function runValidation(reportKey: string, report: Report, failures: string[], summary: string[]) {
   const generatedAtUtc = new Date().toISOString();
   const currentHead = command(["git", "rev-parse", "HEAD"], "unknown");
-  const result = {
+  const result = withGeneratedReportEnvelope({
     reportKey,
     generatedAtUtc,
     currentHead,
     ...report,
     validationFailures: failures,
-  };
+  }, {
+    reportKey,
+    generatedAtUtc,
+    currentHead,
+    evidenceClass: "source_snapshot",
+    canClearSourceGate: failures.length === 0,
+    nextExactSteps: [
+      `Run npm run check:${reportKey} after touching this debug/source validation lane.`,
+      "Use redacted runtime/admin evidence separately before clearing runtime or admin truth gates.",
+    ],
+    validationFailures: failures,
+    doesNotProve: [
+      "Does not prove live bug-report volume.",
+      "Does not prove provider/runtime behavior.",
+      "Does not prove current admin truth samples.",
+    ],
+  });
   writeJson(`agent/state/${reportKey}.generated.json`, result);
   writeMarkdown(`docs/agent-truth/${reportKey}.md`, [
     `# ${reportKey}`,

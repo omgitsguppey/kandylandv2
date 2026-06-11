@@ -17,6 +17,7 @@ import {
   validateUserCheckinRouteErrorMappingReport,
   validateViewerWatchSessionErrorCleanupReport,
 } from "../../src/lib/debug/debug-cockpit-batch19-product-routes";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
 type ValidationResult = {
   reportKey: string;
@@ -49,12 +50,27 @@ function containsAll(source: string, needles: string[]) {
 
 function runValidation(reportKey: string, report: Record<string, unknown>, failures: string[]) {
   const generatedAtUtc = typeof report.generatedAtUtc === "string" ? report.generatedAtUtc : new Date().toISOString();
-  const result: ValidationResult = {
+  const result = withGeneratedReportEnvelope({
     reportKey,
     generatedAtUtc,
     ...report,
     validationFailures: failures,
-  };
+  }, {
+    reportKey,
+    generatedAtUtc,
+    evidenceClass: "source_snapshot",
+    canClearSourceGate: failures.length === 0,
+    nextExactSteps: [
+      `Run npm run check:${reportKey} after touching this route evidence classifier lane.`,
+      "Refresh or attach route runtime samples separately before clearing runtime freshness gates.",
+    ],
+    validationFailures: failures,
+    doesNotProve: [
+      "Does not prove live route health.",
+      "Does not prove payment/provider runtime freshness.",
+      "Does not prove admin truth samples are current.",
+    ],
+  }) as ValidationResult;
   writeJson(`agent/state/${reportKey}.generated.json`, result);
   writeMarkdown(`docs/agent-truth/${reportKey}.md`, [
     `# ${reportKey}`,

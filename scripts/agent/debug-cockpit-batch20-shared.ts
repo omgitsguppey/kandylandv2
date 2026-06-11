@@ -7,6 +7,7 @@ import { classifyPaymentRouteStaleEvidence } from "../../src/lib/debug/payment-r
 import { classifyRouteSampleFreshness } from "../../src/lib/debug/route-sample-freshness-classifier";
 import { classifyScheduledRouteSample } from "../../src/lib/debug/cron-route-stale-failure-classifier";
 import { groupStaleRouteSamples } from "../../src/lib/debug/stale-route-grouping";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
 type Report = Record<string, unknown>;
 
@@ -34,12 +35,27 @@ function pushIf(condition: boolean, failures: string[], message: string) {
 
 function runValidation(reportKey: string, report: Report, failures: string[]) {
   const generatedAtUtc = new Date().toISOString();
-  const result = {
+  const result = withGeneratedReportEnvelope({
     reportKey,
     generatedAtUtc,
     ...report,
     validationFailures: failures,
-  };
+  }, {
+    reportKey,
+    generatedAtUtc,
+    evidenceClass: "source_snapshot",
+    canClearSourceGate: failures.length === 0,
+    nextExactSteps: [
+      `Run npm run check:${reportKey} after touching this classifier lane.`,
+      "Use deployed route samples or redacted runtime evidence separately before clearing runtime gates.",
+    ],
+    validationFailures: failures,
+    doesNotProve: [
+      "Does not prove live route health.",
+      "Does not prove provider/runtime route behavior.",
+      "Does not prove admin truth samples are current.",
+    ],
+  });
   writeJson(`agent/state/${reportKey}.generated.json`, result);
   writeMarkdown(`docs/agent-truth/${reportKey}.md`, [
     `# ${reportKey}`,

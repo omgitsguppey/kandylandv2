@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch28-bug-validation",
-  "generatedAtUtc": "2026-05-25T04:56:34.694Z",
-  "currentHead": "5c7d0dbd153160989cd96bca6702a87b5d00eeb9",
+  "generatedAtUtc": "2026-06-11T15:05:26.969Z",
+  "currentHead": "bcd7aad7d363fc377e5b123eb4c06f78678f42f5",
   "bugReportTruthStatusBefore": "loading",
   "bugReportTruthStatusAfter": "loaded_empty",
   "bugReportTerminalState": "loaded_empty",
@@ -38,148 +38,252 @@
     "Source agreement remains failed until GA4, historical snapshot, and legacy support agree inside tolerance."
   ],
   "nextExactSteps": [
-    "Review blocked pass validation rows and collect the missing evidence before promoting any row to pass.",
-    "Inspect source agreement failure sources: ga4, historical_snapshot, legacy_support."
+    "Run npm run check:debug-cockpit-batch28-bug-validation after touching this debug/source validation lane.",
+    "Use redacted runtime/admin evidence separately before clearing runtime or admin truth gates."
   ],
   "dirtyFileClassifications": [
     {
-      "filePath": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "filePath": "agent/context/doctrine.cards.jsonl",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "filePath": "agent/state/current-beta-exit-status.generated.json",
+      "filePath": "agent/context/doctrine.index.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "filePath": "agent/context/file-size-budget.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "filePath": "agent/context/legacy-registry.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "filePath": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "filePath": "agent/context/surface-contracts.jsonl",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "filePath": "agent/context/task-pack.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "filePath": "agent/context/validator-map.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "filePath": "agent/index/blast-radius.json",
       "classification": "fixed_current"
     },
     {
-      "filePath": "agent/state/debug-panel-output-triage.generated.json",
+      "filePath": "agent/index/canonical-helpers.json",
       "classification": "fixed_current"
     },
     {
-      "filePath": "agent/state/debug-runtime-evidence.generated.json",
+      "filePath": "agent/index/dependency-graph.summary.json",
       "classification": "fixed_current"
     },
     {
-      "filePath": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "filePath": "agent/index/governance-truth.json",
       "classification": "fixed_current"
     },
     {
-      "filePath": "agent/state/public-beta-score.generated.json",
+      "filePath": "agent/index/known-pitfalls.json",
       "classification": "fixed_current"
     },
     {
-      "filePath": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "filePath": "agent/index/package-manager-truth.json",
       "classification": "fixed_current"
     },
     {
-      "filePath": "agent/state/telemetry-parity-score.generated.json",
+      "filePath": "agent/index/recent-passes.json",
       "classification": "fixed_current"
     },
     {
-      "filePath": "docs/agent-truth/current-beta-exit-status.md",
+      "filePath": "agent/index/repo-inventory.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/index/retrieval-index.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/index/runtime-observability.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/index/surface-map.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/index/ui-surface-coverage.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/index/verification-commands.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/index/workflow-guidance.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/admin-summary-lane-status-classifier.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/config-env-contract.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/debug-cockpit-batch19-product-routes.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/debug-cockpit-batch20-stale-route-sweep.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/global-cost-surfaces.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/identity-handoff-spine.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/score-80-reconciliation-lock.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/score-dimension-80-lock.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/score-impact-stale-artifact-sweep.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/settings-creator-dashboard-split.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/sql-mirror-status.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/sql-sync.payload.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/support-policy-surface-cleanup.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/task-context.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/treasury-reconciliation-engine.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/treasury-structure-contract.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/user-management-status-truth.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/user-profile-api-contract.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "docs/agent-truth/admin-summary-lane-status-classifier.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/debug-runtime-evidence.md",
+      "filePath": "docs/agent-truth/config-env-contract.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "filePath": "docs/agent-truth/debug-cockpit-batch19-product-routes.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/telemetry-admin-debug-truth.md",
+      "filePath": "docs/agent-truth/debug-cockpit-batch20-stale-route-sweep.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "package.json",
-      "classification": "fixed_current"
+      "filePath": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
+      "filePath": "docs/agent-truth/identity-handoff-spine.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "filePath": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/score-80-reconciliation-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/score-dimension-80-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/score-impact-stale-artifact-sweep.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/support-policy-surface-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/treasury-reconciliation-engine.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/treasury-structure-contract.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/user-management-status-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/user-profile-api-contract.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/admin-status-lane-cleanup-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
-      "classification": "analytics_validation_semantics_fix_required"
-    },
-    {
-      "filePath": "src/app/admin/debug/components/DebugBugReportSummary.tsx",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "src/app/api/admin/debug/bug-reports/route.ts",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "src/lib/errors/bug-report-admin-summary.ts",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "filePath": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "src/types/admin-analytics.ts",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "agent/state/analytics-source-agreement-cleanup.generated.json",
-      "classification": "source_agreement_failure_classification_required"
-    },
-    {
-      "filePath": "agent/state/analytics-validation-semantics.generated.json",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "agent/state/bug-report-truth-source-cleanup.generated.json",
-      "classification": "bug_report_truth_terminal_state_required"
-    },
-    {
-      "filePath": "agent/state/bug-report-truth-terminal-state.generated.json",
-      "classification": "bug_report_truth_terminal_state_required"
-    },
-    {
-      "filePath": "agent/state/data-validation-ui-semantic-cleanup.generated.json",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "agent/state/debug-cockpit-batch28-bug-validation.generated.json",
+      "filePath": "scripts/agent/build-agent-indexes.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/analytics-source-agreement-cleanup.md",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "scripts/agent/debug-cockpit-batch19-shared.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/analytics-validation-semantics.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "filePath": "docs/agent-truth/bug-report-truth-source-cleanup.md",
-      "classification": "bug_report_truth_terminal_state_required"
-    },
-    {
-      "filePath": "docs/agent-truth/bug-report-truth-terminal-state.md",
-      "classification": "bug_report_truth_terminal_state_required"
-    },
-    {
-      "filePath": "docs/agent-truth/data-validation-ui-semantic-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "filePath": "docs/agent-truth/debug-cockpit-batch28-bug-validation.md",
+      "filePath": "scripts/agent/debug-cockpit-batch20-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -187,74 +291,55 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-analytics-source-agreement-cleanup.ts",
-      "classification": "source_agreement_failure_classification_required"
-    },
-    {
-      "filePath": "scripts/agent/validate-analytics-validation-semantics.ts",
+      "filePath": "scripts/agent/release-readiness-report-runner.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-bug-report-truth-source-cleanup.ts",
-      "classification": "bug_report_truth_terminal_state_required"
-    },
-    {
-      "filePath": "scripts/agent/validate-bug-report-truth-terminal-state.ts",
-      "classification": "bug_report_truth_terminal_state_required"
-    },
-    {
-      "filePath": "scripts/agent/validate-data-validation-ui-semantic-cleanup.ts",
+      "filePath": "scripts/agent/validate-freshness-window-repair.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-debug-cockpit-batch28-bug-validation.ts",
+      "filePath": "scripts/agent/validate-frontend-component-consolidation.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "src/lib/analytics/analytics-source-agreement-status.ts",
-      "classification": "source_agreement_failure_classification_required"
-    },
-    {
-      "filePath": "src/lib/analytics/validation-readiness-contract.ts",
-      "classification": "analytics_validation_semantics_fix_required"
-    },
-    {
-      "filePath": "src/lib/debug/bug-report-truth-contract.ts",
-      "classification": "bug_report_truth_terminal_state_required"
-    },
-    {
-      "filePath": "src/lib/debug/bug-report-truth-source.ts",
-      "classification": "bug_report_truth_terminal_state_required"
-    },
-    {
-      "filePath": "src/lib/debug/debug-cockpit-batch28-bug-validation.ts",
+      "filePath": "scripts/agent/validate-frontend-telemetry-consolidation.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "tests/unit/analytics-source-agreement-cleanup.spec.ts",
-      "classification": "source_agreement_failure_classification_required"
-    },
-    {
-      "filePath": "tests/unit/analytics-validation-semantics.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/bug-report-truth-source-cleanup.spec.ts",
-      "classification": "bug_report_truth_terminal_state_required"
-    },
-    {
-      "filePath": "tests/unit/bug-report-truth-terminal-state.spec.ts",
-      "classification": "bug_report_truth_terminal_state_required"
-    },
-    {
-      "filePath": "tests/unit/data-validation-ui-semantic-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/debug-cockpit-batch28-bug-validation.spec.ts",
+      "filePath": "scripts/agent/validate-guest-user-identity-transfer.ts",
       "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-identity-transfer-telemetry-closure.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/repo-inventory.ts",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/debug-evidence-staleness-queue.generated.json",
+      "classification": "fixed_current"
     }
   ],
-  "openPrClassifications": [],
-  "validationFailures": []
+  "openPrClassifications": [
+    {
+      "classification": "external_command_opt_in_required",
+      "command": "gh pr list --repo omgitsguppey/kandylandv2 --state open --limit 100 --json number,title,author,mergeStateStatus,isDraft,updatedAt,url",
+      "nextExactAction": "Set ALLOW_GH_PR_LIST=1 only for an operator-approved fresh GitHub PR query; cached/source-only reports cannot clear release proof gates."
+    }
+  ],
+  "validationFailures": [],
+  "status": "pass",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "doesNotProve": [
+    "Does not prove live bug-report volume.",
+    "Does not prove provider/runtime behavior.",
+    "Does not prove current admin truth samples."
+  ]
 }

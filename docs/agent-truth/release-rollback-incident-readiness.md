@@ -5,8 +5,8 @@ Validator: `npm run check:release-rollback-incident-readiness`
 
 ## Summary
 
-- Generated: `2026-06-09T00:43:11.994Z`
-- Current head: `2a74e447cba921be463f4aba997b2ba349fd8418`
+- Generated: `2026-06-11T15:05:37.309Z`
+- Current head: `bcd7aad7d363fc377e5b123eb4c06f78678f42f5`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:release-rollback-incident-readiness`
 ```json
 {
   "reportKey": "release-rollback-incident-readiness",
-  "generatedAtUtc": "2026-06-09T00:43:11.994Z",
-  "currentHead": "2a74e447cba921be463f4aba997b2ba349fd8418",
+  "generatedAtUtc": "2026-06-11T15:05:37.309Z",
+  "currentHead": "bcd7aad7d363fc377e5b123eb4c06f78678f42f5",
   "releaseVersion": "1.5.67",
   "readinessStatus": "source_ready_external_evidence_blocked",
   "migrationStatus": "no_migration_detected",
@@ -55,7 +55,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
     "evidenceKind": "source",
     "status": "passed",
     "artifactPath": "agent/state/config-env-contract.generated.json",
-    "generatedAtUtc": "2026-06-08T03:52:50.733Z",
+    "generatedAtUtc": "2026-06-11T14:15:47.422Z",
     "owner": "config/env contract",
     "validator": "npm run check:config-env-contract",
     "nextExactAction": "Keep env contract registered; provider presence remains external evidence.",
@@ -68,9 +68,9 @@ Validator: `npm run check:release-rollback-incident-readiness`
     "evidenceKind": "provider_proof",
     "status": "operator_reported_only",
     "artifactPath": "agent/state/provider-smoke-evidence.generated.json",
-    "currentHead": "f1e140ac6a2827e40c4531ae47997d7312526f29",
-    "sourceCommit": "f1e140ac6a2827e40c4531ae47997d7312526f29",
-    "generatedAtUtc": "2026-06-08T03:52:47.813Z",
+    "currentHead": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
+    "sourceCommit": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
+    "generatedAtUtc": "2026-06-11T14:40:22.954Z",
     "owner": "operator/provider owner",
     "validator": "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
     "nextExactAction": "Attach formal redacted provider smoke evidence; operator-reported provider success is not enough.",
@@ -157,7 +157,7 @@ Validator: `npm run check:release-rollback-incident-readiness`
       "evidenceKind": "source",
       "status": "passed",
       "artifactPath": "agent/state/config-env-contract.generated.json",
-      "generatedAtUtc": "2026-06-08T03:52:50.733Z",
+      "generatedAtUtc": "2026-06-11T14:15:47.422Z",
       "owner": "config/env contract",
       "validator": "npm run check:config-env-contract",
       "nextExactAction": "Keep env contract registered; provider presence remains external evidence.",
@@ -170,9 +170,9 @@ Validator: `npm run check:release-rollback-incident-readiness`
       "evidenceKind": "provider_proof",
       "status": "operator_reported_only",
       "artifactPath": "agent/state/provider-smoke-evidence.generated.json",
-      "currentHead": "f1e140ac6a2827e40c4531ae47997d7312526f29",
-      "sourceCommit": "f1e140ac6a2827e40c4531ae47997d7312526f29",
-      "generatedAtUtc": "2026-06-08T03:52:47.813Z",
+      "currentHead": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
+      "sourceCommit": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
+      "generatedAtUtc": "2026-06-11T14:40:22.954Z",
       "owner": "operator/provider owner",
       "validator": "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
       "nextExactAction": "Attach formal redacted provider smoke evidence; operator-reported provider success is not enough.",
@@ -230,9 +230,9 @@ Validator: `npm run check:release-rollback-incident-readiness`
       "evidenceKind": "provider_proof",
       "status": "operator_reported_only",
       "artifactPath": "agent/state/provider-smoke-evidence.generated.json",
-      "currentHead": "f1e140ac6a2827e40c4531ae47997d7312526f29",
-      "sourceCommit": "f1e140ac6a2827e40c4531ae47997d7312526f29",
-      "generatedAtUtc": "2026-06-08T03:52:47.813Z",
+      "currentHead": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
+      "sourceCommit": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
+      "generatedAtUtc": "2026-06-11T14:40:22.954Z",
       "owner": "operator/provider owner",
       "validator": "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
       "nextExactAction": "Attach formal redacted provider smoke evidence; operator-reported provider success is not enough.",

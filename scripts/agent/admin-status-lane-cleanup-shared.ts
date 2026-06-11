@@ -10,6 +10,7 @@ import {
   writeJson,
   type BuildInput,
 } from "./tracking-summary-lane-cleanup-shared";
+import { withGeneratedReportEnvelope } from "./generated-report-envelope";
 
 type LaneStatus = AdminSummaryLaneStatus;
 
@@ -44,6 +45,9 @@ function changedFiles() {
 }
 
 function openPrs() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") {
+    return [];
+  }
   const raw = run("gh", ["pr", "list", "--repo", "omgitsguppey/kandylandv2", "--state", "open", "--limit", "100", "--json", "number,title,url,mergeStateStatus,isDraft"]);
   try {
     const parsed = JSON.parse(raw) as unknown;
@@ -343,6 +347,8 @@ export function buildDebugCockpitBatch4CleanupReport(input: BuildInput = {}) {
     scoreDimensions: score,
     dirtyFiles,
     openPrs: prs,
+    openPrEvidenceStatus: process.env.ALLOW_GH_PR_LIST === "1" ? "live_external_command_opted_in" : "not_queried_external_command_opt_in_required",
+    openPrEvidenceCommand: "gh pr list --repo omgitsguppey/kandylandv2 --state open --limit 100 --json number,title,url,mergeStateStatus,isDraft",
     remainingGaps: ["Bounded runtime samples are still needed before all-zero auth, notification, and task runtime lanes can be promoted to live."],
     nextExactSteps: ["Load bounded source windows for runtime samples; keep config-truth lanes healthy-current without faking live activity."],
     validationFailures: [] as string[],
@@ -385,8 +391,23 @@ export function writeAndValidateReport<T extends Record<string, unknown>>(spec: 
   const report = spec.build();
   const failures = spec.validate(report);
   (report as Record<string, unknown>).validationFailures = failures;
-  writeJson(spec.statePath, report);
-  writeDoc(spec.docPath, renderDoc(spec.title, report, failures));
+  const envelopeReport = withGeneratedReportEnvelope(report, {
+    reportKey: typeof report.reportKey === "string" ? report.reportKey : spec.title.toLowerCase().replace(/\s+/gu, "-"),
+    status: failures.length > 0 ? "fail" : String(report.status ?? report.statusAfter ?? "pass"),
+    evidenceClass: "source_snapshot",
+    canClearSourceGate: failures.length === 0,
+    nextExactSteps: Array.isArray(report.nextExactSteps) && report.nextExactSteps.every((step) => typeof step === "string")
+      ? report.nextExactSteps
+      : [`Run ${spec.title} validator after touching this admin status lane.`],
+    validationFailures: failures,
+    doesNotProve: [
+      "Does not prove deployed runtime behavior.",
+      "Does not prove provider availability.",
+      "Does not prove current admin truth samples.",
+    ],
+  });
+  writeJson(spec.statePath, envelopeReport);
+  writeDoc(spec.docPath, renderDoc(spec.title, envelopeReport, failures));
   if (failures.length > 0) {
     console.error(`${spec.title} failed`);
     for (const failure of failures) console.error(`- ${failure}`);

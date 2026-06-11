@@ -1,6 +1,6 @@
 {
   "reportKey": "debug-cockpit-batch20-stale-route-sweep",
-  "generatedAtUtc": "2026-05-24T22:31:12.565Z",
+  "generatedAtUtc": "2026-06-11T15:05:16.594Z",
   "staleRoutesBefore": 5,
   "staleRoutesAfter": 5,
   "noSampleRoutesBefore": 1,
@@ -43,9 +43,20 @@
     "Stale creator booking history remains visible until refreshed or repaired in its owning lane."
   ],
   "nextExactSteps": [
-    "Run approved non-production or operator smoke for critical stale routes.",
-    "Apply support thread Firestore indexes in the deployment environment, then refresh support route evidence.",
-    "Use route runtime drilldown for grouped stale/server-history routes instead of treating stale samples as live."
+    "Run npm run check:debug-cockpit-batch20-stale-route-sweep after touching this classifier lane.",
+    "Use deployed route samples or redacted runtime evidence separately before clearing runtime gates."
   ],
-  "validationFailures": []
+  "validationFailures": [],
+  "status": "pass",
+  "currentHead": "bcd7aad7d363fc377e5b123eb4c06f78678f42f5",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "doesNotProve": [
+    "Does not prove live route health.",
+    "Does not prove provider/runtime route behavior.",
+    "Does not prove admin truth samples are current."
+  ]
 }

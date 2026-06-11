@@ -1,6 +1,6 @@
 {
   "reportKey": "debug-cockpit-batch19-product-routes",
-  "generatedAtUtc": "2026-05-24T22:10:36.034Z",
+  "generatedAtUtc": "2026-06-11T15:05:02.539Z",
   "tasksRotateStatusBefore": "current_client_error",
   "tasksRotateStatusAfter": "expected_typed_client_error",
   "tasksRotateErrorClass": "unauthenticated,forbidden,missing_task_assignment,rate_limited,invalid_task_rotation_request,stale_client_payload",
@@ -46,11 +46,22 @@
     "Route runtime counters need fresh post-deploy samples before historical error volumes clear."
   ],
   "nextExactSteps": [
-    "Deploy support thread indexes through approved infrastructure release.",
-    "After human-approved deploy, refresh route runtime evidence to prove tasks/rotate, support/threads, and viewer/watch-session volume drops.",
-    "Run a separate latency pass for admin analytics and roster routes if current slow samples remain."
+    "Run npm run check:debug-cockpit-batch19-product-routes after touching this route evidence classifier lane.",
+    "Refresh or attach route runtime samples separately before clearing runtime freshness gates."
   ],
   "dirtyFilesClassified": true,
   "openPrsClassified": true,
-  "validationFailures": []
+  "validationFailures": [],
+  "status": "pass",
+  "currentHead": "bcd7aad7d363fc377e5b123eb4c06f78678f42f5",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "doesNotProve": [
+    "Does not prove live route health.",
+    "Does not prove payment/provider runtime freshness.",
+    "Does not prove admin truth samples are current."
+  ]
 }

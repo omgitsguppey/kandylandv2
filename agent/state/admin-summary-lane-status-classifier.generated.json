@@ -1,34 +1,34 @@
 {
   "reportKey": "admin-summary-lane-status-classifier",
   "scoreBefore": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreDimensions": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
-  "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0",
-  "generatedAtUtc": "2026-05-24T16:27:20.707Z",
+  "currentHead": "bcd7aad7d363fc377e5b123eb4c06f78678f42f5",
+  "generatedAtUtc": "2026-06-11T15:04:51.938Z",
   "statusVocabulary": [
     "healthy_current",
     "healthy_proven_zero",
@@ -76,5 +76,19 @@
       "liveDisplayAllowed": false
     }
   ],
-  "validationFailures": []
+  "validationFailures": [],
+  "status": "pass",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Run Admin summary lane status classifier validator after touching this admin status lane."
+  ],
+  "doesNotProve": [
+    "Does not prove deployed runtime behavior.",
+    "Does not prove provider availability.",
+    "Does not prove current admin truth samples."
+  ]
 }
