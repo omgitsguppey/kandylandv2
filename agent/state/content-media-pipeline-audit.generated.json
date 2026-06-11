@@ -153,11 +153,57 @@
         "expiredLockedDropsHiddenFromCards": true,
         "ownedUnlockedAccessRemainsServerEntitled": true,
         "archiveDeletionPolicyDocumented": true,
-        "automatedAssetPurgeNotImplemented": true
+        "automatedAssetPurgeNotImplemented": true,
+        "dryRunLifecyclePlanDocumented": true,
+        "storageProviderCallsForbiddenInValidator": true,
+        "manualReviewRequiredBeforeDeletion": true
       },
       "currentRisk": "low",
       "requiredFix": "No launch code change; document that deletion/archive removes Drop docs or admin content objects intentionally, while entitlement remains server-checked until assets are deleted.",
       "fixedInThisPass": false,
+      "dryRunPlan": {
+        "dryRunOnly": true,
+        "storageProviderCalls": "forbidden_in_validator",
+        "manualReviewRequired": true,
+        "cleanupClasses": [
+          {
+            "class": "archival_cleanup",
+            "status": "manual_review",
+            "sourceOnlySignal": "Expired or archived Drop records can be classified locally, but asset deletion requires explicit operator approval and storage inventory evidence.",
+            "allowedAction": "Create a deletion candidate list with drop id, owner/creator id, asset count, archive reason, and last entitlement evidence.",
+            "forbiddenAction": "Do not delete Storage objects or Drop docs from this validator."
+          },
+          {
+            "class": "orphan_media",
+            "status": "dry_run_candidate",
+            "sourceOnlySignal": "Upload lifecycle exposes orphan/stall detection and draft snapshots, but local source cannot prove remote object orphan state.",
+            "allowedAction": "Flag assets with upload ids, sanitized storage path fingerprints, draft state, and missing final Drop references for manual review.",
+            "forbiddenAction": "Do not infer orphan truth from analytics or local generated reports alone."
+          },
+          {
+            "class": "upload_retry",
+            "status": "source_guarded",
+            "sourceOnlySignal": "Upload queue has queued/uploading stall detection, retryable failed state, canceled state, and blocked terminal state.",
+            "allowedAction": "Keep retry/recovery UI tied to draft queue state and explicit upload error codes.",
+            "forbiddenAction": "Do not hide failed/canceled/blocked uploads as successful media."
+          },
+          {
+            "class": "private_access",
+            "status": "source_guarded",
+            "sourceOnlySignal": "Protected bytes remain behind /api/drops/content and direct drops/** Storage access stays denied by rules.",
+            "allowedAction": "Use source validators for entitlement/proxy/no-store coverage, then collect runtime evidence only when approved.",
+            "forbiddenAction": "Do not expose raw contentUrl/contentUrls or use client profile state as entitlement."
+          },
+          {
+            "class": "storage_cost",
+            "status": "external_evidence_required",
+            "sourceOnlySignal": "Source can cap proxy bytes and classify upload/draft risk, but true storage volume/cost needs approved provider inventory.",
+            "allowedAction": "Prepare a redacted provider inventory checklist for object counts, bytes, age buckets, and referenced Drop ids.",
+            "forbiddenAction": "Do not call Storage or billing APIs in this validator."
+          }
+        ],
+        "nextValidator": "npm run check:content-media-pipeline"
+      },
       "validation": [
         "docs/agent-truth/content-media-pipeline.md",
         "scripts/agent/validate-content-media-pipeline.ts"

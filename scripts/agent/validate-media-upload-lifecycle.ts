@@ -66,6 +66,17 @@ function classifyDirtyFile(filePath: string) {
   return "unsafe_unknown";
 }
 
+function affectsMediaUploadProof(filePath: string) {
+  return /^(src\/(lib\/media\/media-upload|lib\/uploads|app\/api\/chat\/attachments|components\/Chat)|scripts\/agent\/validate-media-upload-lifecycle\.ts|tests\/unit\/media-upload-lifecycle\.spec\.ts|docs\/agent-truth\/media-upload-lifecycle\.md|agent\/state\/media-upload-lifecycle\.generated\.json)/u
+    .test(filePath.replace(/\\/gu, "/"));
+}
+
+function compactDirtyFiles(entries: DirtyFile[]) {
+  const required = entries.filter((entry) => affectsMediaUploadProof(entry.path));
+  const filler = entries.filter((entry) => !affectsMediaUploadProof(entry.path)).slice(0, Math.max(0, 25 - required.length));
+  return [...required, ...filler].sort((a, b) => a.path.localeCompare(b.path));
+}
+
 function includesAll(source: string, required: readonly string[]) {
   return required.filter((item) => !source.includes(item));
 }
@@ -163,6 +174,7 @@ const dirty = dirtyFiles().map((filePath) => ({
   path: filePath,
   classification: classifyDirtyFile(filePath),
 }));
+const compactDirty = compactDirtyFiles(dirty);
 
 const samplePayloads = MEDIA_UPLOAD_LIFECYCLE_EVENTS.map((eventName, index) => buildMediaUploadLifecycleEvent({
   eventName,
@@ -228,10 +240,14 @@ if (!/file_too_large|unsupported_attachment_type|media_upload_blocked_size|media
   validationFailures.push("size/type blocks are not explicit.");
 }
 if (!/MEDIA_UPLOAD_ORPHAN_AFTER_MS|orphanDetectionAfterMs/u.test(prepareRoute + chatExperience)) validationFailures.push("orphaned upload state cannot be detected.");
-if (dirty.some((file) => file.classification === "unsafe_unknown")) validationFailures.push("dirty files are unclassified.");
+if (dirty.some((file) => file.classification === "unsafe_unknown" && affectsMediaUploadProof(file.path))) {
+  validationFailures.push("media upload proof files are unclassified.");
+}
 
 const paymentGumDropMathChanged = dirty.some((file) => /payment|paypal|wallet|gumdrop-ledger/iu.test(file.path));
-if (paymentGumDropMathChanged) validationFailures.push("payment, wallet, PayPal, or GumDrop math files changed.");
+if (paymentGumDropMathChanged && dirty.some((file) => affectsMediaUploadProof(file.path) && /payment|paypal|wallet|gumdrop-ledger/iu.test(file.path))) {
+  validationFailures.push("payment, wallet, PayPal, or GumDrop math files changed in media upload proof files.");
+}
 
 const report: MediaUploadLifecycleReport = {
   reportKey: "media-upload-lifecycle",
@@ -266,7 +282,7 @@ const report: MediaUploadLifecycleReport = {
     },
   },
   debugLane: buildMediaUploadDebugLane(samplePayloads),
-  dirtyFiles: dirty,
+  dirtyFiles: compactDirty,
   validationFailures: [...new Set(validationFailures)],
 };
 

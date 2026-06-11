@@ -1,6 +1,6 @@
 # Media Upload Lifecycle
 
-Generated: 2026-05-25T22:13:38.191Z
+Generated: 2026-06-11T14:14:38.212Z
 
 Status: pass
 
@@ -49,32 +49,31 @@ Status: pass
 
 | File | Classification |
 | --- | --- |
-| CHANGELOG.md | release_artifact_expected |
-| agent/state/event-translation-bridge.generated.json | current_generated_artifact_to_commit |
-| agent/state/feature-registration-gate.generated.json | current_generated_artifact_to_commit |
+| agent/context/doctrine.cards.jsonl | unsafe_unknown |
+| agent/context/doctrine.index.json | unsafe_unknown |
+| agent/context/file-size-budget.json | unsafe_unknown |
+| agent/context/legacy-registry.json | unsafe_unknown |
+| agent/context/optimized-task-context.generated.json | unrelated_agent_context_file_to_ignore |
+| agent/context/task-pack.generated.json | unsafe_unknown |
+| agent/context/validator-map.json | unsafe_unknown |
+| agent/index/blast-radius.json | unsafe_unknown |
+| agent/index/canonical-helpers.json | unsafe_unknown |
+| agent/index/dependency-graph.summary.json | unsafe_unknown |
+| agent/index/governance-truth.json | unsafe_unknown |
+| agent/index/known-pitfalls.json | unsafe_unknown |
+| agent/index/package-manager-truth.json | unsafe_unknown |
+| agent/index/recent-passes.json | unsafe_unknown |
+| agent/index/repo-inventory.json | unsafe_unknown |
+| agent/index/retrieval-index.json | unsafe_unknown |
+| agent/index/runtime-observability.json | unsafe_unknown |
+| agent/index/surface-map.json | unsafe_unknown |
+| agent/index/ui-surface-coverage.json | unsafe_unknown |
+| agent/index/verification-commands.json | unsafe_unknown |
+| agent/index/workflow-guidance.json | unsafe_unknown |
+| agent/state/admin-cms-workflow-audit.generated.json | unsafe_unknown |
 | agent/state/media-upload-lifecycle.generated.json | current_generated_artifact_to_commit |
-| agent/state/person-metrics-hydration.generated.json | current_generated_artifact_to_commit |
-| agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
-| docs/agent-truth/event-translation-bridge.md | documentation_artifact_expected |
-| docs/agent-truth/feature-registration-gate.md | documentation_artifact_expected |
 | docs/agent-truth/media-upload-lifecycle.md | documentation_artifact_expected |
-| docs/agent-truth/person-metrics-hydration.md | documentation_artifact_expected |
-| package.json | real_source_change_needs_review |
-| public/kandydrops-release-notes.json | release_artifact_expected |
-| scripts/agent/validate-feature-registration-gate.ts | real_source_change_needs_review |
 | scripts/agent/validate-media-upload-lifecycle.ts | validator_artifact_expected |
-| src/app/api/chat/attachments/complete/route.ts | real_source_change_needs_review |
-| src/app/api/chat/attachments/prepare/route.ts | real_source_change_needs_review |
-| src/components/Chat/ChatExperience.tsx | real_source_change_needs_review |
-| src/lib/analytics/event-translation-bridge.ts | real_source_change_needs_review |
-| src/lib/analytics/person-metrics-contract.ts | real_source_change_needs_review |
-| src/lib/analytics/person-metrics-hydration.ts | real_source_change_needs_review |
-| src/lib/media/media-upload-contract.ts | real_source_change_needs_review |
-| src/lib/media/media-upload-telemetry.ts | real_source_change_needs_review |
-| src/lib/release-notes/public-release-notes.ts | release_artifact_expected |
-| src/lib/release-notes/release-version-contract.ts | release_artifact_expected |
-| src/lib/telemetry-catalog.ts | real_source_change_needs_review |
-| tests/unit/media-upload-lifecycle.spec.ts | test_artifact_expected |
 
 ## Validation Failures
 

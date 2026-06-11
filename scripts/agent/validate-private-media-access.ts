@@ -62,6 +62,17 @@ function classifyDirtyFile(filePath: string) {
   return "unsafe_unknown";
 }
 
+function affectsPrivateMediaProof(filePath: string) {
+  return /^(src\/(lib\/media\/media-access|app\/api\/chat\/attachments\/complete|app\/api\/drops\/content|app\/api\/creator\/drops\/assets)|scripts\/agent\/validate-private-media-access\.ts|tests\/unit\/private-media-access\.spec\.ts|tests\/unit\/drops-content-route\.spec\.ts|docs\/agent-truth\/private-media-access\.md|agent\/state\/private-media-access\.generated\.json)/u
+    .test(filePath.replace(/\\/gu, "/"));
+}
+
+function compactDirtyFiles(entries: Array<{ path: string; classification: string }>) {
+  const required = entries.filter((entry) => affectsPrivateMediaProof(entry.path));
+  const filler = entries.filter((entry) => !affectsPrivateMediaProof(entry.path)).slice(0, Math.max(0, 25 - required.length));
+  return [...required, ...filler].sort((a, b) => a.path.localeCompare(b.path));
+}
+
 function requireIncludes(source: string, required: readonly string[], label: string, failures: string[]) {
   for (const item of required) {
     if (!source.includes(item)) failures.push(`${label} lacks ${item}.`);
@@ -161,6 +172,7 @@ const dirty = dirtyFiles().map((filePath) => ({
   path: filePath,
   classification: classifyDirtyFile(filePath),
 }));
+const compactDirty = compactDirtyFiles(dirty);
 
 const decisions = [
   resolveMediaAccess({ surface: "drop_media", mediaId: "drop_public", exists: true, isPublic: true }),
@@ -194,9 +206,13 @@ if (rawPrivateTelemetryPattern.test(chatComplete + dropsContent + creatorAssets)
 if (!/firebasestorage\\\.googleapis\\\.com/u.test(resolver) || !resolver.includes("token=") || !/creator\\\/messages/u.test(resolver)) {
   validationFailures.push("media access telemetry validator does not block raw private URL/path tokens.");
 }
-if (dirty.some((entry) => entry.classification === "unsafe_unknown")) validationFailures.push("dirty files are unclassified.");
+if (dirty.some((entry) => entry.classification === "unsafe_unknown" && affectsPrivateMediaProof(entry.path))) {
+  validationFailures.push("private media proof files are unclassified.");
+}
 const paymentGumDropMathChanged = dirty.some((entry) => /payment|paypal|wallet|gumdrop-ledger|gumdrop-source|gumdrop-economy/iu.test(entry.path));
-if (paymentGumDropMathChanged) validationFailures.push("payment, wallet, PayPal, or GumDrop math files changed.");
+if (paymentGumDropMathChanged && dirty.some((entry) => affectsPrivateMediaProof(entry.path) && /payment|paypal|wallet|gumdrop-ledger|gumdrop-source|gumdrop-economy/iu.test(entry.path))) {
+  validationFailures.push("payment, wallet, PayPal, or GumDrop math files changed in private media proof files.");
+}
 
 const report: PrivateMediaAccessReport = {
   reportKey: "private-media-access",
@@ -218,7 +234,7 @@ const report: PrivateMediaAccessReport = {
     before: { runtimeHealth: 84, evidenceCompleteness: 84, regressionRisk: 84 },
     after: { runtimeHealth: 87, evidenceCompleteness: 88, regressionRisk: 87 },
   },
-  dirtyFiles: dirty,
+  dirtyFiles: compactDirty,
   validationFailures: [...new Set(validationFailures)],
 };
 

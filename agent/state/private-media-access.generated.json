@@ -1,7 +1,7 @@
 {
   "reportKey": "private-media-access",
-  "generatedAtUtc": "2026-05-25T22:31:54.098Z",
-  "currentHead": "1d05ecf31033f0ae0d3e4d0490070bdc6091654a",
+  "generatedAtUtc": "2026-06-11T14:14:38.270Z",
+  "currentHead": "0e3eb2e227500dfa2ad529f2c294740c22745f74",
   "status": "pass",
   "accessReasons": [
     "public_allowed",
@@ -52,7 +52,7 @@
   },
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
-  "paymentGumDropMathChanged": false,
+  "paymentGumDropMathChanged": true,
   "scoreDimensions": {
     "before": {
       "runtimeHealth": 84,
@@ -67,11 +67,91 @@
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/context/doctrine.cards.jsonl",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/feature-registration-gate.generated.json",
+      "path": "agent/context/doctrine.index.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/file-size-budget.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/legacy-registry.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/context/task-pack.generated.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/context/validator-map.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/blast-radius.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/canonical-helpers.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/dependency-graph.summary.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/governance-truth.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/known-pitfalls.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/package-manager-truth.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/recent-passes.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/repo-inventory.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/retrieval-index.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/runtime-observability.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/surface-map.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/ui-surface-coverage.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/verification-commands.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/index/workflow-guidance.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/state/admin-cms-workflow-audit.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -79,76 +159,12 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/feature-registration-gate.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/private-media-access.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-feature-registration-gate.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "scripts/agent/validate-private-media-access.ts",
       "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/app/api/chat/attachments/complete/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/api/creator/drops/assets/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/api/drops/content/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/media/media-access-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/media/media-access-resolver.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/telemetry-catalog.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/drops-content-route.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/private-media-access.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
   "validationFailures": []

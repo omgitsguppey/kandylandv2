@@ -63,6 +63,16 @@ Deletion/archive behavior for launch:
 - Deleting a Storage object makes the protected proxy return an unavailable payload from the upstream object.
 - There is no automated asset purge in this launch pass; purge/deletion jobs should be explicit and audited before rollout.
 
+## Dry-run archival lifecycle plan
+
+Residual archival media cleanup is dry-run only until an operator approves a separate storage inventory and deletion plan.
+
+- Archival cleanup: produce deletion candidates with Drop id, owner or creator id, asset count, archive reason, and last entitlement evidence. Do not delete Drop docs or Storage objects from validators.
+- Orphan media: flag upload ids, sanitized storage path fingerprints, draft queue state, and missing final Drop references for manual review. Local source evidence cannot prove remote object orphan truth.
+- Upload retry: keep retry/recovery tied to explicit queue states: `queued`, `uploading`, `processing`, `failed`, `canceled`, and `blocked`. Failed, canceled, or blocked uploads must not become successful media silently.
+- Private access: keep protected bytes behind `/api/drops/content`, trusted origin, authenticated caller, and server entitlement. Direct `drops/**` Storage reads, writes, and lists stay denied.
+- Storage cost: source validators may classify proxy byte caps and lifecycle risk, but actual object counts, age buckets, bytes, and cost require approved provider inventory. Do not call Storage, billing, or provider APIs from this lane.
+
 ## Agent Rules
 
 - Do not pass raw `contentUrl` or `contentUrls` into public UI.

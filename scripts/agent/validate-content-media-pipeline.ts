@@ -101,6 +101,9 @@ const unitAdminContentRoute = readRequired("tests/unit/admin-content-route.spec.
 const auditLedger = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
 const repoLedger = readRequired("REPO_MEMORY_LEDGER.md");
 const checklist = readRequired("EVERY_FILE_FUNCTION_CHECKLIST.md");
+const uploadQueue = readRequired("src/lib/uploads/asset-upload-queue.ts");
+const uploadDraftContract = readRequired("src/lib/uploads/asset-upload-draft-contract.ts");
+const contentAuditRaw = JSON.stringify(audit);
 
 for (const [id, fixed] of [
   ["CMP-001", true],
@@ -137,7 +140,13 @@ requireIncludes(contentRoute, "fetch(targetUrl", "content proxy");
 
 requireIncludes(viewerPage, "getDropRaw", "viewer page");
 requireIncludes(viewerPage, "sanitizeDropForClient(rawDrop)", "viewer page");
-requireIncludes(viewerClient, "unlockedContentTimestamps", "viewer client entitlement");
+if (
+  !viewerClient.includes("resolveDropViewAccess")
+  || !viewerPage.includes("buildViewerDropEntitlementPayload")
+  || !contentRoute.includes("unlockedContentTimestamps")
+) {
+  failures.push("viewer entitlement must stay connected through client access resolver, server evidence payload, and content proxy timestamp entitlement.");
+}
 requireIncludes(viewerClient, "useViewerState", "viewer client");
 requireIncludes(viewerHelpers, "/api/drops/content?id=", "viewer secure content fetch");
 requireIncludes(viewerHelpers, "buildThumbnailFetchOrder", "viewer stable thumbnail order");
@@ -176,6 +185,19 @@ requireIncludes(unitAdminContentRoute, "rejects unsupported drop asset upload ty
 requireIncludes(doc, "Protected Drop assets are server mediated", "content media pipeline doc");
 requireIncludes(doc, "Cover and preview media may be public-safe", "content media pipeline doc");
 requireIncludes(doc, "Expired or archived Drops", "content media pipeline doc");
+requireIncludes(doc, "Dry-run archival lifecycle plan", "content media pipeline doc");
+requireIncludes(contentAuditRaw, "\"dryRunOnly\":true", "content media pipeline audit residual plan");
+requireIncludes(contentAuditRaw, "\"storageProviderCalls\":\"forbidden_in_validator\"", "content media pipeline audit residual plan");
+requireIncludes(contentAuditRaw, "\"manualReviewRequired\":true", "content media pipeline audit residual plan");
+for (const expected of [
+  "detectStalledUploads",
+  "upload_queue_stalled",
+  "upload_stalled",
+  "isTerminalUploadStatus",
+]) {
+  requireIncludes(uploadQueue, expected, "upload retry/stall lifecycle");
+}
+requireIncludes(uploadDraftContract, "buildUploadDraftSnapshot", "upload draft lifecycle");
 requireIncludes(packageJson, "\"check:content-media-pipeline\"", "package scripts");
 requireIncludes(auditLedger, "Content Media Pipeline Launch Audit", "FULL_SCALE_CODEBASE_AUDIT");
 requireIncludes(repoLedger, "Content/media launch gate", "REPO_MEMORY_LEDGER");
