@@ -133,6 +133,10 @@ function readBrowserHarnessContract() {
     usesBrowserSmokePath: specSource.includes("surface.browserSmokePath"),
     checksRouteAttribute: specSource.includes('toHaveAttribute("data-admin-browser-route", surface.route'),
     rejectsPublicHomeFallback: specSource.includes("public_home_kandydrops"),
+    writesOptionalEvidenceDir: specSource.includes("ADMIN_BROWSER_SMOKE_EVIDENCE_DIR")
+      && specSource.includes("writeSurfaceEvidence")
+      && specSource.includes("mkdirSync")
+      && specSource.includes("writeFileSync"),
   };
 }
 
@@ -207,6 +211,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Uses browserSmokePath: ${report.browserHarnessContract.usesBrowserSmokePath}`,
     `- Checks route attribute: ${report.browserHarnessContract.checksRouteAttribute}`,
     `- Rejects public home fallback: ${report.browserHarnessContract.rejectsPublicHomeFallback}`,
+    `- Writes optional evidence dir: ${report.browserHarnessContract.writesOptionalEvidenceDir}`,
     "",
     "## Missing Authenticated Browser Evidence",
     "",

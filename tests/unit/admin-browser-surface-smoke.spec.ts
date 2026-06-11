@@ -36,6 +36,7 @@ const BROWSER_HARNESS_CONTRACT = {
   usesBrowserSmokePath: true,
   checksRouteAttribute: true,
   rejectsPublicHomeFallback: true,
+  writesOptionalEvidenceDir: true,
 };
 
 describe("admin browser surface smoke contract", () => {
@@ -296,6 +297,7 @@ describe("admin browser surface smoke contract", () => {
         usesBrowserSmokePath: false,
         checksRouteAttribute: false,
         rejectsPublicHomeFallback: false,
+        writesOptionalEvidenceDir: false,
       },
     });
 
@@ -309,6 +311,7 @@ describe("admin browser surface smoke contract", () => {
       "admin browser smoke browser test must navigate browserSmokePath, not hand-maintained routes.",
       "admin browser smoke browser test must assert data-admin-browser-route.",
       "admin browser smoke browser test must reject public-home fallback content.",
+      "admin browser smoke browser test must write optional per-surface evidence only when ADMIN_BROWSER_SMOKE_EVIDENCE_DIR is set.",
     ]));
   });
 });

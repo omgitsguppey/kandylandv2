@@ -1,3 +1,6 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import {
@@ -8,6 +11,7 @@ import {
 
 const ENABLED = process.env.ADMIN_BROWSER_SMOKE === "1";
 const STORAGE_STATE = process.env.ADMIN_BROWSER_SMOKE_STORAGE_STATE?.trim();
+const EVIDENCE_DIR = process.env.ADMIN_BROWSER_SMOKE_EVIDENCE_DIR?.trim();
 const MARKER_TIMEOUT_MS = Number(process.env.ADMIN_BROWSER_SMOKE_MARKER_TIMEOUT_MS ?? "2500");
 
 function projectDeviceBand(projectName: string): AdminBrowserSurfaceDeviceBand {
@@ -50,6 +54,33 @@ async function expectAnyAuthenticatedMarker(page: Page, surface: AdminBrowserSur
   ].join(" "));
 }
 
+function writeSurfaceEvidence(input: {
+  surface: AdminBrowserSurfaceDefinition;
+  deviceBand: AdminBrowserSurfaceDeviceBand;
+  checkedAtUtc: string;
+  urlAfterNavigation: string;
+  selectorUsed: string;
+  visibleMarker: string;
+}) {
+  if (!EVIDENCE_DIR) return;
+
+  mkdirSync(EVIDENCE_DIR, { recursive: true });
+  const fileName = `${input.surface.surfaceId}.${input.deviceBand}.json`;
+  const payload = {
+    surfaceId: input.surface.surfaceId,
+    route: input.surface.browserSmokePath,
+    deviceBand: input.deviceBand,
+    state: "authenticated_surface_verified",
+    checkedAtUtc: input.checkedAtUtc,
+    urlAfterNavigation: input.urlAfterNavigation,
+    selectorUsed: input.selectorUsed,
+    visibleMarker: input.visibleMarker,
+    note: "Captured by opt-in authenticated admin browser smoke. This local evidence does not clear provider, deployed runtime, admin truth, payment, or GumDrop gates.",
+  };
+
+  writeFileSync(join(EVIDENCE_DIR, fileName), `${JSON.stringify(payload)}\n`);
+}
+
 test.describe("authenticated admin browser surface smoke", () => {
   test.skip(
     !ENABLED || !STORAGE_STATE,
@@ -73,8 +104,17 @@ test.describe("authenticated admin browser surface smoke", () => {
         await expect(page.locator(selector).first()).toBeVisible({ timeout: 15000 });
         await expect(page.locator(selector).first()).toHaveAttribute("data-admin-browser-route", surface.route, { timeout: 15000 });
 
-        await expectAnyAuthenticatedMarker(page, surface);
+        const visibleMarker = await expectAnyAuthenticatedMarker(page, surface);
         await expect(page.getByText(/public_home_kandydrops/i)).toHaveCount(0);
+
+        writeSurfaceEvidence({
+          surface,
+          deviceBand,
+          checkedAtUtc: new Date().toISOString(),
+          urlAfterNavigation: new URL(page.url()).pathname,
+          selectorUsed: selector,
+          visibleMarker,
+        });
       });
     }
   }

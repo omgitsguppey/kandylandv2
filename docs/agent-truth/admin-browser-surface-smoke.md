@@ -86,6 +86,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Uses browserSmokePath: true
 - Checks route attribute: true
 - Rejects public home fallback: true
+- Writes optional evidence dir: true
 
 ## Missing Authenticated Browser Evidence
 
@@ -117,6 +118,6 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 
 ## Next Exact Steps
 
-- Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session or attach operator screenshots.
+- Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session, then review/merge the compact per-surface evidence into agent/evidence/admin-browser-surface-smoke/evidence.json.
 - Keep /admin/economy in protected label-only review; browser smoke cannot prove GumDrop/payment truth.
 - Use source validators for admin truth and runtime evidence separately; do not let browser smoke clear provider/runtime/admin-truth gates.

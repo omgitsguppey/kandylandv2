@@ -142,6 +142,7 @@ export type AdminBrowserSurfaceSmokeReport = {
     usesBrowserSmokePath: boolean;
     checksRouteAttribute: boolean;
     rejectsPublicHomeFallback: boolean;
+    writesOptionalEvidenceDir: boolean;
   };
   evidence: AdminBrowserSurfaceEvidence[];
   missingAuthenticatedSurfaceIds: string[];
@@ -275,6 +276,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     usesBrowserSmokePath: Boolean(input.browserHarnessContract?.usesBrowserSmokePath),
     checksRouteAttribute: Boolean(input.browserHarnessContract?.checksRouteAttribute),
     rejectsPublicHomeFallback: Boolean(input.browserHarnessContract?.rejectsPublicHomeFallback),
+    writesOptionalEvidenceDir: Boolean(input.browserHarnessContract?.writesOptionalEvidenceDir),
   };
   const browserHarnessContractPresent =
     browserHarnessContract.packageScriptPresent &&
@@ -284,7 +286,8 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     browserHarnessContract.usesCanonicalSelectors &&
     browserHarnessContract.usesBrowserSmokePath &&
     browserHarnessContract.checksRouteAttribute &&
-    browserHarnessContract.rejectsPublicHomeFallback;
+    browserHarnessContract.rejectsPublicHomeFallback &&
+    browserHarnessContract.writesOptionalEvidenceDir;
   const totalFindingCount = missingAuthenticatedSurfaceIds.length;
 
   const status: AdminBrowserSurfaceReportStatus = authenticatedSurfaceEvidenceCount === requiredAuthenticated.length
@@ -364,7 +367,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     protectedSurfaceIds,
     doesNotProve: [...FORMAL_GATE_LIMITS],
     nextExactSteps: [
-      "Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session or attach operator screenshots.",
+      "Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session, then review/merge the compact per-surface evidence into agent/evidence/admin-browser-surface-smoke/evidence.json.",
       "Keep /admin/economy in protected label-only review; browser smoke cannot prove GumDrop/payment truth.",
       "Use source validators for admin truth and runtime evidence separately; do not let browser smoke clear provider/runtime/admin-truth gates.",
     ],
@@ -462,6 +465,9 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   }
   if (!report.browserHarnessContract.rejectsPublicHomeFallback) {
     failures.push("admin browser smoke browser test must reject public-home fallback content.");
+  }
+  if (!report.browserHarnessContract.writesOptionalEvidenceDir) {
+    failures.push("admin browser smoke browser test must write optional per-surface evidence only when ADMIN_BROWSER_SMOKE_EVIDENCE_DIR is set.");
   }
   for (const entry of report.evidence) {
     if (!expectedSurfaceIds.has(entry.surfaceId)) failures.push(`evidence references unknown surface: ${entry.surfaceId}`);
