@@ -62,6 +62,7 @@ const checkedFiles = [
   "src/app/api/drops/unlock/route.ts",
   "src/app/dashboard/viewer/page.tsx",
   "src/app/dashboard/viewer/ViewerClient.tsx",
+  "src/lib/drop-view-access.ts",
   "src/app/dashboard/viewer/hooks/useViewerState.ts",
   "src/app/dashboard/viewer/ViewerHelpers.ts",
   "tests/unit/content-protection-truth.spec.ts",
@@ -325,8 +326,10 @@ function collectFindings() {
     "scopeToCaller: true",
     "const ownsDrop = creatorId === caller.uid",
     "const hasUnlockedDrop = userData.unlockedContent.includes(dropId)",
-    "if (!ownsDrop && !hasUnlockedDrop)",
-    "return finalize(NextResponse.json({ error: \"You do not own this content\" }, { status: 403 }))",
+    "Object.prototype.hasOwnProperty.call(userData.unlockedContentTimestamps",
+    "const accessDecision = resolveMediaAccess",
+    "if (!accessDecision.allowed)",
+    "return finalize(buildMediaAccessDeniedResponse(accessDecision))",
     "headers.set(\"Cache-Control\", \"private, no-store\")",
   ]) {
     requireText(findings, "src/app/api/drops/content/route.ts", expected, {
@@ -339,7 +342,7 @@ function collectFindings() {
   }
 
   requireOrder(findings, "src/app/api/drops/content/route.ts", [
-    "if (!ownsDrop && !hasUnlockedDrop)",
+    "if (!accessDecision.allowed)",
   ], [
     "const availableUrls = Array.isArray(dropRecord.contentUrls)",
     "const targetUrl = availableUrls[mediaIndex]",
@@ -367,10 +370,9 @@ function collectFindings() {
   }
 
   for (const expected of [
-    "const isAuthorized = useMemo",
-    "const isCreator = user.uid === drop.creatorId",
-    "const hasUnlocked = userProfile?.unlockedContentTimestamps?.[drop.id] !== undefined",
-    "return isCreator || hasUnlocked",
+    "resolveDropViewAccess",
+    "const isAuthorized = accessState.allowed",
+    "telemetryEventForDropViewAccess",
     "useViewerState({",
     "isAuthorized,",
   ]) {
@@ -379,6 +381,22 @@ function collectFindings() {
       category: "viewer_entitlement",
       title: `Viewer client must gate content loading by entitlement: ${expected}`,
       suggestedFix: "Keep viewer content hooks disabled until the user is creator or has server-written unlock timestamp.",
+      escalation: "Viewer authorization changes require route and client tests.",
+    });
+  }
+
+  for (const expected of [
+    "unlockedContent",
+    "unlockedContentTimestamps",
+    "allowed_unwrapped",
+    "denied_not_unwrapped",
+    "loading_entitlement",
+  ]) {
+    requireText(findings, "src/lib/drop-view-access.ts", expected, {
+      severity: "critical",
+      category: "viewer_entitlement",
+      title: `Viewer access resolver must preserve entitlement state: ${expected}`,
+      suggestedFix: "Keep viewer authorization in resolveDropViewAccess and preserve missing-vs-denied entitlement states.",
       escalation: "Viewer authorization changes require route and client tests.",
     });
   }
