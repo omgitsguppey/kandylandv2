@@ -1,4 +1,5 @@
 import path from "node:path";
+import { createHash } from "node:crypto";
 
 import { fileExists, listRepoFiles, readFileModifiedMarker, toStableId } from "./shared";
 
@@ -200,9 +201,29 @@ export function classifyRepoFile(filePath: string): RepoInventoryEntry {
 }
 
 export function buildRepoInventory() {
-  return listRepoFiles()
+  const entries = listRepoFiles()
     .filter((filePath) => fileExists(filePath))
     .map((filePath) => classifyRepoFile(filePath));
+  return withUniqueStableIds(entries);
+}
+
+function stablePathSuffix(filePath: string) {
+  return createHash("sha1").update(filePath).digest("hex").slice(0, 8);
+}
+
+export function withUniqueStableIds(entries: RepoInventoryEntry[]) {
+  const counts = entries.reduce<Record<string, number>>((accumulator, entry) => {
+    accumulator[entry.stable_id] = (accumulator[entry.stable_id] ?? 0) + 1;
+    return accumulator;
+  }, {});
+
+  return entries.map((entry) => {
+    if ((counts[entry.stable_id] ?? 0) <= 1) return entry;
+    return {
+      ...entry,
+      stable_id: `${entry.stable_id}__${stablePathSuffix(entry.path)}`,
+    };
+  });
 }
 
 export function groupInventoryByDomain(entries: RepoInventoryEntry[]) {

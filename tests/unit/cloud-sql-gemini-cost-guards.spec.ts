@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { shouldSyncAgentSqlMirrorDuringCheck } from "../../scripts/agent/check-agent-context";
 import { assertSqlMirrorSyncAllowed, syncAgentSqlMirror } from "../../scripts/agent/sync-sql";
 import { validateCloudSqlGeminiCostGuards } from "../../scripts/agent/validate-cloud-sql-gemini-cost-guards";
 
@@ -29,6 +30,12 @@ describe("cloud sql and gemini cost guards", () => {
     expect(result.guard.dryRun).toBe(true);
     expect(result.guard.providerExecution).toBe("blocked_local_dry_run");
     expect(result.writesSkipped).toBe(true);
+  });
+
+  it("keeps agent context checks source-safe unless SQL mirror sync is explicitly approved", () => {
+    expect(shouldSyncAgentSqlMirrorDuringCheck({})).toBe(false);
+    expect(shouldSyncAgentSqlMirrorDuringCheck({ ALLOW_SQL_MIRROR_SYNC: "0" })).toBe(false);
+    expect(shouldSyncAgentSqlMirrorDuringCheck({ ALLOW_SQL_MIRROR_SYNC: "1" })).toBe(true);
   });
 
   it("lists runtime SQL detection separately from Data Connect mirror config", () => {

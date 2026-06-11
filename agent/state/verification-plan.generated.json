@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T04:01:17.495Z",
+  "generatedAt": "2026-06-07T20:34:43.450Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,20 +16,28 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__context__adminviewascontext-tsx",
+  "stable_id": "verifyplan__src__components__purchasemodal-tsx",
   "inputPaths": [
-    "src/context/AdminViewAsContext.tsx"
+    "src/components/PurchaseModal.tsx"
   ],
   "matchedRepoPaths": [
-    "src/context/AdminViewAsContext.tsx"
+    "src/components/PurchaseModal.tsx"
   ],
   "unmatchedPaths": [],
   "touchedDomains": [],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/context/AdminViewAsContext.tsx"
+    "npm run agent:test -- src/components/PurchaseModal.tsx",
+    "npm run check:ui:coverage",
+    "npm run check:ui:runtime",
+    "npm run check:payment-unlock-security",
+    "npm run check:purchase-telemetry-truth",
+    "npm run check:unlock-telemetry-truth"
   ],
-  "signoffCommands": [],
+  "signoffCommands": [
+    "npm run check:ui:audits",
+    "npm run check:legal-payment-copy"
+  ],
   "fastSelections": [
     {
       "command": "npm run typecheck",
@@ -39,15 +47,66 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/context/AdminViewAsContext.tsx",
+      "command": "npm run agent:test -- src/components/PurchaseModal.tsx",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
       "lane": "fast"
+    },
+    {
+      "command": "npm run check:ui:coverage",
+      "why": [
+        "Indexed UI/admin surfaces changed."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run check:ui:runtime",
+      "why": [
+        "Hydration/runtime UI continuity should stay truthful."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run check:payment-unlock-security",
+      "why": [
+        "Payment/unlock/economy source truth is protected."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run check:purchase-telemetry-truth",
+      "why": [
+        "Purchase telemetry must remain source-truth aligned."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run check:unlock-telemetry-truth",
+      "why": [
+        "Unlock telemetry must remain source-truth aligned."
+      ],
+      "lane": "fast"
     }
   ],
-  "signoffSelections": [],
+  "signoffSelections": [
+    {
+      "command": "npm run check:ui:audits",
+      "why": [
+        "UI/admin signoff requires Playwright audit coverage."
+      ],
+      "lane": "signoff"
+    },
+    {
+      "command": "npm run check:legal-payment-copy",
+      "why": [
+        "Payment-adjacent user-facing copy/legal state needs signoff."
+      ],
+      "lane": "signoff"
+    }
+  ],
   "signoffAdvisories": [
+    "Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.",
     "Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff."
   ],
   "forbiddenSurfaces": [
@@ -56,6 +115,25 @@
     "src/lib/server/paypal.ts",
     "src/app/api/paypal",
     "functions/src/analytics-transactions.ts"
+  ],
+  "forbiddenByDefaultCommands": [
+    "npm run check",
+    "npm run check:ui:audits",
+    "npm run check:ui:lighthouse",
+    "npm run check:ui:omni",
+    "npx cypress run",
+    "playwright",
+    "cypress",
+    "lighthouse",
+    "firebase deploy",
+    "gcloud",
+    "provider API calls"
+  ],
+  "protectedDomainEscalations": [
+    "payment_economy_unlock: do not weaken source-of-funds, entitlement, provider callback, or locked content truth."
+  ],
+  "manualEvidenceRequirements": [
+    "payment_provider: PayPal/provider success requires formal external smoke evidence, not source-only checks."
   ],
   "broadWork": false,
   "reasoning": [

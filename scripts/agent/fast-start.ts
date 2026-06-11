@@ -53,14 +53,27 @@ function runCommand(command: string, args: string[]) {
   });
 }
 
-function buildIssueSpecMarkdown(input: {
+export function buildIssueSpecMarkdown(input: {
   task: string;
   mode: string;
   files: string[];
+  acceptanceCriteria: string[];
+  allowedFiles: string[];
+  forbiddenFiles: string[];
+  doctrineContextPack: { hot?: string[]; warm?: string[]; cold?: string[] };
+  canonicalHelpersToReuse: string[];
+  likelyDuplicateLogicSearches: string[];
   fastCommands: string[];
   signoffCommands: string[];
   forbiddenSurfaces: string[];
+  releaseNoteImpact: string;
+  rollbackNote: string;
 }) {
+  const doctrineFiles = [
+    ...(input.doctrineContextPack.hot ?? []),
+    ...(input.doctrineContextPack.warm ?? []),
+    ...(input.doctrineContextPack.cold ?? []),
+  ].slice(0, 12);
   const lines = [
     "# Agent Task Spec",
     "",
@@ -68,13 +81,25 @@ function buildIssueSpecMarkdown(input: {
     input.task,
     "",
     "## Acceptance Criteria",
-    "- Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.",
-    "- Reuse canonical helpers before inventing new paths.",
-    "- Do not claim success unless the fast loop ran cleanly or the failure is stated explicitly.",
-    "- Keep broad signoff lanes separate from the fast loop.",
+    ...input.acceptanceCriteria.map((entry) => `- ${entry}`),
+    "",
+    "## Allowed Files",
+    ...input.allowedFiles.map((entry) => `- ${entry}`),
+    "",
+    "## Forbidden Files",
+    ...(input.forbiddenFiles.length > 0 ? input.forbiddenFiles.map((entry) => `- ${entry}`) : ["- None pre-classified."]),
+    "",
+    "## Doctrine / Context Pack",
+    ...(doctrineFiles.length > 0 ? doctrineFiles.map((entry) => `- ${entry}`) : ["- Use generated task context first; no doctrine files pre-selected."]),
     "",
     "## Likely Entrypoints",
     ...input.files.map((entry) => `- ${entry}`),
+    "",
+    "## Canonical Helpers To Reuse",
+    ...(input.canonicalHelpersToReuse.length > 0 ? input.canonicalHelpersToReuse.map((entry) => `- ${entry}`) : ["- None pre-selected; search before adding a new helper."]),
+    "",
+    "## Likely Duplicate Logic Searches",
+    ...(input.likelyDuplicateLogicSearches.length > 0 ? input.likelyDuplicateLogicSearches.map((entry) => `- ${entry}`) : ["- Run targeted rg searches in the touched domain before adding new ownership."]),
     "",
     "## Forbidden Surfaces",
     ...input.forbiddenSurfaces.map((entry) => `- ${entry}`),
@@ -83,7 +108,13 @@ function buildIssueSpecMarkdown(input: {
     ...input.fastCommands.map((entry) => `- ${entry}`),
     "",
     "## Signoff Verification",
-    ...input.signoffCommands.map((entry) => `- ${entry}`),
+    ...(input.signoffCommands.length > 0 ? input.signoffCommands.map((entry) => `- ${entry}`) : ["- None selected; do not substitute full npm run check by default."]),
+    "",
+    "## Release Note Impact",
+    `- ${input.releaseNoteImpact}`,
+    "",
+    "## Rollback Note",
+    `- ${input.rollbackNote}`,
     "",
     "## Notes",
     `- Mode: ${input.mode}`,
@@ -137,9 +168,17 @@ export function runAgentFastStart(args: FastStartArgs) {
       task: args.task,
       mode: args.mode ?? String(taskContext.taskModeClassification),
       files: args.files,
+      acceptanceCriteria: taskContext.acceptanceCriteria as string[],
+      allowedFiles: taskContext.allowedFiles as string[],
+      forbiddenFiles: taskContext.forbiddenFiles as string[],
+      doctrineContextPack: taskContext.doctrineContextPack as { hot?: string[]; warm?: string[]; cold?: string[] },
+      canonicalHelpersToReuse: taskContext.canonicalHelpersToReuse as string[],
+      likelyDuplicateLogicSearches: taskContext.likelyDuplicateLogicSearches as string[],
       fastCommands: verificationPlan.fastCommands,
       signoffCommands: verificationPlan.signoffCommands,
       forbiddenSurfaces: verificationPlan.forbiddenSurfaces,
+      releaseNoteImpact: String(taskContext.releaseNoteImpact),
+      rollbackNote: String(taskContext.rollbackNote),
     }),
   );
 

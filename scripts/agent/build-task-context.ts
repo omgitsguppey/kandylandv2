@@ -429,6 +429,70 @@ function selectVerificationCommands(input: {
   };
 }
 
+function inferReleaseNoteImpact(task: string, paths: string[]) {
+  const text = `${task} ${paths.join(" ")}`.toLowerCase();
+  if (/release|beta badge|changelog|public note/u.test(text)) return "release_note_required";
+  if (/ui|copy|component|page|route|api|payment|wallet|drop|chat|creator|admin/u.test(text)) return "review_required";
+  return "none_expected";
+}
+
+function rollbackNote(paths: string[]) {
+  if (paths.some((entry) => /payment|paypal|wallet|gumdrop|unlock|entitlement/u.test(entry.toLowerCase()))) {
+    return "Rollback by reverting the narrow patch; do not alter balances, provider callbacks, entitlements, or source-of-funds records outside the selected slice.";
+  }
+  if (paths.some((entry) => /telemetry|analytics|event/u.test(entry.toLowerCase()))) {
+    return "Rollback by reverting the telemetry/source-truth wiring and regenerating only consumed agent reports.";
+  }
+  if (paths.some((entry) => entry.startsWith("agent/") || entry.startsWith("scripts/agent/"))) {
+    return "Rollback by reverting the tooling change and regenerating the affected compact agent artifacts.";
+  }
+  return "Rollback by reverting the touched files from this slice; avoid unrelated cleanup or broad resets.";
+}
+
+function duplicateLogicSearches(task: string, paths: string[]) {
+  const text = `${task} ${paths.join(" ")}`.toLowerCase();
+  const searches = new Set<string>();
+  searches.add("rg -n \"duplicate|legacy|deprecated|orphan|moved\" <touched-domain>");
+  if (/telemetry|analytics|event/u.test(text)) {
+    searches.add("rg -n \"trackEvent|eventName|telemetry|analytics\" src functions/src tests scripts/agent");
+  }
+  if (/error|auth|permission|role/u.test(text)) {
+    searches.add("rg -n \"catch \\(|throw new|error|permission|role\" <touched-domain>");
+  }
+  if (/admin|debug/u.test(text)) {
+    searches.add("rg -n \"source_missing|stale|debugEvidence|generated\\.json|healthy\" src/app/admin src/lib");
+  }
+  if (/payment|wallet|purchase|paypal|gumdrop|unlock/u.test(text)) {
+    searches.add("rg -n \"paypal|purchase|wallet|gumdrop|unlock|entitlement|sourceOfFunds\" src tests scripts/agent");
+  }
+  return Array.from(searches).slice(0, 6);
+}
+
+function promptExamples() {
+  return [
+    {
+      label: "telemetry",
+      task: "Normalize one telemetry disconnect without claiming runtime proof.",
+      file: "src/lib/telemetry-catalog.ts",
+    },
+    {
+      label: "error handling",
+      task: "Route raw user-facing errors through the canonical safe error language contract.",
+      file: "src/lib/server/auth.ts",
+    },
+    {
+      label: "admin debug",
+      task: "Keep Admin Debug stale/missing evidence labels honest without changing runtime truth.",
+      file: "src/app/admin/debug/page.tsx",
+    },
+    {
+      label: "payment-protected",
+      task: "Normalize payment-adjacent UI error copy without touching provider callbacks or wallet math.",
+      file: "src/components/PurchaseModal.tsx",
+    },
+  ];
+}
+
 function buildPrompt(name: "short" | "standard" | "deep", context: Record<string, unknown>) {
   const hot = (context.hotContextFiles as string[]) ?? [];
   const warm = (context.warmContextFiles as string[]) ?? [];
@@ -445,6 +509,9 @@ function buildPrompt(name: "short" | "standard" | "deep", context: Record<string
   const fast = (context.fastVerificationCommands as string[]) ?? required;
   const signoff = (context.signoffVerificationCommands as string[]) ?? optional;
   const forbidden = ((context.forbiddenSurfaces as string[]) ?? []).slice(0, name === "short" ? 4 : 8);
+  const allowedFiles = ((context.allowedFiles as string[]) ?? touched).slice(0, name === "short" ? 8 : 14);
+  const forbiddenFiles = ((context.forbiddenFiles as string[]) ?? forbidden).slice(0, name === "short" ? 6 : 10);
+  const duplicateSearches = ((context.likelyDuplicateLogicSearches as string[]) ?? []).slice(0, name === "short" ? 3 : 6);
   const lines = [
     `# ${name.toUpperCase()} Task Context`,
     ``,
@@ -455,17 +522,28 @@ function buildPrompt(name: "short" | "standard" | "deep", context: Record<string
     `Scope: ${context.scopeClassification as string}`,
     `Why scope: ${context.scopeWhy as string}`,
     ``,
+    "## Acceptance Criteria",
+    ...((context.acceptanceCriteria as string[]) ?? []).map((entry) => `- ${entry}`),
+    "",
+    "## Allowed Files",
+    ...allowedFiles.map((entry) => `- ${entry}`),
+    "",
+    "## Forbidden Files",
+    ...(forbiddenFiles.length > 0 ? forbiddenFiles.map((entry) => `- ${entry}`) : ["- None pre-classified."]),
+    "",
+    `## Doctrine / Context Pack`,
+    ...[
+      ...((context.hotContextFiles as string[]) ?? []),
+      ...((context.warmContextFiles as string[]) ?? []),
+      ...((context.coldContextFiles as string[]) ?? []),
+    ].slice(0, name === "short" ? 8 : 14).map((entry) => `- ${entry}`),
+    "",
     `## Likely Entrypoints`,
     ...touched.map((entry) => `- ${entry}`),
     ``,
     `## Canonical Helpers To Reuse`,
     ...helpers.map((entry) => `- ${entry}`),
     ``,
-    `## Acceptance Criteria`,
-    "- Reuse the canonical helpers before introducing new ownership paths.",
-    "- Keep edits bounded to the likely entrypoints unless adjacency proves otherwise.",
-    "- Report any blocked or unverified lane explicitly instead of implying success.",
-    "",
     "## Relevant Pitfalls",
     ...pitfalls.map((entry) => `- ${entry}`),
     ``,
@@ -484,6 +562,19 @@ function buildPrompt(name: "short" | "standard" | "deep", context: Record<string
     lines.push("", "## Compatibility Verification Fields", ...required.map((entry) => `- required: ${entry}`), ...optional.map((entry) => `- optional: ${entry}`));
   }
 
+  if (duplicateSearches.length > 0) {
+    lines.push("", "## Likely Duplicate Logic Searches", ...duplicateSearches.map((entry) => `- ${entry}`));
+  }
+
+  lines.push(
+    "",
+    "## Release Note Impact",
+    `- ${context.releaseNoteImpact as string}`,
+    "",
+    "## Rollback Note",
+    `- ${context.rollbackNote as string}`,
+  );
+
   if (name === "deep") {
     lines.push(
       "",
@@ -492,6 +583,9 @@ function buildPrompt(name: "short" | "standard" | "deep", context: Record<string
       "",
       "Do not touch without broad signoff:",
       ...((context.do_not_touch_without_broad_signoff as string[]) ?? []).map((entry) => `- ${entry}`),
+      "",
+      "Prompt examples:",
+      ...((context.promptCompilerExamples as Array<{ label: string; task: string; file: string }>) ?? []).map((entry) => `- ${entry.label}: ${entry.task} (${entry.file})`),
     );
   }
 
@@ -614,6 +708,12 @@ export function buildTaskContext() {
     broadSignoff,
     fileHints,
   });
+  const likelyTouchedPaths = likelyTouchedFiles.map((entry) => entry.path);
+  const allowedFiles = Array.from(new Set([...fileHints, ...likelyTouchedPaths, ...likelyAdjacentHelpers.map((entry) => entry.path)])).slice(0, 16);
+  const forbiddenFiles = Array.from(new Set([
+    ...verificationPlan.forbiddenSurfaces,
+    ...taskSignals.forbiddenPathNeedles,
+  ])).slice(0, 16);
   const payload = {
     ...createMetadata([
       "agent/index/repo-inventory.json",
@@ -627,6 +727,24 @@ export function buildTaskContext() {
     stable_id: toStableId("taskctx", `${mode}:${task}`),
     input: { task, mode, fileHints, tokenBudgetProfile: "standard" },
     normalizedTaskSummary: task.trim().replace(/\s+/g, " "),
+    goal: task.trim().replace(/\s+/g, " "),
+    acceptanceCriteria: [
+      "Reuse canonical helpers before introducing new ownership paths.",
+      "Keep edits bounded to allowed files unless adjacency proves another file must move with them.",
+      "Preserve product/runtime behavior unless the task explicitly asks for a source fix.",
+      "Report any blocked or unverified lane explicitly instead of implying success.",
+    ],
+    allowedFiles,
+    forbiddenFiles,
+    doctrineContextPack: {
+      hot: hotContextFiles,
+      warm: warmContextFiles,
+      cold: coldContextFiles,
+    },
+    likelyDuplicateLogicSearches: duplicateLogicSearches(task, allowedFiles),
+    releaseNoteImpact: inferReleaseNoteImpact(task, allowedFiles),
+    rollbackNote: rollbackNote(allowedFiles),
+    promptCompilerExamples: promptExamples(),
     taskModeClassification: mode,
     scopeClassification: scopeInfo.scope,
     scopeWhy: scopeInfo.why,

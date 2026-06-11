@@ -1,35 +1,62 @@
 # SHORT Task Context
 
 ## Goal
-Finish creator dashboard refinements so the dashboard can be reviewed through real read-only admin creator projection without logging into creator accounts
+validate repo intelligence fabric outputs
 
-Mode: admin
-Scope: moderate
-Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
-
-## Likely Entrypoints
-- src/context/AdminViewAsContext.tsx
-- src/components/Admin/AdminCreatorViewAsControls.tsx
-- src/components/Admin/AdminViewAsBanner.tsx
-- src/lib/admin/synthetic-creators-view-as.ts
-- src/lib/admin-parity.ts
-
-## Canonical Helpers To Reuse
-- src/lib/creator-onboarding.ts
-- src/lib/route-runtime-health.ts
-- src/lib/server/admin-panel-system-logs.ts
-- src/lib/server/auth.ts
+Mode: audit
+Scope: broad
+Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 
 ## Acceptance Criteria
-- Reuse the canonical helpers before introducing new ownership paths.
-- Keep edits bounded to the likely entrypoints unless adjacency proves otherwise.
+- Reuse canonical helpers before introducing new ownership paths.
+- Keep edits bounded to allowed files unless adjacency proves another file must move with them.
+- Preserve product/runtime behavior unless the task explicitly asks for a source fix.
 - Report any blocked or unverified lane explicitly instead of implying success.
 
+## Allowed Files
+- scripts/agent/build-agent-indexes.ts
+- scripts/agent/shared.ts
+- scripts/agent/build-task-context.ts
+- scripts/agent/build-ui-surface-coverage.ts
+- scripts/agent/check-agent-context.ts
+- scripts/agent/classify-repo-files.ts
+- scripts/agent/extract-canonical-helpers.ts
+- scripts/agent/extract-governance.ts
+
+## Forbidden Files
+- src/lib/gumdrop-ledger.ts
+- src/lib/gumdrop-economics.ts
+- src/lib/server/paypal.ts
+- src/app/api/paypal
+- functions/src/analytics-transactions.ts
+
+## Doctrine / Context Pack
+- scripts/agent/build-agent-indexes.ts
+- scripts/agent/shared.ts
+- scripts/agent/build-task-context.ts
+- scripts/agent/build-ui-surface-coverage.ts
+- scripts/agent/check-agent-context.ts
+- scripts/agent/classify-repo-files.ts
+- scripts/agent/extract-canonical-helpers.ts
+- scripts/agent/extract-governance.ts
+
+## Likely Entrypoints
+- scripts/agent/build-agent-indexes.ts
+- scripts/agent/shared.ts
+- scripts/agent/build-task-context.ts
+- scripts/agent/build-ui-surface-coverage.ts
+- scripts/agent/check-agent-context.ts
+
+## Canonical Helpers To Reuse
+- src/lib/gumdrop-economics.ts
+- src/lib/gumdrop-ledger.ts
+- src/lib/server/paypal.ts
+
 ## Relevant Pitfalls
-- stale_lockfile_drift
 - diagnostics_serialization_crash
-- request_json_parse_falls_into_500
-- consumed_response_stream_fallback
+- generated_artifact_cleanup_miss
+- sidecar_truth_confusion
+- legacy_queue_adapter_usage
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -39,14 +66,25 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/context/AdminViewAsContext.tsx
-- npm run agent:test -- src/components/Admin/AdminCreatorViewAsControls.tsx
-- npm run agent:test -- src/components/Admin/AdminViewAsBanner.tsx
-- npm run agent:test -- src/lib/admin/synthetic-creators-view-as.ts
-- npm run check:ui:coverage
-- npm run check:ui:runtime
-- npm --prefix functions run check
+- npm run agent:test -- scripts/agent/build-agent-indexes.ts
+- npm run agent:test -- scripts/agent/shared.ts
+- npm run agent:test -- scripts/agent/build-task-context.ts
+- npm run agent:test -- scripts/agent/build-ui-surface-coverage.ts
+- npm run check:agent-context
 
 ## Signoff Verification
-- npm run check:ui:audits
+- npm run check:inventory
+- npm run check:architecture
+- npm run check:agent-intelligence
+- npm run eval:agent-context
 - npm run check:continuity
+
+## Likely Duplicate Logic Searches
+- rg -n "duplicate|legacy|deprecated|orphan|moved" <touched-domain>
+- rg -n "paypal|purchase|wallet|gumdrop|unlock|entitlement|sourceOfFunds" src tests scripts/agent
+
+## Release Note Impact
+- review_required
+
+## Rollback Note
+- Rollback by reverting the narrow patch; do not alter balances, provider callbacks, entitlements, or source-of-funds records outside the selected slice.

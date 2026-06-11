@@ -3,6 +3,7 @@ import { buildTaskContext } from "./build-task-context";
 import { syncAgentSqlMirror } from "./sync-sql";
 import { fileExists, readJsonFile, toAbsoluteRepoPath, validateWithSchema } from "./shared";
 import type { RepoInventoryEntry } from "./classify-repo-files";
+import type { SqlMirrorSyncEnvironment } from "./sync-sql";
 
 function assert(condition: unknown, message: string) {
   if (!condition) {
@@ -24,6 +25,10 @@ function validateExistingPaths(paths: string[], label: string) {
   }
 }
 
+export function shouldSyncAgentSqlMirrorDuringCheck(env: SqlMirrorSyncEnvironment = process.env) {
+  return env.ALLOW_SQL_MIRROR_SYNC === "1";
+}
+
 export function checkAgentContext() {
   buildAgentIndexes();
   const originalArgv = [...process.argv];
@@ -36,7 +41,9 @@ export function checkAgentContext() {
   ];
   buildTaskContext();
   process.argv = originalArgv;
-  syncAgentSqlMirror();
+  if (shouldSyncAgentSqlMirrorDuringCheck()) {
+    syncAgentSqlMirror();
+  }
 
   const inventory = readJsonFile<{ items: RepoInventoryEntry[] }>("agent/index/repo-inventory.json");
   const helpers = readJsonFile<{ entries: Array<{ stable_id: string; path: string }> }>("agent/index/canonical-helpers.json");
