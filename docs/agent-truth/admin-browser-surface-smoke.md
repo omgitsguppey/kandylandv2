@@ -12,6 +12,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Route targets: 14
 - Source admin pages: 14
 - Layout selector contract present: true
+- Browser harness contract present: true
 - Required authenticated surface/device checks: 18
 - Evidence entries: 18
 - Authenticated checks present: 0
@@ -72,6 +73,19 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Route attribute: true
 - Group attribute: true
 - Uses resolver: true
+
+## Browser Harness Contract
+
+- Owner: tests/ui-audits/admin-browser-surface-smoke.spec.ts
+- Package script: check:admin-browser-surface-smoke:browser
+- Package script present: true
+- Imports canonical surface map: true
+- Explicit env gate: true
+- Uses storage state env: true
+- Uses canonical selectors: true
+- Uses browserSmokePath: true
+- Checks route attribute: true
+- Rejects public home fallback: true
 
 ## Missing Authenticated Browser Evidence
 

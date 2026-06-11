@@ -17,6 +17,8 @@ const DOC_PATH = "docs/agent-truth/admin-browser-surface-smoke.md";
 const TEMPLATE_PATH = "agent/evidence/admin-browser-surface-smoke/template.json";
 const OPTIONAL_EVIDENCE_PATH = "agent/evidence/admin-browser-surface-smoke/evidence.json";
 const ADMIN_LAYOUT_PATH = "src/app/admin/layout.tsx" as const;
+const BROWSER_SMOKE_SPEC_PATH = "tests/ui-audits/admin-browser-surface-smoke.spec.ts" as const;
+const BROWSER_SMOKE_SCRIPT_NAME = "check:admin-browser-surface-smoke:browser" as const;
 
 function git(args: string[]) {
   try {
@@ -106,6 +108,34 @@ function readLayoutSelectorContract() {
   };
 }
 
+function readBrowserHarnessContract() {
+  const specPath = join(ROOT, BROWSER_SMOKE_SPEC_PATH);
+  const specSource = existsSync(specPath) ? readFileSync(specPath, "utf8") : "";
+  const packageJson = readJson("package.json");
+  const scripts = packageJson && typeof packageJson.scripts === "object" && packageJson.scripts !== null
+    ? packageJson.scripts as Record<string, unknown>
+    : {};
+  const browserScript = scripts[BROWSER_SMOKE_SCRIPT_NAME];
+
+  return {
+    ownerPath: BROWSER_SMOKE_SPEC_PATH,
+    packageScriptName: BROWSER_SMOKE_SCRIPT_NAME,
+    packageScriptPresent: typeof browserScript === "string"
+      && browserScript.includes("playwright test")
+      && browserScript.includes(BROWSER_SMOKE_SPEC_PATH),
+    importsCanonicalSurfaceMap: specSource.includes("ADMIN_BROWSER_SURFACE_DEFINITIONS")
+      && specSource.includes("src/lib/admin/admin-browser-surface-map"),
+    gatedByExplicitEnv: specSource.includes('ADMIN_BROWSER_SMOKE === "1"')
+      && specSource.includes("test.skip("),
+    usesStorageStateEnv: specSource.includes("ADMIN_BROWSER_SMOKE_STORAGE_STATE")
+      && specSource.includes("storageState"),
+    usesCanonicalSelectors: specSource.includes("surface.authenticatedSelectors[0]"),
+    usesBrowserSmokePath: specSource.includes("surface.browserSmokePath"),
+    checksRouteAttribute: specSource.includes('toHaveAttribute("data-admin-browser-route", surface.route'),
+    rejectsPublicHomeFallback: specSource.includes("public_home_kandydrops"),
+  };
+}
+
 function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
   return [
     "# Admin Browser Surface Smoke",
@@ -122,6 +152,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Route targets: ${report.summary.routeCount}`,
     `- Source admin pages: ${report.summary.sourceAdminPageCount}`,
     `- Layout selector contract present: ${report.summary.layoutSelectorContractPresent}`,
+    `- Browser harness contract present: ${report.summary.browserHarnessContractPresent}`,
     `- Required authenticated surface/device checks: ${report.summary.requiredAuthenticatedSurfaceCount}`,
     `- Evidence entries: ${report.summary.evidenceCount}`,
     `- Authenticated checks present: ${report.summary.authenticatedSurfaceEvidenceCount}`,
@@ -163,6 +194,19 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Route attribute: ${report.layoutSelectorContract.hasRouteAttribute}`,
     `- Group attribute: ${report.layoutSelectorContract.hasGroupAttribute}`,
     `- Uses resolver: ${report.layoutSelectorContract.usesSurfaceResolver}`,
+    "",
+    "## Browser Harness Contract",
+    "",
+    `- Owner: ${report.browserHarnessContract.ownerPath}`,
+    `- Package script: ${report.browserHarnessContract.packageScriptName}`,
+    `- Package script present: ${report.browserHarnessContract.packageScriptPresent}`,
+    `- Imports canonical surface map: ${report.browserHarnessContract.importsCanonicalSurfaceMap}`,
+    `- Explicit env gate: ${report.browserHarnessContract.gatedByExplicitEnv}`,
+    `- Uses storage state env: ${report.browserHarnessContract.usesStorageStateEnv}`,
+    `- Uses canonical selectors: ${report.browserHarnessContract.usesCanonicalSelectors}`,
+    `- Uses browserSmokePath: ${report.browserHarnessContract.usesBrowserSmokePath}`,
+    `- Checks route attribute: ${report.browserHarnessContract.checksRouteAttribute}`,
+    `- Rejects public home fallback: ${report.browserHarnessContract.rejectsPublicHomeFallback}`,
     "",
     "## Missing Authenticated Browser Evidence",
     "",
@@ -212,6 +256,7 @@ const report = buildAdminBrowserSurfaceSmokeReport({
   evidenceProvenance: evidenceFile?.provenance,
   sourceAdminRoutes: sourceAdminRoutes(),
   layoutSelectorContract: readLayoutSelectorContract(),
+  browserHarnessContract: readBrowserHarnessContract(),
 });
 const failures = validateAdminBrowserSurfaceSmokeReport(report);
 const output: AdminBrowserSurfaceSmokeReport = {

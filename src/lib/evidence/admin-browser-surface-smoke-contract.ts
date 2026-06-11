@@ -110,6 +110,7 @@ export type AdminBrowserSurfaceSmokeReport = {
     routeCount: number;
     sourceAdminPageCount: number;
     layoutSelectorContractPresent: boolean;
+    browserHarnessContractPresent: boolean;
     requiredAuthenticatedSurfaceCount: number;
     evidenceCount: number;
     authenticatedSurfaceEvidenceCount: number;
@@ -129,6 +130,18 @@ export type AdminBrowserSurfaceSmokeReport = {
     hasRouteAttribute: boolean;
     hasGroupAttribute: boolean;
     usesSurfaceResolver: boolean;
+  };
+  browserHarnessContract: {
+    ownerPath: "tests/ui-audits/admin-browser-surface-smoke.spec.ts";
+    packageScriptName: "check:admin-browser-surface-smoke:browser";
+    packageScriptPresent: boolean;
+    importsCanonicalSurfaceMap: boolean;
+    gatedByExplicitEnv: boolean;
+    usesStorageStateEnv: boolean;
+    usesCanonicalSelectors: boolean;
+    usesBrowserSmokePath: boolean;
+    checksRouteAttribute: boolean;
+    rejectsPublicHomeFallback: boolean;
   };
   evidence: AdminBrowserSurfaceEvidence[];
   missingAuthenticatedSurfaceIds: string[];
@@ -198,6 +211,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   evidenceProvenance?: Partial<AdminBrowserSurfaceEvidenceProvenance>;
   sourceAdminRoutes?: string[];
   layoutSelectorContract?: Partial<AdminBrowserSurfaceSmokeReport["layoutSelectorContract"]>;
+  browserHarnessContract?: Partial<AdminBrowserSurfaceSmokeReport["browserHarnessContract"]>;
 } = {}): AdminBrowserSurfaceSmokeReport {
   const evidence = (input.evidence ?? [])
     .map(normalizeAdminBrowserSurfaceEvidence)
@@ -250,6 +264,27 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     layoutSelectorContract.hasRouteAttribute &&
     layoutSelectorContract.hasGroupAttribute &&
     layoutSelectorContract.usesSurfaceResolver;
+  const browserHarnessContract = {
+    ownerPath: "tests/ui-audits/admin-browser-surface-smoke.spec.ts" as const,
+    packageScriptName: "check:admin-browser-surface-smoke:browser" as const,
+    packageScriptPresent: Boolean(input.browserHarnessContract?.packageScriptPresent),
+    importsCanonicalSurfaceMap: Boolean(input.browserHarnessContract?.importsCanonicalSurfaceMap),
+    gatedByExplicitEnv: Boolean(input.browserHarnessContract?.gatedByExplicitEnv),
+    usesStorageStateEnv: Boolean(input.browserHarnessContract?.usesStorageStateEnv),
+    usesCanonicalSelectors: Boolean(input.browserHarnessContract?.usesCanonicalSelectors),
+    usesBrowserSmokePath: Boolean(input.browserHarnessContract?.usesBrowserSmokePath),
+    checksRouteAttribute: Boolean(input.browserHarnessContract?.checksRouteAttribute),
+    rejectsPublicHomeFallback: Boolean(input.browserHarnessContract?.rejectsPublicHomeFallback),
+  };
+  const browserHarnessContractPresent =
+    browserHarnessContract.packageScriptPresent &&
+    browserHarnessContract.importsCanonicalSurfaceMap &&
+    browserHarnessContract.gatedByExplicitEnv &&
+    browserHarnessContract.usesStorageStateEnv &&
+    browserHarnessContract.usesCanonicalSelectors &&
+    browserHarnessContract.usesBrowserSmokePath &&
+    browserHarnessContract.checksRouteAttribute &&
+    browserHarnessContract.rejectsPublicHomeFallback;
   const totalFindingCount = missingAuthenticatedSurfaceIds.length;
 
   const status: AdminBrowserSurfaceReportStatus = authenticatedSurfaceEvidenceCount === requiredAuthenticated.length
@@ -308,6 +343,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
       routeCount: surfaceRoutes.length,
       sourceAdminPageCount: sourceAdminRoutes.length,
       layoutSelectorContractPresent,
+      browserHarnessContractPresent,
       requiredAuthenticatedSurfaceCount: requiredAuthenticated.length,
       evidenceCount: evidence.length,
       authenticatedSurfaceEvidenceCount,
@@ -322,6 +358,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     missingSourceAdminRoutes,
     extraSurfaceRoutes,
     layoutSelectorContract,
+    browserHarnessContract,
     evidence,
     missingAuthenticatedSurfaceIds,
     protectedSurfaceIds,
@@ -401,6 +438,30 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   }
   if (!report.layoutSelectorContract.usesSurfaceResolver) {
     failures.push("admin browser smoke requires src/app/admin/layout.tsx to use resolveAdminBrowserSurfaceForPathname.");
+  }
+  if (!report.browserHarnessContract.packageScriptPresent) {
+    failures.push("admin browser smoke requires package script check:admin-browser-surface-smoke:browser.");
+  }
+  if (!report.browserHarnessContract.importsCanonicalSurfaceMap) {
+    failures.push("admin browser smoke browser test must import the canonical admin surface map.");
+  }
+  if (!report.browserHarnessContract.gatedByExplicitEnv) {
+    failures.push("admin browser smoke browser test must be gated by ADMIN_BROWSER_SMOKE=1.");
+  }
+  if (!report.browserHarnessContract.usesStorageStateEnv) {
+    failures.push("admin browser smoke browser test must require ADMIN_BROWSER_SMOKE_STORAGE_STATE.");
+  }
+  if (!report.browserHarnessContract.usesCanonicalSelectors) {
+    failures.push("admin browser smoke browser test must use canonical authenticated selectors.");
+  }
+  if (!report.browserHarnessContract.usesBrowserSmokePath) {
+    failures.push("admin browser smoke browser test must navigate browserSmokePath, not hand-maintained routes.");
+  }
+  if (!report.browserHarnessContract.checksRouteAttribute) {
+    failures.push("admin browser smoke browser test must assert data-admin-browser-route.");
+  }
+  if (!report.browserHarnessContract.rejectsPublicHomeFallback) {
+    failures.push("admin browser smoke browser test must reject public-home fallback content.");
   }
   for (const entry of report.evidence) {
     if (!expectedSurfaceIds.has(entry.surfaceId)) failures.push(`evidence references unknown surface: ${entry.surfaceId}`);

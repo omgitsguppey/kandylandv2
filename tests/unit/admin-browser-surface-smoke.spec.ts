@@ -25,12 +25,26 @@ const LAYOUT_SELECTOR_CONTRACT = {
   usesSurfaceResolver: true,
 };
 
+const BROWSER_HARNESS_CONTRACT = {
+  ownerPath: "tests/ui-audits/admin-browser-surface-smoke.spec.ts" as const,
+  packageScriptName: "check:admin-browser-surface-smoke:browser" as const,
+  packageScriptPresent: true,
+  importsCanonicalSurfaceMap: true,
+  gatedByExplicitEnv: true,
+  usesStorageStateEnv: true,
+  usesCanonicalSelectors: true,
+  usesBrowserSmokePath: true,
+  checksRouteAttribute: true,
+  rejectsPublicHomeFallback: true,
+};
+
 describe("admin browser surface smoke contract", () => {
   it("tracks every admin page as authenticated browser-pending by default", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       currentHead: "abc123",
       generatedAtUtc: "2026-06-11T12:00:00.000Z",
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
     });
 
     expect(report.reportKey).toBe("admin-browser-surface-smoke");
@@ -53,6 +67,7 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.routeCount).toBe(14);
     expect(report.summary.sourceAdminPageCount).toBe(14);
     expect(report.summary.layoutSelectorContractPresent).toBe(true);
+    expect(report.summary.browserHarnessContractPresent).toBe(true);
     expect(report.summary.requiredAuthenticatedSurfaceCount).toBe(18);
     expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
     expect(report.evidenceProvenance.source).toBe("none");
@@ -112,6 +127,7 @@ describe("admin browser surface smoke contract", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
       evidence: ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => ({
         surfaceId: surface.surfaceId,
         route: surface.route,
@@ -141,6 +157,7 @@ describe("admin browser surface smoke contract", () => {
     const incomplete = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -159,6 +176,7 @@ describe("admin browser surface smoke contract", () => {
     const complete = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -176,6 +194,7 @@ describe("admin browser surface smoke contract", () => {
     const wrongMarker = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -197,6 +216,7 @@ describe("admin browser surface smoke contract", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -236,6 +256,7 @@ describe("admin browser surface smoke contract", () => {
   it("fails when a source admin page is not represented in the browser smoke matrix", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
       sourceAdminRoutes: [
         ...ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => surface.route),
         "/admin/new-panel",
@@ -249,7 +270,9 @@ describe("admin browser surface smoke contract", () => {
   });
 
   it("fails when the shared admin layout does not expose browser smoke selectors", () => {
-    const report = buildAdminBrowserSurfaceSmokeReport();
+    const report = buildAdminBrowserSurfaceSmokeReport({
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+    });
 
     expect(report.summary.layoutSelectorContractPresent).toBe(false);
     expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual(expect.arrayContaining([
@@ -257,6 +280,35 @@ describe("admin browser surface smoke contract", () => {
       "admin browser smoke requires src/app/admin/layout.tsx to emit data-admin-browser-route.",
       "admin browser smoke requires src/app/admin/layout.tsx to emit data-admin-browser-surface-group.",
       "admin browser smoke requires src/app/admin/layout.tsx to use resolveAdminBrowserSurfaceForPathname.",
+    ]));
+  });
+
+  it("fails when the opt-in browser harness drifts from the canonical surface contract", () => {
+    const report = buildAdminBrowserSurfaceSmokeReport({
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: {
+        ...BROWSER_HARNESS_CONTRACT,
+        packageScriptPresent: false,
+        importsCanonicalSurfaceMap: false,
+        gatedByExplicitEnv: false,
+        usesStorageStateEnv: false,
+        usesCanonicalSelectors: false,
+        usesBrowserSmokePath: false,
+        checksRouteAttribute: false,
+        rejectsPublicHomeFallback: false,
+      },
+    });
+
+    expect(report.summary.browserHarnessContractPresent).toBe(false);
+    expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual(expect.arrayContaining([
+      "admin browser smoke requires package script check:admin-browser-surface-smoke:browser.",
+      "admin browser smoke browser test must import the canonical admin surface map.",
+      "admin browser smoke browser test must be gated by ADMIN_BROWSER_SMOKE=1.",
+      "admin browser smoke browser test must require ADMIN_BROWSER_SMOKE_STORAGE_STATE.",
+      "admin browser smoke browser test must use canonical authenticated selectors.",
+      "admin browser smoke browser test must navigate browserSmokePath, not hand-maintained routes.",
+      "admin browser smoke browser test must assert data-admin-browser-route.",
+      "admin browser smoke browser test must reject public-home fallback content.",
     ]));
   });
 });
