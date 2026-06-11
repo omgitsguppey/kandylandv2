@@ -61,6 +61,9 @@ for (const expected of [
     "AggregateField.sum(\"gumDropsBalance\")",
     "AggregateField.sum(\"gumDropsPurchasedBalance\")",
     "AggregateField.sum(\"gumDropsRewardBalance\")",
+    "treasury_source_missing",
+    "normalizeOptionalCount",
+    "Missing treasury source data is unavailable, not zero.",
 ]) {
     requireIncludes(helper, expected, "Platform Economy treasury helper");
 }

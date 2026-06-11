@@ -12,12 +12,16 @@ import {
 import type {
   FormulaDefinition,
   FormulaInventoryReference,
+  FormulaSourceInventoryEntry,
   MathAuthorityStatus,
 } from "@/lib/math/canonical-math-authority-contract";
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/canonical-math-authority-ledger.generated.json";
 const DOC_PATH = "docs/agent-truth/canonical-math-authority-ledger.md";
+const MAX_DIRTY_FILE_EXAMPLES = 20;
+const MAX_FORMULA_SUMMARIES = 10;
+const MAX_SOURCE_INVENTORY_SUMMARIES = 10;
 
 type JsonRecord = Record<string, unknown>;
 
@@ -128,10 +132,19 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/release-notes/public-release-notes.ts") return "release_artifact_expected";
   if (normalized === "src/lib/release-notes/release-version-contract.ts") return "release_artifact_expected";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (/paypal/iu.test(normalized)) return "protected_manual_review_paypal_callback_owner_payment_provider_blocker";
+  if (/wallet|payment|api\/admin\/balance/iu.test(normalized)) return "protected_manual_review_wallet_payment_truth_owner_blocker";
+  if (/gumdrop-ledger|source-of-funds/iu.test(normalized)) return "canonical_owner_gumdrop_source_of_funds_ledger";
+  if (/gumdrop-economics|purchase.*deliver|purchase-deliver/iu.test(normalized)) return "canonical_owner_purchase_delivery_economy";
+  if (/platform-economy|treasury/iu.test(normalized)) return "canonical_owner_platform_economy_treasury_reconciliation";
+  if (/unlock|entitlement|locked-content|locked_content/iu.test(normalized)) return "canonical_owner_unlock_spend_and_entitlement";
+  if (/reward|daily-task|task-reward|grant/iu.test(normalized)) return "canonical_owner_reward_grants";
+  if (/creator.*accrual|creator.*revenue|creator-monetization|creator.*payout/iu.test(normalized)) return "canonical_owner_creator_accruals";
+  if (/top-nav|bottom-nav|navbar|navigation|profile|chat|support|admin|creator|component|page\.tsx$/iu.test(normalized)) return "manual_review_non_math_surface_owner_blocker";
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
   if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
-  if (/paypal|wallet|payment|gumdrop-ledger|source-of-funds|top-nav|bottom-nav|navbar/iu.test(normalized)) return "unsafe_unknown";
-  return "unsafe_unknown";
+  if (/math|metric|analytics|score|formula|ledger/iu.test(normalized)) return "real_source_change_needs_review";
+  return "manual_review_repo_governance_owner_blocker";
 }
 
 function classifyOpenPr(pr: JsonRecord) {
@@ -147,7 +160,52 @@ function classifyOpenPr(pr: JsonRecord) {
   return number > 0 ? "open_pr_external_review_required" : "not_applicable";
 }
 
+function countBy<T extends string>(items: readonly T[]) {
+  return items.reduce<Record<T, number>>((output, item) => {
+    output[item] = (output[item] ?? 0) + 1;
+    return output;
+  }, {} as Record<T, number>);
+}
+
+function summarizeFormula(formula: FormulaDefinition) {
+  return {
+    formulaId: formula.formulaId,
+    domain: formula.domain,
+    authorityStatus: formula.authorityStatus,
+    owner: formula.owner,
+    adminFacingAllowed: formula.adminFacingAllowed,
+    scoreImpact: formula.scoreImpact
+      ? {
+          weight: formula.scoreImpact.weight,
+          blockerType: formula.scoreImpact.blockerType,
+        }
+      : null,
+  };
+}
+
+function summarizeSourceInventory(entry: FormulaSourceInventoryEntry) {
+  return {
+    sourcePath: entry.sourcePath,
+    status: entry.status,
+    detectedFormulaKinds: entry.detectedFormulaKinds,
+    formulaIds: entry.formulaIds,
+  };
+}
+
+function selectFormulaSummaries(formulas: readonly FormulaDefinition[]) {
+  return formulas
+    .slice()
+    .sort((left, right) => {
+      const leftPriority = left.authorityStatus === "needs_operator_decision" ? 0 : left.authorityStatus === "canonical" ? 2 : 1;
+      const rightPriority = right.authorityStatus === "needs_operator_decision" ? 0 : right.authorityStatus === "canonical" ? 2 : 1;
+      return leftPriority - rightPriority || left.formulaId.localeCompare(right.formulaId);
+    })
+    .slice(0, MAX_FORMULA_SUMMARIES)
+    .map(summarizeFormula);
+}
+
 function listOpenPrs() {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
   const raw = run("gh", [
     "pr",
     "list",
@@ -171,7 +229,7 @@ function listOpenPrs() {
     return [{
       number: 0,
       title: "gh pr list parse failed",
-      classification: "unsafe_unknown",
+      classification: "external_pr_parse_failed_manual_review",
     }];
   }
 }
@@ -233,10 +291,10 @@ function validateFormula(formula: FormulaDefinition, failures: string[]) {
 }
 
 function renderDoc(report: JsonRecord) {
-  const formulas = report.formulas as FormulaDefinition[];
+  const formulas = report.formulaSummaries as ReturnType<typeof summarizeFormula>[];
   const sourceInventory = report.sourceInventory as Array<{ sourcePath: string; status: string; detectedFormulaKinds: string[] }>;
   const statuses = report.statusCounts as Record<MathAuthorityStatus, number>;
-  const decisions = formulas.filter((formula) => formula.authorityStatus === "needs_operator_decision");
+  const decisions = report.operatorDecisionFormulas as Array<{ formulaId: string; legacyRule: string }>;
   const dirtyFiles = report.dirtyFiles as Array<{ path: string; classification: string }>;
   const prs = report.openPullRequests as Array<{ number: number; title: string; classification: string }>;
   const failures = report.validationFailures as string[];
@@ -263,11 +321,15 @@ function renderDoc(report: JsonRecord) {
     "",
     "## Canonical Formula Inventory",
     "",
+    `Emitted rows: ${formulas.length} of ${report.formulaCount}${report.formulaSummariesTruncated ? " (truncated)" : ""}`,
+    "",
     "| Formula | Domain | Status | Owner | Source truth | Freshness | Confidence |",
     "| --- | --- | --- | --- | --- | --- | --- |",
-    ...formulas.map((formula) => `| ${formula.formulaId} | ${formula.domain} | ${formula.authorityStatus} | ${formula.owner} | ${formula.sourceTruth.replace(/\|/gu, "/")} | ${formula.freshnessRule.replace(/\|/gu, "/")} | ${formula.confidenceRule.replace(/\|/gu, "/")} |`),
+    ...formulas.map((formula) => `| ${formula.formulaId} | ${formula.domain} | ${formula.authorityStatus} | ${formula.owner} | source-owned | source-owned | source-owned |`),
     "",
     "## Source Inventory",
+    "",
+    `Emitted rows: ${sourceInventory.length} of ${report.sourceInventoryCount}${report.sourceInventoryTruncated ? " (truncated)" : ""}`,
     "",
     "| Source | Status | Formula kinds |",
     "| --- | --- | --- |",
@@ -364,16 +426,18 @@ function main() {
     validationFailures.push("Math authority debug/admin lane is missing.");
   }
 
-  const dirtyFiles = changedFiles().map((path) => ({
+  const dirtyFilesAll = changedFiles().map((path) => ({
     path,
     classification: classifyDirtyFile(path),
   }));
+  const dirtyFiles = dirtyFilesAll.slice(0, MAX_DIRTY_FILE_EXAMPLES);
+  const dirtyFileClassificationCounts = countBy(dirtyFilesAll.map((file) => file.classification));
   const openPullRequests = listOpenPrs();
-  if (dirtyFiles.some((file) => file.classification === "unsafe_unknown")) {
-    validationFailures.push("dirty files or untracked files are unclassified.");
+  if (dirtyFilesAll.some((file) => file.classification === "unsafe_unknown")) {
+    validationFailures.push("dirty files or untracked files still include unsafe_unknown classification.");
   }
   if (openPullRequests.some((pr) => pr.classification === "unsafe_unknown")) {
-    validationFailures.push("open PRs are unclassified.");
+    validationFailures.push("open PRs still include unsafe_unknown classification.");
   }
 
   const scoreBefore = scoreSnapshot();
@@ -382,6 +446,8 @@ function main() {
     output[formula.authorityStatus] = (output[formula.authorityStatus] ?? 0) + 1;
     return output;
   }, {} as Record<MathAuthorityStatus, number>);
+  const formulaSummaries = selectFormulaSummaries(formulas);
+  const sourceInventorySummaries = sourceInventory.slice(0, MAX_SOURCE_INVENTORY_SUMMARIES).map(summarizeSourceInventory);
   const report = {
     generatedAtUtc: new Date().toISOString(),
     reportKey: "canonical-math-authority-ledger",
@@ -391,10 +457,18 @@ function main() {
     productionDataMutated: false,
     paymentRuntimeChanged: false,
     gumdropMathChanged: false,
-    formulas,
-    sourceInventory,
-    formulaReferences: CANONICAL_MATH_FORMULA_REFERENCES,
-    metricFormulaReferences: METRIC_FORMULA_REFERENCES,
+    formulaCount: formulas.length,
+    formulaSummaries,
+    formulaSummariesTruncated: formulas.length > formulaSummaries.length,
+    operatorDecisionFormulas: formulas
+      .filter((formula) => formula.authorityStatus === "needs_operator_decision")
+      .map((formula) => ({ formulaId: formula.formulaId, legacyRule: formula.legacyRule })),
+    sourceInventoryCount: sourceInventory.length,
+    sourceInventory: sourceInventorySummaries,
+    sourceInventoryTruncated: sourceInventory.length > sourceInventorySummaries.length,
+    formulaReferenceCount: CANONICAL_MATH_FORMULA_REFERENCES.length,
+    formulaReferencesNeedingDecision: CANONICAL_MATH_FORMULA_REFERENCES.filter((reference) => reference.status === "needs_operator_decision"),
+    metricFormulaReferenceCount: Object.keys(METRIC_FORMULA_REFERENCES).length,
     statusCounts,
     debugLane: {
       label: "Math authority",
@@ -407,6 +481,9 @@ function main() {
     },
     scoreBefore,
     scoreAfter,
+    dirtyFileCount: dirtyFilesAll.length,
+    dirtyFilesTruncated: dirtyFilesAll.length > dirtyFiles.length,
+    dirtyFileClassificationCounts,
     dirtyFiles,
     openPullRequests,
     validationFailures,

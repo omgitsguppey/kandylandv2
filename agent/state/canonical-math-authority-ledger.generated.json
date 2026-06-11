@@ -1,1986 +1,147 @@
 {
-  "generatedAtUtc": "2026-05-26T08:31:47.608Z",
+  "generatedAtUtc": "2026-06-11T14:39:03.281Z",
   "reportKey": "canonical-math-authority-ledger",
-  "currentHead": "d8cab39150662e8600c129d90d931b812256ab77",
+  "currentHead": "9b25961f85707ab4e0f5d8346b10b667ae0b75a4",
   "status": "pass",
   "productionReadsRequired": false,
   "productionDataMutated": false,
   "paymentRuntimeChanged": false,
   "gumdropMathChanged": false,
-  "formulas": [
+  "formulaCount": 62,
+  "formulaSummaries": [
     {
-      "formulaId": "beta_score.scanner_penalty",
-      "domain": "beta_score",
-      "humanName": "Public beta scanner finding penalty",
-      "formulaExpression": "weightedPenalty = severityPenalty * confidence * blastRadiusMultiplier * recentFileMultiplier",
-      "numerator": "severity penalty multiplied by bounded confidence and blast-radius/recency multipliers",
-      "denominator": "n/a",
-      "timeWindow": "current source scan",
-      "dedupeKey": "filePath|line|excerpt|category|normalizedTitle",
-      "sourceTruth": "source scanner findings from buildPublicBetaFinding/dedupePublicBetaFindings",
-      "confidenceRule": "confidence is clamped to 0..1; critical autofail requires high-confidence critical source finding",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "legacy scanner reports are evidence snapshots only and cannot become current score truth without current head regeneration.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": {
-        "scoreId": "scannerScore",
-        "weight": 0,
-        "formula": "domain weighted scanner score before evidence caps",
-        "cap": "launch/evidence caps apply after weighted health score",
-        "penalty": "weighted finding penalties reduce each domain score",
-        "blockerType": "critical_source_finding"
-      },
-      "owner": "public_beta_score",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/weights.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/non-event-score-policy.ts"
-      ],
-      "freshnessRule": "Admin display must show source freshness from current source scan; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "beta_score.domain_score",
-      "domain": "beta_score",
-      "humanName": "Public beta domain score",
-      "formulaExpression": "domainScore = clamp(100 - sum(weightedPenalty), 0, 100); scannerScore = weightedAverage(domainScore, domainWeight)",
-      "numerator": "sum of domain score multiplied by PUBLIC_BETA_DOMAIN_WEIGHTS",
-      "denominator": "sum of PUBLIC_BETA_DOMAIN_WEIGHTS",
-      "timeWindow": "current source scan",
-      "dedupeKey": "deduped public beta finding key",
-      "sourceTruth": "PUBLIC_BETA_DOMAIN_WEIGHTS and deduped scanner findings",
-      "confidenceRule": "exact for current source scan; stale generated reports cannot override current scan",
-      "confidenceLevel": "exact",
-      "zeroDenominatorRule": "if total weight is 0, scanner score falls back to 100 in current implementation",
-      "legacyRule": "legacy findings cannot become current score truth without current scanner regeneration.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": {
-        "scoreId": "scannerScore",
-        "weight": 100,
-        "formula": "weighted average of domain scores",
-        "cap": "launch/evidence caps apply after weighted health score",
-        "penalty": "domain finding penalties",
-        "blockerType": "source_finding"
-      },
-      "owner": "public_beta_score",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/weights.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/non-event-score-policy.ts"
-      ],
-      "freshnessRule": "Admin display must show source freshness from current source scan; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "beta_score.source_health",
-      "domain": "source_health",
-      "humanName": "Source health score",
-      "formulaExpression": "sourceHealthScore = clamp(scannerScore * 0.7 + average(sourceGate.sourceCredit) * 0.3, 0, 100)",
-      "numerator": "scanner score at 70 percent plus source gate credit at 30 percent",
-      "denominator": "implicit 100-point score",
-      "timeWindow": "current beta evidence run",
-      "dedupeKey": "evidence gate id and scanner finding dedupe key",
-      "sourceTruth": "scanner score and source-ready evidence gates",
-      "confidenceRule": "source-ready confidence does not clear provider/runtime/admin formal gates",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "source gate average is 0 when no source gates exist",
-      "legacyRule": "legacy evidence reports cannot become current score truth unless fresh and current-head matched.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": {
-        "scoreId": "sourceHealth",
-        "weight": 25,
-        "formula": "scannerScore * 0.7 + sourceGateCreditAverage * 0.3",
-        "cap": "launch/evidence caps apply after weighted health score",
-        "penalty": "source gates missing or scanner penalties reduce score",
-        "blockerType": "source_or_evidence_gate"
-      },
-      "owner": "public_beta_score",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/weights.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/non-event-score-policy.ts"
-      ],
-      "freshnessRule": "Admin display must show source freshness from current beta evidence run; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "beta_score.runtime_health",
-      "domain": "runtime_health",
-      "humanName": "Runtime health score",
-      "formulaExpression": "runtimeHealthScore = average(runtimeRequiredGate.runtimeCredit)",
-      "numerator": "sum of runtime required gate runtimeCredit values",
-      "denominator": "runtime required gate count",
-      "timeWindow": "current beta evidence run",
-      "dedupeKey": "evidence gate id",
-      "sourceTruth": "runtime/provider/debug/admin evidence artifacts",
-      "confidenceRule": "formal runtime/provider evidence is required for exact launch readiness; source confidence stays partial",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "average([]) returns 0",
-      "legacyRule": "operator-reported or stale runtime evidence cannot become formal runtime proof.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": {
-        "scoreId": "runtimeHealth",
-        "weight": 20,
-        "formula": "average runtimeCredit of required runtime gates",
-        "cap": "launch/evidence caps apply after weighted health score",
-        "penalty": "missing runtime/provider/admin/debug evidence",
-        "blockerType": "formal_runtime_or_provider_gate"
-      },
-      "owner": "public_beta_score",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/weights.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/non-event-score-policy.ts"
-      ],
-      "freshnessRule": "Admin display must show source freshness from current beta evidence run; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "beta_score.evidence_completeness",
-      "domain": "evidence_completeness",
-      "humanName": "Evidence completeness score",
-      "formulaExpression": "evidenceCompletenessScore = average(nonUiRequiredExitGate.evidenceCredit)",
-      "numerator": "sum of non-UI required exit gate evidenceCredit values",
-      "denominator": "non-UI required exit gate count",
-      "timeWindow": "current beta evidence run",
-      "dedupeKey": "evidence gate id",
-      "sourceTruth": "formal/source evidence artifacts supplied to buildPublicBetaScoreReport",
-      "confidenceRule": "source evidence receives partial credit and does not clear formal gates",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "average([]) returns 0",
-      "legacyRule": "stale generated reports are evidence snapshots, not current completeness proof.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": {
-        "scoreId": "evidenceCompleteness",
-        "weight": 20,
-        "formula": "average evidenceCredit of required non-UI gates",
-        "cap": "launch/evidence caps apply after weighted health score",
-        "penalty": "missing required evidence gates",
-        "blockerType": "evidence_gate"
-      },
-      "owner": "public_beta_score",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/weights.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/non-event-score-policy.ts"
-      ],
-      "freshnessRule": "Admin display must show source freshness from current beta evidence run; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "beta_score.freshness_score",
-      "domain": "freshness",
-      "humanName": "Evidence freshness score",
-      "formulaExpression": "freshnessScore = average(gate freshness points: fresh=100, stale=35, head_mismatch=40, other=0)",
-      "numerator": "fresh evidence gate count and weighted gate freshness points",
-      "denominator": "total evidence gate count",
-      "timeWindow": "24h generated report freshness window unless explicit contract says otherwise",
-      "dedupeKey": "evidence gate id and report path",
-      "sourceTruth": "generated report timestamps and currentHead comparisons",
-      "confidenceRule": "freshness is exact only for current generated artifact timestamps and current git head",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "average([]) returns 0, so no evidence cannot be fresh",
-      "legacyRule": "legacy generated reports older than the window cannot become exact current freshness unless retired or superseded by a current lane.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": {
-        "scoreId": "freshness",
-        "weight": 15,
-        "formula": "average freshness points",
-        "cap": "stale evidence caps evidence score at staleEvidence cap",
-        "penalty": "stale/head-mismatched/missing artifacts",
-        "blockerType": "freshness_gate"
-      },
-      "owner": "public_beta_score",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/weights.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/non-event-score-policy.ts"
-      ],
-      "freshnessRule": "Freshness is computed from generatedAt/currentHead evidence and the explicit report window."
-    },
-    {
-      "formulaId": "beta_score.cost_risk",
-      "domain": "cost_risk",
-      "humanName": "Cost risk score",
-      "formulaExpression": "costRiskScore = scoreCostReadiness(costReadiness).score",
-      "numerator": "source-guarded cost readiness lane credits",
-      "denominator": "configured cost readiness lanes",
-      "timeWindow": "current source-only cost evidence run",
-      "dedupeKey": "cost readiness lane id",
-      "sourceTruth": "cost readiness artifacts and source guards",
-      "confidenceRule": "external billing review is separate and cannot be claimed from source-only evidence",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "missing cost inventory falls back to missing_inventory lane scoring",
-      "legacyRule": "legacy cost reports cannot become exact cost proof or claim dollar savings/external billing review without artifact.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": {
-        "scoreId": "costRisk",
-        "weight": 10,
-        "formula": "scoreCostReadiness lane score",
-        "cap": "launch/evidence caps apply after weighted health score",
-        "penalty": "cost review required or missing source guard",
-        "blockerType": "cost_owner_review_or_external_billing"
-      },
-      "owner": "public_beta_score",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/weights.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/non-event-score-policy.ts"
-      ],
-      "freshnessRule": "Admin display must show source freshness from current source-only cost evidence run; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "beta_score.regression_risk",
-      "domain": "regression_risk",
-      "humanName": "Regression risk score",
-      "formulaExpression": "regressionRiskScore = scoreRegressionRisk(inputs).score",
-      "numerator": "current high-blast regression refresh credit",
-      "denominator": "regression-risk inputs",
-      "timeWindow": "current evidence run plus stale report window",
-      "dedupeKey": "required report path and high-blast lane id",
-      "sourceTruth": "requiredReports, open PR triage, runtime code change flags, high-blast refresh evidence",
-      "confidenceRule": "exact for current source/evidence inputs, unknown for missing artifacts",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "missing inputs are scored by scoreRegressionRisk as risk, not silently ignored",
-      "legacyRule": "stale high-blast reports increase regression risk until refreshed or retired.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": {
-        "scoreId": "regressionRisk",
-        "weight": 10,
-        "formula": "scoreRegressionRisk",
-        "cap": "launch/evidence caps apply after weighted health score",
-        "penalty": "stale or unclassified high-blast changes",
-        "blockerType": "regression_evidence"
-      },
-      "owner": "public_beta_score",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/weights.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/non-event-score-policy.ts"
-      ],
-      "freshnessRule": "Admin display must show source freshness from current evidence run plus stale report window; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "beta_score.overall_health",
-      "domain": "beta_score",
-      "humanName": "Overall public beta health score",
-      "formulaExpression": "healthScore = weightedAverage(health dimensions); overallScore = min(healthScore, launchCap)",
-      "numerator": "sum of health dimension score multiplied by PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS",
-      "denominator": "sum of PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS",
-      "timeWindow": "current beta score run",
-      "dedupeKey": "health dimension id",
-      "sourceTruth": "source, runtime, evidence, freshness, cost, and regression scores",
-      "confidenceRule": "overall health inherits weakest required gate; launch-ready cannot be inferred from source-only evidence",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "weightedHealthScore divides by Math.max(1,totalWeight)",
-      "legacyRule": "legacy score artifacts cannot override current head score.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": {
-        "scoreId": "overallHealthScore",
-        "weight": 100,
-        "formula": "weighted health score capped by launch gate",
-        "cap": "launch gate status and evidence readiness caps",
-        "penalty": "below-target dimensions and launch blockers",
-        "blockerType": "launch_gate"
-      },
-      "owner": "public_beta_score",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/weights.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/non-event-score-policy.ts"
-      ],
-      "freshnessRule": "Admin display must show source freshness from current beta score run; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "person_metrics.hydrated_event_count",
-      "domain": "user_metrics",
-      "humanName": "Hydrated person metric event count",
-      "formulaExpression": "count += 1 for each accepted canonical envelope metric decision in the target scope",
-      "numerator": "accepted metric events",
-      "denominator": "n/a",
-      "timeWindow": "source event window supplied to hydratePersonMetrics",
-      "dedupeKey": "eventId plus suppressedDuplicateKey from person metric decision",
-      "sourceTruth": "canonical event envelope and person metric definitions",
-      "confidenceRule": "best identity confidence wins; legacy candidates are downgraded and exact promotion is blocked",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "legacy exact or linked confidence cannot become exact person metric truth and is downgraded to inferred before hydration.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_person_metrics",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/person-metrics-engine.ts",
-        "src/lib/analytics/person-metrics-contract.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "person metrics may diverge by scope: global, guest, signedIn, linkedPerson, and creatorRole are intentionally separate.",
-      "freshnessRule": "Admin display must show source freshness from source event window supplied to hydratePersonMetrics; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "global_metrics.event_fact_count",
-      "domain": "global_metrics",
-      "humanName": "Global event fact count",
-      "formulaExpression": "countDelta = dedupeDecision.global.count ? 1 : 0",
-      "numerator": "globally counted normalized event facts",
-      "denominator": "n/a",
-      "timeWindow": "event fact source window",
-      "dedupeKey": "dedupeDecision.global.dedupeKey",
-      "sourceTruth": "normalized behavioral event fact global dedupe decision",
-      "confidenceRule": "inherits event fact source/identity confidence",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "legacy event facts keep downgraded confidence and cannot become exact without exact identity/event truth.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_global_user_dedupe",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/analytics/sql-database-parity-engine.ts",
-        "src/lib/behavioral/normalize-event-fact.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global dedupe counts globally eligible events even when user-specific identity is unavailable.",
-      "freshnessRule": "Admin display must show source freshness from event fact source window; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "user_metrics.event_fact_count",
-      "domain": "user_metrics",
-      "humanName": "User event fact count",
-      "formulaExpression": "countDelta = dedupeDecision.user.count ? 1 : 0",
-      "numerator": "user-counted normalized event facts",
-      "denominator": "n/a",
-      "timeWindow": "event fact source window",
-      "dedupeKey": "dedupeDecision.user.dedupeKey",
-      "sourceTruth": "normalized behavioral event fact user dedupe decision",
-      "confidenceRule": "requires user or linked-person identity confidence; guest-only may remain global without user count",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "legacy user identity cannot become exact unless exact linked identity exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_global_user_dedupe",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/analytics/sql-database-parity-engine.ts",
-        "src/lib/behavioral/normalize-event-fact.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "user dedupe can intentionally diverge from global dedupe when identity is guest, weak, suppressed, or linked later.",
-      "freshnessRule": "Admin display must show source freshness from event fact source window; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "count_dedupe.page_session_count",
-      "domain": "session_metrics",
-      "humanName": "Deduped page/session event count",
-      "formulaExpression": "count += 1 for unique page/session action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_count_dedupe",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "unknown"
-      ],
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.signup_login_count",
-      "domain": "user_metrics",
-      "humanName": "Deduped signup/login event count",
-      "formulaExpression": "count += 1 for unique auth action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "auth_analytics",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.drop_open_count",
-      "domain": "global_metrics",
-      "humanName": "Deduped drop opened count",
-      "formulaExpression": "count += 1 for unique drop open action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "drops_analytics",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.unwrap_count",
-      "domain": "global_metrics",
-      "humanName": "Deduped unwrap count",
-      "formulaExpression": "count += 1 for server-backed unique unwrap/unlock action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "commerce_server_truth",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.watch_session_count",
-      "domain": "watch_time",
-      "humanName": "Deduped watch session count",
-      "formulaExpression": "count += 1 for unique watch session action key; replay increments only when replay is the metric",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_watch_time",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "durationStates": [
-        "active",
-        "passive",
-        "hidden",
-        "playback",
-        "unknown"
-      ],
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.wallet_open_count",
-      "domain": "user_metrics",
-      "humanName": "Deduped wallet opened count",
-      "formulaExpression": "count += 1 for unique wallet open action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "wallet_analytics",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.checkout_start_count",
-      "domain": "user_metrics",
-      "humanName": "Deduped checkout start count",
-      "formulaExpression": "count += 1 for unique checkout start action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "commerce_funnel",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.payment_approved_count",
-      "domain": "revenue",
-      "humanName": "Deduped payment approved count",
-      "formulaExpression": "count += 1 for unique server/provider-linked payment approval action key; this does not change revenue math",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "commerce_server_truth",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "valueSourceBreakdown": [
-        "source_of_funds",
-        "confidence"
-      ],
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.daily_task_count",
-      "domain": "daily_tasks",
-      "humanName": "Deduped daily task event count",
-      "formulaExpression": "count += 1 for unique daily task action or reward key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "daily_tasks",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "valueSourceBreakdown": [
-        "source_of_funds",
-        "confidence"
-      ],
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.chat_event_count",
+      "formulaId": "chat.message_outcome_count",
       "domain": "chat",
-      "humanName": "Deduped chat event count",
-      "formulaExpression": "count += 1 for unique chat attempt/send/block action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
+      "authorityStatus": "needs_operator_decision",
       "owner": "chat",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.creator_profile_count",
-      "domain": "discovery",
-      "humanName": "Deduped creator profile view count",
-      "formulaExpression": "count += 1 for unique creator profile action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
       "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "creator_discovery",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.creator_relationship_count",
-      "domain": "discovery",
-      "humanName": "Deduped creator follow relationship count",
-      "formulaExpression": "count += 1 for unique follow/unfollow relationship action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "creator_relationships",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.fan_pass_count",
-      "domain": "fan_pass",
-      "humanName": "Deduped Fan Pass lifecycle count",
-      "formulaExpression": "count += 1 for unique Fan Pass lifecycle/access action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "fan_pass",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.notification_count",
-      "domain": "notifications",
-      "humanName": "Deduped notification event count",
-      "formulaExpression": "count += 1 for unique prompt/token/targeting action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "notifications",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.media_count",
-      "domain": "media",
-      "humanName": "Deduped media upload/access count",
-      "formulaExpression": "count += 1 for unique media upload/access action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "media",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.support_account_count",
-      "domain": "user_metrics",
-      "humanName": "Deduped support/account action count",
-      "formulaExpression": "count += 1 for unique support or account action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "support_account",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.legacy_bucket_count",
-      "domain": "legacy_recovery",
-      "humanName": "Legacy bucket count",
-      "formulaExpression": "legacyCount += 1 only for weak/unknown legacy confidence action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "legacy_recovery",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.global_count",
-      "domain": "global_metrics",
-      "humanName": "Canonical global count",
-      "formulaExpression": "globalCount += 1 for non-legacy non-replay unique action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_count_dedupe",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.user_count",
-      "domain": "user_metrics",
-      "humanName": "Canonical user count",
-      "formulaExpression": "userCount += 1 under best user identity for non-legacy non-replay unique action key",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_count_dedupe",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.creator_count",
-      "domain": "creator_monetization",
-      "humanName": "Canonical creator count",
-      "formulaExpression": "creatorCount += 1 for creator-scoped unique action key when creatorId exists",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_count_dedupe",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "valueSourceBreakdown": [
-        "source_of_funds",
-        "confidence"
-      ],
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "count_dedupe.retry_replay_suppression",
-      "domain": "global_metrics",
-      "humanName": "Retry and replay count suppression",
-      "formulaExpression": "standardCount += 0 for retry/replay unless replay is the metric itself",
-      "numerator": "unique accepted count increments",
-      "denominator": "n/a",
-      "timeWindow": "explicit source/reporting window supplied by the consumer",
-      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
-      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
-      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
-      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
-      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_count_dedupe",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts"
-      ],
-      "countRule": "integer",
-      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
-    },
-    {
-      "formulaId": "behavioral_event_fact.deduped_count",
-      "domain": "global_metrics",
-      "humanName": "Deduped behavioral event fact count",
-      "formulaExpression": "dedupeBehavioralEventFacts keeps the newest fact for each dedupeKey",
-      "numerator": "unique behavioral event facts",
-      "denominator": "n/a",
-      "timeWindow": "behavioral event source window",
-      "dedupeKey": "BehavioralEventFact.dedupeKey",
-      "sourceTruth": "normalizeBehavioralEventFactWithDiagnostics",
-      "confidenceRule": "source confidence: server/materialized=1, client=0.95, legacy=0.6 unless explicit input confidence overrides",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "legacy source confidence remains lower and cannot become exact by dedupe alone.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "behavioral_event_fact",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/behavioral/normalize-event-fact.ts"
-      ],
-      "countRule": "integer",
-      "freshnessRule": "Admin display must show source freshness from behavioral event source window; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "session_metrics.active_session_time",
-      "domain": "session_metrics",
-      "humanName": "Active session time",
-      "formulaExpression": "activeMs += min(explicitActiveMs or meaningful foreground activity, foregroundMs minus hiddenMs)",
-      "numerator": "active foreground interaction milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "session lifecycle from startSession to closeSession",
-      "dedupeKey": "sessionId with guest/user handoff continuity",
-      "sourceTruth": "session metrics engine activity updates",
-      "confidenceRule": "exact_closeout when closeout observed; estimated_missing_closeout otherwise",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "page duration is not active time; missing closeout remains estimated.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_session_metrics",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/analytics/session-metrics-engine.ts",
-        "scripts/agent/validate-session-bounce-calculation.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "unknown"
-      ],
-      "freshnessRule": "Admin display must show source freshness from session lifecycle from startSession to closeSession; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "bounce.session_bounce_status",
-      "domain": "bounce",
-      "humanName": "Session bounce status",
-      "formulaExpression": "not_bounced when conversion, meaningful interaction, activeMs >= 3000, or routeCount > 1; bounced with passive evidence; otherwise unknown",
-      "numerator": "bounced or not_bounced classified sessions",
-      "denominator": "eligible sessions",
-      "timeWindow": "session lifecycle",
-      "dedupeKey": "sessionId",
-      "sourceTruth": "classifyBounce and classifyEngagedSession",
-      "confidenceRule": "inherits session closeout confidence",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "no eligible sessions means no bounce rate should display; status remains unknown/proven-zero by source contract",
-      "legacyRule": "one-page duration alone cannot define bounce.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_session_metrics",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/analytics/session-metrics-engine.ts",
-        "scripts/agent/validate-session-bounce-calculation.ts"
-      ],
-      "countRule": "integer",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "unknown"
-      ],
-      "freshnessRule": "Admin display must show source freshness from session lifecycle; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "watch_time.active_watch_ms",
-      "domain": "watch_time",
-      "humanName": "Active drop watch milliseconds",
-      "formulaExpression": "video/audio use playingMs capped by duration per replay; images use active visible dwell; passive visible and background are separated",
-      "numerator": "active watch milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "drop watch session lifecycle",
-      "dedupeKey": "dropId:mediaId:mediaKind or supplied dedupeKey",
-      "sourceTruth": "drop watch time session progress events",
-      "confidenceRule": "exact_media_runtime for media playback with duration; active_visibility_estimated for active image/visibility; weak_visibility_only when duration is unavailable",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "page duration and weak visibility do not become exact watch time.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_watch_time",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "scripts/agent/validate-drop-watch-time-accuracy.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "hidden",
-        "playback",
-        "unknown"
-      ],
-      "freshnessRule": "Admin display must show source freshness from drop watch session lifecycle; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "watch_time.normalized_watch_percent",
-      "domain": "watch_time",
-      "humanName": "Normalized watch percent",
-      "formulaExpression": "normalizedWatchPercent = min(activeWatchMs, contentDurationMs * max(1,replayCount)) / allowedMs * 100, bounded 0..100",
-      "numerator": "capped active watch milliseconds",
-      "denominator": "contentDurationMs multiplied by replay count cap",
-      "timeWindow": "drop watch session lifecycle",
-      "dedupeKey": "drop watch session dedupeKey",
-      "sourceTruth": "drop watch time session with contentDurationMs",
-      "confidenceRule": "exact only for media runtime with known duration; null when denominator/content duration is missing",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "returns null when contentDurationMs is missing or <= 0",
-      "legacyRule": "unknown duration cannot produce exact percent.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_watch_time",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/analytics/drop-watch-time-engine.ts"
-      ],
-      "durationStates": [
-        "active",
-        "passive",
-        "hidden",
-        "playback",
-        "unknown"
-      ],
-      "freshnessRule": "Admin display must show source freshness from drop watch session lifecycle; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "duration_math.session_active",
-      "domain": "session_metrics",
-      "humanName": "Session active duration",
-      "formulaExpression": "activeMs = foreground visible activity with hidden, idle, and passive buckets excluded",
-      "numerator": "foreground active milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/analytics/session-metrics-engine.ts",
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "src/lib/tasks/daily-task-duration.ts",
-        "src/lib/media/media-upload-contract.ts",
-        "src/lib/auth/auth-telemetry-contract.ts",
-        "src/lib/chat/chat-typing-controller.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.session_passive",
-      "domain": "session_metrics",
-      "humanName": "Session passive visible duration",
-      "formulaExpression": "passiveVisibleMs = visible foreground time not classified as active, idle, or hidden",
-      "numerator": "passive visible milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/analytics/session-metrics-engine.ts",
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "src/lib/tasks/daily-task-duration.ts",
-        "src/lib/media/media-upload-contract.ts",
-        "src/lib/auth/auth-telemetry-contract.ts",
-        "src/lib/chat/chat-typing-controller.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.session_idle",
-      "domain": "session_metrics",
-      "humanName": "Session idle duration",
-      "formulaExpression": "idleMs is tracked separately and excluded from user-facing active time",
-      "numerator": "idle milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/analytics/session-metrics-engine.ts",
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "src/lib/tasks/daily-task-duration.ts",
-        "src/lib/media/media-upload-contract.ts",
-        "src/lib/auth/auth-telemetry-contract.ts",
-        "src/lib/chat/chat-typing-controller.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.session_hidden",
-      "domain": "session_metrics",
-      "humanName": "Session hidden duration",
-      "formulaExpression": "hiddenMs is background/hidden time and excluded from active time",
-      "numerator": "hidden/background milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/analytics/session-metrics-engine.ts",
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "src/lib/tasks/daily-task-duration.ts",
-        "src/lib/media/media-upload-contract.ts",
-        "src/lib/auth/auth-telemetry-contract.ts",
-        "src/lib/chat/chat-typing-controller.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.drop_watch_active",
-      "domain": "watch_time",
-      "humanName": "Drop active watch duration",
-      "formulaExpression": "watchMs = mediaActiveMs or playingMs only; pageOpenMs is rejected as watch time",
-      "numerator": "active media/content exposure milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/analytics/session-metrics-engine.ts",
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "src/lib/tasks/daily-task-duration.ts",
-        "src/lib/media/media-upload-contract.ts",
-        "src/lib/auth/auth-telemetry-contract.ts",
-        "src/lib/chat/chat-typing-controller.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.drop_watch_normalized",
-      "domain": "watch_time",
-      "humanName": "Drop normalized watch percent",
-      "formulaExpression": "normalizedWatchPercent = capped activeWatchMs / contentDurationMs, capped unless replay is explicitly counted",
-      "numerator": "capped active media/content exposure milliseconds",
-      "denominator": "contentDurationMs times replay multiplier when replay is explicitly counted",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "missing or <= 0 denominator returns null/unavailable instead of 0%",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/analytics/session-metrics-engine.ts",
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "src/lib/tasks/daily-task-duration.ts",
-        "src/lib/media/media-upload-contract.ts",
-        "src/lib/auth/auth-telemetry-contract.ts",
-        "src/lib/chat/chat-typing-controller.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.task_active_duration",
-      "domain": "daily_tasks",
-      "humanName": "Task active duration",
-      "formulaExpression": "task duration uses attempt/start and finish events; passive page time is not used",
-      "numerator": "task active lifecycle milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/tasks/daily-task-duration.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ],
-      "valueSourceBreakdown": [
-        "confidence"
-      ]
-    },
-    {
-      "formulaId": "duration_math.checkout_flow_duration",
-      "domain": "user_metrics",
-      "humanName": "Checkout flow duration",
-      "formulaExpression": "checkout flow duration uses checkout start and success/failure/abandon timestamps, not page render time",
-      "numerator": "checkout lifecycle milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/analytics/session-metrics-engine.ts",
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "src/lib/tasks/daily-task-duration.ts",
-        "src/lib/media/media-upload-contract.ts",
-        "src/lib/auth/auth-telemetry-contract.ts",
-        "src/lib/chat/chat-typing-controller.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.auth_flow_duration",
-      "domain": "user_metrics",
-      "humanName": "Auth flow duration",
-      "formulaExpression": "auth flow duration uses auth start and completed/failed/abandoned timestamps",
-      "numerator": "auth lifecycle milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/auth/auth-telemetry-contract.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.chat_typing_duration",
-      "domain": "chat",
-      "humanName": "Chat typing duration",
-      "formulaExpression": "chat typing duration uses typing started/stopped lifecycle events and timeout as estimated end",
-      "numerator": "chat typing lifecycle milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/chat/chat-typing-controller.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.media_upload_duration",
-      "domain": "media",
-      "humanName": "Media upload duration",
-      "formulaExpression": "media upload duration uses prepare/storage/complete lifecycle start and finish events with orphan/timeout estimated separately",
-      "numerator": "media upload lifecycle milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/media/media-upload-contract.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.notification_permission_duration",
-      "domain": "notifications",
-      "humanName": "Notification permission lifecycle duration",
-      "formulaExpression": "notification permission duration uses prompt start and permission outcome timestamps",
-      "numerator": "notification permission lifecycle milliseconds",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/analytics/session-metrics-engine.ts",
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "src/lib/tasks/daily-task-duration.ts",
-        "src/lib/media/media-upload-contract.ts",
-        "src/lib/auth/auth-telemetry-contract.ts",
-        "src/lib/chat/chat-typing-controller.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "duration_math.unknown_legacy_duration",
-      "domain": "legacy_recovery",
-      "humanName": "Unknown legacy duration",
-      "formulaExpression": "legacy duration without start/end returns unavailable and cannot become exact",
-      "numerator": "n/a",
-      "denominator": "n/a",
-      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
-      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
-      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
-      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
-      "confidenceLevel": "mixed_explicit",
-      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
-      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
-      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "duration_math",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/math/duration-math-normalizer.ts",
-        "src/lib/analytics/session-metrics-engine.ts",
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "src/lib/tasks/daily-task-duration.ts",
-        "src/lib/media/media-upload-contract.ts",
-        "src/lib/auth/auth-telemetry-contract.ts",
-        "src/lib/chat/chat-typing-controller.ts"
-      ],
-      "countRule": "not_count",
-      "durationStates": [
-        "active",
-        "passive",
-        "idle",
-        "hidden",
-        "playback",
-        "unknown"
-      ]
-    },
-    {
-      "formulaId": "sql_parity.summary_count_delta",
-      "domain": "global_metrics",
-      "humanName": "SQL parity summary count delta",
-      "formulaExpression": "summary countDelta mirrors canonical event fact dedupe decisions; mismatches are recorded",
-      "numerator": "summary count delta values",
-      "denominator": "n/a",
-      "timeWindow": "event fact export partition",
-      "dedupeKey": "global/user/sql dedupe key from normalized event fact",
-      "sourceTruth": "normalized_event_fact",
-      "confidenceRule": "parity matched only when summary/export keys point back to the event fact",
-      "confidenceLevel": "linked",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "SQL/Data Connect mirror is a derived retrieval plane and never runtime business truth.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "analytics_sql_parity",
-      "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/analytics/sql-database-parity-engine.ts",
-        "scripts/agent/validate-sql-database-parity-cost-lock.ts"
-      ],
-      "countRule": "integer",
-      "freshnessRule": "Admin display must show source freshness from event fact export partition; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "revenue.server_verified_revenue",
-      "domain": "revenue",
-      "humanName": "Server verified revenue",
-      "formulaExpression": "current implementation must use server transaction truth; this phase inventories and blocks unowned revenue formulas",
-      "numerator": "server-verified completed transaction revenue",
-      "denominator": "n/a",
-      "timeWindow": "explicit metric/reporting window required by consumer",
-      "dedupeKey": "transactionId/orderId/paypal capture id when available",
-      "sourceTruth": "server transaction truth only; client checkout is funnel context, not revenue",
-      "confidenceRule": "exact only from verified server transaction identity; linked/inferred/legacy revenue remains non-exact",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "legacy/client purchase events cannot become exact revenue without server transaction linkage.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "commerce_server_truth",
-      "authorityStatus": "needs_operator_decision",
-      "sourcePaths": [
-        "docs/runbooks/payment-incident.md",
-        "src/lib/behavioral/normalize-event-fact.ts"
-      ],
-      "valueSourceBreakdown": [
-        "revenue_cents",
-        "source_of_funds",
-        "confidence"
-      ],
-      "freshnessRule": "Admin display must show source freshness from explicit metric/reporting window required by consumer; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "gumdrop.source_of_funds_balance",
-      "domain": "gumdrop",
-      "humanName": "GumDrop source-of-funds balance",
-      "formulaExpression": "paid, reward, and paid bonus GumDrops remain separate source-of-funds truth; no math changed in this phase",
-      "numerator": "paid GD, reward GD, and paid bonus GD movements by ledger source",
-      "denominator": "n/a",
-      "timeWindow": "ledger/reporting window required by consumer",
-      "dedupeKey": "ledger transaction id or idempotency key",
-      "sourceTruth": "GumDrop ledger and transaction source-of-funds contract",
-      "confidenceRule": "exact only for ledger-confirmed source-of-funds; legacy unknown remains unknown or inferred",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "legacy GumDrop balances cannot be promoted to exact paid/reward split without source ledger proof.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "gumdrop_ledger",
-      "authorityStatus": "needs_operator_decision",
-      "sourcePaths": [
-        "src/lib/gumdrop-ledger.ts",
-        "src/lib/server/gumdrop-ledger.ts",
-        "src/lib/commerce/transaction-source-of-funds-contract.ts"
-      ],
-      "valueSourceBreakdown": [
-        "paid_gd",
-        "reward_gd",
-        "bonus_gd",
-        "source_of_funds",
-        "confidence"
-      ],
-      "freshnessRule": "Admin display must show source freshness from ledger/reporting window required by consumer; missing or stale source windows render stale/unavailable instead of healthy."
+      "scoreImpact": null
     },
     {
       "formulaId": "creator_monetization.entitlement_metric",
       "domain": "creator_monetization",
-      "humanName": "Creator entitlement metric",
-      "formulaExpression": "entitlement counts must map creatorId, userId, sourceFeature, source-of-funds, status, and confidence",
-      "numerator": "entitlements by status",
-      "denominator": "n/a",
-      "timeWindow": "explicit creator metric window",
-      "dedupeKey": "entitlementId or sourceTransactionId/sourceEventId",
-      "sourceTruth": "creator entitlement ledger contract when present",
-      "confidenceRule": "exact only from source entitlement or server transaction truth",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "unknown legacy entitlement remains unknown_legacy until linked.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
+      "authorityStatus": "needs_operator_decision",
       "owner": "creator_monetization",
-      "authorityStatus": "needs_operator_decision",
-      "sourcePaths": [
-        "src/lib/creator-monetization/creator-entitlement-contract.ts"
-      ],
-      "valueSourceBreakdown": [
-        "paid_gd",
-        "reward_gd",
-        "source_of_funds",
-        "confidence",
-        "revenue_cents"
-      ],
-      "freshnessRule": "Admin display must show source freshness from explicit creator metric window; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "fan_pass.access_lifecycle_metric",
-      "domain": "fan_pass",
-      "humanName": "Fan Pass access lifecycle metric",
-      "formulaExpression": "Fan Pass metrics must preserve lifecycle state and source truth; formula owner remains follow-up unless current contract defines exact business math",
-      "numerator": "fan pass lifecycle/access events by state",
-      "denominator": "eligible fan pass surfaces or configured creators",
-      "timeWindow": "explicit fan pass reporting window",
-      "dedupeKey": "fanPassId|creatorId|fanUserId|sourceEventId",
-      "sourceTruth": "fan pass lifecycle/access resolver when present",
-      "confidenceRule": "exact only from active access source truth; unknown_legacy remains non-exact",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "if no configured creators, rates display not_configured rather than 0%",
-      "legacyRule": "legacy subscription state cannot become active access without creator/user/source truth.",
-      "userFacingAllowed": true,
       "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "fan_pass",
-      "authorityStatus": "needs_operator_decision",
-      "sourcePaths": [
-        "src/lib/fan-pass/fan-pass-lifecycle-contract.ts"
-      ],
-      "countRule": "integer",
-      "freshnessRule": "Admin display must show source freshness from explicit fan pass reporting window; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "discovery.search_result_rate",
-      "domain": "discovery",
-      "humanName": "Search/discovery result rate",
-      "formulaExpression": "search rate formulas require submitted query events, loaded result count, zero-result events, and clicked result events",
-      "numerator": "search result clicks or zero-result events",
-      "denominator": "submitted or results-loaded search events",
-      "timeWindow": "explicit discovery reporting window",
-      "dedupeKey": "query hash/category plus result id when applicable",
-      "sourceTruth": "search telemetry contract",
-      "confidenceRule": "query text is redacted; confidence is linked to event envelope and safe query hash/category only",
-      "confidenceLevel": "linked",
-      "zeroDenominatorRule": "no submitted searches means no CTR/zero-result rate display",
-      "legacyRule": "raw search strings or old filter events do not become canonical search metrics without redaction/hash policy.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "discovery",
-      "authorityStatus": "needs_operator_decision",
-      "sourcePaths": [
-        "src/lib/discovery/search-telemetry-contract.ts"
-      ],
-      "freshnessRule": "Admin display must show source freshness from explicit discovery reporting window; missing or stale source windows render stale/unavailable instead of healthy."
-    },
-    {
-      "formulaId": "chat.message_outcome_count",
-      "domain": "chat",
-      "humanName": "Chat message outcome count",
-      "formulaExpression": "chat outcome counts separate attempted, sent, blocked, failed, paid-GD gate, and moderation outcomes",
-      "numerator": "chat outcome events by status",
-      "denominator": "n/a",
-      "timeWindow": "explicit chat reporting window",
-      "dedupeKey": "message id/thread id/idempotency key",
-      "sourceTruth": "chat telemetry/admin truth contract",
-      "confidenceRule": "exact only for server-confirmed message outcomes; UI-only attempts are funnel context",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "raw transcript/body content is never metric truth.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "chat",
-      "authorityStatus": "needs_operator_decision",
-      "sourcePaths": [
-        "src/lib/chat/chat-telemetry-contract.ts"
-      ],
-      "countRule": "integer",
-      "freshnessRule": "Admin display must show source freshness from explicit chat reporting window; missing or stale source windows render stale/unavailable instead of healthy."
+      "scoreImpact": null
     },
     {
       "formulaId": "daily_tasks.reward_and_completion_count",
       "domain": "daily_tasks",
-      "humanName": "Daily task reward and completion count",
-      "formulaExpression": "task completions and reward grants are separate counts tied by task/day/idempotency keys",
-      "numerator": "completed tasks or granted rewards",
-      "denominator": "eligible tasks or active task windows when a rate is displayed",
-      "timeWindow": "daily task window",
-      "dedupeKey": "user/task/day or ledger transaction id",
-      "sourceTruth": "daily task lifecycle and reward ledger contracts",
-      "confidenceRule": "exact only for server/ledger-confirmed completions or reward grants",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "no eligible tasks means not_configured/unavailable, not 0% success",
-      "legacyRule": "legacy rewards cannot become exact reward truth until ledger-linked.",
-      "userFacingAllowed": true,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "daily_tasks",
       "authorityStatus": "needs_operator_decision",
-      "sourcePaths": [
-        "src/lib/tasks/daily-task-telemetry.ts",
-        "src/lib/tasks/daily-task-reward-ledger.ts"
-      ],
-      "countRule": "integer",
-      "valueSourceBreakdown": [
-        "reward_gd",
-        "source_of_funds",
-        "confidence"
-      ],
-      "freshnessRule": "Admin display must show source freshness from daily task window; missing or stale source windows render stale/unavailable instead of healthy."
+      "owner": "daily_tasks",
+      "adminFacingAllowed": true,
+      "scoreImpact": null
     },
     {
-      "formulaId": "notifications.permission_outcome_rate",
-      "domain": "notifications",
-      "humanName": "Notification permission outcome rate",
-      "formulaExpression": "permission outcome rates derive from prompted/granted/denied/failed/unsupported events",
-      "numerator": "permission outcome count by state",
-      "denominator": "prompt shown or eligible prompt count",
-      "timeWindow": "explicit notification reporting window",
-      "dedupeKey": "user/device/permission prompt id",
-      "sourceTruth": "notification permission contract",
-      "confidenceRule": "exact when browser permission event/source state is present; unsupported/blocked remains typed outcome",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "no eligible prompts means not_configured/unavailable, not 0% grant rate",
-      "legacyRule": "legacy notification opens cannot become exact permission grant proof.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "notifications",
+      "formulaId": "discovery.search_result_rate",
+      "domain": "discovery",
       "authorityStatus": "needs_operator_decision",
-      "sourcePaths": [
-        "src/lib/notifications/notification-permission-contract.ts"
-      ],
-      "freshnessRule": "Admin display must show source freshness from explicit notification reporting window; missing or stale source windows render stale/unavailable instead of healthy."
+      "owner": "discovery",
+      "adminFacingAllowed": true,
+      "scoreImpact": null
+    },
+    {
+      "formulaId": "fan_pass.access_lifecycle_metric",
+      "domain": "fan_pass",
+      "authorityStatus": "needs_operator_decision",
+      "owner": "fan_pass",
+      "adminFacingAllowed": true,
+      "scoreImpact": null
+    },
+    {
+      "formulaId": "gumdrop.source_of_funds_balance",
+      "domain": "gumdrop",
+      "authorityStatus": "needs_operator_decision",
+      "owner": "gumdrop_ledger",
+      "adminFacingAllowed": true,
+      "scoreImpact": null
     },
     {
       "formulaId": "media.upload_lifecycle_count",
       "domain": "media",
-      "humanName": "Media upload lifecycle count",
-      "formulaExpression": "upload lifecycle counts separate prepare, storage upload, complete, failed, blocked, cancelled, orphaned, and recovered states",
-      "numerator": "media upload events by lifecycle state",
-      "denominator": "n/a unless a rate is explicitly displayed",
-      "timeWindow": "explicit media reporting window",
-      "dedupeKey": "uploadId/correlationId/storagePathFingerprint",
-      "sourceTruth": "media upload lifecycle contract",
-      "confidenceRule": "exact only for route/storage lifecycle events with owner and scope; orphaned is inferred from missing completion",
-      "confidenceLevel": "mixed_explicit",
-      "zeroDenominatorRule": "n/a",
-      "legacyRule": "raw storage path/private URL is not metric or debug truth.",
-      "userFacingAllowed": false,
-      "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "media",
       "authorityStatus": "needs_operator_decision",
-      "sourcePaths": [
-        "src/lib/media/media-upload-contract.ts"
-      ],
-      "countRule": "integer",
-      "freshnessRule": "Admin display must show source freshness from explicit media reporting window; missing or stale source windows render stale/unavailable instead of healthy."
+      "owner": "media",
+      "adminFacingAllowed": true,
+      "scoreImpact": null
     },
     {
-      "formulaId": "legacy_recovery.legacy_event_recovered_count",
-      "domain": "legacy_recovery",
-      "humanName": "Legacy recovered event count",
-      "formulaExpression": "recover only dry-run normalize/link candidates; archive unknown legacy; block exact promotion without exact source truth",
-      "numerator": "legacy candidates hydrated into source-ready metrics",
-      "denominator": "legacy candidates reviewed",
-      "timeWindow": "dry-run legacy recovery batch",
-      "dedupeKey": "legacyEventId and normalized envelope candidate id",
-      "sourceTruth": "legacy recovery candidate dry-run report",
-      "confidenceRule": "downgrade legacy exact/linked confidence before metric hydration; unknown legacy remains archived",
-      "confidenceLevel": "inferred",
-      "zeroDenominatorRule": "no legacy candidates reviewed means no recovery rate display",
-      "legacyRule": "legacy data cannot become exact unless source supports exact identity/event truth.",
-      "userFacingAllowed": false,
+      "formulaId": "notifications.permission_outcome_rate",
+      "domain": "notifications",
+      "authorityStatus": "needs_operator_decision",
+      "owner": "notifications",
       "adminFacingAllowed": true,
-      "scoreImpact": null,
-      "owner": "legacy_recovery",
+      "scoreImpact": null
+    },
+    {
+      "formulaId": "revenue.server_verified_revenue",
+      "domain": "revenue",
+      "authorityStatus": "needs_operator_decision",
+      "owner": "commerce_server_truth",
+      "adminFacingAllowed": true,
+      "scoreImpact": null
+    },
+    {
+      "formulaId": "behavioral_event_fact.deduped_count",
+      "domain": "global_metrics",
       "authorityStatus": "canonical",
-      "sourcePaths": [
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "scripts/analytics/map-legacy-events.ts",
-        "scripts/analytics/inventory-legacy-sources.ts"
-      ],
-      "countRule": "integer",
-      "freshnessRule": "Admin display must show source freshness from dry-run legacy recovery batch; missing or stale source windows render stale/unavailable instead of healthy."
+      "owner": "behavioral_event_fact",
+      "adminFacingAllowed": true,
+      "scoreImpact": null
     }
   ],
+  "formulaSummariesTruncated": true,
+  "operatorDecisionFormulas": [
+    {
+      "formulaId": "revenue.server_verified_revenue",
+      "legacyRule": "legacy/client purchase events cannot become exact revenue without server transaction linkage."
+    },
+    {
+      "formulaId": "gumdrop.source_of_funds_balance",
+      "legacyRule": "legacy GumDrop balances cannot be promoted to exact paid/reward split without source ledger proof."
+    },
+    {
+      "formulaId": "creator_monetization.entitlement_metric",
+      "legacyRule": "unknown legacy entitlement remains unknown_legacy until linked."
+    },
+    {
+      "formulaId": "fan_pass.access_lifecycle_metric",
+      "legacyRule": "legacy subscription state cannot become active access without creator/user/source truth."
+    },
+    {
+      "formulaId": "discovery.search_result_rate",
+      "legacyRule": "raw search strings or old filter events do not become canonical search metrics without redaction/hash policy."
+    },
+    {
+      "formulaId": "chat.message_outcome_count",
+      "legacyRule": "raw transcript/body content is never metric truth."
+    },
+    {
+      "formulaId": "daily_tasks.reward_and_completion_count",
+      "legacyRule": "legacy rewards cannot become exact reward truth until ledger-linked."
+    },
+    {
+      "formulaId": "notifications.permission_outcome_rate",
+      "legacyRule": "legacy notification opens cannot become exact permission grant proof."
+    },
+    {
+      "formulaId": "media.upload_lifecycle_count",
+      "legacyRule": "raw storage path/private URL is not metric or debug truth."
+    }
+  ],
+  "sourceInventoryCount": 17,
   "sourceInventory": [
     {
       "sourcePath": "src/lib/agent-score/core.ts",
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "score",
+        "weight",
+        "average",
+        "cap",
+        "penalty",
+        "dedupe"
+      ],
       "formulaIds": [
         "beta_score.scanner_penalty",
         "beta_score.domain_score",
@@ -1991,20 +152,17 @@
         "beta_score.cost_risk",
         "beta_score.regression_risk",
         "beta_score.overall_health"
-      ],
-      "status": "canonical",
-      "detectedFormulaKinds": [
-        "score",
-        "weight",
-        "average",
-        "cap",
-        "penalty",
-        "dedupe"
-      ],
-      "reason": "Current source owns public beta score formulas, caps, penalties, launch blockers, and score dimension breakdowns."
+      ]
     },
     {
       "sourcePath": "src/lib/agent-score/weights.ts",
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "weight",
+        "threshold",
+        "cap",
+        "penalty"
+      ],
       "formulaIds": [
         "beta_score.domain_score",
         "beta_score.source_health",
@@ -2013,33 +171,21 @@
         "beta_score.freshness_score",
         "beta_score.cost_risk",
         "beta_score.regression_risk"
-      ],
-      "status": "canonical",
-      "detectedFormulaKinds": [
-        "weight",
-        "threshold",
-        "cap",
-        "penalty"
-      ],
-      "reason": "Current source defines score weights, evidence caps, status thresholds, and severity/blast-radius penalties."
+      ]
     },
     {
       "sourcePath": "src/lib/agent-score/reporting.ts",
-      "formulaIds": [
-        "beta_score.overall_health"
-      ],
       "status": "canonical",
       "detectedFormulaKinds": [
         "score",
         "command_budget"
       ],
-      "reason": "Reporting prints current score summaries and command-budget limits without creating a separate score formula."
+      "formulaIds": [
+        "beta_score.overall_health"
+      ]
     },
     {
       "sourcePath": "src/lib/analytics/person-metrics-hydration.ts",
-      "formulaIds": [
-        "person_metrics.hydrated_event_count"
-      ],
       "status": "canonical",
       "detectedFormulaKinds": [
         "count",
@@ -2047,28 +193,25 @@
         "legacy",
         "global_user_divergence"
       ],
-      "reason": "Current source hydrates person/global/guest/linked scopes from event envelopes and blocks unsupported legacy exact promotion."
+      "formulaIds": [
+        "person_metrics.hydrated_event_count"
+      ]
     },
     {
       "sourcePath": "src/lib/analytics/event-translation-bridge.ts",
-      "formulaIds": [
-        "global_metrics.event_fact_count",
-        "person_metrics.hydrated_event_count"
-      ],
       "status": "canonical",
       "detectedFormulaKinds": [
         "count",
         "score_dimension",
         "debug_gap"
       ],
-      "reason": "Current source maps events to feature activity, person metrics, debug visibility, and score dimension inputs."
+      "formulaIds": [
+        "global_metrics.event_fact_count",
+        "person_metrics.hydrated_event_count"
+      ]
     },
     {
       "sourcePath": "src/lib/analytics/session-metrics-engine.ts",
-      "formulaIds": [
-        "session_metrics.active_session_time",
-        "bounce.session_bounce_status"
-      ],
       "status": "canonical",
       "detectedFormulaKinds": [
         "duration",
@@ -2076,14 +219,13 @@
         "bounce",
         "confidence"
       ],
-      "reason": "Current source distinguishes active, idle, hidden, passive, and unknown session states and classifies bounce/engagement."
+      "formulaIds": [
+        "session_metrics.active_session_time",
+        "bounce.session_bounce_status"
+      ]
     },
     {
       "sourcePath": "src/lib/analytics/drop-watch-time-engine.ts",
-      "formulaIds": [
-        "watch_time.active_watch_ms",
-        "watch_time.normalized_watch_percent"
-      ],
       "status": "canonical",
       "detectedFormulaKinds": [
         "duration",
@@ -2092,10 +234,21 @@
         "dedupe",
         "replay"
       ],
-      "reason": "Current source calculates active watch, normalized percent, replay caps, duration confidence, and watch-session dedupe."
+      "formulaIds": [
+        "watch_time.active_watch_ms",
+        "watch_time.normalized_watch_percent"
+      ]
     },
     {
       "sourcePath": "src/lib/math/duration-math-normalizer.ts",
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "duration",
+        "watch_time",
+        "flow",
+        "confidence",
+        "legacy"
+      ],
       "formulaIds": [
         "duration_math.session_active",
         "duration_math.session_passive",
@@ -2110,22 +263,10 @@
         "duration_math.media_upload_duration",
         "duration_math.notification_permission_duration",
         "duration_math.unknown_legacy_duration"
-      ],
-      "status": "canonical",
-      "detectedFormulaKinds": [
-        "duration",
-        "watch_time",
-        "flow",
-        "confidence",
-        "legacy"
-      ],
-      "reason": "Current source applies the shared duration rules: active excludes hidden/idle, watch rejects page-open time, flows use lifecycle timestamps, and unknown legacy stays unavailable."
+      ]
     },
     {
       "sourcePath": "src/lib/analytics/sql-database-parity-engine.ts",
-      "formulaIds": [
-        "sql_parity.summary_count_delta"
-      ],
       "status": "canonical",
       "detectedFormulaKinds": [
         "count",
@@ -2133,13 +274,12 @@
         "global_user_divergence",
         "cost"
       ],
-      "reason": "Current source maps normalized facts to global/user SQL summaries and records parity mismatches without using SQL as runtime truth."
+      "formulaIds": [
+        "sql_parity.summary_count_delta"
+      ]
     },
     {
       "sourcePath": "src/lib/behavioral/event-fact-normalizer.ts",
-      "formulaIds": [
-        "behavioral_event_fact.deduped_count"
-      ],
       "status": "canonical",
       "detectedFormulaKinds": [
         "confidence",
@@ -2147,180 +287,14 @@
         "revenue_context",
         "gumdrop_context"
       ],
-      "reason": "Current source normalizes identified metric facts, confidence, metric eligibility, and value context without promoting UI facts to money truth."
-    },
-    {
-      "sourcePath": "src/lib/behavioral/normalize-event-fact.ts",
       "formulaIds": [
-        "behavioral_event_fact.deduped_count",
-        "revenue.server_verified_revenue",
-        "gumdrop.source_of_funds_balance"
-      ],
-      "status": "needs_operator_decision",
-      "detectedFormulaKinds": [
-        "dedupe",
-        "normalization",
-        "revenue",
-        "gumdrop",
-        "legacy"
-      ],
-      "reason": "Behavioral facts extract valueUsd and GumDrop context, but exact revenue and source-of-funds formulas remain operator-decision-needed and must not be changed in this phase."
-    },
-    {
-      "sourcePath": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "formulaIds": [
-        "beta_score.overall_health"
-      ],
-      "status": "canonical",
-      "detectedFormulaKinds": [
-        "admin_metric",
-        "count",
-        "status"
-      ],
-      "reason": "Current source exposes Math authority and related debug lanes from generated reports without creating a separate metric formula."
-    },
-    {
-      "sourcePath": "scripts/agent/score-code-organization.ts",
-      "formulaIds": [
-        "unowned.code_organization_score"
-      ],
-      "status": "needs_operator_decision",
-      "detectedFormulaKinds": [
-        "score",
-        "weight",
-        "penalty",
-        "risk"
-      ],
-      "reason": "Code organization scoring is source-inventoried but outside the Phase 1 MathDomain list; it must remain needs_operator_decision until a later authority expansion approves it."
-    },
-    {
-      "sourcePath": "scripts/agent/validate-session-bounce-calculation.ts",
-      "formulaIds": [
-        "session_metrics.active_session_time",
-        "bounce.session_bounce_status"
-      ],
-      "status": "canonical",
-      "detectedFormulaKinds": [
-        "validator",
-        "duration",
-        "bounce",
-        "score_dimension"
-      ],
-      "reason": "Validator proves session/bounce duration semantics and score-dimension reporting."
-    },
-    {
-      "sourcePath": "scripts/agent/validate-drop-watch-time-accuracy.ts",
-      "formulaIds": [
-        "watch_time.active_watch_ms",
-        "watch_time.normalized_watch_percent"
-      ],
-      "status": "canonical",
-      "detectedFormulaKinds": [
-        "validator",
-        "duration",
-        "rate",
-        "confidence"
-      ],
-      "reason": "Validator proves active watch duration, normalized watch percent, confidence, and debug coverage."
-    },
-    {
-      "sourcePath": "scripts/agent/validate-sql-database-parity-cost-lock.ts",
-      "formulaIds": [
-        "sql_parity.summary_count_delta"
-      ],
-      "status": "canonical",
-      "detectedFormulaKinds": [
-        "validator",
-        "count",
-        "dedupe",
-        "cost"
-      ],
-      "reason": "Validator proves SQL parity count deltas and cost-guard evidence stay source-only."
-    },
-    {
-      "sourcePath": "agent/state/public-beta-score.generated.json",
-      "formulaIds": [
-        "beta_score.overall_health"
-      ],
-      "status": "stale",
-      "detectedFormulaKinds": [
-        "generated_report",
-        "score_snapshot"
-      ],
-      "reason": "Generated score report is an evidence snapshot only; it never overrides the runtime score formula definitions."
+        "behavioral_event_fact.deduped_count"
+      ]
     }
   ],
-  "formulaReferences": [
-    {
-      "referenceId": "public_beta_score_core",
-      "formulaId": "beta_score.overall_health",
-      "sourcePath": "src/lib/agent-score/core.ts",
-      "status": "canonical",
-      "reason": "Current source defines weighted score dimensions, caps, penalties, and launch blockers."
-    },
-    {
-      "referenceId": "public_beta_score_weights",
-      "formulaId": "beta_score.domain_score",
-      "sourcePath": "src/lib/agent-score/weights.ts",
-      "status": "canonical",
-      "reason": "Current source defines beta score domain and health weights."
-    },
-    {
-      "referenceId": "person_metrics_hydration",
-      "formulaId": "person_metrics.hydrated_event_count",
-      "sourcePath": "src/lib/analytics/person-metrics-hydration.ts",
-      "status": "canonical",
-      "reason": "Current source hydrates scoped person metrics from canonical event envelopes."
-    },
-    {
-      "referenceId": "session_bounce_engine",
-      "formulaId": "bounce.session_bounce_status",
-      "sourcePath": "src/lib/analytics/session-metrics-engine.ts",
-      "status": "canonical",
-      "reason": "Current source separates active, idle, hidden, passive, and unknown session states."
-    },
-    {
-      "referenceId": "drop_watch_engine",
-      "formulaId": "watch_time.normalized_watch_percent",
-      "sourcePath": "src/lib/analytics/drop-watch-time-engine.ts",
-      "status": "canonical",
-      "reason": "Current source caps active watch by duration and replay count."
-    },
-    {
-      "referenceId": "duration_math_normalizer",
-      "formulaId": "duration_math.session_active",
-      "sourcePath": "src/lib/math/duration-math-normalizer.ts",
-      "status": "canonical",
-      "reason": "Current source normalizes active, passive, idle, hidden, watch, flow, and unknown legacy duration decisions."
-    },
-    {
-      "referenceId": "behavioral_fact_normalizer",
-      "formulaId": "behavioral_event_fact.deduped_count",
-      "sourcePath": "src/lib/behavioral/normalize-event-fact.ts",
-      "status": "canonical",
-      "reason": "Current source owns behavioral aliasing, confidence, value extraction, and dedupe keys."
-    },
-    {
-      "referenceId": "sql_database_parity",
-      "formulaId": "sql_parity.summary_count_delta",
-      "sourcePath": "src/lib/analytics/sql-database-parity-engine.ts",
-      "status": "canonical",
-      "reason": "Current source maps normalized event facts to summary/export rows and records mismatches."
-    },
-    {
-      "referenceId": "count_deduplication_normalizer",
-      "formulaId": "count_dedupe.global_count",
-      "sourcePath": "src/lib/math/count-deduplication-normalizer.ts",
-      "status": "canonical",
-      "reason": "Current source defines eventId/dedupeKey/timestamp-bucket priority, linked guest/user suppression, legacy buckets, and replay suppression."
-    },
-    {
-      "referenceId": "count_deduplication_user_identity",
-      "formulaId": "count_dedupe.user_count",
-      "sourcePath": "src/lib/analytics/global-user-dedupe-engine.ts",
-      "status": "canonical",
-      "reason": "Existing global/user dedupe engine now carries the canonical count math explanation for normalized summary paths."
-    },
+  "sourceInventoryTruncated": true,
+  "formulaReferenceCount": 13,
+  "formulaReferencesNeedingDecision": [
     {
       "referenceId": "revenue_truth_inventory",
       "formulaId": "revenue.server_verified_revenue",
@@ -2343,42 +317,7 @@
       "reason": "Current formulas are lifecycle/ledger contracts from prior phases; operator must approve exact monetization math normalization."
     }
   ],
-  "metricFormulaReferences": {
-    "scannerScore": "beta_score.domain_score",
-    "sourceHealth": "beta_score.source_health",
-    "runtimeHealth": "beta_score.runtime_health",
-    "evidenceCompleteness": "beta_score.evidence_completeness",
-    "freshness": "beta_score.freshness_score",
-    "costRisk": "beta_score.cost_risk",
-    "regressionRisk": "beta_score.regression_risk",
-    "overallHealthScore": "beta_score.overall_health",
-    "sessions": "session_metrics.active_session_time",
-    "runtime_watch_sessions": "watch_time.active_watch_ms",
-    "hydrated_person_metric_events": "person_metrics.hydrated_event_count",
-    "global_event_fact_count": "global_metrics.event_fact_count",
-    "user_event_fact_count": "user_metrics.event_fact_count",
-    "behavioral_event_facts": "behavioral_event_fact.deduped_count",
-    "count_dedupe_global_count": "count_dedupe.global_count",
-    "count_dedupe_user_count": "count_dedupe.user_count",
-    "count_dedupe_creator_count": "count_dedupe.creator_count",
-    "count_dedupe_legacy_bucket_count": "count_dedupe.legacy_bucket_count",
-    "count_dedupe_retry_replay_suppression": "count_dedupe.retry_replay_suppression",
-    "duration_session_active": "duration_math.session_active",
-    "duration_session_passive": "duration_math.session_passive",
-    "duration_session_idle": "duration_math.session_idle",
-    "duration_session_hidden": "duration_math.session_hidden",
-    "duration_drop_watch_active": "duration_math.drop_watch_active",
-    "duration_drop_watch_normalized": "duration_math.drop_watch_normalized",
-    "duration_task_active_duration": "duration_math.task_active_duration",
-    "duration_checkout_flow_duration": "duration_math.checkout_flow_duration",
-    "duration_auth_flow_duration": "duration_math.auth_flow_duration",
-    "duration_chat_typing_duration": "duration_math.chat_typing_duration",
-    "duration_media_upload_duration": "duration_math.media_upload_duration",
-    "duration_notification_permission_duration": "duration_math.notification_permission_duration",
-    "duration_unknown_legacy_duration": "duration_math.unknown_legacy_duration",
-    "server_verified_revenue": "revenue.server_verified_revenue",
-    "gumdrop_source_of_funds_balance": "gumdrop.source_of_funds_balance"
-  },
+  "metricFormulaReferenceCount": 34,
   "statusCounts": {
     "canonical": 53,
     "needs_operator_decision": 9
@@ -2393,167 +332,120 @@
     "needsOperatorDecision": 9
   },
   "scoreBefore": {
-    "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
   },
   "scoreAfter": {
-    "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 59.38,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "regressionRisk": 94,
+    "overallHealthScore": 68.67
+  },
+  "dirtyFileCount": 112,
+  "dirtyFilesTruncated": true,
+  "dirtyFileClassificationCounts": {
+    "manual_review_repo_governance_owner_blocker": 57,
+    "unrelated_agent_context_file_to_ignore": 1,
+    "manual_review_non_math_surface_owner_blocker": 11,
+    "stale_generated_artifact_to_regenerate": 21,
+    "current_generated_artifact_to_commit": 1,
+    "canonical_owner_platform_economy_treasury_reconciliation": 5,
+    "release_artifact_expected": 1,
+    "real_source_change_needs_review": 10,
+    "failed_validator_to_repair": 3,
+    "canonical_owner_unlock_spend_and_entitlement": 2
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/context/doctrine.cards.jsonl",
+      "classification": "manual_review_repo_governance_owner_blocker"
     },
     {
-      "path": "agent/state/canonical-math-authority-ledger.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/context/doctrine.index.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/context/file-size-budget.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
     },
     {
-      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/context/legacy-registry.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "scripts/agent/validate-canonical-math-authority-ledger.ts",
-      "classification": "failed_validator_to_repair"
+      "path": "agent/context/task-pack.generated.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
     },
     {
-      "path": "src/lib/math/canonical-math-authority-contract.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "agent/context/validator-map.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
     },
     {
-      "path": "src/lib/math/canonical-math-authority-ledger.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "agent/index/blast-radius.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
+      "path": "agent/index/canonical-helpers.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
     },
     {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
+      "path": "agent/index/dependency-graph.summary.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
     },
     {
-      "path": "tests/unit/canonical-math-authority-ledger.spec.ts",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/index/governance-truth.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
+    },
+    {
+      "path": "agent/index/known-pitfalls.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
+    },
+    {
+      "path": "agent/index/package-manager-truth.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
+    },
+    {
+      "path": "agent/index/recent-passes.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
+    },
+    {
+      "path": "agent/index/repo-inventory.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
+    },
+    {
+      "path": "agent/index/retrieval-index.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
+    },
+    {
+      "path": "agent/index/runtime-observability.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
+    },
+    {
+      "path": "agent/index/surface-map.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
+    },
+    {
+      "path": "agent/index/ui-surface-coverage.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
+    },
+    {
+      "path": "agent/index/verification-commands.json",
+      "classification": "manual_review_repo_governance_owner_blocker"
     }
   ],
-  "openPullRequests": [
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 302,
-      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
-      "classification": "onboarding_telemetry_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 301,
-      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
-      "classification": "doctrine_governance_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 300,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
-      "classification": "architecture_refactor_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 299,
-      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 298,
-      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 297,
-      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 296,
-      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 295,
-      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 294,
-      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 293,
-      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
-      "classification": "security_patch_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 292,
-      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
-      "classification": "performance_patch_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 291,
-      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
-      "classification": "accessibility_patch_external_review_required"
-    }
-  ],
+  "openPullRequests": [],
   "validationFailures": [],
   "nextExactSteps": [
     "Use formulaId references before displaying any new user/admin metric.",

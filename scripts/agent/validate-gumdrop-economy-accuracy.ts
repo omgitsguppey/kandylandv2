@@ -1,6 +1,6 @@
-import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { readRepoToolchainState } from "./shared";
 
 type FindingSeverity = "p0" | "p1" | "p2";
 
@@ -48,11 +48,12 @@ function addDryRun(id: string, severity: FindingSeverity, surface: string, fileP
 }
 
 function currentHead() {
-    try {
-        return execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
-    } catch {
-        return "unknown";
-    }
+    return readRepoToolchainState().currentHead ?? "unknown";
+}
+
+const toolchain = readRepoToolchainState();
+if (toolchain.gitStatus !== "available") {
+    failures.push(`git_required: GumDrop economy accuracy cannot clear current-head proof while Git is unavailable (${toolchain.degradationReason ?? "git unavailable"}).`);
 }
 
 const sourceFunds = readRequired("src/lib/gumdrop-source-of-funds.ts");
@@ -212,6 +213,10 @@ const report = {
     generatedAtUtc: new Date().toISOString(),
     reportKey: "gumdrop-economy-accuracy",
     currentHead: currentHead(),
+    currentHeadSource: toolchain.currentHeadSource,
+    gitStatus: toolchain.gitStatus,
+    toolingDegraded: toolchain.toolingDegraded,
+    degradationReason: toolchain.degradationReason,
     summary: {
         purchaseCreditPaths: 3,
         rewardCreditPaths: 3,

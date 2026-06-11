@@ -1,7 +1,11 @@
 {
-  "generatedAtUtc": "2026-06-01T00:29:39.349Z",
+  "generatedAtUtc": "2026-06-11T14:36:07.895Z",
   "reportKey": "gumdrop-economy-accuracy",
-  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+  "currentHead": "9b25961f85707ab4e0f5d8346b10b667ae0b75a4",
+  "currentHeadSource": "git",
+  "gitStatus": "available",
+  "toolingDegraded": false,
+  "degradationReason": null,
   "summary": {
     "purchaseCreditPaths": 3,
     "rewardCreditPaths": 3,
