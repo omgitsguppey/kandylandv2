@@ -157,7 +157,7 @@ function CoverPreviewCta({ truth, unlockCost, authLoading, unlocking, confirming
     const action = truth.shouldShowCreatorShareCta ? onShare : onCtaClick;
 
     return (
-        <button type="button" onClick={action} disabled={authLoading || unlocking} className={cn("mx-auto flex min-h-11 w-full max-w-[15rem] items-center justify-center gap-2 rounded-[0.95rem] border border-brand-purple/70 bg-black/70 px-3 py-2 text-xs font-black text-white shadow-[0_0_22px_rgba(164,118,255,0.24)] backdrop-blur-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60", truth.shouldShowUnwrapCta && "bg-gradient-to-r from-brand-purple to-purple-500", truth.shouldShowCreatorShareCta && "border-white/20 bg-white/12")}>
+        <button type="button" onClick={action} disabled={authLoading || unlocking} aria-busy={unlocking} className={cn("mx-auto flex min-h-11 w-full max-w-[15rem] items-center justify-center gap-2 rounded-[0.95rem] border border-brand-purple/70 bg-black/70 px-3 py-2 text-xs font-black text-white shadow-[0_0_22px_rgba(164,118,255,0.24)] backdrop-blur-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60", truth.shouldShowUnwrapCta && "bg-gradient-to-r from-brand-purple to-purple-500", truth.shouldShowCreatorShareCta && "border-white/20 bg-white/12")}>
             <CoverCtaIcon truth={truth} unlocking={unlocking} />
             {getCoverCtaLabel({ truth, authLoading, unlocking, confirming, unlockCost })}
         </button>
@@ -257,10 +257,10 @@ function StickyPreviewCta({ truth, onCtaClick, onOpenLibrary, onKeepUnwrapping }
 }
 
 function CoverCtaIcon({ truth, unlocking }: { truth: LockedDropPreviewTruth; unlocking: boolean }) {
-    if (unlocking) return <Loader2 className="h-4 w-4 animate-spin" />;
-    if (truth.shouldShowTopUpCta) return <Wallet className="h-4 w-4" />;
-    if (truth.shouldShowCreatorShareCta) return <Share2 className="h-4 w-4" />;
-    return <Lock className="h-4 w-4" />;
+    if (unlocking) return <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />;
+    if (truth.shouldShowTopUpCta) return <Wallet aria-hidden="true" className="h-4 w-4" />;
+    if (truth.shouldShowCreatorShareCta) return <Share2 aria-hidden="true" className="h-4 w-4" />;
+    return <Lock aria-hidden="true" className="h-4 w-4" />;
 }
 
 function getCoverCtaLabel({ truth, authLoading, unlocking, confirming, unlockCost }: { truth: LockedDropPreviewTruth; authLoading: boolean; unlocking: boolean; confirming: boolean; unlockCost: number }) {

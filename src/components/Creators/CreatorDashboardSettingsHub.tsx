@@ -168,7 +168,7 @@ function SectionCard({
       data-creator-earnings-source={creatorEarningsSource}
       data-creator-earnings-attribution={creatorEarningsAttribution}
     >
-      <button type="button" onClick={onToggle} className="flex w-full items-start justify-between gap-3 text-left">
+      <button type="button" onClick={onToggle} aria-expanded={expanded} className="flex w-full items-start justify-between gap-3 text-left">
         <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
           <div className={cn("mt-0.5 rounded-xl border p-1.5 sm:rounded-2xl sm:p-2", sectionTone(state))}>{icon}</div>
           <div className="min-w-0">
@@ -181,7 +181,7 @@ function SectionCard({
             <p className="mt-1 text-xs leading-5 text-gray-300 sm:text-sm">{summary}</p>
           </div>
         </div>
-        <ArrowRight className={cn("h-4 w-4 shrink-0 text-gray-400 transition-transform", expanded && "rotate-90")} />
+        <ArrowRight aria-hidden="true" className={cn("h-4 w-4 shrink-0 text-gray-400 transition-transform", expanded && "rotate-90")} />
       </button>
       {expanded ? (
         <div className="mt-2.5 border-t border-white/10 pt-2.5 text-xs leading-5 text-gray-400 sm:mt-3 sm:pt-3 sm:text-sm">
