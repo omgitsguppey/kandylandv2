@@ -25,3 +25,7 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2024-05-18 - FCM Stream Concurrency Pattern
+**Learning:** Decoupling batch dispatches in Firebase data streams (like `adminDb.collection("users").stream()`) by just pushing promises to an array and awaiting them at the end destroys the stream's backpressure. This can lead to unbounded memory consumption (OOM) on large broadcasts.
+**Action:** Implement bounded concurrency by tracking active operations in a `Set` and awaiting `Promise.race(activeDispatches)` when the concurrent limit (e.g., 5) is reached to maintain backpressure on the stream.

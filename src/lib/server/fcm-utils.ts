@@ -162,13 +162,28 @@ export async function broadcastFCMWithReport(
             .select("fcmTokens", "notificationSettings", "notificationQuality", "lastActiveAtMs")
             .stream();
 
-        const dispatchBatch = async (tokens: string[]) => {
+        const activeDispatches = new Set<Promise<void>>();
+        const DISPATCH_CONCURRENCY_LIMIT = 5;
+
+        const processBatch = async (tokens: string[]) => {
             if (tokens.length === 0) return;
             if (dispatchedBatchCount >= FCM_MAX_BATCHES_PER_BROADCAST_RUN) {
                 batchCapReached = true;
                 return;
             }
             dispatchedBatchCount++;
+
+            const promise = dispatchBatch(tokens).finally(() => {
+                activeDispatches.delete(promise);
+            });
+            activeDispatches.add(promise);
+
+            if (activeDispatches.size >= DISPATCH_CONCURRENCY_LIMIT) {
+                await Promise.race(activeDispatches);
+            }
+        };
+
+        const dispatchBatch = async (tokens: string[]) => {
             tokensSent = true;
             const message = {
                 data: baseData,
@@ -284,7 +299,7 @@ export async function broadcastFCMWithReport(
                 while (tokensChunk.length >= FCM_MULTICAST_BATCH_SIZE && !batchCapReached) {
                     const batchToDispatch = tokensChunk.slice(0, FCM_MULTICAST_BATCH_SIZE);
                     tokensChunk = tokensChunk.slice(FCM_MULTICAST_BATCH_SIZE);
-                    await dispatchBatch(batchToDispatch);
+                    await processBatch(batchToDispatch);
                 }
             }
 
@@ -294,8 +309,10 @@ export async function broadcastFCMWithReport(
         }
 
         if (tokensChunk.length > 0 && !batchCapReached) {
-            await dispatchBatch(tokensChunk);
+            await processBatch(tokensChunk);
         }
+
+        await Promise.all(activeDispatches);
 
         if (tokensSent) {
             if (failureCount > 0) {
