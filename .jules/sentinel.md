@@ -30,3 +30,7 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+## 2024-05-27 - [Open Redirect via Protocol-Relative URLs in Server Fetch Utilities]
+**Vulnerability:** Open redirect risk in `resolveSafeAuthFetchUrl` and `resolveSafeNotificationUrl` via inputs like `//evil.com` or `\\evil.com` bypassing cross-origin checks.
+**Learning:** Checking that `parsed.origin === window.location.origin` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` or `//` at the start of the pathname, since the URL constructor may normalize it to `//` leading to an open redirect/SSRF risk when passing these safe URLs back into the fetch or routing layer.
+**Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.

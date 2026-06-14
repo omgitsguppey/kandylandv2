@@ -46,6 +46,9 @@ function resolveSafeNotificationUrl(rawUrl: string | undefined) {
             return "/experiences";
         }
 
+        if (parsed.pathname.startsWith("//") || parsed.pathname.startsWith("/\\") || parsed.pathname.startsWith("\\")) {
+            return "/experiences";
+        }
         return `${parsed.pathname}${parsed.search}${parsed.hash}`;
     } catch {
         return "/experiences";

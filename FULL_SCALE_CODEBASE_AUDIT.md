@@ -13887,3 +13887,8 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2024-05-27 #open-redirect] POST: Fixed Open Redirect via Protocol-Relative URLs in `authFetch.ts` and `firebase-messaging.ts`
+- Added validation checks in `resolveSafeAuthFetchUrl` and `resolveSafeNotificationUrl` to ensure `pathname` does not start with `//`, `/\`, or `\` before returning the URL string.
+- These prevent an attacker from passing paths like `//evil.com` to bypass cross-origin restrictions, matching similar hardening previously done for `PromoCard.tsx` and `admin-drop-form.ts`.
+- Verified typechecking and unit test execution for `promo-card.spec.ts` and `security-prng-redirect-closure.spec.ts`.

@@ -23,6 +23,9 @@ function resolveSafeAuthFetchUrl(url: string) {
         throw new Error("Cross-origin authenticated requests are not allowed");
     }
 
+    if (resolvedUrl.pathname.startsWith("//") || resolvedUrl.pathname.startsWith("/\\") || resolvedUrl.pathname.startsWith("\\")) {
+        throw new Error("Invalid path");
+    }
     return `${resolvedUrl.pathname}${resolvedUrl.search}${resolvedUrl.hash}`;
 }
 
