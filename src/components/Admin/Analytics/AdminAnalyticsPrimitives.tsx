@@ -206,6 +206,7 @@ export function AnalyticsViewModeToggle({
                         type="button"
                         onClick={() => onChange(option.id)}
                         aria-pressed={active}
+                        aria-label={option.label}
                         className={cn(
                             "inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-bold transition-colors",
                             active
