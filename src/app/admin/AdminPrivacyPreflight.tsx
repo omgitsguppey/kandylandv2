@@ -4,6 +4,7 @@ import { ShieldCheck } from "lucide-react";
 
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { useAdminPrivacyPreflight } from "@/hooks/useAdminPrivacyPreflight";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type {
     PrivacyConsoleOverallState,
     PrivacyConsoleRange,
@@ -48,6 +49,9 @@ export function AdminPrivacyPreflight() {
     const errorCount = checks.filter((check) => check.state === "error").length;
     const quietCount = checks.filter((check) => check.state === "quiet").length;
     const overallState = data ? toAdminState(data.overallState) : isLoading ? "loading" : error ? "failed" : "unavailable";
+    const safeErrorMessage = error
+        ? sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable").operatorMessage
+        : null;
     const lastEvidenceAtUtc = checks.reduce<string | null>((latest, check) => {
         if (!check.lastSeenAtUtc) return latest;
         if (!latest || Date.parse(check.lastSeenAtUtc) > Date.parse(latest)) {
@@ -99,8 +103,8 @@ export function AdminPrivacyPreflight() {
             {adminSessionState === "waiting_for_admin_session" ? (
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-gray-400">Waiting for admin session...</div>
             ) : null}
-            {error ? (
-                <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">{error.message}</div>
+            {safeErrorMessage ? (
+                <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100" data-privacy-console-safe-error="true">{safeErrorMessage}</div>
             ) : null}
 
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
