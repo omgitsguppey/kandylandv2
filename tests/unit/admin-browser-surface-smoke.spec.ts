@@ -32,6 +32,7 @@ const BROWSER_HARNESS_CONTRACT = {
   importsCanonicalSurfaceMap: true,
   gatedByExplicitEnv: true,
   usesStorageStateEnv: true,
+  supportsLocalFixtureSession: true,
   usesCanonicalSelectors: true,
   usesBrowserSmokePath: true,
   checksRouteAttribute: true,
@@ -70,6 +71,7 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.layoutSelectorContractPresent).toBe(true);
     expect(report.summary.browserHarnessContractPresent).toBe(true);
     expect(report.summary.requiredAuthenticatedSurfaceCount).toBe(18);
+    expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(0);
     expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
     expect(report.evidenceProvenance.source).toBe("none");
     expect(report.evidenceProvenance.evidenceMode).toBe("none");
@@ -143,6 +145,7 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.unauthBoundaryEvidenceCount).toBe(14);
     expect(report.summary.unauthRedirectEvidenceCount).toBe(0);
     expect(report.summary.authenticatedSurfaceEvidenceCount).toBe(0);
+    expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(0);
     expect(report.summary.manualAdminAuthRequiredCount).toBeGreaterThan(0);
     expect(report.evidenceProvenance.source).toBe("local_in_app_browser");
     expect(report.evidenceProvenance.evidenceMode).toBe("unauthenticated_only");
@@ -150,6 +153,34 @@ describe("admin browser surface smoke contract", () => {
     expect(report.doesNotProve).toEqual(expect.arrayContaining([
       expect.stringContaining("production admin truth sample"),
       expect.stringContaining("GumDrop treasury truth"),
+    ]));
+    expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual([]);
+  });
+
+  it("records local fixture browser evidence without clearing authenticated admin checks", () => {
+    const report = buildAdminBrowserSurfaceSmokeReport({
+      evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      evidence: ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => ({
+        surfaceId: surface.surfaceId,
+        route: surface.route,
+        deviceBand: surface.deviceBands[0],
+        state: "local_fixture_surface_verified" as const,
+        checkedAtUtc: "2026-06-11T12:00:00.000Z",
+        urlAfterNavigation: surface.browserSmokePath,
+        selectorUsed: surface.authenticatedSelectors[0],
+        visibleMarker: surface.authenticatedVisibleMarkers[0],
+      })),
+    });
+
+    expect(report.status).toBe("authenticated_browser_pending");
+    expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(14);
+    expect(report.summary.authenticatedSurfaceEvidenceCount).toBe(0);
+    expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
+    expect(report.evidenceProvenance.evidenceMode).toBe("local_fixture_only");
+    expect(report.nextExactSteps).toEqual(expect.arrayContaining([
+      expect.stringContaining("ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1"),
     ]));
     expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual([]);
   });
@@ -168,10 +199,10 @@ describe("admin browser surface smoke contract", () => {
     });
 
     expect(validateAdminBrowserSurfaceSmokeReport(incomplete)).toEqual(expect.arrayContaining([
-      "admin_debug:desktop authenticated evidence must include checkedAtUtc.",
-      "admin_debug:desktop authenticated evidence must include urlAfterNavigation.",
-      "admin_debug:desktop authenticated evidence must include the canonical selector used.",
-      "admin_debug:desktop authenticated evidence must include a visible admin marker.",
+      "admin_debug:desktop rendered surface evidence must include checkedAtUtc.",
+      "admin_debug:desktop rendered surface evidence must include urlAfterNavigation.",
+      "admin_debug:desktop rendered surface evidence must include the canonical selector used.",
+      "admin_debug:desktop rendered surface evidence must include a visible admin marker.",
     ]));
 
     const complete = buildAdminBrowserSurfaceSmokeReport({
@@ -209,7 +240,7 @@ describe("admin browser surface smoke contract", () => {
     });
 
     expect(validateAdminBrowserSurfaceSmokeReport(wrongMarker)).toEqual(expect.arrayContaining([
-      "admin_debug:desktop authenticated evidence marker must match one of: Debug Console, data-admin-mobile-surface=debug, data-admin-debug-sprawl-reduction=target-75-95.",
+      "admin_debug:desktop rendered surface evidence marker must match one of: Debug Console, data-admin-mobile-surface=debug, data-admin-debug-sprawl-reduction=target-75-95.",
     ]));
   });
 
@@ -293,6 +324,7 @@ describe("admin browser surface smoke contract", () => {
         importsCanonicalSurfaceMap: false,
         gatedByExplicitEnv: false,
         usesStorageStateEnv: false,
+        supportsLocalFixtureSession: false,
         usesCanonicalSelectors: false,
         usesBrowserSmokePath: false,
         checksRouteAttribute: false,
@@ -307,6 +339,7 @@ describe("admin browser surface smoke contract", () => {
       "admin browser smoke browser test must import the canonical admin surface map.",
       "admin browser smoke browser test must be gated by ADMIN_BROWSER_SMOKE=1.",
       "admin browser smoke browser test must require ADMIN_BROWSER_SMOKE_STORAGE_STATE.",
+      "admin browser smoke browser test must support ADMIN_BROWSER_SMOKE_FIXTURE_SESSION for account-free local UI rendering checks.",
       "admin browser smoke browser test must use canonical authenticated selectors.",
       "admin browser smoke browser test must navigate browserSmokePath, not hand-maintained routes.",
       "admin browser smoke browser test must assert data-admin-browser-route.",

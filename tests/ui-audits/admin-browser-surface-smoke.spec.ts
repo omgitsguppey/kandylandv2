@@ -11,6 +11,7 @@ import {
 
 const ENABLED = process.env.ADMIN_BROWSER_SMOKE === "1";
 const STORAGE_STATE = process.env.ADMIN_BROWSER_SMOKE_STORAGE_STATE?.trim();
+const USE_FIXTURE_SESSION = process.env.ADMIN_BROWSER_SMOKE_FIXTURE_SESSION === "1";
 const EVIDENCE_DIR = process.env.ADMIN_BROWSER_SMOKE_EVIDENCE_DIR?.trim();
 const MARKER_TIMEOUT_MS = Number(process.env.ADMIN_BROWSER_SMOKE_MARKER_TIMEOUT_MS ?? "2500");
 
@@ -70,12 +71,14 @@ function writeSurfaceEvidence(input: {
     surfaceId: input.surface.surfaceId,
     route: input.surface.browserSmokePath,
     deviceBand: input.deviceBand,
-    state: "authenticated_surface_verified",
+    state: USE_FIXTURE_SESSION ? "local_fixture_surface_verified" : "authenticated_surface_verified",
     checkedAtUtc: input.checkedAtUtc,
     urlAfterNavigation: input.urlAfterNavigation,
     selectorUsed: input.selectorUsed,
     visibleMarker: input.visibleMarker,
-    note: "Captured by opt-in authenticated admin browser smoke. This local evidence does not clear provider, deployed runtime, admin truth, payment, or GumDrop gates.",
+    note: USE_FIXTURE_SESSION
+      ? "Captured by local fixture admin UI smoke. This account-free evidence proves route rendering only and does not clear authenticated admin, provider, deployed runtime, admin truth, payment, or GumDrop gates."
+      : "Captured by opt-in authenticated admin browser smoke. This local evidence does not clear provider, deployed runtime, admin truth, payment, or GumDrop gates.",
   };
 
   writeFileSync(join(EVIDENCE_DIR, fileName), `${JSON.stringify(payload)}\n`);
@@ -83,8 +86,8 @@ function writeSurfaceEvidence(input: {
 
 test.describe("authenticated admin browser surface smoke", () => {
   test.skip(
-    !ENABLED || !STORAGE_STATE,
-    "Set ADMIN_BROWSER_SMOKE=1 and ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> to run authenticated admin browser smoke.",
+    !ENABLED || (!STORAGE_STATE && !USE_FIXTURE_SESSION),
+    "Set ADMIN_BROWSER_SMOKE=1 and either ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> or ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1 to run admin browser smoke.",
   );
 
   test.use({ storageState: STORAGE_STATE || undefined });
@@ -100,7 +103,11 @@ test.describe("authenticated admin browser surface smoke", () => {
         const selector = surface.authenticatedSelectors[0];
         expect(selector, `${surface.surfaceId} must declare a canonical authenticated selector`).toBeTruthy();
 
-        await page.goto(surface.browserSmokePath);
+        const smokePath = USE_FIXTURE_SESSION
+          ? `${surface.browserSmokePath}${surface.browserSmokePath.includes("?") ? "&" : "?"}adminUiTestSession=1`
+          : surface.browserSmokePath;
+
+        await page.goto(smokePath);
         await expect(page.locator(selector).first()).toBeVisible({ timeout: 15000 });
         await expect(page.locator(selector).first()).toHaveAttribute("data-admin-browser-route", surface.route, { timeout: 15000 });
 

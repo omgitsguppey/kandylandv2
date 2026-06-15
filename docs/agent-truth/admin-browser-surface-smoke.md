@@ -16,6 +16,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Required authenticated surface/device checks: 18
 - Evidence entries: 18
 - Authenticated checks present: 0
+- Local fixture checks present: 0
 - Unauthenticated boundary checks present: 18
 - Unauthenticated redirect checks present: 0
 - Evidence source: local_in_app_browser
@@ -82,6 +83,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Imports canonical surface map: true
 - Explicit env gate: true
 - Uses storage state env: true
+- Supports local fixture session: true
 - Uses canonical selectors: true
 - Uses browserSmokePath: true
 - Checks route attribute: true
@@ -119,6 +121,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 ## Next Exact Steps
 
 - Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session, then rerun npm run check:admin-browser-surface-smoke with the same evidence dir to classify the compact per-surface evidence.
+- For local account-free UI rendering checks only, run NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1 and ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1 ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser; this records local_fixture_surface_verified evidence and does not reduce manual authenticated signoff.
 - After reviewing the local fragment output, copy only intentional compact evidence into agent/evidence/admin-browser-surface-smoke/evidence.json when it should become tracked evidence.
 - Keep /admin/economy in protected label-only review; browser smoke cannot prove GumDrop/payment truth.
 - Use source validators for admin truth and runtime evidence separately; do not let browser smoke clear provider/runtime/admin-truth gates.

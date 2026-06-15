@@ -11,6 +11,7 @@ export type AdminBrowserSurfaceEvidenceState =
   | "source_contract_only"
   | "unauth_boundary_verified"
   | "unauth_redirect_verified"
+  | "local_fixture_surface_verified"
   | "authenticated_shell_verified"
   | "authenticated_surface_verified"
   | "manual_admin_auth_required"
@@ -50,6 +51,7 @@ export type AdminBrowserSurfaceEvidence = Required<
 export type AdminBrowserSurfaceEvidenceMode =
   | "none"
   | "unauthenticated_only"
+  | "local_fixture_only"
   | "authenticated_present";
 
 export type AdminBrowserSurfaceEvidenceProvenance = {
@@ -114,6 +116,7 @@ export type AdminBrowserSurfaceSmokeReport = {
     requiredAuthenticatedSurfaceCount: number;
     evidenceCount: number;
     authenticatedSurfaceEvidenceCount: number;
+    localFixtureSurfaceEvidenceCount: number;
     unauthBoundaryEvidenceCount: number;
     unauthRedirectEvidenceCount: number;
     manualAdminAuthRequiredCount: number;
@@ -138,6 +141,7 @@ export type AdminBrowserSurfaceSmokeReport = {
     importsCanonicalSurfaceMap: boolean;
     gatedByExplicitEnv: boolean;
     usesStorageStateEnv: boolean;
+    supportsLocalFixtureSession: boolean;
     usesCanonicalSelectors: boolean;
     usesBrowserSmokePath: boolean;
     checksRouteAttribute: boolean;
@@ -173,6 +177,10 @@ function keyForEvidence(surfaceId?: string, deviceBand?: string) {
 
 function isAuthenticatedEvidenceState(state: AdminBrowserSurfaceEvidenceState) {
   return state === "authenticated_surface_verified" || state === "authenticated_shell_verified";
+}
+
+function isLocalFixtureEvidenceState(state: AdminBrowserSurfaceEvidenceState) {
+  return state === "local_fixture_surface_verified";
 }
 
 function matchesExpectedVisibleMarker(visibleMarker: string | undefined, expectedMarkers: readonly string[]) {
@@ -228,12 +236,15 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     })
     .map(({ surface, deviceBand }) => `${surface.surfaceId}:${deviceBand}`);
   const authenticatedSurfaceEvidenceCount = evidence.filter((entry) => isAuthenticatedEvidenceState(entry.state)).length;
+  const localFixtureSurfaceEvidenceCount = evidence.filter((entry) => isLocalFixtureEvidenceState(entry.state)).length;
   const unauthBoundaryEvidenceCount = evidence.filter((entry) =>
     entry.state === "unauth_boundary_verified" || entry.state === "unauth_redirect_verified",
   ).length;
   const unauthRedirectEvidenceCount = evidence.filter((entry) => entry.state === "unauth_redirect_verified").length;
   const evidenceMode: AdminBrowserSurfaceEvidenceMode = authenticatedSurfaceEvidenceCount > 0
     ? "authenticated_present"
+    : localFixtureSurfaceEvidenceCount > 0
+      ? "local_fixture_only"
     : evidence.length > 0
       ? "unauthenticated_only"
       : "none";
@@ -272,6 +283,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     importsCanonicalSurfaceMap: Boolean(input.browserHarnessContract?.importsCanonicalSurfaceMap),
     gatedByExplicitEnv: Boolean(input.browserHarnessContract?.gatedByExplicitEnv),
     usesStorageStateEnv: Boolean(input.browserHarnessContract?.usesStorageStateEnv),
+    supportsLocalFixtureSession: Boolean(input.browserHarnessContract?.supportsLocalFixtureSession),
     usesCanonicalSelectors: Boolean(input.browserHarnessContract?.usesCanonicalSelectors),
     usesBrowserSmokePath: Boolean(input.browserHarnessContract?.usesBrowserSmokePath),
     checksRouteAttribute: Boolean(input.browserHarnessContract?.checksRouteAttribute),
@@ -283,6 +295,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     browserHarnessContract.importsCanonicalSurfaceMap &&
     browserHarnessContract.gatedByExplicitEnv &&
     browserHarnessContract.usesStorageStateEnv &&
+    browserHarnessContract.supportsLocalFixtureSession &&
     browserHarnessContract.usesCanonicalSelectors &&
     browserHarnessContract.usesBrowserSmokePath &&
     browserHarnessContract.checksRouteAttribute &&
@@ -350,6 +363,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
       requiredAuthenticatedSurfaceCount: requiredAuthenticated.length,
       evidenceCount: evidence.length,
       authenticatedSurfaceEvidenceCount,
+      localFixtureSurfaceEvidenceCount,
       unauthBoundaryEvidenceCount,
       unauthRedirectEvidenceCount,
       manualAdminAuthRequiredCount: missingAuthenticatedSurfaceIds.length,
@@ -368,6 +382,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     doesNotProve: [...FORMAL_GATE_LIMITS],
     nextExactSteps: [
       "Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session, then rerun npm run check:admin-browser-surface-smoke with the same evidence dir to classify the compact per-surface evidence.",
+      "For local account-free UI rendering checks only, run NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1 and ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1 ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser; this records local_fixture_surface_verified evidence and does not reduce manual authenticated signoff.",
       "After reviewing the local fragment output, copy only intentional compact evidence into agent/evidence/admin-browser-surface-smoke/evidence.json when it should become tracked evidence.",
       "Keep /admin/economy in protected label-only review; browser smoke cannot prove GumDrop/payment truth.",
       "Use source validators for admin truth and runtime evidence separately; do not let browser smoke clear provider/runtime/admin-truth gates.",
@@ -422,6 +437,12 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   if (report.evidenceProvenance.evidenceMode === "unauthenticated_only" && report.summary.authenticatedSurfaceEvidenceCount > 0) {
     failures.push("browser evidence provenance cannot claim unauthenticated-only when authenticated evidence is present.");
   }
+  if (report.evidenceProvenance.evidenceMode === "local_fixture_only" && report.summary.authenticatedSurfaceEvidenceCount > 0) {
+    failures.push("browser evidence provenance cannot claim fixture-only when authenticated evidence is present.");
+  }
+  if (report.evidenceProvenance.evidenceMode === "local_fixture_only" && report.summary.localFixtureSurfaceEvidenceCount === 0) {
+    failures.push("browser evidence provenance cannot claim fixture-only when no fixture evidence is present.");
+  }
   if (report.doesNotProve.some((entry) => /provider|runtime|admin truth|GumDrop|payment/iu.test(entry)) === false) {
     failures.push("report must state formal proof boundaries.");
   }
@@ -455,6 +476,9 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   if (!report.browserHarnessContract.usesStorageStateEnv) {
     failures.push("admin browser smoke browser test must require ADMIN_BROWSER_SMOKE_STORAGE_STATE.");
   }
+  if (!report.browserHarnessContract.supportsLocalFixtureSession) {
+    failures.push("admin browser smoke browser test must support ADMIN_BROWSER_SMOKE_FIXTURE_SESSION for account-free local UI rendering checks.");
+  }
   if (!report.browserHarnessContract.usesCanonicalSelectors) {
     failures.push("admin browser smoke browser test must use canonical authenticated selectors.");
   }
@@ -479,23 +503,26 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
     if (!entry.route.startsWith("/admin")) {
       failures.push(`${entry.surfaceId}:${entry.deviceBand} evidence route must stay under /admin.`);
     }
-    if (isAuthenticatedEvidenceState(entry.state)) {
+    if (isAuthenticatedEvidenceState(entry.state) || isLocalFixtureEvidenceState(entry.state)) {
       if (!entry.checkedAtUtc || Number.isNaN(Date.parse(entry.checkedAtUtc))) {
-        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include checkedAtUtc.`);
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} rendered surface evidence must include checkedAtUtc.`);
       }
       if (!entry.urlAfterNavigation?.trim()) {
-        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include urlAfterNavigation.`);
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} rendered surface evidence must include urlAfterNavigation.`);
       }
       if (!entry.selectorUsed?.trim()) {
-        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include the canonical selector used.`);
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} rendered surface evidence must include the canonical selector used.`);
       } else if (surface && !surface.authenticatedSelectors.includes(entry.selectorUsed)) {
-        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence selector must match one of: ${surface.authenticatedSelectors.join(", ")}.`);
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} rendered surface evidence selector must match one of: ${surface.authenticatedSelectors.join(", ")}.`);
       }
       if (!entry.visibleMarker?.trim()) {
-        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence must include a visible admin marker.`);
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} rendered surface evidence must include a visible admin marker.`);
       } else if (surface && !matchesExpectedVisibleMarker(entry.visibleMarker, surface.authenticatedVisibleMarkers)) {
-        failures.push(`${entry.surfaceId}:${entry.deviceBand} authenticated evidence marker must match one of: ${surface.authenticatedVisibleMarkers.join(", ")}.`);
+        failures.push(`${entry.surfaceId}:${entry.deviceBand} rendered surface evidence marker must match one of: ${surface.authenticatedVisibleMarkers.join(", ")}.`);
       }
+    }
+    if (isLocalFixtureEvidenceState(entry.state) && report.missingAuthenticatedSurfaceIds.includes(`${entry.surfaceId}:${entry.deviceBand}`) === false) {
+      failures.push(`${entry.surfaceId}:${entry.deviceBand} fixture evidence must not satisfy authenticated browser signoff.`);
     }
     if (entry.formalGateImpact.clearsRuntimeSmoke || entry.formalGateImpact.clearsProviderSmoke || entry.formalGateImpact.clearsAdminTruthSample || entry.formalGateImpact.clearsPaymentOrTreasuryTruth) {
       failures.push(`${entry.surfaceId}:${entry.deviceBand} overclaims formal gate impact.`);

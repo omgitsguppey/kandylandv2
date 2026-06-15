@@ -186,6 +186,9 @@ function readBrowserHarnessContract() {
       && specSource.includes("test.skip("),
     usesStorageStateEnv: specSource.includes("ADMIN_BROWSER_SMOKE_STORAGE_STATE")
       && specSource.includes("storageState"),
+    supportsLocalFixtureSession: specSource.includes("ADMIN_BROWSER_SMOKE_FIXTURE_SESSION")
+      && specSource.includes("adminUiTestSession=1")
+      && specSource.includes("local_fixture_surface_verified"),
     usesCanonicalSelectors: specSource.includes("surface.authenticatedSelectors[0]"),
     usesBrowserSmokePath: specSource.includes("surface.browserSmokePath"),
     checksRouteAttribute: specSource.includes('toHaveAttribute("data-admin-browser-route", surface.route'),
@@ -217,6 +220,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Required authenticated surface/device checks: ${report.summary.requiredAuthenticatedSurfaceCount}`,
     `- Evidence entries: ${report.summary.evidenceCount}`,
     `- Authenticated checks present: ${report.summary.authenticatedSurfaceEvidenceCount}`,
+    `- Local fixture checks present: ${report.summary.localFixtureSurfaceEvidenceCount}`,
     `- Unauthenticated boundary checks present: ${report.summary.unauthBoundaryEvidenceCount}`,
     `- Unauthenticated redirect checks present: ${report.summary.unauthRedirectEvidenceCount}`,
     `- Evidence source: ${report.evidenceProvenance.source}`,
@@ -264,6 +268,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Imports canonical surface map: ${report.browserHarnessContract.importsCanonicalSurfaceMap}`,
     `- Explicit env gate: ${report.browserHarnessContract.gatedByExplicitEnv}`,
     `- Uses storage state env: ${report.browserHarnessContract.usesStorageStateEnv}`,
+    `- Supports local fixture session: ${report.browserHarnessContract.supportsLocalFixtureSession}`,
     `- Uses canonical selectors: ${report.browserHarnessContract.usesCanonicalSelectors}`,
     `- Uses browserSmokePath: ${report.browserHarnessContract.usesBrowserSmokePath}`,
     `- Checks route attribute: ${report.browserHarnessContract.checksRouteAttribute}`,
