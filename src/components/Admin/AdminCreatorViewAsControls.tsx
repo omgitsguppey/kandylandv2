@@ -13,6 +13,7 @@ import {
   buildCreatorPublicHref,
   explainCreatorProfileRouteMissing,
 } from "@/lib/creator-profile-routing";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { trackEvent } from "@/lib/telemetry";
 
 type AdminCreatorViewAsControlsProps = {
@@ -21,6 +22,10 @@ type AdminCreatorViewAsControlsProps = {
   username?: string;
   syntheticCreatorType?: SyntheticCreatorType;
 };
+
+function getAdminViewAsSafeErrorMessage(error: unknown) {
+  return sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable").operatorMessage;
+}
 
 export function AdminCreatorViewAsControls({
   targetUserId,
@@ -82,7 +87,7 @@ export function AdminCreatorViewAsControls({
         syntheticCreatorType,
       });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "View-as session could not start.");
+      toast.error(getAdminViewAsSafeErrorMessage(error));
     } finally {
       setSaving(false);
     }
