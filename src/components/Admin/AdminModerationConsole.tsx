@@ -9,6 +9,7 @@ import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAdminModerationRealtime } from "@/hooks/useAdminModerationRealtime";
 import { buildAdminModerationControlTowerModel } from "@/lib/admin-moderation-control-tower";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +54,8 @@ function explainModerationRouteError(error: Error | null, route: string) {
         return "Waiting for admin session...";
     }
 
-    return `${route} failed: ${error.message}`;
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return `${route} failed: ${safeError.operatorMessage}`;
 }
 
 export function AdminModerationConsole() {

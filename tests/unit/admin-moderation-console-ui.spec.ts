@@ -12,4 +12,11 @@ describe("admin moderation console UI truth", () => {
     expect(source).toContain("Restrict account unavailable");
     expect(source).toContain("Disable file access unavailable");
   });
+
+  it("routes default moderation route failures through safe error language", () => {
+    expect(source).toContain("sanitizeErrorForUser");
+    expect(source).toContain('"admin_truth"');
+    expect(source).toContain('"admin_truth_unavailable"');
+    expect(source).not.toContain("${route} failed: ${error.message}");
+  });
 });
