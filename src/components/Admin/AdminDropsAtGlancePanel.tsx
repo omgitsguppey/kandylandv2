@@ -102,7 +102,7 @@ function getDelaySeed(id: string) {
 function resolveDropsTruthState(state: { loading: boolean; loadError: string | null; fromCache: boolean }): AdminSurfaceState {
     if (state.loadError) return "failed";
     if (state.loading) return "loading";
-    if (state.fromCache) return "fallback";
+    if (state.fromCache) return "cached";
     return "live";
 }
 
