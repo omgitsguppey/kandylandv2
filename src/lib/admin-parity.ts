@@ -90,8 +90,22 @@ export function coerceAdminSurfaceState(value: unknown): AdminSurfaceState {
     return "live";
   }
 
-  if (value === "cached") {
+  if (
+    value === "cached"
+    || value === "fresh_cache"
+    || value === "refresh_due"
+    || value === "refresh_due_cache"
+    || value === "verified_cache"
+  ) {
     return "cached";
+  }
+
+  if (value === "expired_cache" || value === "stale_cache") {
+    return "stale";
+  }
+
+  if (value === "runtime_unverified") {
+    return "degraded";
   }
 
   if (value === "snapshot" || value === "polled") {

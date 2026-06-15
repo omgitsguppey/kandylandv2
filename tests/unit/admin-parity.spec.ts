@@ -15,6 +15,16 @@ describe("admin parity contracts", () => {
     expect(coerceAdminSurfaceState("unknown")).toBe("unavailable");
   });
 
+  it("keeps verified route-cache mechanics distinct from missing truth", () => {
+    expect(coerceAdminSurfaceState("fresh_cache")).toBe("cached");
+    expect(coerceAdminSurfaceState("refresh_due")).toBe("cached");
+    expect(coerceAdminSurfaceState("refresh_due_cache")).toBe("cached");
+    expect(coerceAdminSurfaceState("verified_cache")).toBe("cached");
+    expect(coerceAdminSurfaceState("expired_cache")).toBe("stale");
+    expect(coerceAdminSurfaceState("stale_cache")).toBe("stale");
+    expect(coerceAdminSurfaceState("runtime_unverified")).toBe("degraded");
+  });
+
   it("marks stale canonical sources without claiming live", () => {
     const verification = buildAdminModuleVerification({
       module: "admin_users",
