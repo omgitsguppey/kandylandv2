@@ -922,7 +922,7 @@
         "embla-carousel-react": "^8.6.0",
         "es-toolkit": "^1.46.0",
         "firebase": "^12.12.1",
-        "firebase-admin": "^13.8.0",
+        "firebase-admin": "^14.0.0",
         "framer-motion": "^12.38.0",
         "google-auth-library": "^10.6.2",
         "lucide-react": "^0.563.0",
