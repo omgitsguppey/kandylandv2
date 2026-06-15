@@ -60,7 +60,7 @@ function resolveActivityTruthState(
     if (allLegacy) return "degraded";
 
     if (normalizedNote.includes("active")) return "live";
-    if (normalizedNote.includes("cached")) return "stale";
+    if (normalizedNote.includes("cached")) return "cached";
 
     return "unavailable";
 }

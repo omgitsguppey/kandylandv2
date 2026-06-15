@@ -852,6 +852,7 @@ describe("admin activity truth contracts", () => {
         expect(ADMIN_ACTIVITY_SOURCE).toContain("Unknown operator");
         expect(ADMIN_ACTIVITY_SOURCE).toContain("Legacy admin record");
         expect(ADMIN_ACTIVITY_SOURCE).toContain("live");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("cached");
         expect(ADMIN_ACTIVITY_SOURCE).toContain("stale");
         expect(ADMIN_ACTIVITY_SOURCE).toContain("degraded");
         expect(ADMIN_ACTIVITY_SOURCE).toContain("fallback");
@@ -873,6 +874,11 @@ describe("admin activity truth contracts", () => {
 
     it("shows freshness context with 'Latest admin action:' label", () => {
         expect(ADMIN_ACTIVITY_SOURCE).toContain("Latest admin action:");
+    });
+
+    it("does not label cached activity evidence as stale truth", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain('normalizedNote.includes("cached")) return "cached"');
+        expect(ADMIN_ACTIVITY_SOURCE).not.toContain('normalizedNote.includes("cached")) return "stale"');
     });
 
     it("uses amber coloring for stale freshness", () => {
