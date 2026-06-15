@@ -91,6 +91,15 @@ describe("accessibility tap target launch contracts", () => {
         expect(read("src/components/StickyFilterBar.tsx")).toContain("aria-pressed={isSelected}");
     });
 
+    it("admin analytics compact view mode buttons keep accessible names", () => {
+        const source = read("src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx");
+
+        expect(source).toContain("aria-label=\"Analytics view mode\"");
+        expect(source).toContain("aria-label={option.label}");
+        expect(source).toContain("aria-pressed={active}");
+        expect(source).toContain("hidden sm:inline");
+    });
+
     it("admin drop action buttons keep accessible names when compact text is hidden", () => {
         const source = read("src/components/Admin/AdminDropsAtGlancePanel.tsx");
 
