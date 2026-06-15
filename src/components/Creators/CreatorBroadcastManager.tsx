@@ -387,7 +387,9 @@ export function CreatorBroadcastManager({
                   <p className="mt-1 line-clamp-2 text-sm text-gray-400">{broadcast.message || "Not tracked yet"}</p>
                   <p className="mt-1 text-xs font-semibold text-brand-purple">View details</p>
                 </div>
-                {expanded ? <ChevronUp className="h-4 w-4 shrink-0 text-gray-400" /> : <ChevronDown className="h-4 w-4 shrink-0 text-gray-400" />}
+                {expanded
+                  ? <ChevronUp className="h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />
+                  : <ChevronDown className="h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />}
               </button>
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-400 sm:grid-cols-3">
                 <div>Created {formatDateTime(broadcast.createdAtMs)}</div>

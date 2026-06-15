@@ -109,6 +109,14 @@ describe("accessibility tap target launch contracts", () => {
         expect(source).toContain("aria-hidden=\"true\"");
     });
 
+    it("creator broadcast disclosure chevrons are decorative", () => {
+        const source = read("src/components/Creators/CreatorBroadcastManager.tsx");
+
+        expect(source).toContain("aria-expanded={expanded}");
+        expect(source).toContain("<ChevronUp className=\"h-4 w-4 shrink-0 text-gray-400\" aria-hidden=\"true\" />");
+        expect(source).toContain("<ChevronDown className=\"h-4 w-4 shrink-0 text-gray-400\" aria-hidden=\"true\" />");
+    });
+
     it("loading spinners are hidden from assistive technology when visible text owns status", () => {
         const missing = loaderSpinnerFiles.flatMap((file) => {
             const source = read(file);
