@@ -8,6 +8,7 @@ import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { toast } from "sonner";
 
 import Image from "next/image";
@@ -51,6 +52,11 @@ function classifyFile(file: StorageFile): FileCategory {
     return "Documents";
 }
 
+function getAdminContentSafeErrorMessage(error: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
+}
+
 export default function ContentManagerPage() {
     const [files, setFiles] = useState<StorageFile[]>([]);
     const [loading, setLoading] = useState(true);
@@ -84,7 +90,7 @@ export default function ContentManagerPage() {
                 },
                 consoleLabel: "[Admin Content] fetch files failed",
             });
-            setError(error instanceof Error ? error.message : "Failed to load content files.");
+            setError(getAdminContentSafeErrorMessage(error, "Failed to load content files."));
         } finally {
             setLoading(false);
         }
@@ -122,7 +128,7 @@ export default function ContentManagerPage() {
                 },
                 consoleLabel: "[Admin Content] upload failed",
             });
-            const message = error instanceof Error ? error.message : "Upload failed.";
+            const message = getAdminContentSafeErrorMessage(error, "Upload failed.");
             setError(message);
             toast.error(message);
         } finally {
@@ -157,7 +163,7 @@ export default function ContentManagerPage() {
                 },
                 consoleLabel: "[Admin Content] delete failed",
             });
-            const message = error instanceof Error ? error.message : "Delete failed.";
+            const message = getAdminContentSafeErrorMessage(error, "Delete failed.");
             setError(message);
             toast.error(message);
         }
@@ -178,7 +184,7 @@ export default function ContentManagerPage() {
                 },
                 consoleLabel: "[Admin Content] clipboard copy failed",
             });
-            const message = error instanceof Error ? error.message : "Failed to copy URL.";
+            const message = getAdminContentSafeErrorMessage(error, "Failed to copy URL.");
             setError(message);
             toast.error(message);
         }
@@ -224,7 +230,10 @@ export default function ContentManagerPage() {
             />
 
             {error ? (
-                <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+                <div
+                    className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200"
+                    data-admin-content-safe-error="true"
+                >
                     {error}
                 </div>
             ) : null}
