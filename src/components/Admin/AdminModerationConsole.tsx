@@ -320,8 +320,8 @@ export function AdminModerationConsole() {
                                                     {action === "reviewed" ? "Mark reviewed" : action === "escalated" ? "Escalate" : "Dismiss false positive"}
                                                 </button>
                                             ))}
-                                            <button type="button" disabled className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Restrict account - not_implemented</button>
-                                            <button type="button" disabled className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Disable file access - not_implemented</button>
+                                            <button type="button" disabled data-moderation-action-state="unavailable" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Restrict account unavailable</button>
+                                            <button type="button" disabled data-moderation-action-state="unavailable" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Disable file access unavailable</button>
                                         </div>
                                     </article>
                                 </aside>
