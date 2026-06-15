@@ -3,6 +3,7 @@
 import { Loader2, ShieldAlert } from "lucide-react";
 
 import type { AdminModerationSecurityAlert } from "@/lib/admin-moderation";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { cn } from "@/lib/utils";
 
 function formatRelativeTime(timestamp?: number) {
@@ -48,6 +49,9 @@ export function AdminModerationSecurityAlerts({
     onSelectAlert,
 }: AdminModerationSecurityAlertsProps) {
     const displayCount = error ? "Unknown" : String(alerts.length);
+    const safeErrorMessage = error
+        ? sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable").operatorMessage
+        : null;
 
     return (
         <section className="rounded-2xl border border-white/10 bg-black/25 p-3" data-moderation-alert-list="risk-first">
@@ -104,9 +108,9 @@ export function AdminModerationSecurityAlerts({
                 {!isLoading && alerts.length === 0 && !error ? (
                     <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-gray-400">No unresolved risk alerts.</div>
                 ) : null}
-                {error ? (
-                    <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-100">
-                        {error.message}
+                {safeErrorMessage ? (
+                    <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-100" data-moderation-alerts-safe-error="true">
+                        {safeErrorMessage}
                     </div>
                 ) : null}
             </div>
