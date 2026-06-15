@@ -20,6 +20,7 @@ import {
 } from "@/lib/ai-drop-descriptions";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { cn } from "@/lib/utils";
 
 type AdminAiDropDescriptionDashboard = {
@@ -388,10 +389,11 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
     };
 
     if (error && !data) {
+        const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
         return (
             <AdminDashboardModule title="Description operations" description="Description AI runtime is not available." defaultOpen>
-                <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100">
-                    {error instanceof Error ? error.message : "Failed to load description AI operations."}
+                <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100" data-admin-ai-description-safe-error="true">
+                    {safeError.operatorMessage}
                 </div>
             </AdminDashboardModule>
         );
