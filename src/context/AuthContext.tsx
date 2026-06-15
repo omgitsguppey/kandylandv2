@@ -70,6 +70,10 @@ import {
     hasSubmittedIdentityLink,
 } from "@/lib/analytics/analytics-identity-link";
 import {
+    clearAdminUiTestSession,
+    readAdminUiTestSession,
+} from "@/lib/admin/admin-ui-test-session";
+import {
     buildAccountPrivacySettingsFromConsentSnapshot,
     canUseIdentifiedAnalytics,
     persistPrivacySettingsSnapshot,
@@ -275,6 +279,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [authStateResolved, setAuthStateResolved] = useState(false);
+    const [adminUiTestSessionActive, setAdminUiTestSessionActive] = useState(false);
     const initialAuthResolvedRef = useRef(false);
     const autoRegisterInFlightRef = useRef<Set<string>>(new Set());
     const manualRegistrationStateRef = useRef<{ uid: string | null; email: string } | null>(null);
@@ -485,6 +490,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const initializeAuth = async () => {
             try {
+                const adminUiTestSession = readAdminUiTestSession();
+                if (adminUiTestSession.status === "ready" && adminUiTestSession.user && adminUiTestSession.userProfile) {
+                    if (!cancelled) {
+                        currentAuthUidRef.current = adminUiTestSession.user.uid;
+                        setUser(adminUiTestSession.user);
+                        setUserProfile(adminUiTestSession.userProfile);
+                        setAdminUiTestSessionActive(true);
+                        setAuthStateResolved(true);
+                        setLoading(false);
+                        syncClientSessionOwnership(`user:${adminUiTestSession.user.uid}`);
+                        syncLastVisitedPathOwner(adminUiTestSession.user.uid);
+                        syncIdentifiedTelemetryOwnership(null);
+                    }
+                    return;
+                }
+
+                setAdminUiTestSessionActive(false);
+
                 if (!auth) {
                     if (!cancelled) {
                         setAuthStateResolved(true);
@@ -625,6 +648,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (!authStateResolved) {
+            return;
+        }
+
+        if (adminUiTestSessionActive) {
+            setLoading(false);
             return;
         }
 
@@ -843,7 +871,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             autoRegisterInFlight.delete(currentUserId);
             observerControl.cleanup();
         };
-    }, [authStateResolved, emitAuthPersistenceEvent, emitAuthRuntimeEvent, router, user]);
+    }, [adminUiTestSessionActive, authStateResolved, emitAuthPersistenceEvent, emitAuthRuntimeEvent, router, user]);
 
     useEffect(() => {
         if (!user) {
@@ -1171,6 +1199,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const logout = useCallback(async () => {
+        if (adminUiTestSessionActive) {
+            clearAdminUiTestSession();
+            setAdminUiTestSessionActive(false);
+            setUser(null);
+            setUserProfile(null);
+            setLoading(false);
+            setAuthStateResolved(true);
+            syncClientSessionOwnership(null);
+            syncIdentifiedTelemetryOwnership(null);
+            syncLastVisitedPathOwner(null);
+            router.replace("/");
+            return;
+        }
+
         explicitLogoutInFlightRef.current = true;
         const authProvider = auth?.currentUser?.providerData[0]?.providerId || "unknown";
         emitAuthPersistenceEvent({
@@ -1219,7 +1261,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } finally {
             explicitLogoutInFlightRef.current = false;
         }
-    }, [deleteNavigationSession, emitAuthPersistenceEvent, router]);
+    }, [adminUiTestSessionActive, deleteNavigationSession, emitAuthPersistenceEvent, router]);
 
     const identityValue = useMemo(
         () => ({
