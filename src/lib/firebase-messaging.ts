@@ -2,6 +2,7 @@ import { getMessaging, getToken, isSupported, onMessage } from "firebase/messagi
 
 import { app } from "./firebase";
 import { isIOSNonStandalone, isStandalone } from "./browser-utils";
+import { resolveSameOriginRelativePath } from "./client-safe-url";
 import { recordClientDiagnostic } from "./client-diagnostics";
 import { FIREBASE_MESSAGING_CONFIG, FIREBASE_VAPID_KEY } from "./firebase-runtime";
 import { PUBLIC_APP_VERSION } from "./release-notes/public-release-notes";
@@ -40,16 +41,7 @@ function resolveSafeNotificationUrl(rawUrl: string | undefined) {
         return "/experiences";
     }
 
-    try {
-        const parsed = new URL(rawUrl, window.location.origin);
-        if (parsed.origin !== window.location.origin) {
-            return "/experiences";
-        }
-
-        return `${parsed.pathname}${parsed.search}${parsed.hash}`;
-    } catch {
-        return "/experiences";
-    }
+    return resolveSameOriginRelativePath(rawUrl, window.location.origin) ?? "/experiences";
 }
 
 function buildServiceWorkerUrl() {

@@ -5,25 +5,25 @@ import {
     isAdminViewAsBlockedRequest,
     readAdminViewAsStateFromStorage,
 } from "@/lib/admin/synthetic-creators-view-as";
+import { resolveSameOriginRelativePath } from "@/lib/client-safe-url";
 
 function resolveSafeAuthFetchUrl(url: string) {
     if (typeof window === "undefined") {
         return url;
     }
 
-    const resolvedUrl = new URL(url, window.location.origin);
-    if (resolvedUrl.origin !== window.location.origin) {
+    const safeUrl = resolveSameOriginRelativePath(url, window.location.origin);
+    if (!safeUrl) {
         const detail = {
             url,
-            attemptedOrigin: resolvedUrl.origin,
             currentOrigin: window.location.origin,
         };
         recordClientDiagnostic("network", "Blocked cross-origin authenticated request", detail, "error");
-        recordClientBreadcrumb("network", `blocked authFetch ${resolvedUrl.origin}`, detail);
+        recordClientBreadcrumb("network", "blocked authFetch unsafe URL", detail);
         throw new Error("Cross-origin authenticated requests are not allowed");
     }
 
-    return `${resolvedUrl.pathname}${resolvedUrl.search}${resolvedUrl.hash}`;
+    return safeUrl;
 }
 
 /**
