@@ -19,6 +19,7 @@ import { resolveAdminDropLifecycleFacts } from "@/lib/admin-drop-lifecycle";
 import { buildAdminQueueProjection, type AdminDropQueueConfig } from "@/lib/admin-drop-queue";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { cn } from "@/lib/utils";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { Drop } from "@/types/db";
@@ -104,6 +105,11 @@ function resolveDropsTruthState(state: { loading: boolean; loadError: string | n
     if (state.loading) return "loading";
     if (state.fromCache) return "cached";
     return "live";
+}
+
+function getAdminDropsAtGlanceSafeErrorMessage(error: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
 }
 
 export function AdminDropsAtGlancePanel() {
@@ -256,7 +262,7 @@ export function AdminDropsAtGlancePanel() {
                 },
                 consoleLabel: "[Admin Drops Home] toggle queue failed",
             });
-            toast.error(error instanceof Error ? error.message : "Failed to update queue.");
+            toast.error(getAdminDropsAtGlanceSafeErrorMessage(error, "Failed to update queue."));
         } finally {
             setQueueingDropId(null);
         }
