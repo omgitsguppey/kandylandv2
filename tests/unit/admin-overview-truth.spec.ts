@@ -710,7 +710,8 @@ describe("admin overview recent transactions contract", () => {
         expect(RECENT_TRANSACTIONS_SOURCE).toContain("<AdminStatusBadge state={truthState}");
         expect(RECENT_TRANSACTIONS_SOURCE).toContain("if (liveFeedError) return \"fallback\"");
         expect(RECENT_TRANSACTIONS_SOURCE).toContain("if (!isLiveFeedActive) return \"loading\"");
-        expect(RECENT_TRANSACTIONS_SOURCE).toContain("if (snapshotFromCache) return \"stale\"");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("if (snapshotFromCache) return \"cached\"");
+        expect(RECENT_TRANSACTIONS_SOURCE).not.toContain("if (snapshotFromCache) return \"stale\"");
         expect(RECENT_TRANSACTIONS_SOURCE).toContain("if (identityLookupFailures > 0) return \"degraded\"");
         expect(RECENT_TRANSACTIONS_SOURCE).toContain("return \"live\"");
     });
