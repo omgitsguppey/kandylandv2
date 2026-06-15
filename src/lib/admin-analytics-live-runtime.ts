@@ -16,7 +16,7 @@ export type AdminAnalyticsLiveFeedStatus =
 export type AdminAnalyticsLiveActor = RealtimeActiveUserItem & {
   actorType: "identified" | "guest";
   sourceLabel: string;
-  truthLabel: "live" | "fallback";
+  truthLabel: "live" | "cached" | "fallback";
   sessionKey?: string;
 };
 
@@ -32,9 +32,9 @@ export interface AdminAnalyticsLiveSignals {
   activeUsers: AdminAnalyticsLiveActor[];
   surfaceMix: SurfaceMixItem[];
   issues: string[];
-  liveTruthLabel: "live" | "fallback" | "partial" | "failed";
+  liveTruthLabel: "live" | "cached" | "fallback" | "partial" | "failed";
   liveSourceLabel: string;
-  activeUsersTruthLabel: "live" | "fallback" | "partial" | "failed";
+  activeUsersTruthLabel: "live" | "cached" | "fallback" | "partial" | "failed";
   activeUsersSourceLabel: string;
 }
 

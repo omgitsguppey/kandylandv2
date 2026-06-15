@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import {
   formatAdminAnalyticsEvidenceSourceLabel,
@@ -291,5 +293,16 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(state.sourceMode).toBe("stale_cache");
     expect(state.truthState).toBe("verified");
     expect(state.visibleMessage).toBe("Showing last verified data.");
+  });
+
+  it("preserves cached realtime route labels through snapshot-first admin state", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain('label === "cached" || label === "refresh_due"');
+    expect(source).toContain('return "cached"');
+    expect(source).not.toContain('label === "cached") {\n    return "fallback"');
   });
 });

@@ -250,6 +250,10 @@ function isSnapshotSectionKey(value: string): value is AdminAnalyticsSnapshotSec
 function normalizeSnapshotFirstLiveTruthLabel(
   label: RealtimeAnalyticsResponse["liveTruthLabel"] | RealtimeAnalyticsResponse["activeUsersTruthLabel"],
 ): AdminAnalyticsLiveSignals["liveTruthLabel"] {
+  if (label === "cached" || label === "refresh_due") {
+    return "cached";
+  }
+
   if (label === "live" || label === "partial" || label === "failed") {
     return label;
   }
