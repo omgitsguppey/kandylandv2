@@ -7,6 +7,7 @@ import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerif
 import { AdminAiDescriptionOperations } from "@/components/Admin/AdminAiDescriptionOperations";
 import { Button } from "@/components/ui/Button";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { MetricCard } from "./AiHelpers";
 import { useAdminAiState } from "./hooks/useAdminAiState";
 import { AdminAiRuntimestripSection } from "./components/AdminAiRuntimestripSection";
@@ -32,6 +33,9 @@ export default function AIAdminPage() {
     const { libraryInputRef, primaryInputRef, ...state } = fullState;
     const [activeTab, setActiveTab] = useState<AdminAiTaskTab>("generate");
     const dashboardTruthState = state.data ? "live" : state.error ? "failed" : state.isLoading ? "loading" : "unavailable";
+    const safeLoadErrorMessage = state.error
+        ? sanitizeErrorForUser(state.error, "admin_truth", "admin_truth_unavailable").operatorMessage
+        : null;
     const activeTabMeta = useMemo(
         () => ADMIN_AI_TASK_TABS.find((tab) => tab.id === activeTab) || ADMIN_AI_TASK_TABS[0],
         [activeTab],
@@ -138,8 +142,8 @@ export default function AIAdminPage() {
                 </section>
 
                 {state.error && !state.data ? (
-                    <div className="rounded-[1.2rem] border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100">
-                        Failed to load AI cover operations. {state.error.message || "Error details unavailable."}
+                    <div className="rounded-[1.2rem] border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100" data-admin-ai-safe-error="true">
+                        Failed to load AI cover operations. {safeLoadErrorMessage}
                     </div>
                 ) : null}
 
