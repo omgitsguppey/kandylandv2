@@ -9,6 +9,7 @@ import type {
   SnapshotRefreshStatus,
 } from "@/lib/analytics/admin-metric-snapshot";
 import { authFetch } from "@/lib/authFetch";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 
 type SnapshotRouteResponse = {
   success: boolean;
@@ -54,6 +55,11 @@ function buildSnapshotUrl(moduleKey: string, rangeKey: AdminMetricSnapshotRange)
   return `/api/admin/analytics/refresh?${params.toString()}`;
 }
 
+function getAdminAnalyticsSnapshotSafeErrorMessage(error: unknown, fallback: string) {
+  const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+  return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
+}
+
 export function useAdminAnalyticsSnapshot(
   options: UseAdminAnalyticsSnapshotOptions,
 ): UseAdminAnalyticsSnapshotResult {
@@ -93,7 +99,7 @@ export function useAdminAnalyticsSnapshot(
         markFirstSnapshot();
       }
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Admin analytics snapshot load failed");
+      setError(getAdminAnalyticsSnapshotSafeErrorMessage(loadError, "Admin analytics snapshot load failed"));
     } finally {
       setIsLoading(false);
     }
@@ -124,11 +130,11 @@ export function useAdminAnalyticsSnapshot(
         markFirstSnapshot();
       }
       if (result.success !== true && result.error) {
-        setError(result.error);
+        setError(getAdminAnalyticsSnapshotSafeErrorMessage(result.error, "Admin analytics snapshot refresh failed"));
       }
       return result;
     } catch (refreshError) {
-      const message = refreshError instanceof Error ? refreshError.message : "Admin analytics snapshot refresh failed";
+      const message = getAdminAnalyticsSnapshotSafeErrorMessage(refreshError, "Admin analytics snapshot refresh failed");
       setError(message);
       setRefreshStatus("failed");
       return null;
