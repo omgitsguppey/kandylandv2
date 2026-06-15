@@ -2,6 +2,7 @@ import type { AdminSurfaceState } from "@/lib/admin-parity";
 
 export const ADMIN_TRUTH_STATES = [
   "live",
+  "cached",
   "refreshing",
   "stale",
   "degraded",
@@ -31,6 +32,7 @@ type TruthLikeState =
 
 const LEGACY_TRUTH_STATE_MAP: Record<TruthLikeState, AdminTruthState> = {
   live: "live",
+  cached: "cached",
   refreshing: "refreshing",
   stale: "stale",
   degraded: "degraded",
@@ -42,8 +44,7 @@ const LEGACY_TRUTH_STATE_MAP: Record<TruthLikeState, AdminTruthState> = {
   blocked: "blocked",
   review: "review",
   loading: "unavailable",
-  cached: "stale",
-  fallback: "stale",
+  fallback: "cached",
   healthy: "live",
   partial: "review",
   empty: "unavailable",
@@ -144,6 +145,10 @@ export function resolveAdminTruthState(input: {
 
   if (input.refreshInFlight || transportState === "refreshing") {
     return "refreshing";
+  }
+
+  if (transportState === "cached" || valueState === "cached") {
+    return "cached";
   }
 
   if (input.sourceIssue || transportState === "degraded" || valueState === "degraded") {
@@ -253,6 +258,7 @@ export function getAdminTruthStateBadgeLabel(
   }
 
   if (state === "live") return "LIVE";
+  if (state === "cached") return "CACHED";
   if (state === "refreshing") return "REFRESHING";
   if (state === "stale") return "STALE";
   if (state === "degraded") return "DEGRADED";
@@ -267,6 +273,7 @@ export function getAdminTruthStateBadgeLabel(
 
 export function getAdminTruthStateDescription(state: AdminTruthState) {
   if (state === "live") return "Fresh source succeeded and current values are usable.";
+  if (state === "cached") return "A usable verified cache or snapshot value is showing.";
   if (state === "refreshing") return "A usable value is showing while a refresh is in flight.";
   if (state === "stale") return "A usable value is showing, but freshness has expired.";
   if (state === "degraded") return "A usable value is showing, but the source reported an issue.";
@@ -281,6 +288,7 @@ export function getAdminTruthStateDescription(state: AdminTruthState) {
 
 export function getAdminTruthStateClasses(state: AdminTruthState) {
   if (state === "live") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
+  if (state === "cached") return "border-brand-purple/30 bg-brand-purple/10 text-[#e4d4ff]";
   if (state === "refreshing") return "border-brand-purple/30 bg-brand-purple/10 text-[#e4d4ff]";
   if (state === "stale") return "border-yellow-500/30 bg-yellow-500/10 text-yellow-300";
   if (state === "degraded") return "border-amber-500/30 bg-amber-500/10 text-amber-300";
