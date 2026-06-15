@@ -93,6 +93,7 @@ export const FCM_MULTICAST_BATCH_SIZE = 500;
 export const FCM_MAX_BATCHES_PER_BROADCAST_RUN = 10;
 export const FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN = FCM_MULTICAST_BATCH_SIZE * FCM_MAX_BATCHES_PER_BROADCAST_RUN;
 export const FCM_MAX_RETRIES_PER_BROADCAST = 0;
+export const FCM_MULTICAST_DISPATCH_CONCURRENCY = 5;
 
 export async function broadcastFCM(
     title: string,
@@ -133,6 +134,8 @@ export async function broadcastFCMWithReport(
         let dispatchedBatchCount = 0;
         let recipientCapReached = false;
         let batchCapReached = false;
+        let dispatchError: unknown = null;
+        const activeDispatches = new Set<Promise<void>>();
         idempotencyKey = options.idempotencyKey || buildNotificationIdempotencyKey({
             type,
             notificationId: options.notificationId,
@@ -164,12 +167,6 @@ export async function broadcastFCMWithReport(
 
         const dispatchBatch = async (tokens: string[]) => {
             if (tokens.length === 0) return;
-            if (dispatchedBatchCount >= FCM_MAX_BATCHES_PER_BROADCAST_RUN) {
-                batchCapReached = true;
-                return;
-            }
-            dispatchedBatchCount++;
-            tokensSent = true;
             const message = {
                 data: baseData,
                 webpush: {
@@ -214,6 +211,35 @@ export async function broadcastFCMWithReport(
                     }
                 }
             }
+        };
+
+        const waitForDispatchSlot = async () => {
+            while (activeDispatches.size >= FCM_MULTICAST_DISPATCH_CONCURRENCY) {
+                await Promise.race(activeDispatches);
+                if (dispatchError) {
+                    throw dispatchError;
+                }
+            }
+        };
+
+        const scheduleDispatchBatch = async (tokens: string[]) => {
+            if (tokens.length === 0) return;
+            if (dispatchedBatchCount >= FCM_MAX_BATCHES_PER_BROADCAST_RUN) {
+                batchCapReached = true;
+                return;
+            }
+
+            await waitForDispatchSlot();
+            dispatchedBatchCount++;
+            tokensSent = true;
+            const dispatchPromise = dispatchBatch(tokens)
+                .catch((error) => {
+                    dispatchError ??= error;
+                })
+                .finally(() => {
+                    activeDispatches.delete(dispatchPromise);
+                });
+            activeDispatches.add(dispatchPromise);
         };
 
         for await (const doc of stream) {
@@ -284,7 +310,7 @@ export async function broadcastFCMWithReport(
                 while (tokensChunk.length >= FCM_MULTICAST_BATCH_SIZE && !batchCapReached) {
                     const batchToDispatch = tokensChunk.slice(0, FCM_MULTICAST_BATCH_SIZE);
                     tokensChunk = tokensChunk.slice(FCM_MULTICAST_BATCH_SIZE);
-                    await dispatchBatch(batchToDispatch);
+                    await scheduleDispatchBatch(batchToDispatch);
                 }
             }
 
@@ -294,7 +320,12 @@ export async function broadcastFCMWithReport(
         }
 
         if (tokensChunk.length > 0 && !batchCapReached) {
-            await dispatchBatch(tokensChunk);
+            await scheduleDispatchBatch(tokensChunk);
+        }
+
+        await Promise.all(activeDispatches);
+        if (dispatchError) {
+            throw dispatchError;
         }
 
         if (tokensSent) {

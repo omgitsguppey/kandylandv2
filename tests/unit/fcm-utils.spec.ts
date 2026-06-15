@@ -52,7 +52,12 @@ vi.mock("firebase-admin", () => ({
     }),
 }));
 
-import { broadcastFCM, broadcastFCMWithReport } from "@/lib/server/fcm-utils";
+import {
+    broadcastFCM,
+    broadcastFCMWithReport,
+    FCM_MULTICAST_BATCH_SIZE,
+    FCM_MULTICAST_DISPATCH_CONCURRENCY,
+} from "@/lib/server/fcm-utils";
 
 describe("broadcastFCM", () => {
     beforeEach(() => {
@@ -224,5 +229,42 @@ describe("broadcastFCM", () => {
             tokens: ["shared-token"],
         }));
         expect(mockState.sendEachForMulticast.mock.calls[0]?.[0]).not.toHaveProperty("notification");
+    });
+
+    it("dispatches multicast batches with bounded concurrency", async () => {
+        let activeDispatches = 0;
+        let maxActiveDispatches = 0;
+        mockState.sendEachForMulticast.mockImplementation(async (message: { tokens: string[] }) => {
+            activeDispatches++;
+            maxActiveDispatches = Math.max(maxActiveDispatches, activeDispatches);
+            await new Promise((resolve) => setTimeout(resolve, 5));
+            activeDispatches--;
+            return {
+                successCount: message.tokens.length,
+                failureCount: 0,
+                responses: message.tokens.map(() => ({ success: true })),
+            };
+        });
+
+        const recipientCount = FCM_MULTICAST_BATCH_SIZE * 3;
+        for (let index = 0; index < recipientCount; index++) {
+            mockState.userDocs.push({
+                uid: `user_${index}`,
+                fcmTokens: [`token_${index}`],
+                notificationSettings: {
+                    browserPushEnabled: true,
+                    newDropAlerts: true,
+                },
+            });
+        }
+
+        const report = await broadcastFCMWithReport("Kandy Drops", "A new drop is live.", "/drops", "new_drop");
+
+        expect(report.ok).toBe(true);
+        expect(report.successCount).toBe(recipientCount);
+        expect(report.tokensQueuedCount).toBe(recipientCount);
+        expect(mockState.sendEachForMulticast).toHaveBeenCalledTimes(3);
+        expect(maxActiveDispatches).toBeGreaterThan(1);
+        expect(maxActiveDispatches).toBeLessThanOrEqual(FCM_MULTICAST_DISPATCH_CONCURRENCY);
     });
 });
