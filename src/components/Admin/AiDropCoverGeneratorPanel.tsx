@@ -19,6 +19,7 @@ import {
 import { authFetch } from "@/lib/authFetch";
 import { generateSecureClientId } from "@/lib/client-random";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { buildCoverFeedbackNormalization } from "@/lib/ai-cover/cover-feedback-normalizer";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
@@ -101,6 +102,11 @@ function getGenerationErrorMessage(errorCode?: AdminAiDropCoverErrorCode, fallba
         default:
             return fallback || "Cover generation failed";
     }
+}
+
+function getAdminAiCoverSafeErrorMessage(error: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
 }
 
 function StatusPill({ status }: { status: AdminAiDropCoverJobRecord["status"] }) {
@@ -308,7 +314,7 @@ export function AiDropCoverGeneratorPanel({
                 },
                 consoleLabel: "[AI Drop Cover Panel] generation failed",
             });
-            const message = error instanceof Error ? error.message : "Cover generation failed";
+            const message = getAdminAiCoverSafeErrorMessage(error, "Cover generation failed");
             setGenerationError(message);
             toast.error(message);
         } finally {
@@ -370,7 +376,7 @@ export function AiDropCoverGeneratorPanel({
                 },
                 consoleLabel: "[AI Drop Cover Panel] feedback failed",
             });
-            toast.error(error instanceof Error ? error.message : "Cover feedback failed");
+            toast.error(getAdminAiCoverSafeErrorMessage(error, "Cover feedback failed"));
         } finally {
             setFeedbackingJobId(null);
         }
