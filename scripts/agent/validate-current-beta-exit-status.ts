@@ -197,6 +197,18 @@ function boolValue(value: unknown) {
   return value === true;
 }
 
+function formalEvidenceStatus(
+  artifact: Record<string, unknown> | null,
+  head: string,
+  fallback: string,
+  staleStatus: string,
+) {
+  if (!artifact) return fallback;
+  const artifactHead = stringValue(artifact.currentHead ?? artifact.sourceCommit, "");
+  if (artifactHead && artifactHead !== head) return staleStatus;
+  return stringValue(artifact.overallStatus ?? artifact.status, fallback);
+}
+
 function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, head: string): CurrentBetaExitStatusReport {
   const beta = readJson("agent/state/public-beta-score.generated.json");
   const evidenceCapture = readEvidenceCaptureStatus();
@@ -206,6 +218,9 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
   const operator = readOperatorRevenueSmoke();
   const captureSummary = evidenceCapture?.summary ?? {};
   const generatedAtUtc = new Date().toISOString();
+  const providerSmokeStatus = formalEvidenceStatus(provider, head, report.summary.providerSmokeStatus, "stale_provider_smoke_evidence");
+  const runtimeSmokeStatus = formalEvidenceStatus(runtime, head, report.summary.runtimeSmokeStatus, "stale_runtime_smoke_evidence");
+  const adminTruthSampleStatus = formalEvidenceStatus(admin, head, report.summary.adminTruthSampleStatus, "stale_admin_truth_sample_evidence");
   const summary = {
     ...report.summary,
     betaScore: numberValue(beta?.overallScore, report.summary.betaScore),
@@ -219,9 +234,9 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     freshnessScore: numberValue(beta?.freshnessScore, report.summary.freshnessScore),
     costRiskScore: numberValue(beta?.costRiskScore, report.summary.costRiskScore),
     regressionRiskScore: numberValue(beta?.regressionRiskScore, report.summary.regressionRiskScore),
-    providerSmokeStatus: stringValue(provider?.overallStatus, report.summary.providerSmokeStatus),
-    runtimeSmokeStatus: stringValue(runtime?.overallStatus, report.summary.runtimeSmokeStatus),
-    adminTruthSampleStatus: stringValue(admin?.overallStatus, report.summary.adminTruthSampleStatus),
+    providerSmokeStatus,
+    runtimeSmokeStatus,
+    adminTruthSampleStatus,
     operatorRevenueSmokeStatus: operator?.summary?.revenueSmokeStatus ?? report.summary.operatorRevenueSmokeStatus,
     operatorRevenueSmokeAmountUsd: operator?.summary?.amountUsdConfirmed ?? report.summary.operatorRevenueSmokeAmountUsd,
     operatorRevenueSmokeProduct: operator?.summary?.product ?? report.summary.operatorRevenueSmokeProduct,
@@ -232,8 +247,8 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     operatorRevenueSmokeNote: operator?.plainLanguageNote
       ?? "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
     liveRuntimeEvidenceStatus: stringValue(record(captureSummary.liveRuntimeEvidence).statusSummary, report.summary.liveRuntimeEvidenceStatus),
-    canStartRuntimeSmoke: captureSummary.runtimeSmokeEvidence !== "complete",
-    canStartProviderSmoke: captureSummary.providerSmokeEvidence !== "complete",
+    canStartRuntimeSmoke: evidenceMissing(runtimeSmokeStatus) || captureSummary.runtimeSmokeEvidence !== "complete",
+    canStartProviderSmoke: evidenceMissing(providerSmokeStatus) || captureSummary.providerSmokeEvidence !== "complete",
     canStartBetaExitReview: false,
   } satisfies CurrentBetaExitStatusReport["summary"];
   const remainingBlockers = [
@@ -399,8 +414,8 @@ export function validateCurrentBetaExitStatusReport(
     ) {
       failures.push("operator-confirmed revenue smoke note must separate product signal from formal provider evidence.");
     }
-    if (!["missing_formal_evidence", "operator_reported_not_formal_provider_smoke"].includes(report.summary.providerSmokeStatus)) {
-      failures.push("provider smoke gate must remain missing_formal_evidence after operator confirmation.");
+    if (!["missing_formal_evidence", "operator_reported_not_formal_provider_smoke", "stale_provider_smoke_evidence"].includes(report.summary.providerSmokeStatus)) {
+      failures.push("provider smoke gate must remain missing/stale formal evidence after operator confirmation.");
     }
     if (summary.canStartBetaExitReview === true || report.summary.canStartBetaExitReview) {
       failures.push("operator-confirmed revenue smoke alone must not mark beta exit ready.");
