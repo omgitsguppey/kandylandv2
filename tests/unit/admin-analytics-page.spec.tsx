@@ -92,8 +92,8 @@ const mockState = vi.hoisted(() => {
           showBadgeInPrimary: false,
         },
       },
-      analyticsWarmState: "Polling enabled",
-      liveSnapshotLabel: "[live]",
+      analyticsWarmState: "Snapshot refresh ready",
+      liveSnapshotLabel: "Current snapshot",
       historicalSnapshotLabel: "[historical]",
       isBackgroundSyncing: false,
       analyticsSectionHealthSummary: {
@@ -540,5 +540,17 @@ describe("AdminAnalyticsPage", () => {
     expect(container.querySelector("[data-panel-recovery-truth-state='external_required']")).toBeTruthy();
     expect(container.textContent).toContain("Top recovery actions");
     expect(container.textContent).not.toContain("platform_pulse:30d");
+  });
+
+  it("labels source strip states with readable shell copy", async () => {
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).toContain("Operations view - 30D Server snapshot");
+    expect(container.textContent).toContain("Current snapshot");
+    expect(container.textContent).toContain("Snapshot");
+    expect(container.textContent).toContain("Cached");
+    expect(container.textContent).not.toContain("view ·");
   });
 });

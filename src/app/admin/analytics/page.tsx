@@ -111,6 +111,36 @@ function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
   }
 }
 
+function formatAnalyticsShellStateLabel(value: string | null | undefined) {
+  switch (value) {
+    case "aligned":
+      return "Aligned";
+    case "snapshot":
+      return "Snapshot";
+    case "partial":
+      return "Partial snapshot";
+    case "realtime":
+      return "Realtime feed";
+    case "live":
+      return "Current";
+    case "cached":
+      return "Cached";
+    case "stale":
+      return "Refresh due";
+    case "failed":
+      return "Unavailable";
+    case "unavailable":
+    case "missing":
+    case "unknown":
+    case "":
+    case null:
+    case undefined:
+      return "Unknown";
+    default:
+      return value.replaceAll("_", " ");
+  }
+}
+
 const AdminAnalyticsOperationsTab = dynamic(
   () => import("./components/AdminAnalyticsOperationsTab").then((module) => module.AdminAnalyticsOperationsTab),
 );
@@ -132,6 +162,9 @@ export default function AdminAnalyticsPage() {
     status: "unavailable",
     nextAction: "Analytics source hierarchy has not hydrated yet.",
   };
+  const sourceHierarchyStatusLabel = formatAnalyticsShellStateLabel(sourceHierarchy.status);
+  const liveFeedStatusLabel = formatAnalyticsShellStateLabel(liveFeedStatus);
+  const historicalQualityLabel = formatAnalyticsShellStateLabel(historicalTruthState);
   const primaryBlockingAnalyticsError = overviewSnapshotUnavailable ? null : blockingAnalyticsError;
   const visibleOverviewDegradedCopy = (visibleDegradedCopy ?? []).filter(
     (copy) =>
@@ -262,7 +295,7 @@ export default function AdminAnalyticsPage() {
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <div className="space-y-1">
-              <p className="font-semibold">Analytics source state: {sourceHierarchy.status.replaceAll("_", " ")}</p>
+              <p className="font-semibold">Analytics source state: {sourceHierarchyStatusLabel}</p>
               <p>{sourceHierarchy.nextAction}</p>
             </div>
           </div>
@@ -326,7 +359,7 @@ export default function AdminAnalyticsPage() {
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Source and recovery</p>
             <p className="mt-1 text-xs font-semibold text-white">
-              {activeTabLabel} view · {historicalSourceLabel || "Historical source pending"}
+              {activeTabLabel} view - {historicalSourceLabel || "Historical source pending"}
             </p>
             <p className="mt-1 text-[11px] leading-4 text-gray-400">
               Use {launchRecoveryRange?.label ?? "All"} on any section to review launch-to-now history. Missing samples stay labeled; estimated recovery is not verified zero.
@@ -345,11 +378,11 @@ export default function AdminAnalyticsPage() {
           </div>
           <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
             <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Source</p>
-            <p className="truncate font-semibold text-white">{liveFeedStatus || "unknown"}</p>
+            <p className="truncate font-semibold text-white">{liveFeedStatusLabel}</p>
           </div>
           <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
             <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Quality</p>
-            <p className="truncate font-semibold text-white">{historicalTruthState || "unknown"}</p>
+            <p className="truncate font-semibold text-white">{historicalQualityLabel}</p>
           </div>
         </div>
         {sourceStatusItems.length > 0 ? (
