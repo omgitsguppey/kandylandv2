@@ -99,6 +99,10 @@ export function isAdminUiTestSessionRuntimeEnabled(input: {
   return nodeEnv !== "production" && envFlag === "1";
 }
 
+export function isAdminUiTestSessionUser(user: { providerData?: Array<{ providerId?: string | null }> } | null | undefined) {
+  return user?.providerData?.some((provider) => provider.providerId === "admin-ui-test-session") === true;
+}
+
 function buildAdminUiTestUser(session: NormalizedAdminUiTestSession): User {
   const providerData: UserInfo = {
     providerId: "admin-ui-test-session",

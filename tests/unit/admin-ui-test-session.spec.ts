@@ -12,6 +12,7 @@ import {
   ADMIN_UI_TEST_SESSION_QUERY_PARAM,
   ADMIN_UI_TEST_SESSION_STORAGE_KEY,
   buildAdminUiTestSessionStorageValue,
+  isAdminUiTestSessionUser,
   normalizeAdminUiTestSessionCookieValue,
   readAdminUiTestSession,
   resolveAdminUiTestSession,
@@ -140,6 +141,16 @@ describe("admin UI test session", () => {
     expect(resolved.userProfile?.privacySettings?.identifiedAnalyticsEnabled).toBe(false);
     expect(resolved.user).toBeTruthy();
     await expect(resolved.user!.getIdToken()).rejects.toThrow("cannot issue Firebase ID tokens");
+  });
+
+  it("detects the bounded local fixture identity without treating normal providers as fixtures", () => {
+    expect(isAdminUiTestSessionUser({
+      providerData: [{ providerId: "admin-ui-test-session" }],
+    })).toBe(true);
+    expect(isAdminUiTestSessionUser({
+      providerData: [{ providerId: "password" }],
+    })).toBe(false);
+    expect(isAdminUiTestSessionUser(null)).toBe(false);
   });
 
   it("builds a bounded ephemeral storage value for direct browser admin route audits", () => {

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { collection, getDocs } from "firebase/firestore";
 import NextImage from "next/image";
 
+import { useAuth } from "@/context/AuthContext";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { toast } from "sonner";
@@ -61,6 +63,7 @@ function IconControl({
 }
 
 export default function ManageQueuePage() {
+    const { user } = useAuth();
     const [config, setConfig] = useState<QueueConfig | null>(null);
     const [drops, setDrops] = useState<Record<string, Drop>>({});
     const [loading, setLoading] = useState(true);
@@ -69,8 +72,17 @@ export default function ManageQueuePage() {
     const [scheduleExpanded, setScheduleExpanded] = useState(false);
     const [queueEditMode, setQueueEditMode] = useState(false);
     const queueLoadGuardRef = useRef(createStaleRequestGuard());
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
 
     const fetchQueueData = useCallback(async () => {
+        if (isLocalAdminUiTestSession) {
+            setConfig(null);
+            setDrops({});
+            setError(null);
+            setLoading(false);
+            return true;
+        }
+
         const requestId = queueLoadGuardRef.current.next();
         try {
             setError(null);
@@ -150,13 +162,17 @@ export default function ManageQueuePage() {
                 setLoading(false);
             }
         }
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     useEffect(() => {
         void fetchQueueData();
     }, [fetchQueueData]);
 
     const handleSave = useCallback(async () => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         if (!config) {
             return;
         }
@@ -188,7 +204,7 @@ export default function ManageQueuePage() {
         } finally {
             setSaving(false);
         }
-    }, [config]);
+    }, [config, isLocalAdminUiTestSession]);
 
     const moveDrop = useCallback((index: number, direction: "up" | "down") => {
         setConfig((current) => {
@@ -277,20 +293,32 @@ export default function ManageQueuePage() {
                     subtitle="Configure automated drop rotation and schedule."
                     compact
                 />
-                <div className={`${adminQueueModuleClassName} bg-red-500/10 text-center`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
-                    <p className="text-base font-semibold text-red-200">Queue data could not be loaded.</p>
-                    <p className="mt-2 text-sm text-red-100/90">{error || "The queue configuration is unavailable right now."}</p>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setLoading(true);
-                            void fetchQueueData();
-                        }}
-                        className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 bg-black/40 px-5 py-2 text-sm font-bold text-white transition-colors hover:border-brand-purple/40 hover:bg-white/5"
+                {isLocalAdminUiTestSession ? (
+                    <div
+                        className={`${adminQueueModuleClassName} border-amber-400/20 bg-amber-400/10 text-center text-amber-100`}
+                        data-admin-queue-fixture-boundary="true"
+                        data-mobile-density="compact"
+                        data-mobile-sprawl-guard="true"
                     >
-                        Retry Queue Load
-                    </button>
-                </div>
+                        <p className="text-base font-semibold">Local UI review only.</p>
+                        <p className="mt-2 text-sm text-amber-100/90">Queue source_missing for local fixture auth. Use a real admin session for queue read/write evidence.</p>
+                    </div>
+                ) : (
+                    <div className={`${adminQueueModuleClassName} bg-red-500/10 text-center`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
+                        <p className="text-base font-semibold text-red-200">Queue data could not be loaded.</p>
+                        <p className="mt-2 text-sm text-red-100/90">{error || "The queue configuration is unavailable right now."}</p>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setLoading(true);
+                                void fetchQueueData();
+                            }}
+                            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 bg-black/40 px-5 py-2 text-sm font-bold text-white transition-colors hover:border-brand-purple/40 hover:bg-white/5"
+                        >
+                            Retry Queue Load
+                        </button>
+                    </div>
+                )}
             </div>
         );
     }

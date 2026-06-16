@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAuth } from "@/context/AuthContext";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
@@ -66,7 +67,7 @@ export default function ContentManagerPage() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<FileCategory>("All");
-    const isLocalAdminUiTestSession = user?.providerData?.some((provider) => provider.providerId === "admin-ui-test-session") === true;
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
 
     useEffect(() => {
         if (isLocalAdminUiTestSession) {
