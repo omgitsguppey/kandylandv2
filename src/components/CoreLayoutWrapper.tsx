@@ -67,7 +67,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         isInsufficientBalanceModalOpen,
         isPurchaseModalOpen,
     } = useUI();
-    const [displayMode] = useState<DeviceDisplayMode>(() => typeof window === "undefined" ? "unknown" : detectDeviceDisplayMode());
+    const [displayMode, setDisplayMode] = useState<DeviceDisplayMode>("unknown");
     const submittedConsentSyncRef = useRef<string | null>(null);
     const pathname = usePathname();
     const isHomeRoute = pathname === "/";
@@ -134,6 +134,10 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         routeOnly: Boolean(pathname),
     };
     const scrollControlsReady = !isHomeRoute || homepageAfterPaintLaneReady;
+
+    useEffect(() => {
+        setDisplayMode(detectDeviceDisplayMode());
+    }, []);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
