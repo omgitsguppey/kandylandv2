@@ -17,6 +17,9 @@ describe("Admin analytics audience mobile consolidation", () => {
   it("renders Navigation Destinations as one compact mobile view mode at a time", () => {
     expect(source).toContain("navigationDestinationsViewMode");
     expect(source).toContain("setNavigationDestinationsViewMode");
+    expect(source).toContain("navigationDestinationsSummaryLine");
+    expect(source).toContain('navigationDestinationsModel.fakeZeroPrevented');
+    expect(source).toContain('"No verified events"');
     expect(source).toContain("data-admin-analytics-mobile-view-mode={navigationDestinationsViewMode}");
     expect(source).toContain('data-navigation-destinations-table="compact"');
     expect(source).toContain('navigationDestinationsViewMode === "chart"');
@@ -37,6 +40,15 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).toContain("data-top-paths-source-truth={topPathsModel.sourceTruth}");
     expect(source).toContain("data-top-paths-page={String(topPathsPage)}");
     expect(source).toContain("data-top-paths-page-size={String(topPathsPageSize)}");
+  });
+
+  it("keeps collapsed device summaries source-aware instead of raw zeroes", () => {
+    expect(source).toContain("deviceMixSourceLabel");
+    expect(source).toContain("deviceMixSessionsSummary");
+    expect(source).toContain("deviceMixClassifiedSummary");
+    expect(source).toContain('"No verified sessions"');
+    expect(source).toContain('"No classified sample"');
+    expect(source).toContain('deviceMixModel.sourceLabel === "Unknown" ? "Unavailable" : deviceMixModel.sourceLabel');
   });
 
   it("renders Regions as one compact mobile view mode at a time", () => {

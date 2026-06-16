@@ -81,10 +81,26 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     returnCadenceModel.sourceTruth,
   );
   const returnCadenceBuckets = buildAdminAnalyticsReturnCadenceBuckets(returnCadenceModel);
+  const navigationDestinationsSummaryLine = [
+    navigationDestinationsModel.fakeZeroPrevented
+      ? "No verified events"
+      : `${navigationDestinationsModel.totalNavigationEvents.toLocaleString()} events`,
+    navigationDestinationsModel.sourceModeLabel,
+  ].join(" | ");
+  const deviceMixSourceLabel =
+    deviceMixModel.sourceLabel === "Unknown" ? "Unavailable" : deviceMixModel.sourceLabel;
+  const deviceMixSessionsSummary =
+    deviceMixModel.truthState === "unavailable" || deviceMixModel.sourceTruth === "unknown"
+      ? "No verified sessions"
+      : `${deviceMixModel.totalSessions.toLocaleString()} sessions`;
+  const deviceMixClassifiedSummary =
+    deviceMixModel.truthState === "unavailable" || deviceMixModel.sourceTruth === "unknown"
+      ? "No classified sample"
+      : `${deviceMixModel.classifiedSessions.toLocaleString()} classified`;
   const deviceMixSummaryLine = [
-    `${deviceMixModel.totalSessions.toLocaleString()} sessions`,
-    `${deviceMixModel.classifiedSessions.toLocaleString()} classified`,
-    `source ${deviceMixModel.sourceLabel}`,
+    deviceMixSessionsSummary,
+    deviceMixClassifiedSummary,
+    `source ${deviceMixSourceLabel}`,
   ].join(" | ");
   const continuityLabel = audienceSnapshotModel.continuity.gapSeverity === "error"
     ? "Traffic gap detected"
@@ -682,7 +698,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 subtitle="Top in-app destinations reached from intentional navigation telemetry."
                 icon={Route}
                 density="compact"
-                summaryLine={`${navigationDestinationsModel.totalNavigationEvents.toLocaleString()} events | ${navigationDestinationsModel.sourceModeLabel}`}
+                summaryLine={navigationDestinationsSummaryLine}
                 rightSlot={(
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <AnalyticsViewModeToggle
