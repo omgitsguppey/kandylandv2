@@ -139,9 +139,10 @@ export function useHistoricalSectionOverride(
   sectionKey: string,
   range: RangeOption,
   viewerUser?: string,
+  disabled = false,
 ) {
   const shouldFetchOverride =
-    range !== ADMIN_ANALYTICS_DEFAULT_RANGE || Boolean(viewerUser);
+    !disabled && (range !== ADMIN_ANALYTICS_DEFAULT_RANGE || Boolean(viewerUser));
   return useAdminPollingSWR<HistoricalAnalyticsResponse>(
     shouldFetchOverride
       ? buildSectionHistoricalUrl(sectionKey, range, viewerUser)

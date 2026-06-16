@@ -15,6 +15,7 @@ import {
 import { useNow } from "@/hooks/useNow";
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { reportStorageIssue } from "@/lib/client-error-reporting";
 import {
   resolveAdminAnalyticsDisplayState,
@@ -722,7 +723,8 @@ export function useAdminAnalyticsState() {
       shellRenderMs: 0,
       firstMetricCardRenderMs: 0,
     }));
-const { user } = useAuth();
+  const { user } = useAuth();
+  const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
   const [topDropConversionPage, setTopDropConversionPage] = useState(1);
   const [topDropConversionPageSize, setTopDropConversionPageSize] = useState(10);
@@ -807,7 +809,7 @@ const { user } = useAuth();
     data: analyticsPreferencesResponse,
     mutate: mutateAnalyticsPreferences,
   } = useAdminPollingSWR<AnalyticsPreferencesResponse>(
-    "/api/admin/analytics/preferences",
+    isLocalAdminUiTestSession ? null : "/api/admin/analytics/preferences",
     30_000,
     {
       keepPreviousData: true,
@@ -837,6 +839,11 @@ const { user } = useAuth();
     setSavingSectionKey(sectionKey);
 
     try {
+      if (isLocalAdminUiTestSession) {
+        toast.info("Analytics preferences are source_missing in local UI review.");
+        return;
+      }
+
       const response = await authFetch("/api/admin/analytics/preferences", {
         method: "PUT",
         body: JSON.stringify({
@@ -891,7 +898,7 @@ const { user } = useAuth();
     error: liveError,
     isLoading: liveLoading,
   } = useAdminPollingSWR<RealtimeAnalyticsResponse>(
-    "/api/admin/analytics/realtime",
+    isLocalAdminUiTestSession ? null : "/api/admin/analytics/realtime",
     ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS,
     {
       keepPreviousData: true,
@@ -902,12 +909,12 @@ const { user } = useAuth();
     data: historicalResponse,
     error: historicalError,
     isLoading: historicalLoading,
-  } = useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS, {
+  } = useAdminPollingSWR<HistoricalAnalyticsResponse>(isLocalAdminUiTestSession ? null : historicalUrl, ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS, {
     keepPreviousData: true,
   });
   const {
     data: adminOverviewResponse,
-  } = useAdminPollingSWR<AdminOverviewResponse>("/api/admin/overview", ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS, {
+  } = useAdminPollingSWR<AdminOverviewResponse>(isLocalAdminUiTestSession ? null : "/api/admin/overview", ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS, {
     keepPreviousData: true,
   });
 
@@ -977,119 +984,164 @@ const { user } = useAuth();
   const livePulseOverride = useHistoricalSectionOverride(
     "livePulse",
     livePulseRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const journeyFunnelRange = getSectionRange("journeyFunnel");
   const journeyFunnelOverride = useHistoricalSectionOverride(
     "journeyFunnel",
     journeyFunnelRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const authOutcomeSplitRange = getSectionRange("authOutcomeSplit");
   const authOutcomeSplitOverride = useHistoricalSectionOverride(
     "authOutcomeSplit",
     authOutcomeSplitRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const onboardingVelocityRange = getSectionRange("onboardingVelocity");
   const onboardingVelocityOverride = useHistoricalSectionOverride(
     "onboardingVelocity",
     onboardingVelocityRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const onboardingStepFlowRange = getSectionRange("onboardingStepFlow");
   const onboardingStepFlowOverride = useHistoricalSectionOverride(
     "onboardingStepFlow",
     onboardingStepFlowRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const guestBounceQualityRange = getSectionRange("categorySemantics");
   const guestBounceQualityOverride = useHistoricalSectionOverride(
     "categorySemantics",
     guestBounceQualityRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const eventMixRange = getSectionRange("eventMix");
   const eventMixOverride = useHistoricalSectionOverride(
     "eventMix",
     eventMixRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const liveInteractionStreamRange = getSectionRange("liveInteractionStream");
   const liveInteractionStreamOverride = useHistoricalSectionOverride(
     "liveInteractionStream",
     liveInteractionStreamRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const audienceSnapshotRange = getSectionRange("audienceSnapshot");
   const audienceSnapshotOverride = useHistoricalSectionOverride(
     "audienceSnapshot",
     audienceSnapshotRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const returnCadenceRange = getSectionRange("returnCadence");
   const returnCadenceOverride = useHistoricalSectionOverride(
     "returnCadence",
     returnCadenceRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const navigationDestinationsRange = getSectionRange("navigationDestinations");
   const navigationDestinationsOverride = useHistoricalSectionOverride(
     "navigationDestinations",
     navigationDestinationsRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const deviceMixRange = getSectionRange("deviceMix");
   const deviceMixOverride = useHistoricalSectionOverride(
     "deviceMix",
     deviceMixRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const topPathsRange = getSectionRange("topPaths");
   const topPathsOverride = useHistoricalSectionOverride(
     "topPaths",
     topPathsRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const regionsRange = getSectionRange("regions");
-  const regionsOverride = useHistoricalSectionOverride("regions", regionsRange);
+  const regionsOverride = useHistoricalSectionOverride("regions", regionsRange, undefined, isLocalAdminUiTestSession);
   const commerceSnapshotRange = getSectionRange("commerceSnapshot");
   const commerceSnapshotOverride = useHistoricalSectionOverride(
     "commerceSnapshot",
     commerceSnapshotRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const packagePerformanceRange = getSectionRange("packagePerformance");
   const packagePerformanceOverride = useHistoricalSectionOverride(
     "packagePerformance",
     packagePerformanceRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const contentConversionRange = getSectionRange("contentConversion");
   const contentConversionOverride = useHistoricalSectionOverride(
     "contentConversion",
     contentConversionRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const topDropConversionRange = getSectionRange("topDropConversion");
   const topDropConversionOverride = useHistoricalSectionOverride(
     "topDropConversion",
     topDropConversionRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const recentCommerceFeedRange = getSectionRange("recentCommerceFeed");
   const recentCommerceFeedOverride = useHistoricalSectionOverride(
     "recentCommerceFeed",
     recentCommerceFeedRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const viewerDrilldownRange = getSectionRange("viewerDrilldown");
   const viewerDrilldownOverride = useHistoricalSectionOverride(
     "viewerDrilldown",
     viewerDrilldownRange,
     viewerUserFilter,
+    isLocalAdminUiTestSession,
   );
   const viewerJourneyRange = getSectionRange("viewerJourney");
   const viewerJourneyOverride = useHistoricalSectionOverride(
     "viewerJourney",
     viewerJourneyRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const watchDepthTagsRange = getSectionRange("watchDepthTags");
   const watchDepthTagsOverride = useHistoricalSectionOverride(
     "watchDepthTags",
     watchDepthTagsRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const dailyTaskPipelineRange = getSectionRange("dailyTaskPipeline");
   const dailyTaskPipelineOverride = useHistoricalSectionOverride(
     "dailyTaskPipeline",
     dailyTaskPipelineRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const notificationFunnelRange = getSectionRange("notificationFunnel");
   const notificationFunnelOverride = useHistoricalSectionOverride(
     "notificationFunnel",
     notificationFunnelRange,
+    undefined,
+    isLocalAdminUiTestSession,
   );
   const analyticsSnapshotRegistry = useAdminAnalyticsSnapshotRegistry({
     platformPulse: ADMIN_ANALYTICS_DEFAULT_RANGE,
@@ -3312,7 +3364,7 @@ const { user } = useAuth();
 
   
   return {
-    user, activeTab, setActiveTab: setActiveTabDeferred, range, nowMs, viewerUserDraft, setViewerUserDraft, viewerUserFilter, setViewerUserFilter,
+    user, isLocalAdminUiTestSession, activeTab, setActiveTab: setActiveTabDeferred, range, nowMs, viewerUserDraft, setViewerUserDraft, viewerUserFilter, setViewerUserFilter,
     moduleRanges, setModuleRanges, savingSectionKey, setSavingSectionKey, analyticsFilterStorageKey, analyticsSnapshotRegistry, analyticsSnapshotMigrationDebug: analyticsSnapshotRegistry.debug,
     liveResponse: effectiveLiveResponse, historicalResponse, liveError, historicalError, liveLoading, historicalLoading,
     needsSetup, blockingAnalyticsError, isPrimingAnalytics, backgroundAnalyticsIssues, getSectionRange, renderSectionRangeControl,

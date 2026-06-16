@@ -112,11 +112,19 @@ for (const pollingNeedle of [
 }
 
 for (const disabledPollingNeedle of [
-  "useAdminPollingSWR<RealtimeAnalyticsResponse>(\n    \"/api/admin/analytics/realtime\",\n    ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
-  "useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
-  "useAdminPollingSWR<AdminOverviewResponse>(\"/api/admin/overview\", ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+  "useAdminPollingSWR<RealtimeAnalyticsResponse>(\n    isLocalAdminUiTestSession ? null : \"/api/admin/analytics/realtime\",\n    ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+  "useAdminPollingSWR<HistoricalAnalyticsResponse>(isLocalAdminUiTestSession ? null : historicalUrl, ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+  "useAdminPollingSWR<AdminOverviewResponse>(isLocalAdminUiTestSession ? null : \"/api/admin/overview\", ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
 ]) {
   requireIncludes(stateHook, disabledPollingNeedle, "Admin Analytics metric polling defaults");
+}
+
+for (const fixturePollingNeedle of [
+  "isLocalAdminUiTestSession ? null : \"/api/admin/analytics/realtime\"",
+  "isLocalAdminUiTestSession ? null : historicalUrl",
+  "isLocalAdminUiTestSession ? null : \"/api/admin/overview\"",
+]) {
+  requireIncludes(stateHook, fixturePollingNeedle, "Admin Analytics local fixture route guard");
 }
 
 for (const livePulseNeedle of [

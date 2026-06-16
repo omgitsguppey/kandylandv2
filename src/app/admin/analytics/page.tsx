@@ -194,6 +194,24 @@ export default function AdminAnalyticsPage() {
         compact
       />
 
+      {state.isLocalAdminUiTestSession ? (
+        <div
+          className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
+          data-admin-analytics-fixture-boundary="true"
+          data-admin-analytics-fixture-state="source_missing"
+        >
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              <span className="font-semibold text-white">Local UI review only.</span>{" "}
+              Analytics layout is inspectable; realtime, historical, overview, preferences,
+              revenue, identity, and source samples remain source_missing until a real admin
+              session loads verified analytics snapshots.
+            </p>
+          </div>
+        </div>
+      ) : null}
+
       {sourceHierarchy.status !== "aligned" ? (
         <div
           className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
