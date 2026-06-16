@@ -1,18 +1,18 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-04T04:06:38.021Z",
-  "currentHead": "1583d9eba1ddfce8da345a9c71cdf164ccd291fa",
+  "generatedAtUtc": "2026-06-16T20:50:38.659Z",
+  "currentHead": "2a37541bd94c6f134b994233b56c5f00b342b26b",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
   "scoreDimensions": {
-    "sourceHealth": 100,
-    "runtimeHealth": 94.4,
-    "evidenceCompleteness": 98.4,
-    "freshness": 100,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 72.8,
+    "evidenceCompleteness": 43.4,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 92.16
+    "overallHealthScore": 69.89
   },
   "totalPanels": 41,
   "hydratedPanels": 10,
@@ -23,9 +23,10 @@
   "sourceMissingPanels": 0,
   "materializerMissingPanels": 0,
   "bridgeMissingPanels": 0,
-  "manualOrRuntimeRequiredPanels": 3,
+  "runtimeEvidenceRequiredPanels": 2,
+  "adminTruthSourceRequiredPanels": 0,
   "providerGatedPanels": 2,
-  "externalRequiredPanels": 6,
+  "externalRequiredPanels": 4,
   "permissionBlockedPanels": 0,
   "brokenPanels": 0,
   "panelsByGroup": {
@@ -187,11 +188,11 @@
     "search_queries": "hydrated",
     "search_zero_results_clicks": "hydrated",
     "support_account_actions": "hydrated",
-    "error_rate_4xx": "manual_or_runtime_required",
-    "cost_risk": "manual_or_runtime_required",
+    "error_rate_4xx": "runtime_evidence_required",
+    "cost_risk": "external_required",
     "journey_funnel": "not_observed_but_expected",
     "realtime_health": "not_observed_but_expected",
-    "debug_backlog": "manual_or_runtime_required"
+    "debug_backlog": "runtime_evidence_required"
   },
   "topPanelHydrationFailures": [
     {
@@ -297,7 +298,18 @@
       "journey_funnel",
       "realtime_health"
     ],
+    "runtimeEvidenceRequired": [
+      "error_rate_4xx",
+      "debug_backlog"
+    ],
+    "adminTruthSourceRequired": [],
     "externalRequired": [
+      "payment_approvals",
+      "payment_failures",
+      "gumdrop_balances",
+      "cost_risk"
+    ],
+    "formalEvidenceRequired": [
       "payment_approvals",
       "payment_failures",
       "gumdrop_balances",
@@ -322,7 +334,8 @@
     "externalRequiredPanelIds": [
       "payment_approvals",
       "payment_failures",
-      "gumdrop_balances"
+      "gumdrop_balances",
+      "cost_risk"
     ],
     "blockedPanelIds": [
       "traffic_overview",
@@ -336,7 +349,7 @@
       "wallet_opens",
       "package_selections"
     ],
-    "blockedPanelCount": 28
+    "blockedPanelCount": 27
   },
   "betaGateImpact": {
     "betaExitReadyBefore": false,
@@ -364,12 +377,12 @@
       "media_uploads_access_blocks: panel hydration gap",
       "journey_funnel: panel hydration gap",
       "realtime_health: panel hydration gap",
+      "error_rate_4xx: runtime evidence required",
+      "debug_backlog: runtime evidence required",
       "payment_approvals: external evidence required",
       "payment_failures: external evidence required",
       "gumdrop_balances: external evidence required",
-      "error_rate_4xx: external evidence required",
-      "cost_risk: external evidence required",
-      "debug_backlog: external evidence required"
+      "cost_risk: external evidence required"
     ]
   },
   "debugLane": {
@@ -383,9 +396,10 @@
     "sourceMissing": 0,
     "materializerMissing": 0,
     "bridgeMissing": 0,
-    "manualOrRuntimeRequired": 3,
+    "runtimeEvidenceRequired": 2,
+    "adminTruthSourceRequired": 0,
     "providerGated": 2,
-    "externalRequired": 6,
+    "externalRequired": 4,
     "hiddenByRole": 0,
     "broken": 0,
     "topNextActions": [
@@ -402,10 +416,42 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 0,
-    "byClassification": {},
+    "total": 7,
+    "byClassification": {
+      "analytics_panel_hydration_artifact_expected": 4,
+      "real_source_change_needs_review": 3
+    },
     "unsafeUnknown": [],
-    "sample": [],
+    "sample": [
+      {
+        "path": "agent/state/analytics-panel-hydration.generated.json",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "docs/agent-truth/analytics-panel-hydration.md",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
+        "classification": "real_source_change_needs_review"
+      },
+      {
+        "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
+        "classification": "real_source_change_needs_review"
+      },
+      {
+        "path": "src/lib/release-readiness/live-panel-evidence-resolver.ts",
+        "classification": "real_source_change_needs_review"
+      },
+      {
+        "path": "tests/unit/analytics-panel-hydration.spec.ts",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      }
+    ],
     "sampleTruncated": false
   },
   "nextExactSteps": [

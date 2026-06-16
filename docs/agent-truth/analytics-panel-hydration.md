@@ -1,7 +1,7 @@
 # Analytics Panel Hydration
 
-Generated: 2026-06-04T04:06:38.021Z
-Current head: 1583d9eba1ddfce8da345a9c71cdf164ccd291fa
+Generated: 2026-06-16T20:50:38.659Z
+Current head: 2a37541bd94c6f134b994233b56c5f00b342b26b
 
 ## Summary
 
@@ -14,9 +14,10 @@ Current head: 1583d9eba1ddfce8da345a9c71cdf164ccd291fa
 - Source missing: 0
 - Materializer missing: 0
 - Bridge missing: 0
-- Manual/runtime required: 3
+- Runtime evidence required: 2
+- Admin truth source required: 0
 - Provider gated: 2
-- External required: 6
+- External required: 4
 - Permission blocked: 0
 - Broken: 0
 
@@ -24,7 +25,7 @@ Current head: 1583d9eba1ddfce8da345a9c71cdf164ccd291fa
 
 - Missing panel data is collecting, source-missing, materializer-missing, bridge-missing, external-required, permission-blocked, or broken. It is not zero.
 - A panel may display zero only when a bounded source loaded and proved zero.
-- Hydrated panel evidence can reduce manual evidence scope; stale, collecting, source-only, or external-required panels cannot clear formal provider/runtime/billing gates.
+- Hydrated panel evidence can reduce formal evidence scope; stale, collecting, source-only, runtime-required, admin-truth-required, or external-required panels cannot clear formal provider/runtime/billing gates.
 - The report uses local source and generated artifacts only. It performs no production reads or provider calls.
 
 ## Live Evidence
@@ -32,7 +33,9 @@ Current head: 1583d9eba1ddfce8da345a9c71cdf164ccd291fa
 - Contributes live evidence: new_users_signups, creator_follows, drops_live, unlocks, watch_time, completion_rate, auth_attempts_failures, search_queries, search_zero_results_clicks, support_account_actions
 - Collecting with source: unwraps, package_selections, checkout_starts
 - Blocked: traffic_overview, active_users, returning_users, guest_to_user_handoff, creator_count, creator_profile_views, drop_opens, wallet_opens, reward_gd_grants, task_starts, task_completions, task_rewards, chat_opens, chat_messages, chat_blocks_errors, notification_prompts, notification_tokens, notification_intents, session_restores, media_uploads_access_blocks, journey_funnel, realtime_health
-- External required: payment_approvals, payment_failures, gumdrop_balances, error_rate_4xx, cost_risk, debug_backlog
+- Runtime evidence required: error_rate_4xx, debug_backlog
+- Admin truth source required: none
+- External required: payment_approvals, payment_failures, gumdrop_balances, cost_risk
 
 ## Top Hydration Failures
 
@@ -49,7 +52,7 @@ Current head: 1583d9eba1ddfce8da345a9c71cdf164ccd291fa
 
 ## Debug Lane
 
-- Analytics panel hydration: total=41; hydrated=10; collecting=0; sourceReady=3; notObservedButExpected=22; sourceMissing=0; materializerMissing=0; bridgeMissing=0; manualOrRuntimeRequired=3; providerGated=2; externalRequired=6; broken=0
+- Analytics panel hydration: total=41; hydrated=10; collecting=0; sourceReady=3; notObservedButExpected=22; sourceMissing=0; materializerMissing=0; bridgeMissing=0; runtimeEvidenceRequired=2; adminTruthSourceRequired=0; providerGated=2; externalRequired=4; broken=0
 
 ## Validation Failures
 

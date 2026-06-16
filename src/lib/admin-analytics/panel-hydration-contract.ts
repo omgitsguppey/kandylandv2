@@ -40,7 +40,8 @@ export type AdminAnalyticsPanelHydrationStatus =
   | "collecting"
   | "source_ready_waiting_for_activity"
   | "not_observed_but_expected"
-  | "manual_or_runtime_required"
+  | "runtime_evidence_required"
+  | "admin_truth_source_required"
   | "provider_gated"
   | "protected_payment_required"
   | "source_missing"
@@ -104,7 +105,7 @@ export type AdminAnalyticsPanelHydrationRecord = AdminAnalyticsPanelRegistryEntr
   userSafeDisplayState: AdminAnalyticsPanelDisplayState;
   reason: string;
   canDisplayZero: boolean;
-  liveEvidenceContribution: "clears_live_evidence" | "source_exists_collecting" | "stale_not_live" | "actionable_gap" | "external_or_manual";
+  liveEvidenceContribution: "clears_live_evidence" | "source_exists_collecting" | "stale_not_live" | "actionable_gap" | "formal_evidence_required";
 };
 
 export type AnalyticsPanelHydrationDebugLane = {
@@ -118,7 +119,8 @@ export type AnalyticsPanelHydrationDebugLane = {
   sourceMissing: number;
   materializerMissing: number;
   bridgeMissing: number;
-  manualOrRuntimeRequired: number;
+  runtimeEvidenceRequired: number;
+  adminTruthSourceRequired: number;
   providerGated: number;
   externalRequired: number;
   hiddenByRole: number;
@@ -143,7 +145,8 @@ export type AnalyticsPanelHydrationReport = {
   sourceMissingPanels: number;
   materializerMissingPanels: number;
   bridgeMissingPanels: number;
-  manualOrRuntimeRequiredPanels: number;
+  runtimeEvidenceRequiredPanels: number;
+  adminTruthSourceRequiredPanels: number;
   providerGatedPanels: number;
   externalRequiredPanels: number;
   permissionBlockedPanels: number;
@@ -160,7 +163,10 @@ export type AnalyticsPanelHydrationReport = {
     contributes: string[];
     collecting: string[];
     blocked: string[];
+    runtimeEvidenceRequired: string[];
+    adminTruthSourceRequired: string[];
     externalRequired: string[];
+    formalEvidenceRequired: string[];
   };
   betaGateImpact: {
     betaExitReadyBefore: boolean;

@@ -76,7 +76,7 @@ describe("analytics panel hydration", () => {
     const panel = resolvePanelHydration({ panelId: "payment_approvals" });
 
     expect(panel.hydrationStatus).toBe("provider_gated");
-    expect(panel.liveEvidenceContribution).toBe("external_or_manual");
+    expect(panel.liveEvidenceContribution).toBe("formal_evidence_required");
     expect(panel.userSafeDisplayState).toBe("show_external_required");
   });
 
@@ -84,9 +84,34 @@ describe("analytics panel hydration", () => {
     const panel = resolvePanelHydration({ panelId: "gumdrop_balances" });
 
     expect(panel.hydrationStatus).toBe("protected_payment_required");
-    expect(panel.liveEvidenceContribution).toBe("external_or_manual");
+    expect(panel.liveEvidenceContribution).toBe("formal_evidence_required");
     expect(panel.userSafeDisplayState).toBe("show_external_required");
     expect(panel.nextExactAction).toContain("payment");
+  });
+
+  it("splits runtime and admin truth evidence needs without manual-proof buckets", () => {
+    const runtime = resolvePanelHydration({ panelId: "error_rate_4xx" });
+    const adminTruth = resolvePanelHydration({ panelId: "creator_count" });
+    const externalCost = resolvePanelHydration({ panelId: "cost_risk" });
+    const report = buildAnalyticsPanelHydrationReport({ currentHead: "head", scoreDimensions });
+
+    expect(runtime.hydrationStatus).toBe("runtime_evidence_required");
+    expect(runtime.liveEvidenceContribution).toBe("formal_evidence_required");
+    expect(runtime.userSafeDisplayState).toBe("show_not_connected");
+    expect(runtime.reason).toContain("route or debug runtime evidence");
+    expect(adminTruth.hydrationStatus).toBe("admin_truth_source_required");
+    expect(adminTruth.nextExactAction).toContain("redacted admin truth source sample");
+    expect(externalCost.hydrationStatus).toBe("external_required");
+    expect(report.runtimeEvidenceRequiredPanels).toBeGreaterThan(0);
+    expect(report.adminTruthSourceRequiredPanels).toBeGreaterThan(0);
+    expect(report.liveEvidenceContribution.runtimeEvidenceRequired).toContain("error_rate_4xx");
+    expect(report.liveEvidenceContribution.adminTruthSourceRequired).toContain("creator_count");
+    expect(report.liveEvidenceContribution.externalRequired).toContain("cost_risk");
+    expect(report.liveEvidenceContribution.externalRequired).not.toContain("error_rate_4xx");
+    expect(report.debugLane.runtimeEvidenceRequired).toBe(report.runtimeEvidenceRequiredPanels);
+    expect(report.debugLane.adminTruthSourceRequired).toBe(report.adminTruthSourceRequiredPanels);
+    expect(report).not.toHaveProperty("manualOrRuntimeRequiredPanels");
+    expect(report.debugLane).not.toHaveProperty("manualOrRuntimeRequired");
   });
 
   it("maps journey funnel to the existing admin snapshot materializer instead of a stale source path", () => {

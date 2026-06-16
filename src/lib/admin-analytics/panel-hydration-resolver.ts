@@ -112,7 +112,7 @@ function statusFromDelegatedSources(input: {
 }): AdminAnalyticsPanelHydrationStatus {
   if (input.sourceType === "external_required") {
     if (input.panelGroup === "gumdrops") return "protected_payment_required";
-    return input.panelGroup === "payments" ? "provider_gated" : "manual_or_runtime_required";
+    return input.panelGroup === "payments" ? "provider_gated" : "external_required";
   }
   if (input.statusFromRuntime) return input.statusFromRuntime;
   if (input.statusFromEvent === "observed_recently") return "hydrated";
@@ -129,7 +129,8 @@ function statusFromDelegatedSources(input: {
     return input.expectedDaily ? "source_missing" : "collecting";
   }
   if (input.statusFromMetric === "collecting") return "collecting";
-  if (input.sourceType === "route_runtime_sample" || input.sourceType === "debug_runtime_evidence" || input.sourceType === "admin_summary") return "manual_or_runtime_required";
+  if (input.sourceType === "route_runtime_sample" || input.sourceType === "debug_runtime_evidence") return "runtime_evidence_required";
+  if (input.sourceType === "admin_summary") return "admin_truth_source_required";
   if (input.hasCanonicalBridgeSource) return input.expectedDaily ? "not_observed_but_expected" : "source_ready_waiting_for_activity";
   return "source_missing";
 }
@@ -146,7 +147,7 @@ function runtimeStatus(signal?: AdminAnalyticsPanelRuntimeSignal): AdminAnalytic
 
 function freshnessFor(status: AdminAnalyticsPanelHydrationStatus): AdminAnalyticsPanelFreshness {
   if (status === "hydrated" || status === "collecting" || status === "external_required") return "fresh";
-  if (status === "source_ready_waiting_for_activity" || status === "provider_gated" || status === "manual_or_runtime_required" || status === "protected_payment_required") return "fresh";
+  if (status === "source_ready_waiting_for_activity" || status === "provider_gated" || status === "protected_payment_required") return "fresh";
   if (status === "stale") return "stale";
   return "unknown";
 }
@@ -157,7 +158,8 @@ function displayStateFor(status: AdminAnalyticsPanelHydrationStatus): AdminAnaly
   if (status === "source_ready_waiting_for_activity") return "show_collecting";
   if (status === "not_observed_but_expected") return "show_not_connected";
   if (status === "stale") return "show_stale";
-  if (status === "external_required" || status === "manual_or_runtime_required" || status === "provider_gated" || status === "protected_payment_required") return "show_external_required";
+  if (status === "external_required" || status === "provider_gated" || status === "protected_payment_required") return "show_external_required";
+  if (status === "runtime_evidence_required" || status === "admin_truth_source_required") return "show_not_connected";
   if (status === "hidden_by_role") return "show_hidden";
   if (status === "permission_blocked") return "show_permission_blocked";
   if (status === "broken") return "show_broken";
@@ -169,7 +171,7 @@ function confidenceFor(status: AdminAnalyticsPanelHydrationStatus): AdminAnalyti
   if (status === "stale") return "linked";
   if (status === "collecting") return "inferred";
   if (status === "source_ready_waiting_for_activity") return "inferred";
-  if (status === "external_required" || status === "manual_or_runtime_required" || status === "provider_gated" || status === "protected_payment_required") return "unknown";
+  if (status === "external_required" || status === "runtime_evidence_required" || status === "admin_truth_source_required" || status === "provider_gated" || status === "protected_payment_required") return "unknown";
   if (ACTIONABLE_STATUSES.has(status)) return "unknown";
   return "weak";
 }
@@ -178,7 +180,7 @@ function contributionFor(status: AdminAnalyticsPanelHydrationStatus): AdminAnaly
   if (status === "hydrated") return "clears_live_evidence";
   if (status === "collecting" || status === "source_ready_waiting_for_activity") return "source_exists_collecting";
   if (status === "stale") return "stale_not_live";
-  if (status === "external_required" || status === "manual_or_runtime_required" || status === "provider_gated" || status === "protected_payment_required") return "external_or_manual";
+  if (status === "external_required" || status === "runtime_evidence_required" || status === "admin_truth_source_required" || status === "provider_gated" || status === "protected_payment_required") return "formal_evidence_required";
   return "actionable_gap";
 }
 
@@ -206,8 +208,10 @@ export function classifyPanelEmptyReason(input: {
       return `${input.panelLabel} has an event or metric bridge gap before it can hydrate the panel.`;
     case "external_required":
       return `${input.panelLabel} requires external/provider or billing evidence and cannot be proven by screenshots.`;
-    case "manual_or_runtime_required":
-      return `${input.panelLabel} requires deployed runtime, admin, or operator evidence before it can be treated as hydrated.`;
+    case "runtime_evidence_required":
+      return `${input.panelLabel} requires bounded route or debug runtime evidence before it can be treated as hydrated.`;
+    case "admin_truth_source_required":
+      return `${input.panelLabel} requires a redacted admin truth source sample before it can be treated as hydrated.`;
     case "provider_gated":
       return `${input.panelLabel} requires formal provider evidence and cannot be proven by source-only telemetry.`;
     case "protected_payment_required":
@@ -233,7 +237,7 @@ export function findPanelSourceBreak(record: Pick<AdminAnalyticsPanelHydrationRe
   if (record.hydrationStatus === "source_missing" || record.hydrationStatus === "producer_missing") return record.sourcePath;
   if (record.hydrationStatus === "not_observed_but_expected" || record.hydrationStatus === "source_ready_waiting_for_activity") return record.sourcePath;
   if (record.hydrationStatus === "materializer_missing" || record.hydrationStatus === "bridge_missing") return record.materializerPath ?? record.expectedSource;
-  if (record.hydrationStatus === "external_required" || record.hydrationStatus === "manual_or_runtime_required" || record.hydrationStatus === "provider_gated" || record.hydrationStatus === "protected_payment_required") return record.expectedSource;
+  if (record.hydrationStatus === "external_required" || record.hydrationStatus === "runtime_evidence_required" || record.hydrationStatus === "admin_truth_source_required" || record.hydrationStatus === "provider_gated" || record.hydrationStatus === "protected_payment_required") return record.expectedSource;
   return null;
 }
 
@@ -274,7 +278,11 @@ export function resolvePanelHydration(input: ResolveAnalyticsPanelHydrationInput
           ? `Verify ${panel.expectedSource} with bounded recent summaries before treating ${panel.panelLabel} as hydrated or zero.`
       : hydrationStatus === "stale"
         ? `Refresh ${panel.expectedSource} and verify the latest materialized timestamp.`
-        : hydrationStatus === "external_required" || hydrationStatus === "manual_or_runtime_required" || hydrationStatus === "provider_gated" || hydrationStatus === "protected_payment_required"
+        : hydrationStatus === "runtime_evidence_required"
+          ? `Attach bounded route/debug runtime evidence for ${panel.expectedSource}; do not use screenshots as backend proof.`
+        : hydrationStatus === "admin_truth_source_required"
+          ? `Attach a redacted admin truth source sample for ${panel.expectedSource}; do not use screenshots as backend proof.`
+        : hydrationStatus === "external_required" || hydrationStatus === "provider_gated" || hydrationStatus === "protected_payment_required"
           ? `Attach redacted external evidence for ${panel.expectedSource}; do not use screenshots as backend proof.`
           : `Repair ${sourceBreak ?? panel.expectedSource} so ${panel.panelLabel} can hydrate.`;
 
@@ -339,9 +347,10 @@ export function buildAnalyticsPanelHydrationDebugLane(panels: readonly AdminAnal
     sourceMissing: count("source_missing") + count("producer_missing") + count("not_configured"),
     materializerMissing: count("materializer_missing"),
     bridgeMissing: count("bridge_missing"),
-    manualOrRuntimeRequired: count("manual_or_runtime_required"),
+    runtimeEvidenceRequired: count("runtime_evidence_required"),
+    adminTruthSourceRequired: count("admin_truth_source_required"),
     providerGated: count("provider_gated"),
-    externalRequired: count("external_required") + count("manual_or_runtime_required") + count("provider_gated") + count("protected_payment_required"),
+    externalRequired: count("external_required") + count("provider_gated") + count("protected_payment_required"),
     hiddenByRole: count("hidden_by_role") + count("permission_blocked"),
     broken: count("broken"),
     topNextActions,
@@ -372,11 +381,21 @@ export function buildAnalyticsPanelHydrationReport(input: ResolveAnalyticsPanelH
     contributes: panels.filter((panel) => panel.liveEvidenceContribution === "clears_live_evidence").map((panel) => panel.panelId),
     collecting: panels.filter((panel) => panel.liveEvidenceContribution === "source_exists_collecting").map((panel) => panel.panelId),
     blocked: panels.filter((panel) => panel.liveEvidenceContribution === "actionable_gap" || panel.liveEvidenceContribution === "stale_not_live").map((panel) => panel.panelId),
-    externalRequired: panels.filter((panel) => panel.liveEvidenceContribution === "external_or_manual").map((panel) => panel.panelId),
+    runtimeEvidenceRequired: panels.filter((panel) => panel.hydrationStatus === "runtime_evidence_required").map((panel) => panel.panelId),
+    adminTruthSourceRequired: panels.filter((panel) => panel.hydrationStatus === "admin_truth_source_required").map((panel) => panel.panelId),
+    externalRequired: panels
+      .filter((panel) =>
+        panel.hydrationStatus === "external_required" ||
+        panel.hydrationStatus === "provider_gated" ||
+        panel.hydrationStatus === "protected_payment_required")
+      .map((panel) => panel.panelId),
+    formalEvidenceRequired: panels.filter((panel) => panel.liveEvidenceContribution === "formal_evidence_required").map((panel) => panel.panelId),
   };
   const betaExitReadyBefore = asRecord(input.finalReleasePacket).betaExitReady === true;
   const remainingBlockers = [
     ...liveEvidenceContribution.blocked.map((panelId) => `${panelId}: panel hydration gap`),
+    ...liveEvidenceContribution.runtimeEvidenceRequired.map((panelId) => `${panelId}: runtime evidence required`),
+    ...liveEvidenceContribution.adminTruthSourceRequired.map((panelId) => `${panelId}: admin truth source required`),
     ...liveEvidenceContribution.externalRequired.map((panelId) => `${panelId}: external evidence required`),
   ];
   const report: AnalyticsPanelHydrationReport = {
@@ -396,9 +415,10 @@ export function buildAnalyticsPanelHydrationReport(input: ResolveAnalyticsPanelH
     sourceMissingPanels: count("source_missing") + count("producer_missing") + count("not_configured"),
     materializerMissingPanels: count("materializer_missing"),
     bridgeMissingPanels: count("bridge_missing"),
-    manualOrRuntimeRequiredPanels: count("manual_or_runtime_required"),
+    runtimeEvidenceRequiredPanels: count("runtime_evidence_required"),
+    adminTruthSourceRequiredPanels: count("admin_truth_source_required"),
     providerGatedPanels: count("provider_gated"),
-    externalRequiredPanels: count("external_required") + count("manual_or_runtime_required") + count("provider_gated") + count("protected_payment_required"),
+    externalRequiredPanels: count("external_required") + count("provider_gated") + count("protected_payment_required"),
     permissionBlockedPanels: count("permission_blocked") + count("hidden_by_role"),
     brokenPanels: count("broken"),
     panelsByGroup: groups,

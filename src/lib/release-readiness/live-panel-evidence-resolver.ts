@@ -71,6 +71,17 @@ export function mapPanelHydrationToLiveEvidence(panel: AdminAnalyticsPanelHydrat
       nextExactAction: panel.nextExactAction,
     };
   }
+  if (panel.hydrationStatus === "runtime_evidence_required" || panel.hydrationStatus === "admin_truth_source_required") {
+    return {
+      panelId: panel.panelId,
+      panelLabel: panel.panelLabel,
+      status: "source_missing_actionable",
+      clearsLiveProductEvidence: false,
+      betaExitImpact: "blocks_until_hydrated",
+      reason: panel.reason,
+      nextExactAction: panel.nextExactAction,
+    };
+  }
   if (panel.hydrationStatus === "materializer_missing") {
     return {
       panelId: panel.panelId,
