@@ -907,7 +907,7 @@ export default function UserManagementPage() {
                 >
                     <p className="font-bold">Local admin UI review only.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        User-management layout is inspectable; user metrics, feedback, task controls, identity, payment, and content-access samples remain source_missing until a real admin session loads verified records.
+                        This local review shows the users layout only. User metrics, feedback, task controls, identity, payment, and content access stay source_missing until a real admin session loads verified records.
                     </p>
                 </div>
             ) : null}
@@ -1001,7 +1001,7 @@ export default function UserManagementPage() {
                                         className="text-sm text-gray-400"
                                         data-admin-users-behavior-empty-state="materializer"
                                     >
-                                        {behaviorLeaderboard?.warnings[0] || "No behavior rollups available yet. Run behavior materializer or inspect event facts."}
+                                        {behaviorLeaderboard?.warnings[0] || "No verified behavior summary is available yet. Refresh the source snapshots or review user evidence before acting."}
                                     </p>
                                 ) : leaderboardRows.map((row, index) => (
                                     <Link

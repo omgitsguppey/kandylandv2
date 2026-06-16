@@ -10,8 +10,8 @@ describe("admin users fixture boundary", () => {
     expect(source).toContain("isAdminUiTestSessionUser(user)");
     expect(source).toContain('data-admin-users-fixture-boundary="true"');
     expect(source).toContain('data-admin-users-fixture-state="source_missing"');
-    expect(source).toContain("User-management layout is inspectable");
-    expect(source).toContain("user metrics, feedback, task controls, identity, payment, and content-access samples remain source_missing");
+    expect(source).toContain("This local review shows the users layout only.");
+    expect(source).toContain("User metrics, feedback, task controls, identity, payment, and content access stay source_missing");
   });
 
   it("skips user, feedback, behavior, and realtime reads in fixture mode", () => {
