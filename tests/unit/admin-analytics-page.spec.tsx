@@ -511,6 +511,40 @@ describe("AdminAnalyticsPage", () => {
     expect(activeUsersCard?.getAttribute("data-truth-state")).toBe("cached");
   });
 
+  it("keeps refresh-due overview snapshot state as cached truth", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      analyticsOverviewDisplayMetrics: {
+        ...(mockState.analyticsState as {
+          analyticsOverviewDisplayMetrics: Record<string, unknown>;
+        }).analyticsOverviewDisplayMetrics,
+        liveActive: {
+          id: "liveActive",
+          label: "Active Users",
+          displayValue: "12",
+          primaryValue: 12,
+          displayState: "refresh_due",
+          exactness: "exact",
+          compactFreshnessLine: "Last verified data, refresh due",
+          debugReason: "snapshot refresh due",
+          debugSource: "last_verified_snapshot",
+          badgeLabel: "Refresh due",
+          showBadgeInPrimary: false,
+        },
+      },
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    const activeUsersCard = Array.from(container.querySelectorAll("[data-truth-state]")).find((node) =>
+      node.textContent?.includes("Active Users:12"),
+    );
+
+    expect(activeUsersCard?.getAttribute("data-truth-state")).toBe("cached");
+  });
+
   it("summarizes panel recovery in one compact source strip", async () => {
     mockState.analyticsState = {
       ...mockState.analyticsState,

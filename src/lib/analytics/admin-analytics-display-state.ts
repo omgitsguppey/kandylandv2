@@ -161,7 +161,7 @@ export function formatAdminAnalyticsEvidenceSourceLabel(
     case "intraday":
       return "Verified snapshot";
     case "stale_cache":
-      return "Stale verified snapshot";
+      return "Verified snapshot, refresh due";
     case "estimated":
     case "vendor_evidence":
       return "Estimated from vendor analytics";

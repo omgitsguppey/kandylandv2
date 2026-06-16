@@ -38,7 +38,7 @@ const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
 import { useAdminAnalyticsState } from "./hooks/useAdminAnalyticsState";
 
-type OverviewDisplayState = "ready" | "cached" | "refresh_due" | "stale" | "partial" | "unavailable" | "loading";
+type OverviewDisplayState = "ready" | "cached" | "refresh_due" | "partial" | "unavailable" | "loading";
 type AdminAnalyticsSourceHierarchySummary = Pick<AdminAnalyticsSourceHierarchy, "status" | "nextAction"> &
   Partial<Pick<AdminAnalyticsSourceHierarchy, "consumerSourceMismatches" | "blockedAnalyticsConsumers">>;
 
@@ -49,8 +49,6 @@ function mapOverviewDisplayStateToTruthState(displayState: OverviewDisplayState)
     case "cached":
     case "refresh_due":
       return "cached";
-    case "stale":
-      return "stale";
     case "partial":
       return "degraded";
     case "loading":
