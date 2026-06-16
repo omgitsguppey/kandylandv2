@@ -249,6 +249,20 @@ export default function AdminAnalyticsPage() {
         { state: "broken", count: panelHydrationSummary.broken },
       ] satisfies Array<{ state: PanelRecoveryTruthState; count: number }>).filter((item) => item.count > 0)
     : [];
+  const panelRecoveryWaitingCount = panelRecoveryTruthItems
+    .filter((item) =>
+      item.state === "collecting" ||
+      item.state === "source_ready_waiting_for_activity" ||
+      item.state === "not_observed_but_expected",
+    )
+    .reduce((total, item) => total + item.count, 0);
+  const panelRecoveryNeedsEvidenceCount = panelRecoveryTruthItems
+    .filter((item) =>
+      item.state !== "collecting" &&
+      item.state !== "source_ready_waiting_for_activity" &&
+      item.state !== "not_observed_but_expected",
+    )
+    .reduce((total, item) => total + item.count, 0);
   const panelRecoveryActions = panelHydrationSummary?.topNextActions ?? [];
   const showPanelRecovery =
     Boolean(panelHydrationSummary) &&
@@ -429,16 +443,31 @@ export default function AdminAnalyticsPage() {
               <p className="font-semibold text-white">Panel recovery</p>
               <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-300">
                 <span>{connectedPanelCount}/{totalPanelCount} connected</span>
-                {panelRecoveryTruthItems.map((item) => {
-                  const label = formatPanelRecoveryTruthState(item.state);
-                  return (
-                    <span key={item.state} data-panel-recovery-truth-state={item.state}>
-                      {formatPanelRecoveryCount(item.count, label, label)}
-                    </span>
-                  );
-                })}
+                {panelRecoveryWaitingCount > 0 ? <span>{panelRecoveryWaitingCount} waiting</span> : null}
+                {panelRecoveryNeedsEvidenceCount > 0 ? <span>{panelRecoveryNeedsEvidenceCount} need evidence</span> : null}
               </div>
             </div>
+            {panelRecoveryTruthItems.length > 0 ? (
+              <details className="mt-2 text-[11px] text-gray-300">
+                <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">
+                  Recovery state details
+                </summary>
+                <ul className="mt-1 grid gap-1 pl-0 sm:grid-cols-2">
+                  {panelRecoveryTruthItems.map((item) => {
+                    const label = formatPanelRecoveryTruthState(item.state);
+                    return (
+                      <li
+                        key={item.state}
+                        className="list-none rounded-md border border-white/10 bg-black/20 px-2 py-1"
+                        data-panel-recovery-truth-state={item.state}
+                      >
+                        {formatPanelRecoveryCount(item.count, label, label)}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </details>
+            ) : null}
             {panelRecoveryActions.length > 0 ? (
               <details className="mt-2 text-[11px] text-gray-300">
                 <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">

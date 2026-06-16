@@ -534,6 +534,9 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).toContain("Panel recovery");
     expect(container.textContent).toContain("Current activity snapshot is still unavailable.");
     expect(container.textContent).toContain("3/11 connected");
+    expect(container.textContent).toContain("5 waiting");
+    expect(container.textContent).toContain("3 need evidence");
+    expect(container.textContent).toContain("Recovery state details");
     expect(container.textContent).toContain("2 collecting");
     expect(container.textContent).toContain("1 source ready, waiting");
     expect(container.textContent).toContain("2 not observed yet");
