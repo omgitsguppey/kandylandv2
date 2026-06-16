@@ -98,14 +98,19 @@ export function AdminModerationConsole() {
     }), [filter, model.sortedAlerts]);
     const threadCountLabel = adminSessionState === "waiting_for_admin_session"
         ? "Waiting..."
+        : adminSessionState === "local_fixture_source_missing"
+            ? "source_missing"
         : threadsError
             ? "Unavailable"
             : `${threads.length} threads`;
     const alertCountLabel = adminSessionState === "waiting_for_admin_session"
         ? "Waiting..."
+        : adminSessionState === "local_fixture_source_missing"
+            ? "source_missing"
         : alertsError
             ? "Alerts unavailable"
             : `${alerts.length} alerts`;
+    const isLocalFixtureSourceMissing = adminSessionState === "local_fixture_source_missing";
 
     function selectAlert(alertId: string) {
         setSelectedAlertId(alertId);
@@ -144,7 +149,7 @@ export function AdminModerationConsole() {
         <div
             className="space-y-4 md:space-y-5"
             data-admin-moderation-v2="real-risk-workspace"
-            data-moderation-truth-state={model.truthState}
+            data-moderation-truth-state={isLocalFixtureSourceMissing ? "source_missing" : model.truthState}
             data-moderation-alert-count={model.unresolvedAlerts}
             data-moderation-selected-alert-id={model.selectedAlert?.id || "none"}
         >
@@ -162,6 +167,19 @@ export function AdminModerationConsole() {
                     </>
                 )}
             />
+
+            {isLocalFixtureSourceMissing ? (
+                <div
+                    className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+                    data-admin-moderation-fixture-boundary="true"
+                    data-admin-moderation-fixture-state="source_missing"
+                >
+                    <p className="font-bold">Local admin UI review only.</p>
+                    <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                        Moderation layout is inspectable; thread transcripts, risk alerts, media evidence, and security-event samples remain source_missing until a real admin session loads verified moderation evidence.
+                    </p>
+                </div>
+            ) : null}
 
             <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5" data-moderation-control-tower="true">
                 {[
@@ -222,8 +240,9 @@ export function AdminModerationConsole() {
                                 );
                             })}
                             {adminSessionState === "waiting_for_admin_session" ? <div className="p-3 text-xs text-gray-400">Waiting for admin session...</div> : null}
+                            {isLocalFixtureSourceMissing ? <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs text-amber-100">Moderation threads are source_missing in local UI review.</div> : null}
                             {isLoadingThreads && threads.length === 0 ? <div className="p-3 text-xs text-gray-400">Loading queue...</div> : null}
-                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-sm text-gray-400">No moderation threads linked.</div> : null}
+                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-sm text-gray-400">{isLocalFixtureSourceMissing ? "No local moderation thread samples are loaded." : "No moderation threads linked."}</div> : null}
                             {threadsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">{explainModerationRouteError(threadsError, "/api/admin/moderation/threads")}</div> : null}
                         </div>
                     </section>

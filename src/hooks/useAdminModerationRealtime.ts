@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { collection, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
 
 import { useAuth } from "@/context/AuthContext";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { authFetch } from "@/lib/authFetch";
 import { db } from "@/lib/firebase-data";
 import { reportRealtimeIssue, buildFirestoreClientIssueDetail } from "@/lib/client-error-reporting";
@@ -33,7 +34,7 @@ type ModerationRouteError = Error & {
     adminModerationRoute?: boolean;
 };
 
-type ModerationSessionState = "waiting_for_admin_session" | "ready";
+type ModerationSessionState = "waiting_for_admin_session" | "local_fixture_source_missing" | "ready";
 
 async function fetchAdminModerationJson<T>(path: string): Promise<T> {
     const response = await authFetch(path, {
@@ -147,8 +148,11 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
     const [threadsError, setThreadsError] = useState<ModerationRouteError | null>(null);
     const [messagesError, setMessagesError] = useState<ModerationRouteError | null>(null);
     const [alertsError, setAlertsError] = useState<ModerationRouteError | null>(null);
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
     const adminSessionState: ModerationSessionState = authLoading || !user || userProfile?.role !== "admin"
         ? "waiting_for_admin_session"
+        : isLocalAdminUiTestSession
+            ? "local_fixture_source_missing"
         : "ready";
     const activeThreadId = useMemo(() => {
         if (selectedThreadId) {
@@ -160,7 +164,15 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
 
     /* eslint-disable react-hooks/set-state-in-effect -- Realtime listener state intentionally synchronizes loading/error state from admin session readiness. */
     useEffect(() => {
+        if (adminSessionState === "local_fixture_source_missing") {
+            setThreads([]);
+            setIsLoadingThreads(false);
+            setThreadsError(null);
+            return;
+        }
+
         if (adminSessionState !== "ready") {
+            setThreads([]);
             setIsLoadingThreads(true);
             setThreadsError(null);
             return;
@@ -202,7 +214,15 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
 
     /* eslint-disable react-hooks/set-state-in-effect -- Realtime listener state intentionally synchronizes loading/error state from admin session readiness. */
     useEffect(() => {
+        if (adminSessionState === "local_fixture_source_missing") {
+            setRawAlerts([]);
+            setIsLoadingAlerts(false);
+            setAlertsError(null);
+            return;
+        }
+
         if (adminSessionState !== "ready") {
+            setRawAlerts([]);
             setIsLoadingAlerts(true);
             setAlertsError(null);
             return;
@@ -253,6 +273,7 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
 
         if (adminSessionState !== "ready") {
             setMessagesThreadId(activeThreadId);
+            setMessages([]);
             setMessagesError(null);
             return;
         }
@@ -297,7 +318,7 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
     const alerts = useMemo(() => clusterAdminModerationSecurityAlerts(rawAlerts), [rawAlerts]);
     const activeMessages = activeThreadId && messagesThreadId === activeThreadId ? messages : [];
     const activeMessagesError = activeThreadId && messagesThreadId === activeThreadId ? messagesError : null;
-    const isLoadingMessages = adminSessionState === "waiting_for_admin_session"
+    const isLoadingMessages = adminSessionState === "waiting_for_admin_session" || adminSessionState === "local_fixture_source_missing"
         ? false
         : Boolean(activeThreadId && messagesThreadId !== activeThreadId && !activeMessagesError);
 

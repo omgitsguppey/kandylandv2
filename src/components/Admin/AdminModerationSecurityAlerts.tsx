@@ -36,7 +36,7 @@ type AdminModerationSecurityAlertsProps = {
     selectedAlertId?: string | null;
     isLoading: boolean;
     error: Error | null;
-    adminSessionState: "waiting_for_admin_session" | "ready";
+    adminSessionState: "waiting_for_admin_session" | "local_fixture_source_missing" | "ready";
     onSelectAlert: (alertId: string) => void;
 };
 
@@ -105,8 +105,13 @@ export function AdminModerationSecurityAlerts({
                 {adminSessionState === "waiting_for_admin_session" ? (
                     <div className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-gray-400">Waiting for admin session...</div>
                 ) : null}
+                {adminSessionState === "local_fixture_source_missing" ? (
+                    <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">Risk alert evidence is source_missing in local UI review.</div>
+                ) : null}
                 {!isLoading && alerts.length === 0 && !error ? (
-                    <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-gray-400">No unresolved risk alerts.</div>
+                    <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-gray-400">
+                        {adminSessionState === "local_fixture_source_missing" ? "No local risk-alert samples are loaded." : "No unresolved risk alerts."}
+                    </div>
                 ) : null}
                 {safeErrorMessage ? (
                     <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-100" data-moderation-alerts-safe-error="true">
