@@ -12,9 +12,9 @@ import {
   getAdminHotCacheSnapshotContract,
 } from "@/lib/admin/admin-hot-cache-contract";
 import { classifyAdminHeartbeatEvidence, type AdminHeartbeatRecord } from "@/lib/admin/admin-heartbeat-contract";
+import { buildPlatformPulseWindow } from "@/lib/admin/platform-pulse-window";
 import {
   buildAdminOverviewPlatformPulse,
-  buildRolling30dWindow,
   calculateOverviewMetricDelta,
   type AdminOverviewResponse,
 } from "@/lib/admin-overview";
@@ -37,6 +37,14 @@ type CachedAdminOverviewSnapshot = Partial<AdminOverviewResponse> & {
 
 const OVERVIEW_SNAPSHOT_ID = "admin_overview_snapshot";
 const OVERVIEW_WINDOW_DAYS = 30;
+const PLATFORM_PULSE_MATERIALIZER_SOURCES = [
+  "analytics_commerce_daily",
+  "analytics_task_daily",
+] as const;
+const SUPPORT_BUG_USER_CHANNELS = [
+  "support_request",
+  "bug_report",
+] as const;
 const RECENT_TRANSACTION_SERIALIZATION_CONTRACT_MARKERS = [
   "buildAdminOverviewUserIdentityMap",
   "getRecentTransactionTypeLabel",
@@ -68,7 +76,7 @@ function readTimestampMs(value: unknown): number | null {
 }
 
 function buildEmptyTrendSummary(nowMs: number): AdminOverviewResponse["trendSummary"] {
-  const window = buildRolling30dWindow(nowMs);
+  const window = buildPlatformPulseWindow(nowMs);
   return {
     windowDays: OVERVIEW_WINDOW_DAYS,
     currentStartDayKey: window.currentStartUtc.slice(0, 10),
@@ -92,7 +100,7 @@ function buildEmptyTrendSummary(nowMs: number): AdminOverviewResponse["trendSumm
 }
 
 function buildMissingSnapshotResponse(nowMs: number, heartbeat: AdminHeartbeatRecord | null): AdminOverviewResponse {
-  const rollingWindow = buildRolling30dWindow(nowMs);
+  const rollingWindow = buildPlatformPulseWindow(nowMs);
   const issueSummary = "Admin overview hot-cache snapshot is missing. Page load did not run broad Firestore fallback reads.";
   const heartbeatState = classifyAdminHeartbeatEvidence({ heartbeat, nowMs });
   const platformPulse = buildAdminOverviewPlatformPulse({
@@ -213,7 +221,7 @@ function normalizeCachedOverview(input: {
   return {
     success: true,
     generatedAt,
-    rollingWindow: rawPayload.rollingWindow ?? buildRolling30dWindow(input.nowMs),
+    rollingWindow: rawPayload.rollingWindow ?? buildPlatformPulseWindow(input.nowMs),
     freshness: rawPayload.freshness ?? {
       lastTransactionAt: generatedAt,
       lastAdminActivityAt: generatedAt,
@@ -328,6 +336,8 @@ async function GET_handler(request: NextRequest) {
         ttlSeconds: contract?.ttlSeconds ?? ADMIN_HOT_CACHE_TTL_SECONDS,
         pageLoadReadModel: "snapshot_doc_plus_heartbeat_doc",
         broadFallbackReadsRun: false,
+        platformPulseMaterializerSources: PLATFORM_PULSE_MATERIALIZER_SOURCES,
+        supportBugUserChannels: SUPPORT_BUG_USER_CHANNELS,
         recentTransactionSerializationContract: RECENT_TRANSACTION_SERIALIZATION_CONTRACT_MARKERS,
         heartbeat,
       },

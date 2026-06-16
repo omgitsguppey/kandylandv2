@@ -1,603 +1,316 @@
 import { NextRequest, NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
-
-type MockDoc = {
-    id: string;
-    data: () => Record<string, unknown>;
-};
-
-type QueryClause = {
-    field: string;
-    operator: string;
-    value: unknown;
-};
-
-type OrderClause = {
-    field: string;
-    direction: "asc" | "desc";
-};
-
-function toSortableValue(value: unknown) {
-    if (typeof value === "number" && Number.isFinite(value)) {
-        return value;
-    }
-
-    if (
-        value
-        && typeof value === "object"
-        && "toMillis" in value
-        && typeof (value as { toMillis: () => number }).toMillis === "function"
-    ) {
-        return (value as { toMillis: () => number }).toMillis();
-    }
-
-    if (typeof value === "string") {
-        return value;
-    }
-
-    return 0;
-}
-
 const mockState = vi.hoisted(() => {
-    const collections = new Map<string, MockDoc[]>();
-    const documents = new Map<string, Record<string, unknown>>();
+  const documents = new Map<string, Record<string, unknown>>();
+  const collectionCalls: string[] = [];
 
-    const createQuerySnapshot = (docs: MockDoc[]) => ({
-        docs,
-        size: docs.length,
-        empty: docs.length === 0,
-    });
-
-    const createCollectionRef = (name: string) => {
-        const clauses: QueryClause[] = [];
-        let order: OrderClause | null = null;
-        let limitCount: number | null = null;
-
-        const applyClauses = (docs: MockDoc[]) => {
-            let filtered = docs.filter((doc) => {
-                const raw = doc.data();
-
-                return clauses.every((clause) => {
-                    const actual = clause.field === "__name__" ? doc.id : raw[clause.field];
-
-                    if (clause.operator === "==") {
-                        return actual === clause.value;
-                    }
-
-                    if (clause.operator === ">=") {
-                        const actualValue = toSortableValue(actual);
-                        const clauseValue = toSortableValue(clause.value);
-                        return actualValue >= clauseValue;
-                    }
-
-                    if (clause.operator === "<") {
-                        const actualValue = toSortableValue(actual);
-                        const clauseValue = toSortableValue(clause.value);
-                        return actualValue < clauseValue;
-                    }
-
-                    if (clause.operator === "in" && Array.isArray(clause.value)) {
-                        return clause.value.includes(actual);
-                    }
-
-                    return true;
-                });
-            });
-
-            if (order) {
-                const activeOrder = order;
-                filtered = [...filtered].sort((left, right) => {
-                    const leftValue = toSortableValue(left.data()[activeOrder.field]);
-                    const rightValue = toSortableValue(right.data()[activeOrder.field]);
-                    const comparison = leftValue > rightValue ? 1 : leftValue < rightValue ? -1 : 0;
-                    return activeOrder.direction === "desc" ? comparison * -1 : comparison;
-                });
-            }
-
-            if (typeof limitCount === "number") {
-                filtered = filtered.slice(0, limitCount);
-            }
-
-            return filtered;
-        };
-
+  return {
+    documents,
+    collectionCalls,
+    guardApiRequest: vi.fn(),
+    handleApiError: vi.fn(),
+    recordRouteRuntimeSample: vi.fn(),
+    adminDb: {
+      collection(name: string) {
+        collectionCalls.push(name);
         return {
-            where(field: string, operator: string, value: unknown) {
-                clauses.push({ field, operator, value });
-                return this;
-            },
-            orderBy(field: string, direction: "asc" | "desc" = "asc") {
-                order = { field, direction };
-                return this;
-            },
-            limit(value: number) {
-                limitCount = value;
-                return this;
-            },
-            count() {
+          doc(id: string) {
+            return {
+              get: async () => {
+                const data = documents.get(`${name}/${id}`);
                 return {
-                    get: async () => ({
-                        data: () => ({ count: applyClauses(collections.get(name) ?? []).length }),
-                    }),
+                  exists: Boolean(data),
+                  data: () => data,
                 };
-            },
-            doc(id: string) {
-                return {
-                    get: async () => {
-                        const key = `${name}/${id}`;
-                        const data = documents.get(key);
-                        return {
-                            exists: Boolean(data),
-                            data: () => data,
-                        };
-                    },
-                };
-            },
-            async get() {
-                return createQuerySnapshot(applyClauses(collections.get(name) ?? [])) as FirebaseFirestore.QuerySnapshot;
-            },
+              },
+            };
+          },
         };
-    };
-
-    return {
-        collections,
-        documents,
-        adminDb: {
-            collection(name: string) {
-                return createCollectionRef(name);
-            },
-        },
-        guardApiRequest: vi.fn(),
-        handleApiError: vi.fn(),
-        recordRouteRuntimeSample: vi.fn(),
-        normalizeDrop: vi.fn(),
-        isDropHidden: vi.fn(),
-        buildUserMap: vi.fn(),
-        fetchTelemetryLogs: vi.fn(),
-        reset() {
-            collections.clear();
-            documents.clear();
-            this.guardApiRequest.mockReset();
-            this.handleApiError.mockReset();
-            this.recordRouteRuntimeSample.mockReset();
-            this.normalizeDrop.mockReset();
-            this.isDropHidden.mockReset();
-            this.buildUserMap.mockReset();
-            this.fetchTelemetryLogs.mockReset();
-        },
-    };
+      },
+    },
+    reset() {
+      documents.clear();
+      collectionCalls.length = 0;
+      this.guardApiRequest.mockReset();
+      this.handleApiError.mockReset();
+      this.recordRouteRuntimeSample.mockReset();
+    },
+  };
 });
 
 vi.mock("@/lib/server/request-guard", () => ({
-    guardApiRequest: mockState.guardApiRequest,
+  guardApiRequest: mockState.guardApiRequest,
 }));
+
 vi.mock("@/lib/server/route-runtime-health", () => ({
-    recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
-    withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
+  recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
+  withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
 }));
 
 vi.mock("@/lib/server/auth", () => ({
-    handleApiError: mockState.handleApiError,
+  handleApiError: mockState.handleApiError,
 }));
 
 vi.mock("@/lib/server/firebase-admin", () => ({
-    adminDb: mockState.adminDb,
+  adminDb: mockState.adminDb,
 }));
 
 vi.mock("@/lib/server/rate-limit", () => ({
-    ADMIN: {},
-    HEAVY_READ: {},
-}));
-
-vi.mock("@/lib/server/diagnostic-read-fallbacks", () => ({
-    safeQueryWithDiagnostics: async <T,>({ reader }: { reader: () => Promise<T> }) => reader(),
-    safeDocumentWithDiagnostics: async <T,>({ reader }: { reader: () => Promise<T> }) => reader(),
-    safeCountWithDiagnostics: async <T,>({ reader }: { reader: () => Promise<T> }) => reader(),
-}));
-
-vi.mock("@/lib/drop-read-models", () => ({
-    normalizeAndApplyDropStatusOrNull: mockState.normalizeDrop,
-    isDropHiddenFromPublic: mockState.isDropHidden,
-}));
-
-vi.mock("@/lib/server/admin-overview-users", () => ({
-    buildAdminOverviewUserNameMap: mockState.buildUserMap,
-    buildAdminOverviewUserIdentityMap: async ({ userIds }: { userIds: Iterable<string> }) => {
-        const userNameMap = await mockState.buildUserMap({ userIds }) as Map<string, string>;
-        return new Map<string, {
-            userId: string;
-            userDisplayName: string;
-            username: string;
-            shortUserId: string;
-            userIdentityState: "resolved";
-        }>(Array.from(userNameMap.entries()).map(([userId, userDisplayName]) => [
-            userId,
-            {
-                userId,
-                userDisplayName,
-                username: userDisplayName,
-                shortUserId: userId,
-                userIdentityState: "resolved",
-            },
-        ]));
-    },
-}));
-
-vi.mock("@/lib/server/admin-analytics-shared", () => ({
-    fetchTelemetryLogs: mockState.fetchTelemetryLogs,
+  ADMIN: {},
 }));
 
 import { GET } from "@/app/api/admin/overview/route";
 
+function seedHeartbeat(generatedAt: number) {
+  mockState.documents.set("admin_surface_heartbeats/admin_overview_snapshot", {
+    heartbeatId: "admin_overview_snapshot:test",
+    domain: "admin_overview",
+    snapshotId: "admin_overview_snapshot",
+    startedAtUtc: new Date(generatedAt - 50).toISOString(),
+    completedAtUtc: new Date(generatedAt).toISOString(),
+    durationMs: 50,
+    status: "completed",
+    sourceCounts: { snapshotDocs: 1 },
+    warningCount: 0,
+    errorCount: 0,
+    costEstimate: { readOperations: 2, writeOperations: 1, providerCalls: 0, notes: [] },
+    nextDueAtUtc: new Date(generatedAt + 3_600_000).toISOString(),
+  });
+}
+
+function seedOverviewSnapshot(generatedAt: number) {
+  mockState.documents.set("admin_hot_cache_snapshots/admin_overview_snapshot", {
+    payload: {
+      success: true,
+      generatedAt,
+      freshness: {
+        lastTransactionAt: generatedAt,
+        lastAdminActivityAt: generatedAt,
+      },
+      stats: {
+        totalUsers: 2,
+        liveDrops: 1,
+        totalDrops: 3,
+        grossRevenueCents: 12_050,
+        totalUnwraps: 44,
+        currentWindowPurchases: 5,
+        currentWindowNewUsers: 2,
+      },
+      deltas: {
+        accounts: { current: 2, previous: 1, percentChange: 100, direction: "up", scopeLabel: "vs prior 30d" },
+        purchases: { current: 5, previous: 2, percentChange: 150, direction: "up", scopeLabel: "vs prior 30d" },
+        revenue: { current: 12_050, previous: 5_000, percentChange: 141, direction: "up", scopeLabel: "vs prior 30d" },
+        unwraps: { current: 44, previous: 20, percentChange: 120, direction: "up", scopeLabel: "vs prior 30d" },
+      },
+      recentTransactions: [
+        {
+          id: "tx_purchase",
+          transactionId: "tx_purchase",
+          userId: "fan_1",
+          username: "fanone",
+          amount: 120.5,
+          timestamp: generatedAt,
+          sourceScope: "overview_snapshot",
+        },
+      ],
+      adminActivity: [
+        {
+          id: "admin_event_1",
+          domain: "admin",
+          source: "analytics_event_facts",
+          type: "admin_dashboard_viewed",
+          label: "Admin dashboard viewed",
+          detail: "Admin opened overview",
+          actorLabel: "owner@example.com",
+          timestamp: generatedAt,
+        },
+      ],
+      topDrops: [],
+      chartData: [],
+      trendSummary: {
+        windowDays: 30,
+        currentStartDayKey: "2026-05-17",
+        currentEndDayKey: "2026-06-16",
+        previousStartDayKey: "2026-04-17",
+        previousEndDayKey: "2026-05-17",
+        currentRevenueCents: 12_050,
+        previousRevenueCents: 5_000,
+        currentUnwraps: 44,
+        previousUnwraps: 20,
+        currentPurchases: 5,
+        previousPurchases: 2,
+        currentNewUsers: 2,
+        previousNewUsers: 1,
+        revenueActiveDays: 1,
+        unwrapActiveDays: 1,
+        bestRevenueDay: null,
+        bestUnwrapDay: null,
+        topUnlockDrop: {
+          dropId: "drop_1",
+          title: "Sour Burst",
+          unwraps: 7,
+        },
+      },
+      platformPulse: [
+        {
+          id: "gumdropsCirculation30d",
+          label: "GumDrops",
+          primaryValue: 575,
+          primaryScope: "rolling_30d",
+          current30dValue: 575,
+          prior30dValue: 300,
+          deltaPct: 91.7,
+          deltaLabel: "Current 30d vs previous 30d: +91.7%",
+          sourceTruth: "materialized_summary",
+          freshnessState: "live",
+          issueState: "ok",
+          warnings: [],
+          metadata: {
+            rewardGd30d: 25,
+            paidGd30d: 500,
+            paidBonusGd30d: 50,
+            totalCirculationGd30d: 575,
+            displayCombinesPaidAndRewardOnly: true,
+          },
+        },
+        {
+          id: "supportBugs30d",
+          label: "Support/Bugs",
+          primaryValue: 2,
+          primaryScope: "rolling_30d",
+          current30dValue: 2,
+          prior30dValue: 1,
+          deltaPct: 100,
+          deltaLabel: "Current 30d vs previous 30d: +100%",
+          sourceTruth: "bounded_aggregate",
+          freshnessState: "live",
+          issueState: "ok",
+          warnings: [],
+          metadata: {
+            userBugReports30d: 1,
+            userSupportRequests30d: 1,
+            excludesAiDebugCodeInternalDiagnostics: true,
+          },
+        },
+      ],
+      truthNotes: {
+        overview: "cached",
+        platformPulse: "cached",
+        drops: "cached",
+        revenue: "cached",
+        topDrops: "cached",
+        transactions: "cached",
+        adminActivity: "cached",
+      },
+    },
+  });
+}
+
 describe("GET /api/admin/overview", () => {
-    beforeEach(() => {
-        mockState.reset();
-        mockState.guardApiRequest.mockResolvedValue({
-            uid: "admin_1",
-            role: "admin",
-        });
-        mockState.handleApiError.mockImplementation((error: unknown) => NextResponse.json({
-            error: error instanceof Error ? error.message : String(error),
-        }, { status: 500 }));
-        mockState.normalizeDrop.mockImplementation((data: Record<string, unknown>, id: string) => ({
-            id,
-            ...data,
-        }));
-        mockState.isDropHidden.mockReturnValue(false);
-        mockState.buildUserMap.mockImplementation(async ({ userIds }: { userIds: Iterable<string> }) => {
-            const map = new Map<string, string>();
-            Array.from(userIds).forEach((userId) => {
-                if (userId === "fan_1") {
-                    map.set(userId, "fanone");
-                }
-                if (userId === "fan_2") {
-                    map.set(userId, "fantwo");
-                }
-                if (userId === "admin_1") {
-                    map.set(userId, "adminone");
-                }
-            });
-            return map;
-        });
-        mockState.fetchTelemetryLogs.mockResolvedValue({});
+  beforeEach(() => {
+    mockState.reset();
+    mockState.guardApiRequest.mockResolvedValue({ uid: "admin_1", role: "admin" });
+    mockState.handleApiError.mockImplementation((error: unknown) =>
+      NextResponse.json({ error: String(error) }, { status: 500 }),
+    );
+  });
+
+  it("returns the cached overview snapshot without broad page-load reads", async () => {
+    const generatedAt = Date.now();
+    seedOverviewSnapshot(generatedAt);
+    seedHeartbeat(generatedAt);
+
+    const response = await GET(new NextRequest("http://localhost/api/admin/overview"));
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.verification.module).toBe("admin_overview");
+    expect(payload.verification.status).toBe("cached");
+    expect(payload.verification.countComposition).toMatchObject({
+      snapshotDocsRead: 1,
+      heartbeatDocsRead: 1,
     });
-
-    it("returns merged overview stats, truthful deltas, and an admin-only mixed activity feed", async () => {
-        const nowMs = Date.now();
-        const todayKey = getCSTDateKey(nowMs);
-        const currentDayKey = shiftCSTDateKey(todayKey, -1);
-        const previousDayKey = shiftCSTDateKey(todayKey, -31);
-
-        mockState.collections.set("users", [
-            {
-                id: "fan_1",
-                data: () => ({
-                    username: "fanone",
-                    createdAt: nowMs - 2 * 24 * 60 * 60 * 1000,
-                }),
-            },
-            {
-                id: "fan_2",
-                data: () => ({
-                    username: "fantwo",
-                    createdAt: nowMs - 35 * 24 * 60 * 60 * 1000,
-                }),
-            },
-        ]);
-        mockState.collections.set("drops", [
-            {
-                id: "drop_1",
-                data: () => ({
-                    title: "Sour Burst",
-                    status: "active",
-                    totalUnlocks: 7,
-                    totalClicks: 11,
-                    unlockCost: 20,
-                }),
-            },
-            {
-                id: "drop_2",
-                data: () => ({
-                    title: "Cherry Pop",
-                    status: "scheduled",
-                    totalUnlocks: 3,
-                    totalClicks: 5,
-                    unlockCost: 15,
-                }),
-            },
-        ]);
-        mockState.collections.set("transactions", [
-            {
-                id: "tx_purchase",
-                data: () => ({
-                    userId: "fan_1",
-                    type: "purchase_currency",
-                    status: "completed",
-                    timestamp: nowMs - 1_000,
-                    timestampMs: nowMs - 1_000,
-                    grossRevenueCents: 800,
-                    description: "Starter pack",
-                }),
-            },
-            {
-                id: "tx_unlock",
-                data: () => ({
-                    userId: "fan_1",
-                    type: "unlock_content",
-                    status: "completed",
-                    timestamp: nowMs - 2_000,
-                    timestampMs: nowMs - 2_000,
-                    amount: -20,
-                    relatedDropId: "drop_1",
-                    description: "Unlocked premium drop",
-                }),
-            },
-            {
-                id: "tx_admin",
-                data: () => ({
-                    userId: "fan_2",
-                    type: "admin_adjustment",
-                    status: "completed",
-                    timestamp: nowMs - 3_000,
-                    timestampMs: nowMs - 3_000,
-                    amount: 25,
-                    description: "Admin Adjustment: goodwill",
-                    adjustedBy: "owner@example.com",
-                }),
-            },
-        ]);
-        mockState.collections.set("analytics_commerce_daily", [
-            {
-                id: `${currentDayKey}_commerce`,
-                data: () => ({
-                    dayKey: currentDayKey,
-                    revenueCentsTotal: 1200,
-                    unlockCount: 9,
-                    purchaseCount: 5,
-                    paidGumDropsTotal: 500,
-                    bonusGumDropsTotal: 50,
-                }),
-            },
-            {
-                id: `${previousDayKey}_commerce`,
-                data: () => ({
-                    dayKey: previousDayKey,
-                    revenueCentsTotal: 600,
-                    unlockCount: 4,
-                    purchaseCount: 2,
-                    paidGumDropsTotal: 200,
-                    bonusGumDropsTotal: 20,
-                }),
-            },
-        ]);
-        mockState.collections.set("analytics_task_daily", [
-            {
-                id: `${currentDayKey}_tasks`,
-                data: () => ({
-                    dayKey: currentDayKey,
-                    rewardTotal: 25,
-                }),
-            },
-            {
-                id: `${previousDayKey}_tasks`,
-                data: () => ({
-                    dayKey: previousDayKey,
-                    rewardTotal: 10,
-                }),
-            },
-        ]);
-        mockState.collections.set("bug_reports", [
-            {
-                id: "bug_current_1",
-                data: () => ({
-                    sourceTruth: "human_error_bug_report",
-                    createdAt: nowMs - 1_000,
-                }),
-            },
-            {
-                id: "bug_prior_1",
-                data: () => ({
-                    sourceTruth: "human_error_bug_report",
-                    createdAt: nowMs - 35 * 24 * 60 * 60 * 1000,
-                }),
-            },
-            {
-                id: "debug_internal",
-                data: () => ({
-                    sourceTruth: "internal_debug_diagnostic",
-                    createdAt: nowMs - 1_000,
-                }),
-            },
-        ]);
-        mockState.collections.set("support_threads", [
-            {
-                id: "support_current_1",
-                data: () => ({
-                    channel: "in_app",
-                    createdAt: nowMs - 2_000,
-                }),
-            },
-            {
-                id: "support_prior_1",
-                data: () => ({
-                    channel: "email",
-                    createdAt: nowMs - 35 * 24 * 60 * 60 * 1000,
-                }),
-            },
-            {
-                id: "system_internal",
-                data: () => ({
-                    channel: "system",
-                    createdAt: nowMs - 2_000,
-                }),
-            },
-        ]);
-        mockState.collections.set("analytics_drop_daily", [
-            {
-                id: `${currentDayKey}_drop_1`,
-                data: () => ({
-                    dayKey: currentDayKey,
-                    dropId: "drop_1",
-                    unlockTransactionCount: 7,
-                }),
-            },
-        ]);
-        mockState.documents.set("analytics_commerce_rollup/summary", {
-            grossRevenueUsdTotal: 120.5,
-            unlockCount: 44,
-            lastTransactionAt: nowMs - 1_000,
-        });
-        mockState.fetchTelemetryLogs.mockResolvedValue({
-            admin_dashboard_viewed: [
-                {
-                    eventName: "admin_dashboard_viewed",
-                    params: { page_path: "/admin" },
-                    userId: "admin_1",
-                    username: "adminone",
-                    timestamp: nowMs - 1_500,
-                },
-            ],
-            creator_legal_sent: [
-                {
-                    eventName: "creator_legal_sent",
-                    params: { destination: "/admin/roster" },
-                    userId: "admin_1",
-                    username: "adminone",
-                    timestamp: nowMs - 1_250,
-                },
-            ],
-        });
-
-        const response = await GET(new NextRequest("http://localhost/api/admin/overview"));
-        const payload = await response.json();
-
-        expect(response.status).toBe(200);
-        expect(payload.verification.module).toBe("admin_overview");
-        expect(payload.verification.status).toBe("live");
-        expect(payload.stats.totalUsers).toBe(2);
-        expect(payload.stats.liveDrops).toBe(1);
-        expect(payload.stats.grossRevenueCents).toBe(12050);
-        expect(payload.stats.totalUnwraps).toBe(44);
-        expect(payload.stats.currentWindowPurchases).toBe(5);
-        expect(payload.deltas.purchases.current).toBe(5);
-        expect(payload.deltas.purchases.previous).toBe(2);
-        expect(payload.platformPulse.map((metric: { id: string }) => metric.id)).toEqual([
-            "accounts",
-            "purchases30d",
-            "revenue",
-            "unwraps",
-            "gumdropsCirculation30d",
-            "supportBugs30d",
-        ]);
-        expect(payload.platformPulse.find((metric: { id: string }) => metric.id === "gumdropsCirculation30d")).toMatchObject({
-            primaryValue: 575,
-            primaryScope: "rolling_30d",
-            metadata: {
-                rewardGd30d: 25,
-                paidGd30d: 500,
-                paidBonusGd30d: 50,
-                totalCirculationGd30d: 575,
-                displayCombinesPaidAndRewardOnly: true,
-            },
-        });
-        expect(payload.platformPulse.find((metric: { id: string }) => metric.id === "supportBugs30d")).toMatchObject({
-            primaryValue: 2,
-            primaryScope: "rolling_30d",
-            metadata: {
-                userBugReports30d: 1,
-                userSupportRequests30d: 1,
-                excludesAiDebugCodeInternalDiagnostics: true,
-            },
-        });
-        expect(payload.recentTransactions).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    id: "tx_purchase",
-                    username: "fanone",
-                    sourceScope: "overview_snapshot",
-                }),
-            ]),
-        );
-        expect(payload.adminActivity).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    id: "tx_admin",
-                    source: "transactions",
-                    domain: "admin",
-                    actorLabel: "owner@example.com",
-                }),
-                expect.objectContaining({
-                    source: "analytics_event_facts",
-                    domain: "admin",
-                    label: "Admin dashboard viewed",
-                }),
-                expect.objectContaining({
-                    source: "analytics_event_facts",
-                    domain: "admin",
-                    label: "Creator legal sent",
-                }),
-            ]),
-        );
-        expect(payload.trendSummary.topUnlockDrop).toEqual({
-            dropId: "drop_1",
-            title: "Sour Burst",
-            unwraps: 7,
-        });
-        expect(payload.truthNotes.adminActivity).toContain("admin balance adjustments");
-        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    expect(payload.stats.totalUsers).toBe(2);
+    expect(payload.stats.liveDrops).toBe(1);
+    expect(payload.stats.grossRevenueCents).toBe(12_050);
+    expect(payload.stats.totalUnwraps).toBe(44);
+    expect(payload.stats.currentWindowPurchases).toBe(5);
+    expect(payload.deltas.purchases.current).toBe(5);
+    expect(payload.deltas.purchases.previous).toBe(2);
+    expect(payload.platformPulse.map((metric: { id: string }) => metric.id)).toEqual([
+      "gumdropsCirculation30d",
+      "supportBugs30d",
+    ]);
+    expect(payload.platformPulse.find((metric: { id: string }) => metric.id === "gumdropsCirculation30d")).toMatchObject({
+      primaryValue: 575,
+      primaryScope: "rolling_30d",
+      metadata: {
+        rewardGd30d: 25,
+        paidGd30d: 500,
+        paidBonusGd30d: 50,
+        totalCirculationGd30d: 575,
+        displayCombinesPaidAndRewardOnly: true,
+      },
     });
-
-    it("falls back honestly when the lifetime commerce summary is unavailable", async () => {
-        const nowMs = Date.now();
-        const todayKey = getCSTDateKey(nowMs);
-        const currentDayKey = shiftCSTDateKey(todayKey, -1);
-
-        mockState.collections.set("users", [
-            {
-                id: "fan_1",
-                data: () => ({
-                    username: "fanone",
-                    createdAt: nowMs - 2 * 24 * 60 * 60 * 1000,
-                }),
-            },
-        ]);
-        mockState.collections.set("drops", [
-            {
-                id: "drop_1",
-                data: () => ({
-                    title: "Sour Burst",
-                    status: "active",
-                    totalUnlocks: 9,
-                    totalClicks: 4,
-                    unlockCost: 20,
-                }),
-            },
-        ]);
-        mockState.collections.set("transactions", []);
-        mockState.collections.set("analytics_commerce_daily", [
-            {
-                id: `${currentDayKey}_commerce`,
-                data: () => ({
-                    dayKey: currentDayKey,
-                    revenueCentsTotal: 500,
-                    unlockCount: 3,
-                    purchaseCount: 1,
-                }),
-            },
-        ]);
-        mockState.collections.set("analytics_drop_daily", []);
-
-        const response = await GET(new NextRequest("http://localhost/api/admin/overview"));
-        const payload = await response.json();
-
-        expect(response.status).toBe(200);
-        expect(payload.verification.status).toBe("live");
-        expect(payload.stats.grossRevenueCents).toBe(500);
-        expect(payload.stats.totalUnwraps).toBe(9);
-        expect(payload.deltas.accounts.percentChange).toBeNull();
-        expect(payload.truthNotes.platformPulse).toContain("rolling 30-day window");
-        expect(payload.adminActivity).toEqual([]);
+    expect(payload.platformPulse.find((metric: { id: string }) => metric.id === "supportBugs30d")).toMatchObject({
+      primaryValue: 2,
+      primaryScope: "rolling_30d",
+      metadata: {
+        userBugReports30d: 1,
+        userSupportRequests30d: 1,
+        excludesAiDebugCodeInternalDiagnostics: true,
+      },
     });
+    expect(payload.recentTransactions).toEqual([
+      expect.objectContaining({
+        id: "tx_purchase",
+        username: "fanone",
+        sourceScope: "overview_snapshot",
+      }),
+    ]);
+    expect(payload.adminActivity).toEqual([
+      expect.objectContaining({
+        source: "analytics_event_facts",
+        domain: "admin",
+        label: "Admin dashboard viewed",
+      }),
+    ]);
+    expect(payload.trendSummary.topUnlockDrop).toEqual({
+      dropId: "drop_1",
+      title: "Sour Burst",
+      unwraps: 7,
+    });
+    expect(payload.hotCache.pageLoadReadModel).toBe("snapshot_doc_plus_heartbeat_doc");
+    expect(payload.hotCache.broadFallbackReadsRun).toBe(false);
+    expect(payload.hotCache.platformPulseMaterializerSources).toContain("analytics_commerce_daily");
+    expect(payload.hotCache.platformPulseMaterializerSources).toContain("analytics_task_daily");
+    expect(payload.hotCache.supportBugUserChannels).toEqual(["support_request", "bug_report"]);
+    expect(mockState.collectionCalls).toEqual([
+      "admin_hot_cache_snapshots",
+      "admin_surface_heartbeats",
+    ]);
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
+  });
+
+  it("reports source missing when the hot-cache snapshot is unavailable", async () => {
+    const response = await GET(new NextRequest("http://localhost/api/admin/overview"));
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.verification.status).toBe("unavailable");
+    expect(payload.issues[0]).toContain("snapshot is missing");
+    expect(payload.stats.grossRevenueCents).toBe(0);
+    expect(payload.stats.totalUnwraps).toBe(0);
+    expect(payload.platformPulse).toHaveLength(6);
+    expect(payload.hotCache.broadFallbackReadsRun).toBe(false);
+    expect(payload.hotCache.platformPulseMaterializerSources).toEqual([
+      "analytics_commerce_daily",
+      "analytics_task_daily",
+    ]);
+    expect(mockState.collectionCalls).toEqual([
+      "admin_hot_cache_snapshots",
+      "admin_surface_heartbeats",
+    ]);
+  });
 });

@@ -257,8 +257,8 @@ export function MetricCard({
         >
             <div
                 className={cn(
-                    "mb-1.5 grid items-start gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500",
-                    badgePlacement === "header" ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
+                    "mb-1.5 items-start gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500",
+                    badgePlacement === "header" ? "grid grid-cols-[minmax(0,1fr)_auto]" : "grid grid-cols-1",
                 )}
             >
                 <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">

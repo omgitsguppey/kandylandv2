@@ -405,12 +405,34 @@ describe("AdminAnalyticsPage", () => {
   });
 
   it("renders compact overview metrics without giant waiting values or header badges", async () => {
+    const currentState = mockState.analyticsState as {
+      analyticsOverviewDisplayMetrics: Record<string, unknown>;
+      analyticsOverviewCards: {
+        revenue: Record<string, unknown>;
+        purchases: Record<string, unknown>;
+      } & Record<string, unknown>;
+    };
     mockState.analyticsState = {
       ...mockState.analyticsState,
+      analyticsOverviewCards: {
+        ...currentState.analyticsOverviewCards,
+        revenue: {
+          ...currentState.analyticsOverviewCards.revenue,
+          displayValue: "Unavailable",
+          hint: "No verified snapshot yet.",
+          truthState: "unavailable",
+          statusBadgeLabel: "UNAVAILABLE",
+        },
+        purchases: {
+          ...currentState.analyticsOverviewCards.purchases,
+          displayValue: "No snapshot yet",
+          hint: "No verified snapshot yet.",
+          truthState: "loading",
+          statusBadgeLabel: "WAIT",
+        },
+      },
       analyticsOverviewDisplayMetrics: {
-        ...(mockState.analyticsState as {
-          analyticsOverviewDisplayMetrics: Record<string, unknown>;
-        }).analyticsOverviewDisplayMetrics,
+        ...currentState.analyticsOverviewDisplayMetrics,
         revenue: {
           id: "revenue",
           label: "Revenue",

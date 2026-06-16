@@ -1580,7 +1580,8 @@ export function useAdminAnalyticsState() {
   const sharedFallbackExplanation = analyticsSnapshotPending
     ? "Analytics snapshot pending; showing canonical fallback truth."
     : "Realtime analytics snapshot missing; showing canonical fallback truth.";
-  const overviewUnavailableDisplay = historicalLoading ? "No snapshot yet" : "Unavailable";
+  const historicalOverviewWaitingLabel = historicalLoading ? "Waiting" : "Unavailable";
+  const overviewUnavailableDisplay = historicalOverviewWaitingLabel === "Waiting" ? "No snapshot yet" : historicalOverviewWaitingLabel;
 
   const revenueCard: AnalyticsOverviewCardViewModel = historicalOverviewResponse
     ? {
