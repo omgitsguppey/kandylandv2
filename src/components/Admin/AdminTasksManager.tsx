@@ -42,6 +42,8 @@ interface AdminTasksResponse {
   defaultCooldownDays: number;
 }
 
+const ADMIN_TASKS_SNAPSHOT_REFRESH_INTERVAL_MS = 0;
+
 function formatRelativeTime(timestamp: number) {
   const diff = Math.max(0, Date.now() - timestamp);
   const seconds = Math.floor(diff / 1000);
@@ -71,22 +73,27 @@ function TaskCard({
   subtitle,
   children,
   icon: Icon,
+  action,
 }: {
   title: string;
   subtitle: string;
   children: ReactNode;
   icon: typeof Bell;
+  action?: ReactNode;
 }) {
   return (
     <section className="glass-panel rounded-[1.5rem] border border-white/10 p-3.5 sm:p-4">
-      <div className="mb-3 flex items-start gap-2.5">
-        <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[1rem] border border-brand-purple/25 bg-brand-purple/15 text-white">
-          <Icon className="h-4.5 w-4.5" />
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-2.5">
+        <div className="flex min-w-0 items-start gap-2.5">
+          <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[1rem] border border-brand-purple/25 bg-brand-purple/15 text-white">
+            <Icon className="h-4.5 w-4.5" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-base font-bold text-white">{title}</h3>
+            <p className="mt-0.5 text-xs leading-5 text-gray-400">{subtitle}</p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-base font-bold text-white">{title}</h3>
-          <p className="mt-0.5 text-xs leading-5 text-gray-400">{subtitle}</p>
-        </div>
+        {action}
       </div>
       {children}
     </section>
@@ -94,7 +101,10 @@ function TaskCard({
 }
 
 export function AdminTasksManager({ users }: { users: UserProfile[] }) {
-  const { data, isLoading, mutate } = useAdminPollingSWR<AdminTasksResponse>("/api/admin/tasks", 30_000);
+  const { data, isLoading, mutate } = useAdminPollingSWR<AdminTasksResponse>(
+    "/api/admin/tasks",
+    ADMIN_TASKS_SNAPSHOT_REFRESH_INTERVAL_MS,
+  );
 
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
@@ -289,6 +299,22 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
         title="Task builder"
         subtitle="Create global or user-specific missions with reward, progress, cooldown, and filter controls."
         icon={Plus}
+        action={
+          <button
+            type="button"
+            onClick={() => void mutate()}
+            disabled={isLoading}
+            aria-label="Refresh task snapshot"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-gray-200 transition-colors hover:border-brand-purple/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Repeat className="h-4 w-4" aria-hidden="true" />
+            )}
+            Refresh
+          </button>
+        }
       >
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <input
@@ -588,7 +614,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
       <div className="grid gap-4 xl:grid-cols-2">
         <TaskCard
           title="Task performance"
-          subtitle="Completion checks, failure pressure, and average completion time across the live task system."
+          subtitle="Completion checks, failure pressure, and average completion time from the latest task snapshot."
           icon={Trophy}
         >
           {(taskPerformance.length ?? 0) === 0 ? (
@@ -622,7 +648,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
 
         <TaskCard
           title="Event trigger visibility"
-          subtitle="Live rollup of the telemetry triggers feeding the daily task engine."
+          subtitle="Latest task-trigger rollup from the telemetry events feeding daily tasks."
           icon={Activity}
         >
           {(data?.eventStats?.length ?? 0) === 0 ? (

@@ -836,7 +836,7 @@ export default function UserManagementPage() {
                     ? pageData.subtitle
                     : viewMode === 'feedback'
                         ? 'Review user-submitted feedback from daily tasks.'
-                        : 'Create daily missions and monitor live task triggers.'}
+                        : 'Create daily missions and review latest task-trigger activity.'}
                 topSlot={viewMode === "users" ? (
                     <div
                         className="flex flex-wrap items-center gap-2"

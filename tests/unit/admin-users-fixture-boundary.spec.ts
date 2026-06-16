@@ -26,6 +26,8 @@ describe("admin users fixture boundary", () => {
   it("keeps task controls read-only instead of mounting the task manager in fixture mode", () => {
     expect(source).toContain('data-admin-users-tasks-fixture-boundary="true"');
     expect(source).toContain("Local UI review keeps the task builder read-only");
+    expect(source).toContain("review latest task-trigger activity");
+    expect(source).not.toContain("monitor live task triggers");
     expect(source).toContain("isLocalAdminUiTestSession ? (");
     expect(source).toContain("<AdminTasksManager users={users} />");
   });
