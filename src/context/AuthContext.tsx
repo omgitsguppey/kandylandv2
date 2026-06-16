@@ -879,6 +879,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
         }
 
+        if (adminUiTestSessionActive) {
+            navigationSessionSyncKeyRef.current = null;
+            return;
+        }
+
         if (userProfile) {
             const syncKey = `${user.uid}:${userProfile.role ?? "user"}`;
             if (navigationSessionSyncKeyRef.current === syncKey) {
@@ -893,7 +898,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 navigationSessionSyncKeyRef.current = null;
             });
         }
-    }, [user, userProfile]);
+    }, [adminUiTestSessionActive, user, userProfile]);
 
     const signInWithGoogle = useCallback(async (telemetry?: AuthFlowTelemetryInput) => {
         if (!auth || !firebaseClientConfigured) {

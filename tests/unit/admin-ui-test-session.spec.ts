@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -8,6 +11,7 @@ import {
 } from "@/lib/admin/admin-ui-test-session";
 
 const NOW = Date.UTC(2026, 5, 15, 12, 0, 0);
+const authContextSource = readFileSync(join(process.cwd(), "src/context/AuthContext.tsx"), "utf8");
 
 function session(overrides: Record<string, unknown> = {}) {
   return JSON.stringify({
@@ -96,5 +100,19 @@ describe("admin UI test session", () => {
     expect(parsed.enabled).toBe(true);
     expect(parsed.role).toBe("admin");
     expect(parsed.expiresAt).toBe(NOW + 30_000);
+  });
+
+  it("does not attempt server navigation-session sync with the local UI test identity", () => {
+    const navigationSyncEffect = authContextSource.slice(
+      authContextSource.indexOf("useEffect(() => {\n        if (!user)"),
+      authContextSource.indexOf("const signInWithGoogle"),
+    );
+
+    expect(navigationSyncEffect).toContain("if (adminUiTestSessionActive) {");
+    expect(navigationSyncEffect).toContain("navigationSessionSyncKeyRef.current = null;");
+    expect(navigationSyncEffect).toContain("authFetch(\"/api/auth/navigation-session\"");
+    expect(navigationSyncEffect.indexOf("if (adminUiTestSessionActive) {")).toBeLessThan(
+      navigationSyncEffect.indexOf("authFetch(\"/api/auth/navigation-session\""),
+    );
   });
 });
