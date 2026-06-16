@@ -152,6 +152,37 @@ const mockState = vi.hoisted(() => ({
             suggestedValidator: "npm run check:google-cost",
             severity: "critical",
         }],
+        operatorCockpit: {
+            generatedAtUtc: "2026-05-04T12:00:00.000Z",
+            reportKey: "debug-operator-cockpit",
+            currentHead: "test-head",
+            sourceCommit: "test-head",
+            overallStatus: "pass",
+            rawDumpDefaultOpen: false,
+            validationFailures: [],
+            summary: {
+                sectionCount: 1,
+                scoreImpactItems: 0,
+                staleRefreshItems: 0,
+                criticalWarningItems: 1,
+                aiCriticFindings: 0,
+                recoveryPlaybooks: 0,
+            },
+            defaultSections: [{
+                id: "critical_runtime_debug_warnings",
+                title: "Critical Runtime + Debug Warnings",
+                operatorSummary: "Admin truth sample needs a source artifact.",
+                owner: "admin_debug",
+                state: "failed",
+                scoreImpactEstimate: 4,
+                nextAction: "Attach a redacted admin truth source sample.",
+                items: [{
+                    title: "Admin truth sample missing",
+                    nextAction: "Attach a redacted admin truth source sample.",
+                    sourceTruthState: "admin_truth_source_required",
+                }],
+            }],
+        },
     },
 }));
 
@@ -200,6 +231,7 @@ describe("DebugControlTower", () => {
         expect(container.textContent).toContain("Money + Cost");
         expect(container.textContent).toContain("Support message detail route returned forbidden.");
         expect(container.textContent).toContain("Recommended Next Actions");
+        expect(container.textContent).toContain("admin truth source required");
         expect(container.textContent).not.toContain("Device + UI");
         expect(container.textContent).not.toContain("secret support body");
     });

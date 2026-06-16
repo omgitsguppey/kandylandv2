@@ -15,6 +15,8 @@ import {
     type DebugOperatorPlaybookInput,
     type DebugOperatorWarningInput,
 } from "@/lib/debug/debug-operator-cockpit";
+import { resolveDebugBacklogSourceTruthState } from "@/lib/debug/debug-backlog-builder";
+import type { DebugBacklogItem, DebugBacklogSourceTruthState } from "@/lib/debug/debug-backlog-contract";
 
 export type AdminDebugTruthState = "live" | "stale" | "missing" | "unavailable" | "failed" | "unknown";
 export type AdminDebugSeverity = "info" | "minor" | "moderate" | "major" | "critical";
@@ -125,6 +127,7 @@ export type AdminDebugBacklogItemCard = {
     sourceRoute: string;
     evidenceStatus: string;
     evidenceReason: string;
+    sourceTruthState: DebugBacklogSourceTruthState;
     exactNextAction: string;
 };
 
@@ -797,24 +800,49 @@ function normalizeDebugBacklogItem(value: unknown): AdminDebugBacklogItemCard | 
     const owner = toStringValue(value.owner);
     const surface = toStringValue(value.surface);
     const exactNextAction = toStringValue(value.exactNextAction);
+    const fixClass = toStringValue(value.fixClass, "evidence_refresh");
+    const status = toStringValue(value.status, "open");
+    const source = toStringValue(value.source, "debug_panel");
+    const evidenceStatus = toStringValue(value.evidenceStatus, "unknown");
+    const evidenceReason = toStringValue(value.evidenceReason, "No evidence reason supplied.");
+    const sourceMessage = toStringValue(value.sourceMessage, title);
     if (!id || !title || !owner || !surface || !exactNextAction || sourceFiles.length === 0 || scoreDimensionImpact.length === 0) {
         return null;
     }
+    const debugBacklogItem = {
+        id,
+        title,
+        owner,
+        surface,
+        severity: toStringValue(value.severity, "p2") as DebugBacklogItem["severity"],
+        source: source as DebugBacklogItem["source"],
+        status: status as DebugBacklogItem["status"],
+        fixClass: fixClass as DebugBacklogItem["fixClass"],
+        scoreDimensionImpact: scoreDimensionImpact as DebugBacklogItem["scoreDimensionImpact"],
+        scoreImpact: toNumber(value.scoreImpact) ?? 0,
+        sourceFiles,
+        sourceRoute: toStringValue(value.sourceRoute, "unknown"),
+        evidenceStatus: evidenceStatus as DebugBacklogItem["evidenceStatus"],
+        evidenceReason,
+        exactNextAction,
+        sourceMessage,
+    } satisfies DebugBacklogItem;
     return {
         id,
         title,
         owner,
         surface,
-        severity: toStringValue(value.severity, "p2") as AdminDebugBacklogItemCard["severity"],
-        source: toStringValue(value.source, "debug_panel"),
-        status: toStringValue(value.status, "open"),
-        fixClass: toStringValue(value.fixClass, "manual_required"),
+        severity: debugBacklogItem.severity,
+        source,
+        status,
+        fixClass,
         scoreDimensionImpact,
-        scoreImpact: toNumber(value.scoreImpact) ?? 0,
+        scoreImpact: debugBacklogItem.scoreImpact,
         sourceFiles,
-        sourceRoute: toStringValue(value.sourceRoute, "unknown"),
-        evidenceStatus: toStringValue(value.evidenceStatus, "unknown"),
-        evidenceReason: toStringValue(value.evidenceReason, "No evidence reason supplied."),
+        sourceRoute: debugBacklogItem.sourceRoute,
+        evidenceStatus,
+        evidenceReason,
+        sourceTruthState: resolveDebugBacklogSourceTruthState(debugBacklogItem),
         exactNextAction,
     };
 }
@@ -1021,6 +1049,27 @@ function readGeneratedRecoveryPlaybooks(rootDir: string | null | undefined): Deb
     }));
 }
 
+function warningTruthStateForBacklogItem(item: AdminDebugBacklogItemCard): DebugOperatorWarningInput["truthState"] {
+    switch (item.sourceTruthState) {
+        case "runtime_proof_required":
+        case "provider_or_external_proof_required":
+        case "admin_truth_source_required":
+        case "protected_manual_review":
+        case "source_fixable":
+            return "failed";
+        case "source_refresh_required":
+        case "stale_evidence_archive":
+            return "stale";
+        case "manual_visual_required":
+            return "degraded";
+        case "source_backed":
+        case "not_actionable":
+            return "live";
+        default:
+            return item.evidenceStatus === "unknown" ? "unknown" : "degraded";
+    }
+}
+
 function buildCriticalWarnings(backlog: AdminDebugBacklogItemCard[], liveIssues: AdminDebugLiveIssueCard[]): DebugOperatorWarningInput[] {
     const backlogWarnings = backlog
         .filter((item) => item.status === "open" || item.status === "blocked_manual" || item.status === "blocked_external")
@@ -1031,7 +1080,8 @@ function buildCriticalWarnings(backlog: AdminDebugBacklogItemCard[], liveIssues:
             owner: item.owner,
             message: item.title,
             nextAction: item.exactNextAction,
-            truthState: item.evidenceStatus === "unknown" ? "unknown" as const : item.status === "blocked_manual" ? "degraded" as const : "failed" as const,
+            truthState: warningTruthStateForBacklogItem(item),
+            sourceTruthState: item.sourceTruthState,
         }));
     const liveWarnings = liveIssues
         .filter((issue) => issue.severity === "critical" || issue.severity === "error")

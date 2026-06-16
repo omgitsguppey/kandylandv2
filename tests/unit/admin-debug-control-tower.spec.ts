@@ -172,6 +172,74 @@ describe("admin debug control tower model", () => {
         expect(model.sections.beta_readiness.some((report) => report.id === "public-beta-score")).toBe(true);
     });
 
+    it("derives backlog item truth states instead of showing generic manual proof buckets", () => {
+        const root = createTempRoot();
+        writeReport(root, "debug-backlog-engine.generated.json", {
+            summary: {
+                total: 2,
+                open: 1,
+                fixed: 0,
+                deferred: 0,
+                blockedManual: 1,
+                blockedExternal: 0,
+                staleRetired: 0,
+                sourceFixable: 0,
+                evidenceRefreshable: 0,
+                sourceTruthStates: {
+                    runtime_proof_required: 1,
+                    admin_truth_source_required: 1,
+                },
+                p0P1Open: 2,
+            },
+            backlog: [
+                {
+                    id: "admin-truth-sample",
+                    title: "Admin truth sample missing",
+                    owner: "admin_debug",
+                    surface: "admin_debug",
+                    severity: "p1",
+                    source: "admin_truth",
+                    status: "blocked_manual",
+                    fixClass: "manual_required",
+                    scoreDimensionImpact: ["evidenceCompleteness"],
+                    scoreImpact: 4,
+                    sourceFiles: ["agent/state/admin-truth-sample-evidence.generated.json"],
+                    sourceRoute: "/admin/debug",
+                    evidenceStatus: "formal_missing",
+                    evidenceReason: "Admin truth source sample is missing.",
+                    exactNextAction: "Attach a redacted admin truth source sample.",
+                    sourceMessage: "Admin truth source sample is missing.",
+                },
+                {
+                    id: "runtime-smoke",
+                    title: "Runtime smoke missing",
+                    owner: "runtime_evidence",
+                    surface: "runtime",
+                    severity: "p1",
+                    source: "beta_score",
+                    status: "open",
+                    fixClass: "manual_required",
+                    scoreDimensionImpact: ["runtimeHealth"],
+                    scoreImpact: 4,
+                    sourceFiles: ["agent/state/runtime-smoke-evidence.generated.json"],
+                    sourceRoute: "/admin/debug",
+                    evidenceStatus: "runtime_unverified",
+                    evidenceReason: "Deployed runtime evidence is missing.",
+                    exactNextAction: "Attach deployed runtime evidence.",
+                    sourceMessage: "Deployed runtime evidence is missing.",
+                },
+            ],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
+
+        expect(model.debugBacklog.map((item) => item.sourceTruthState)).toEqual([
+            "admin_truth_source_required",
+            "runtime_proof_required",
+        ]);
+        expect(JSON.stringify(model.debugBacklog)).not.toContain("\"sourceTruthState\":\"protected_manual_review\"");
+    });
+
     it("keeps debug evidence redacted and support-scoped", () => {
         const model = buildAdminDebugControlTowerModel({
             rootDir: createTempRoot(),

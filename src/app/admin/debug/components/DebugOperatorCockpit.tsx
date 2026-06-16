@@ -35,7 +35,11 @@ function itemLabel(item: unknown) {
 function itemAction(item: unknown) {
     const record = asRecord(item);
     const commands = Array.isArray(record.commands) ? record.commands : [];
-    return String(record.refreshCommand ?? record.nextAction ?? record.requiredFix ?? commands[0] ?? "Open the linked validator.");
+    const action = String(record.refreshCommand ?? record.nextAction ?? record.requiredFix ?? commands[0] ?? "Open the linked validator.");
+    const sourceTruthState = typeof record.sourceTruthState === "string"
+        ? record.sourceTruthState.replaceAll("_", " ")
+        : "";
+    return sourceTruthState ? `${sourceTruthState}. ${action}` : action;
 }
 
 function CockpitSectionCard({ section }: { section: DebugOperatorCockpitSection }) {
