@@ -254,6 +254,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   <p className="text-gray-500">
                     Decision source: {verifiedSnapshotLabel}. Site analytics can explain gaps, but cannot create product totals.
                   </p>
+                  <p className="text-gray-500">
+                    Users source: GA4 site users | Views source: mixed GA + first-party
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-6">
@@ -303,7 +306,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 
               <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
                 <MetricCard
-                  label="Site Users (estimated)"
+                  label="GA4 Users"
                   value={formatAudienceValue(
                     audienceSnapshotModel.totalUsers.value,
                     formatCompactNumber,
@@ -404,7 +407,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
               </div>
 
               <p className="mt-2 text-[11px] text-gray-500">
-                Chart source: supporting site analytics with first-party continuity context. Estimates do not become verified product traffic.
+                Chart source: GA users plus GA views. Estimates do not become verified product traffic.
               </p>
 
               <div className={`mt-2.5 ${audienceSnapshotModel.chartHeightClass} w-full`}>
