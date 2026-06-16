@@ -111,6 +111,39 @@ type CompactDebugDetailItem = {
     copy: AdminDebugCardCopy;
 };
 
+function localFixtureMeta(label: string) {
+    return `Local UI review does not verify ${label.toLowerCase()}.`;
+}
+
+function toLocalFixtureSummaryItem(item: CompactDebugSummaryItem): CompactDebugSummaryItem {
+    return {
+        ...item,
+        value: "--",
+        meta: localFixtureMeta(item.label),
+        truthState: "unavailable",
+    };
+}
+
+function toLocalFixtureDetailItem(item: CompactDebugDetailItem): CompactDebugDetailItem {
+    const operatorSummary = localFixtureMeta(item.label);
+    return {
+        ...item,
+        value: "--",
+        meta: operatorSummary,
+        truthState: "unavailable",
+        copy: createAdminDebugCardCopy({
+            operatorSummary,
+            whyItMatters: "Local fixture mode checks layout and controls only; it does not load verified admin evidence.",
+            recommendedNextCheck: "Use a real admin session or run the owned source validator before treating this lane as verified.",
+            technicalEvidence: "Admin UI fixture mode bypasses debug route reads and realtime listeners.",
+            sourceDetails: "local admin UI test session",
+            technicalState: "local_fixture_source_missing",
+            sourceMode: "unavailable",
+            routeName: "/api/admin/debug",
+        }),
+    };
+}
+
 function CompactDebugStatusRail({
     items,
     detailItems,
@@ -627,7 +660,8 @@ export default function DebugConsole() {
         routeName: "/api/admin/debug",
         debugDetails: { freshestLoadedSignalAt },
     }), [freshestLoadedSignalAt]);
-    const compactSummaryItems = useMemo<CompactDebugSummaryItem[]>(() => [
+    const compactSummaryItems = useMemo<CompactDebugSummaryItem[]>(() => {
+        const items: CompactDebugSummaryItem[] = [
         {
             label: "System",
             value: systemStateStatus,
@@ -652,10 +686,14 @@ export default function DebugConsole() {
             meta: freshestLoadedSignalAt ? "Recent admin evidence loaded." : "No loaded sample verified.",
             truthState: !data && isLoading ? "loading" : error ? "failed" : freshestLoadedSignalAt ? "live" : "unavailable",
         },
-    ], [
+        ];
+
+        return isLocalAdminUiTestSession ? items.map(toLocalFixtureSummaryItem) : items;
+    }, [
         data,
         error,
         freshestLoadedSignalAt,
+        isLocalAdminUiTestSession,
         isLoading,
         openActionsCard.count,
         openActionsCard.meta,
@@ -668,7 +706,8 @@ export default function DebugConsole() {
         systemStateStatus,
     ]);
 
-    const detailItems = useMemo<CompactDebugDetailItem[]>(() => [
+    const detailItems = useMemo<CompactDebugDetailItem[]>(() => {
+        const items: CompactDebugDetailItem[] = [
         {
             label: "System state",
             truthState: !data && isLoading ? "loading" : error ? "failed" : systemStateHealthy ? "live" : "degraded",
@@ -725,7 +764,10 @@ export default function DebugConsole() {
             meta: aiAssistantCard.meta,
             copy: aiAssistantCard.copy,
         },
-    ], [
+        ];
+
+        return isLocalAdminUiTestSession ? items.map(toLocalFixtureDetailItem) : items;
+    }, [
         activePipelineFailureCount,
         aiAssistantCard.copy,
         aiAssistantCard.meta,
@@ -736,6 +778,7 @@ export default function DebugConsole() {
         error,
         freshestLoadedSignalAt,
         freshestSampleCopy,
+        isLocalAdminUiTestSession,
         isLoading,
         openActionsCard.copy,
         openActionsCard.count,
