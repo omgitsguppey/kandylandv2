@@ -9,7 +9,9 @@ import { toast } from "sonner";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
 import { useAdminSupportRealtime } from "@/hooks/useAdminSupportRealtime";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
@@ -60,6 +62,7 @@ function getAdminSupportSafeErrorMessage(error: unknown, fallback: string) {
 
 export function AdminSupportQueue() {
     const searchParams = useSearchParams();
+    const { user } = useAuth();
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [selectedThreadId, setSelectedThreadId] = useState<string | null>(searchParams.get("threadId"));
     const [reply, setReply] = useState("");
@@ -67,6 +70,7 @@ export function AdminSupportQueue() {
     const [updatingStatus, setUpdatingStatus] = useState(false);
 
     const userIdFilter = searchParams.get("userId")?.trim() || "";
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
 
     const {
         threads,
@@ -77,7 +81,7 @@ export function AdminSupportQueue() {
         threadsError,
         messagesError,
         refreshAll,
-    } = useAdminSupportRealtime(selectedThreadId);
+    } = useAdminSupportRealtime(selectedThreadId, { enabled: !isLocalAdminUiTestSession });
 
     const filteredThreads = useMemo(() => {
         return threads.filter(thread => {
@@ -208,11 +212,19 @@ export function AdminSupportQueue() {
                     title="Support Workspace"
                     compact
                     actions={(
-                        <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-100">
-                            API Verified
+                        <span className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] ${isLocalAdminUiTestSession ? "border-amber-400/20 bg-amber-500/10 text-amber-100" : "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"}`}>
+                            {isLocalAdminUiTestSession ? "source_missing" : "API Verified"}
                         </span>
                     )}
                 />
+                {isLocalAdminUiTestSession ? (
+                    <div
+                        className="mt-3 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
+                        data-admin-support-fixture-boundary="true"
+                    >
+                        <span className="font-bold text-white">Local UI review only.</span> Support queue layout is inspectable; thread reads, replies, and status changes require real admin auth and remain source_missing here.
+                    </div>
+                ) : null}
             </div>
 
             <div className="mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-hidden xl:flex-row">

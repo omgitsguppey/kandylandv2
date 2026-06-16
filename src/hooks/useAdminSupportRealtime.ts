@@ -99,7 +99,8 @@ async function readAdminSupportJson<T>(url: string, init?: RequestInit): Promise
   return body;
 }
 
-export function useAdminSupportRealtime(selectedThreadId: string | null) {
+export function useAdminSupportRealtime(selectedThreadId: string | null, options: { enabled?: boolean } = {}) {
+  const enabled = options.enabled !== false;
   const mountedRef = useRef(true);
   const [threads, setThreads] = useState<SupportThreadRecord[]>([]);
   const [messages, setMessages] = useState<SupportMessageRecord[]>([]);
@@ -117,6 +118,14 @@ export function useAdminSupportRealtime(selectedThreadId: string | null) {
   }, []);
 
   const refreshThreads = useCallback(async () => {
+    if (!enabled) {
+      setThreads([]);
+      setSummary(EMPTY_SUMMARY);
+      setThreadsError(null);
+      setIsLoadingThreads(false);
+      return;
+    }
+
     setIsLoadingThreads(true);
     try {
       const body = await readAdminSupportJson<AdminSupportThreadListResponse>("/api/admin/support/threads?status=all");
@@ -137,10 +146,10 @@ export function useAdminSupportRealtime(selectedThreadId: string | null) {
         setIsLoadingThreads(false);
       }
     }
-  }, []);
+  }, [enabled]);
 
   const refreshMessages = useCallback(async () => {
-    if (!selectedThreadId) {
+    if (!enabled || !selectedThreadId) {
       setMessages([]);
       setMessagesError(null);
       setIsLoadingMessages(false);
@@ -174,7 +183,7 @@ export function useAdminSupportRealtime(selectedThreadId: string | null) {
         setIsLoadingMessages(false);
       }
     }
-  }, [selectedThreadId]);
+  }, [enabled, selectedThreadId]);
 
   const refreshAll = useCallback(async () => {
     await refreshThreads();
