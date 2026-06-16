@@ -4,6 +4,7 @@ import { ArrowDownRight, ArrowRight, ArrowUpRight, DollarSign, ShoppingBag, User
 
 import type { AdminOverviewIssueDetail, AdminOverviewResponse, PlatformPulseMetric } from "@/lib/admin-overview";
 import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
+import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { buildAdminReviewBadge } from "@/lib/behavioral/review-badge-rules";
 import type { AdminTruthState } from "@/lib/admin-truth-state";
 import { calculatePlatformPulseDelta, classifyPlatformPulseTrend, formatPlatformPulseDelta } from "@/lib/admin/platform-pulse-window";
@@ -95,9 +96,19 @@ export function AdminStatsBar({ platformPulse, overviewIssues, truthState }: Adm
     const metrics = (platformPulse ?? []).filter(Boolean);
     const issueSummary = buildIssueSummary(overviewIssues);
     const reviewSummary = issueSummary.length > 0 ? `${issueSummary.length} overview source issue${issueSummary.length === 1 ? "" : "s"}` : undefined;
+    const showOverallTruthBadge = Boolean(truthState && truthState !== "live");
 
     return (
         <div className="space-y-3">
+            {showOverallTruthBadge ? (
+                <div className="flex items-center justify-end">
+                    <AdminTruthBadge
+                        state={truthState as AdminTruthState}
+                        className="py-0.5"
+                        hasUsableValue={metrics.length > 0}
+                    />
+                </div>
+            ) : null}
             <div className="grid grid-cols-2 gap-2 md:grid-cols-3" data-admin-platform-pulse-grid="compact-six">
                 {metrics.map((metric) => {
                     const Icon = getMetricIcon(metric.id);

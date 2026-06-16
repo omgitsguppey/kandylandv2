@@ -66,7 +66,20 @@ describe("AdminStatsBar compact platform pulse", () => {
       }),
     );
 
-    expect(screen.getByText(/REVIEW/i)).toBeTruthy();
+    expect(screen.getAllByText(/REVIEW/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("LIVE")).toBeNull();
+  });
+
+  it("uses the shared truth badge for non-live overview state", () => {
+    const { container } = render(
+      React.createElement(AdminStatsBar, {
+        platformPulse: metrics,
+        overviewIssues: [],
+        truthState: "cached",
+      }),
+    );
+
+    expect(container.querySelector("[data-admin-truth-state='cached']")).toBeTruthy();
+    expect(screen.getByText("CACHED")).toBeTruthy();
   });
 });
