@@ -1,48 +1,48 @@
 # Route health reconciliation
 
-Generated: 2026-06-11T14:58:12.300Z
-Head: 59c819e6301a092eadd5630c4f6d88a120e9c9f8
+Generated: 2026-06-16T20:54:54.006Z
+Head: 34a9f4401638539a2d7c8a206995ff7657ec7b43
 
 ## Summary
 
 ```json
 {
   "reportKey": "route-health-reconciliation",
-  "generatedAtUtc": "2026-06-11T14:58:12.300Z",
-  "currentHead": "59c819e6301a092eadd5630c4f6d88a120e9c9f8",
+  "generatedAtUtc": "2026-06-16T20:54:54.006Z",
+  "currentHead": "34a9f4401638539a2d7c8a206995ff7657ec7b43",
   "scoreBefore": {
     "sourceHealth": 91.7,
     "runtimeHealth": 72.8,
     "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 69.89
   },
   "scoreAfter": {
     "sourceHealth": 91.7,
     "runtimeHealth": 72.8,
     "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 69.89
   },
   "scoreDimensions": {
     "sourceHealth": 91.7,
     "runtimeHealth": 72.8,
     "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 69.89
   },
   "routeChecksStatus": "0 active failures",
   "routeHealthStatusBefore": "DEGRADED: 44 ok / 65 action / 2 fail",
   "routeHealthStatusAfter": "route_listener_delayed_with_last_verified_sample",
   "delayedListener": "admin_debug_route_health",
   "expectedEvidenceArtifact": "route_runtime_health Firestore listener rows via Admin Debug runtime sample",
-  "delayedClassification": "manual_runtime_proof_required",
+  "delayedClassification": "runtime_evidence_required",
   "evidenceBasis": "source_only_reconciliation_of_archived_debug_cockpit_batch6_sample",
   "sourceBugFound": false,
   "sourceOnlyCanClear": false,

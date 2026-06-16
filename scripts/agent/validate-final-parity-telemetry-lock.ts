@@ -148,7 +148,7 @@ function resolveFormalProofStatus(proofClass: TelemetryParityProofClass, current
     const routeHealth = readJson("agent/state/route-health-reconciliation.generated.json");
     if (!artifactHeadMatches(routeHealth, currentHead)) return "stale";
     if (routeHealth && routeHealth.runtimeProofRequired === true) return "missing";
-    if (statusIncludes(routeHealth, [/route_listener_delayed|manual_runtime_proof_required|runtime_unverified/iu])) return "missing";
+    if (statusIncludes(routeHealth, [/route_listener_delayed|runtime_evidence_required|runtime_unverified/iu])) return "missing";
     return statusIncludes(routeHealth, [/formal_route_health_passed|route_health_passed/iu]) ? "present" : "missing";
   }
 

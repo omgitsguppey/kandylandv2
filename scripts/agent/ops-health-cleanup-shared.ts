@@ -216,7 +216,7 @@ export function buildRouteHealthReconciliationReport(input: BuildInput = {}) {
     routeHealthStatusAfter: reconciliation.status,
     delayedListener: "admin_debug_route_health",
     expectedEvidenceArtifact: "route_runtime_health Firestore listener rows via Admin Debug runtime sample",
-    delayedClassification: "manual_runtime_proof_required",
+    delayedClassification: "runtime_evidence_required",
     evidenceBasis: "source_only_reconciliation_of_archived_debug_cockpit_batch6_sample",
     sourceBugFound: false,
     sourceOnlyCanClear: false,
@@ -238,7 +238,8 @@ export function validateRouteHealthReconciliationReport(report: ReturnType<typeo
   if (report.unseenRoutesClassified.stale_unseen + report.unseenRoutesClassified.unseen_expected + report.unseenRoutesClassified.unseen_source_missing !== report.unseenRoutes) failures.push("unseen routes are all counted actionable without classification.");
   if (!report.routeListenerStatus) failures.push("route listener failure lacks separate status.");
   if (report.status === "healthy_current" && report.routeListenerStatus !== "live") failures.push("delayed route listener is classified healthy.");
-  if (report.routeListenerStatus === "failed" && report.delayedClassification !== "manual_runtime_proof_required") failures.push("failed route listener lacks manual runtime proof classification.");
+  if (report.routeListenerStatus === "failed" && report.delayedClassification !== "runtime_evidence_required") failures.push("failed route listener lacks runtime evidence classification.");
+  if (report.delayedClassification === "manual_runtime_proof_required") failures.push("route health must use runtime_evidence_required instead of manual_runtime_proof_required.");
   if (report.sourceOnlyCanClear !== false || report.runtimeProofRequired !== true) failures.push("source-only route health reconciliation can clear delayed runtime evidence.");
   if (report.delayedIsHealthy !== false) failures.push("delayed route listener is treated as healthy.");
   return failures;

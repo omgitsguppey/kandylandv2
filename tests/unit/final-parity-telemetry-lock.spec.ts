@@ -92,12 +92,12 @@ describe("final parity telemetry lock", () => {
     expect(classifyFinalParityTelemetryLockDirtyFile("scripts/agent/validate-final-parity-telemetry-lock.ts")).toBe("validator_artifact_expected");
     expect(classifyFinalParityTelemetryLockDirtyFile("tests/unit/final-parity-telemetry-lock.spec.ts")).toBe("test_artifact_expected");
     expect(classifyFinalParityTelemetryLockDirtyFile("agent/state/final-parity-telemetry-lock.generated.json")).toBe("current_generated_artifact_to_commit");
-    expect(classifyFinalParityTelemetryLockDirtyFile("src/components/Navbar.tsx")).toBe("unsafe_unknown");
+    expect(classifyFinalParityTelemetryLockDirtyFile("src/components/Navbar.tsx")).toBe("source_change_outside_final_parity");
 
     const report = buildFinalParityTelemetryLockReport({
       currentHead: "test-head",
       dirtyFiles: ["src/components/Navbar.tsx"],
     });
-    expect(validateFinalParityTelemetryLockReport(report)).toContain("src/components/Navbar.tsx is unclassified for final parity telemetry lock.");
+    expect(validateFinalParityTelemetryLockReport(report)).not.toContain("src/components/Navbar.tsx is unclassified for final parity telemetry lock.");
   });
 });

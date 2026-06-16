@@ -34,7 +34,7 @@ describe("route health reconciliation", () => {
     expect(result.nextAction).toContain("route listener");
   });
 
-  it("keeps delayed listener evidence visible and runtime-proof gated in generated reports", () => {
+  it("keeps delayed listener evidence visible and runtime-evidence gated in generated reports", () => {
     const report = buildRouteHealthReconciliationReport({
       currentHead: "test-head",
       generatedAtUtc: "2026-06-07T00:00:00.000Z",
@@ -42,7 +42,7 @@ describe("route health reconciliation", () => {
     });
 
     expect(report.delayedListener).toBe("admin_debug_route_health");
-    expect(report.delayedClassification).toBe("manual_runtime_proof_required");
+    expect(report.delayedClassification).toBe("runtime_evidence_required");
     expect(report.runtimeProofRequired).toBe(true);
     expect(report.sourceOnlyCanClear).toBe(false);
     expect(report.delayedIsHealthy).toBe(false);
