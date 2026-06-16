@@ -237,7 +237,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     canStartBetaExitReview: false,
   } satisfies CurrentBetaExitStatusReport["summary"];
   const remainingBlockers = [
-    ...report.remainingBlockers.filter((blocker) => !["runtime-smoke", "admin-truth-sample"].includes(blocker.id)),
+    ...report.remainingBlockers.filter((blocker) => !["runtime-smoke", "admin-truth-sample", "provider-smoke"].includes(blocker.id)),
     ...(summary.providerSmokeStatus === "formal_provider_smoke_passed" ? [] : [{
       id: "provider-smoke",
       severity: "P1" as const,
