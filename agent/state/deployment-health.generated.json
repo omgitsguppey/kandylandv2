@@ -1,0 +1,29 @@
+{
+  "owner": "scripts/verify-deployment.ts",
+  "safetyClass": "runtime_measurement_explicit_url_only",
+  "costClass": "single_health_request_when_url_provided",
+  "cleanupPolicy": "regenerate",
+  "cleanupCommand": "npm run check:deployment -- --url=<deployment-origin>",
+  "timeoutMs": 10000,
+  "reportKey": "deployment-health",
+  "status": "external_evidence_required",
+  "generatedAtUtc": "2026-06-16T18:53:42.714Z",
+  "currentHead": "ce46e228dc0f39151b4fb89d0878ed28012b61d9",
+  "evidenceClass": "external_evidence_required",
+  "canClearSourceGate": false,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Provide a deployed or local runtime URL explicitly: npm run check:deployment -- --url=https://<deployment-origin>",
+    "Do not use this source-safe placeholder as deployed runtime proof.",
+    "Record provider/payment smoke evidence separately; /api/health cannot clear provider gates."
+  ],
+  "validationFailures": [],
+  "doesNotProve": [
+    "Does not prove PayPal/provider smoke.",
+    "Does not prove production database correctness.",
+    "Does not prove admin truth sample evidence.",
+    "Does not prove payment, wallet, GumDrop, unlock, or entitlement math."
+  ]
+}
