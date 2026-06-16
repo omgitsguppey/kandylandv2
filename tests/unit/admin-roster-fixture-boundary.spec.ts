@@ -10,7 +10,7 @@ describe("admin roster fixture boundary", () => {
     expect(source).toContain("isAdminUiTestSessionUser(user)");
     expect(source).toContain('data-admin-roster-fixture-boundary="true"');
     expect(source).toContain('data-admin-roster-fixture-state="source_missing"');
-    expect(source).toContain("Creator roster source data is source_missing");
+    expect(source).toContain("Creator roster data is source_missing in local review");
     expect(source).toContain("Account controls require real admin auth");
     expect(source).toContain("Fan-experience settings require real admin auth");
     expect(source).toContain('{isLocalAdminUiTestSession ? "source_missing" : entriesByDecision.needs_review.length}');

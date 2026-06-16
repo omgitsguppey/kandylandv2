@@ -79,7 +79,7 @@ describe("ManageQueuePage", () => {
     render(<ManageQueuePage />);
 
     expect(await screen.findByText("Local UI review only.")).toBeInTheDocument();
-    expect(screen.getByText(/Queue source_missing for local fixture auth/i)).toBeInTheDocument();
+    expect(screen.getByText(/Queue data is source_missing in local review/i)).toBeInTheDocument();
     expect(screen.queryByText("Queue data could not be loaded.")).not.toBeInTheDocument();
     expect(screen.queryByText("Retry Queue Load")).not.toBeInTheDocument();
     expect(mockState.authFetch).not.toHaveBeenCalled();

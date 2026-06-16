@@ -301,7 +301,7 @@ export default function ManageQueuePage() {
                         data-mobile-sprawl-guard="true"
                     >
                         <p className="text-base font-semibold">Local UI review only.</p>
-                        <p className="mt-2 text-sm text-amber-100/90">Queue source_missing for local fixture auth. Use a real admin session for queue read/write evidence.</p>
+                        <p className="mt-2 text-sm text-amber-100/90">Queue data is source_missing in local review. Use a real admin session before reviewing or changing queue items.</p>
                     </div>
                 ) : (
                     <div className={`${adminQueueModuleClassName} bg-red-500/10 text-center`} data-mobile-density="compact" data-mobile-sprawl-guard="true">

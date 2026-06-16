@@ -10,8 +10,8 @@ describe("admin drops local fixture boundary", () => {
     expect(source).toContain("isAdminUiTestSessionUser(user)");
     expect(source).toContain('data-admin-drops-fixture-boundary="true"');
     expect(source).toContain('data-admin-drops-fixture-state="source_missing"');
-    expect(source).toContain("Drop list rendering is inspectable");
-    expect(source).toContain("drop feed, creator options, queue state, create, review, queue, notify, duplicate, edit, and delete remain source_missing");
+    expect(source).toContain("This shows the drop tools layout without loading live records");
+    expect(source).toContain("Drop feed, creator options, queue state, creation, review, notifications, duplication, edits, and deletes stay source_missing");
     expect(source).toContain("useAdminDropsFeed({ enabled: !isLocalAdminUiTestSession })");
     expect(source).toContain("const ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS = 0");
     expect(source).toContain('useAdminPollingSWR<AdminDropQueueConfig>(isLocalAdminUiTestSession ? null : "/api/admin/queue", ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS)');

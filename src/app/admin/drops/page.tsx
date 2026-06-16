@@ -815,7 +815,7 @@ export default function AdminDropsPage() {
                         data-admin-drops-fixture-boundary="true"
                         data-admin-drops-fixture-state="source_missing"
                     >
-                        Local UI review only. Drop list rendering is inspectable; drop feed, creator options, queue state, create, review, queue, notify, duplicate, edit, and delete remain source_missing until real admin auth loads verified records.
+                        Local UI review only. This shows the drop tools layout without loading live records. Drop feed, creator options, queue state, creation, review, notifications, duplication, edits, and deletes stay source_missing until a real admin session loads verified records.
                     </div>
                 ) : null}
 

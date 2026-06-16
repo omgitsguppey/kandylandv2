@@ -1103,7 +1103,7 @@ export default function AdminRosterPage() {
                         data-admin-roster-fixture-boundary="true"
                         data-admin-roster-fixture-state="source_missing"
                     >
-                        <span className="font-bold text-white">Local UI review only.</span> Creator roster source data is source_missing; layout is inspectable, while roster, detail, agreement, creation, approval, account, and fan-experience evidence require real admin auth.
+                        <span className="font-bold text-white">Local UI review only.</span> Creator roster data is source_missing in local review. Roster details, agreements, creation, approval, account controls, and fan experience evidence require a real admin session.
                     </div>
                 ) : null}
                 <section className="grid gap-4 lg:grid-cols-[0.94fr_1.06fr]">
