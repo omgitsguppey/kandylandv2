@@ -5,9 +5,10 @@ What's new in KandyDrops Beta (latest first).
 Showing the last 25 public updates in pages of 5.
 
 ## 1.5.70 - 2026-06-16
-- Bug fixes and general improvements
-- Improved internal beta reliability.
-- Updated the latest Beta build with behind-the-scenes fixes.
+- Clearer admin analytics status copy
+- Made admin analytics cards easier to scan on mobile and desktop.
+- Changed delayed analytics snapshots to say delayed instead of stale.
+- Kept wallet checkout fallback errors clear and safe without changing payments.
 
 ## 1.5.69 - 2026-06-16
 - Bug fixes and general improvements

@@ -4,18 +4,18 @@
   "channel": "beta",
   "generatedAt": "2026-06-16T18:11:11.422Z",
   "generatedAtUtc": "2026-06-16T18:11:11.422Z",
-  "lastCommitSha": "759cc968db96bcc20b75c61e655e2b841e162c85",
+  "lastCommitSha": "0980f1fde1a51ffe53a3c1540e558bf342d2d365",
   "notes": [
     {
       "version": "1.5.70",
       "previousVersion": "1.5.69",
       "betaReleaseCounter": 570,
       "previousBetaReleaseCounter": 569,
-      "commitSha": "759cc968db96bcc20b75c61e655e2b841e162c85",
+      "commitSha": "0980f1fde1a51ffe53a3c1540e558bf342d2d365",
       "commitTitle": "fix(admin): simplify truth copy labels",
       "commitCount": 1,
       "commitShas": [
-        "759cc968db96bcc20b75c61e655e2b841e162c85"
+        "0980f1fde1a51ffe53a3c1540e558bf342d2d365"
       ],
       "committedAt": "2026-06-16T18:11:03.000Z",
       "generatedAt": "2026-06-16T18:11:11.420Z",
@@ -23,17 +23,19 @@
       "generatedAtUtc": "2026-06-16T18:11:11.420Z",
       "updatedAtUtc": "2026-06-16T18:11:11.420Z",
       "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and general improvements.",
-      "userFacingTitle": "Bug fixes and general improvements",
+      "title": "Clearer admin analytics status copy",
+      "summary": "Admin analytics now uses shorter status language and clearer delayed-state labels, with safer checkout fallback copy.",
+      "userFacingTitle": "Clearer admin analytics status copy",
       "surfaceCategory": "App experience",
       "bullets": [
-        "Improved internal beta reliability.",
-        "Updated the latest Beta build with behind-the-scenes fixes."
+        "Made admin analytics cards easier to scan on mobile and desktop.",
+        "Changed delayed analytics snapshots to say delayed instead of stale.",
+        "Kept wallet checkout fallback errors clear and safe without changing payments."
       ],
       "audience": "all",
       "affectedSurfaces": [
-        "app"
+        "admin analytics",
+        "wallet checkout"
       ],
       "hiddenFromPublic": false,
       "changedFiles": [
@@ -43,7 +45,7 @@
         "src/app/admin/analytics/page.tsx",
         "src/components/PurchaseModal.tsx"
       ],
-      "sourceCommit": "759cc968db96bcc20b75c61e655e2b841e162c85"
+      "sourceCommit": "0980f1fde1a51ffe53a3c1540e558bf342d2d365"
     },
     {
       "version": "1.5.69",
