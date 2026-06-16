@@ -1,13 +1,51 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.70",
-  "betaReleaseCounter": 570,
+  "currentVersion": "1.5.71",
+  "betaReleaseCounter": 571,
   "channel": "beta",
-  "generatedAt": "2026-06-16T18:11:11.422Z",
-  "generatedAtUtc": "2026-06-16T18:11:11.422Z",
-  "lastCommitSha": "0980f1fde1a51ffe53a3c1540e558bf342d2d365",
+  "generatedAt": "2026-06-16T18:57:09.853Z",
+  "generatedAtUtc": "2026-06-16T18:57:09.853Z",
+  "lastCommitSha": "5f0bd1e264dc0081bbb49f8d536585f975e2dd78",
   "notes": [
+    {
+      "version": "1.5.71",
+      "previousVersion": "1.5.70",
+      "betaReleaseCounter": 571,
+      "previousBetaReleaseCounter": 570,
+      "commitSha": "5f0bd1e264dc0081bbb49f8d536585f975e2dd78",
+      "commitTitle": "fix(deploy): classify deployment health evidence",
+      "commitCount": 1,
+      "commitShas": [
+        "5f0bd1e264dc0081bbb49f8d536585f975e2dd78"
+      ],
+      "committedAt": "2026-06-16T18:56:25.000Z",
+      "generatedAt": "2026-06-16T18:57:09.852Z",
+      "committedAtUtc": "2026-06-16T18:56:25.000Z",
+      "generatedAtUtc": "2026-06-16T18:57:09.852Z",
+      "updatedAtUtc": "2026-06-16T18:57:09.852Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and general improvements.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved internal beta reliability.",
+        "Updated the latest Beta build with behind-the-scenes fixes."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/deployment-health.generated.json",
+        "agent/state/generated-report-authority.generated.json",
+        "scripts/verify-deployment.ts",
+        "tests/unit/verify-deployment.spec.ts"
+      ],
+      "sourceCommit": "5f0bd1e264dc0081bbb49f8d536585f975e2dd78"
+    },
     {
       "version": "1.5.70",
       "previousVersion": "1.5.69",
@@ -2023,55 +2061,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-debug-compact-panel.spec.ts"
       ],
       "sourceCommit": "bdeee1f55f187f136de67ba28d83771166543b4c"
-    },
-    {
-      "version": "1.5.46",
-      "previousVersion": "1.5.45",
-      "betaReleaseCounter": 546,
-      "previousBetaReleaseCounter": 545,
-      "commitSha": "3b534aac5b1890d89f3a5fa2682a19c9ea99c17d",
-      "commitTitle": "fix(admin): compact debug panel default view",
-      "commitCount": 2,
-      "commitShas": [
-        "8d7cafaaad304fff578ab1689bfb34988f6c67bc",
-        "3b534aac5b1890d89f3a5fa2682a19c9ea99c17d"
-      ],
-      "committedAt": "2026-06-03T23:10:31.000Z",
-      "generatedAt": "2026-06-03T23:10:43.936Z",
-      "committedAtUtc": "2026-06-03T23:10:31.000Z",
-      "generatedAtUtc": "2026-06-03T23:10:43.936Z",
-      "updatedAtUtc": "2026-06-03T23:10:43.936Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/app/admin/debug/components/DebugTabNow.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-operations-mobile.spec.ts",
-        "tests/unit/admin-debug-compact-panel.spec.ts"
-      ],
-      "sourceCommit": "3b534aac5b1890d89f3a5fa2682a19c9ea99c17d"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
