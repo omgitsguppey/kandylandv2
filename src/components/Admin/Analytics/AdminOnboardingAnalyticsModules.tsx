@@ -47,6 +47,29 @@ function OnboardingDiscrepancyCallout({
     );
 }
 
+function getOnboardingVelocityBadgeLabel(model: AdminOnboardingVelocityModel) {
+    if (model.discrepancyDetected) return "PARTIAL";
+
+    switch (model.truthState) {
+        case "loading":
+            return "WAIT";
+        case "stale":
+            return "REFRESH";
+        case "cached":
+            return "SNAP";
+        case "degraded":
+        case "fallback":
+            return "PARTIAL";
+        case "unavailable":
+            return "UNAVAILABLE";
+        case "failed":
+            return "ERROR";
+        case "live":
+        default:
+            return "LIVE";
+    }
+}
+
 export function AdminOnboardingAnalyticsModules(props: {
     renderSectionRangeControl: (sectionKey: string) => ReactNode;
     discrepancies: string[];
@@ -66,13 +89,7 @@ export function AdminOnboardingAnalyticsModules(props: {
 }) {
     const [onboardingPerformanceViewMode, setOnboardingPerformanceViewMode] = useState<AnalyticsViewMode>("cards");
     const model = props.onboardingVelocityModel;
-    const velocityBadgeLabel = model.discrepancyDetected
-        ? "PARTIAL"
-        : model.truthState === "stale"
-            ? "DELAYED"
-            : model.truthState === "loading"
-                ? "WAIT"
-                : "LIVE";
+    const velocityBadgeLabel = getOnboardingVelocityBadgeLabel(model);
     const countLabel = (value: number | null) =>
         value === null ? "Waiting" : props.formatCompactNumber(value);
     const percentLabel = (value: number | null) =>

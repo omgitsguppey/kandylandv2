@@ -27,7 +27,7 @@ export interface AdminTaskPipelineModel {
     lastValidatedAtUtc: string | null;
     snapshotState: "live" | "stale" | "partial" | "failed";
     pipelineMode: TaskPipelineMode;
-    badgeLabel: "STATE" | "MIXED" | "RAW" | "STALE" | "WAIT";
+    badgeLabel: "STATE" | "MIXED" | "RAW" | "REFRESH" | "WAIT";
     truthState: AdminSurfaceState;
     canonicalTaskSource: string;
     telemetryTaskSource: string;
@@ -329,7 +329,7 @@ export function buildAdminTaskPipelineModel(input: {
                     ? "raw_event"
                     : "unavailable";
     const badgeLabel = pipelineMode === "stale_snapshot"
-        ? "STALE"
+        ? "REFRESH"
         : pipelineMode === "mixed"
             ? "MIXED"
             : pipelineMode === "raw_event"
@@ -568,7 +568,7 @@ export function buildAdminTaskPipelineModel(input: {
             : pipelineMode === "raw_event"
                 ? "Showing task lifecycle event counts. User task state is not loaded here."
                 : pipelineMode === "stale_snapshot"
-                    ? "Showing a stale validated task pipeline snapshot."
+                    ? "Showing the last verified task pipeline snapshot; refresh is due."
                     : "Task pipeline is waiting for lifecycle signals.",
     };
 }

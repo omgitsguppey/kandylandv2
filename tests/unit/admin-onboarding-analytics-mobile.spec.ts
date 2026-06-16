@@ -22,4 +22,13 @@ describe("Admin onboarding analytics mobile consolidation", () => {
     expect(source).toContain('onboardingPerformanceViewMode === "table"');
     expect(source).toContain('onboardingPerformanceViewMode === "cards"');
   });
+
+  it("derives the badge label from the actual onboarding truth state", () => {
+    expect(source).toContain("function getOnboardingVelocityBadgeLabel");
+    expect(source).toContain('case "cached":');
+    expect(source).toContain('return "SNAP"');
+    expect(source).toContain('case "unavailable":');
+    expect(source).toContain('return "UNAVAILABLE"');
+    expect(source).not.toContain(': "LIVE";');
+  });
 });

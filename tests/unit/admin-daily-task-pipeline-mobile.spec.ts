@@ -22,4 +22,9 @@ describe("Admin daily task pipeline mobile consolidation", () => {
     expect(source).toContain('taskPipelineViewMode === "table"');
     expect(source).toContain('taskPipelineViewMode === "cards"');
   });
+
+  it("labels refresh-due snapshots without stale truth copy", () => {
+    expect(source).toContain("refresh is due");
+    expect(source).not.toContain("stale validated task pipeline snapshot");
+  });
 });

@@ -51,7 +51,7 @@ export function AdminDailyTaskPipelineModule(props: {
     };
     const generatedLabel = props.model.generatedAtUtc ? new Date(props.model.generatedAtUtc).toLocaleString() : "Unavailable";
     const staleSnapshotCopy = props.model.snapshotState === "stale"
-        ? `Showing a stale validated task pipeline snapshot from ${generatedLabel}.`
+        ? `Showing the last verified task pipeline snapshot from ${generatedLabel}; refresh is due.`
         : props.model.visibleCopy;
     const guidanceNeedsReview = props.model.guidanceTelemetryState !== "available";
 
