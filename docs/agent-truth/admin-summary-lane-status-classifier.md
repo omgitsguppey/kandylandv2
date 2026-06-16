@@ -1,7 +1,7 @@
 # Admin summary lane status classifier
 
-Generated: 2026-06-11T15:04:51.938Z
-Head: bcd7aad7d363fc377e5b123eb4c06f78678f42f5
+Generated: 2026-06-16T17:29:28.604Z
+Head: 096cab329c009d4440dc3dc65f4118497ce521b1
 
 ## Status
 
@@ -16,31 +16,31 @@ Validation failures: none
     "sourceHealth": 91.7,
     "runtimeHealth": 72.8,
     "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 69.89
   },
   "scoreAfter": {
     "sourceHealth": 91.7,
     "runtimeHealth": 72.8,
     "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 69.89
   },
   "scoreDimensions": {
     "sourceHealth": 91.7,
     "runtimeHealth": 72.8,
     "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 69.89
   },
-  "currentHead": "bcd7aad7d363fc377e5b123eb4c06f78678f42f5",
-  "generatedAtUtc": "2026-06-11T15:04:51.938Z",
+  "currentHead": "096cab329c009d4440dc3dc65f4118497ce521b1",
+  "generatedAtUtc": "2026-06-16T17:29:28.604Z",
   "statusVocabulary": [
     "healthy_current",
     "healthy_proven_zero",
