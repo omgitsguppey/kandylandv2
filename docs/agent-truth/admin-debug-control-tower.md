@@ -18,7 +18,7 @@ Admin Debug v2 is the mobile-first Control Tower. It surfaces generated public-b
 
 Shows public beta score, speed/security score, codebase hardening score, device UI dry audit score, Google cost score, content protection score, telemetry parity score, stale report count, and critical count across reports.
 
-### Live Issues
+### Current Issues
 
 Shows redacted runtime evidence and pre-catcher summaries for active critical issues, support permissions, route failures, wallet/payment failures, booking/Fan Pass typed error failures, chat shell errors, viewer/watch-session failures, analytics ingest failures, and cost guard warnings.
 
@@ -89,7 +89,7 @@ The Control Tower treats these as beta-critical:
 
 ## Mobile Layout
 
-The first screen is a compact card stack: summary card, horizontal chip rail, top findings, live issues, grouped score cards, and recommended next actions. Touch targets are at least 44px. Tablet and desktop may use two or three card columns, but mobile remains one-column-first with no primary table view and no horizontal scrolling except the filter chip rail.
+The first screen is a compact card stack: summary card, horizontal chip rail, top findings, current issues, grouped score cards, and recommended next actions. Touch targets are at least 44px. Tablet and desktop may use two or three card columns, but mobile remains one-column-first with no primary table view and no horizontal scrolling except the filter chip rail.
 
 ## Validation
 

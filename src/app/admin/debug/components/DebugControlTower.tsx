@@ -139,7 +139,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                             </div>
                         </div>
                         <p className="mt-2 max-w-2xl text-xs leading-5 text-gray-300">
-                            Public beta truth, live evidence, and next actions.
+                            Public beta truth, current evidence, and next actions.
                         </p>
                     </div>
                     <div className="shrink-0 text-left sm:text-right">
@@ -192,7 +192,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                     data-debug-default-details="collapsed"
                 >
                     <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">
-                        Evidence drawer: Source detail, launch blockers, live issues, next actions, and report rows
+                        Evidence drawer: Source detail, launch blockers, current issues, next actions, and report rows
                     </summary>
                     <div className="mt-3 space-y-3">
                         <section className="rounded-md border border-white/10 bg-black/25 p-3" data-debug-report-source="triage-summary">
@@ -252,7 +252,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
 
                         {model.liveIssues.length > 0 ? (
                             <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source={model.debugEvidenceSource}>
-                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Live Issues ({model.liveIssues.length})</summary>
+                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Current Issues ({model.liveIssues.length})</summary>
                                 <div className="mt-2 grid gap-2">
                                     {model.liveIssues.slice(0, 10).map((issue) => (
                                         <LiveIssueCard key={issue.id} issue={issue} />

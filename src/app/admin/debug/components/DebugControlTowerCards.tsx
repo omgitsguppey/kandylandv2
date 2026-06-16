@@ -36,7 +36,7 @@ export const SECTION_COPY: Record<AdminDebugControlTowerSection, { title: string
         icon: ShieldCheck,
     },
     live_issues: {
-        title: "Live Issues",
+        title: "Current Issues",
         subtitle: "Pre-catcher and debug evidence summaries. Raw support/user bodies stay redacted and collapsed.",
         icon: Radar,
     },

@@ -1916,9 +1916,9 @@ for (const expected of [
   "data-debug-critical-count",
   "data-debug-next-action-count",
   "Control Tower",
-  "Public beta truth, live evidence, and next actions.",
+  "Public beta truth, current evidence, and next actions.",
   "Recommended Next Actions",
-  "Live Issues",
+  "Current Issues",
   "min-h-11",
   "authFetch(\"/api/admin/debug/control-tower\")",
   "reportClientIssue",
@@ -2063,7 +2063,7 @@ for (const expected of [
   requireIncludes(`${controlTowerDoctrine}\n${analyticsDoctrine}\n${analyticsTruthDoc}\n${adminUsersDoctrine}`, expected, "Deterministic admin doctrine bundle");
 }
 
-requireRegex(controlTowerDoc, /Beta Readiness[\s\S]*Live Issues[\s\S]*Device \+ UI[\s\S]*Money \+ Cost[\s\S]*Telemetry \+ Behavior[\s\S]*Support \+ Creator Monetization/u, "Control Tower docs must describe the required information architecture");
+requireRegex(controlTowerDoc, /Beta Readiness[\s\S]*Current Issues[\s\S]*Device \+ UI[\s\S]*Money \+ Cost[\s\S]*Telemetry \+ Behavior[\s\S]*Support \+ Creator Monetization/u, "Control Tower docs must describe the required information architecture");
 
 const aggregateOnlyHealth = buildAdminDebugSystemHealthNowModel({
   score: 40,

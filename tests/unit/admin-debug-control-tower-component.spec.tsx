@@ -10,7 +10,7 @@ const mockState = vi.hoisted(() => ({
     payload: {
         generatedAt: "2026-05-04T12:00:00.000Z",
         title: "Control Tower",
-        subtitle: "Public beta truth, live evidence, and next actions.",
+        subtitle: "Public beta truth, current evidence, and next actions.",
         overallScore: 88,
         overallStatus: "stale",
         truthState: "stale",
@@ -204,7 +204,7 @@ describe("DebugControlTower", () => {
         expect(container.textContent).not.toContain("secret support body");
     });
 
-    it("renders browser security boundary live issues as review/info copy instead of backend failure copy", async () => {
+    it("renders browser security boundary current issues as review/info copy instead of backend failure copy", async () => {
         mockState.payload.liveIssues = [{
             id: "browser-boundary",
             source: "client",
