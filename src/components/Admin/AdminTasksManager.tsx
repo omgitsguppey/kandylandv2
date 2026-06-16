@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { UserProfile } from "@/types/db";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { authFetch } from "@/lib/authFetch";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import {
   DAILY_TASK_MAX_REWARD,
   DAILY_TASK_MIN_REWARD,
@@ -58,6 +59,11 @@ function normalizeString(value: unknown, fallback = "") {
 
 function normalizeNumber(value: unknown, fallback = 0) {
   return Number.isFinite(value) ? Number(value) : fallback;
+}
+
+function getAdminTaskSafeErrorMessage(error: unknown, fallback: string) {
+  const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+  return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
 }
 
 function TaskCard({
@@ -250,7 +256,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
       toast.success("Task created");
       await mutate();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Task creation failed");
+      toast.error(getAdminTaskSafeErrorMessage(error, "Task creation failed"));
     } finally {
       setSubmitting(false);
     }
@@ -271,7 +277,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
 
       await mutate();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Task update failed");
+      toast.error(getAdminTaskSafeErrorMessage(error, "Task update failed"));
     } finally {
       setUpdatingTaskId(null);
     }
