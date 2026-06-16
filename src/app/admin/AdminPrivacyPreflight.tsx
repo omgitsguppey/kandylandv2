@@ -44,11 +44,14 @@ export function AdminPrivacyPreflight() {
     } = useAdminPrivacyPreflight();
 
     const checks = data?.checks ?? [];
+    const isLocalFixtureSourceMissing = adminSessionState === "local_fixture_source_missing";
     const passCount = checks.filter((check) => check.state === "pass").length;
     const reviewCount = checks.filter((check) => check.state === "review" || check.state === "unknown" || check.state === "not_configured").length;
     const errorCount = checks.filter((check) => check.state === "error").length;
     const quietCount = checks.filter((check) => check.state === "quiet").length;
-    const overallState = data ? toAdminState(data.overallState) : isLoading ? "loading" : error ? "failed" : "unavailable";
+    const overallState = isLocalFixtureSourceMissing
+        ? "unavailable"
+        : data ? toAdminState(data.overallState) : isLoading ? "loading" : error ? "failed" : "unavailable";
     const safeErrorMessage = error
         ? sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable").operatorMessage
         : null;
@@ -65,7 +68,7 @@ export function AdminPrivacyPreflight() {
             className="space-y-4"
             data-privacy-console-generated-at-utc={data?.generatedAtUtc ?? "pending"}
             data-privacy-console-range={range}
-            data-privacy-console-overall-state={data?.overallState ?? (isLoading ? "loading" : error ? "error" : "unknown")}
+            data-privacy-console-overall-state={isLocalFixtureSourceMissing ? "source_missing" : data?.overallState ?? (isLoading ? "loading" : error ? "error" : "unknown")}
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
@@ -102,6 +105,18 @@ export function AdminPrivacyPreflight() {
 
             {adminSessionState === "waiting_for_admin_session" ? (
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-gray-400">Waiting for admin session...</div>
+            ) : null}
+            {isLocalFixtureSourceMissing ? (
+                <div
+                    className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100"
+                    data-admin-privacy-fixture-boundary="true"
+                    data-admin-privacy-fixture-state="source_missing"
+                >
+                    <p className="font-bold">Local admin UI review only.</p>
+                    <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                        Privacy console layout is inspectable; consent, export, dedupe, and guest identity preflight evidence remains source_missing until a real admin session loads verified privacy samples.
+                    </p>
+                </div>
             ) : null}
             {safeErrorMessage ? (
                 <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100" data-privacy-console-safe-error="true">{safeErrorMessage}</div>
@@ -145,7 +160,9 @@ export function AdminPrivacyPreflight() {
                 ))}
                 {!isLoading && !error && checks.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
-                        No privacy console evidence is available yet.
+                        {isLocalFixtureSourceMissing
+                            ? "Privacy console evidence is source_missing in local UI review."
+                            : "No privacy console evidence is available yet."}
                     </div>
                 ) : null}
             </div>

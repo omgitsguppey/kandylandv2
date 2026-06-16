@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/context/AuthContext";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { authFetch } from "@/lib/authFetch";
 import type { PrivacyConsoleRange, PrivacyConsoleState } from "@/lib/admin-privacy-console";
 
-type AdminPrivacySessionState = "waiting_for_admin_session" | "ready";
+type AdminPrivacySessionState = "waiting_for_admin_session" | "local_fixture_source_missing" | "ready";
 
 type AdminPrivacyPreflightHookState = {
     data: PrivacyConsoleState | null;
@@ -21,14 +22,25 @@ export function useAdminPrivacyPreflight(): AdminPrivacyPreflightHookState {
     const [error, setError] = useState<Error | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [range, setRange] = useState<PrivacyConsoleRange>("24h");
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
 
     const adminSessionState: AdminPrivacySessionState = authLoading || !user || userProfile?.role !== "admin"
         ? "waiting_for_admin_session"
+        : isLocalAdminUiTestSession
+            ? "local_fixture_source_missing"
         : "ready";
 
     /* eslint-disable react-hooks/set-state-in-effect -- Route fetch state intentionally follows admin session/range readiness. */
     useEffect(() => {
+        if (adminSessionState === "local_fixture_source_missing") {
+            setData(null);
+            setIsLoading(false);
+            setError(null);
+            return;
+        }
+
         if (adminSessionState !== "ready") {
+            setData(null);
             setIsLoading(true);
             setError(null);
             return;
