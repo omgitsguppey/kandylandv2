@@ -216,7 +216,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
               title="Audience Snapshot"
               subtitle="First-party snapshots first; site analytics only explain traffic gaps."
               icon={Users}
-              defaultExpanded
+              defaultExpanded={false}
               rightSlot={renderSectionRangeControl("audienceSnapshot")}
             >
               <div

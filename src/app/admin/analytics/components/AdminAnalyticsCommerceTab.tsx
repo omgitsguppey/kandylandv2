@@ -284,7 +284,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
               title="Commerce Snapshot"
               subtitle="Money in, completed purchases, GumDrop spend, and funnel health."
               icon={DollarSign}
-              defaultExpanded
+              defaultExpanded={false}
               rightSlot={renderSectionRangeControl("commerceSnapshot")}
             >
               <div

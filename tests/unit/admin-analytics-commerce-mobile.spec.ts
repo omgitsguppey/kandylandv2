@@ -9,6 +9,11 @@ const source = readFileSync(
 );
 
 describe("Admin analytics commerce mobile consolidation", () => {
+  it("keeps the large commerce snapshot drilldown collapsed by default", () => {
+    expect(source).toContain('title="Commerce Snapshot"');
+    expect(source).toContain("defaultExpanded={false}");
+  });
+
   it("renders Recent Commerce Feed as one compact mobile view mode at a time", () => {
     expect(source).toContain("recentCommerceFeedViewMode");
     expect(source).toContain("setRecentCommerceFeedViewMode");

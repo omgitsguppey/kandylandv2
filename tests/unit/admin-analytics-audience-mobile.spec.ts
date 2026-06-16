@@ -9,6 +9,11 @@ const source = readFileSync(
 );
 
 describe("Admin analytics audience mobile consolidation", () => {
+  it("keeps the large audience snapshot drilldown collapsed by default", () => {
+    expect(source).toContain('title="Audience Snapshot"');
+    expect(source).toContain("defaultExpanded={false}");
+  });
+
   it("renders Navigation Destinations as one compact mobile view mode at a time", () => {
     expect(source).toContain("navigationDestinationsViewMode");
     expect(source).toContain("setNavigationDestinationsViewMode");
