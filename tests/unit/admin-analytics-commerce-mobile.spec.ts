@@ -81,4 +81,21 @@ describe("Admin analytics commerce mobile consolidation", () => {
     expect(source).toContain("data-library-viewer-drop-source-truth={viewerSourceTruth}");
     expect(source).toContain("data-library-viewer-drop-freshness={viewerFreshnessState}");
   });
+
+  it("uses shared labels for visible commerce source truth", () => {
+    expect(source).toContain("formatAdminAnalyticsSourceTruthLabel");
+    expect(source).toContain("formatCommerceSourceHint");
+    expect(source).toContain("topDropConversionSourceLabel");
+    expect(source).toContain("recentCommerceFeedSourceLabel");
+    expect(source).toContain("title={topDropConversionModel.sourceTruth}");
+    expect(source).toContain("title={recentCommerceFeedModel.sourceTruth}");
+    expect(source).toContain("title={drop.sourceTruth}");
+    expect(source).toContain("title={item.sourceTruth}");
+    expect(source).not.toContain('${revenueCard?.scope ?? "unknown"} | ${revenueCard?.sourceTruth ?? "unknown"}');
+    expect(source).not.toContain('${purchasesCard?.scope ?? "unknown"} | ${purchasesCard?.sourceTruth ?? "unknown"}');
+    expect(source).not.toContain("source ${topDropConversionModel.sourceTruth}");
+    expect(source).not.toContain("<span>{drop.sourceTruth}</span>");
+    expect(source).not.toContain("<p>Source: {drop.sourceTruth}</p>");
+    expect(source).not.toContain("{item.sourceLabel} | {item.sourceTruth}");
+  });
 });

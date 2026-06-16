@@ -18,7 +18,10 @@ import {
   resolveAdminAnalyticsContentConversionRowTruthState,
   resolveAdminAnalyticsTopDropIdentityTruthState,
 } from "@/lib/admin-analytics-contracts";
-import { formatAdminAnalyticsEvidenceSourceLabel } from "@/lib/analytics/admin-analytics-display-state";
+import {
+  formatAdminAnalyticsEvidenceSourceLabel,
+  formatAdminAnalyticsSourceTruthLabel,
+} from "@/lib/analytics/admin-analytics-display-state";
 import { coerceAdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -87,6 +90,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
   const compactMetricClass = "rounded-[1rem] p-2";
   const compactMetricValueClass = "text-lg leading-6 md:text-xl";
+  const formatCommerceSourceHint = (
+    scope: string | null | undefined,
+    sourceTruth: string | null | undefined,
+  ) => `${scope ?? "Unknown scope"} | ${formatAdminAnalyticsSourceTruthLabel(sourceTruth)}`;
   const commerceConversionLabel =
     commerceSnapshotModel.checkoutConversionValue !== null
       ? formatPercent(commerceSnapshotModel.checkoutConversionValue)
@@ -102,6 +109,12 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const yieldCard = commerceCardMap.get("yield_per_100_gd");
   const walletCard = commerceCardMap.get("wallet_opens");
   const promoCard = commerceCardMap.get("promo_impact");
+  const topDropConversionSourceLabel = formatAdminAnalyticsSourceTruthLabel(
+    topDropConversionModel.sourceTruth,
+  );
+  const recentCommerceFeedSourceLabel = formatAdminAnalyticsSourceTruthLabel(
+    recentCommerceFeedModel.sourceTruth,
+  );
   const gdSpentTooltip = [
     gdSpentCard?.explanation ?? "GumDrops spent through internal unwrap/access records.",
     `Paid ${formatCommerceValue(commerceSnapshotModel.paidGdSpentValue, formatCompactNumber, "Unavailable")}`,
@@ -295,7 +308,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={revenueCard?.label ?? "Revenue"}
                   value={formatCommerceValue(commerceSnapshotModel.revenueValue, formatMoney)}
-                  hint={`${revenueCard?.scope ?? "unknown"} | ${revenueCard?.sourceTruth ?? "unknown"}`}
+                  hint={formatCommerceSourceHint(revenueCard?.scope, revenueCard?.sourceTruth)}
                   icon={DollarSign}
                   truthState={commerceSnapshotModel.metrics.revenue.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -306,7 +319,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={purchasesCard?.label ?? "Purchases"}
                   value={formatCommerceValue(commerceSnapshotModel.purchaseCompletionsValue, formatCompactNumber)}
-                  hint={`${purchasesCard?.scope ?? "unknown"} | ${purchasesCard?.sourceTruth ?? "unknown"}`}
+                  hint={formatCommerceSourceHint(purchasesCard?.scope, purchasesCard?.sourceTruth)}
                   icon={CheckCircle2}
                   truthState={commerceSnapshotModel.metrics.purchases.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -317,7 +330,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={checkoutCard?.label ?? "Checkout Starts"}
                   value={formatCommerceValue(commerceSnapshotModel.checkoutStartsValue, formatCompactNumber)}
-                  hint={`${checkoutCard?.scope ?? "unknown"} | ${checkoutCard?.sourceTruth ?? "unknown"}`}
+                  hint={formatCommerceSourceHint(checkoutCard?.scope, checkoutCard?.sourceTruth)}
                   icon={Funnel}
                   truthState={commerceSnapshotModel.metrics.checkoutStarts.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -328,7 +341,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={gdSpentCard?.label ?? "GD Spent"}
                   value={formatCommerceValue(commerceSnapshotModel.gdSpentValue, formatCompactNumber)}
-                  hint={`${gdSpentCard?.scope ?? "unknown"} | ${gdSpentCard?.sourceTruth ?? "unknown"}`}
+                  hint={formatCommerceSourceHint(gdSpentCard?.scope, gdSpentCard?.sourceTruth)}
                   icon={ShoppingBag}
                   truthState={commerceSnapshotModel.metrics.gdSpent.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -342,7 +355,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={adjustedProfitCard?.label ?? "Adj. Profit"}
                   value={formatCommerceValue(commerceSnapshotModel.adjustedProfitValue, formatMoney)}
-                  hint={`${adjustedProfitCard?.scope ?? "unknown"} | ${adjustedProfitCard?.sourceTruth ?? "unknown"}`}
+                  hint={formatCommerceSourceHint(adjustedProfitCard?.scope, adjustedProfitCard?.sourceTruth)}
                   icon={Wallet}
                   truthState={commerceSnapshotModel.metrics.adjustedProfit.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -353,7 +366,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={yieldCard?.label ?? "Yield / 100 GD"}
                   value={formatCommerceValue(commerceSnapshotModel.yieldPer100GdValue, formatMoney)}
-                  hint={`${yieldCard?.scope ?? "unknown"} | ${yieldCard?.sourceTruth ?? "unknown"}`}
+                  hint={formatCommerceSourceHint(yieldCard?.scope, yieldCard?.sourceTruth)}
                   icon={Sparkles}
                   truthState={commerceSnapshotModel.metrics.yieldPer100Gd.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -364,7 +377,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={walletCard?.label ?? "Wallet Opens"}
                   value={formatCommerceValue(commerceSnapshotModel.walletOpensValue, formatCompactNumber)}
-                  hint={`${walletCard?.scope ?? "unknown"} | ${walletCard?.sourceTruth ?? "unknown"}`}
+                  hint={formatCommerceSourceHint(walletCard?.scope, walletCard?.sourceTruth)}
                   icon={Wallet}
                   truthState={commerceSnapshotModel.metrics.walletOpens.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -375,7 +388,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={promoCard?.label ?? "Promo Impact"}
                   value={formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}
-                  hint={`${promoCard?.scope ?? "unknown"} | ${promoCard?.sourceTruth ?? "unknown"}`}
+                  hint={formatCommerceSourceHint(promoCard?.scope, promoCard?.sourceTruth)}
                   icon={Candy}
                   truthState={commerceSnapshotModel.metrics.promoImpact.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -774,7 +787,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 subtitle="Drops with enough views to evaluate unwrap conversion."
                 icon={ShoppingBag}
                 density="compact"
-                summaryLine={`${topDropConversionModel.visibleRows.length} visible | ${topDropConversionModel.totalRows} total | source ${topDropConversionModel.sourceTruth}`}
+                summaryLine={`${topDropConversionModel.visibleRows.length} visible | ${topDropConversionModel.totalRows} total | source ${topDropConversionSourceLabel}`}
                 rightSlot={(
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <AnalyticsViewModeToggle
@@ -807,7 +820,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                     </div>
                     <div>
                       <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Source</div>
-                      <div className="font-semibold text-white">{topDropConversionModel.sourceTruth}</div>
+                      <div className="font-semibold text-white" title={topDropConversionModel.sourceTruth}>
+                        {topDropConversionSourceLabel}
+                      </div>
                     </div>
                     <div>
                       <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Denominator</div>
@@ -937,7 +952,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                             <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400">
                               <span>{drop.views.toLocaleString()} {topDropConversionModel.denominatorLabel}</span>
                               <span>{drop.unwraps.toLocaleString()} {drop.unwraps === 1 ? "unwrap" : "unwraps"}</span>
-                              <span>{drop.sourceTruth}</span>
+                              <span title={drop.sourceTruth}>{formatAdminAnalyticsSourceTruthLabel(drop.sourceTruth)}</span>
                             </div>
                             <p className="mt-2 text-[11px] leading-5 text-gray-400">{drop.explanation}</p>
                           </div>
@@ -951,7 +966,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               <details className="mt-1 text-[11px] text-gray-500">
                                 <summary className="cursor-pointer">Raw identity and source details</summary>
                                 <p>Drop ID: {drop.dropId}</p>
-                                <p>Source: {drop.sourceTruth}</p>
+                                <p title={drop.sourceTruth}>
+                                  Source: {formatAdminAnalyticsSourceTruthLabel(drop.sourceTruth)}
+                                </p>
                                 <p>Freshness: {drop.freshnessState}</p>
                               </details>
                             </div>
@@ -1066,7 +1083,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   <div className="grid max-w-full gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 sm:grid-cols-3">
                     <div className="min-w-0">
                       <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Source</div>
-                      <div className="truncate font-semibold text-white">{recentCommerceFeedModel.sourceTruth}</div>
+                      <div className="truncate font-semibold text-white" title={recentCommerceFeedModel.sourceTruth}>
+                        {recentCommerceFeedSourceLabel}
+                      </div>
                     </div>
                     <div className="min-w-0">
                       <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Freshness</div>
@@ -1120,7 +1139,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               </td>
                               <td className="max-w-[10rem] px-3 py-2">
                                 <div className="truncate text-white">{item.sourceLabel}</div>
-                                <div className="truncate text-[11px] text-gray-500">{item.sourceTruth}</div>
+                                <div className="truncate text-[11px] text-gray-500" title={item.sourceTruth}>
+                                  {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
+                                </div>
                               </td>
                               <td className="px-3 py-2">
                                 <div className="truncate text-white">{item.status}</div>
@@ -1162,7 +1183,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               {item.actorDisplayName} | {item.ageLabel} | {item.status}
                             </p>
                             <p className="mt-1 truncate text-[11px] text-gray-400">
-                              {item.sourceLabel} | {item.sourceTruth}
+                              {item.sourceLabel} | {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
                             </p>
                           </div>
                           <div className="max-w-[6.75rem] shrink-0 text-right">
@@ -1220,7 +1241,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 {item.sourceLabel}
                               </span>
                               <span className="max-w-full truncate rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-gray-400">
-                                {item.sourceTruth}
+                                {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
                               </span>
                             </div>
                           </div>

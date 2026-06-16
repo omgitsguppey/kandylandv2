@@ -214,6 +214,11 @@ describe("resolveAdminAnalyticsDisplayState", () => {
       "Vendor estimate minus signed-in traffic",
     );
     expect(formatAdminAnalyticsSourceTruthLabel("realtime_snapshot")).toBe("Current activity snapshot");
+    expect(formatAdminAnalyticsSourceTruthLabel("payment_transactions")).toBe("Payment records");
+    expect(formatAdminAnalyticsSourceTruthLabel("gumdrop_ledger")).toBe("GumDrop ledger");
+    expect(formatAdminAnalyticsSourceTruthLabel("drop_metadata_plus_rollups")).toBe(
+      "Drop metadata plus rollups",
+    );
     expect(formatAdminAnalyticsSourceTruthLabel("missing")).toBe("Source missing");
     expect(formatAdminAnalyticsSourceTruthLabel(undefined)).toBe("Source missing");
   });

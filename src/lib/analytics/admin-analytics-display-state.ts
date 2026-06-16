@@ -195,14 +195,44 @@ export function formatAdminAnalyticsSourceTruthLabel(
       return "Guest batches";
     case "analytics_sessions":
       return "Analytics sessions";
+    case "ga4":
+      return "Vendor analytics";
     case "ga_estimate":
       return "Vendor estimate";
     case "ga_total_minus_identified_first_party":
       return "Vendor estimate minus signed-in traffic";
+    case "event_estimate":
+      return "Event estimate";
+    case "server_estimate":
+      return "Server estimate";
+    case "legacy":
+      return "Legacy evidence";
+    case "unknown":
+      return "Unknown source";
+    case "mixed":
+      return "Mixed sources";
     case "first_party":
       return "First-party events";
     case "server_transactions":
       return "Server transactions";
+    case "commerce_snapshot":
+      return "Commerce snapshot";
+    case "payment_transactions":
+      return "Payment records";
+    case "checkout_telemetry":
+      return "Checkout telemetry";
+    case "gumdrop_ledger":
+      return "GumDrop ledger";
+    case "platform_economy":
+      return "Platform Economy";
+    case "wallet_telemetry":
+      return "Wallet telemetry";
+    case "drop_metadata_plus_unlock_rollups":
+      return "Drop metadata plus unlock rollups";
+    case "drop_metadata_plus_rollups":
+      return "Drop metadata plus rollups";
+    case "fallback":
+      return "Fallback snapshot";
     case "verified_snapshot":
       return "Verified snapshot";
     case "last_verified_snapshot":
