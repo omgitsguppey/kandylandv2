@@ -300,6 +300,34 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
     const recentEventFlowRows = buildRecentEventFlowRows(data?.orchestration?.events || []);
     const lowConfidenceCauses = buildLowConfidenceCauseBreakdown(recentEventFlowRows);
     const latestEventRow = recentEventFlowRows[0];
+    const routeRuntimeChatFailCount = routeRuntimeRollup.cohorts.chat_native.currentFailCount + routeRuntimeRollup.cohorts.chat_compat.currentFailCount;
+    const routeRuntimeChatStaleCount = routeRuntimeRollup.cohorts.chat_native.staleRoutes + routeRuntimeRollup.cohorts.chat_compat.staleRoutes;
+    const routeRuntimeChatUnseenCount = routeRuntimeRollup.cohorts.chat_native.unseenRoutes + routeRuntimeRollup.cohorts.chat_compat.unseenRoutes;
+    const routeRuntimeChatTruthState = routeRuntimeChatFailCount > 0
+        ? "failed"
+        : routeRuntimeChatStaleCount > 0
+            ? "stale"
+            : routeRuntimeChatUnseenCount > 0
+                ? "unavailable"
+                : routeRuntimeLoaded ? "live" : "unavailable";
+    const routeRuntimeSummary = (
+        <>
+            <Pill label="Status" value={routeRuntimeDisplay.displayState} tone={routeRuntimeDisplay.displayState === "failed" ? "bad" : routeRuntimeDisplay.displayState === "degraded" ? "warn" : "good"} truthState={routeRuntimeDisplay.displayState === "failed" ? "failed" : routeRuntimeDisplay.displayState === "degraded" ? "degraded" : routeRuntimeLoaded ? "live" : "unavailable"} />
+            <Pill label="Tracked" value={routeRuntimeRollup.trackedCount} truthState={routeRuntimeLoaded ? "live" : "unavailable"} badgeLabel={routeRuntimeLoaded ? "LOADED" : "UNKNOWN"} />
+            <Pill label="Observed" value={routeRuntimeRollup.observedCount} truthState={routeRuntimeRollup.observedCount > 0 ? "live" : "unavailable"} badgeLabel={routeRuntimeRollup.observedCount > 0 ? "LOADED" : "NO SAMPLE"} />
+            <Pill label="Filter" value={routeRuntimeFilter.replace("_", " ")} truthState={routeRuntimeLoaded ? "live" : "unavailable"} badgeLabel="INFO" />
+            {routeRuntimeDisplay.badges.map((badge) => (
+                <Pill key={badge.label} label={badge.label} value={badge.value} tone={toneForRouteRuntimeDisplayState(badge.state)} truthState={truthForRouteRuntimeDisplayState(badge.state)} badgeLabel={badge.state.toUpperCase()} />
+            ))}
+            <Pill
+                label="Chat routes"
+                value={`${routeRuntimeChatFailCount} fail / ${routeRuntimeChatStaleCount} stale / ${routeRuntimeChatUnseenCount} unseen`}
+                tone={routeRuntimeChatFailCount > 0 ? "bad" : routeRuntimeChatStaleCount > 0 || routeRuntimeChatUnseenCount > 0 ? "warn" : "good"}
+                truthState={routeRuntimeChatTruthState}
+                badgeLabel="DRILLDOWN"
+            />
+        </>
+    );
 
     return (
         <div className="space-y-4">
@@ -307,7 +335,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 title="Tracked route runtime"
                 subtitle="Canonical route rollups for debug, overview, support, chat, creator relationships, and AI flows."
                 defaultOpen={routeRuntimeHealthSummary.fail > 0 || routeRuntimeHealthSummary.warn > 0 || routeRuntimeHealthSummary.stale > 0}
-                summary={<><Pill label="Status" value={routeRuntimeDisplay.displayState} tone={routeRuntimeDisplay.displayState === "failed" ? "bad" : routeRuntimeDisplay.displayState === "degraded" ? "warn" : "good"} truthState={routeRuntimeDisplay.displayState === "failed" ? "failed" : routeRuntimeDisplay.displayState === "degraded" ? "degraded" : routeRuntimeLoaded ? "live" : "unavailable"} /><Pill label="Tracked" value={routeRuntimeRollup.trackedCount} truthState={routeRuntimeLoaded ? "live" : "unavailable"} badgeLabel={routeRuntimeLoaded ? "LOADED" : "UNKNOWN"} /><Pill label="Observed" value={routeRuntimeRollup.observedCount} truthState={routeRuntimeRollup.observedCount > 0 ? "live" : "unavailable"} badgeLabel={routeRuntimeRollup.observedCount > 0 ? "LOADED" : "NO SAMPLE"} /><Pill label="Filter" value={routeRuntimeFilter.replace("_", " ")} truthState={routeRuntimeLoaded ? "live" : "unavailable"} badgeLabel="INFO" />{routeRuntimeDisplay.badges.map((badge) => <Pill key={badge.label} label={badge.label} value={badge.value} tone={toneForRouteRuntimeDisplayState(badge.state)} truthState={truthForRouteRuntimeDisplayState(badge.state)} badgeLabel={badge.state.toUpperCase()} />)}<Pill label="Unseen" value={routeRuntimeRollup.unseenCount} tone={routeRuntimeRollup.unseenCount > 0 ? "warn" : "good"} truthState={routeRuntimeRollup.unseenCount > 0 ? "unavailable" : "live"} badgeLabel={routeRuntimeRollup.unseenCount > 0 ? "NO SAMPLE" : "CURRENT"} /><Pill label="Stale" value={routeRuntimeRollup.staleCount} tone={routeRuntimeRollup.staleCount > 0 ? "warn" : "good"} truthState={routeRuntimeRollup.staleCount > 0 ? "stale" : "live"} badgeLabel={routeRuntimeRollup.staleCount > 0 ? "STALE" : "CURRENT"} /><Pill label="Warn" value={`${routeRuntimeRollup.rawWarningCount} -> ${routeRuntimeRollup.warningGroupCount}`} tone={routeRuntimeRollup.warningGroupCount > 0 ? "warn" : "good"} truthState={routeRuntimeRollup.warningGroupCount > 0 ? "degraded" : "live"} badgeLabel="GROUPED" /><Pill label="Fail" value={routeRuntimeRollup.currentFailCount} tone={routeRuntimeRollup.currentFailCount > 0 ? "bad" : "good"} truthState={routeRuntimeRollup.currentFailCount > 0 ? "failed" : "live"} badgeLabel={routeRuntimeRollup.currentFailCount > 0 ? "FAIL" : "CURRENT"} /><Pill label="Slow samples" value={`${routeRuntimeRollup.slowSampleCount} / ${routeRuntimeRollup.currentSlowRouteCount} current`} tone={routeRuntimeRollup.currentSlowRouteCount > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="INFO" /><Pill label="Native chat fail" value={routeRuntimeRollup.cohorts.chat_native.currentFailCount} tone={routeRuntimeRollup.cohorts.chat_native.currentFailCount > 0 ? "bad" : "good"} truthState={routeRuntimeRollup.cohorts.chat_native.currentFailCount > 0 ? "failed" : "live"} /><Pill label="Native chat stale" value={routeRuntimeRollup.cohorts.chat_native.staleRoutes} tone={routeRuntimeRollup.cohorts.chat_native.staleRoutes > 0 ? "warn" : "good"} truthState={routeRuntimeRollup.cohorts.chat_native.staleRoutes > 0 ? "stale" : "live"} /><Pill label="Native chat unseen" value={routeRuntimeRollup.cohorts.chat_native.unseenRoutes} tone={routeRuntimeRollup.cohorts.chat_native.unseenRoutes > 0 ? "warn" : "good"} truthState={routeRuntimeRollup.cohorts.chat_native.unseenRoutes > 0 ? "unavailable" : "live"} /><Pill label="Compat chat fail" value={routeRuntimeRollup.cohorts.chat_compat.currentFailCount} tone={routeRuntimeRollup.cohorts.chat_compat.currentFailCount > 0 ? "bad" : "good"} truthState={routeRuntimeRollup.cohorts.chat_compat.currentFailCount > 0 ? "failed" : "live"} /><Pill label="Compat chat stale" value={routeRuntimeRollup.cohorts.chat_compat.staleRoutes} tone={routeRuntimeRollup.cohorts.chat_compat.staleRoutes > 0 ? "warn" : "good"} truthState={routeRuntimeRollup.cohorts.chat_compat.staleRoutes > 0 ? "stale" : "live"} /><Pill label="Compat chat unseen" value={routeRuntimeRollup.cohorts.chat_compat.unseenRoutes} tone={routeRuntimeRollup.cohorts.chat_compat.unseenRoutes > 0 ? "warn" : "good"} truthState={routeRuntimeRollup.cohorts.chat_compat.unseenRoutes > 0 ? "unavailable" : "live"} /></>}
+                summary={routeRuntimeSummary}
             >
                 <DebugMonitoringRoutes
                     routeRuntimeSummaryTruth={routeRuntimeSummaryTruth}

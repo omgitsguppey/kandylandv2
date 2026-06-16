@@ -146,6 +146,23 @@ describe("admin debug control tower model", () => {
         expect(component).not.toContain("model?.overallScore ?? \"--\"");
     });
 
+    it("keeps the route runtime admin summary compact while preserving chat drilldown", () => {
+        const root = process.cwd();
+        const monitoring = readFileSync(join(root, "src/app/admin/debug/components/DebugTabMonitoring.tsx"), "utf8");
+        const routeDrilldown = readFileSync(join(root, "src/app/admin/debug/components/DebugMonitoringRoutes.tsx"), "utf8");
+
+        expect(monitoring).toContain("routeRuntimeSummary");
+        expect(monitoring).toContain("Chat routes");
+        expect(monitoring).not.toContain("Native chat fail");
+        expect(monitoring).not.toContain("Native chat stale");
+        expect(monitoring).not.toContain("Native chat unseen");
+        expect(monitoring).not.toContain("Compat chat fail");
+        expect(monitoring).not.toContain("Compat chat stale");
+        expect(monitoring).not.toContain("Compat chat unseen");
+        expect(routeDrilldown).toContain("Native chat error rate");
+        expect(routeDrilldown).toContain("Compat error rate");
+    });
+
     it("surfaces critical findings and next actions first", () => {
         const root = createTempRoot();
         writeReport(root, "public-beta-score.generated.json", {
