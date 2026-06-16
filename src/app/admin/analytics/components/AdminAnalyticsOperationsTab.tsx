@@ -758,9 +758,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             tickLine={false}
                             axisLine={false}
                             interval={0}
-                            angle={-18}
-                            textAnchor="end"
-                            height={52}
+                            minTickGap={12}
+                            height={30}
                           />
                           <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
                           <Tooltip content={<AnalyticsTooltip />} />
@@ -1008,9 +1007,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               tickLine={false}
                               axisLine={false}
                               interval={0}
-                              angle={-18}
-                              textAnchor="end"
-                              height={52}
+                              minTickGap={12}
+                              height={30}
                             />
                             <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
                             <Tooltip content={<AnalyticsTooltip />} />
@@ -1624,9 +1622,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               tickLine={false}
                               axisLine={false}
                               interval={0}
-                              angle={-18}
-                              textAnchor="end"
-                              height={52}
+                              minTickGap={12}
+                              height={30}
                             />
                             <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
                             <Tooltip content={<AnalyticsTooltip />} />
@@ -1842,9 +1839,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             tickLine={false}
                             axisLine={false}
                             interval={0}
-                            angle={-18}
-                            textAnchor="end"
-                            height={52}
+                            minTickGap={12}
+                            height={30}
                           />
                           <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
                           <Tooltip content={<AnalyticsTooltip />} />
