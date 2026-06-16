@@ -32,7 +32,7 @@ export type LiveRuntimeEvidenceStatus =
   | "runtime_export_required"
   | "manual_required"
   | "provider_required"
-  | "admin_required"
+  | "admin_truth_source_required"
   | "billing_required"
   | "source_missing";
 

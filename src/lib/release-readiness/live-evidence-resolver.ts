@@ -422,7 +422,7 @@ function statusFromLiveRuntimeEvidence(input: {
   if (input.seed.gateClass === "external_provider_evidence") return "provider_required";
   if (input.seed.gateClass === "external_billing_evidence") return "billing_required";
   if (input.seed.gateClass === "visual_operator_evidence") return "manual_required";
-  if (input.seed.gateClass === "live_admin_truth_evidence") return "admin_required";
+  if (input.seed.gateClass === "live_admin_truth_evidence") return "admin_truth_source_required";
   if (input.seed.systemId === "wallet_payment_gumdrop_ledger" || input.seed.systemId === "creator_monetization_fan_pass_entitlements") {
     return "provider_required";
   }
@@ -452,7 +452,7 @@ function liveStatusFromRuntimeStatus(status: LiveRuntimeEvidenceStatus, sources:
   if (status === "provider_required") return "external_provider_required";
   if (status === "billing_required") return "external_billing_required";
   if (status === "manual_required") return "visual_only_manual";
-  if (status === "admin_required") return "source_only_evidence";
+  if (status === "admin_truth_source_required") return "source_missing_live_evidence";
   if (sources.some((source) => source.sourceStatus === "operator_confirmed")) return "current_warning";
   if (gateClass === "live_route_health_evidence" && sources.some((source) => source.sourceStatus === "source_only")) return "source_only_evidence";
   return "source_missing_live_evidence";
@@ -569,7 +569,7 @@ function betaExitImpactForRuntimeStatus(status: LiveRuntimeEvidenceStatus, liveS
   if (status === "provider_required" || status === "billing_required") return "external_required";
   if (status === "manual_required") return "operator_visual_only";
   if (status === "source_ready_waiting_for_activity" || status === "future_only_quiet") return "source_confidence_only";
-  if (status === "admin_required" || status === "runtime_export_required" || status === "not_observed_but_expected" || status === "source_missing") {
+  if (status === "admin_truth_source_required" || status === "runtime_export_required" || status === "not_observed_but_expected" || status === "source_missing") {
     return "blocks_until_live_source_connected";
   }
   return betaExitImpact(liveStatus, gateClass);
@@ -760,7 +760,7 @@ export function buildLiveEvidenceGateReplacementReport(context: ReleaseReadiness
     system.status === "source_missing_live_evidence"
     || system.liveRuntimeEvidenceStatus === "not_observed_but_expected"
     || system.liveRuntimeEvidenceStatus === "runtime_export_required"
-    || system.liveRuntimeEvidenceStatus === "admin_required"
+    || system.liveRuntimeEvidenceStatus === "admin_truth_source_required"
     || system.liveRuntimeEvidenceStatus === "source_missing");
   const remainingBlockers = [
     ...liveEvidenceBySystem
@@ -824,7 +824,7 @@ export function validateLiveEvidenceGateReplacementReport(report: LiveEvidenceGa
     failures.push("anonymous or aggregate live activity must not become exact user proof.");
   }
   if (report.liveEvidenceBySystem.some((system) =>
-    ["provider_required", "admin_required", "billing_required", "manual_required"].includes(system.liveRuntimeEvidenceStatus)
+    ["provider_required", "admin_truth_source_required", "billing_required", "manual_required"].includes(system.liveRuntimeEvidenceStatus)
     && system.betaExitImpact === "can_clear_live_gate")) {
     failures.push("provider/admin/billing/manual lanes cannot be cleared by generic live activity.");
   }

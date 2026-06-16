@@ -250,7 +250,7 @@ describe("live evidence gate replacement", () => {
       currentHead: "head",
       generatedAtUtc: "2026-05-31T12:00:00.000Z",
       systemId: "admin_debug_user_management",
-    }).liveRuntimeEvidenceStatus).toBe("admin_required");
+    }).liveRuntimeEvidenceStatus).toBe("admin_truth_source_required");
     expect(resolveLiveEvidenceForGate({
       root,
       currentHead: "head",
