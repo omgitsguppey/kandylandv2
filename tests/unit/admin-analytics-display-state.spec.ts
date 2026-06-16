@@ -199,7 +199,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
 
   it("formats source evidence labels without promoting vendor or recovery evidence", () => {
     expect(formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot")).toBe("Verified snapshot");
-    expect(formatAdminAnalyticsEvidenceSourceLabel("stale_cache")).toBe("Verified snapshot, refresh due");
+    expect(formatAdminAnalyticsEvidenceSourceLabel("stale_cache")).toBe("Stale verified snapshot");
     expect(formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence")).toBe("Estimated from vendor analytics");
     expect(formatAdminAnalyticsEvidenceSourceLabel("debug_only")).toBe("Debug-only recovery evidence");
     expect(formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only")).toBe("Needs review before promotion");

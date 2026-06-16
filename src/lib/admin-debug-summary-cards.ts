@@ -253,7 +253,7 @@ export function buildAdminDebugRouteHealthCard(input: {
                 ? "[stale] API snapshot; stale route samples"
                 : summary.unobserved > 0
                     ? "[partial] API snapshot; no-sample routes"
-                    : "[live] API snapshot"
+                    : "[cached] API snapshot; last verified route data"
             : hasRealtimeRows
                 ? "[partial] route listener; API snapshot empty"
                 : listenerState.routeHealthFailed
@@ -285,6 +285,12 @@ export function buildAdminDebugRouteHealthCard(input: {
     const technicalEvidence = summary.total > 0
         ? `${technicalSourceLabel} | ${summary.total} tracked, ${observedCount} observed, ${summary.unobserved} unseen | slow ${summary.slow}, server ${summary.serverErrors}, client ${summary.clientErrors}`
         : technicalSourceLabel;
+    const hasCurrentSnapshotOnly =
+        hasSnapshotRows &&
+        !hasRealtimeRows &&
+        listenerState.routeHealthLoaded &&
+        observedWarnCount === 0 &&
+        summary.stale === 0;
 
     const truthState: AdminSurfaceState = isLoading && summary.total === 0
         ? "loading"
@@ -292,11 +298,13 @@ export function buildAdminDebugRouteHealthCard(input: {
             ? "failed"
             : reconciliation.activeFailureCount > 0
                 ? "failed"
-        : listenerState.routeHealthFailed || (!hasRealtimeRows && !listenerState.routeHealthLoaded) || observedWarnCount > 0 || summary.stale > 0
-                    ? "degraded"
-                    : summary.total > 0
-                        ? "live"
-                        : "unavailable";
+                : hasCurrentSnapshotOnly
+                    ? "cached"
+                    : listenerState.routeHealthFailed || (!hasRealtimeRows && !listenerState.routeHealthLoaded) || observedWarnCount > 0 || summary.stale > 0
+                        ? "degraded"
+                        : summary.total > 0
+                            ? "live"
+                            : "unavailable";
 
     return {
         value: summary.total > 0

@@ -105,6 +105,33 @@ describe("admin debug summary cards", () => {
         expect(card.truthState).toBe("degraded");
     });
 
+    it("labels snapshot-only route health as cached rather than live", () => {
+        const card = buildAdminDebugRouteHealthCard({
+            summary: {
+                total: 4,
+                healthy: 4,
+                warn: 0,
+                fail: 0,
+                stale: 0,
+                unobserved: 0,
+                slow: 0,
+                serverErrors: 0,
+                clientErrors: 0,
+            },
+            observedCount: 4,
+            hasRealtimeRows: false,
+            hasSnapshotRows: true,
+            listenerState: { routeHealthLoaded: true, routeHealthFailed: false },
+            isLoading: false,
+            hasError: false,
+        });
+
+        expect(card.technicalEvidence).toContain("[cached] API snapshot; last verified route data");
+        expect(card.technicalEvidence).not.toContain("[live] API snapshot");
+        expect(card.meta).toContain("Showing last verified route data.");
+        expect(card.truthState).toBe("cached");
+    });
+
     it("keeps unseen route coverage out of the actionable route count", () => {
         const card = buildAdminDebugRouteHealthCard({
             summary: {
