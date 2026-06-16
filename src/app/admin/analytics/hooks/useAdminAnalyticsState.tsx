@@ -1767,7 +1767,7 @@ export function useAdminAnalyticsState() {
       id: "mobile_share",
       label: "Mobile Share",
       primaryValue: null,
-      displayValue: "No device sample",
+      displayValue: "No sample",
       state: "unavailable",
       truthState: "degraded",
       statusBadgeLabel: "NO SAMPLE",
@@ -1893,9 +1893,11 @@ export function useAdminAnalyticsState() {
       id: "liveActive",
       label: "Active Users",
       displayValue:
-        liveActiveWaitingState.reason === "first_snapshot_pending" &&
-        liveActiveDisplay === liveActiveWaitingState.label
-          ? "No snapshot yet"
+        liveActivePrimaryValue === null
+          ? liveActiveWaitingState.reason === "first_snapshot_pending" &&
+            liveActiveDisplay === liveActiveWaitingState.label
+            ? "No snapshot yet"
+            : "Unavailable"
           : liveActiveDisplay,
       primaryValue: liveActivePrimaryValue,
       truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),

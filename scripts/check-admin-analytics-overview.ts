@@ -145,7 +145,7 @@ assertIncludes("useAdminAnalyticsState", hook, "visibleDegradedCopy");
 assertIncludes("useAdminAnalyticsState", hook, "fullDegradedReasons");
 assertIncludes("useAdminAnalyticsState", hook, "realtimeLaneFailures");
 assertIncludes("useAdminAnalyticsState", hook, "analyticsOverviewCards");
-assertIncludes("useAdminAnalyticsState", hook, "No device sample");
+assertIncludes("useAdminAnalyticsState", hook, "No sample");
 assertIncludes("useAdminAnalyticsState", hook, "Checkout starts unavailable");
 assertIncludes("useAdminAnalyticsState", hook, "Fallback source: server-confirmed transactions");
 assertIncludes("useAdminAnalyticsState", hook, "Fallback source: completed transactions");
