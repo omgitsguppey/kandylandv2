@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-24T19:32:24.488Z",
+  "generatedAtUtc": "2026-06-16T01:28:11.435Z",
   "reportKey": "support-policy-surface-cleanup",
   "status": "pass",
-  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "currentHead": "3782e03c1f96a33b2ab0ad56f858dc90918da9e2",
   "supportPolicyContractVersion": "2026.05.support-policy-surface.1",
   "surfaces": [
     {
@@ -103,32 +103,8 @@
   "duplicateRoutes": [],
   "surfacesWithoutFallback": [],
   "changedFiles": [
-    "agent/context/optimized-task-context.generated.json",
-    "agent/state/behavior-math-verification.generated.json",
-    "agent/state/event-catalog-telemetry-audit.generated.json",
-    "agent/state/monolith-orphan-metric-registry.generated.json",
-    "agent/state/privacy-behavior-legacy-recovery.generated.json",
-    "agent/state/telemetry-parity-score.generated.json",
-    "docs/agent-truth/privacy-behavior-legacy-recovery.md",
-    "package.json",
-    "scripts/agent/debug-cockpit-batch13-shared.ts",
-    "scripts/agent/validate-cost-data-connect-refresh.ts",
-    "scripts/agent/validate-data-connect-mirror-status.ts",
-    "scripts/agent/validate-debug-cockpit-batch13-cleanup.ts",
-    "scripts/agent/validate-event-catalog-telemetry.ts",
-    "scripts/agent/validate-monolith-split-plan.ts",
-    "scripts/agent/validate-runtime-watch-time-evidence-gap.ts",
-    "scripts/agent/validate-support-creator-refresh.ts",
-    "scripts/agent/validate-telemetry-behavior-refresh.ts",
-    "src/lib/admin-analytics/admin-analytics-tab-state-contract.ts",
-    "src/lib/debug/admin-debug-drilldown-loader-contract.ts",
-    "src/lib/debug/monolith-risk-registry.ts",
-    "tests/unit/cost-data-connect-refresh.spec.ts",
-    "tests/unit/debug-cockpit-batch13-cleanup.spec.ts",
-    "tests/unit/monolith-split-plan.spec.ts",
-    "tests/unit/runtime-watch-time-evidence-gap.spec.ts",
-    "tests/unit/support-creator-refresh.spec.ts",
-    "tests/unit/telemetry-behavior-refresh.spec.ts"
+    "src/components/Admin/AdminSupportQueue.tsx",
+    "tests/unit/admin-support-queue-error-language.spec.ts"
   ],
   "protectedChanges": [],
   "checks": {

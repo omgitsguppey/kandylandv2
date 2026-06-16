@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { useAdminSupportRealtime } from "@/hooks/useAdminSupportRealtime";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import {
     describeSupportState,
     formatSupportCategoryLabel,
@@ -50,6 +51,11 @@ async function readJson<T>(url: string, init?: RequestInit): Promise<T> {
         throw new Error(typeof body.error === "string" ? body.error : `Request failed for ${url}`);
     }
     return body;
+}
+
+function getAdminSupportSafeErrorMessage(error: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
 }
 
 export function AdminSupportQueue() {
@@ -94,7 +100,7 @@ export function AdminSupportQueue() {
             detail: {
                 route: "/api/admin/support/threads",
                 component: "AdminSupportQueue",
-                message: threadsError.message,
+                message: getAdminSupportSafeErrorMessage(threadsError, "Support thread list failed."),
             },
         });
     }, [threadsError]);
@@ -109,7 +115,7 @@ export function AdminSupportQueue() {
                 route: selectedThreadId ? `/api/admin/support/threads/${selectedThreadId}` : "/api/admin/support/threads/[threadId]",
                 component: "AdminSupportQueue",
                 threadId: selectedThreadId,
-                message: messagesError.message,
+                message: getAdminSupportSafeErrorMessage(messagesError, "Support message detail failed."),
             },
         });
     }, [messagesError, selectedThreadId]);
@@ -144,7 +150,7 @@ export function AdminSupportQueue() {
             setReply("");
             toast.success("Support reply sent.");
         } catch (error) {
-            const messageText = error instanceof Error ? error.message : "Support reply failed.";
+            const messageText = getAdminSupportSafeErrorMessage(error, "Support reply failed.");
             reportClientIssue({
                 channel: "network",
                 severity: "error",
@@ -174,7 +180,7 @@ export function AdminSupportQueue() {
             await refreshAll();
             toast.success("Support status updated.");
         } catch (error) {
-            const messageText = error instanceof Error ? error.message : "Support status update failed.";
+            const messageText = getAdminSupportSafeErrorMessage(error, "Support status update failed.");
             reportClientIssue({
                 channel: "network",
                 severity: "error",
@@ -236,7 +242,7 @@ export function AdminSupportQueue() {
                         {threadsError ? (
                             <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-100">
                                 <AlertTriangle className="h-3.5 w-3.5" />
-                                {threadsError.message}
+                                {getAdminSupportSafeErrorMessage(threadsError, "Support thread list failed.")}
                             </div>
                         ) : null}
 
@@ -351,7 +357,7 @@ export function AdminSupportQueue() {
                             <div className="min-h-0 flex-1 overflow-y-auto p-4">
                                 {messagesError ? (
                                     <div className="mb-4 rounded-lg border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
-                                        {messagesError.message}
+                                        {getAdminSupportSafeErrorMessage(messagesError, "Support message detail failed.")}
                                     </div>
                                 ) : null}
 
