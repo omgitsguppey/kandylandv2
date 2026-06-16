@@ -204,9 +204,9 @@ export default function AdminAnalyticsPage() {
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
               <span className="font-semibold text-white">Local UI review only.</span>{" "}
-              Analytics layout is inspectable; realtime, historical, overview, preferences,
-              revenue, identity, and source samples remain source_missing until a real admin
-              session loads verified analytics snapshots.
+              Analytics layout is available for local review. Activity snapshots, historical
+              views, overview, preferences, revenue, identity, and source samples stay
+              source_missing until a real admin session loads verified analytics snapshots.
             </p>
           </div>
         </div>
@@ -237,7 +237,7 @@ export default function AdminAnalyticsPage() {
           statusBadgeLabel={analyticsOverviewDisplayMetrics.liveActive.badgeLabel}
           badgePlacement={analyticsOverviewDisplayMetrics.liveActive.showBadgeInPrimary ? "footer" : "hidden"}
           compactPrimary
-          dictionaryTooltip="Current active users on the platform. If live updates are delayed, this card shows the last verified short-window count."
+          dictionaryTooltip="Current active users on the platform. If the current snapshot is delayed, this card shows the last verified short-window count."
         />
         <MetricCard
           label="Mobile Share"
@@ -294,7 +294,7 @@ export default function AdminAnalyticsPage() {
         </div>
         <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-gray-300 md:grid-cols-4">
           <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
-            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Live</p>
+            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Current</p>
             <p className="truncate font-semibold text-white">{liveSnapshotLabel}</p>
           </div>
           <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
@@ -302,7 +302,7 @@ export default function AdminAnalyticsPage() {
             <p className="truncate font-semibold text-white">{historicalSnapshotLabel}</p>
           </div>
           <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
-            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Feed</p>
+            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Source</p>
             <p className="truncate font-semibold text-white">{liveFeedStatus || "unknown"}</p>
           </div>
           <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">

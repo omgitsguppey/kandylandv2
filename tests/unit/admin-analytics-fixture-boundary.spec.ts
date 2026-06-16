@@ -20,8 +20,9 @@ describe("admin analytics local fixture boundary", () => {
   it("labels local admin UI fixture analytics evidence as source_missing", () => {
     expect(pageSource).toContain('data-admin-analytics-fixture-boundary="true"');
     expect(pageSource).toContain('data-admin-analytics-fixture-state="source_missing"');
-    expect(pageSource).toContain("realtime, historical, overview, preferences,");
-    expect(pageSource).toContain("revenue, identity, and source samples remain source_missing");
+    expect(pageSource).toContain("Activity snapshots, historical");
+    expect(pageSource).toContain("source samples stay");
+    expect(pageSource).toContain("source_missing until a real admin");
   });
 
   it("skips top-level admin analytics reads and preference writes for fixture sessions", () => {
