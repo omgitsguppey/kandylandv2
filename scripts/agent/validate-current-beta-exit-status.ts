@@ -477,6 +477,7 @@ export function validateCurrentBetaExitStatusReport(
 }
 
 function main() {
+  const forceRefresh = process.argv.includes("--refresh") || process.env.CURRENT_BETA_EXIT_STATUS_REFRESH === "1";
   let report: CurrentBetaExitStatusReport | null = null;
   const failures: string[] = [];
   try {
@@ -487,8 +488,19 @@ function main() {
 
   const head = currentHead();
   if (report) {
-    report = refreshReportFromCurrentArtifacts(report, head);
-    writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+    const versionContext = readGeneratedArtifactGitContext(repoRoot, report.currentHead);
+    const version = classifyGeneratedArtifactVersion({
+      artifactPath: reportRelativePath,
+      artifactHead: report.currentHead,
+      currentHead: head,
+      parentHead: versionContext.parentHead,
+      changedFilesInHead: versionContext.changedFilesInHead,
+      changedFilesSinceArtifactHead: versionContext.changedFilesSinceArtifactHead,
+    });
+    if (forceRefresh || !isGeneratedArtifactCurrent(version)) {
+      report = refreshReportFromCurrentArtifacts(report, head);
+      writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+    }
   }
   failures.push(...validateCurrentBetaExitStatusReport(
     report,
