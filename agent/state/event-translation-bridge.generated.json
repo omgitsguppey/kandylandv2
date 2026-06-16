@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-16T16:52:08.485Z",
-  "currentHead": "5dc1121d0e42e739914ac5ca006a7f2b6f63e6a3",
+  "generatedAtUtc": "2026-06-16T18:39:54.505Z",
+  "currentHead": "266fa9ab1a2c88ce69527ca475054b281ce90fa4",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5433,8 +5433,20 @@
   "gaps": [],
   "dirtyFiles": [
     {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/feature-registration-gate.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/telemetry-identified-parity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
     }
   ],
   "validationFailures": [],

@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-16T16:52:08.485Z
+Generated: 2026-06-16T18:39:54.505Z
 Status: pass
-Current head: 5dc1121d0e42e739914ac5ca006a7f2b6f63e6a3
+Current head: 266fa9ab1a2c88ce69527ca475054b281ce90fa4
 
 ## Contract
 
@@ -53,7 +53,10 @@ Current head: 5dc1121d0e42e739914ac5ca006a7f2b6f63e6a3
 
 ## Dirty Files
 
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/telemetry-identified-parity.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
 
 ## Validation Failures
 
