@@ -2,9 +2,9 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-06-03T18:49:41.389Z
+Generated: 2026-06-16T20:04:02.607Z
 
-Latest code version: `e4ff8fc598ad5b523a9955b5e4377a537282c029`
+Latest code version: `02e033fc1e53e3500ba0a61ff253f07a5ff0e08a`
 
 ## Summary
 
@@ -17,7 +17,7 @@ Latest code version: `e4ff8fc598ad5b523a9955b5e4377a537282c029`
 - Strict mode ready: yes.
 - Beta exit review can start: no.
 - Operator revenue smoke: `operator_confirmed_revenue_smoke`.
-- Live runtime evidence: `live_runtime_evidence_bridge=source_ready_waiting_for_activity; live_activity_confirmed=0; aggregate_activity_confirmed=0; source_ready_waiting_for_activity=1; not_observed_but_expected=6; runtime_export_required=3; provider_required=2; admin_required=1; billing_required=1; source_missing=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json`.
+- Live runtime evidence: `live_runtime_evidence_bridge=not_observed_but_expected; live_activity_confirmed=0; aggregate_activity_confirmed=0; source_ready_waiting_for_activity=0; not_observed_but_expected=7; runtime_export_required=3; provider_required=2; admin_truth_source_required=1; billing_required=1; source_missing=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json`.
 - Daily activity import path: `agent/evidence/live-runtime-activity/recent-activity.export.json`.
 - Operator confirmed amount/product: 50 GumDrops.
 - Formal provider proof from operator smoke: no.
@@ -41,7 +41,7 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 ## Source-Ready Evidence
 
 - runtime watch-time source lane is source-ready but still needs deployed playback proof.
-- live runtime evidence bridge: live_runtime_evidence_bridge=source_ready_waiting_for_activity; live_activity_confirmed=0; aggregate_activity_confirmed=0; source_ready_waiting_for_activity=1; not_observed_but_expected=6; runtime_export_required=3; provider_required=2; admin_required=1; billing_required=1; source_missing=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json
+- live runtime evidence bridge: live_runtime_evidence_bridge=not_observed_but_expected; live_activity_confirmed=0; aggregate_activity_confirmed=0; source_ready_waiting_for_activity=0; not_observed_but_expected=7; runtime_export_required=3; provider_required=2; admin_truth_source_required=1; billing_required=1; source_missing=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json
 
 ## Operator-Confirmed Evidence
 

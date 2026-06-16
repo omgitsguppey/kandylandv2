@@ -395,7 +395,7 @@ export function buildProofLanes(input: {
 }
 
 function liveRuntimeEvidenceBlocksReview(status: string | undefined) {
-  return /\b(provider_required|admin_required|billing_required|manual_required|runtime_export_required|not_observed_but_expected)\b/u.test(status ?? "");
+  return /\b(provider_required|admin_required|admin_truth_source_required|billing_required|manual_required|runtime_export_required|not_observed_but_expected)\b/u.test(status ?? "");
 }
 
 export function betaExitReviewStateFor(input: {

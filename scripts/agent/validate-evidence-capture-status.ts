@@ -192,7 +192,7 @@ function summarizeLiveRuntimeEvidenceFromArtifact(): LiveRuntimeEvidenceCapture 
       `not_observed_but_expected=${count("not_observed_but_expected")}`,
       `runtime_export_required=${count("runtime_export_required")}`,
       `provider_required=${count("provider_required")}`,
-      `admin_required=${count("admin_required")}`,
+      `admin_truth_source_required=${count("admin_truth_source_required")}`,
       `billing_required=${count("billing_required")}`,
       `source_missing=${count("source_missing")}`,
       `dailyActivityImport=${foundImportPaths.length > 0 ? "present" : "missing"}:${expectedImportPath}`,

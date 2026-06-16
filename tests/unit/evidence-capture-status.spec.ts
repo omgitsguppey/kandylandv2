@@ -41,14 +41,14 @@ describe("evidence capture status", () => {
       completeArtifacts: 0,
       currentBetaExitCanStart: false,
       liveRuntimeEvidence: {
-        statusSummary: "live_runtime_evidence_bridge=aggregate_activity_confirmed; aggregate_activity_confirmed=2; provider_required=2; admin_required=1; billing_required=1; dailyActivityImport=present:agent/evidence/live-runtime-activity/recent-activity.export.json",
+        statusSummary: "live_runtime_evidence_bridge=aggregate_activity_confirmed; aggregate_activity_confirmed=2; provider_required=2; admin_truth_source_required=1; billing_required=1; dailyActivityImport=present:agent/evidence/live-runtime-activity/recent-activity.export.json",
         expectedImportPath: "agent/evidence/live-runtime-activity/recent-activity.export.json",
       },
     });
 
     expect(report.summary.liveRuntimeEvidence.statusSummary).toContain("aggregate_activity_confirmed=2");
     expect(report.sourceReadyEvidence).toContain(
-      "live runtime evidence bridge: live_runtime_evidence_bridge=aggregate_activity_confirmed; aggregate_activity_confirmed=2; provider_required=2; admin_required=1; billing_required=1; dailyActivityImport=present:agent/evidence/live-runtime-activity/recent-activity.export.json",
+      "live runtime evidence bridge: live_runtime_evidence_bridge=aggregate_activity_confirmed; aggregate_activity_confirmed=2; provider_required=2; admin_truth_source_required=1; billing_required=1; dailyActivityImport=present:agent/evidence/live-runtime-activity/recent-activity.export.json",
     );
     expect(report.formalMissingEvidence).toContain(
       "live runtime evidence does not clear provider, admin, billing, manual visual, or exact-user proof lanes.",

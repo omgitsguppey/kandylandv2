@@ -529,7 +529,7 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
   const notObservedButExpected = statuses.filter((status) => status === "not_observed_but_expected").length;
   const runtimeExportRequired = statuses.filter((status) => status === "runtime_export_required").length;
   const providerRequired = statuses.filter((status) => status === "provider_required").length;
-  const adminRequired = statuses.filter((status) => status === "admin_required").length;
+  const adminTruthSourceRequired = statuses.filter((status) => status === "admin_truth_source_required").length;
   const billingRequired = statuses.filter((status) => status === "billing_required").length;
   const sourceMissing = statuses.filter((status) => status === "source_missing").length;
   const firstDailyImport = systems.map((system) => readRecord(system.dailyActivityImport)).find((daily) => readString(daily.expectedPath));
@@ -559,7 +559,7 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
       `liveRuntimeEvidence.notObservedButExpected=${notObservedButExpected}`,
       `liveRuntimeEvidence.runtimeExportRequired=${runtimeExportRequired}`,
       `liveRuntimeEvidence.providerRequired=${providerRequired}`,
-      `liveRuntimeEvidence.adminRequired=${adminRequired}`,
+      `liveRuntimeEvidence.adminTruthSourceRequired=${adminTruthSourceRequired}`,
       `liveRuntimeEvidence.billingRequired=${billingRequired}`,
       `liveRuntimeEvidence.sourceMissing=${sourceMissing}`,
       `dailyActivityImport.expectedPath=${readString(firstDailyImport?.expectedPath) ?? "agent/evidence/live-runtime-activity/recent-activity.export.json"}`,

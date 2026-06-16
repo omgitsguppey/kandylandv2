@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-06-16T19:51:31.488Z",
-  "currentHead": "3736d072dfdd1f28d6fef673f083c25e12f827d1",
+  "generatedAtUtc": "2026-06-16T20:05:04.663Z",
+  "currentHead": "02e033fc1e53e3500ba0a61ff253f07a5ff0e08a",
   "betaScore": 69.89,
   "betaStatus": "Stale evidence",
   "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
@@ -23,18 +23,6 @@
       "severity": "P1",
       "status": "external_evidence_required",
       "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
-    },
-    {
-      "id": "runtime_smoke_evidence_stale",
-      "severity": "P1",
-      "status": "stale_evidence",
-      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
-    },
-    {
-      "id": "admin_truth_sample_evidence_stale",
-      "severity": "P1",
-      "status": "stale_evidence",
-      "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
     },
     {
       "id": "speed_security_owner_review_backlog",
@@ -110,14 +98,14 @@
     {
       "id": "runtimeSmoke",
       "label": "Runtime smoke",
-      "truthState": "stale_evidence",
+      "truthState": "capture_artifact_attached",
       "sourceStatus": "complete",
       "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
     },
     {
       "id": "adminTruthSample",
       "label": "Admin truth sample",
-      "truthState": "stale_evidence",
+      "truthState": "capture_artifact_attached",
       "sourceStatus": "complete",
       "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
     }
