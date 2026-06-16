@@ -22,9 +22,8 @@ describe("Admin analytics operations mobile consolidation", () => {
     expect(source).toContain('livePulseViewMode === "chart"');
     expect(source).toContain('livePulseViewMode === "table"');
     expect(source).toContain('livePulseViewMode === "cards"');
-    expect(source).toContain("Graph waiting for current activity.");
-    expect(source).toContain("Surface detail has no current activity sample yet.");
-    expect(source).not.toContain("realtime upgrade");
+    expect(source).toContain("Graph waiting for a realtime upgrade.");
+    expect(source).toContain("Surface detail has no verified realtime upgrade yet.");
   });
 
   it("renders Guest Quality as one compact mobile view mode at a time", () => {
