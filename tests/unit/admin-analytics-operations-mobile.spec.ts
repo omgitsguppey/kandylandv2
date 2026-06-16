@@ -62,6 +62,9 @@ describe("Admin analytics operations mobile consolidation", () => {
     expect(source).toContain("data-journey-funnel-hydration-state={journeyFunnelModel.hydrationState}");
     expect(source).toContain("data-journey-funnel-measurement-mode={journeyFunnelModel.measurementMode}");
     expect(source).toContain("data-journey-funnel-denominator-mode={journeyFunnelModel.denominatorMode}");
+    expect(source).toContain("data-admin-analytics-next-source-step={journeyFunnelModel.nextSourceStep ?? \"\"}");
+    expect(source).toContain("Next source step: generate bounded sample activity, refresh snapshots, or inspect Debug.");
+    expect(source).not.toContain("Manual workaround:");
     expect(source).toContain('journeyFunnelViewMode === "chart"');
     expect(source).toContain('journeyFunnelViewMode === "table"');
     expect(source).toContain('journeyFunnelViewMode === "cards"');

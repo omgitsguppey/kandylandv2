@@ -82,7 +82,7 @@ describe("buildAdminAnalyticsJourneyFunnelModel", () => {
     expect(model.modeLabel).toBe("NO SAMPLE");
     expect(model.hasUsableEventSample).toBe(false);
     expect(model.canRenderStepDetails).toBe(false);
-    expect(model.manualWorkaround).toContain("Generate sample activity");
+    expect(model.nextSourceStep).toContain("Generate bounded sample activity");
   });
 
   it("keeps actual errors distinct from no-sample states", () => {

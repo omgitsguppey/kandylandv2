@@ -692,7 +692,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 data-admin-analytics-hydration-state={journeyFunnelModel.hydrationState}
                 data-admin-analytics-measurement-mode={journeyFunnelModel.measurementMode}
                 data-admin-analytics-exact-user-funnel-available={String(journeyFunnelModel.exactUserFunnelAvailable)}
-                data-admin-analytics-manual-workaround={journeyFunnelModel.manualWorkaround ?? ""}
+                data-admin-analytics-next-source-step={journeyFunnelModel.nextSourceStep ?? ""}
                 title={journeyFunnelModel.algorithmRecommendation ?? journeyFunnelModel.recommendation}
               >
                 <span>{journeyFunnelModel.visibleHelperCopy}</span>
@@ -715,7 +715,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   </div>
                   <p>{journeyFunnelModel.unavailableReason}</p>
                   <p className="text-[10px] text-gray-400">
-                    Manual workaround: generate sample activity, refresh snapshots, or inspect Debug.
+                    Next source step: generate bounded sample activity, refresh snapshots, or inspect Debug.
                   </p>
                   <p className="text-[10px] text-gray-500" title={journeyFunnelModel.algorithmRecommendation ?? undefined}>
                     Exact funnel unavailable until ordered actor/session transitions exist.
@@ -925,7 +925,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   data-admin-analytics-auth-measurement-mode={authOutcomeModel.measurementMode}
                   data-admin-analytics-auth-exact-chain-available={String(authOutcomeModel.trackingCapability.exactAttemptChainAvailable)}
                   data-admin-analytics-auth-failure-reasons-available={String(authOutcomeModel.trackingCapability.failureReasonsAvailable)}
-                  data-admin-analytics-auth-manual-workaround={authOutcomeModel.trackingCapability.manualWorkaround}
+                  data-admin-analytics-auth-next-source-step={authOutcomeModel.trackingCapability.nextSourceStep}
                   title={authOutcomeModel.algorithmRecommendation ?? undefined}
                 >
                   <div className="min-w-0">
@@ -964,7 +964,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     </div>
                     <p>{authOutcomeModel.unavailableReason}</p>
                     <p className="text-[10px] text-gray-400">
-                      Manual: run email/password and Google login attempts, then refresh.
+                      Next source step: run bounded email/password and Google login attempts, then refresh.
                     </p>
                   </div>
                 ) : (

@@ -178,7 +178,8 @@ describe("buildAdminAnalyticsAuthOutcomeModel", () => {
     expect(model.attempts.value).toBeNull();
     expect(model.successRate.value).toBeNull();
     expect(model.timingMissingReason).toBeNull();
-    expect(model.manualWorkaround).toContain("email/password");
+    expect(model.nextSourceStep).toContain("email/password");
+    expect(model.trackingCapability.nextSourceStep).toContain("bounded email/password");
   });
 
   it("keeps actual auth route errors distinct from no sample", () => {

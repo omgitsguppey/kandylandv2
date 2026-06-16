@@ -82,7 +82,7 @@ export type AdminAnalyticsAuthOutcomeModel = {
   canRenderMethodDetails: boolean;
   measurementMode: "canonical_attempt_chain" | "legacy_event_counts" | "unavailable";
   unavailableReason: string | null;
-  manualWorkaround: string | null;
+  nextSourceStep: string | null;
   algorithmRecommendation: string | null;
   primarySummary: string;
   mobileCompactDetail: string | null;
@@ -96,7 +96,7 @@ export type AdminAnalyticsAuthOutcomeModel = {
     emailPasswordTracked: boolean;
     googleTracked: boolean;
     missingPieces: string[];
-    manualWorkaround: string;
+    nextSourceStep: string;
     futureInstrumentation: string[];
   };
 };
@@ -278,8 +278,8 @@ function buildMethodGroupSummary(
   };
 }
 
-const AUTH_MANUAL_WORKAROUND =
-  "Run an email/password login attempt and a Google login attempt, including one intentional email/password failure, then refresh the selected range.";
+const AUTH_NEXT_SOURCE_STEP =
+  "Run bounded email/password and Google login attempts, including one intentional email/password failure, then refresh the selected range.";
 
 const AUTH_ALGORITHM_RECOMMENDATION =
   "Exact auth outcomes require auth_attempt_started, auth_attempt_succeeded, auth_attempt_failed, and auth_attempt_unfinished grouped by authAttemptId, method/provider, timestamps, duration, terminal outcome, and safe failureCode. Attempts = count distinct authAttemptId per method group; successes = terminal success; failures = terminal failure; unfinished = started without terminal outcome before timeout/window close; successRate = successes / attempts; topFailureCode = mode(failureCode) over failures.";
@@ -414,11 +414,11 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
     ? hasCanonicalAuthAttemptSample
       ? "Email/password and Google attempts are separated by method."
       : "Legacy auth counts are partial and not exact attempt chains."
-    : "Run email/password and Google attempts, then refresh.";
+    : "Run bounded email/password and Google attempts, then refresh.";
   const recommendation = !hasUsableAuthSample
     ? input.loading && !input.error
       ? "Waiting for auth outcome data."
-      : "No auth sample yet. Run email/password and Google attempts, then refresh."
+      : "No auth sample yet. Run bounded email/password and Google attempts, then refresh."
     : hasLegacyAuthSample
       ? "Legacy auth count fallback. Exact attempt chains require authAttemptId-linked auth_attempt_* records."
       : timingMissingReason
@@ -480,7 +480,7 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
     canRenderMethodDetails: hasUsableAuthSample,
     measurementMode,
     unavailableReason,
-    manualWorkaround: hasUsableAuthSample ? null : AUTH_MANUAL_WORKAROUND,
+    nextSourceStep: hasUsableAuthSample ? null : AUTH_NEXT_SOURCE_STEP,
     algorithmRecommendation: AUTH_ALGORITHM_RECOMMENDATION,
     primarySummary,
     mobileCompactDetail,
@@ -491,7 +491,7 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
       emailPasswordTracked,
       googleTracked,
       missingPieces,
-      manualWorkaround: AUTH_MANUAL_WORKAROUND,
+      nextSourceStep: AUTH_NEXT_SOURCE_STEP,
       futureInstrumentation: AUTH_FUTURE_INSTRUMENTATION,
     },
   };

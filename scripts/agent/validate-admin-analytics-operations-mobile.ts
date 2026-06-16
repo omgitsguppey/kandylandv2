@@ -43,7 +43,7 @@ for (const needle of [
   "canRenderStepDetails",
   "exactUserFunnelAvailable",
   "measurementMode",
-  "manualWorkaround",
+  "nextSourceStep",
   "algorithmRecommendation",
   '"NO SAMPLE"',
   '"UNAVAILABLE"',
@@ -68,9 +68,9 @@ for (const needle of [
   "data-admin-analytics-hydration-state",
   "data-admin-analytics-measurement-mode",
   "data-admin-analytics-exact-user-funnel-available",
-  "data-admin-analytics-manual-workaround",
+  "data-admin-analytics-next-source-step",
   "No event sample yet",
-  "Manual workaround: generate sample activity, refresh snapshots, or inspect Debug.",
+  "Next source step: generate bounded sample activity, refresh snapshots, or inspect Debug.",
   "Exact funnel unavailable until ordered actor/session transitions exist.",
 ]) {
   requireIncludes(operationsTab, needle, "Operations Event Chain compact state");
@@ -79,6 +79,7 @@ for (const needle of [
 if (
   operationsTab.includes("journeyFunnelModel.steps.map")
   && !operationsTab.includes("eventChainCanRenderDetails ?")
+  && !operationsTab.includes("eventChainCanRenderDetails &&")
 ) {
   failures.push("Event Chain step rows must be guarded by canRenderStepDetails.");
 }

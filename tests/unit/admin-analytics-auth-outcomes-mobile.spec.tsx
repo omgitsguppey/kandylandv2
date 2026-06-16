@@ -12,7 +12,7 @@ describe("Admin Analytics Auth Outcomes mobile contract", () => {
   it("renders compact no-sample auth state instead of metric-card spam", () => {
     expect(source).toContain("authHasUsableSample");
     expect(source).toContain("No auth sample yet");
-    expect(source).toContain("Manual: run email/password and Google login attempts, then refresh.");
+    expect(source).toContain("Next source step: run bounded email/password and Google login attempts, then refresh.");
     expect(source).toContain("!authHasUsableSample");
     expect(source).toContain("authCanRenderDetails");
   });
@@ -35,8 +35,9 @@ describe("Admin Analytics Auth Outcomes mobile contract", () => {
     expect(source).toContain("data-admin-analytics-auth-measurement-mode");
     expect(source).toContain("data-admin-analytics-auth-exact-chain-available");
     expect(source).toContain("data-admin-analytics-auth-failure-reasons-available");
-    expect(source).toContain("data-admin-analytics-auth-manual-workaround");
+    expect(source).toContain("data-admin-analytics-auth-next-source-step");
     expect(source).toContain("Failure reason not captured");
     expect(source).not.toContain("failure_code_unavailable}");
+    expect(source).not.toContain("Manual:");
   });
 });

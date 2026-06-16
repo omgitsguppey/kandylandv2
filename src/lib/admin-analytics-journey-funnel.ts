@@ -65,7 +65,7 @@ export type AdminAnalyticsJourneyFunnelModel = FunnelFlags & Omit<EventChainPane
   exactUserFunnelAvailable: boolean;
   measurementMode: "event_volume_only" | "ordered_actor_session_funnel" | "unavailable";
   unavailableReason: string | null;
-  manualWorkaround: string | null;
+  nextSourceStep: string | null;
   algorithmRecommendation: string | null;
   visibleTitle: "Event Chain" | "Journey Funnel";
   visibleHelperCopy: string;
@@ -284,9 +284,9 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
   const unavailableReason = hasUsableEventSample
     ? null
     : "No first-party event-count snapshot is available for this range.";
-  const manualWorkaround = hasUsableEventSample
+  const nextSourceStep = hasUsableEventSample
     ? null
-    : "Generate sample activity in the selected range, refresh analytics snapshots, or inspect Debug/raw evidence before treating this lane as measured.";
+    : "Generate bounded sample activity in the selected range, refresh analytics snapshots, or inspect Debug source evidence before treating this lane as measured.";
   const algorithmRecommendation = "Build an ordered actor/session funnel by grouping events by canonical actor/session, sorting by event timestamp, keeping the first occurrence of each step per actor/session/window, then computing step_i_reached / step_(i-1)_reached. Aggregate event counts alone remain event-volume ratios, not conversion.";
   const nonSequentialSteps = MAIN_STEPS.slice(1)
     .filter((step, index) => {
@@ -404,7 +404,7 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     exactUserFunnelAvailable,
     measurementMode,
     unavailableReason,
-    manualWorkaround,
+    nextSourceStep,
     algorithmRecommendation,
     visibleTitle: "Event Chain",
     visibleHelperCopy,
@@ -427,7 +427,7 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     biggestDropoffStep: biggestDropoff ? (steps.find((step) => step.stepKey === biggestDropoff.step)?.visibleLabel ?? biggestDropoff.step) : null,
     biggestDropoffPercent: biggestDropoff ? biggestDropoff.dropoff : null,
     recommendation: !hasUsableEventSample
-      ? "No event sample yet. Generate sample activity, refresh snapshots, or inspect Debug before treating this lane as measured."
+      ? "No event sample yet. Generate bounded sample activity, refresh snapshots, or inspect Debug source evidence before treating this lane as measured."
       : sourceMismatchSteps.length > 0
       ? "True user funnel unavailable until unique actor/session chain is computed. Current ratios are event-volume only."
       : largestEventVolumeDecreaseLabel
