@@ -75,7 +75,10 @@ function finding(id: string, ok: boolean, detail: string, severity: Finding["sev
 export function validateAdminAnalyticsDebugCostReduction(options: { writeReport?: boolean } = {}) {
   const historicalRoute = read("src/app/api/admin/analytics/historical/route.ts");
   const analyticsData = read("src/lib/server/admin-analytics-data.ts");
+  const ga4Evidence = read("src/lib/server/admin-analytics/ga4-evidence.ts");
   const debugRoute = read("src/app/api/admin/debug/route.ts");
+  const debugSummary = read("src/lib/server/admin-debug/summary.ts");
+  const debugTruthState = read("src/lib/server/admin-debug/truth-state.ts");
   const runtimeWarningStore = read("src/lib/server/runtime-warning-store.ts");
   const supportThreads = read("src/lib/server/support-threads.ts");
   const adminSupportRoute = read("src/app/api/admin/support/threads/route.ts");
@@ -95,7 +98,8 @@ export function validateAdminAnalyticsDebugCostReduction(options: { writeReport?
     finding(
       "gaSnapshotFirstEnabled",
       includes(analyticsData, "allowVendorReports")
-        && includes(analyticsData, "buildSkippedVendorReport")
+        && includes(ga4Evidence, "buildSkippedVendorReport")
+        && includes(analyticsData, "runVendorReportWhenAllowed")
         && includes(historicalRoute, "allowVendorReports: forceRefresh"),
       "GA/Data API reports are skipped on default raw fallback and only allowed by explicit refresh.",
     ),
@@ -120,9 +124,9 @@ export function validateAdminAnalyticsDebugCostReduction(options: { writeReport?
     ),
     finding(
       "debugInitialLoadLazy",
-      includes(debugRoute, "ADMIN_DEBUG_DEFAULT_SECTION = \"summary\"")
-        && includes(debugRoute, "readAdminDebugSummaryPayload")
-        && includes(debugRoute, "deferredSections")
+      includes(debugTruthState, "ADMIN_DEBUG_DEFAULT_SECTION = \"summary\"")
+        && includes(debugRoute, "buildAdminDebugSummaryPayload")
+        && includes(debugSummary, "deferredSections")
         && includes(debugRoute, "section !== \"all\""),
       "Admin Debug default route returns a bounded summary and defers high-cost sections.",
     ),
@@ -159,9 +163,9 @@ export function validateAdminAnalyticsDebugCostReduction(options: { writeReport?
     ),
     finding(
       "truthSemanticsPreserved",
-      includes(debugRoute, "truthState: \"deferred\"")
-        && includes(debugRoute, "sourceFreshness")
-        && includes(historicalRoute, "stale_known")
+      includes(debugSummary, "truthState")
+        && includes(debugSummary, "sourceFreshness")
+        && includes(debugSummary, "stale_known")
         && !includes(debugRoute, "fake healthy"),
       "Deferred, stale, and unavailable admin data remains truth-labeled instead of shown as live.",
     ),

@@ -1,21 +1,21 @@
 {
-  "generatedAtUtc": "2026-05-21T16:43:13.514Z",
+  "generatedAtUtc": "2026-06-16T22:54:15.780Z",
   "reportKey": "admin-analytics-debug-cost-reduction",
-  "currentHead": "3878a581193dd171f69e3c0b63073ac738c14152",
+  "currentHead": "7fa720bc204a8174a21ef040f948628115c151f0",
   "summary": {
     "adminHistoricalDefaultCacheEnabled": true,
-    "gaSnapshotFirstEnabled": false,
+    "gaSnapshotFirstEnabled": true,
     "eventFactsDefaultLimitReduced": true,
     "guestDiagnosticsDefaultLimitReduced": true,
     "dropsArchivePaged": true,
-    "debugInitialLoadLazy": false,
+    "debugInitialLoadLazy": true,
     "heartbeatFullScanBlocked": true,
     "supportThreadsPaged": true,
     "rosterSummaryDefault": true,
     "userDetailExpensiveSectionsLazy": true,
-    "truthSemanticsPreserved": false,
+    "truthSemanticsPreserved": true,
     "p0Count": 0,
-    "p1Count": 3,
+    "p1Count": 0,
     "p2Count": 0
   },
   "auditItemsAddressed": [
@@ -46,6 +46,12 @@
       "detail": "Historical analytics route defaults to cache/stale-known metadata instead of no-store cold rebuild."
     },
     {
+      "id": "gaSnapshotFirstEnabled",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA/Data API reports are skipped on default raw fallback and only allowed by explicit refresh."
+    },
+    {
       "id": "eventFactsDefaultLimitReduced",
       "status": "fixed",
       "severity": "P1",
@@ -62,6 +68,12 @@
       "status": "fixed",
       "severity": "P1",
       "detail": "Drops archive uses a bounded top-drop snapshot instead of an unordered 1000-doc read."
+    },
+    {
+      "id": "debugInitialLoadLazy",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Admin Debug default route returns a bounded summary and defers high-cost sections."
     },
     {
       "id": "heartbeatFullScanBlocked",
@@ -86,27 +98,15 @@
       "status": "fixed",
       "severity": "P1",
       "detail": "Admin user and user-detail expensive creator-op sections are bounded and explicitly requested."
-    }
-  ],
-  "deferredFindings": [
-    {
-      "id": "gaSnapshotFirstEnabled",
-      "status": "failed",
-      "severity": "P1",
-      "detail": "GA/Data API reports are skipped on default raw fallback and only allowed by explicit refresh."
-    },
-    {
-      "id": "debugInitialLoadLazy",
-      "status": "failed",
-      "severity": "P1",
-      "detail": "Admin Debug default route returns a bounded summary and defers high-cost sections."
     },
     {
       "id": "truthSemanticsPreserved",
-      "status": "failed",
+      "status": "fixed",
       "severity": "P1",
       "detail": "Deferred, stale, and unavailable admin data remains truth-labeled instead of shown as live."
-    },
+    }
+  ],
+  "deferredFindings": [
     {
       "id": "admin-debug-section-route-split",
       "status": "deferred",

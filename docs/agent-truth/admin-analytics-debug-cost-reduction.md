@@ -1,32 +1,32 @@
 # Admin Analytics Debug Cost Reduction
 
-Generated: 2026-05-21T16:43:13.514Z
-Current HEAD: 3878a581193dd171f69e3c0b63073ac738c14152
+Generated: 2026-06-16T22:54:15.780Z
+Current HEAD: 7fa720bc204a8174a21ef040f948628115c151f0
 
 ## Summary
 
 - Historical cache default: true
-- GA snapshot-first default: false
-- Debug lazy default: false
+- GA snapshot-first default: true
+- Debug lazy default: true
 - Support/roster/user detail bounded: true
-- Truth semantics preserved: false
+- Truth semantics preserved: true
 
 ## Fixes Applied
 
 - adminHistoricalDefaultCacheEnabled: Historical analytics route defaults to cache/stale-known metadata instead of no-store cold rebuild.
+- gaSnapshotFirstEnabled: GA/Data API reports are skipped on default raw fallback and only allowed by explicit refresh.
 - eventFactsDefaultLimitReduced: Default event-fact sample cap is reduced from 5000.
 - guestDiagnosticsDefaultLimitReduced: Guest/security/diagnostic default sample caps are reduced.
 - dropsArchivePaged: Drops archive uses a bounded top-drop snapshot instead of an unordered 1000-doc read.
+- debugInitialLoadLazy: Admin Debug default route returns a bounded summary and defers high-cost sections.
 - heartbeatFullScanBlocked: Queue heartbeat listing uses a latest-N query by default.
 - supportThreadsPaged: Admin and user support thread lists are bounded and ordered by updated activity.
 - rosterSummaryDefault: Admin roster default is bounded and keeps creator ops behind an explicit includeOps drilldown.
 - userDetailExpensiveSectionsLazy: Admin user and user-detail expensive creator-op sections are bounded and explicitly requested.
+- truthSemanticsPreserved: Deferred, stale, and unavailable admin data remains truth-labeled instead of shown as live.
 
 ## Deferred Findings
 
-- P1 gaSnapshotFirstEnabled: GA/Data API reports are skipped on default raw fallback and only allowed by explicit refresh.
-- P1 debugInitialLoadLazy: Admin Debug default route returns a bounded summary and defers high-cost sections.
-- P1 truthSemanticsPreserved: Deferred, stale, and unavailable admin data remains truth-labeled instead of shown as live.
 - P2 admin-debug-section-route-split: The debug route now supports summary/all source sections. A later UI pass can call named drilldown sections directly instead of the all section.
 
 ## Cost Savings Model
