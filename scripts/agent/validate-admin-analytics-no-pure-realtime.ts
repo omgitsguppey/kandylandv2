@@ -128,8 +128,8 @@ for (const fixturePollingNeedle of [
 }
 
 for (const livePulseNeedle of [
-  "Graph waiting for a realtime upgrade.",
-  "Surface detail has no verified realtime upgrade yet.",
+  "Graph waiting for current activity.",
+  "Surface detail has no current activity sample yet.",
   "Showing last verified snapshot.",
 ]) {
   requireIncludes(operationsTab + livePulseModel + displayStateHelper, livePulseNeedle, "Live Pulse snapshot-first visible state");
