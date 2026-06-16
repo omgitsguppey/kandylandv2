@@ -14,7 +14,11 @@ import {
   buildAdminAnalyticsReturnCadenceBuckets,
   resolveAdminAnalyticsGuestEstimateBadgeLabel,
 } from "@/lib/admin-analytics-contracts";
-import { formatAdminAnalyticsEvidenceSourceLabel } from "@/lib/analytics/admin-analytics-display-state";
+import {
+  formatAdminAnalyticsEvidenceSourceLabel,
+  formatAdminAnalyticsSourceStateLabel,
+  formatAdminAnalyticsSourceTruthLabel,
+} from "@/lib/analytics/admin-analytics-display-state";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 
 export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
@@ -65,10 +69,19 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const guestBadgeLabel = resolveAdminAnalyticsGuestEstimateBadgeLabel(
     audienceSnapshotModel.guestEstimateFormulaUsed,
   );
+  const audienceSourceStateLabel = formatAdminAnalyticsSourceStateLabel(
+    audienceSnapshotModel.sourceState,
+  );
   const verifiedSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot");
   const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
   const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
   const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
+  const guestEstimateSourceTruthLabel = formatAdminAnalyticsSourceTruthLabel(
+    audienceSnapshotModel.guestEstimateMetadata.sourceTruth,
+  );
+  const returnCadenceSourceTruthLabel = formatAdminAnalyticsSourceTruthLabel(
+    returnCadenceModel.sourceTruth,
+  );
   const returnCadenceBuckets = buildAdminAnalyticsReturnCadenceBuckets(returnCadenceModel);
   const deviceMixSummaryLine = [
     `${deviceMixModel.totalSessions.toLocaleString()} sessions`,
@@ -236,7 +249,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     Last updated: {audienceSnapshotModel.generatedAtUtc === new Date(0).toISOString()
                       ? "Unavailable"
                       : formatRelativeTime(Date.parse(audienceSnapshotModel.generatedAtUtc), nowMs)}
-                    {" | "}Source: {audienceSnapshotModel.sourceState}
+                    {" | "}Source: {audienceSourceStateLabel}
                   </p>
                   <p className="text-gray-500">
                     Source labels: {verifiedSnapshotLabel} wins; {vendorEvidenceLabel} is supporting evidence, not product truth.
@@ -350,7 +363,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 <details className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300" data-product-surface-integrity-debug-detail>
                   <summary className="cursor-pointer list-none font-semibold text-white">Guest estimate source detail</summary>
                   <p>Label: {vendorEvidenceLabel}</p>
-                  <p>Source: {audienceSnapshotModel.guestEstimateMetadata.sourceTruth}</p>
+                  <p title={audienceSnapshotModel.guestEstimateMetadata.sourceTruth}>
+                    Source: {guestEstimateSourceTruthLabel}
+                  </p>
                   <p>Formula: {audienceSnapshotModel.guestEstimateMetadata.formula ?? "Unavailable"}</p>
                   <p>Freshness: {audienceSnapshotModel.guestEstimateMetadata.freshnessState}</p>
                 </details>
@@ -580,7 +595,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               <td className="px-3 py-2 font-semibold text-white">{bucket.label}</td>
                               <td className="px-3 py-2">{bucket.countDisplay ?? formatCompactNumber(bucket.count)}</td>
                               <td className="px-3 py-2">{bucket.percentDisplay ?? formatPercent(bucket.pct)}</td>
-                              <td className="px-3 py-2">{returnCadenceModel.sourceTruth}</td>
+                              <td className="px-3 py-2" title={returnCadenceModel.sourceTruth}>
+                                {returnCadenceSourceTruthLabel}
+                              </td>
                               <td className="px-3 py-2">{returnCadenceModel.freshnessState}</td>
                             </tr>
                           ))}
@@ -766,7 +783,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                                 <div className="truncate text-[11px] text-gray-500">{item.destinationPath}</div>
                               </td>
                               <td className="px-3 py-2 font-semibold text-brand-purple">{item.count.toLocaleString()}</td>
-                              <td className="px-3 py-2">{item.sourceTruth}</td>
+                              <td className="px-3 py-2" title={item.sourceTruth}>
+                                {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
+                              </td>
                               <td className="px-3 py-2">{item.freshnessState}</td>
                               <td className="px-3 py-2">
                                 {item.lastSeenAtUtc
@@ -811,7 +830,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               {item.destinationPath}
                             </p>
                             <p className="mb-2 text-[11px] text-gray-500">
-                              Source: {item.sourceTruth}
+                              <span title={item.sourceTruth}>
+                                Source: {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
+                              </span>
                               {" | "}Freshness: {item.freshnessState}
                               {" | "}Last seen: {item.lastSeenAtUtc
                                 ? formatRelativeTime(Date.parse(item.lastSeenAtUtc), nowMs)
@@ -859,7 +880,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
             <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
               <SectionCard
                 title="Device Mix"
-                subtitle="Compact device intelligence with source truth and mobile-first implications."
+                subtitle="Compact device intelligence with source-backed mobile context."
                 icon={Smartphone}
                 density="compact"
                 summaryLine={deviceMixSummaryLine}
@@ -990,7 +1011,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                             <p><span className="text-gray-500 md:hidden">Sessions: </span>{item.sessions.toLocaleString()}</p>
                             <p><span className="text-gray-500 md:hidden">Share: </span>{formatPercent(item.sessionSharePct)}</p>
                             <p><span className="text-gray-500 md:hidden">Engaged: </span>{item.engagedSessions === null ? "Unavailable" : item.engagedSessions.toLocaleString()}</p>
-                            <p className="truncate"><span className="text-gray-500 md:hidden">Truth: </span>{item.sourceTruth}</p>
+                            <p className="truncate" title={item.sourceTruth}>
+                              <span className="text-gray-500 md:hidden">Truth: </span>
+                              {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -1016,7 +1040,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                                 </p>
                                 <p className="text-[11px] text-gray-500">
                                   {item.sessions.toLocaleString()} sessions
-                                  {" | "}Source: {item.sourceTruth}
+                                  {" | "}
+                                  <span title={item.sourceTruth}>
+                                    Source: {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
+                                  </span>
                                   {" | "}Confidence: {item.confidenceState}
                                 </p>
                               </div>
@@ -1087,7 +1114,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 
               <SectionCard
                 title="Top Paths"
-                subtitle="Paginated path analytics with source truth and engagement context."
+                subtitle="Paginated path analytics with source-backed engagement context."
                 icon={FileText}
                 rightSlot={(
                   <div className="flex flex-wrap items-center justify-end gap-2">
@@ -1297,7 +1324,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                             </p>
                             <p className="mt-1 text-xs text-gray-500">
                               {row.label}
-                              {" | "}Source: {row.sourceTruth}
+                              {" | "}
+                              <span title={row.sourceTruth}>
+                                Source: {formatAdminAnalyticsSourceTruthLabel(row.sourceTruth)}
+                              </span>
                               {" | "}Confidence: {row.confidenceState}
                             </p>
                           </div>

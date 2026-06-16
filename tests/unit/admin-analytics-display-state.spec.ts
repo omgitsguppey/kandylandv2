@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 import {
   formatAdminAnalyticsEvidenceSourceLabel,
+  formatAdminAnalyticsSourceStateLabel,
   formatAdminAnalyticsSourceTruthLabel,
   resolveAdminAnalyticsDisplayState,
   resolveAdminAnalyticsOverviewMetricState,
@@ -215,6 +216,14 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(formatAdminAnalyticsSourceTruthLabel("realtime_snapshot")).toBe("Current activity snapshot");
     expect(formatAdminAnalyticsSourceTruthLabel("missing")).toBe("Source missing");
     expect(formatAdminAnalyticsSourceTruthLabel(undefined)).toBe("Source missing");
+  });
+
+  it("formats source state keys as plain status labels", () => {
+    expect(formatAdminAnalyticsSourceStateLabel("verified")).toBe("Verified source");
+    expect(formatAdminAnalyticsSourceStateLabel("mixed")).toBe("Mixed sources");
+    expect(formatAdminAnalyticsSourceStateLabel("gap_detected")).toBe("Traffic gap detected");
+    expect(formatAdminAnalyticsSourceStateLabel("stale")).toBe("Refresh due");
+    expect(formatAdminAnalyticsSourceStateLabel(undefined)).toBe("Source missing");
   });
 
   it("maps missing overview snapshots to unavailable compact state", () => {

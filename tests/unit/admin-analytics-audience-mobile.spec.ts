@@ -60,4 +60,22 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).toContain('returnCadenceViewMode === "table"');
     expect(source).toContain('returnCadenceViewMode === "cards"');
   });
+
+  it("uses shared labels for source truth in visible audience rows", () => {
+    expect(source).toContain("formatAdminAnalyticsSourceStateLabel");
+    expect(source).toContain("formatAdminAnalyticsSourceTruthLabel");
+    expect(source).toContain("audienceSourceStateLabel");
+    expect(source).toContain("guestEstimateSourceTruthLabel");
+    expect(source).toContain("returnCadenceSourceTruthLabel");
+    expect(source).toContain("title={audienceSnapshotModel.guestEstimateMetadata.sourceTruth}");
+    expect(source).toContain("title={returnCadenceModel.sourceTruth}");
+    expect(source).toContain("title={item.sourceTruth}");
+    expect(source).toContain("title={row.sourceTruth}");
+    expect(source).not.toContain("Source: {audienceSnapshotModel.sourceState}");
+    expect(source).not.toContain("Source: {audienceSnapshotModel.guestEstimateMetadata.sourceTruth}");
+    expect(source).not.toContain("<td className=\"px-3 py-2\">{returnCadenceModel.sourceTruth}</td>");
+    expect(source).not.toContain("<td className=\"px-3 py-2\">{item.sourceTruth}</td>");
+    expect(source).not.toContain("Source: {item.sourceTruth}");
+    expect(source).not.toContain("Source: {row.sourceTruth}");
+  });
 });

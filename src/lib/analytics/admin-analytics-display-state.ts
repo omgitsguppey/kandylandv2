@@ -225,6 +225,32 @@ export function formatAdminAnalyticsSourceTruthLabel(
   }
 }
 
+export function formatAdminAnalyticsSourceStateLabel(
+  sourceState: string | null | undefined,
+) {
+  switch (sourceState) {
+    case "verified":
+      return "Verified source";
+    case "mixed":
+      return "Mixed sources";
+    case "estimated":
+      return "Estimated source";
+    case "partial":
+      return "Partial source";
+    case "gap_detected":
+      return "Traffic gap detected";
+    case "stale":
+      return "Refresh due";
+    case "missing":
+    case "":
+    case null:
+    case undefined:
+      return "Source missing";
+    default:
+      return sourceState.replace(/[_/]+/gu, " ");
+  }
+}
+
 function isRefreshRunning(status: AdminAnalyticsDisplayRefreshState["status"]) {
   return status === "refreshing" || status === "queued" || status === "running";
 }
