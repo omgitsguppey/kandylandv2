@@ -1557,8 +1557,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         <span className="font-semibold text-white">Catalog inference:</span>{" "}
                         {eventMixModel.catalogInferenceState}
                       </span>
-                      <span>
-                        <span className="font-semibold text-white">Missing surface context:</span>{" "}
+                      <span data-event-mix-missing-reason="missing verified surface context">
+                        <span className="font-semibold text-white">Missing verified surface context:</span>{" "}
                         {eventMixModel.eventsMissingSurfaceContext ?? "unknown"}
                       </span>
                       <span>
