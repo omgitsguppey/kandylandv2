@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-03T02:11:09.338Z",
+  "generatedAtUtc": "2026-06-16T17:15:19.659Z",
   "reportKey": "final-telemetry-closure-lock",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "currentHead": "b22b5e497b300f932bf2214998324e45646c0b0a",
   "summary": {
     "clientTrackingClosed": true,
     "consentToggleClosed": false,
@@ -180,18 +180,8 @@
   "missingEvidence": [
     {
       "id": "provider-smoke",
-      "status": "missing_formal_evidence",
+      "status": "operator_reported_not_formal_provider_smoke",
       "nextAction": "Attach formal provider smoke evidence before beta exit review."
-    },
-    {
-      "id": "runtime-smoke",
-      "status": "runtime_unverified",
-      "nextAction": "Attach deployed runtime smoke evidence before beta exit review."
-    },
-    {
-      "id": "admin-truth-sample",
-      "status": "missing_or_unknown",
-      "nextAction": "Attach fresh admin truth sample evidence before beta exit review."
     }
   ],
   "disabledTelemetryBehavior": [
