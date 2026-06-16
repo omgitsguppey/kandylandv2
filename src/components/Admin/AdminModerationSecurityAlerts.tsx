@@ -52,7 +52,7 @@ export function AdminModerationSecurityAlerts({
     const safeErrorMessage = error
         ? sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable").operatorMessage
         : null;
-    // Route failures must stay unknown/unavailable here; never render a verified zero from {error.message}.
+    // Route failures must stay unknown/unavailable here; never render a verified zero from raw route errors.
 
     return (
         <section className="rounded-2xl border border-white/10 bg-black/25 p-3" data-moderation-alert-list="risk-first">
@@ -90,12 +90,18 @@ export function AdminModerationSecurityAlerts({
                             <div className="mt-2 flex flex-wrap gap-1.5">
                                 <span className={cn("rounded border px-2 py-0.5 text-[10px] font-bold uppercase", tierTone(alert.riskTier))}>{alert.riskTier}</span>
                                 <span className={cn("rounded border px-2 py-0.5 text-[10px] font-bold uppercase", confidenceTone(alert.riskConfidence))}>{alert.riskConfidence}</span>
+                                <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase text-gray-300">{alert.priorityLabel}</span>
+                                <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase text-gray-300">{alert.accuracyLabel}</span>
                                 <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase text-gray-300">FP {alert.falsePositiveRisk}</span>
                                 <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase text-gray-300">{alert.evidenceCount} evidence</span>
                             </div>
+                            <p className="mt-2 text-xs text-gray-400">Source: {alert.sourceLabel}</p>
                             <div className="mt-2 flex items-start gap-2 rounded-lg border border-white/5 bg-black/20 px-2 py-2 text-xs text-gray-300">
                                 <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-purple" />
-                                <p>{alert.observedSummary}</p>
+                                <div className="min-w-0">
+                                    <p>{alert.observedSummary}</p>
+                                    <p className="mt-1 text-gray-400">{alert.actionLabel || alert.recommendedAction}</p>
+                                </div>
                             </div>
                         </button>
                     );

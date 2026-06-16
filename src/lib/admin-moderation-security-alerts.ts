@@ -5,8 +5,8 @@ import {
   type SecurityEventConfidence,
   type SecurityEventSeverity,
 } from "@/lib/security-events";
-import { normalizeTheftRiskEvidence } from "@/lib/moderation/theft-risk-evidence";
-import { scoreSingleTheftRiskEvidence } from "@/lib/moderation/theft-risk-score";
+import { normalizeModerationEvidence } from "@/lib/moderation/moderation-evidence";
+import { scoreSingleModerationEvidence } from "@/lib/moderation/scrape-risk-score";
 
 const BURST_BUCKET_MS = 10 * 60_000;
 
@@ -151,7 +151,7 @@ export function normalizeAdminModerationSecurityAlert(id: string, value: Record<
   const pagePath = toNullableString(value.pagePath);
   const dropId = toNullableString(value.dropId);
   const assetKey = toNullableString(value.assetKey);
-  const evidence = normalizeTheftRiskEvidence(id, {
+  const evidence = normalizeModerationEvidence(id, {
     ...value,
     confidence,
     source,
@@ -160,7 +160,7 @@ export function normalizeAdminModerationSecurityAlert(id: string, value: Record<
     humanSummary: knownReason ? descriptor.message : toStringValue(value.message) || "Uncataloged moderation signal.",
     falsePositiveRisk: resolveFalsePositiveRisk({ confidence, detectionKind: descriptor.detectionKind, knownReason }),
   });
-  const risk = scoreSingleTheftRiskEvidence(evidence);
+  const risk = scoreSingleModerationEvidence(evidence);
   const priority = resolvePriority({ riskScore: risk.score, riskTier: risk.tier, confidence, repeatCount });
 
   return {

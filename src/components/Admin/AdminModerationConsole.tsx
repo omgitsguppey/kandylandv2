@@ -111,6 +111,13 @@ export function AdminModerationConsole() {
             ? "Alerts unavailable"
             : `${alerts.length} alerts`;
     const isLocalFixtureSourceMissing = adminSessionState === "local_fixture_source_missing";
+    const statusLabel = isLoadingThreads || isLoadingMessages || isLoadingAlerts
+        ? "Loading"
+        : isLocalFixtureSourceMissing
+            ? "Partial"
+            : model.failedDataSources > 0
+                ? "Degraded"
+                : "Ready";
 
     function selectAlert(alertId: string) {
         setSelectedAlertId(alertId);
@@ -157,11 +164,12 @@ export function AdminModerationConsole() {
             <AdminPageHeader
                 eyebrow="Admin Moderation"
                 title="Moderation Control Tower"
-                subtitle="Real evidence, scrape-risk scoring, and human review decisions."
+                subtitle="Creator chat review and server-backed security alerts."
                 compact
                 actions={(
                     <>
                         <span className="rounded-full border border-brand-purple/30 bg-brand-purple/12 px-3 py-1 text-xs font-bold text-[#e4d4ff]">Real evidence only</span>
+                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{statusLabel}</span>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{threadCountLabel}</span>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{alertCountLabel}</span>
                     </>
@@ -341,8 +349,8 @@ export function AdminModerationConsole() {
                                                     {action === "reviewed" ? "Mark reviewed" : action === "escalated" ? "Escalate" : "Dismiss false positive"}
                                                 </button>
                                             ))}
-                                            <button type="button" disabled data-moderation-action-state="unavailable" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Restrict account unavailable</button>
-                                            <button type="button" disabled data-moderation-action-state="unavailable" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Disable file access unavailable</button>
+                                            <button type="button" disabled data-moderation-action-state="not_implemented" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Restrict account unavailable</button>
+                                            <button type="button" disabled data-moderation-action-state="not_implemented" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Disable file access unavailable</button>
                                         </div>
                                     </article>
                                 </aside>

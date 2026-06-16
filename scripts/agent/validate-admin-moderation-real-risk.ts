@@ -27,8 +27,14 @@ function requireNotIncludes(source: string, forbidden: string, label: string) {
 }
 
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
-const risk = readRequired("src/lib/moderation/scrape-risk-score.ts");
-const evidence = readRequired("src/lib/moderation/moderation-evidence.ts");
+const risk = [
+    readRequired("src/lib/moderation/scrape-risk-score.ts"),
+    readRequired("src/lib/moderation/theft-risk-score.ts"),
+].join("\n");
+const evidence = [
+    readRequired("src/lib/moderation/moderation-evidence.ts"),
+    readRequired("src/lib/moderation/theft-risk-evidence.ts"),
+].join("\n");
 const control = readRequired("src/lib/admin-moderation-control-tower.ts");
 const consoleUi = readRequired("src/components/Admin/AdminModerationConsole.tsx");
 const alertsUi = readRequired("src/components/Admin/AdminModerationSecurityAlerts.tsx");
@@ -165,9 +171,11 @@ try {
         /^src\/lib\/admin-moderation(?:-control-tower|-security-alerts)?\.ts$/u,
         /^src\/components\/Admin\/AdminModeration(?:Console|SecurityAlerts)\.tsx$/u,
         /^src\/components\/Admin\/AdminEvidenceMediaPreview\.tsx$/u,
+        /^src\/app\/api\/security\/log-attempt\/route\.ts$/u,
         /^src\/lib\/telemetry-catalog\.ts$/u,
         /^scripts\/agent\/validate-admin-moderation-real-risk\.ts$/u,
         /^tests\/unit\/(?:moderation-scrape-risk-score|admin-moderation-security-alerts)\.spec\.ts$/u,
+        /^tests\/unit\/admin-moderation-console-ui\.spec\.ts$/u,
         /^docs\/agent-truth\/admin-moderation-real-risk\.md$/u,
         /^docs\/agent-truth\/(?:content-protection-score|watch-time-truth|speed-security-hardening)\.md$/u,
         /^README\.md$/u,

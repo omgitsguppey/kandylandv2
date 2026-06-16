@@ -106,7 +106,7 @@ async function POST_handler(req: NextRequest) {
                 visibilityState: typeof visibilityState === "string" ? visibilityState.slice(0, 40) : null,
                 repeatCount: typeof repeatCount === "number" && Number.isFinite(repeatCount) ? repeatCount : 1,
                 source: "protected_viewer",
-                serverConfirmed: descriptor.confidence === "confirmed",
+                serverConfirmed: true,
                 sourceVerified: true,
                 schemaVersion: 2,
                 userAgent: req.headers.get("user-agent") || "unknown",

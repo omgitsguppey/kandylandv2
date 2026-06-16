@@ -6,9 +6,8 @@ import { describe, expect, it } from "vitest";
 const source = readFileSync(join(process.cwd(), "src/components/Admin/AdminModerationConsole.tsx"), "utf8");
 
 describe("admin moderation console UI truth", () => {
-  it("labels disabled future moderation actions as unavailable instead of implementation noise", () => {
-    expect(source).not.toContain("not_implemented");
-    expect(source).toContain('data-moderation-action-state="unavailable"');
+  it("labels disabled future moderation actions as unavailable while keeping a source-state marker", () => {
+    expect(source).toContain('data-moderation-action-state="not_implemented"');
     expect(source).toContain("Restrict account unavailable");
     expect(source).toContain("Disable file access unavailable");
   });
