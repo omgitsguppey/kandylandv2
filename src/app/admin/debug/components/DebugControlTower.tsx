@@ -7,6 +7,7 @@ import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type { AdminDebugControlTowerModel, AdminDebugControlTowerSection } from "@/lib/admin-debug-control-tower";
 import { resolveControlTowerBusinessTruthState } from "@/lib/admin-debug/control-tower-truth";
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
@@ -50,7 +51,8 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                 }
             } catch (issue) {
                 if (!cancelled) {
-                    setError(issue instanceof Error ? issue.message : "Admin Control Tower could not be loaded.");
+                    const safeError = sanitizeErrorForUser(issue, "admin_truth", "admin_truth_unavailable");
+                    setError(safeError.errorKey === "unknown_error" ? "Admin Control Tower could not be loaded." : safeError.operatorMessage);
                 }
                 reportClientIssue({
                     channel: "runtime",
