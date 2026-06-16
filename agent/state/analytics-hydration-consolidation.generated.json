@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-hydration-consolidation",
-  "generatedAtUtc": "2026-06-04T04:06:38.069Z",
-  "currentHead": "1583d9eba1ddfce8da345a9c71cdf164ccd291fa",
+  "generatedAtUtc": "2026-06-16T20:55:49.677Z",
+  "currentHead": "4258027b6502218fe07a1c618b81b7a52b4405ca",
   "filesAudited": [
     "src/lib/admin-analytics/panel-hydration-contract.ts",
     "src/lib/admin-analytics/panel-hydration-registry.ts",
@@ -26,8 +26,8 @@
   ],
   "registryLinesBefore": 134,
   "registryLinesAfter": 135,
-  "generatedArtifactLinesBefore": 429,
-  "generatedArtifactLinesAfter": 419,
+  "generatedArtifactLinesBefore": 464,
+  "generatedArtifactLinesAfter": 465,
   "netAdditions": 0,
   "netDeletions": 0,
   "delegatedToPersonMetrics": true,
@@ -37,13 +37,13 @@
   "topFailingPanelsStillReported": [
     {
       "panelId": "traffic_overview",
-      "hydrationStatus": "manual_or_runtime_required",
-      "nextExactAction": "Attach redacted external evidence for analytics_event_facts; do not use screenshots as backend proof."
+      "hydrationStatus": "admin_truth_source_required",
+      "nextExactAction": "Attach a redacted admin truth source sample for analytics_event_facts; do not use screenshots as backend proof."
     },
     {
       "panelId": "active_users",
-      "hydrationStatus": "manual_or_runtime_required",
-      "nextExactAction": "Attach redacted external evidence for analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time; do not use screenshots as backend proof."
+      "hydrationStatus": "admin_truth_source_required",
+      "nextExactAction": "Attach a redacted admin truth source sample for analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time; do not use screenshots as backend proof."
     },
     {
       "panelId": "new_users_signups",
@@ -62,8 +62,8 @@
     },
     {
       "panelId": "creator_count",
-      "hydrationStatus": "manual_or_runtime_required",
-      "nextExactAction": "Attach redacted external evidence for settings surfaces and settings route telemetry; do not use screenshots as backend proof."
+      "hydrationStatus": "admin_truth_source_required",
+      "nextExactAction": "Attach a redacted admin truth source sample for settings surfaces and settings route telemetry; do not use screenshots as backend proof."
     },
     {
       "panelId": "creator_profile_views",
@@ -72,8 +72,8 @@
     },
     {
       "panelId": "drops_live",
-      "hydrationStatus": "manual_or_runtime_required",
-      "nextExactAction": "Attach redacted external evidence for creator drop manager telemetry and canonical creator drop route facts; do not use screenshots as backend proof."
+      "hydrationStatus": "admin_truth_source_required",
+      "nextExactAction": "Attach a redacted admin truth source sample for creator drop manager telemetry and canonical creator drop route facts; do not use screenshots as backend proof."
     },
     {
       "panelId": "drop_opens",
@@ -86,8 +86,8 @@
       "nextExactAction": "Verify wallet UI telemetry with bounded recent summaries before treating Wallet opens as hydrated or zero."
     }
   ],
-  "scoreBefore": 92.16,
-  "scoreAfter": 92.16,
+  "scoreBefore": 69.89,
+  "scoreAfter": 69.89,
   "remainingGaps": [],
   "nextExactSteps": [
     "Keep panel hydration as adapter-only status mapping.",
