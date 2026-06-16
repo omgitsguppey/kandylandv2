@@ -6,6 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { Drop } from "@/types/db";
+import { useAuth } from "@/context/AuthContext";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
@@ -172,6 +174,7 @@ function SelectField({
 }
 
 export default function AdminDropsPage() {
+    const { user } = useAuth();
     const [selectedDropIds, setSelectedDropIds] = useState<Set<string>>(new Set());
     const [notificationDraft, setNotificationDraft] = useState<DropNotificationDraft | null>(null);
     const [sendingNotification, setSendingNotification] = useState(false);
@@ -186,6 +189,7 @@ export default function AdminDropsPage() {
     const [creatorFilter, setCreatorFilter] = useState("all");
     const [sortMode, setSortMode] = useState<DropSortMode>("last-active");
     const { drops, legacyQueueIds, loading, loadError } = useAdminDropsFeed();
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
     const {
         data: queueConfig,
         mutate: mutateQueueConfig,
@@ -462,6 +466,10 @@ export default function AdminDropsPage() {
     }, [pendingCreatorSubmissionCount]);
 
     const handleDelete = useCallback(async (id: string) => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         if (!confirm("Are you sure you want to delete this drop? This cannot be undone.")) {
             return;
         }
@@ -490,9 +498,13 @@ export default function AdminDropsPage() {
             });
             toast.error(getAdminDropsSafeErrorMessage(error, "Failed to delete drop."));
         }
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const handleReviewSubmission = useCallback(async (dropId: string, approvalStatus: CreatorDropReviewDecision) => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         try {
             setReviewingDropId(dropId);
             const dropData = approvalStatus === "needs_changes"
@@ -540,9 +552,13 @@ export default function AdminDropsPage() {
         } finally {
             setReviewingDropId(null);
         }
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const toggleSelection = useCallback((id: string) => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         setSelectedDropIds((current) => {
             const next = new Set(current);
             if (next.has(id)) {
@@ -552,9 +568,13 @@ export default function AdminDropsPage() {
             }
             return next;
         });
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const toggleAll = useCallback(() => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         const visibleIds = filteredDrops.map((item) => item.drop.id);
         if (visibleIds.length === 0) {
             return;
@@ -570,9 +590,13 @@ export default function AdminDropsPage() {
             }
             return next;
         });
-    }, [filteredDrops, selectedDropIds]);
+    }, [filteredDrops, isLocalAdminUiTestSession, selectedDropIds]);
 
     const handleBulkDelete = useCallback(async () => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         if (selectedDropIds.size === 0) {
             return;
         }
@@ -608,9 +632,13 @@ export default function AdminDropsPage() {
             });
             toast.error(getAdminDropsSafeErrorMessage(error, "One or more drops failed to delete."));
         }
-    }, [selectedDropIds]);
+    }, [isLocalAdminUiTestSession, selectedDropIds]);
 
     const toggleAutoQueue = useCallback(async (dropId: string) => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         try {
             const response = await authFetch("/api/admin/queue/toggle", {
                 method: "POST",
@@ -646,9 +674,13 @@ export default function AdminDropsPage() {
             });
             toast.error(getAdminDropsSafeErrorMessage(error, "Failed to toggle queue state."));
         }
-    }, [mutateQueueConfig]);
+    }, [isLocalAdminUiTestSession, mutateQueueConfig]);
 
     const openNotificationDraft = useCallback((drop: Drop) => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         if (!drop.imageUrl) {
             toast.error("Drop needs a preview image before sending a drop notification.");
             return;
@@ -660,9 +692,13 @@ export default function AdminDropsPage() {
             imageUrl: drop.imageUrl,
             message: "",
         });
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const handleSendDropNotification = useCallback(async () => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         if (!notificationDraft || sendingNotification) {
             return;
         }
@@ -708,13 +744,17 @@ export default function AdminDropsPage() {
 
         toast.success("Drop notification sent.");
         setNotificationDraft(null);
-    }, [notificationDraft, sendingNotification]);
+    }, [isLocalAdminUiTestSession, notificationDraft, sendingNotification]);
 
     const openCreateModal = useCallback(() => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         setEditingDropId(null);
         setDuplicatingDropId(null);
         setIsCreateModalOpen(true);
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const closeCreateModal = useCallback(() => {
         setIsCreateModalOpen(false);
@@ -750,16 +790,26 @@ export default function AdminDropsPage() {
                             <button
                                 type="button"
                                 onClick={openCreateModal}
-                                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-purple px-5 py-2 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-colors whitespace-nowrap"
+                                disabled={isLocalAdminUiTestSession}
+                                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-purple px-5 py-2 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-colors whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <div className="flex h-4 w-4 items-center justify-center rounded-full bg-white/20">
                                     <PlusCircle className="h-3 w-3" />
                                 </div>
-                                Create Drop
+                                {isLocalAdminUiTestSession ? "Create unavailable" : "Create Drop"}
                             </button>
                         </>
                     )}
                 />
+
+                {isLocalAdminUiTestSession ? (
+                    <div
+                        className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3 text-xs text-amber-100"
+                        data-admin-drops-fixture-boundary="true"
+                    >
+                        Local UI review only. Drop list rendering is inspectable; create, review, queue, notify, duplicate, edit, and delete require real admin auth.
+                    </div>
+                ) : null}
 
                 {loadError ? (
                     <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
@@ -848,7 +898,8 @@ export default function AdminDropsPage() {
                             <button
                                 type="button"
                                 onClick={handleBulkDelete}
-                                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-red-500/20 bg-red-500/12 px-4 text-xs font-bold text-white transition-colors hover:bg-red-500/18"
+                                disabled={isLocalAdminUiTestSession}
+                                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-red-500/20 bg-red-500/12 px-4 text-xs font-bold text-white transition-colors hover:bg-red-500/18 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <Trash2 className="h-4 w-4" />
                                 Bulk Delete
@@ -929,20 +980,20 @@ export default function AdminDropsPage() {
                                                         onClick={() => void handleReviewSubmission(drop.id, "approved")}
                                                         icon={Check}
                                                         tone="success"
-                                                        disabled={reviewingDropId === drop.id}
+                                                        disabled={isLocalAdminUiTestSession || reviewingDropId === drop.id}
                                                     />
                                                     <IconChipButton
                                                         label="Reject creator submission"
                                                         onClick={() => void handleReviewSubmission(drop.id, "rejected")}
                                                         icon={X}
                                                         tone="danger"
-                                                        disabled={reviewingDropId === drop.id}
+                                                        disabled={isLocalAdminUiTestSession || reviewingDropId === drop.id}
                                                     />
                                                     <IconChipButton
                                                         label="Request changes"
                                                         onClick={() => void handleReviewSubmission(drop.id, "needs_changes")}
                                                         icon={Edit}
-                                                        disabled={reviewingDropId === drop.id}
+                                                        disabled={isLocalAdminUiTestSession || reviewingDropId === drop.id}
                                                     />
                                                 </>
                                             ) : null}
@@ -951,8 +1002,9 @@ export default function AdminDropsPage() {
                                                 onClick={() => void toggleAutoQueue(drop.id)}
                                                 icon={Repeat}
                                                 active={item.isQueueManaged}
+                                                disabled={isLocalAdminUiTestSession}
                                             />
-                                            <IconChipButton label="Send drop notification" onClick={() => openNotificationDraft(drop)} icon={BellRing} />
+                                            <IconChipButton label="Send drop notification" onClick={() => openNotificationDraft(drop)} icon={BellRing} disabled={isLocalAdminUiTestSession} />
                                             <IconChipButton
                                                 label="Duplicate drop"
                                                 onClick={() => {
@@ -961,6 +1013,7 @@ export default function AdminDropsPage() {
                                                     setIsCreateModalOpen(true);
                                                 }}
                                                 icon={Copy}
+                                                disabled={isLocalAdminUiTestSession}
                                             />
                                             <IconChipButton
                                                 label="Edit drop"
@@ -970,8 +1023,9 @@ export default function AdminDropsPage() {
                                                     setIsCreateModalOpen(true);
                                                 }}
                                                 icon={Edit}
+                                                disabled={isLocalAdminUiTestSession}
                                             />
-                                            <IconChipButton label="Delete drop" onClick={() => void handleDelete(drop.id)} icon={Trash2} tone="danger" />
+                                            <IconChipButton label="Delete drop" onClick={() => void handleDelete(drop.id)} icon={Trash2} tone="danger" disabled={isLocalAdminUiTestSession} />
                                         </div>
 
                                         <div className="shrink-0 text-right">
@@ -1032,7 +1086,8 @@ export default function AdminDropsPage() {
                                             type="checkbox"
                                             checked={filteredDrops.length > 0 && visibleSelectedCount === filteredDrops.length}
                                             onChange={toggleAll}
-                                            className="h-4 w-4 cursor-pointer rounded border-white/20 bg-black/50 accent-brand-purple"
+                                            disabled={isLocalAdminUiTestSession}
+                                            className="h-4 w-4 cursor-pointer rounded border-white/20 bg-black/50 accent-brand-purple disabled:cursor-not-allowed disabled:opacity-40"
                                         />
                                     </th>
                                     <th className="px-6 py-4 font-bold">Drop</th>
@@ -1051,7 +1106,10 @@ export default function AdminDropsPage() {
                                     return (
                                         <tr
                                             key={drop.id}
-                                            className="group cursor-pointer transition-colors hover:bg-white/5"
+                                            className={cn(
+                                                "group transition-colors hover:bg-white/5",
+                                                isLocalAdminUiTestSession ? "cursor-default" : "cursor-pointer",
+                                            )}
                                             onClick={() => toggleSelection(drop.id)}
                                         >
                                             <td className="px-6 py-4" onClick={(event) => event.stopPropagation()}>
@@ -1059,7 +1117,8 @@ export default function AdminDropsPage() {
                                                     type="checkbox"
                                                     checked={selectedDropIds.has(drop.id)}
                                                     onChange={() => toggleSelection(drop.id)}
-                                                    className="h-4 w-4 cursor-pointer rounded border-white/20 bg-black/50 accent-brand-purple"
+                                                    disabled={isLocalAdminUiTestSession}
+                                                    className="h-4 w-4 cursor-pointer rounded border-white/20 bg-black/50 accent-brand-purple disabled:cursor-not-allowed disabled:opacity-40"
                                                 />
                                             </td>
                                             <td className="px-6 py-4">
@@ -1114,20 +1173,20 @@ export default function AdminDropsPage() {
                                                                 onClick={() => void handleReviewSubmission(drop.id, "approved")}
                                                                 icon={Check}
                                                                 tone="success"
-                                                                disabled={reviewingDropId === drop.id}
+                                                                disabled={isLocalAdminUiTestSession || reviewingDropId === drop.id}
                                                             />
                                                             <IconChipButton
                                                                 label="Reject creator submission"
                                                                 onClick={() => void handleReviewSubmission(drop.id, "rejected")}
                                                                 icon={X}
                                                                 tone="danger"
-                                                                disabled={reviewingDropId === drop.id}
+                                                                disabled={isLocalAdminUiTestSession || reviewingDropId === drop.id}
                                                             />
                                                             <IconChipButton
                                                                 label="Request changes"
                                                                 onClick={() => void handleReviewSubmission(drop.id, "needs_changes")}
                                                                 icon={Edit}
-                                                                disabled={reviewingDropId === drop.id}
+                                                                disabled={isLocalAdminUiTestSession || reviewingDropId === drop.id}
                                                             />
                                                         </>
                                                     ) : null}
@@ -1136,8 +1195,9 @@ export default function AdminDropsPage() {
                                                         onClick={() => void toggleAutoQueue(drop.id)}
                                                         icon={Repeat}
                                                         active={item.isQueueManaged}
+                                                        disabled={isLocalAdminUiTestSession}
                                                     />
-                                                    <IconChipButton label="Send drop notification" onClick={() => openNotificationDraft(drop)} icon={BellRing} />
+                                                    <IconChipButton label="Send drop notification" onClick={() => openNotificationDraft(drop)} icon={BellRing} disabled={isLocalAdminUiTestSession} />
                                                     <IconChipButton
                                                         label="Duplicate drop"
                                                         onClick={() => {
@@ -1146,6 +1206,7 @@ export default function AdminDropsPage() {
                                                             setIsCreateModalOpen(true);
                                                         }}
                                                         icon={Copy}
+                                                        disabled={isLocalAdminUiTestSession}
                                                     />
                                                     <IconChipButton
                                                         label="Edit drop"
@@ -1155,8 +1216,9 @@ export default function AdminDropsPage() {
                                                             setIsCreateModalOpen(true);
                                                         }}
                                                         icon={Edit}
+                                                        disabled={isLocalAdminUiTestSession}
                                                     />
-                                                    <IconChipButton label="Delete drop" onClick={() => void handleDelete(drop.id)} icon={Trash2} tone="danger" />
+                                                    <IconChipButton label="Delete drop" onClick={() => void handleDelete(drop.id)} icon={Trash2} tone="danger" disabled={isLocalAdminUiTestSession} />
                                                 </div>
                                             </td>
                                         </tr>
