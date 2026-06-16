@@ -68,8 +68,10 @@ function normalizeGuestAnalyticsSnapshotFromCache(
   const guestBatchSamples = toNumber(sourceSampleCounts[ANALYTICS_CANONICAL_COLLECTIONS.guestBatches]);
   const guestSamplesAvailable = snapshot.guestSamplesAvailable === true && guestBatchSamples > 0;
   const cachedTruthState = toStringValue(snapshot.guestTruthState);
-  const guestTruthState: GuestAnalyticsSnapshot["guestTruthState"] = cacheState === "refresh_due"
-    ? "refresh_due"
+  const guestTruthState: GuestAnalyticsSnapshot["guestTruthState"] = cacheState === "stale"
+    ? "stale"
+    : cacheState === "refresh_due"
+      ? "refresh_due"
     : !guestSamplesAvailable
       ? "unavailable"
       : cachedTruthState === "needs_review"
