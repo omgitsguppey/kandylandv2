@@ -433,28 +433,26 @@ export default function AdminAnalyticsPage() {
               {activeTabLabel} view - {historicalSourceLabel || "Historical source pending"}
             </p>
             <p className="mt-1 text-[11px] leading-4 text-gray-400">
-              Use {launchRecoveryRange?.label ?? "All"} on a section when you need launch-to-now history. Missing samples stay labeled; estimates never count as verified zero.
+              {launchRecoveryRange?.label ?? "All"} keeps launch history available. Missing stays labeled; estimates are not zero.
             </p>
           </div>
           <AnalyticsViewModeToggle value={mobileViewMode} onChange={setMobileViewMode} />
         </div>
-        <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-gray-300 md:grid-cols-4">
-          <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
-            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Current</p>
-            <p className="truncate font-semibold text-white">{liveSnapshotLabel}</p>
-          </div>
-          <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
-            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Historical</p>
-            <p className="truncate font-semibold text-white">{historicalSnapshotLabel}</p>
-          </div>
-          <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
-            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Source</p>
-            <p className="truncate font-semibold text-white">{liveFeedStatusLabel}</p>
-          </div>
-          <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
-            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Quality</p>
-            <p className="truncate font-semibold text-white">{historicalQualityLabel}</p>
-          </div>
+        <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-gray-300">
+          {[
+            ["Current", liveSnapshotLabel],
+            ["Historical", historicalSnapshotLabel],
+            ["Source", liveFeedStatusLabel],
+            ["Quality", historicalQualityLabel],
+          ].map(([label, value]) => (
+            <span
+              key={label}
+              className="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-full border border-white/10 bg-black/25 px-2 py-1"
+            >
+              <span className="shrink-0 uppercase tracking-[0.12em] text-gray-500">{label}</span>
+              <span className="min-w-0 truncate font-semibold text-white">{value}</span>
+            </span>
+          ))}
         </div>
         {sourceStatusItems.length > 0 ? (
           <details
@@ -485,38 +483,42 @@ export default function AdminAnalyticsPage() {
                 {panelRecoveryNeedsEvidenceCount > 0 ? <span>{panelRecoveryNeedsEvidenceCount} need source</span> : null}
               </div>
             </div>
-            {panelRecoveryTruthItems.length > 0 ? (
-              <details className="mt-2 text-[11px] text-gray-300">
-                <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">
-                  Status details
-                </summary>
-                <ul className="mt-1 grid gap-1 pl-0 sm:grid-cols-2">
-                  {panelRecoveryTruthItems.map((item) => {
-                    const label = formatPanelRecoveryTruthState(item.state);
-                    return (
-                      <li
-                        key={item.state}
-                        className="list-none rounded-md border border-white/10 bg-black/20 px-2 py-1"
-                        data-panel-recovery-truth-state={item.state}
-                      >
-                        {formatPanelRecoveryCount(item.count, label, label)}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </details>
-            ) : null}
-            {panelRecoveryActions.length > 0 ? (
-              <details className="mt-2 text-[11px] text-gray-300">
-                <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">
-                  Next actions
-                </summary>
-                <ul className="mt-1 list-disc space-y-1 pl-4">
-                  {panelRecoveryActions.slice(0, 3).map((action) => (
-                    <li key={action} title={action}>{formatPanelRecoveryAction(action)}</li>
-                  ))}
-                </ul>
-              </details>
+            {panelRecoveryTruthItems.length > 0 || panelRecoveryActions.length > 0 ? (
+              <div className="mt-2 grid grid-cols-2 gap-1.5">
+                {panelRecoveryTruthItems.length > 0 ? (
+                  <details className="text-[11px] text-gray-300">
+                    <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">
+                      Status details
+                    </summary>
+                    <ul className="mt-1 grid gap-1 pl-0 sm:grid-cols-2">
+                      {panelRecoveryTruthItems.map((item) => {
+                        const label = formatPanelRecoveryTruthState(item.state);
+                        return (
+                          <li
+                            key={item.state}
+                            className="list-none rounded-md border border-white/10 bg-black/20 px-2 py-1"
+                            data-panel-recovery-truth-state={item.state}
+                          >
+                            {formatPanelRecoveryCount(item.count, label, label)}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </details>
+                ) : null}
+                {panelRecoveryActions.length > 0 ? (
+                  <details className="text-[11px] text-gray-300">
+                    <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">
+                      Next actions
+                    </summary>
+                    <ul className="mt-1 list-disc space-y-1 pl-4">
+                      {panelRecoveryActions.slice(0, 3).map((action) => (
+                        <li key={action} title={action}>{formatPanelRecoveryAction(action)}</li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
+              </div>
             ) : null}
           </div>
         ) : null}
