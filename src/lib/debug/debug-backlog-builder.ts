@@ -3,6 +3,7 @@ import type {
   DebugBacklogSeverity,
   DebugBacklogSource,
   DebugBacklogStatus,
+  DebugBacklogSourceTruthState,
   ScoreDimensionImpact,
   DebugBacklogSummary,
 } from "./debug-backlog-contract";
@@ -164,6 +165,72 @@ function normalizeStatus(value: unknown): DebugBacklogStatus {
   if (raw === "blocked_external") return "blocked_external";
   if (raw === "stale_retired") return "stale_retired";
   return "open";
+}
+
+const DEBUG_BACKLOG_SOURCE_TRUTH_STATES: DebugBacklogSourceTruthState[] = [
+  "source_backed",
+  "source_fixable",
+  "source_refresh_required",
+  "runtime_proof_required",
+  "provider_or_external_proof_required",
+  "admin_truth_source_required",
+  "manual_visual_required",
+  "protected_manual_review",
+  "stale_evidence_archive",
+  "not_actionable",
+  "unknown_source_state",
+];
+
+function isSourceFixableClass(fixClass: DebugBacklogItem["fixClass"]) {
+  return fixClass === "source_fix"
+    || fixClass === "route_fix"
+    || fixClass === "telemetry_closure"
+    || fixClass === "cost_guard"
+    || fixClass === "algorithm_refine";
+}
+
+export function resolveDebugBacklogSourceTruthState(item: DebugBacklogItem): DebugBacklogSourceTruthState {
+  const searchable = `${item.id} ${item.title} ${item.source} ${item.surface} ${item.evidenceReason} ${item.exactNextAction} ${item.sourceMessage}`.toLowerCase();
+
+  if (item.status === "stale_retired" || item.fixClass === "stale_retire") {
+    return "stale_evidence_archive";
+  }
+
+  if (item.status === "not_applicable" || item.fixClass === "no_action") {
+    return "not_actionable";
+  }
+
+  if (item.source === "admin_truth" && item.evidenceStatus === "formal_missing") {
+    return "admin_truth_source_required";
+  }
+
+  if (item.evidenceStatus === "runtime_unverified") {
+    return "runtime_proof_required";
+  }
+
+  if (item.evidenceStatus === "external_required" || item.status === "blocked_external") {
+    return "provider_or_external_proof_required";
+  }
+
+  if (item.status === "blocked_manual" || item.fixClass === "manual_required") {
+    return /visual|screenshot|layout|ui qa|manual screenshot/u.test(searchable)
+      ? "manual_visual_required"
+      : "protected_manual_review";
+  }
+
+  if (item.evidenceStatus === "stale" || item.evidenceStatus === "missing" || item.fixClass === "evidence_refresh") {
+    return "source_refresh_required";
+  }
+
+  if (isSourceFixableClass(item.fixClass)) {
+    return "source_fixable";
+  }
+
+  if (item.evidenceStatus === "source_backed" || item.evidenceStatus === "not_required") {
+    return "source_backed";
+  }
+
+  return "unknown_source_state";
 }
 
 function makeItem(input: Omit<DebugBacklogItem,
@@ -625,9 +692,9 @@ export function summarizeDebugBacklog(items: DebugBacklogItem[]): DebugBacklogSu
     blockedManual: statuses.filter((status) => status === "blocked_manual").length,
     blockedExternal: statuses.filter((status) => status === "blocked_external").length,
     staleRetired: statuses.filter((status) => status === "stale_retired").length,
-    sourceFixable: fixClasses.filter((fixClass) => fixClass === "source_fix" || fixClass === "route_fix" || fixClass === "telemetry_closure" || fixClass === "cost_guard" || fixClass === "algorithm_refine").length,
+    sourceFixable: fixClasses.filter(isSourceFixableClass).length,
     evidenceRefreshable: fixClasses.filter((fixClass) => fixClass === "evidence_refresh").length,
-    manualRequired: fixClasses.filter((fixClass) => fixClass === "manual_required").length,
+    sourceTruthStates: countBy(items.map(resolveDebugBacklogSourceTruthState), DEBUG_BACKLOG_SOURCE_TRUTH_STATES),
     p0P1Open: items.filter((item) => ["critical", "p0", "p1"].includes(item.severity) && ["open", "blocked_manual", "blocked_external"].includes(item.status)).length,
     p0P1GroupOpen: groupedSignals.filter((group) => ["critical", "p0", "p1"].includes(group.severity) && !group.hiddenByDefault).length,
     p2GroupOpen: groupedSignals.filter((group) => group.severity === "p2" && !group.hiddenByDefault).length,

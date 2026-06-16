@@ -186,6 +186,15 @@ function validateCoverage(report: ReturnType<typeof buildReport>) {
     failures.push("debug backlog engine must not mark beta exit ready.");
   }
 
+  if (Object.prototype.hasOwnProperty.call(report.summary, "manualRequired")) {
+    failures.push("debug backlog summary must expose sourceTruthStates instead of manualRequired.");
+  }
+
+  const sourceTruthStates = report.summary.sourceTruthStates ?? {};
+  if (Object.values(sourceTruthStates).reduce((total: number, count) => total + Number(count ?? 0), 0) !== report.summary.total) {
+    failures.push("debug backlog sourceTruthStates must account for every backlog item.");
+  }
+
   return failures;
 }
 
@@ -208,7 +217,7 @@ function writeDoc(report: ReturnType<typeof buildReport>) {
     `- Open P0/P1 items: ${report.summary.p0P1Open}`,
     `- Evidence refreshable: ${report.summary.evidenceRefreshable}`,
     `- Source-fixable: ${report.summary.sourceFixable}`,
-    `- Manual required: ${report.summary.manualRequired}`,
+    `- Source truth states: ${Object.entries(report.summary.sourceTruthStates).filter(([, count]) => Number(count) > 0).map(([state, count]) => `${state}=${count}`).join(", ") || "none"}`,
     `- Stale retired: ${report.summary.staleRetired}`,
     `- Default-visible actionability signals: ${report.summary.defaultVisible}`,
     `- Hidden-by-default actionability signals: ${report.summary.hiddenByDefault}`,

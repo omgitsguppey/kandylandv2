@@ -48,6 +48,7 @@ describe("debug backlog engine", () => {
         evidenceCapDetails: [
           "Runtime unverified: Runtime/provider smoke - Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
           "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+          "Visual QA required: Manual screenshot - Attach targeted manual screenshot evidence before clearing visual proof.",
         ],
       },
       score80PathLock: {
@@ -108,6 +109,11 @@ describe("debug backlog engine", () => {
     expect(summary.total).toBe(backlog.length);
     expect(summary.bySeverity.p1).toBeGreaterThan(0);
     expect(summary.staleRetired).toBe(1);
+    expect(summary.sourceTruthStates.runtime_proof_required).toBeGreaterThan(0);
+    expect(summary.sourceTruthStates.admin_truth_source_required).toBeGreaterThan(0);
+    expect(summary.sourceTruthStates.manual_visual_required).toBeGreaterThan(0);
+    expect(Object.values(summary.sourceTruthStates).reduce((total, count) => total + count, 0)).toBe(backlog.length);
+    expect(summary).not.toHaveProperty("manualRequired");
   });
 
   it("fails validation for unmapped warnings, unknown evidence without reason, stale issues without action, and p1 items without next action", () => {

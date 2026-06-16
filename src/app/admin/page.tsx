@@ -33,8 +33,8 @@ export default function AdminDashboardPage() {
     const truthVariant = isLocalAdminUiTestSession ? "unavailable" : coerceAdminSurfaceState(pageData.truthState) ?? "unavailable";
     const sourceMissingPanel = (
         <div className={fixtureFallbackClassName}>
-            <AdminStatusBadge state="unavailable" className="mb-2" label="source_missing" />
-            <div>Local admin UI review skips overview, drop, revenue, transaction, and activity reads until a real admin session loads verified records.</div>
+            <AdminStatusBadge state="unavailable" className="mb-2" label="Source missing" />
+            <div>Verified admin records are not loaded in local UI review.</div>
         </div>
     );
 
@@ -46,11 +46,11 @@ export default function AdminDashboardPage() {
             <AdminPageHeader
                 eyebrow={null}
                 title="Admin Overview"
-                subtitle={isLocalAdminUiTestSession ? "Local UI review only. Overview truth is source_missing." : pageData.serverUpdateLabel}
+                subtitle={isLocalAdminUiTestSession ? "Local UI review only. Verified overview data is not loaded." : pageData.serverUpdateLabel}
                 compact
                 actions={(
                     <div className="flex items-center gap-2">
-                        <AdminStatusBadge state={truthVariant} label={isLocalAdminUiTestSession ? "source_missing" : undefined} />
+                        <AdminStatusBadge state={truthVariant} label={isLocalAdminUiTestSession ? "Source missing" : undefined} />
                         <span className="text-[11px] font-semibold text-gray-400">{isLocalAdminUiTestSession ? "Local fixture only" : pageData.truthLabel}</span>
                     </div>
                 )}
@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
                 >
                     <p className="font-bold">Local admin UI review only.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        Overview layout is inspectable; platform pulse, drop queue, revenue, transactions, and admin activity remain source_missing until a real admin session provides verified snapshots.
+                        Overview layout is inspectable; platform pulse, drop queue, revenue, transactions, and admin activity require a real admin session before they can show verified snapshots.
                     </p>
                 </div>
             ) : null}

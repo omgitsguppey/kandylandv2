@@ -138,7 +138,7 @@ export type AdminDebugBacklogSummaryCard = {
     staleRetired: number;
     sourceFixable: number;
     evidenceRefreshable: number;
-    manualRequired: number;
+    sourceTruthStates: Record<string, number>;
     p0P1Open: number;
 };
 
@@ -844,7 +844,9 @@ function readGeneratedDebugBacklog(rootDir: string | null | undefined): {
                 staleRetired: toNumber(raw.summary.staleRetired) ?? 0,
                 sourceFixable: toNumber(raw.summary.sourceFixable) ?? 0,
                 evidenceRefreshable: toNumber(raw.summary.evidenceRefreshable) ?? 0,
-                manualRequired: toNumber(raw.summary.manualRequired) ?? 0,
+                sourceTruthStates: isRecord(raw.summary.sourceTruthStates)
+                    ? Object.fromEntries(Object.entries(raw.summary.sourceTruthStates).map(([key, value]) => [key, toNumber(value) ?? 0]))
+                    : {},
                 p0P1Open: toNumber(raw.summary.p0P1Open) ?? 0,
             }
             : null;

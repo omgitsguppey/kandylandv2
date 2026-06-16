@@ -60,6 +60,19 @@ export type DebugBacklogEvidenceStatus =
   | "external_required"
   | "not_required";
 
+export type DebugBacklogSourceTruthState =
+  | "source_backed"
+  | "source_fixable"
+  | "source_refresh_required"
+  | "runtime_proof_required"
+  | "provider_or_external_proof_required"
+  | "admin_truth_source_required"
+  | "manual_visual_required"
+  | "protected_manual_review"
+  | "stale_evidence_archive"
+  | "not_actionable"
+  | "unknown_source_state";
+
 export type DebugBacklogItem = {
   id: string;
   title: string;
@@ -102,7 +115,7 @@ export type DebugBacklogSummary = {
   staleRetired: number;
   sourceFixable: number;
   evidenceRefreshable: number;
-  manualRequired: number;
+  sourceTruthStates: Record<DebugBacklogSourceTruthState, number>;
   p0P1Open: number;
   p0P1GroupOpen?: number;
   p2GroupOpen?: number;
