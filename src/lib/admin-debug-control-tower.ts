@@ -1,7 +1,7 @@
 import "server-only";
 
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { isAbsolute, join } from "node:path";
+import path from "node:path";
 
 import type { DebugEvidenceAuditSummary } from "@/lib/debug-evidence-contract";
 import type { AdminTruthState } from "@/lib/admin-truth-state";
@@ -310,48 +310,27 @@ function commitsMatch(left: string | null, right: string | null) {
     return left === right || left.startsWith(right) || right.startsWith(left);
 }
 
-function resolveGitDir(rootDir: string) {
-    const gitPath = join(rootDir, ".git");
-    if (!existsSync(gitPath)) {
-        return null;
-    }
-
-    const gitStat = statSync(gitPath);
-    if (gitStat.isDirectory()) {
-        return gitPath;
-    }
-
-    const gitDirLine = readFileSync(gitPath, "utf8").trim();
-    if (!gitDirLine.startsWith("gitdir:")) {
-        return null;
-    }
-
-    const gitDir = gitDirLine.slice("gitdir:".length).trim();
-    return isAbsolute(gitDir) ? gitDir : join(rootDir, gitDir);
+function resolveAgentStatePath(rootDir: string | null | undefined, fileName: string) {
+    return rootDir
+        ? path.join(rootDir, "agent", "state", fileName)
+        : path.join(/*turbopackIgnore: true*/ process.cwd(), "agent", "state", fileName);
 }
 
-function readCurrentHead(rootDir: string) {
-    try {
-        const gitDir = resolveGitDir(rootDir);
-        if (!gitDir) {
-            return null;
-        }
-
-        const head = readFileSync(join(gitDir, "HEAD"), "utf8").trim();
-        if (!head.startsWith("ref:")) {
-            return normalizeCommit(head);
-        }
-
-        const ref = head.slice("ref:".length).trim();
-        const refPath = join(gitDir, ref);
-        if (existsSync(refPath)) {
-            return normalizeCommit(readFileSync(refPath, "utf8").trim());
-        }
-    } catch {
-        return null;
+function resolveGeneratedStateRelativePath(rootDir: string | null | undefined, relativePath: string) {
+    const normalizedPath = relativePath.replaceAll("\\", "/");
+    if (!normalizedPath.startsWith("agent/state/")) {
+        return rootDir ? path.join(rootDir, ...normalizedPath.split("/").filter(Boolean)) : null;
     }
+    return resolveAgentStatePath(rootDir, normalizedPath.slice("agent/state/".length));
+}
 
-    return null;
+function readCurrentHead() {
+    return normalizeCommit(
+        process.env.VERCEL_GIT_COMMIT_SHA
+        ?? process.env.GITHUB_SHA
+        ?? process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA
+        ?? process.env.NEXT_PUBLIC_COMMIT_SHA,
+    );
 }
 
 function readReportCommitState(raw: Record<string, unknown>, repoCurrentHead: string | null) {
@@ -534,9 +513,9 @@ function normalizeFinding(
     };
 }
 
-function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowMs: number, repoCurrentHead: string | null): AdminDebugReportCard {
-    const relativePath = join("agent", "state", definition.fileName).replaceAll("\\", "/");
-    const fullPath = join(rootDir, "agent", "state", definition.fileName);
+function readGeneratedReport(rootDir: string | null | undefined, definition: ReportDefinition, nowMs: number, repoCurrentHead: string | null): AdminDebugReportCard {
+    const relativePath = path.join("agent", "state", definition.fileName).replaceAll("\\", "/");
+    const fullPath = resolveAgentStatePath(rootDir, definition.fileName);
     if (!existsSync(fullPath)) {
         const truthState = definition.required ? "missing" : "unavailable";
         return {
@@ -688,8 +667,8 @@ function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowM
     }
 }
 
-function readCanonicalPublicBetaScore(rootDir: string, repoCurrentHead: string | null) {
-    const fullPath = join(rootDir, "agent", "state", "public-beta-score.generated.json");
+function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCurrentHead: string | null) {
+    const fullPath = resolveAgentStatePath(rootDir, "public-beta-score.generated.json");
     if (!existsSync(fullPath)) {
         return {
             canonicalPublicBetaScore: null,
@@ -780,8 +759,8 @@ function normalizeLiveIssue(input: DebugEvidenceAuditSummary): AdminDebugLiveIss
     };
 }
 
-function readGeneratedDebugEvidence(rootDir: string): DebugEvidenceAuditSummary[] {
-    const fullPath = join(rootDir, "agent", "state", "debug-evidence-index.generated.json");
+function readGeneratedDebugEvidence(rootDir: string | null | undefined): DebugEvidenceAuditSummary[] {
+    const fullPath = resolveAgentStatePath(rootDir, "debug-evidence-index.generated.json");
     if (!existsSync(fullPath)) {
         return [];
     }
@@ -840,11 +819,11 @@ function normalizeDebugBacklogItem(value: unknown): AdminDebugBacklogItemCard | 
     };
 }
 
-function readGeneratedDebugBacklog(rootDir: string): {
+function readGeneratedDebugBacklog(rootDir: string | null | undefined): {
     backlog: AdminDebugBacklogItemCard[];
     summary: AdminDebugBacklogSummaryCard | null;
 } {
-    const fullPath = join(rootDir, "agent", "state", "debug-backlog-engine.generated.json");
+    const fullPath = resolveAgentStatePath(rootDir, "debug-backlog-engine.generated.json");
     if (!existsSync(fullPath)) {
         return { backlog: [], summary: null };
     }
@@ -875,8 +854,11 @@ function readGeneratedDebugBacklog(rootDir: string): {
     }
 }
 
-function readJsonRecord(rootDir: string, relativePath: string): Record<string, unknown> | null {
-    const fullPath = join(rootDir, relativePath);
+function readJsonRecord(rootDir: string | null | undefined, relativePath: string): Record<string, unknown> | null {
+    const fullPath = resolveGeneratedStateRelativePath(rootDir, relativePath);
+    if (!fullPath) {
+        return null;
+    }
     if (!existsSync(fullPath)) {
         return null;
     }
@@ -913,7 +895,7 @@ function readNestedRecord(source: Record<string, unknown> | null, key: string) {
     return isRecord(value) ? value : null;
 }
 
-function readGeneratedGumdropRecoverySummary(rootDir: string, nowMs: number): AdminDebugGumdropRecoverySummary {
+function readGeneratedGumdropRecoverySummary(rootDir: string | null | undefined, nowMs: number): AdminDebugGumdropRecoverySummary {
     const sourceReportPath = "agent/state/recovery-timeline-spine.generated.json" as const;
     const canonicalMathPath = "agent/state/canonical-math-ledger.generated.json" as const;
     const recovery = readJsonRecord(rootDir, sourceReportPath);
@@ -995,8 +977,8 @@ function readGeneratedGumdropRecoverySummary(rootDir: string, nowMs: number): Ad
     };
 }
 
-function readGeneratedRefreshQueue(rootDir: string): SelfHealingRefreshQueueEntry[] {
-    const raw = readJsonRecord(rootDir, join("agent", "state", "self-healing-refresh-queue.generated.json"));
+function readGeneratedRefreshQueue(rootDir: string | null | undefined): SelfHealingRefreshQueueEntry[] {
+    const raw = readJsonRecord(rootDir, path.join("agent", "state", "self-healing-refresh-queue.generated.json"));
     return Array.isArray(raw?.queue)
         ? raw.queue.filter(isRecord).map((entry) => ({
             artifact: toStringValue(entry.artifact, "unknown_artifact"),
@@ -1013,8 +995,8 @@ function readGeneratedRefreshQueue(rootDir: string): SelfHealingRefreshQueueEntr
         : [];
 }
 
-function readGeneratedAiCriticFindings(rootDir: string): DebugOperatorAiCriticFindingInput[] {
-    const raw = readJsonRecord(rootDir, join("agent", "state", "ai-debug-critic.generated.json"));
+function readGeneratedAiCriticFindings(rootDir: string | null | undefined): DebugOperatorAiCriticFindingInput[] {
+    const raw = readJsonRecord(rootDir, path.join("agent", "state", "ai-debug-critic.generated.json"));
     const findings = Array.isArray(raw?.findings) ? raw.findings : [];
     return findings.filter(isRecord).slice(0, 8).map((finding) => ({
         id: toStringValue(finding.id, "ai-critic-finding"),
@@ -1024,8 +1006,8 @@ function readGeneratedAiCriticFindings(rootDir: string): DebugOperatorAiCriticFi
     }));
 }
 
-function readGeneratedRecoveryPlaybooks(rootDir: string): DebugOperatorPlaybookInput[] {
-    const raw = readJsonRecord(rootDir, join("agent", "state", "debug-recovery-playbooks.generated.json"));
+function readGeneratedRecoveryPlaybooks(rootDir: string | null | undefined): DebugOperatorPlaybookInput[] {
+    const raw = readJsonRecord(rootDir, path.join("agent", "state", "debug-recovery-playbooks.generated.json"));
     const playbooks = Array.isArray(raw?.playbooks) ? raw.playbooks : [];
     return playbooks.filter(isRecord).slice(0, 6).map((playbook) => ({
         id: toStringValue(playbook.id, "debug-recovery-playbook"),
@@ -1123,9 +1105,9 @@ export function buildAdminDebugControlTowerModel(options?: {
     debugEvidence?: DebugEvidenceAuditSummary[];
     debugEvidenceSource?: "firestore" | "generated" | "unavailable";
 }): AdminDebugControlTowerModel {
-    const rootDir = options?.rootDir ?? process.cwd();
+    const rootDir = options?.rootDir ?? null;
     const nowMs = options?.nowMs ?? Date.now();
-    const repoCurrentHead = readCurrentHead(rootDir);
+    const repoCurrentHead = readCurrentHead();
     const reports = ADMIN_DEBUG_CONTROL_TOWER_REPORTS.map((definition) => readGeneratedReport(rootDir, definition, nowMs, repoCurrentHead));
     const canonicalPublicBeta = readCanonicalPublicBetaScore(rootDir, repoCurrentHead);
     const gumdropRecovery = readGeneratedGumdropRecoverySummary(rootDir, nowMs);

@@ -3733,15 +3733,14 @@ function normalizeCustomTaskDefinition(id: string, rawValue: Record<string, unkn
 
 async function readInfrastructureDependencies() {
     try {
-        const rootDir = process.cwd();
         const rootPackageRelativePath = "package.json";
         const rootLockfileRelativePath = "package-lock.json";
         const functionsPackageRelativePath = "functions/package.json";
         const functionsLockfileRelativePath = "functions/package-lock.json";
-        const rootPackagePath = path.join(rootDir, rootPackageRelativePath);
-        const rootLockfilePath = path.join(rootDir, rootLockfileRelativePath);
-        const functionsPackagePath = path.join(rootDir, functionsPackageRelativePath);
-        const functionsLockfilePath = path.join(rootDir, functionsLockfileRelativePath);
+        const rootPackagePath = path.join(/*turbopackIgnore: true*/ process.cwd(), rootPackageRelativePath);
+        const rootLockfilePath = path.join(/*turbopackIgnore: true*/ process.cwd(), rootLockfileRelativePath);
+        const functionsPackagePath = path.join(/*turbopackIgnore: true*/ process.cwd(), functionsPackageRelativePath);
+        const functionsLockfilePath = path.join(/*turbopackIgnore: true*/ process.cwd(), functionsLockfileRelativePath);
 
         const rootPkg = readJsonFile<Record<string, Record<string, string>>>(rootPackagePath, {});
         const rootLockfile = readJsonFile<Record<string, unknown>>(rootLockfilePath, {});
@@ -3770,7 +3769,11 @@ async function readInfrastructureDependencies() {
 
         const rootPackageUpdatedAtUtc = fs.existsSync(rootPackagePath) ? fs.statSync(rootPackagePath).mtime.toISOString() : null;
         const functionsPackageUpdatedAtUtc = fs.existsSync(functionsPackagePath) ? fs.statSync(functionsPackagePath).mtime.toISOString() : null;
-        const envExamplePath = path.join(rootDir, ".env.example");
+        const envExamplePath = path.join(/*turbopackIgnore: true*/ process.cwd(), ".env.example");
+        const firebaseConfigPath = path.join(/*turbopackIgnore: true*/ process.cwd(), "firebase.json");
+        const nextConfigPresent = process.env.NODE_ENV === "production"
+            ? true
+            : fs.existsSync(path.join(/*turbopackIgnore: true*/ process.cwd(), "next.config.ts"));
         const envExampleText = fs.existsSync(envExamplePath) ? fs.readFileSync(envExamplePath, "utf8") : "";
         return {
             ...buildCompleteDependencyInventory({
@@ -3783,8 +3786,8 @@ async function readInfrastructureDependencies() {
                     [rootLockfileRelativePath]: fs.existsSync(rootLockfilePath),
                     [functionsPackageRelativePath]: fs.existsSync(functionsPackagePath),
                     [functionsLockfileRelativePath]: fs.existsSync(functionsLockfilePath),
-                    "firebase.json": fs.existsSync(path.join(rootDir, "firebase.json")),
-                    "next.config.ts": fs.existsSync(path.join(rootDir, "next.config.ts")),
+                    "firebase.json": fs.existsSync(firebaseConfigPath),
+                    "next.config.ts": nextConfigPresent,
                     ".env.example": fs.existsSync(envExamplePath),
                 },
                 envExampleText,
