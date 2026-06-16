@@ -16,7 +16,10 @@ import {
   formatAdminAnalyticsJourneyDenominatorMode,
   resolveAdminAnalyticsLivePulseBadgeLabel,
 } from "@/lib/admin-analytics-contracts";
-import { formatAdminAnalyticsEvidenceSourceLabel } from "@/lib/analytics/admin-analytics-display-state";
+import {
+  formatAdminAnalyticsEvidenceSourceLabel,
+  formatAdminAnalyticsSourceTruthLabel,
+} from "@/lib/analytics/admin-analytics-display-state";
 import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
@@ -135,6 +138,12 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     eventMixModel.eventsMissingSurfaceContext === null
       ? ""
       : `${eventMixModel.eventsMissingSurfaceContext} top events need surface context.`;
+  const guestEstimateSourceLabel = formatAdminAnalyticsSourceTruthLabel(
+    guestBounceQualityModel.estimatedGuestViews.sourceTruth,
+  );
+  const liveInteractionSourceLabel = formatAdminAnalyticsSourceTruthLabel(
+    liveInteractionStreamModel.sourceTruth,
+  );
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -347,10 +356,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
           </span>
         </div>
         <p className="mt-1 truncate text-[10px] text-gray-500">
-          {item.routeLabel} · {item.actionLabel}
+          {item.routeLabel} - {item.actionLabel}
         </p>
         <p className="mt-1 truncate text-[10px] text-gray-500">
-          {item.shortUserId} · {item.sourceTruth}
+          {item.shortUserId} - {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
         </p>
       </div>
       <div className="flex items-center gap-1.5">
@@ -1403,7 +1412,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         <tr>
                           <td className="px-3 py-2 font-semibold text-white">{guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.display}</td>
-                          <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.sourceTruth}</td>
+                          <td className="px-3 py-2" title={guestBounceQualityModel.estimatedGuestViews.sourceTruth}>{guestEstimateSourceLabel}</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.freshnessState}</td>
                           <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}</td>
                         </tr>
@@ -1439,7 +1448,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <MetricCard
                     label={guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}
                     value={guestBounceQualityModel.estimatedGuestViews.display}
-                    hint={`Source ${guestBounceQualityModel.estimatedGuestViews.sourceTruth} · ${guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}`}
+                    hint={`Source ${guestEstimateSourceLabel} - ${guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}`}
                     icon={Users}
                     truthState={guestBounceQualityModel.estimatedGuestViews.freshnessState === "stale" ? "stale" : guestBounceQualityModel.truthState}
                     statusBadgeLabel="EST"
@@ -1772,7 +1781,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
                 <div className="grid grid-cols-2 gap-1.5 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300 sm:grid-cols-4">
                   <span className="min-w-0 truncate"><span className="font-semibold text-white">Mode:</span> {liveInteractionStreamModel.streamSourceMode.replaceAll("_", " ")}</span>
-                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Source:</span> {liveInteractionStreamModel.sourceTruth}</span>
+                  <span className="min-w-0 truncate" title={liveInteractionStreamModel.sourceTruth}><span className="font-semibold text-white">Source:</span> {liveInteractionSourceLabel}</span>
                   <span className="min-w-0 truncate"><span className="font-semibold text-white">Last event:</span> {formatLiveStreamRelativeUtc(liveInteractionStreamModel.lastEventAt)}</span>
                   <span className="min-w-0 truncate"><span className="font-semibold text-white">Generated:</span> {liveInteractionStreamModel.generatedAtUtc ? formatRelativeTime(new Date(liveInteractionStreamModel.generatedAtUtc).getTime(), nowMs) : "unknown"}</span>
                 </div>
@@ -1866,7 +1875,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               <td className="px-3 py-2">{event.actorDisplayLabel}</td>
                               <td className="px-3 py-2">{event.surface}</td>
                               <td className="px-3 py-2">{formatRelativeTime(event.timestamp, nowMs)}</td>
-                              <td className="px-3 py-2">{event.sourceTruth}</td>
+                              <td className="px-3 py-2" title={event.sourceTruth}>{formatAdminAnalyticsSourceTruthLabel(event.sourceTruth)}</td>
                               <td className="px-3 py-2">{event.duplicateCount}</td>
                             </tr>
                           ))}
@@ -1897,7 +1906,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                                   {event.actorDisplayLabel} / {event.surface} / {formatRelativeTime(event.timestamp, nowMs)}
                                 </p>
                                 <p className="mt-1 text-[10px] text-gray-500">
-                                  {event.sourceTruth} · {event.surfaceState === "verified" ? "surface verified" : event.surfaceState === "inferred" ? "surface inferred" : "surface missing"} · {event.explanation}
+                                  {formatAdminAnalyticsSourceTruthLabel(event.sourceTruth)} - {event.surfaceState === "verified" ? "surface verified" : event.surfaceState === "inferred" ? "surface inferred" : "surface missing"} - {event.explanation}
                                 </p>
                                 {event.eventType === "task_failed" && event.failureReason ? (
                                   <p className="mt-1 text-[10px] text-rose-200">

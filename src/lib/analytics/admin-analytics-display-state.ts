@@ -184,6 +184,47 @@ export function formatAdminAnalyticsEvidenceSourceLabel(
   }
 }
 
+export function formatAdminAnalyticsSourceTruthLabel(
+  sourceTruth: string | null | undefined,
+) {
+  switch (sourceTruth) {
+    case "analytics_event_facts":
+    case "event_facts":
+      return "Event facts";
+    case "analytics_guest_batches":
+      return "Guest batches";
+    case "analytics_sessions":
+      return "Analytics sessions";
+    case "ga_estimate":
+      return "Vendor estimate";
+    case "ga_total_minus_identified_first_party":
+      return "Vendor estimate minus signed-in traffic";
+    case "first_party":
+      return "First-party events";
+    case "server_transactions":
+      return "Server transactions";
+    case "verified_snapshot":
+      return "Verified snapshot";
+    case "last_verified_snapshot":
+      return "Last verified snapshot";
+    case "materialized_snapshot":
+      return "Materialized snapshot";
+    case "realtime_snapshot":
+      return "Current activity snapshot";
+    case "telemetry_sample":
+      return "Telemetry sample";
+    case "device_sample":
+      return "Device sample";
+    case "missing":
+    case "":
+    case null:
+    case undefined:
+      return "Source missing";
+    default:
+      return sourceTruth.replace(/[_/]+/gu, " ");
+  }
+}
+
 function isRefreshRunning(status: AdminAnalyticsDisplayRefreshState["status"]) {
   return status === "refreshing" || status === "queued" || status === "running";
 }

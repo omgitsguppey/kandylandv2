@@ -78,4 +78,16 @@ describe("Admin analytics operations mobile consolidation", () => {
     expect(source).toContain('eventMixViewMode === "table"');
     expect(source).toContain('eventMixViewMode === "cards"');
   });
+
+  it("uses shared source-truth labels instead of raw source keys in visible rows", () => {
+    expect(source).toContain("formatAdminAnalyticsSourceTruthLabel");
+    expect(source).toContain("guestEstimateSourceLabel");
+    expect(source).toContain("liveInteractionSourceLabel");
+    expect(source).toContain("title={guestBounceQualityModel.estimatedGuestViews.sourceTruth}");
+    expect(source).toContain("title={liveInteractionStreamModel.sourceTruth}");
+    expect(source).toContain("title={event.sourceTruth}");
+    expect(source).not.toContain('<td className="px-3 py-2">{event.sourceTruth}</td>');
+    expect(source).not.toContain("{event.sourceTruth} - {event.surfaceState");
+    expect(source).not.toContain("{guestBounceQualityModel.estimatedGuestViews.sourceTruth}</td>");
+  });
 });

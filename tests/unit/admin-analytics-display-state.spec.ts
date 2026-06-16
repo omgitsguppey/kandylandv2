@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 import {
   formatAdminAnalyticsEvidenceSourceLabel,
+  formatAdminAnalyticsSourceTruthLabel,
   resolveAdminAnalyticsDisplayState,
   resolveAdminAnalyticsOverviewMetricState,
 } from "@/lib/analytics/admin-analytics-display-state";
@@ -204,6 +205,16 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(formatAdminAnalyticsEvidenceSourceLabel("debug_only")).toBe("Debug-only recovery evidence");
     expect(formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only")).toBe("Needs review before promotion");
     expect(formatAdminAnalyticsEvidenceSourceLabel("missing")).toBe("Unavailable until source samples exist");
+  });
+
+  it("formats source truth keys as compact operator labels", () => {
+    expect(formatAdminAnalyticsSourceTruthLabel("analytics_event_facts")).toBe("Event facts");
+    expect(formatAdminAnalyticsSourceTruthLabel("ga_total_minus_identified_first_party")).toBe(
+      "Vendor estimate minus signed-in traffic",
+    );
+    expect(formatAdminAnalyticsSourceTruthLabel("realtime_snapshot")).toBe("Current activity snapshot");
+    expect(formatAdminAnalyticsSourceTruthLabel("missing")).toBe("Source missing");
+    expect(formatAdminAnalyticsSourceTruthLabel(undefined)).toBe("Source missing");
   });
 
   it("maps missing overview snapshots to unavailable compact state", () => {
