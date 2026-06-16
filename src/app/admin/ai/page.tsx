@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Activity, ClipboardList, History, Power, SlidersHorizontal, WandSparkles } from "lucide-react";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerificationCard";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { AdminAiDescriptionOperations } from "@/components/Admin/AdminAiDescriptionOperations";
 import { Button } from "@/components/ui/Button";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -73,6 +74,7 @@ export default function AIAdminPage() {
                                 size="sm"
                                 onClick={state.handleToggle}
                                 isLoading={state.updatingToggle}
+                                disabled={state.isLocalAdminUiTestSession}
                             >
                                 <Power className="mr-2 h-3.5 w-3.5" />
                                 {state.data?.settings.enabled ? "Disable" : "Enable"}
@@ -80,6 +82,19 @@ export default function AIAdminPage() {
                         </>
                     )}
                 />
+
+                {state.isLocalAdminUiTestSession ? (
+                    <div
+                        className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
+                        data-admin-ai-fixture-boundary="true"
+                    >
+                        <div className="flex flex-wrap items-center gap-2">
+                            <AdminStatusBadge state="unavailable" />
+                            <span className="font-bold text-white">Local UI review only.</span>
+                            <span>Cover Ops layout is inspectable; AI runtime reads, uploads, settings, and review mutations remain source_missing until a real admin session provides verified evidence.</span>
+                        </div>
+                    </div>
+                ) : null}
 
                 <nav className="sticky top-[calc(env(safe-area-inset-top)+0.5rem)] z-20 -mx-1 overflow-x-auto border-b border-white/10 bg-black/90 px-1 py-2 backdrop-blur md:static md:mx-0 md:rounded-[1rem] md:border md:bg-white/[0.03]">
                     <div className="flex min-w-max gap-1 md:min-w-0 md:flex-wrap">

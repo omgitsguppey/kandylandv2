@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
 import { Button } from "@/components/ui/Button";
 import { MarqueeText } from "@/components/ui/MarqueeText";
+import { useAuth } from "@/context/AuthContext";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import {
     ADMIN_AI_DROP_DESCRIPTION_ACTIVE_POLL_INTERVAL_MS,
@@ -18,6 +19,7 @@ import {
     type AdminAiDropDescriptionPromptPolicyHistoryEntry,
     type AdminAiDropDescriptionRuntimeStatus,
 } from "@/lib/ai-drop-descriptions";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
@@ -186,6 +188,8 @@ function getAdminAiDescriptionSafeErrorMessage(issue: unknown, fallback: string)
 }
 
 export function AdminAiDescriptionOperations({ compact = false }: { compact?: boolean } = {}) {
+    const { user } = useAuth();
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
     const [refreshIntervalMs, setRefreshIntervalMs] = useState(ADMIN_AI_DROP_DESCRIPTION_IDLE_POLL_INTERVAL_MS);
     const [galleryFilter, setGalleryFilter] = useState<GalleryFilter>("all");
     const [moduleOpenState, setModuleOpenState] = useState<Record<ModuleKey, boolean>>(MODULE_DEFAULTS);
@@ -202,10 +206,10 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
     });
     const preferencesHydratedRef = useRef(false);
 
-    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropDescriptionDashboard>("/api/admin/ai/drop-descriptions", refreshIntervalMs, {
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropDescriptionDashboard>(isLocalAdminUiTestSession ? null : "/api/admin/ai/drop-descriptions", refreshIntervalMs, {
         keepPreviousData: true,
     });
-    const { data: uiPreferencesData } = useAdminPollingSWR<AdminUiPreferencesResponse>("/api/admin/ui/preferences", 15_000, {
+    const { data: uiPreferencesData } = useAdminPollingSWR<AdminUiPreferencesResponse>(isLocalAdminUiTestSession ? null : "/api/admin/ui/preferences", 15_000, {
         keepPreviousData: true,
     });
 
@@ -283,6 +287,9 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
 
     const persistModuleState = (key: ModuleKey, nextOpen: boolean) => {
         setModuleOpenState((current) => ({ ...current, [key]: nextOpen }));
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
         void (async () => {
             try {
                 await authFetch("/api/admin/ui/preferences", {
@@ -306,6 +313,10 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
     };
 
     const updateSettings = async (patch: Record<string, unknown>, successMessage: string) => {
+        if (isLocalAdminUiTestSession) {
+            toast.error("Description operations require a real admin session");
+            return;
+        }
         setUpdatingSettings(true);
         try {
             const response = await authFetch("/api/admin/ai/drop-descriptions", {
@@ -333,6 +344,10 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
     };
 
     const handlePromptPolicySave = async () => {
+        if (isLocalAdminUiTestSession) {
+            toast.error("Description prompt changes require a real admin session");
+            return;
+        }
         setSavingPolicy(true);
         try {
             const response = await authFetch("/api/admin/ai/drop-descriptions/prompt-policy", {
@@ -367,6 +382,10 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
     };
 
     const handleFeedback = async (jobId: string, action: "like" | "dislike" | "accept") => {
+        if (isLocalAdminUiTestSession) {
+            toast.error("Description feedback requires a real admin session");
+            return;
+        }
         setFeedbackingJobId(jobId);
         try {
             const response = await authFetch("/api/admin/ai/drop-descriptions/feedback", {
@@ -393,7 +412,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
         }
     };
 
-    if (error && !data) {
+    if (error && !data && !isLocalAdminUiTestSession) {
         const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
         return (
             <AdminDashboardModule title="Description operations" description="Description AI runtime is not available." defaultOpen>
@@ -406,6 +425,14 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
 
     return (
         <div className="space-y-4">
+            {isLocalAdminUiTestSession ? (
+                <div
+                    className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100"
+                    data-admin-ai-description-fixture-boundary="true"
+                >
+                    <span className="font-semibold text-white">Local UI review only.</span> Description operations are source_missing until a real admin session loads verified AI runtime evidence.
+                </div>
+            ) : null}
             <div className={cn("overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/70 px-3 py-3 backdrop-blur", compact ? "" : "sticky top-[calc(env(safe-area-inset-top)+0.75rem)] z-10")}>
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div className="min-w-0">
@@ -447,6 +474,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                                 size="sm"
                                 onClick={() => void updateSettings({ enabled: !data?.settings.enabled }, data?.settings.enabled ? "Description AI disabled" : "Description AI enabled")}
                                 isLoading={updatingSettings}
+                                disabled={isLocalAdminUiTestSession}
                             >
                                 <Power className="mr-2 h-3.5 w-3.5" />
                                 {data?.settings.enabled ? "Turn off" : "Turn on"}
@@ -467,6 +495,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                                 size="sm"
                                 onClick={() => void updateSettings({ optimizerEnabled: !data?.settings.optimizerEnabled }, data?.settings.optimizerEnabled ? "Description optimizer disabled" : "Description optimizer enabled")}
                                 isLoading={updatingSettings}
+                                disabled={isLocalAdminUiTestSession}
                             >
                                 <WandSparkles className="mr-2 h-3.5 w-3.5" />
                                 {data?.settings.optimizerEnabled ? "Optimizer on" : "Optimizer off"}
@@ -502,7 +531,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                                 >
                                     Reset
                                 </Button>
-                                <Button variant="brand" size="sm" onClick={() => void handlePromptPolicySave()} isLoading={savingPolicy} disabled={!policyDirty}>
+                                <Button variant="brand" size="sm" onClick={() => void handlePromptPolicySave()} isLoading={savingPolicy} disabled={!policyDirty || isLocalAdminUiTestSession}>
                                     <WandSparkles className="mr-2 h-3.5 w-3.5" />
                                     Save
                                 </Button>
@@ -562,15 +591,15 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                                             </div>
                                             <p className="mt-3 whitespace-pre-wrap text-sm text-white">{job.descriptionText || job.errorMessage || "Generation pending..."}</p>
                                             <div className="mt-3 flex flex-wrap gap-2">
-                                                <Button size="sm" variant={job.feedback === "liked" ? "brand" : "outline"} onClick={() => void handleFeedback(job.id, "like")} disabled={!canFeedback} isLoading={feedbackingJobId === job.id}>
+                                                <Button size="sm" variant={job.feedback === "liked" ? "brand" : "outline"} onClick={() => void handleFeedback(job.id, "like")} disabled={!canFeedback || isLocalAdminUiTestSession} isLoading={feedbackingJobId === job.id}>
                                                     <ThumbsUp className="mr-2 h-3.5 w-3.5" />
                                                     Like
                                                 </Button>
-                                                <Button size="sm" variant={job.feedback === "disliked" ? "brand" : "outline"} onClick={() => void handleFeedback(job.id, "dislike")} disabled={!canFeedback} isLoading={feedbackingJobId === job.id}>
+                                                <Button size="sm" variant={job.feedback === "disliked" ? "brand" : "outline"} onClick={() => void handleFeedback(job.id, "dislike")} disabled={!canFeedback || isLocalAdminUiTestSession} isLoading={feedbackingJobId === job.id}>
                                                     <ThumbsDown className="mr-2 h-3.5 w-3.5" />
                                                     Dislike
                                                 </Button>
-                                                <Button size="sm" variant={job.accepted ? "brand" : "outline"} onClick={() => void handleFeedback(job.id, "accept")} disabled={!canFeedback} isLoading={feedbackingJobId === job.id}>
+                                                <Button size="sm" variant={job.accepted ? "brand" : "outline"} onClick={() => void handleFeedback(job.id, "accept")} disabled={!canFeedback || isLocalAdminUiTestSession} isLoading={feedbackingJobId === job.id}>
                                                     <Check className="mr-2 h-3.5 w-3.5" />
                                                     {job.accepted ? "Accepted" : "Accept"}
                                                 </Button>

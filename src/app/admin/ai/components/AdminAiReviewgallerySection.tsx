@@ -25,6 +25,7 @@ export function AdminAiReviewgallerySection({ state }: { state: AdminAiState }) 
         libraryInputRef, primaryInputRef,
         data, error, isLoading, mutate,
         uiPreferencesData, MODULE_DEFAULTS,
+        isLocalAdminUiTestSession,
         subtitle, latestDiagnostic, currentVersionJobs, currentVersionAcceptanceRate,
         referencePreview, activeHouseReferences, referenceCap, referenceReuseRate,
         filteredReviewGallery, topFailureReasons,
@@ -76,7 +77,7 @@ export function AdminAiReviewgallerySection({ state }: { state: AdminAiState }) 
                                                     <Badge className={cn("border", item.status === "failed" ? "border-red-400/20 bg-red-500/10 text-red-100" : "border-white/10 bg-white/5 text-gray-200")}>{item.status}</Badge>
                                                     {item.accepted ? <Badge className="border border-emerald-400/20 bg-emerald-500/10 text-emerald-100">accepted</Badge> : null}
                                                 </div>
-                                                <Button variant={item.reusable ? "outline" : "brand"} size="sm" onClick={() => void handleReviewGalleryUpdate(item.id, !item.reusable)} isLoading={reviewingJobId === item.id}>
+                                                <Button variant={item.reusable ? "outline" : "brand"} size="sm" onClick={() => void handleReviewGalleryUpdate(item.id, !item.reusable)} isLoading={reviewingJobId === item.id} disabled={isLocalAdminUiTestSession}>
                                                     {item.reusable ? "Remove from reuse" : "Promote to reusable"}
                                                 </Button>
                                             </div>

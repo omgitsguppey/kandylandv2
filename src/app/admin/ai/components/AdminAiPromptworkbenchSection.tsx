@@ -25,6 +25,7 @@ export function AdminAiPromptworkbenchSection({ state }: { state: AdminAiState }
         libraryInputRef, primaryInputRef,
         data, error, isLoading, mutate,
         uiPreferencesData, MODULE_DEFAULTS,
+        isLocalAdminUiTestSession,
         subtitle, latestDiagnostic, currentVersionJobs, currentVersionAcceptanceRate,
         referencePreview, activeHouseReferences, referenceCap, referenceReuseRate,
         filteredReviewGallery, topFailureReasons,
@@ -58,11 +59,11 @@ export function AdminAiPromptworkbenchSection({ state }: { state: AdminAiState }
                                             });
                                             setPolicyDirty(false);
                                         }}
-                                        disabled={!policyDirty}
+                                        disabled={!policyDirty || isLocalAdminUiTestSession}
                                     >
                                         Reset
                                     </Button>
-                                    <Button variant="brand" size="sm" onClick={() => void handlePromptPolicySave()} isLoading={savingPromptPolicy} disabled={!policyDirty}>
+                                    <Button variant="brand" size="sm" onClick={() => void handlePromptPolicySave()} isLoading={savingPromptPolicy} disabled={!policyDirty || isLocalAdminUiTestSession}>
                                         <WandSparkles className="mr-2 h-3.5 w-3.5" />
                                         Save prompt policy
                                     </Button>
@@ -101,7 +102,7 @@ export function AdminAiPromptworkbenchSection({ state }: { state: AdminAiState }
                                         type="button"
                                         onClick={() => void handleOptimizerEnabledChange(!(data?.settings.optimizerEnabled === true))}
                                         className={cn("rounded-full border px-3 py-2 text-xs font-semibold transition", data?.settings.optimizerEnabled ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100" : "border-white/10 bg-white/[0.03] text-gray-200")}
-                                        disabled={savingReferenceSettings}
+                                        disabled={savingReferenceSettings || isLocalAdminUiTestSession}
                                     >
                                         Runtime optimizer {data?.settings.optimizerEnabled ? "enabled" : "disabled"}
                                     </button>

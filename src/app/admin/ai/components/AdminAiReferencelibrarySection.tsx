@@ -27,6 +27,7 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
         libraryInputRef, primaryInputRef,
         data, error, isLoading, mutate,
         uiPreferencesData, MODULE_DEFAULTS,
+        isLocalAdminUiTestSession,
         subtitle, latestDiagnostic, currentVersionJobs, currentVersionAcceptanceRate,
         referencePreview, activeHouseReferences, referenceCap, referenceReuseRate,
         filteredReviewGallery, topFailureReasons,
@@ -48,11 +49,11 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.references", nextOpen)}
                             actions={(
                                 <>
-                                    <Button variant="outline" size="sm" onClick={() => libraryInputRef.current?.click()} isLoading={uploadingLibrary}>
+                                    <Button variant="outline" size="sm" onClick={() => libraryInputRef.current?.click()} isLoading={uploadingLibrary} disabled={isLocalAdminUiTestSession}>
                                         <Upload className="mr-2 h-3.5 w-3.5" />
                                         Upload refs
                                     </Button>
-                                    <Button variant="brand" size="sm" onClick={() => primaryInputRef.current?.click()} isLoading={uploadingPrimary}>
+                                    <Button variant="brand" size="sm" onClick={() => primaryInputRef.current?.click()} isLoading={uploadingPrimary} disabled={isLocalAdminUiTestSession}>
                                         <Sparkles className="mr-2 h-3.5 w-3.5" />
                                         Replace primary
                                     </Button>
@@ -127,20 +128,20 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                                             </div>
                                                             <div className="mt-2 flex flex-wrap gap-2">
                                                                 {!asset.primary ? (
-                                                                    <Button variant="outline" size="sm" onClick={() => void handleReferenceUpdate(asset.id, { primary: true }, "Primary style reference updated")} isLoading={updatingReferenceId === asset.id}>
+                                                                    <Button variant="outline" size="sm" onClick={() => void handleReferenceUpdate(asset.id, { primary: true }, "Primary style reference updated")} isLoading={updatingReferenceId === asset.id} disabled={isLocalAdminUiTestSession}>
                                                                         <Sparkles className="mr-2 h-3.5 w-3.5" />
                                                                         Set primary
                                                                     </Button>
                                                                 ) : (
-                                                                    <Button variant="outline" size="sm" onClick={() => void handleReferenceUpdate(asset.id, { primary: false }, "Primary style reference cleared")} isLoading={updatingReferenceId === asset.id}>
+                                                                    <Button variant="outline" size="sm" onClick={() => void handleReferenceUpdate(asset.id, { primary: false }, "Primary style reference cleared")} isLoading={updatingReferenceId === asset.id} disabled={isLocalAdminUiTestSession}>
                                                                         Clear primary
                                                                     </Button>
                                                                 )}
-                                                                <Button variant="outline" size="sm" onClick={() => void handleReferenceUpdate(asset.id, { pinned: asset.pinned !== true }, asset.pinned ? "Reference unpinned" : "Reference pinned")} isLoading={updatingReferenceId === asset.id}>
+                                                                <Button variant="outline" size="sm" onClick={() => void handleReferenceUpdate(asset.id, { pinned: asset.pinned !== true }, asset.pinned ? "Reference unpinned" : "Reference pinned")} isLoading={updatingReferenceId === asset.id} disabled={isLocalAdminUiTestSession}>
                                                                     <Pin className="mr-2 h-3.5 w-3.5" />
                                                                     {asset.pinned ? "Unpin" : "Pin"}
                                                                 </Button>
-                                                                <Button variant="danger" size="sm" className="h-7 text-[10px] px-2" onClick={() => void handleReferenceDelete(asset.id)} isLoading={removingReferenceId === asset.id}>
+                                                                <Button variant="danger" size="sm" className="h-7 text-[10px] px-2" onClick={() => void handleReferenceDelete(asset.id)} isLoading={removingReferenceId === asset.id} disabled={isLocalAdminUiTestSession}>
                                                                     <Trash2 className="mr-1.5 h-3 w-3" />
                                                                     Remove
                                                                 </Button>
@@ -158,7 +159,7 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                                         <div className="text-sm font-semibold text-white">Legacy primary style asset</div>
                                                         <div className="mt-1 break-words text-xs text-amber-100/80">This primary reference still lives on the legacy template path. Replace it with an uploaded house reference when ready.</div>
                                                     </div>
-                                                    <Button variant="danger" size="sm" onClick={handleLegacyTemplateDelete} isLoading={removingReferenceId === "template"}>
+                                                    <Button variant="danger" size="sm" onClick={handleLegacyTemplateDelete} isLoading={removingReferenceId === "template"} disabled={isLocalAdminUiTestSession}>
                                                         <Trash2 className="mr-2 h-3.5 w-3.5" />
                                                         Clear legacy primary
                                                     </Button>

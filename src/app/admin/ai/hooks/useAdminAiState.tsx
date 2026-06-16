@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
@@ -23,6 +24,7 @@ import {
     type AdminAiDropCoverVisualSignalSummary,
     getAdminAiDropCoverModelOption,
 } from "@/lib/ai-drop-covers";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { parseMultilineInput, formatCompactTimestamp, getReferenceSelectionReason } from "../AiHelpers";
 
 
@@ -121,6 +123,8 @@ function getAdminAiStateSafeErrorMessage(issue: unknown, fallback: string) {
 }
 
 export function useAdminAiState() {
+    const { user } = useAuth();
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
 
     const [refreshIntervalMs, setRefreshIntervalMs] = useState(ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS);
     const [updatingToggle, setUpdatingToggle] = useState(false);
@@ -141,10 +145,10 @@ export function useAdminAiState() {
     const libraryInputRef = useRef<HTMLInputElement | null>(null);
     const primaryInputRef = useRef<HTMLInputElement | null>(null);
 
-    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropCoverDashboard>("/api/admin/ai/drop-covers", refreshIntervalMs, {
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropCoverDashboard>(isLocalAdminUiTestSession ? null : "/api/admin/ai/drop-covers", refreshIntervalMs, {
         keepPreviousData: false,
     });
-    const { data: uiPreferencesData } = useAdminPollingSWR<AdminUiPreferencesResponse>("/api/admin/ui/preferences", 15_000, {
+    const { data: uiPreferencesData } = useAdminPollingSWR<AdminUiPreferencesResponse>(isLocalAdminUiTestSession ? null : "/api/admin/ui/preferences", 15_000, {
         keepPreviousData: true,
     });
     const serverDashboardHydratedAt = data?.refreshedAtMs ?? 0;
@@ -272,6 +276,9 @@ export function useAdminAiState() {
 
     const persistModuleState = (key: AiModuleKey, nextOpen: boolean) => {
         setModuleOpenState((current) => ({ ...current, [key]: nextOpen }));
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
         void (async () => {
             try {
                 await authFetch("/api/admin/ui/preferences", {
@@ -295,6 +302,10 @@ export function useAdminAiState() {
     };
 
     const persistSettingsPatch = async (patch: Partial<AdminAiDropCoverDashboard["settings"]>, successMessage: string) => {
+        if (isLocalAdminUiTestSession) {
+            toast.error("Cover Ops settings are source_missing in local UI review");
+            return;
+        }
         const response = await authFetch("/api/admin/ai/drop-covers", {
             method: "PUT",
             body: JSON.stringify(patch),
@@ -394,6 +405,10 @@ export function useAdminAiState() {
 
     const uploadReferences = async (files: File[], options: { primary: boolean }) => {
         if (files.length === 0) return;
+        if (isLocalAdminUiTestSession) {
+            toast.error("Reference uploads require a real admin session");
+            return;
+        }
 
         if (options.primary) {
             setUploadingPrimary(true);
@@ -456,6 +471,10 @@ export function useAdminAiState() {
         patch: { primary?: boolean; pinned?: boolean; active?: boolean },
         successMessage: string,
     ) => {
+        if (isLocalAdminUiTestSession) {
+            toast.error("Reference updates require a real admin session");
+            return;
+        }
         setUpdatingReferenceId(assetId);
         try {
             const response = await authFetch("/api/admin/ai/drop-covers/references", {
@@ -483,6 +502,10 @@ export function useAdminAiState() {
     };
 
     const handleReferenceDelete = async (assetId: string) => {
+        if (isLocalAdminUiTestSession) {
+            toast.error("Reference removal requires a real admin session");
+            return;
+        }
         setRemovingReferenceId(assetId);
         try {
             const response = await authFetch("/api/admin/ai/drop-covers/references", {
@@ -510,6 +533,10 @@ export function useAdminAiState() {
     };
 
     const handleLegacyTemplateDelete = async () => {
+        if (isLocalAdminUiTestSession) {
+            toast.error("Template removal requires a real admin session");
+            return;
+        }
         setRemovingReferenceId("template");
         try {
             const response = await authFetch("/api/admin/ai/drop-covers/template", {
@@ -536,6 +563,10 @@ export function useAdminAiState() {
     };
 
     const handlePromptPolicySave = async () => {
+        if (isLocalAdminUiTestSession) {
+            toast.error("Prompt policy changes require a real admin session");
+            return;
+        }
         setSavingPromptPolicy(true);
         try {
             const response = await authFetch("/api/admin/ai/drop-covers/prompt-policy", {
@@ -570,6 +601,10 @@ export function useAdminAiState() {
     };
 
     const handleReviewGalleryUpdate = async (jobId: string, reusable: boolean) => {
+        if (isLocalAdminUiTestSession) {
+            toast.error("Review gallery updates require a real admin session");
+            return;
+        }
         setReviewingJobId(jobId);
         try {
             const response = await authFetch("/api/admin/ai/drop-covers/review-gallery", {
@@ -612,6 +647,7 @@ export function useAdminAiState() {
         moduleOpenState, setModuleOpenState,
         policyDraft, setPolicyDraft,
         policyDirty, setPolicyDirty,
+        isLocalAdminUiTestSession,
         libraryInputRef, primaryInputRef,
         data, error, isLoading, mutate,
         uiPreferencesData,

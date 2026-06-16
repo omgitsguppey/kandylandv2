@@ -27,6 +27,7 @@ export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
         libraryInputRef, primaryInputRef,
         data, error, isLoading, mutate,
         uiPreferencesData, MODULE_DEFAULTS,
+        isLocalAdminUiTestSession,
         subtitle, latestDiagnostic, currentVersionJobs, currentVersionAcceptanceRate,
         referencePreview, activeHouseReferences, referenceCap, referenceReuseRate,
         filteredReviewGallery, topFailureReasons,
@@ -70,6 +71,7 @@ export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
                                                 key={entry.id}
                                                 type="button"
                                                 onClick={() => void handleDefaultModelChange(entry.id)}
+                                                disabled={isLocalAdminUiTestSession}
                                                 className={cn(
                                                     "min-w-0 flex-1 rounded-[1rem] border px-3 py-3 text-left transition",
                                                     entry.selected ? "border-brand-purple/40 bg-brand-purple/12" : "border-white/10 bg-white/[0.03] hover:border-white/20",
@@ -108,7 +110,7 @@ export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
                                                 "rounded-[1rem] border px-3 py-3 text-left transition",
                                                 data?.settings.useTemplateReference ? "border-brand-purple/40 bg-brand-purple/10" : data?.settings ? "border-white/10 bg-white/[0.03]" : "border-amber-400/20 bg-amber-500/10",
                                             )}
-                                            disabled={savingReferenceSettings || !data?.settings}
+                                            disabled={savingReferenceSettings || !data?.settings || isLocalAdminUiTestSession}
                                         >
                                             <div className="text-xs font-semibold text-white">Template lock</div>
                                             <div className="mt-0.5 flex items-center gap-1.5 text-[10px] text-gray-400"><AdminStatusBadge state={data?.settings ? sectionTruthState : "unavailable"} className="py-0.5" /> Guide typography & style</div>
@@ -120,7 +122,7 @@ export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
                                                 "rounded-[1rem] border px-3 py-3 text-left transition",
                                                 data?.settings.useRecentDropCoverReferences ? "border-brand-purple/40 bg-brand-purple/10" : data?.settings ? "border-white/10 bg-white/[0.03]" : "border-amber-400/20 bg-amber-500/10",
                                             )}
-                                            disabled={savingReferenceSettings || !data?.settings}
+                                            disabled={savingReferenceSettings || !data?.settings || isLocalAdminUiTestSession}
                                         >
                                             <div className="text-xs font-semibold text-white">Catalog backfill</div>
                                             <div className="mt-0.5 flex items-center gap-1.5 text-[10px] text-gray-400"><AdminStatusBadge state={data?.settings ? sectionTruthState : "unavailable"} className="py-0.5" /> Fill spare refs</div>
