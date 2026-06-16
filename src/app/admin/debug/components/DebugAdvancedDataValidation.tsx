@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { buildAdvancedTelemetryParityUiState } from "@/lib/analytics/advanced-telemetry-parity-ui";
 import { buildDataValidationUiSemantics, buildValidationReadinessSummary } from "@/lib/analytics/validation-readiness-contract";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type { AnalyticsModuleCoverage, AnalyticsSourceHealth, DataValidationPanelState, TelemetryParityValidation, ValidationItem } from "@/types/admin-analytics";
 
 import { Pill, ScrollWrap, Section, type PillTone } from "./DebugPrimitives";
@@ -135,6 +136,11 @@ function buildFallbackPanelState(response?: ValidationResponse): DataValidationP
     };
 }
 
+function getAdminValidationSafeErrorMessage(error: unknown) {
+    const safeError = sanitizeErrorForUser(error, "admin_debug", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? "Validation route could not load." : safeError.operatorMessage;
+}
+
 export function DebugAdvancedDataValidation() {
     const { data, error, isLoading } = useAdminPollingSWR<ValidationResponse>(
         "/api/admin/analytics/historical?section=dataValidation&period=30d",
@@ -162,7 +168,7 @@ export function DebugAdvancedDataValidation() {
                 lastValidatedAtUtc: data?.dataValidation?.lastValidatedAtUtc || null,
                 generatedAtUtc: data?.dataValidation?.generatedAtUtc || (data?.generatedAtMs ? new Date(data.generatedAtMs).toISOString() : null),
                 sourcePath: data?.dataValidation?.sourcePath || DEBUG_VALIDATION_PATH,
-                loadError: error instanceof Error ? error.message : "Validation route could not load.",
+                loadError: getAdminValidationSafeErrorMessage(error),
                 nextAction: "Retry the validation route or inspect admin analytics historical route errors.",
             };
         }
