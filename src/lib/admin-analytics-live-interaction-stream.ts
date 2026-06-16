@@ -3,7 +3,7 @@ import type { HistoricalAnalyticsResponse, RangeOption, RawEventItem } from "@/t
 
 type ActorType = "guest" | "user" | "creator" | "admin" | "system" | "unknown";
 type StreamSourceMode = "live" | "snapshot" | "stale_snapshot" | "unavailable";
-type TruthBadge = "LIVE" | "SNAP" | "STALE" | "WAIT" | "ERROR";
+type TruthBadge = "LIVE" | "SNAP" | "REFRESH" | "WAIT" | "ERROR";
 type StreamSourceTruth = "realtime_presence" | "event_facts" | "backend_snapshot" | "mixed" | "unknown";
 type StreamFreshnessState = "live" | "recent" | "stale" | "expired" | "unknown";
 type RowEventType = "event" | "reward" | "task" | "task_failed" | "message" | "purchase" | "unlock" | "unknown";
@@ -91,6 +91,8 @@ export type AdminAnalyticsLiveInteractionStreamModel = {
 const SYSTEM_EVENT_PATTERNS = [/^system_/i, /^internal_/i, /internal/i];
 const ADMIN_EVENT_PATTERNS = [/^admin_/i, /admin/i];
 const CREATOR_EVENT_PATTERNS = [/creator/i];
+const REFRESH_DUE_INTERACTION_COPY =
+  "Refresh due. Showing the latest verified interaction snapshot until new events arrive.";
 
 function normalizeText(value?: string | null) {
   return (value ?? "").trim();
@@ -268,8 +270,11 @@ function buildRecommendation(input: {
 }) {
   if (!input.hasResponse && input.loading) return "Waiting for first snapshot.";
   if (!input.hasResponse) return "Interaction snapshot unavailable for this range.";
-  if (input.freshnessState === "stale" || input.freshnessState === "expired") {
-    return "Showing stale recent-event snapshot. Newer telemetry has not arrived in this stream.";
+  if (input.freshnessState === "stale") {
+    return REFRESH_DUE_INTERACTION_COPY;
+  }
+  if (input.freshnessState === "expired") {
+    return "Interaction snapshot expired. Refresh or wait for a new verified source.";
   }
   if (input.failureCount > 0) return "Recent task failures are present.";
   return "Showing recent interaction snapshot with grouped duplicate events.";
@@ -386,8 +391,10 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
         : "stale_snapshot";
   const truthState: AdminSurfaceState = !hasResponse
     ? input.loading ? "loading" : "unavailable"
-    : freshnessState === "stale" || freshnessState === "expired" || input.error || input.response?.cacheState === "stale"
+    : freshnessState === "expired" || input.error || input.response?.cacheState === "stale"
       ? "stale"
+      : freshnessState === "stale"
+        ? "cached"
       : input.overviewTruthState ?? "live";
   const sourceTruth: StreamSourceTruth = hasResponse ? "backend_snapshot" : "unknown";
   const serverConfirmed = hasResponse && !input.error && freshnessState !== "expired";
@@ -405,7 +412,7 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
           : rowFreshness === "recent"
             ? "recent"
             : rowFreshness === "stale"
-              ? "stale"
+              ? "refresh due"
               : "expired",
       source: streamSourceMode,
       truthState,
@@ -439,10 +446,14 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
         ? "LIVE"
         : streamSourceMode === "snapshot"
           ? "SNAP"
-          : "STALE";
+          : "REFRESH";
   const warnings: string[] = [];
   if (streamSourceMode === "stale_snapshot") {
-    warnings.push("Showing stale recent-event snapshot. Newer telemetry has not arrived in this stream.");
+    warnings.push(
+      freshnessState === "expired"
+        ? "Interaction snapshot expired. Refresh or wait for a new verified source."
+        : REFRESH_DUE_INTERACTION_COPY,
+    );
   }
   if (failureCount > 0) {
     warnings.push("Recent task failures are present.");
@@ -503,7 +514,9 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
       : streamSourceMode === "snapshot"
         ? "First-party backend interaction snapshot; realtime is not claimed unless the source upgrades."
         : streamSourceMode === "stale_snapshot"
-          ? "Showing stale recent-event snapshot. Newer telemetry has not arrived in this stream."
+          ? freshnessState === "expired"
+            ? "Interaction snapshot expired. Refresh or wait for a new verified source."
+            : REFRESH_DUE_INTERACTION_COPY
           : input.loading
             ? "Waiting for first snapshot."
             : "Interaction snapshot unavailable for this range.",
