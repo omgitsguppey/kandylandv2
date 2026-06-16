@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-16T17:08:42.195Z",
+  "generatedAtUtc": "2026-06-16T17:20:44.009Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "d49461edcd839d6ccf12ddb65d4a8ecf06fb83d5",
+  "currentHead": "fd280583fa4fdf80853c449530900feb8e346d9b",
   "summary": {
     "betaVersion": "1.5.33",
     "betaScore": 69.89,
@@ -22,7 +22,7 @@
     "economyP0": 0,
     "economyP1": 0,
     "visualEvidenceStatus": "source_only_screenshotEvidenceAttached_false",
-    "providerSmokeStatus": "operator_reported_not_formal_provider_smoke",
+    "providerSmokeStatus": "stale_provider_smoke_evidence",
     "operatorRevenueSmokeStatus": "operator_confirmed_revenue_smoke",
     "operatorRevenueSmokeAmountUsd": 50,
     "operatorRevenueSmokeProduct": "GumDrops",
@@ -31,8 +31,8 @@
     "operatorRevenueSmokeFormalProviderSmokePassed": false,
     "operatorRevenueSmokeBetaGateImpact": "product_signal_only",
     "operatorRevenueSmokeNote": "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
-    "runtimeSmokeStatus": "formal_runtime_smoke_passed",
-    "adminTruthSampleStatus": "formal_admin_truth_sample_passed",
+    "runtimeSmokeStatus": "stale_runtime_smoke_evidence",
+    "adminTruthSampleStatus": "stale_admin_truth_sample_evidence",
     "cloudRunCostReadiness": "cost_review_required",
     "cloudSqlCostReadiness": "not_detected_in_repo",
     "geminiCloudAssistCostReadiness": "cost_review_required",
@@ -44,7 +44,7 @@
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "canStartManualScreenshotQa": true,
     "canStartProviderSmoke": true,
-    "canStartRuntimeSmoke": false,
+    "canStartRuntimeSmoke": true,
     "canStartBetaExitReview": false
   },
   "checksRun": [
@@ -91,7 +91,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-16T17:08:42.195Z",
+      "generatedAtUtc": "2026-06-16T17:20:44.009Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -325,7 +325,7 @@
     {
       "id": "provider-smoke",
       "severity": "P1",
-      "status": "operator_reported_not_formal_provider_smoke",
+      "status": "stale_provider_smoke_evidence",
       "evidence": [
         "agent/state/provider-smoke-evidence.generated.json"
       ],
