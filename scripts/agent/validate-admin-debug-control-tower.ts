@@ -348,11 +348,13 @@ for (const expected of [
   "const displayCount = error",
   "\"Unknown\"",
   "Waiting for admin session...",
-  "{error.message}",
+  "safeErrorMessage",
+  "data-moderation-alerts-safe-error=\"true\"",
   "adminSessionState",
 ]) {
   requireIncludes(adminModerationSecurityAlerts, expected, "Admin moderation alerts panel must not show verified zero on route failure");
 }
+requireNotIncludes(adminModerationSecurityAlerts, "{error.message}", "Admin moderation alerts panel must not expose raw route failure text");
 
 for (const expected of [
   "guardApiRequest",
