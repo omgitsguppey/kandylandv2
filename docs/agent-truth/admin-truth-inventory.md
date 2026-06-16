@@ -7,9 +7,9 @@ Evidence class: source inspection plus generated snapshot review. This document 
 ## Current Gate State
 
 - Deploy gate: `npm run typecheck`, `npm run build`, `npm run check:release-notes`, `npm run check:beta-score`, and `npm run check:current-beta-exit-status` passed on `main`.
-- Public beta score: 68.67, status `Stale evidence`.
+- Public beta score: 69.89, status `Stale evidence`.
 - Formal evidence still required: provider smoke, manual screenshot QA, runtime/admin truth samples where reports name stale or missing artifacts.
-- PR inventory: 8 open PRs by public GitHub API. One Bolt optimization PR and seven dependency PRs. Treat dependency PRs as a separate window; do not merge broad dependency bundles into admin truth cleanup.
+- PR inventory: 0 open PRs by GitHub connector after local `gh` was unavailable. No PRs need merging or closure for this cleanup phase.
 
 ## Surface Inventory
 
