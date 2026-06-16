@@ -531,14 +531,14 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Panel recovery");
+    expect(container.textContent).toContain("Panel status");
     expect(container.textContent).toContain("Current activity snapshot is still unavailable.");
     expect(container.textContent).toContain("3/11 connected");
     expect(container.textContent).toContain("5 waiting");
-    expect(container.textContent).toContain("3 need evidence");
-    expect(container.textContent).toContain("Recovery state details");
+    expect(container.textContent).toContain("3 need source");
+    expect(container.textContent).toContain("Status details");
     expect(container.textContent).toContain("2 collecting");
-    expect(container.textContent).toContain("1 source ready, waiting");
+    expect(container.textContent).toContain("1 ready, waiting");
     expect(container.textContent).toContain("2 not observed yet");
     expect(container.textContent).toContain("1 source missing");
     expect(container.textContent).toContain("1 materializer missing");
@@ -550,7 +550,7 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).not.toContain("src/app/api");
     expect(container.querySelector("[data-panel-recovery-truth-state='source_missing']")).toBeTruthy();
     expect(container.querySelector("[data-panel-recovery-truth-state='external_required']")).toBeTruthy();
-    expect(container.textContent).toContain("Top recovery actions");
+    expect(container.textContent).toContain("Next actions");
     expect(container.textContent).toContain(
       "Traffic overview: Reconnect the source so Traffic overview can hydrate.",
     );

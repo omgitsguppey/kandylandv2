@@ -86,7 +86,7 @@ type PanelRecoveryTruthState =
 function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
   switch (state) {
     case "source_ready_waiting_for_activity":
-      return "source ready, waiting";
+      return "ready, waiting";
     case "not_observed_but_expected":
       return "not observed yet";
     case "source_missing":
@@ -96,9 +96,9 @@ function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
     case "bridge_missing":
       return "bridge missing";
     case "runtime_evidence_required":
-      return "runtime evidence required";
+      return "runtime source needed";
     case "admin_truth_source_required":
-      return "admin truth source required";
+      return "admin source needed";
     case "provider_gated":
       return "provider evidence required";
     case "external_required":
@@ -390,12 +390,12 @@ export default function AdminAnalyticsPage() {
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Source and recovery</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Data status</p>
             <p className="mt-1 text-xs font-semibold text-white">
               {activeTabLabel} view - {historicalSourceLabel || "Historical source pending"}
             </p>
             <p className="mt-1 text-[11px] leading-4 text-gray-400">
-              Use {launchRecoveryRange?.label ?? "All"} on any section to review launch-to-now history. Missing samples stay labeled; estimated recovery is not verified zero.
+              Use {launchRecoveryRange?.label ?? "All"} on a section when you need launch-to-now history. Missing samples stay labeled; estimates never count as verified zero.
             </p>
           </div>
           <AnalyticsViewModeToggle value={mobileViewMode} onChange={setMobileViewMode} />
@@ -440,17 +440,17 @@ export default function AdminAnalyticsPage() {
             data-admin-analytics-panel-recovery="compact"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="font-semibold text-white">Panel recovery</p>
+              <p className="font-semibold text-white">Panel status</p>
               <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-300">
                 <span>{connectedPanelCount}/{totalPanelCount} connected</span>
                 {panelRecoveryWaitingCount > 0 ? <span>{panelRecoveryWaitingCount} waiting</span> : null}
-                {panelRecoveryNeedsEvidenceCount > 0 ? <span>{panelRecoveryNeedsEvidenceCount} need evidence</span> : null}
+                {panelRecoveryNeedsEvidenceCount > 0 ? <span>{panelRecoveryNeedsEvidenceCount} need source</span> : null}
               </div>
             </div>
             {panelRecoveryTruthItems.length > 0 ? (
               <details className="mt-2 text-[11px] text-gray-300">
                 <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">
-                  Recovery state details
+                  Status details
                 </summary>
                 <ul className="mt-1 grid gap-1 pl-0 sm:grid-cols-2">
                   {panelRecoveryTruthItems.map((item) => {
@@ -471,7 +471,7 @@ export default function AdminAnalyticsPage() {
             {panelRecoveryActions.length > 0 ? (
               <details className="mt-2 text-[11px] text-gray-300">
                 <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">
-                  Top recovery actions
+                  Next actions
                 </summary>
                 <ul className="mt-1 list-disc space-y-1 pl-4">
                   {panelRecoveryActions.slice(0, 3).map((action) => (
