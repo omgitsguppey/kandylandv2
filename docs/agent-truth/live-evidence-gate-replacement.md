@@ -5,8 +5,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Summary
 
-- Generated: `2026-06-16T20:01:04.949Z`
-- Current head: `daac8d022546507e5d7489c5476c35a0e7c940fa`
+- Generated: `2026-06-16T20:14:19.476Z`
+- Current head: `a4afc0c1369c3d8a1d847d26cb19f90af95d0502`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 ```json
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-06-16T20:01:04.949Z",
-  "currentHead": "daac8d022546507e5d7489c5476c35a0e7c940fa",
+  "generatedAtUtc": "2026-06-16T20:14:19.476Z",
+  "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
   "broadManualGatesBefore": [
     "operator-final visual QA",
     "manual production smoke",
@@ -104,8 +104,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -223,8 +223,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -275,8 +275,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -469,8 +469,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -627,8 +627,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
@@ -822,8 +822,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -890,8 +890,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -942,8 +942,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -1085,8 +1085,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -1243,8 +1243,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",

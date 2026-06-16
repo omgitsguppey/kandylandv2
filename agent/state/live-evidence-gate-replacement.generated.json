@@ -1,7 +1,7 @@
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-06-16T20:01:04.949Z",
-  "currentHead": "daac8d022546507e5d7489c5476c35a0e7c940fa",
+  "generatedAtUtc": "2026-06-16T20:14:19.476Z",
+  "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
   "broadManualGatesBefore": [
     "operator-final visual QA",
     "manual production smoke",
@@ -90,8 +90,8 @@
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -209,8 +209,8 @@
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -261,8 +261,8 @@
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -455,8 +455,8 @@
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -613,8 +613,8 @@
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
@@ -808,8 +808,8 @@
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -876,8 +876,8 @@
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -928,8 +928,8 @@
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -1071,8 +1071,8 @@
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -1229,8 +1229,8 @@
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T04:32:33.345Z"
+          "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+          "generatedAtUtc": "2026-06-16T20:14:05.331Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
