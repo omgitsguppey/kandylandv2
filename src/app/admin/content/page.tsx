@@ -6,6 +6,7 @@ import { Loader2, Upload, Trash2, Copy, FileIcon, ImageIcon, Video, RefreshCw, E
 import { Button } from "@/components/ui/Button";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
@@ -58,16 +59,24 @@ function getAdminContentSafeErrorMessage(error: unknown, fallback: string) {
 }
 
 export default function ContentManagerPage() {
+    const { user } = useAuth();
     const [files, setFiles] = useState<StorageFile[]>([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<FileCategory>("All");
+    const isLocalAdminUiTestSession = user?.providerData?.some((provider) => provider.providerId === "admin-ui-test-session") === true;
 
     useEffect(() => {
+        if (isLocalAdminUiTestSession) {
+            setLoading(false);
+            setFiles([]);
+            setError(null);
+            return;
+        }
         fetchFiles();
-    }, [refreshTrigger]);
+    }, [refreshTrigger, isLocalAdminUiTestSession]);
 
     const fetchFiles = async () => {
         setLoading(true);
@@ -97,6 +106,10 @@ export default function ContentManagerPage() {
     };
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (isLocalAdminUiTestSession) {
+            e.target.value = "";
+            return;
+        }
         if (!e.target.files || e.target.files.length === 0) return;
         setUploading(true);
         setError(null);
@@ -138,6 +151,7 @@ export default function ContentManagerPage() {
     };
 
     const handleDelete = async (fileId: string) => {
+        if (isLocalAdminUiTestSession) return;
         if (!confirm("Are you sure you want to permanently delete this file?")) return;
         setError(null);
         try {
@@ -217,17 +231,27 @@ export default function ContentManagerPage() {
                         <input
                             type="file"
                             onChange={handleUpload}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            disabled={uploading}
+                            className={`absolute inset-0 h-full w-full opacity-0 ${isLocalAdminUiTestSession ? "cursor-not-allowed" : "cursor-pointer"}`}
+                            disabled={uploading || isLocalAdminUiTestSession}
+                            aria-label="Upload content file"
                         />
-                        <Button variant="brand" disabled={uploading}>
+                        <Button variant="brand" disabled={uploading || isLocalAdminUiTestSession}>
                             {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                            Upload File
+                            {isLocalAdminUiTestSession ? "Upload unavailable" : "Upload File"}
                         </Button>
                     </div>
                     </>
                 }
             />
+
+            {isLocalAdminUiTestSession ? (
+                <div
+                    className="rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3 text-xs text-amber-100"
+                    data-admin-content-fixture-boundary="true"
+                >
+                    Local UI review only. Storage listing, upload, and delete require real admin auth; no storage sample is proven here.
+                </div>
+            ) : null}
 
             {error ? (
                 <div
@@ -270,7 +294,9 @@ export default function ContentManagerPage() {
                     </div>
                 ) : files.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
-                        No files found in &apos;drops&apos; folder.
+                        {isLocalAdminUiTestSession
+                            ? "Storage source_missing for local UI review. Use a real admin session for storage sample evidence."
+                            : "No files found in 'drops' folder."}
                     </div>
                 ) : filteredFiles.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
@@ -338,8 +364,9 @@ export default function ContentManagerPage() {
                                 </div>
                                 <button
                                     onClick={() => handleDelete(file.id)}
-                                    className="inline-flex items-center justify-center p-2 rounded-lg bg-red-500/10 text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300"
-                                    title="Delete File"
+                                    className="inline-flex items-center justify-center p-2 rounded-lg bg-red-500/10 text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-red-500/10 disabled:hover:text-red-400"
+                                    title={isLocalAdminUiTestSession ? "Delete requires real admin auth" : "Delete File"}
+                                    disabled={isLocalAdminUiTestSession}
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </button>
