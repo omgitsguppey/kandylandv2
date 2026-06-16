@@ -57,6 +57,7 @@ import {
 } from "@/lib/creator-onboarding";
 import { PRIMARY_CREATOR_OWNER_EMAIL } from "@/lib/creator-admin";
 import { useAuth } from "@/context/AuthContext";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { trackEvent } from "@/lib/telemetry";
 import {
@@ -344,6 +345,8 @@ export default function AdminRosterPage() {
     });
 
     const isOwner = user?.email?.toLowerCase() === PRIMARY_CREATOR_OWNER_EMAIL;
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
+    const creatorMutationDisabled = isLocalAdminUiTestSession;
     const focusUserId = searchParams.get("focus");
 
     const intakeEntries = roster?.creatorReviewQueue ?? [];
@@ -603,6 +606,10 @@ export default function AdminRosterPage() {
         payload: Record<string, unknown> = {},
         savingKey: string = action,
     ) => {
+        if (creatorMutationDisabled) {
+            return;
+        }
+
         if (!selectedUserId) {
             return;
         }
@@ -647,6 +654,10 @@ export default function AdminRosterPage() {
     };
 
     const handleCreateCreator = async () => {
+        if (creatorMutationDisabled) {
+            return;
+        }
+
         try {
             setCreating(true);
             const creatorPath = isOwner ? createCreatorForm.creatorPath : "intake";
@@ -726,6 +737,10 @@ export default function AdminRosterPage() {
     };
 
     const handleAccountControlSubmit = async (command: CreatorAccountControlCommand): Promise<CreatorAccountControlResult | void> => {
+        if (creatorMutationDisabled) {
+            return;
+        }
+
         try {
             setAccountSaving(command.action);
             trackEvent("admin_creator_primary_action_clicked", buildTelemetryPayload({
@@ -765,6 +780,10 @@ export default function AdminRosterPage() {
     };
 
     const handleAccountApprovalStatusChange = async (approvalStatus: CreatorOnboardingApprovalStatus) => {
+        if (creatorMutationDisabled) {
+            return;
+        }
+
         if (approvalStatus === "creator_approved") {
             await submitCreatorAction("approve_creator", {}, "account-approval-status");
             return;
@@ -782,6 +801,10 @@ export default function AdminRosterPage() {
     };
 
     const handleFanExperienceSettingsSubmit = async (command: CreatorFanExperienceSettingsCommand): Promise<void> => {
+        if (creatorMutationDisabled) {
+            return;
+        }
+
         try {
             setFanExperienceSaving(true);
             trackEvent("admin_creator_primary_action_clicked", buildTelemetryPayload({
@@ -819,6 +842,10 @@ export default function AdminRosterPage() {
     };
 
     const handleCreatorAgreementAction = async (actionKey: "send_agreement" | "send_updated_agreement" | "countersign_agreement") => {
+        if (creatorMutationDisabled) {
+            return;
+        }
+
         if (!selectedUserId) {
             return;
         }
@@ -866,6 +893,10 @@ export default function AdminRosterPage() {
     };
 
     const handleAgreementTemplateSubmit = async (actionKey: "create_template" | "activate_template") => {
+        if (creatorMutationDisabled) {
+            return;
+        }
+
         try {
             setAgreementSaving(actionKey);
             const formData = new FormData();
@@ -1035,6 +1066,14 @@ export default function AdminRosterPage() {
                         </div>
                     )}
                 />
+                {creatorMutationDisabled ? (
+                    <div
+                        className="mb-4 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
+                        data-admin-roster-fixture-boundary="true"
+                    >
+                        <span className="font-bold text-white">Local UI review only.</span> Creator roster data is inspectable; creation, approval, agreement, account, and fan-experience writes require real admin auth.
+                    </div>
+                ) : null}
                 <section className="grid gap-4 lg:grid-cols-[0.94fr_1.06fr]">
                     <div className="space-y-4">
                         <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
@@ -1213,8 +1252,8 @@ export default function AdminRosterPage() {
                                     />
                                 ) : null}
                                 <div className="mt-4 flex justify-end">
-                                    <button type="button" onClick={() => void handleCreateCreator()} disabled={creating} className="rounded-full bg-white px-5 py-3 text-sm font-bold text-black disabled:opacity-50">
-                                        {creating ? "Creating..." : "Create account"}
+                                    <button type="button" onClick={() => void handleCreateCreator()} disabled={creatorMutationDisabled || creating} className="rounded-full bg-white px-5 py-3 text-sm font-bold text-black disabled:opacity-50">
+                                        {creatorMutationDisabled ? "Create unavailable" : creating ? "Creating..." : "Create account"}
                                     </button>
                                 </div>
                                 <details className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("agreement_templates", event.currentTarget.open)}>
@@ -1257,9 +1296,9 @@ export default function AdminRosterPage() {
                                             <textarea value={agreementTemplateForm.summaryBullets} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, summaryBullets: event.target.value }))} rows={4} placeholder="Summary bullets, one per line" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60 sm:col-span-2" />
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <button type="button" onClick={() => void handleAgreementTemplateSubmit("create_template")} disabled={agreementSaving === "create_template"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Save template source</button>
+                                            <button type="button" onClick={() => void handleAgreementTemplateSubmit("create_template")} disabled={creatorMutationDisabled || agreementSaving === "create_template"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Save template source</button>
                                             <button type="button" onClick={() => setAgreementPreviewOpen((current) => !current)} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white">Preview active agreement</button>
-                                            <button type="button" onClick={() => void handleAgreementTemplateSubmit("activate_template")} disabled={!isOwner || agreementSaving === "activate_template"} className="rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Mark as active for new creators</button>
+                                            <button type="button" onClick={() => void handleAgreementTemplateSubmit("activate_template")} disabled={creatorMutationDisabled || !isOwner || agreementSaving === "activate_template"} className="rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Mark as active for new creators</button>
                                         </div>
                                         {!isOwner ? (
                                             <p className="text-xs leading-5 text-zinc-500">Only the primary owner can activate a template for new creators.</p>
@@ -1329,19 +1368,19 @@ export default function AdminRosterPage() {
                                             <p className="text-sm text-zinc-300">Creator still needs to acknowledge the intro before review can move forward.</p>
                                         ) : null}
                                         {(selectedCanonical.idVerificationStatus === "id_not_requested" || selectedCanonical.idVerificationStatus === "id_rejected") ? (
-                                            <button type="button" onClick={() => handlePrimaryActionClick("request_id", { kycDueAt: Date.now() + (7 * 24 * 60 * 60 * 1000) }, "request-id")} disabled={saving === "request-id"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Request ID upload</button>
+                                            <button type="button" onClick={() => handlePrimaryActionClick("request_id", { kycDueAt: Date.now() + (7 * 24 * 60 * 60 * 1000) }, "request-id")} disabled={creatorMutationDisabled || saving === "request-id"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Request ID upload</button>
                                         ) : null}
                                         {selectedCanonical.contractDocumentStatus !== "contract_sent" && selectedCanonical.introAcknowledgedAt ? (
-                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={agreementSaving === "send_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
+                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
                                         ) : null}
                                         {selectedCanonical.creatorSignatureStatus === "signature_signed" && selectedCanonical.adminSignatureStatus !== "signature_signed" ? (
-                                            <button type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={agreementSaving === "countersign_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Countersign agreement</button>
+                                            <button type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={creatorMutationDisabled || agreementSaving === "countersign_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Countersign agreement</button>
                                         ) : null}
                                         {(selectedCanonical.readyForApproval || selectedCanonical.ownerOverrideActive) ? (
-                                            <button type="button" onClick={() => handlePrimaryActionClick("approve_creator", {}, "approve")} disabled={saving === "approve"} className="rounded-full bg-brand-purple px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Approve creator</button>
+                                            <button type="button" onClick={() => handlePrimaryActionClick("approve_creator", {}, "approve")} disabled={creatorMutationDisabled || saving === "approve"} className="rounded-full bg-brand-purple px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Approve creator</button>
                                         ) : null}
-                                        <button type="button" onClick={() => void submitCreatorAction("request_changes", {}, "return")} disabled={saving === "return"} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Return for changes</button>
-                                        <button type="button" onClick={() => void submitCreatorAction("reject_creator", {}, "reject")} disabled={saving === "reject"} className="rounded-full border border-white/10 bg-zinc-950 px-4 py-2 text-sm font-semibold text-zinc-200 disabled:opacity-50">Reject application</button>
+                                        <button type="button" onClick={() => void submitCreatorAction("request_changes", {}, "return")} disabled={creatorMutationDisabled || saving === "return"} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Return for changes</button>
+                                        <button type="button" onClick={() => void submitCreatorAction("reject_creator", {}, "reject")} disabled={creatorMutationDisabled || saving === "reject"} className="rounded-full border border-white/10 bg-zinc-950 px-4 py-2 text-sm font-semibold text-zinc-200 disabled:opacity-50">Reject application</button>
                                     </div>
                                 </div>
 
@@ -1382,7 +1421,11 @@ export default function AdminRosterPage() {
                                     </div>
                                 ) : null}
 
-                                {selectedAccountTarget ? (
+                                {selectedAccountTarget && creatorMutationDisabled ? (
+                                    <div className="rounded-2xl border border-amber-400/25 bg-amber-400/10 p-3 text-sm leading-6 text-amber-100">
+                                        Account controls require real admin auth and are unavailable during local UI review.
+                                    </div>
+                                ) : selectedAccountTarget ? (
                                     <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("account_controls", event.currentTarget.open)}>
                                         <summary className="cursor-pointer list-none text-sm font-bold text-white">Account controls</summary>
                                         <p className="mt-2 text-sm leading-6 text-zinc-400">
@@ -1398,7 +1441,11 @@ export default function AdminRosterPage() {
                                     </details>
                                 ) : null}
 
-                                {selectedFanExperienceTarget ? (
+                                {selectedFanExperienceTarget && creatorMutationDisabled ? (
+                                    <div className="rounded-2xl border border-amber-400/25 bg-amber-400/10 p-3 text-sm leading-6 text-amber-100">
+                                        Fan-experience settings require real admin auth and are unavailable during local UI review.
+                                    </div>
+                                ) : selectedFanExperienceTarget ? (
                                     <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("fan_experience_settings", event.currentTarget.open)}>
                                         <summary className="cursor-pointer list-none text-sm font-bold text-white">Fan experience settings</summary>
                                         <p className="mt-2 text-sm leading-6 text-zinc-400">
@@ -1451,9 +1498,9 @@ export default function AdminRosterPage() {
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             <button type="button" onClick={handleViewAgreement} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white">View agreement</button>
-                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={agreementSaving === "send_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
-                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_updated_agreement")} disabled={agreementSaving === "send_updated_agreement"} className="rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Send updated agreement</button>
-                                            <button type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={agreementSaving === "countersign_agreement" || selectedCanonical.creatorSignatureStatus !== "signature_signed"} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Countersign agreement</button>
+                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
+                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_updated_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_updated_agreement"} className="rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Send updated agreement</button>
+                                            <button type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={creatorMutationDisabled || agreementSaving === "countersign_agreement" || selectedCanonical.creatorSignatureStatus !== "signature_signed"} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Countersign agreement</button>
                                         </div>
                                         <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
                                             <p className="text-sm font-semibold text-white">Plain-language agreement summary</p>
@@ -1540,8 +1587,8 @@ export default function AdminRosterPage() {
                                             className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60"
                                         />
                                         <div className="mt-3 flex flex-wrap gap-3">
-                                            <button type="button" onClick={() => void submitCreatorAction("apply_owner_override", { reason: ownerOverrideReason }, "owner-override-on")} disabled={saving === "owner-override-on"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Apply owner override</button>
-                                            <button type="button" onClick={() => void submitCreatorAction("clear_owner_override", {}, "owner-override-off")} disabled={saving === "owner-override-off"} className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Clear override</button>
+                                            <button type="button" onClick={() => void submitCreatorAction("apply_owner_override", { reason: ownerOverrideReason }, "owner-override-on")} disabled={creatorMutationDisabled || saving === "owner-override-on"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Apply owner override</button>
+                                            <button type="button" onClick={() => void submitCreatorAction("clear_owner_override", {}, "owner-override-off")} disabled={creatorMutationDisabled || saving === "owner-override-off"} className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Clear override</button>
                                         </div>
                                     </details>
                                 ) : null}
