@@ -208,7 +208,7 @@ const AdminTaskAndNotificationModules = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalTruthState, historicalSourceLabel, analyticsOverviewDisplayMetrics, analyticsOverviewCards, adminAnalyticsSourceHierarchy } = state;
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalTruthState, historicalSourceLabel, analyticsOverviewDisplayMetrics, adminAnalyticsSourceHierarchy } = state;
   const [mobileViewMode, setMobileViewMode] = useState<AnalyticsViewMode>("chart");
   const overviewSnapshotUnavailable = isKnownOverviewSnapshotUnavailable(blockingAnalyticsError);
   const sourceHierarchy: AdminAnalyticsSourceHierarchySummary = adminAnalyticsSourceHierarchy ?? {
@@ -387,33 +387,33 @@ export default function AdminAnalyticsPage() {
         />
         <MetricCard
           label="Mobile Share"
-          value={analyticsOverviewCards.mobileShare.displayValue}
-          hint={analyticsOverviewCards.mobileShare.hint}
+          value={analyticsOverviewDisplayMetrics.mobileShare.displayValue}
+          hint={analyticsOverviewDisplayMetrics.mobileShare.compactFreshnessLine}
           icon={Smartphone}
-          truthState={analyticsOverviewCards.mobileShare.truthState}
-          statusBadgeLabel={analyticsOverviewCards.mobileShare.statusBadgeLabel}
+          truthState={mapOverviewDisplayStateToTruthState(analyticsOverviewDisplayMetrics.mobileShare.displayState)}
+          statusBadgeLabel={analyticsOverviewDisplayMetrics.mobileShare.badgeLabel}
           badgePlacement={analyticsOverviewDisplayMetrics.mobileShare.showBadgeInPrimary ? "footer" : "hidden"}
           compactPrimary
           dictionaryTooltip="Percentage of visitors in this time range who are on mobile devices. Essential for guiding responsive design priority."
         />
         <MetricCard
           label="Revenue"
-          value={analyticsOverviewCards.revenue.displayValue}
-          hint={analyticsOverviewCards.revenue.hint}
+          value={analyticsOverviewDisplayMetrics.revenue.displayValue}
+          hint={analyticsOverviewDisplayMetrics.revenue.compactFreshnessLine}
           icon={DollarSign}
-          truthState={analyticsOverviewCards.revenue.truthState}
-          statusBadgeLabel={analyticsOverviewCards.revenue.statusBadgeLabel}
+          truthState={mapOverviewDisplayStateToTruthState(analyticsOverviewDisplayMetrics.revenue.displayState)}
+          statusBadgeLabel={analyticsOverviewDisplayMetrics.revenue.badgeLabel}
           badgePlacement={analyticsOverviewDisplayMetrics.revenue.showBadgeInPrimary ? "footer" : "hidden"}
           compactPrimary
           dictionaryTooltip="Total top-line revenue measured in USD across all confirmed transactions within the range. Does not subtract platform fees."
         />
         <MetricCard
           label="Purchases"
-          value={analyticsOverviewCards.purchases.displayValue}
-          hint={analyticsOverviewCards.purchases.hint}
+          value={analyticsOverviewDisplayMetrics.purchases.displayValue}
+          hint={analyticsOverviewDisplayMetrics.purchases.compactFreshnessLine}
           icon={ShoppingBag}
-          truthState={analyticsOverviewCards.purchases.truthState}
-          statusBadgeLabel={analyticsOverviewCards.purchases.statusBadgeLabel}
+          truthState={mapOverviewDisplayStateToTruthState(analyticsOverviewDisplayMetrics.purchases.displayState)}
+          statusBadgeLabel={analyticsOverviewDisplayMetrics.purchases.badgeLabel}
           badgePlacement={analyticsOverviewDisplayMetrics.purchases.showBadgeInPrimary ? "footer" : "hidden"}
           compactPrimary
           dictionaryTooltip="Number of distinct successful purchases completed. Compare to checkout starts to monitor conversion dropout."
