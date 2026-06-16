@@ -29,6 +29,7 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import type { CreatorAccountControlCommand } from "@/lib/admin/creator-account-controls";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type {
     CreatorAgreementSource,
     CreatorAgreementTemplateAdminView,
@@ -304,6 +305,11 @@ function formatAgreementSource(value: CreatorAgreementSource | undefined) {
     return "Native full text";
 }
 
+function getAdminRosterSafeErrorMessage(error: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
+}
+
 export default function AdminRosterPage() {
     const searchParams = useSearchParams();
     const { user } = useAuth();
@@ -451,7 +457,7 @@ export default function AdminRosterPage() {
                     consoleLabel: "[Admin Roster] load failed",
                 });
                 if (!cancelled) {
-                    toast.error(error instanceof Error ? error.message : "Failed to load creator roster.");
+                    toast.error(getAdminRosterSafeErrorMessage(error, "Failed to load creator roster."));
                 }
             } finally {
                 if (!cancelled) {
@@ -499,7 +505,7 @@ export default function AdminRosterPage() {
                     consoleLabel: "[Admin Roster] detail load failed",
                 });
                 if (!cancelled) {
-                    toast.error(error instanceof Error ? error.message : "Failed to load creator intake detail.");
+                    toast.error(getAdminRosterSafeErrorMessage(error, "Failed to load creator intake detail."));
                 }
             } finally {
                 if (!cancelled) {
@@ -634,7 +640,7 @@ export default function AdminRosterPage() {
                 },
                 consoleLabel: "[Admin Roster] update failed",
             });
-            toast.error(error instanceof Error ? error.message : "Failed to update creator intake.");
+            toast.error(getAdminRosterSafeErrorMessage(error, "Failed to update creator intake."));
         } finally {
             setSaving(null);
         }
@@ -675,7 +681,7 @@ export default function AdminRosterPage() {
                 },
                 consoleLabel: "[Admin Roster] direct create failed",
             });
-            toast.error(error instanceof Error ? error.message : "Failed to create creator.");
+            toast.error(getAdminRosterSafeErrorMessage(error, "Failed to create creator."));
         } finally {
             setCreating(false);
         }
@@ -752,7 +758,7 @@ export default function AdminRosterPage() {
                 },
                 consoleLabel: "[Admin Roster] account control update failed",
             });
-            toast.error(error instanceof Error ? error.message : "Account update failed.");
+            toast.error(getAdminRosterSafeErrorMessage(error, "Account update failed."));
         } finally {
             setAccountSaving(null);
         }
@@ -806,7 +812,7 @@ export default function AdminRosterPage() {
                 },
                 consoleLabel: "[Admin Roster] fan experience settings update failed",
             });
-            toast.error(error instanceof Error ? error.message : "Fan experience settings update failed.");
+            toast.error(getAdminRosterSafeErrorMessage(error, "Fan experience settings update failed."));
         } finally {
             setFanExperienceSaving(false);
         }
@@ -853,7 +859,7 @@ export default function AdminRosterPage() {
                 },
                 consoleLabel: "[Admin Roster] agreement action failed",
             });
-            toast.error(error instanceof Error ? error.message : "Agreement action failed.");
+            toast.error(getAdminRosterSafeErrorMessage(error, "Agreement action failed."));
         } finally {
             setAgreementSaving(null);
         }
@@ -897,7 +903,7 @@ export default function AdminRosterPage() {
                 },
                 consoleLabel: "[Admin Roster] agreement template update failed",
             });
-            toast.error(error instanceof Error ? error.message : "Agreement template update failed.");
+            toast.error(getAdminRosterSafeErrorMessage(error, "Agreement template update failed."));
         } finally {
             setAgreementSaving(null);
         }
