@@ -75,6 +75,13 @@ describe("Admin analytics commerce mobile consolidation", () => {
     expect(source).toContain("data-content-conversion-source-state={contentConversionModel.sourceState}");
   });
 
+  it("labels missing top-drop conversion samples without raw zero summaries", () => {
+    expect(source).toContain("topDropConversionSummaryLine");
+    expect(source).toContain('topDropConversionReadableSourceLabel === "Source missing"');
+    expect(source).toContain("`No verified drops | ${topDropConversionReadableSourceLabel}`");
+    expect(source).toContain("summaryLine={topDropConversionSummaryLine}");
+  });
+
   it("renders Library Viewer Drilldown as one compact mobile view mode at a time", () => {
     expect(source).toContain("viewerDropViewMode");
     expect(source).toContain("setViewerDropViewMode");

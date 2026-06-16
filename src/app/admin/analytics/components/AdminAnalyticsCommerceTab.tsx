@@ -141,6 +141,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const topDropConversionReadableSourceLabel = formatCommerceReadableSourceLabel(
     topDropConversionSourceLabel,
   );
+  const topDropConversionSummaryLine = topDropConversionReadableSourceLabel === "Source missing" && topDropConversionModel.totalRows === 0
+    ? `No verified drops | ${topDropConversionReadableSourceLabel}`
+    : `${topDropConversionModel.visibleRows.length} visible / ${topDropConversionModel.totalRows} total | ${topDropConversionReadableSourceLabel}`;
   const recentCommerceFeedReadableSourceLabel = formatCommerceReadableSourceLabel(
     recentCommerceFeedSourceLabel,
   );
@@ -823,7 +826,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 subtitle="Drops with enough views to evaluate unwrap conversion."
                 icon={ShoppingBag}
                 density="compact"
-                summaryLine={`${topDropConversionModel.visibleRows.length} visible / ${topDropConversionModel.totalRows} total | ${topDropConversionReadableSourceLabel}`}
+                summaryLine={topDropConversionSummaryLine}
                 rightSlot={(
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <AnalyticsViewModeToggle
