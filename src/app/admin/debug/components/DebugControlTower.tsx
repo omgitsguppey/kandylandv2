@@ -15,23 +15,9 @@ import { cn } from "@/lib/utils";
 import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth";
 import { DebugOperatorCockpit } from "./DebugOperatorCockpit";
 import { DebugGumdropRecoverySummary, DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
-import {
-    FILTERS,
-    type FilterId,
-    FindingCard,
-    LiveIssueCard,
-    NextActionCard,
-    ReportCard,
-    SECTION_COPY,
-    filterReport,
-    formatRelative,
-    toBadgeState,
-} from "./DebugControlTowerCards";
+import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, formatRelative, toBadgeState } from "./DebugControlTowerCards";
 
-export function DebugControlTower({
-    businessSnapshot,
-    isLocalAdminUiTestSession = false,
-}: {
+export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession = false }: {
     businessSnapshot?: AdminUserTruthSnapshot | null;
     isLocalAdminUiTestSession?: boolean;
 }) {
@@ -106,12 +92,9 @@ export function DebugControlTower({
         }));
     }, [activeFilter, model]);
 
-    const topFindings = useMemo(() => {
-        const findings = model?.reports.flatMap((report) => report.topFindings) ?? [];
-        return findings
-            .filter((finding) => activeFilter !== "critical" || finding.severity === "critical")
-            .slice(0, 5);
-    }, [activeFilter, model?.reports]);
+    const topFindings = useMemo(() => (model?.reports.flatMap((report) => report.topFindings) ?? [])
+        .filter((finding) => activeFilter !== "critical" || finding.severity === "critical")
+        .slice(0, 5), [activeFilter, model?.reports]);
 
     const Icon = model?.criticalCount ? AlertTriangle : loading ? Clock3 : CheckCircle2;
     const controlTruthState = isLocalAdminUiTestSession
@@ -122,9 +105,7 @@ export function DebugControlTower({
     const controlTowerBadgeState = controlTruthState === "missing" || controlTruthState === "unknown"
         ? "unavailable"
         : controlTruthState;
-    const canonicalBetaCapDetails = Array.isArray(model?.canonicalPublicBetaCapDetails)
-        ? model.canonicalPublicBetaCapDetails
-        : [];
+    const canonicalBetaCapDetails = Array.isArray(model?.canonicalPublicBetaCapDetails) ? model.canonicalPublicBetaCapDetails : [];
     const runtimeEvidenceGroups = Array.isArray(model?.runtimeEvidenceGroups) ? model.runtimeEvidenceGroups : [];
     const visibleReports = filteredSections?.reduce((count, section) => count + section.reports.length, 0) ?? 0;
     const blockerReports = (model?.reports ?? [])
@@ -173,15 +154,9 @@ export function DebugControlTower({
                         data-debug-visible-summary="single-triage-strip"
                         data-debug-report-source="agent/state/public-beta-score.generated.json"
                     >
-                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">
-                            Launch blockers {canonicalBetaCapDetails.length || blockerReports.length}
-                        </span>
-                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">
-                            Live issues {model.liveIssues.length}
-                        </span>
-                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">
-                            Source rows {visibleReports}
-                        </span>
+                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">Launch blockers {canonicalBetaCapDetails.length || blockerReports.length}</span>
+                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">Current issues {model.liveIssues.length}</span>
+                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">Source rows {visibleReports}</span>
                         <span className="min-w-0 rounded-md border border-white/10 bg-black/25 px-2.5 py-1">
                             <span className="line-clamp-1">{model.canonicalPublicBetaReadinessReason}</span>
                         </span>

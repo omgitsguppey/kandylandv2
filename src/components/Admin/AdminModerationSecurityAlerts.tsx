@@ -52,6 +52,7 @@ export function AdminModerationSecurityAlerts({
     const safeErrorMessage = error
         ? sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable").operatorMessage
         : null;
+    // Route failures must stay unknown/unavailable here; never render a verified zero from {error.message}.
 
     return (
         <section className="rounded-2xl border border-white/10 bg-black/25 p-3" data-moderation-alert-list="risk-first">

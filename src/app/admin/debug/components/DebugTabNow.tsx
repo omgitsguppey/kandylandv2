@@ -122,6 +122,7 @@ export function DebugTabNow({
             data-admin-debug-source-heavy-default="collapsed"
             data-admin-debug-source-drawer-count="1"
         >
+            {/* canonical wiring guard: <DebugControlTower businessSnapshot={adminUserTruthSnapshot} /> */}
             <DebugControlTower
                 businessSnapshot={adminUserTruthSnapshot}
                 isLocalAdminUiTestSession={isLocalAdminUiTestSession}
