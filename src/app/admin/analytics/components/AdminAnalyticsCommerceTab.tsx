@@ -303,6 +303,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <p className="text-gray-400">
                   Recovery evidence stays review-only until the server ledger confirms it.
                 </p>
+                <p className="text-gray-400">
+                  Treasury truth lives in Platform Economy.
+                </p>
               </div>
 
               <div className="mb-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-2 xl:grid-cols-4">
@@ -436,7 +439,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   {commerceConversionFooter}
                 </div>
                 <div className="text-gray-400">
-                  Revenue comes from completed internal payment records. Treasury source stays in Platform Economy.
+                  Revenue source: completed internal payment records. Treasury truth lives in Platform Economy.
                 </div>
                 <div className="text-brand-purple">
                   {commerceSnapshotModel.needsAttention.length > 0
@@ -997,7 +1000,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 {drop.creatorName ? `${drop.creatorName} | ` : ""}{drop.shortDropId}
                               </p>
                               <details className="mt-1 text-[11px] text-gray-500">
-                                <summary className="cursor-pointer">Identity and source details</summary>
+                                <summary className="cursor-pointer">Raw identity and source details</summary>
                                 <p>Drop ID: {drop.dropId}</p>
                                 <p title={drop.sourceTruth}>
                                   Source: {formatAdminAnalyticsSourceTruthLabel(drop.sourceTruth)}
