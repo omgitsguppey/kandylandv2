@@ -54,7 +54,7 @@ Evidence class: source inspection plus generated snapshot review. This document 
 
 - `npm run check:admin-debug-control-tower`
 - `npm run check:admin-truth`
-- `npm run check:admin-analytics-realtime-dependency-audit`
+- `npm run check:admin-analytics-no-pure-realtime`
 - `npm run check:refresh-based-hot-cache`
 - `npm run check:telemetry-identified-parity`
 - `npm run check:global-cost`
