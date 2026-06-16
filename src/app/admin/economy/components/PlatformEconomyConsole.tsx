@@ -3,6 +3,8 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
+import { useAuth } from "@/context/AuthContext";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { authFetch } from "@/lib/authFetch";
 import type {
     PlatformEconomyDriftRecord,
@@ -83,6 +85,25 @@ function createInitialState(): PlatformEconomyDashboardState {
     };
 }
 
+function createSourceMissingSlice<T>(): EconomySliceState<T> {
+    return {
+        loading: false,
+        error: null,
+        data: null,
+    };
+}
+
+function createSourceMissingState(): PlatformEconomyDashboardState {
+    return {
+        treasury: createSourceMissingSlice<PlatformEconomyTreasurySummary>(),
+        packages: createSourceMissingSlice<PlatformEconomyPackageRecord[]>(),
+        promos: createSourceMissingSlice<PlatformEconomyPromoRecord[]>(),
+        offers: createSourceMissingSlice<PlatformEconomyOfferRecord[]>(),
+        redemptions: createSourceMissingSlice<PlatformEconomyRedemptionRecord[]>(),
+        drift: createSourceMissingSlice<PlatformEconomyDriftRecord[]>(),
+    };
+}
+
 function renderSliceState<T>({
     slice,
     emptyMessage,
@@ -112,13 +133,20 @@ function renderSliceState<T>({
 }
 
 export function PlatformEconomyConsole() {
+    const { user } = useAuth();
     const [tab, setTab] = useState<EconomyTabId>("treasury");
     const [state, setState] = useState<PlatformEconomyDashboardState>(createInitialState);
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
 
     useEffect(() => {
         let cancelled = false;
 
         async function load() {
+            if (isLocalAdminUiTestSession) {
+                setState(createSourceMissingState());
+                return;
+            }
+
             setState(createInitialState());
 
             ECONOMY_ENDPOINTS.forEach(([key, url]) => {
@@ -157,7 +185,7 @@ export function PlatformEconomyConsole() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const warnings = useMemo(() => collectEconomyWarnings(state), [state]);
     const warningsStillLoading =
@@ -169,7 +197,21 @@ export function PlatformEconomyConsole() {
 
     return (
         <div className="space-y-3">
-            <PlatformEconomyStrip treasury={state.treasury.data} warningCount={warnings.length} />
+            {isLocalAdminUiTestSession ? (
+                <section
+                    className="rounded-[1.1rem] border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-50"
+                    data-admin-economy-fixture-boundary="true"
+                    data-admin-economy-fixture-state="source_missing"
+                >
+                    Local UI review only. Economy layout is inspectable; treasury, ledger, balance, provider, and reconciliation samples remain source_missing until a real admin session loads verified evidence.
+                </section>
+            ) : null}
+
+            <PlatformEconomyStrip
+                treasury={state.treasury.data}
+                warningCount={warnings.length}
+                sourceState={isLocalAdminUiTestSession ? "source_missing" : "live"}
+            />
 
             <div className="flex flex-wrap gap-1.5 rounded-[1.1rem] border border-white/10 bg-black/20 p-1.5">
                 {TABS.map((entry) => (
@@ -190,7 +232,9 @@ export function PlatformEconomyConsole() {
                 <SectionCard title="Treasury" detail="Canonical balance split, rate floor, and wallet source drilldown.">
                     {renderSliceState({
                         slice: state.treasury,
-                        emptyMessage: "No treasury snapshot is available yet.",
+                        emptyMessage: isLocalAdminUiTestSession
+                            ? "Treasury source_missing in local UI review. Use a real admin session for verified wallet, source-of-funds, and ledger samples."
+                            : "No treasury snapshot is available yet.",
                         children: (treasury) => (
                             <div className="grid gap-2">
                                 {treasury.walletRows.map((row) => (
@@ -218,7 +262,9 @@ export function PlatformEconomyConsole() {
                 <SectionCard title="Packages" detail="Code-backed package truth, effective rate, and floor warnings.">
                     {renderSliceState({
                         slice: state.packages,
-                        emptyMessage: "No package configs are available yet.",
+                        emptyMessage: isLocalAdminUiTestSession
+                            ? "Package evidence is source_missing in local UI review."
+                            : "No package configs are available yet.",
                         children: (packages) => (
                             <div className="grid gap-2">
                                 {packages.map((pkg) => (
@@ -248,7 +294,9 @@ export function PlatformEconomyConsole() {
                 <SectionCard title="Promos" detail="Draft or active promo controls with server-enforced limits and floor warnings.">
                     {renderSliceState({
                         slice: state.promos,
-                        emptyMessage: "No promo configs yet. Mutation routes are ready for draft promos.",
+                        emptyMessage: isLocalAdminUiTestSession
+                            ? "Promo evidence is source_missing in local UI review."
+                            : "No promo configs yet. Mutation routes are ready for draft promos.",
                         children: (promos) => (
                             <div className="grid gap-2">
                                 {promos.map((promo) => (
@@ -277,7 +325,9 @@ export function PlatformEconomyConsole() {
                 <SectionCard title="Offers" detail="Limited-time and audience-scoped offer wrappers over packages and promos.">
                     {renderSliceState({
                         slice: state.offers,
-                        emptyMessage: "No offer configs yet. Create draft offers only when the promo/package source is ready.",
+                        emptyMessage: isLocalAdminUiTestSession
+                            ? "Offer evidence is source_missing in local UI review."
+                            : "No offer configs yet. Create draft offers only when the promo/package source is ready.",
                         children: (offers) => (
                             <div className="grid gap-2">
                                 {offers.map((offer) => (
@@ -305,7 +355,9 @@ export function PlatformEconomyConsole() {
                 <SectionCard title="Redemptions" detail="Recent purchase redemptions with package, promo, offer, and effective-rate audit fields.">
                     {renderSliceState({
                         slice: state.redemptions,
-                        emptyMessage: "No recent redemptions are available yet.",
+                        emptyMessage: isLocalAdminUiTestSession
+                            ? "Redemption evidence is source_missing in local UI review."
+                            : "No recent redemptions are available yet.",
                         children: (redemptions) => (
                             <div className="grid gap-2">
                                 {redemptions.map((row) => (
@@ -334,7 +386,9 @@ export function PlatformEconomyConsole() {
                 <SectionCard title="Drift" detail="Platform Economy is the winner. Any mismatch downstream must show exact expected versus actual fields.">
                     {renderSliceState({
                         slice: state.drift,
-                        emptyMessage: "No current economy drift detected across package, promo, wallet, revenue, or ledger snapshots.",
+                        emptyMessage: isLocalAdminUiTestSession
+                            ? "Drift evidence is source_missing in local UI review."
+                            : "No current economy drift detected across package, promo, wallet, revenue, or ledger snapshots.",
                         children: (drift) => (
                             <div className="grid gap-2">
                                 {drift.map((row) => (
@@ -360,7 +414,9 @@ export function PlatformEconomyConsole() {
             {tab === "warnings" && (
                 <SectionCard title="Warnings" detail="Warnings are explicit. They do not silently reconcile downstream surfaces.">
                     <div className="grid gap-2">
-                        {warnings.length ? warnings.map((warning, index) => (
+                        {isLocalAdminUiTestSession ? (
+                            <div className="text-sm text-gray-500">Economy warnings are source_missing in local UI review.</div>
+                        ) : warnings.length ? warnings.map((warning, index) => (
                             <div key={`${warning.code}:${index}`} className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
                                 <div className="flex items-center justify-between gap-3">
                                     <div className="min-w-0">
