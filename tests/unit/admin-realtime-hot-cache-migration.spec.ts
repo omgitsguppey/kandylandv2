@@ -35,16 +35,17 @@ describe("admin realtime to hot-cache migration", () => {
       join(process.cwd(), "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
       "utf-8",
     );
+    const normalizedAnalyticsStateHook = analyticsStateHook.replace(/\r\n/g, "\n");
 
-    expect(analyticsStateHook).toContain("ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS = 0");
-    expect(analyticsStateHook).toContain(
-      "useAdminPollingSWR<RealtimeAnalyticsResponse>(\n    \"/api/admin/analytics/realtime\",\n    ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+    expect(normalizedAnalyticsStateHook).toContain("ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS = 0");
+    expect(normalizedAnalyticsStateHook).toContain(
+      'useAdminPollingSWR<RealtimeAnalyticsResponse>(\n    isLocalAdminUiTestSession ? null : "/api/admin/analytics/realtime",\n    ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS',
     );
-    expect(analyticsStateHook).toContain(
-      "useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+    expect(normalizedAnalyticsStateHook).toContain(
+      "useAdminPollingSWR<HistoricalAnalyticsResponse>(isLocalAdminUiTestSession ? null : historicalUrl, ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
     );
-    expect(analyticsStateHook).toContain(
-      "useAdminPollingSWR<AdminOverviewResponse>(\"/api/admin/overview\", ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS",
+    expect(normalizedAnalyticsStateHook).toContain(
+      'useAdminPollingSWR<AdminOverviewResponse>(isLocalAdminUiTestSession ? null : "/api/admin/overview", ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS',
     );
   });
 });

@@ -34,8 +34,13 @@ describe("admin analytics local fixture boundary", () => {
   });
 
   it("skips section drilldown override reads in fixture sessions", () => {
-    expect(helpersSource).toContain("disabled = false");
-    expect(helpersSource).toContain(
+    const normalizedHelpersSource = helpersSource.replace(/\r\n/g, "\n");
+
+    expect(normalizedHelpersSource).toContain("disabled = false");
+    expect(normalizedHelpersSource).toContain("const ADMIN_ANALYTICS_SECTION_OVERRIDE_REFRESH_INTERVAL_MS = 0");
+    expect(normalizedHelpersSource).toContain("ADMIN_ANALYTICS_SECTION_OVERRIDE_REFRESH_INTERVAL_MS");
+    expect(normalizedHelpersSource).not.toContain("60_000");
+    expect(normalizedHelpersSource).toContain(
       "!disabled && (range !== ADMIN_ANALYTICS_DEFAULT_RANGE || Boolean(viewerUser))",
     );
     expect(hookSource).toContain("viewerUserFilter,\n    isLocalAdminUiTestSession");

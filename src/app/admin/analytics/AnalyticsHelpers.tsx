@@ -78,6 +78,7 @@ export const ANALYTICS_DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/Chicago",
 });
 export const ANALYTICS_FILTER_STORAGE_KEY = "kandydrops.admin.analytics.filters";
+const ADMIN_ANALYTICS_SECTION_OVERRIDE_REFRESH_INTERVAL_MS = 0;
 
 export function buildSectionHistoricalUrl(
   section: string,
@@ -147,7 +148,7 @@ export function useHistoricalSectionOverride(
     shouldFetchOverride
       ? buildSectionHistoricalUrl(sectionKey, range, viewerUser)
       : null,
-    60_000,
+    ADMIN_ANALYTICS_SECTION_OVERRIDE_REFRESH_INTERVAL_MS,
     {
       keepPreviousData: true,
       revalidateOnFocus: false,
