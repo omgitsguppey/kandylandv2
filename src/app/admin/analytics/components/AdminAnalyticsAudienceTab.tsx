@@ -70,6 +70,11 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
   const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
   const returnCadenceBuckets = buildAdminAnalyticsReturnCadenceBuckets(returnCadenceModel);
+  const deviceMixSummaryLine = [
+    `${deviceMixModel.totalSessions.toLocaleString()} sessions`,
+    `${deviceMixModel.classifiedSessions.toLocaleString()} classified`,
+    `source ${deviceMixModel.sourceLabel}`,
+  ].join(" | ");
   const continuityLabel = audienceSnapshotModel.continuity.gapSeverity === "error"
     ? "Traffic gap detected"
     : audienceSnapshotModel.continuity.gapSeverity === "review"
@@ -857,7 +862,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 subtitle="Compact device intelligence with source truth and mobile-first implications."
                 icon={Smartphone}
                 density="compact"
-                summaryLine={`${deviceMixModel.totalSessions.toLocaleString()} sessions | ${deviceMixModel.classifiedSessions.toLocaleString()} classified | source ${deviceMixModel.sourceLabel}`}
+                summaryLine={deviceMixSummaryLine}
                 rightSlot={(
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <AnalyticsViewModeToggle

@@ -23,6 +23,7 @@ import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { formatCompactGd, resolveWalletBalanceSplit } from "@/lib/gumdrop-formatting";
 import { createStaleRequestGuard } from "@/lib/ui/loading-state-contract";
+import { getPaymentProblemCopy } from "@/lib/problem-state-copy";
 import {
   resolveBundlePromoOffer,
   resolvePurchaseBonusPromoOffer,
@@ -232,6 +233,29 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const modalRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const packagesRequestGuardRef = useRef(createStaleRequestGuard());
+  const legacyPaymentDescriptor = useMemo(() => {
+    if (!error) {
+      return null;
+    }
+
+    const safeCopy = getPaymentProblemCopy(error);
+    const resolved = resolveClientActionError({ errorKey: "payment_not_completed" }, {
+      surface: "gumdrop_purchase",
+      route: "/api/paypal/capture",
+      fallbackKey: "payment_not_completed",
+      context: { source: "purchase_modal_legacy_error" },
+    });
+
+    return {
+      ...resolved.descriptor,
+      userTitle: safeCopy.headline,
+      userMessage: safeCopy.body,
+      debugOnlyDetails: [
+        ...(resolved.descriptor.debugOnlyDetails ?? []),
+        `safe_payment_copy:${safeCopy.technicalReason}`,
+      ],
+    };
+  }, [error]);
 
   useEffect(() => {
     setNetworkOnline(navigator.onLine);
@@ -913,14 +937,9 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                             extra: humanPaymentError.context,
                           }))}
                         />
-                      ) : error ? (
+                      ) : legacyPaymentDescriptor ? (
                         <HumanErrorNotice
-                          descriptor={resolveClientActionError({ errorKey: "payment_not_completed" }, {
-                            surface: "gumdrop_purchase",
-                            route: "/api/paypal/capture",
-                            fallbackKey: "payment_not_completed",
-                            context: { source: "purchase_modal_legacy_error" },
-                          }).descriptor}
+                          descriptor={legacyPaymentDescriptor}
                           compact
                           className="mt-4 text-left"
                         />

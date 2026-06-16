@@ -1,13 +1,52 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.69",
-  "betaReleaseCounter": 569,
+  "currentVersion": "1.5.70",
+  "betaReleaseCounter": 570,
   "channel": "beta",
-  "generatedAt": "2026-06-16T17:45:31.719Z",
-  "generatedAtUtc": "2026-06-16T17:45:31.719Z",
-  "lastCommitSha": "a4755cf0679e28656439e7fcdd5e500d81157196",
+  "generatedAt": "2026-06-16T18:11:11.422Z",
+  "generatedAtUtc": "2026-06-16T18:11:11.422Z",
+  "lastCommitSha": "759cc968db96bcc20b75c61e655e2b841e162c85",
   "notes": [
+    {
+      "version": "1.5.70",
+      "previousVersion": "1.5.69",
+      "betaReleaseCounter": 570,
+      "previousBetaReleaseCounter": 569,
+      "commitSha": "759cc968db96bcc20b75c61e655e2b841e162c85",
+      "commitTitle": "fix(admin): simplify truth copy labels",
+      "commitCount": 1,
+      "commitShas": [
+        "759cc968db96bcc20b75c61e655e2b841e162c85"
+      ],
+      "committedAt": "2026-06-16T18:11:03.000Z",
+      "generatedAt": "2026-06-16T18:11:11.420Z",
+      "committedAtUtc": "2026-06-16T18:11:03.000Z",
+      "generatedAtUtc": "2026-06-16T18:11:11.420Z",
+      "updatedAtUtc": "2026-06-16T18:11:11.420Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and general improvements.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved internal beta reliability.",
+        "Updated the latest Beta build with behind-the-scenes fixes."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/components/PurchaseModal.tsx"
+      ],
+      "sourceCommit": "759cc968db96bcc20b75c61e655e2b841e162c85"
+    },
     {
       "version": "1.5.69",
       "previousVersion": "1.5.68",
@@ -2031,55 +2070,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-debug-compact-panel.spec.ts"
       ],
       "sourceCommit": "3b534aac5b1890d89f3a5fa2682a19c9ea99c17d"
-    },
-    {
-      "version": "1.5.45",
-      "previousVersion": "1.5.44",
-      "betaReleaseCounter": 545,
-      "previousBetaReleaseCounter": 544,
-      "commitSha": "af636c749138261bdbb899c8b54df7f77f2e3dea",
-      "commitTitle": "fix(admin): add compact event mix analytics modes",
-      "commitCount": 2,
-      "commitShas": [
-        "ba57a31950095eb4342a1165bee081fc34a0a94e",
-        "af636c749138261bdbb899c8b54df7f77f2e3dea"
-      ],
-      "committedAt": "2026-06-03T22:57:03.000Z",
-      "generatedAt": "2026-06-03T22:57:15.626Z",
-      "committedAtUtc": "2026-06-03T22:57:03.000Z",
-      "generatedAtUtc": "2026-06-03T22:57:15.626Z",
-      "updatedAtUtc": "2026-06-03T22:57:15.626Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-audience-mobile.spec.ts",
-        "tests/unit/admin-analytics-audience-snapshot.spec.ts",
-        "tests/unit/admin-analytics-operations-mobile.spec.ts"
-      ],
-      "sourceCommit": "af636c749138261bdbb899c8b54df7f77f2e3dea"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

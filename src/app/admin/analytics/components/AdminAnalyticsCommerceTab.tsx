@@ -102,6 +102,28 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const yieldCard = commerceCardMap.get("yield_per_100_gd");
   const walletCard = commerceCardMap.get("wallet_opens");
   const promoCard = commerceCardMap.get("promo_impact");
+  const gdSpentTooltip = [
+    gdSpentCard?.explanation ?? "GumDrops spent through internal unwrap/access records.",
+    `Paid ${formatCommerceValue(commerceSnapshotModel.paidGdSpentValue, formatCompactNumber, "Unavailable")}`,
+    `Reward ${formatCommerceValue(commerceSnapshotModel.rewardFreeGdSpentValue, formatCompactNumber, "Unavailable")}`,
+    `Unknown ${formatCommerceValue(commerceSnapshotModel.unknownSourceGdSpentValue, formatCompactNumber, "Unavailable")}`,
+  ].join(" | ");
+  const adjustedProfitTooltip = [
+    commerceSnapshotModel.adjustedProfitFormula,
+    `Gross ${formatCommerceValue(commerceSnapshotModel.revenueValue, formatMoney, "Unavailable")}`,
+    `Fees ${formatCommerceValue(commerceSnapshotModel.paymentFeesUsdValue, formatMoney, "Unavailable")}`,
+    `Promo basis ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}`,
+  ].join(" | ");
+  const yieldTooltip = [
+    commerceSnapshotModel.yieldPer100GdFormula,
+    `Paid base ${formatCommerceValue(commerceSnapshotModel.paidBaseDeliveredGdValue, formatCompactNumber, "Unavailable")}`,
+    `Paid bonus ${formatCommerceValue(commerceSnapshotModel.paidBonusDeliveredGdValue, formatCompactNumber, "Unavailable")}`,
+  ].join(" | ");
+  const promoTooltip = [
+    `Bonus GD ${formatCommerceValue(commerceSnapshotModel.bonusGdGranted, formatCompactNumber, "Unavailable")}`,
+    `Discount ${formatCommerceValue(commerceSnapshotModel.promoDiscountUsdValue, formatMoney, "Unavailable")}`,
+    `Value basis ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}`,
+  ].join(" | ");
   const commerceGeneratedAtLabel = commerceSnapshotModel.generatedAtUtc
     ? formatAbsoluteDateTime(Date.parse(commerceSnapshotModel.generatedAtUtc))
     : "Unknown";
@@ -312,7 +334,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip={`${gdSpentCard?.explanation ?? "GumDrops spent through internal unwrap/access records."} Paid ${formatCommerceValue(commerceSnapshotModel.paidGdSpentValue, formatCompactNumber, "Unavailable")} | Reward ${formatCommerceValue(commerceSnapshotModel.rewardFreeGdSpentValue, formatCompactNumber, "Unavailable")} | Unknown ${formatCommerceValue(commerceSnapshotModel.unknownSourceGdSpentValue, formatCompactNumber, "Unavailable")}`}
+                  dictionaryTooltip={gdSpentTooltip}
                 />
               </div>
 
@@ -326,7 +348,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip={`${commerceSnapshotModel.adjustedProfitFormula}. Gross ${formatCommerceValue(commerceSnapshotModel.revenueValue, formatMoney, "Unavailable")} | Fees ${formatCommerceValue(commerceSnapshotModel.paymentFeesUsdValue, formatMoney, "Unavailable")} | Promo/bonus value basis ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}.`}
+                  dictionaryTooltip={adjustedProfitTooltip}
                 />
                 <MetricCard
                   label={yieldCard?.label ?? "Yield / 100 GD"}
@@ -337,7 +359,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip={`${commerceSnapshotModel.yieldPer100GdFormula}. Delivered GD = paid base ${formatCommerceValue(commerceSnapshotModel.paidBaseDeliveredGdValue, formatCompactNumber, "Unavailable")} + paid bonus ${formatCommerceValue(commerceSnapshotModel.paidBonusDeliveredGdValue, formatCompactNumber, "Unavailable")}.`}
+                  dictionaryTooltip={yieldTooltip}
                 />
                 <MetricCard
                   label={walletCard?.label ?? "Wallet Opens"}
@@ -359,7 +381,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip={`Bonus GD ${formatCommerceValue(commerceSnapshotModel.bonusGdGranted, formatCompactNumber, "Unavailable")} | Promo discount ${formatCommerceValue(commerceSnapshotModel.promoDiscountUsdValue, formatMoney, "Unavailable")} | Value basis ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}.`}
+                  dictionaryTooltip={promoTooltip}
                 />
               </div>
 
@@ -1370,7 +1392,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           value={formatCompactNumber(
                             viewerDrilldownOverview.sessionCount,
                           )}
-                          hint={`${viewerDrilldownOverview.repeatSessionCount.toLocaleString()} repeat sessions; ${viewerDrilldownOverview.returnSessionCount.toLocaleString()} same-viewer repeat drop sessions`}
+                          hint={[
+                            `${viewerDrilldownOverview.repeatSessionCount.toLocaleString()} repeat`,
+                            `${viewerDrilldownOverview.returnSessionCount.toLocaleString()} same-viewer`,
+                          ].join(" | ")}
                           icon={PlayCircle}
                         />
                         <MetricCard
@@ -1392,7 +1417,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           value={formatCompactNumber(
                             viewerDrilldownOverview.meaningfulSessionCount,
                           )}
-                          hint={`${viewerDrilldownOverview.convertedSessionCount.toLocaleString()} unwrap/asset-consumed conversions / ${viewerDrilldownOverview.completedSessionCount.toLocaleString()} completed assets`}
+                          hint={[
+                            `${viewerDrilldownOverview.convertedSessionCount.toLocaleString()} conversions`,
+                            `${viewerDrilldownOverview.completedSessionCount.toLocaleString()} completed`,
+                          ].join(" | ")}
                           icon={CheckCircle2}
                         />
                         <MetricCard

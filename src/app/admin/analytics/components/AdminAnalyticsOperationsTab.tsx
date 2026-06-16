@@ -100,7 +100,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     livePulseModel.guestSnapshotTruthState === "live"
       ? livePulseBadgeLabel
       : livePulseModel.guestSnapshotTruthState === "stale"
-        ? "STALE"
+        ? "DELAYED"
         : livePulseModel.guestSnapshotTruthState === "needs_review"
           ? "REVIEW"
           : "NO SAMPLE";
@@ -127,6 +127,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       : livePulseModel.mode === "delayed_snapshot"
         ? "Live updates delayed"
         : null;
+  const catalogMappingSentence =
+    eventMixModel.eventsNeedingCatalogMapping === null
+      ? ""
+      : `${eventMixModel.eventsNeedingCatalogMapping} need catalog mapping.`;
+  const surfaceContextSentence =
+    eventMixModel.eventsMissingSurfaceContext === null
+      ? ""
+      : `${eventMixModel.eventsMissingSurfaceContext} top events need surface context.`;
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -217,6 +225,21 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     value === null ? "Unavailable" : formatPercent(value);
   const formatRelativeUtc = (value: string | null) =>
     value ? formatRelativeTime(new Date(value).getTime(), nowMs) : "none";
+  const guestQualityHint = guestBounceQualityModel.guestQuality.state === "available"
+    ? [
+        `${guestBounceQualityModel.guestQuality.sampleCount} guest views`,
+        `last ${formatRelativeUtc(guestBounceQualityModel.guestQuality.lastGuestBatchAtUtc)}`,
+      ].join(" | ")
+    : [
+        guestBounceQualityModel.guestQuality.missingReason,
+        `Next: ${guestBounceQualityModel.guestQuality.nextAction}`,
+      ].join(" ");
+  const signedInBounceHint = guestBounceQualityModel.signedInBounce.sampleCount === null
+    ? "Signed-in bounce sample only. Guest bounce unavailable."
+    : [
+        `${guestBounceQualityModel.signedInBounce.sampleCount} signed-in views`,
+        guestBounceQualityModel.signedInBounce.explanation,
+      ].join(" | ");
   const guestQualityChartRows = [
     {
       label: "Estimated views",
@@ -286,7 +309,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
           </span>
           <AdminStatusBadge
             state={item.freshness}
-            label={item.freshness === "live" ? "LIVE" : item.freshness === "degraded" ? "DELAYED" : "STALE"}
+            label={item.freshness === "live" ? "LIVE" : "DELAYED"}
             className="max-w-[4.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
           />
         </div>
@@ -1432,9 +1455,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <MetricCard
                     label="Guest Quality"
                     value={guestBounceQualityModel.guestQuality.state === "available" ? guestQualityCountLabel(guestBounceQualityModel.guestQuality.sampleCount) : "No sample"}
-                    hint={guestBounceQualityModel.guestQuality.state === "available"
-                      ? `${guestBounceQualityModel.guestQuality.sampleCount} sampled guest views · last batch ${formatRelativeUtc(guestBounceQualityModel.guestQuality.lastGuestBatchAtUtc)}`
-                      : `${guestBounceQualityModel.guestQuality.missingReason} Next: ${guestBounceQualityModel.guestQuality.nextAction}`}
+                    hint={guestQualityHint}
                     icon={AlertTriangle}
                     truthState={guestBounceQualityModel.guestQuality.state === "available" ? guestBounceQualityModel.truthState : "degraded"}
                     statusBadgeLabel={guestBounceQualityModel.guestQuality.state === "available" ? "LIVE" : "NO SAMPLE"}
@@ -1446,12 +1467,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <MetricCard
                     label="Signed-in Bounce"
                     value={guestBounceQualityModel.signedInBounce.display}
-                    hint={guestBounceQualityModel.signedInBounce.sampleCount === null
-                      ? "Signed-in bounce sample only. Guest bounce unavailable."
-                      : `${guestBounceQualityModel.signedInBounce.sampleCount} signed-in sampled views · ${guestBounceQualityModel.signedInBounce.explanation}`}
+                    hint={signedInBounceHint}
                     icon={Activity}
                     truthState={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "stale" : guestBounceQualityModel.signedInBounce.value === null ? "degraded" : "live"}
-                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "STALE" : guestBounceQualityModel.signedInBounce.value === null ? "PARTIAL" : "LIVE"}
+                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "DELAYED" : guestBounceQualityModel.signedInBounce.value === null ? "PARTIAL" : "LIVE"}
                     className="rounded-[1rem] p-2"
                     valueClassName="truncate text-base leading-6 md:text-lg"
                   />
@@ -1705,13 +1724,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         ? "Verified route and surface context available."
                         : "Verified route and surface context are unavailable for this range."}
                       {" "}
-                      {eventMixModel.eventsNeedingCatalogMapping === null
-                        ? ""
-                        : `${eventMixModel.eventsNeedingCatalogMapping} event${eventMixModel.eventsNeedingCatalogMapping === 1 ? "" : "s"} need${eventMixModel.eventsNeedingCatalogMapping === 1 ? "s" : ""} catalog mapping.`}
+                      {catalogMappingSentence}
                       {" "}
-                      {eventMixModel.eventsMissingSurfaceContext === null
-                        ? ""
-                        : `${eventMixModel.eventsMissingSurfaceContext} top event${eventMixModel.eventsMissingSurfaceContext === 1 ? "" : "s"} are missing verified surface context.`}
+                      {surfaceContextSentence}
                     </div>
                   </div>
                 </SectionCard>

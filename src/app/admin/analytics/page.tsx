@@ -205,9 +205,8 @@ export default function AdminAnalyticsPage() {
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
               <span className="font-semibold text-white">Local UI review only.</span>{" "}
-              Analytics layout is available for local review. Activity snapshots, historical
-              views, overview, preferences, revenue, identity, and source samples stay
-              source_missing until a real admin session loads verified analytics snapshots.
+              Layout works here; analytics data stays source_missing until a real admin
+              session loads verified snapshots.
             </p>
           </div>
         </div>
