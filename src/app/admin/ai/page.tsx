@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Activity, ClipboardList, History, Power, SlidersHorizontal, WandSparkles } from "lucide-react";
+import { Activity, ClipboardList, History, Power, RefreshCw, SlidersHorizontal, WandSparkles } from "lucide-react";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerificationCard";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
@@ -69,6 +69,15 @@ export default function AIAdminPage() {
                     compact
                     actions={(
                         <>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => void state.mutate()}
+                                disabled={state.isLocalAdminUiTestSession}
+                            >
+                                <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                                Refresh
+                            </Button>
                             <Button
                                 variant={state.data?.settings.enabled ? "outline" : "brand"}
                                 size="sm"

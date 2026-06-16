@@ -10,7 +10,6 @@ import type { AdminAiState } from '../hooks/useAdminAiState';
 
 export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState }) {
     const {
-        refreshIntervalMs, setRefreshIntervalMs,
         updatingToggle, setUpdatingToggle,
         savingModelId, setSavingModelId,
         savingReferenceSettings, setSavingReferenceSettings,

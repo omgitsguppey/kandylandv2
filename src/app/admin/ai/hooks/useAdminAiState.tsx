@@ -7,8 +7,6 @@ import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { PUBLIC_APP_VERSION } from "@/lib/release-notes/public-release-notes";
 import { toast } from "sonner";
 import {
-    ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS,
-    ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS,
     ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT,
     type AdminAiDropCoverJobRecord,
     type AdminAiDropCoverModelHealth,
@@ -95,6 +93,7 @@ export type ReviewFilter = "all" | "accepted" | "liked" | "neutral" | "disliked"
 
 const ADMIN_AI_UI_SCHEMA_VERSION = "v1";
 const ADMIN_AI_UI_PREFERENCE_PREFIX = `admin_ai.${ADMIN_AI_UI_SCHEMA_VERSION}.${PUBLIC_APP_VERSION}.`;
+const ADMIN_AI_SNAPSHOT_REFRESH_INTERVAL_MS = 0;
 
 function createEmptyPolicyDraft() {
     return {
@@ -126,7 +125,6 @@ export function useAdminAiState() {
     const { user } = useAuth();
     const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
 
-    const [refreshIntervalMs, setRefreshIntervalMs] = useState(ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS);
     const [updatingToggle, setUpdatingToggle] = useState(false);
     const [savingModelId, setSavingModelId] = useState<AdminAiDropCoverSelectableModel | null>(null);
     const [savingReferenceSettings, setSavingReferenceSettings] = useState(false);
@@ -145,20 +143,13 @@ export function useAdminAiState() {
     const libraryInputRef = useRef<HTMLInputElement | null>(null);
     const primaryInputRef = useRef<HTMLInputElement | null>(null);
 
-    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropCoverDashboard>(isLocalAdminUiTestSession ? null : "/api/admin/ai/drop-covers", refreshIntervalMs, {
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropCoverDashboard>(isLocalAdminUiTestSession ? null : "/api/admin/ai/drop-covers", ADMIN_AI_SNAPSHOT_REFRESH_INTERVAL_MS, {
         keepPreviousData: false,
     });
-    const { data: uiPreferencesData } = useAdminPollingSWR<AdminUiPreferencesResponse>(isLocalAdminUiTestSession ? null : "/api/admin/ui/preferences", 15_000, {
+    const { data: uiPreferencesData } = useAdminPollingSWR<AdminUiPreferencesResponse>(isLocalAdminUiTestSession ? null : "/api/admin/ui/preferences", ADMIN_AI_SNAPSHOT_REFRESH_INTERVAL_MS, {
         keepPreviousData: true,
     });
     const serverDashboardHydratedAt = data?.refreshedAtMs ?? 0;
-
-    useEffect(() => {
-        const nextInterval = (data?.aggregate.activeGenerationCount || 0) > 0
-            ? ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS
-            : ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS;
-        setRefreshIntervalMs((current) => current === nextInterval ? current : nextInterval);
-    }, [data?.aggregate.activeGenerationCount]);
 
     useEffect(() => {
         const collapsedModules = uiPreferencesData?.preferences?.collapsedModules;
@@ -633,7 +624,6 @@ export function useAdminAiState() {
 
 
     return {
-        refreshIntervalMs, setRefreshIntervalMs,
         updatingToggle, setUpdatingToggle,
         savingModelId, setSavingModelId,
         savingReferenceSettings, setSavingReferenceSettings,

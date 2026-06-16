@@ -10,7 +10,6 @@ import type { AdminAiState } from '../hooks/useAdminAiState';
 
 export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
     const {
-        refreshIntervalMs, setRefreshIntervalMs,
         updatingToggle, setUpdatingToggle,
         savingModelId, setSavingModelId,
         savingReferenceSettings, setSavingReferenceSettings,

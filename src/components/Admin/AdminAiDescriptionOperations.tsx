@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Activity, Check, Loader2, Power, Sparkles, ThumbsDown, ThumbsUp, WandSparkles } from "lucide-react";
+import { Activity, Check, Loader2, Power, RefreshCw, Sparkles, ThumbsDown, ThumbsUp, WandSparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
@@ -10,8 +10,6 @@ import { MarqueeText } from "@/components/ui/MarqueeText";
 import { useAuth } from "@/context/AuthContext";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import {
-    ADMIN_AI_DROP_DESCRIPTION_ACTIVE_POLL_INTERVAL_MS,
-    ADMIN_AI_DROP_DESCRIPTION_IDLE_POLL_INTERVAL_MS,
     formatAdminAiUsd,
     type AdminAiDropDescriptionFeedback,
     type AdminAiDropDescriptionJobRecord,
@@ -92,6 +90,8 @@ const MODULE_DEFAULTS = {
     "admin_ai_desc.recent": true,
     "admin_ai_desc.gallery": true,
 } as const;
+
+const ADMIN_AI_DESCRIPTION_SNAPSHOT_REFRESH_INTERVAL_MS = 0;
 
 type ModuleKey = keyof typeof MODULE_DEFAULTS;
 type GalleryFilter = "all" | "accepted" | "liked" | "neutral" | "disliked" | "failed";
@@ -190,7 +190,6 @@ function getAdminAiDescriptionSafeErrorMessage(issue: unknown, fallback: string)
 export function AdminAiDescriptionOperations({ compact = false }: { compact?: boolean } = {}) {
     const { user } = useAuth();
     const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
-    const [refreshIntervalMs, setRefreshIntervalMs] = useState(ADMIN_AI_DROP_DESCRIPTION_IDLE_POLL_INTERVAL_MS);
     const [galleryFilter, setGalleryFilter] = useState<GalleryFilter>("all");
     const [moduleOpenState, setModuleOpenState] = useState<Record<ModuleKey, boolean>>(MODULE_DEFAULTS);
     const [policyDirty, setPolicyDirty] = useState(false);
@@ -206,19 +205,12 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
     });
     const preferencesHydratedRef = useRef(false);
 
-    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropDescriptionDashboard>(isLocalAdminUiTestSession ? null : "/api/admin/ai/drop-descriptions", refreshIntervalMs, {
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropDescriptionDashboard>(isLocalAdminUiTestSession ? null : "/api/admin/ai/drop-descriptions", ADMIN_AI_DESCRIPTION_SNAPSHOT_REFRESH_INTERVAL_MS, {
         keepPreviousData: true,
     });
-    const { data: uiPreferencesData } = useAdminPollingSWR<AdminUiPreferencesResponse>(isLocalAdminUiTestSession ? null : "/api/admin/ui/preferences", 15_000, {
+    const { data: uiPreferencesData } = useAdminPollingSWR<AdminUiPreferencesResponse>(isLocalAdminUiTestSession ? null : "/api/admin/ui/preferences", ADMIN_AI_DESCRIPTION_SNAPSHOT_REFRESH_INTERVAL_MS, {
         keepPreviousData: true,
     });
-
-    useEffect(() => {
-        const nextInterval = (data?.aggregate.activeGenerationCount || 0) > 0
-            ? ADMIN_AI_DROP_DESCRIPTION_ACTIVE_POLL_INTERVAL_MS
-            : ADMIN_AI_DROP_DESCRIPTION_IDLE_POLL_INTERVAL_MS;
-        setRefreshIntervalMs((current) => current === nextInterval ? current : nextInterval);
-    }, [data?.aggregate.activeGenerationCount]);
 
     useEffect(() => {
         const collapsedModules = uiPreferencesData?.preferences?.collapsedModules;
@@ -443,7 +435,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                         <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-gray-400">
                             <span>{data?.settings.model || "gemini-2.5-flash-lite"}</span>
                             <span>|</span>
-                            <span>{latestResolvedModel || "runtime version not exposed"}</span>
+                            <span>{latestResolvedModel || "Version not reported"}</span>
                             <span>|</span>
                             <span>{formatTimestamp(data?.refreshedAtMs)}</span>
                         </div>
@@ -456,6 +448,15 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                         <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-gray-200">
                             {formatAdminAiUsd(data?.aggregate.totalEstimatedCostUsd || 0)} total
                         </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => void mutate()}
+                            disabled={isLocalAdminUiTestSession}
+                        >
+                            <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                            Refresh
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -464,7 +465,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                 <div className="min-w-0 space-y-4 xl:col-span-6">
                     <AdminDashboardModule
                         title="Runtime"
-                        description="Live model truth, cost, and control state."
+                        description="Model state, cost, and controls from the latest snapshot."
                         defaultOpen={MODULE_DEFAULTS["admin_ai_desc.runtime"]}
                         open={moduleOpenState["admin_ai_desc.runtime"]}
                         onOpenChange={(nextOpen) => persistModuleState("admin_ai_desc.runtime", nextOpen)}

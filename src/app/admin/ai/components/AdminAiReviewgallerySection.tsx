@@ -8,7 +8,6 @@ import type { AdminAiState, ReviewFilter } from '../hooks/useAdminAiState';
 
 export function AdminAiReviewgallerySection({ state }: { state: AdminAiState }) {
     const {
-        refreshIntervalMs, setRefreshIntervalMs,
         updatingToggle, setUpdatingToggle,
         savingModelId, setSavingModelId,
         savingReferenceSettings, setSavingReferenceSettings,

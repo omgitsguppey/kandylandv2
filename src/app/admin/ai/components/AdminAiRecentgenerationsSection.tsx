@@ -1,8 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { RefreshCw } from "lucide-react";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
-import { ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS } from "@/lib/ai-drop-covers";
 import { cn } from "@/lib/utils";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { Badge, EmptyState, MetricCard, formatAdminAiNullableNumber, formatCompactTimestamp, getReferenceSourceLabel, resolveAdminAiDataState } from "../AiHelpers";
@@ -10,7 +8,6 @@ import type { AdminAiState } from "../hooks/useAdminAiState";
 
 export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState }) {
     const {
-        refreshIntervalMs,
         moduleOpenState,
         data,
         error,
@@ -32,10 +29,6 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
             actions={(
                 <div className="flex flex-wrap items-center gap-2">
                     <AdminStatusBadge state={sectionTruthState} />
-                    <Badge className="border border-white/10 bg-white/5 text-gray-200">
-                        <RefreshCw className="h-3.5 w-3.5" />
-                        {refreshIntervalMs <= ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS ? "2.5s active" : "10s idle"}
-                    </Badge>
                 </div>
             )}
         >
