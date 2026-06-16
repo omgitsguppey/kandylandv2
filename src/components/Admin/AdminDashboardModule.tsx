@@ -38,30 +38,35 @@ export function AdminDashboardModule({
 
     return (
         <section className={cn("glass-panel min-w-0 overflow-hidden rounded-[1.28rem] border border-white/10", className)}>
-            <button
-                type="button"
-                onClick={() => handleOpenChange(!resolvedOpen)}
-                aria-expanded={resolvedOpen}
-                className="flex min-w-0 w-full items-center justify-between gap-3 px-3.5 py-3 text-left md:px-4"
-            >
-                <div className="min-w-0">
+            <div className="flex min-w-0 w-full items-center justify-between gap-3 px-3.5 py-3 md:px-4">
+                <button
+                    type="button"
+                    onClick={() => handleOpenChange(!resolvedOpen)}
+                    aria-expanded={resolvedOpen}
+                    className="min-w-0 flex-1 text-left"
+                >
                     <h2 className="text-[15px] font-bold text-white">{title}</h2>
                     {description ? <p className="mt-0.5 text-[11px] leading-5 text-gray-400 md:text-xs">{description}</p> : null}
-                </div>
+                </button>
                 <div className="flex shrink-0 items-center gap-2">
                     {actions ? (
                         <div
                             className="hidden items-center gap-2 md:flex"
-                            onClick={(event) => event.stopPropagation()}
                         >
                             {actions}
                         </div>
                     ) : null}
-                    <span className="inline-flex h-8.5 w-8.5 items-center justify-center rounded-full border border-white/10 bg-black/35 text-gray-300">
+                    <button
+                        type="button"
+                        onClick={() => handleOpenChange(!resolvedOpen)}
+                        aria-expanded={resolvedOpen}
+                        aria-label={`${resolvedOpen ? "Collapse" : "Expand"} ${title}`}
+                        className="inline-flex h-8.5 w-8.5 items-center justify-center rounded-full border border-white/10 bg-black/35 text-gray-300"
+                    >
                         <ChevronDown className={cn("h-4 w-4 transition-transform", resolvedOpen ? "rotate-180" : "rotate-0")} />
-                    </span>
+                    </button>
                 </div>
-            </button>
+            </div>
 
             {resolvedOpen ? (
                 <div className="min-w-0 overflow-hidden border-t border-white/10 px-3.5 py-3 md:px-4">

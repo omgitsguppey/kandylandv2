@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import {
     classifyBrowserSecurityBoundaryError,
 } from "@/lib/client-diagnostics";
@@ -29,11 +30,12 @@ function reportAdminUiError(errorInfo: Record<string, unknown>) {
 }
 
 export function AdminErrorCatcher() {
-    const { userProfile } = useAuth();
+    const { user, userProfile } = useAuth();
     const isAdmin = userProfile?.role === "admin";
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
 
     useEffect(() => {
-        if (!isAdmin) {
+        if (!isAdmin || isLocalAdminUiTestSession) {
             return;
         }
 
@@ -122,7 +124,7 @@ export function AdminErrorCatcher() {
             window.removeEventListener("error", handleError);
             window.removeEventListener("unhandledrejection", handleRejection);
         };
-    }, [isAdmin]);
+    }, [isAdmin, isLocalAdminUiTestSession]);
 
     return null;
 }
