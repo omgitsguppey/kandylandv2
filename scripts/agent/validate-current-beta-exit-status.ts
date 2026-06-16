@@ -17,6 +17,33 @@ export type CurrentBetaExitCheck = {
   evidence: string;
 };
 
+export type CurrentBetaExitProofLaneId =
+  | "manualScreenshotQa"
+  | "providerSmoke"
+  | "runtimeSmoke"
+  | "adminTruthSample";
+
+export type CurrentBetaExitProofTruthState =
+  | "current_formal_evidence"
+  | "stale_evidence"
+  | "external_evidence_required"
+  | "manual_evidence_required"
+  | "manual_admin_truth_required"
+  | "source_only_not_formal"
+  | "unknown";
+
+export type CurrentBetaExitProofLane = {
+  id: CurrentBetaExitProofLaneId;
+  label: string;
+  truthState: CurrentBetaExitProofTruthState;
+  sourceStatus: string;
+  sourcePath: string;
+  captureStatus: string;
+  sourceCommit: string | null;
+  canClearGate: boolean;
+  nextAction: string;
+};
+
 export type CurrentBetaExitStatusReport = {
   generatedAtUtc: string;
   reportKey: "current-beta-exit-status";
@@ -65,6 +92,7 @@ export type CurrentBetaExitStatusReport = {
     canStartProviderSmoke: boolean;
     canStartRuntimeSmoke: boolean;
     canStartBetaExitReview: boolean;
+    proofLanes: CurrentBetaExitProofLane[];
   };
   checksRun: CurrentBetaExitCheck[];
   refreshPlan: ArtifactRefreshStatus[];
@@ -120,6 +148,10 @@ const evidenceCaptureStatusRelativePath = "agent/state/evidence-capture-status.g
 const evidenceCaptureStatusPath = join(repoRoot, evidenceCaptureStatusRelativePath);
 const operatorRevenueSmokeRelativePath = "agent/state/operator-revenue-smoke.generated.json";
 const operatorRevenueSmokePath = join(repoRoot, operatorRevenueSmokeRelativePath);
+const manualVisualEvidenceRelativePath = "agent/state/ui-visual-smoke-minimal.generated.json";
+const providerSmokeEvidenceRelativePath = "agent/state/provider-smoke-evidence.generated.json";
+const runtimeSmokeEvidenceRelativePath = "agent/state/runtime-smoke-evidence.generated.json";
+const adminTruthSampleEvidenceRelativePath = "agent/state/admin-truth-sample-evidence.generated.json";
 
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
@@ -209,18 +241,158 @@ function formalEvidenceStatus(
   return stringValue(artifact.overallStatus ?? artifact.status, fallback);
 }
 
+function artifactCommit(artifact: Record<string, unknown> | null) {
+  if (!artifact) return null;
+  const commit = stringValue(artifact.currentHead ?? artifact.sourceCommit, "");
+  return commit || null;
+}
+
+function artifactIsStale(artifact: Record<string, unknown> | null, head: string) {
+  const commit = artifactCommit(artifact);
+  return Boolean(commit && commit !== head);
+}
+
+function formalStatusPassed(id: CurrentBetaExitProofLaneId, status: string) {
+  if (id === "manualScreenshotQa") return /formal_screenshot_evidence_attached|screenshot_attached/iu.test(status);
+  if (id === "providerSmoke") return /formal_provider_smoke_passed|passed_formal_evidence/iu.test(status);
+  if (id === "runtimeSmoke") return /formal_runtime_smoke_passed|passed_formal_evidence/iu.test(status);
+  return /formal_admin_truth_sample_passed|passed_formal_evidence/iu.test(status);
+}
+
+function proofTruthStateFor(input: {
+  id: CurrentBetaExitProofLaneId;
+  sourceStatus: string;
+  captureStatus: string;
+  artifact: Record<string, unknown> | null;
+  head: string;
+}): CurrentBetaExitProofTruthState {
+  if (artifactIsStale(input.artifact, input.head) || /^stale_/iu.test(input.sourceStatus)) {
+    return "stale_evidence";
+  }
+  if (formalStatusPassed(input.id, input.sourceStatus) && input.captureStatus === "complete") {
+    return "current_formal_evidence";
+  }
+  if (/source_only/iu.test(input.sourceStatus)) {
+    return "source_only_not_formal";
+  }
+  if (input.id === "manualScreenshotQa") {
+    return "manual_evidence_required";
+  }
+  if (input.id === "adminTruthSample") {
+    return "manual_admin_truth_required";
+  }
+  if (input.id === "providerSmoke" || input.id === "runtimeSmoke") {
+    return "external_evidence_required";
+  }
+  return "unknown";
+}
+
+function buildProofLane(input: {
+  id: CurrentBetaExitProofLaneId;
+  label: string;
+  sourceStatus: string;
+  sourcePath: string;
+  captureStatus: string;
+  artifact: Record<string, unknown> | null;
+  head: string;
+  nextAction: string;
+}): CurrentBetaExitProofLane {
+  const truthState = proofTruthStateFor(input);
+  return {
+    id: input.id,
+    label: input.label,
+    truthState,
+    sourceStatus: input.sourceStatus,
+    sourcePath: input.sourcePath,
+    captureStatus: input.captureStatus,
+    sourceCommit: artifactCommit(input.artifact),
+    canClearGate: truthState === "current_formal_evidence",
+    nextAction: input.nextAction,
+  };
+}
+
+function buildProofLanes(input: {
+  head: string;
+  visualEvidenceStatus: string;
+  providerSmokeStatus: string;
+  runtimeSmokeStatus: string;
+  adminTruthSampleStatus: string;
+  captureSummary: Record<string, unknown>;
+  manualVisual: Record<string, unknown> | null;
+  provider: Record<string, unknown> | null;
+  runtime: Record<string, unknown> | null;
+  admin: Record<string, unknown> | null;
+}): CurrentBetaExitProofLane[] {
+  return [
+    buildProofLane({
+      id: "manualScreenshotQa",
+      label: "Manual screenshot QA",
+      sourceStatus: input.visualEvidenceStatus,
+      sourcePath: manualVisualEvidenceRelativePath,
+      captureStatus: stringValue(input.captureSummary.manualScreenshotEvidence, "missing"),
+      artifact: input.manualVisual,
+      head: input.head,
+      nextAction: "Attach real manual screenshot QA evidence before treating visual proof as current.",
+    }),
+    buildProofLane({
+      id: "providerSmoke",
+      label: "Provider smoke",
+      sourceStatus: input.providerSmokeStatus,
+      sourcePath: providerSmokeEvidenceRelativePath,
+      captureStatus: stringValue(input.captureSummary.providerSmokeEvidence, "missing"),
+      artifact: input.provider,
+      head: input.head,
+      nextAction: "Attach redacted provider smoke evidence; operator confirmation alone cannot clear provider proof.",
+    }),
+    buildProofLane({
+      id: "runtimeSmoke",
+      label: "Runtime smoke",
+      sourceStatus: input.runtimeSmokeStatus,
+      sourcePath: runtimeSmokeEvidenceRelativePath,
+      captureStatus: stringValue(input.captureSummary.runtimeSmokeEvidence, "missing"),
+      artifact: input.runtime,
+      head: input.head,
+      nextAction: "Attach or refresh deployed runtime smoke evidence for the current code version.",
+    }),
+    buildProofLane({
+      id: "adminTruthSample",
+      label: "Admin truth sample",
+      sourceStatus: input.adminTruthSampleStatus,
+      sourcePath: adminTruthSampleEvidenceRelativePath,
+      captureStatus: stringValue(input.captureSummary.adminTruthSampleEvidence, "missing"),
+      artifact: input.admin,
+      head: input.head,
+      nextAction: "Attach or refresh a redacted admin truth sample for the current code version.",
+    }),
+  ];
+}
+
 function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, head: string): CurrentBetaExitStatusReport {
   const beta = readJson("agent/state/public-beta-score.generated.json");
   const evidenceCapture = readEvidenceCaptureStatus();
-  const provider = readJson("agent/state/provider-smoke-evidence.generated.json");
-  const runtime = readJson("agent/state/runtime-smoke-evidence.generated.json");
-  const admin = readJson("agent/state/admin-truth-sample-evidence.generated.json");
+  const manualVisual = readJson(manualVisualEvidenceRelativePath);
+  const provider = readJson(providerSmokeEvidenceRelativePath);
+  const runtime = readJson(runtimeSmokeEvidenceRelativePath);
+  const admin = readJson(adminTruthSampleEvidenceRelativePath);
   const operator = readOperatorRevenueSmoke();
   const captureSummary = evidenceCapture?.summary ?? {};
   const generatedAtUtc = new Date().toISOString();
   const providerSmokeStatus = formalEvidenceStatus(provider, head, report.summary.providerSmokeStatus, "stale_provider_smoke_evidence");
   const runtimeSmokeStatus = formalEvidenceStatus(runtime, head, report.summary.runtimeSmokeStatus, "stale_runtime_smoke_evidence");
   const adminTruthSampleStatus = formalEvidenceStatus(admin, head, report.summary.adminTruthSampleStatus, "stale_admin_truth_sample_evidence");
+  const visualEvidenceStatus = formalEvidenceStatus(manualVisual, head, report.summary.visualEvidenceStatus, "stale_visual_evidence");
+  const proofLanes = buildProofLanes({
+    head,
+    visualEvidenceStatus,
+    providerSmokeStatus,
+    runtimeSmokeStatus,
+    adminTruthSampleStatus,
+    captureSummary,
+    manualVisual,
+    provider,
+    runtime,
+    admin,
+  });
   const summary = {
     ...report.summary,
     betaScore: numberValue(beta?.overallScore, report.summary.betaScore),
@@ -234,6 +406,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     freshnessScore: numberValue(beta?.freshnessScore, report.summary.freshnessScore),
     costRiskScore: numberValue(beta?.costRiskScore, report.summary.costRiskScore),
     regressionRiskScore: numberValue(beta?.regressionRiskScore, report.summary.regressionRiskScore),
+    visualEvidenceStatus,
     providerSmokeStatus,
     runtimeSmokeStatus,
     adminTruthSampleStatus,
@@ -247,9 +420,11 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     operatorRevenueSmokeNote: operator?.plainLanguageNote
       ?? "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
     liveRuntimeEvidenceStatus: stringValue(record(captureSummary.liveRuntimeEvidence).statusSummary, report.summary.liveRuntimeEvidenceStatus),
-    canStartRuntimeSmoke: evidenceMissing(runtimeSmokeStatus) || captureSummary.runtimeSmokeEvidence !== "complete",
-    canStartProviderSmoke: evidenceMissing(providerSmokeStatus) || captureSummary.providerSmokeEvidence !== "complete",
+    canStartManualScreenshotQa: proofLanes.find((lane) => lane.id === "manualScreenshotQa")?.canClearGate !== true,
+    canStartRuntimeSmoke: proofLanes.find((lane) => lane.id === "runtimeSmoke")?.canClearGate !== true,
+    canStartProviderSmoke: proofLanes.find((lane) => lane.id === "providerSmoke")?.canClearGate !== true,
     canStartBetaExitReview: false,
+    proofLanes,
   } satisfies CurrentBetaExitStatusReport["summary"];
   const remainingBlockers = [
     ...report.remainingBlockers.filter((blocker) => !["runtime-smoke", "admin-truth-sample", "provider-smoke"].includes(blocker.id)),
@@ -385,6 +560,55 @@ export function validateCurrentBetaExitStatusReport(
   const visualMissing = evidenceMissing(report.summary.visualEvidenceStatus);
   const providerMissing = evidenceMissing(report.summary.providerSmokeStatus);
   const runtimeMissing = evidenceMissing(report.summary.runtimeSmokeStatus);
+  const proofLanes = Array.isArray(report.summary.proofLanes) ? report.summary.proofLanes : [];
+  const proofLaneIds = new Set(proofLanes.map((lane) => lane.id));
+  const requiredProofLaneIds: CurrentBetaExitProofLaneId[] = [
+    "manualScreenshotQa",
+    "providerSmoke",
+    "runtimeSmoke",
+    "adminTruthSample",
+  ];
+  for (const id of requiredProofLaneIds) {
+    if (!proofLaneIds.has(id)) {
+      failures.push(`proofLanes must include ${id}.`);
+    }
+  }
+  const proofLaneById = new Map(proofLanes.map((lane) => [lane.id, lane]));
+  const expectedProofStatuses: Record<CurrentBetaExitProofLaneId, string> = {
+    manualScreenshotQa: report.summary.visualEvidenceStatus,
+    providerSmoke: report.summary.providerSmokeStatus,
+    runtimeSmoke: report.summary.runtimeSmokeStatus,
+    adminTruthSample: report.summary.adminTruthSampleStatus,
+  };
+  for (const lane of proofLanes) {
+    if (expectedProofStatuses[lane.id] && lane.sourceStatus !== expectedProofStatuses[lane.id]) {
+      failures.push(`${lane.id} proof lane sourceStatus must match the summary source status.`);
+    }
+    if (typeof lane.sourcePath !== "string" || lane.sourcePath.trim().length === 0) {
+      failures.push(`${lane.id} proof lane must include a sourcePath.`);
+    }
+    if (typeof lane.captureStatus !== "string" || lane.captureStatus.trim().length === 0) {
+      failures.push(`${lane.id} proof lane must include captureStatus.`);
+    }
+    if (/^stale_/iu.test(lane.sourceStatus) && lane.truthState !== "stale_evidence") {
+      failures.push(`${lane.id} stale proof source must have truthState=stale_evidence.`);
+    }
+    if (lane.canClearGate && lane.truthState !== "current_formal_evidence") {
+      failures.push(`${lane.id} proof lane canClearGate must only be true for current_formal_evidence.`);
+    }
+    if (lane.truthState === "current_formal_evidence" && !formalStatusPassed(lane.id, lane.sourceStatus)) {
+      failures.push(`${lane.id} current_formal_evidence must come from a formal passed source status.`);
+    }
+  }
+  if (report.summary.canStartManualScreenshotQa === proofLaneById.get("manualScreenshotQa")?.canClearGate) {
+    failures.push("canStartManualScreenshotQa must be an action flag derived as the inverse of manualScreenshotQa canClearGate.");
+  }
+  if (report.summary.canStartProviderSmoke === proofLaneById.get("providerSmoke")?.canClearGate) {
+    failures.push("canStartProviderSmoke must be an action flag derived as the inverse of providerSmoke canClearGate.");
+  }
+  if (report.summary.canStartRuntimeSmoke === proofLaneById.get("runtimeSmoke")?.canClearGate) {
+    failures.push("canStartRuntimeSmoke must be an action flag derived as the inverse of runtimeSmoke canClearGate.");
+  }
   const operatorRevenueSmoke = readOperatorRevenueSmoke();
   if (operatorRevenueSmoke) {
     const summary = operatorRevenueSmoke.summary ?? {};
@@ -530,10 +754,12 @@ function main() {
   }
 
   const summary = report?.summary;
+  const proofStatus = (summary?.proofLanes ?? [])
+    .map((lane) => `${lane.id}=${lane.truthState}(${lane.sourceStatus})`)
+    .join(" ");
   console.log(
     `Current beta exit status passed. beta=${summary?.betaScore}/${summary?.betaStatus} ` +
-      `manualScreenshotQa=${summary?.canStartManualScreenshotQa} ` +
-      `providerSmoke=${summary?.canStartProviderSmoke} runtimeSmoke=${summary?.canStartRuntimeSmoke}`,
+      `proofLanes=${proofStatus || "unavailable"}`,
   );
 }
 

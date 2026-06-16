@@ -2,8 +2,76 @@ import { describe, expect, it } from "vitest";
 
 import {
   validateCurrentBetaExitStatusReport,
+  type CurrentBetaExitProofLane,
   type CurrentBetaExitStatusReport,
 } from "../../scripts/agent/validate-current-beta-exit-status";
+
+function proofLanesFor(
+  summary: Omit<CurrentBetaExitStatusReport["summary"], "proofLanes">,
+): CurrentBetaExitProofLane[] {
+  return [
+    {
+      id: "manualScreenshotQa",
+      label: "Manual screenshot QA",
+      truthState: summary.visualEvidenceStatus.startsWith("stale_")
+        ? "stale_evidence"
+        : summary.visualEvidenceStatus.includes("source_only")
+          ? "source_only_not_formal"
+          : "manual_evidence_required",
+      sourceStatus: summary.visualEvidenceStatus,
+      sourcePath: "agent/state/ui-visual-smoke-minimal.generated.json",
+      captureStatus: "missing",
+      sourceCommit: "head",
+      canClearGate: false,
+      nextAction: "Attach real manual screenshot QA evidence before treating visual proof as current.",
+    },
+    {
+      id: "providerSmoke",
+      label: "Provider smoke",
+      truthState: summary.providerSmokeStatus.startsWith("stale_")
+        ? "stale_evidence"
+        : summary.providerSmokeStatus.includes("formal_provider_smoke_passed")
+          ? "current_formal_evidence"
+          : "external_evidence_required",
+      sourceStatus: summary.providerSmokeStatus,
+      sourcePath: "agent/state/provider-smoke-evidence.generated.json",
+      captureStatus: summary.providerSmokeStatus.includes("formal_provider_smoke_passed") ? "complete" : "missing",
+      sourceCommit: "head",
+      canClearGate: summary.providerSmokeStatus.includes("formal_provider_smoke_passed"),
+      nextAction: "Attach redacted provider smoke evidence; operator confirmation alone cannot clear provider proof.",
+    },
+    {
+      id: "runtimeSmoke",
+      label: "Runtime smoke",
+      truthState: summary.runtimeSmokeStatus.startsWith("stale_")
+        ? "stale_evidence"
+        : summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed")
+          ? "current_formal_evidence"
+          : "external_evidence_required",
+      sourceStatus: summary.runtimeSmokeStatus,
+      sourcePath: "agent/state/runtime-smoke-evidence.generated.json",
+      captureStatus: summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed") ? "complete" : "missing",
+      sourceCommit: "head",
+      canClearGate: summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed"),
+      nextAction: "Attach or refresh deployed runtime smoke evidence for the current code version.",
+    },
+    {
+      id: "adminTruthSample",
+      label: "Admin truth sample",
+      truthState: summary.adminTruthSampleStatus.startsWith("stale_")
+        ? "stale_evidence"
+        : summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed")
+          ? "current_formal_evidence"
+          : "manual_admin_truth_required",
+      sourceStatus: summary.adminTruthSampleStatus,
+      sourcePath: "agent/state/admin-truth-sample-evidence.generated.json",
+      captureStatus: summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed") ? "complete" : "missing",
+      sourceCommit: "head",
+      canClearGate: summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed"),
+      nextAction: "Attach or refresh a redacted admin truth sample for the current code version.",
+    },
+  ];
+}
 
 function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): CurrentBetaExitStatusReport {
   const report: CurrentBetaExitStatusReport = {
@@ -51,9 +119,10 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       speedSecurityStatus: "51/beta-risk; findings=91; critical=0",
       releaseNotesStatus: "passed_same_commit_validator",
       canStartManualScreenshotQa: true,
-      canStartProviderSmoke: false,
-      canStartRuntimeSmoke: false,
+      canStartProviderSmoke: true,
+      canStartRuntimeSmoke: true,
       canStartBetaExitReview: false,
+      proofLanes: [],
     },
     checksRun: [
       { command: "npm run check:gumdrop-economy-accuracy", status: "passed", evidence: "passed" },
@@ -103,12 +172,18 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
     ],
   };
 
+  const summary = {
+    ...report.summary,
+    ...overrides.summary,
+  };
+  const proofLanes = overrides.summary?.proofLanes ?? proofLanesFor(summary);
+
   return {
     ...report,
     ...overrides,
     summary: {
-      ...report.summary,
-      ...overrides.summary,
+      ...summary,
+      proofLanes,
     },
   };
 }
@@ -162,6 +237,32 @@ describe("current beta exit status validator", () => {
 
     expect(report.summary.canStartManualScreenshotQa).toBe(true);
     expect(validateCurrentBetaExitStatusReport(report, "head")).toEqual([]);
+  });
+
+  it("requires source-derived proof lane truth states instead of bare proof booleans", () => {
+    const report = reportFixture({
+      summary: {
+        ...reportFixture().summary,
+        proofLanes: [],
+      },
+    });
+
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
+      "proofLanes must include providerSmoke.",
+    );
+  });
+
+  it("derives manual screenshot action state from the proof lane", () => {
+    const report = reportFixture({
+      summary: {
+        ...reportFixture().summary,
+        canStartManualScreenshotQa: false,
+      },
+    });
+
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
+      "canStartManualScreenshotQa must be an action flag derived as the inverse of manualScreenshotQa canClearGate.",
+    );
   });
 
   it("requires release-note status to be represented", () => {

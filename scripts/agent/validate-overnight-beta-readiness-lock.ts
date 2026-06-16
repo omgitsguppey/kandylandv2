@@ -7,7 +7,7 @@ import {
   validateCurrentBetaExitStatusReport,
   type CurrentBetaExitStatusReport,
 } from "./validate-current-beta-exit-status";
-import { classifyGeneratedArtifactFromGit, isGeneratedArtifactCurrent } from "../../src/lib/agent-score/generated-artifact-version-policy";
+import { classifyGeneratedArtifactVersion, isGeneratedArtifactCurrent } from "../../src/lib/agent-score/generated-artifact-version-policy";
 import {
   buildRefreshPlan,
   staleArtifactsFromPlan,
@@ -315,10 +315,10 @@ export function validateOvernightBetaReadinessLockReport(
 ) {
   const failures: string[] = [];
   if (!report) return ["overnight-beta-readiness-lock artifact missing"];
-  const version = classifyGeneratedArtifactFromGit({
-    cwd: repoRoot,
+  const version = classifyGeneratedArtifactVersion({
     artifactPath: overnightReportRelativePath,
     artifactHead: report.currentHead,
+    currentHead: head,
   });
   if (!isGeneratedArtifactCurrent(version)) {
     failures.push(`report currentHead must match git HEAD (${head}) or an accepted generated artifact version.`);
@@ -359,6 +359,56 @@ export function validateOvernightBetaReadinessLockReport(
 function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockReport): CurrentBetaExitStatusReport {
   const publicBetaScore = readJson("agent/state/public-beta-score.generated.json");
   const operatorSmoke = operatorRevenueSmokeSummary();
+  const visualEvidenceStatus = "source_only_screenshotEvidenceAttached_false";
+  const providerSmokeStatus = "missing_formal_evidence";
+  const runtimeSmokeStatus = "runtime_unverified";
+  const adminTruthSampleStatus = "missing_or_unknown";
+  const proofLanes: CurrentBetaExitStatusReport["summary"]["proofLanes"] = [
+    {
+      id: "manualScreenshotQa",
+      label: "Manual screenshot QA",
+      truthState: "source_only_not_formal",
+      sourceStatus: visualEvidenceStatus,
+      sourcePath: "agent/state/ui-visual-smoke-minimal.generated.json",
+      captureStatus: "missing",
+      sourceCommit: report.currentHead,
+      canClearGate: false,
+      nextAction: "Attach real manual screenshot QA evidence before treating visual proof as current.",
+    },
+    {
+      id: "providerSmoke",
+      label: "Provider smoke",
+      truthState: "external_evidence_required",
+      sourceStatus: providerSmokeStatus,
+      sourcePath: "agent/state/provider-smoke-evidence.generated.json",
+      captureStatus: "missing",
+      sourceCommit: report.currentHead,
+      canClearGate: false,
+      nextAction: "Attach redacted provider smoke evidence; operator confirmation alone cannot clear provider proof.",
+    },
+    {
+      id: "runtimeSmoke",
+      label: "Runtime smoke",
+      truthState: "external_evidence_required",
+      sourceStatus: runtimeSmokeStatus,
+      sourcePath: "agent/state/runtime-smoke-evidence.generated.json",
+      captureStatus: "missing",
+      sourceCommit: report.currentHead,
+      canClearGate: false,
+      nextAction: "Attach or refresh deployed runtime smoke evidence for the current code version.",
+    },
+    {
+      id: "adminTruthSample",
+      label: "Admin truth sample",
+      truthState: "manual_admin_truth_required",
+      sourceStatus: adminTruthSampleStatus,
+      sourcePath: "agent/state/admin-truth-sample-evidence.generated.json",
+      captureStatus: "missing",
+      sourceCommit: report.currentHead,
+      canClearGate: false,
+      nextAction: "Attach or refresh a redacted admin truth sample for the current code version.",
+    },
+  ];
   const refreshPlan = buildRefreshPlan([
     currentExitRelativePath,
     "agent/state/public-beta-score.generated.json",
@@ -398,8 +448,8 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       userCreatorP1: 0,
       economyP0: 0,
       economyP1: 0,
-      visualEvidenceStatus: "source_only_screenshotEvidenceAttached_false",
-      providerSmokeStatus: "missing_formal_evidence",
+      visualEvidenceStatus,
+      providerSmokeStatus,
       operatorRevenueSmokeStatus: operatorSmoke.status,
       operatorRevenueSmokeAmountUsd: operatorSmoke.amountUsd,
       operatorRevenueSmokeProduct: operatorSmoke.product,
@@ -408,8 +458,8 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       operatorRevenueSmokeFormalProviderSmokePassed: operatorSmoke.formalProviderSmokePassed,
       operatorRevenueSmokeBetaGateImpact: operatorSmoke.betaGateImpact,
       operatorRevenueSmokeNote: operatorSmoke.status === "operator_confirmed_revenue_smoke" ? operatorSmoke.note : "No operator-confirmed GumDrop revenue smoke is recorded.",
-      runtimeSmokeStatus: "runtime_unverified",
-      adminTruthSampleStatus: "missing_or_unknown",
+      runtimeSmokeStatus,
+      adminTruthSampleStatus,
       cloudRunCostReadiness: report.cloudRunCostStatus,
       cloudSqlCostReadiness: report.cloudSqlCostStatus,
       geminiCloudAssistCostReadiness: report.geminiCloudAssistCostStatus,
@@ -419,10 +469,11 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       liveRuntimeEvidenceStatus: liveRuntimeEvidenceStatusSummary(),
       speedSecurityStatus: report.speedSecurityStatus,
       releaseNotesStatus: "same_commit_release_note_artifacts_required",
-      canStartManualScreenshotQa: report.canStartScreenshots,
-      canStartProviderSmoke: report.canStartProviderSmoke,
-      canStartRuntimeSmoke: report.canStartRuntimeSmoke,
+      canStartManualScreenshotQa: proofLanes.find((lane) => lane.id === "manualScreenshotQa")?.canClearGate !== true,
+      canStartProviderSmoke: proofLanes.find((lane) => lane.id === "providerSmoke")?.canClearGate !== true,
+      canStartRuntimeSmoke: proofLanes.find((lane) => lane.id === "runtimeSmoke")?.canClearGate !== true,
       canStartBetaExitReview: false,
+      proofLanes,
     },
     checksRun: [
       { command: "npm run check:gumdrop-economy-accuracy", status: "passed", evidence: "represented in refreshed source evidence." },
