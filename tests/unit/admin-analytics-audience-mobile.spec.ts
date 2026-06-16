@@ -77,5 +77,14 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).not.toContain("<td className=\"px-3 py-2\">{item.sourceTruth}</td>");
     expect(source).not.toContain("Source: {item.sourceTruth}");
     expect(source).not.toContain("Source: {row.sourceTruth}");
+    expect(source).not.toContain("Recovery label:");
+    expect(source).not.toContain("vendor evidence + first-party snapshot");
+    expect(source).not.toContain("GA4 Users (estimated)");
+    expect(source).not.toContain("vendor evidence only");
+    expect(source).not.toContain("GA views");
+    expect(source).toContain("Decision source: {verifiedSnapshotLabel}");
+    expect(source).toContain("Site analytics can explain gaps, but cannot create product totals.");
+    expect(source).toContain('label="Site Users (estimated)"');
+    expect(source).toContain("formatAudienceSeriesLabel");
   });
 });

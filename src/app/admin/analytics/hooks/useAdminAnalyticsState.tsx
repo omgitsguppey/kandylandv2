@@ -727,6 +727,7 @@ export function useAdminAnalyticsState() {
   const { user } = useAuth();
   const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
+  const manualTabSelectionRef = useRef(false);
   const [topDropConversionPage, setTopDropConversionPage] = useState(1);
   const [topDropConversionPageSize, setTopDropConversionPageSize] = useState(10);
   const range: RangeOption = ADMIN_ANALYTICS_DEFAULT_RANGE;
@@ -763,7 +764,8 @@ export function useAdminAnalyticsState() {
 
         if (
           parsed.activeTab &&
-          TAB_OPTIONS.some((item) => item.id === parsed.activeTab)
+          TAB_OPTIONS.some((item) => item.id === parsed.activeTab) &&
+          !manualTabSelectionRef.current
         ) {
           setActiveTab(parsed.activeTab);
         }
@@ -3359,6 +3361,7 @@ export function useAdminAnalyticsState() {
   };
 
   const setActiveTabDeferred = (nextTab: ViewTab) => {
+    manualTabSelectionRef.current = true;
     startTransition(() => {
       setActiveTab(nextTab);
     });

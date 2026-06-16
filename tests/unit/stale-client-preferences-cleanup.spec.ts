@@ -66,4 +66,12 @@ describe("stale client preferences cleanup", () => {
     expect(adminAnalyticsState).toContain("parsed.appVersion !== ADMIN_ANALYTICS_STORAGE_VERSION");
     expect(adminAnalyticsState).toContain("kandydrops.admin.analytics.${ADMIN_ANALYTICS_STORAGE_VERSION}");
   });
+
+  it("keeps restored admin analytics filters from overwriting a fresh tab choice", () => {
+    const adminAnalyticsState = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
+
+    expect(adminAnalyticsState).toContain("manualTabSelectionRef");
+    expect(adminAnalyticsState).toContain("!manualTabSelectionRef.current");
+    expect(adminAnalyticsState).toContain("manualTabSelectionRef.current = true");
+  });
 });

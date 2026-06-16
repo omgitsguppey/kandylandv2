@@ -74,8 +74,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   );
   const verifiedSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot");
   const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
-  const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
-  const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
   const guestEstimateSourceTruthLabel = formatAdminAnalyticsSourceTruthLabel(
     audienceSnapshotModel.guestEstimateMetadata.sourceTruth,
   );
@@ -93,6 +91,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     : audienceSnapshotModel.continuity.gapSeverity === "review"
       ? "Continuity needs review"
       : "Continuity verified";
+  const formatAudienceSeriesLabel = (label: string) =>
+    label.replaceAll("GA4", "Site").replaceAll("GA ", "Site ");
   const [topPathsSearch, setTopPathsSearch] = React.useState("");
   const [topPathsFilter, setTopPathsFilter] = React.useState<
     | "all"
@@ -214,7 +214,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 <>
             <SectionCard
               title="Audience Snapshot"
-              subtitle="Vendor estimates and first-party snapshot context for the selected range."
+              subtitle="First-party snapshots first; site analytics only explain traffic gaps."
               icon={Users}
               defaultExpanded
               rightSlot={renderSectionRangeControl("audienceSnapshot")}
@@ -252,7 +252,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     {" | "}Source: {audienceSourceStateLabel}
                   </p>
                   <p className="text-gray-500">
-                    Source labels: {verifiedSnapshotLabel} wins; {vendorEvidenceLabel} is supporting evidence, not product truth.
+                    Decision source: {verifiedSnapshotLabel}. Site analytics can explain gaps, but cannot create product totals.
                   </p>
                 </div>
 
@@ -291,17 +291,19 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   <p className="font-semibold text-white">{continuityLabel}</p>
                   <p>{audienceSnapshotModel.continuitySummary}</p>
                   <p className="text-gray-500">
-                    Users source: {vendorEvidenceLabel} (GA4 site users) | Views source: vendor evidence + first-party snapshot | Recovery: {audienceSnapshotModel.recovery.mode}
+                    Traffic estimate: {vendorEvidenceLabel}. First-party views stay separate and must come from verified snapshots.
                   </p>
                   <p className="text-gray-500">
-                    Recovery label: {debugRecoveryLabel}; {recoveryReviewLabel}.
+                    Recovery: {audienceSnapshotModel.recovery.mode === "none"
+                      ? "No recovery needed for this range."
+                      : "Review required before this can affect totals."}
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
                 <MetricCard
-                  label="GA4 Users (estimated)"
+                  label="Site Users (estimated)"
                   value={formatAudienceValue(
                     audienceSnapshotModel.totalUsers.value,
                     formatCompactNumber,
@@ -310,7 +312,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   hint={audienceSnapshotModel.totalUsers.label}
                   icon={Users}
                   truthState={audienceSnapshotModel.totalUsers.truthState}
-                  dictionaryTooltip="GA4 users for the selected range are vendor evidence only. They are site traffic estimates, not authenticated KandyDrops accounts or product truth."
+                  dictionaryTooltip="Site users for the selected range are supporting traffic estimates, not authenticated KandyDrops accounts or product truth."
                 />
                 <MetricCard
                   label="Guest Visits"
@@ -335,11 +337,11 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   hint={
                     audienceSnapshotModel.views.value === null
                       ? audienceSnapshotModel.sessions.label
-                      : `${audienceSnapshotModel.views.value.toLocaleString()} GA views`
+                      : `${audienceSnapshotModel.views.value.toLocaleString()} site views`
                   }
                   icon={Activity}
                   truthState={audienceSnapshotModel.sessions.truthState}
-                  dictionaryTooltip="GA sessions for the selected range. Page views stay labeled separately so sessions and views are not merged into one implied denominator."
+                  dictionaryTooltip="Site sessions for the selected range. Page views stay labeled separately so sessions and views are not merged into one implied denominator."
                 />
                 <MetricCard
                   label="Engagement"
@@ -355,7 +357,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   }
                   icon={Clock3}
                   truthState={audienceSnapshotModel.engagementRate.truthState}
-                  dictionaryTooltip="GA engagement rate and average GA session duration. This is not first-party watch or activity quality."
+                  dictionaryTooltip="Site engagement rate and average session duration. This is not first-party watch or activity quality."
                 />
               </div>
 
@@ -396,13 +398,13 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                       className="h-2 w-2 rounded-full"
                       style={{ backgroundColor: series.stroke }}
                     />
-                    {series.label}
+                    {formatAudienceSeriesLabel(series.label)}
                   </span>
                 ))}
               </div>
 
               <p className="mt-2 text-[11px] text-gray-500">
-                Chart source: vendor evidence plus first-party continuity context. Vendor analytics are supporting evidence, not product truth, and continuity gaps do not become verified first-party traffic.
+                Chart source: supporting site analytics with first-party continuity context. Estimates do not become verified product traffic.
               </p>
 
               <div className={`mt-2.5 ${audienceSnapshotModel.chartHeightClass} w-full`}>
