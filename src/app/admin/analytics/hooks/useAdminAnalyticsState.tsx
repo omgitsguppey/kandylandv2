@@ -1835,7 +1835,7 @@ const { user } = useAuth();
   > = {
     liveActive: buildAdminAnalyticsOverviewDisplayMetric({
       id: "liveActive",
-      label: "Live Active",
+      label: "Active Users",
       displayValue:
         liveActiveWaitingState.reason === "first_snapshot_pending" &&
         liveActiveDisplay === liveActiveWaitingState.label

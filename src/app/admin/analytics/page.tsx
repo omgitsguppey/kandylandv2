@@ -211,7 +211,7 @@ export default function AdminAnalyticsPage() {
 
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4" data-mobile-organization="summary-first" data-admin-analytics-summary="primary">
         <MetricCard
-          label="Live Active"
+          label="Active Users"
           value={analyticsOverviewDisplayMetrics.liveActive.displayValue}
           hint={analyticsOverviewDisplayMetrics.liveActive.compactFreshnessLine}
           icon={Activity}

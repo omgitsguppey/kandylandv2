@@ -41,7 +41,7 @@ const mockState = vi.hoisted(() => {
       analyticsOverviewDisplayMetrics: {
         liveActive: {
           id: "liveActive",
-          label: "Live Active",
+          label: "Active Users",
           displayValue: "12",
           primaryValue: 12,
           displayState: "ready",
