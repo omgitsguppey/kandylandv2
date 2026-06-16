@@ -13,7 +13,8 @@ describe("admin drops local fixture boundary", () => {
     expect(source).toContain("Drop list rendering is inspectable");
     expect(source).toContain("drop feed, creator options, queue state, create, review, queue, notify, duplicate, edit, and delete remain source_missing");
     expect(source).toContain("useAdminDropsFeed({ enabled: !isLocalAdminUiTestSession })");
-    expect(source).toContain('useAdminPollingSWR<AdminDropQueueConfig>(isLocalAdminUiTestSession ? null : "/api/admin/queue", 30_000)');
+    expect(source).toContain("const ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS = 0");
+    expect(source).toContain('useAdminPollingSWR<AdminDropQueueConfig>(isLocalAdminUiTestSession ? null : "/api/admin/queue", ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS)');
     expect(source).toContain("if (isLocalAdminUiTestSession) {\n            setCreatorOptions([]);\n            return;\n        }");
     expect(source).toContain("if (isLocalAdminUiTestSession) {\n            return;\n        }");
     expect(source).toContain('disabled={isLocalAdminUiTestSession}');

@@ -83,6 +83,8 @@ const SORT_OPTIONS: Array<{ value: DropSortMode; label: string }> = [
     { value: "alphabetical", label: "A-Z" },
 ];
 
+const ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS = 0;
+
 function getAdminDropsSafeErrorMessage(error: unknown, fallback: string) {
     const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
     return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
@@ -193,7 +195,7 @@ export default function AdminDropsPage() {
     const {
         data: queueConfig,
         mutate: mutateQueueConfig,
-    } = useAdminPollingSWR<AdminDropQueueConfig>(isLocalAdminUiTestSession ? null : "/api/admin/queue", 30_000);
+    } = useAdminPollingSWR<AdminDropQueueConfig>(isLocalAdminUiTestSession ? null : "/api/admin/queue", ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS);
     const nowMs = useNow({ intervalMs: 60_000, initialNowMs: 0, enabled: drops.length > 0 });
 
     const deferredSearch = useDeferredValue(searchDraft.trim().toLowerCase());
@@ -783,7 +785,7 @@ export default function AdminDropsPage() {
                 <AdminPageHeader
                     eyebrow="Admin Drops"
                     title="Manage Drops"
-                    subtitle="Search, queue, edit, and create drops from a denser mobile workflow without losing any of the current controls."
+                    subtitle="Search, queue, edit, and create drops in one compact view without losing the current controls."
                     actions={(
                         <>
                             <Link

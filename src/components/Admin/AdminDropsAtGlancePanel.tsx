@@ -36,6 +36,7 @@ type DropRow = {
 
 /** Compact grid shows 8 cards (2 rows of 4 on xl, 4 rows of 2 on mobile). */
 const PAGE_SIZE = 8;
+const ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS = 0;
 
 function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: string | null, now: number) {
     const lifecycle = resolveAdminDropLifecycleFacts(drop, {
@@ -123,7 +124,7 @@ export function AdminDropsAtGlancePanel() {
     const {
         data: queueConfig,
         mutate: mutateQueueConfig,
-    } = useAdminPollingSWR<AdminDropQueueConfig>("/api/admin/queue", 30_000);
+    } = useAdminPollingSWR<AdminDropQueueConfig>("/api/admin/queue", ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS);
     const nowMs = useNow({ intervalMs: 60_000, initialNowMs: 0, enabled: drops.length > 0 });
 
     const dropMap = useMemo(() => {
@@ -214,7 +215,6 @@ export function AdminDropsAtGlancePanel() {
 
     const truthState = resolveDropsTruthState({ loading, loadError, fromCache });
     const isFiltered = searchText.trim().length > 0;
-    const sourceLabel = isFiltered ? "filtered" : (fromCache ? "cached" : "live");
 
     const closeModal = useCallback(() => {
         setIsCreateModalOpen(false);
@@ -334,7 +334,6 @@ export function AdminDropsAtGlancePanel() {
                         <div key={item.label} className="rounded-xl border border-white/8 bg-black/30 px-2 py-2 text-center">
                             <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-gray-500">{item.label}</p>
                             <p className="mt-0.5 text-sm font-black text-white">{item.value}</p>
-                            <p className="text-[8px] font-medium text-gray-600">{sourceLabel === "filtered" ? "[filtered]" : null} <AdminStatusBadge state={truthState} className="mt-1 py-0 text-[8px]" /></p>
                         </div>
                     ))}
                 </div>
