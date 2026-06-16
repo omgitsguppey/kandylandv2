@@ -15,6 +15,7 @@ import { markNotificationsAsRead } from "@/lib/notifications";
 import { AppNotification } from "@/lib/notification-contracts";
 import { trackEvent } from "@/lib/telemetry";
 import { authFetch } from "@/lib/authFetch";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 
 type Notification = AppNotification;
 
@@ -29,6 +30,7 @@ interface UseNotificationsOptions {
 export function useNotifications({ enabled = true }: UseNotificationsOptions = {}) {
     const { user } = useAuthIdentity();
     const userId = user?.uid ?? null;
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
     const [notificationsState, setNotificationsState] = useState<Notification[]>([]);
     const [loadedForUserId, setLoadedForUserId] = useState<string | null>(null);
     const [loadError, setLoadError] = useState<string | null>(null);
@@ -45,6 +47,14 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             return;
         }
         if (!enabled) {
+            return;
+        }
+        if (isLocalAdminUiTestSession) {
+            setNotificationsState([]);
+            setLoadedForUserId(userId);
+            setLoadError(null);
+            etagRef.current = null;
+            consecutiveFailuresRef.current = 0;
             return;
         }
         const currentUserId = userId;
@@ -198,7 +208,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             document.removeEventListener("visibilitychange", refreshOnVisible);
             unsubscribeUserRuntime?.();
         };
-    }, [enabled, userId]);
+    }, [enabled, isLocalAdminUiTestSession, userId]);
 
     const notifications = useMemo(
         () => (userId && loadedForUserId === userId ? notificationsState : []),
