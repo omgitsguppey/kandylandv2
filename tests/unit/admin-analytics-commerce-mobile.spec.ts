@@ -84,11 +84,15 @@ describe("Admin analytics commerce mobile consolidation", () => {
 
   it("uses shared labels for visible commerce source truth", () => {
     expect(source).toContain("formatAdminAnalyticsSourceTruthLabel");
+    expect(source).toContain("formatAdminAnalyticsSourceStateLabel");
     expect(source).toContain("formatCommerceSourceHint");
     expect(source).toContain("formatCommerceScopeLabel");
     expect(source).toContain("formatCommerceMetricLabel");
+    expect(source).toContain("formatCommerceReadableSourceLabel");
+    expect(source).toContain("formatCommerceFundsLabel");
     expect(source).toContain("topDropConversionSourceLabel");
     expect(source).toContain("recentCommerceFeedSourceLabel");
+    expect(source).toContain("viewerSourceLabel");
     expect(source).toContain("title={topDropConversionModel.sourceTruth}");
     expect(source).toContain("title={recentCommerceFeedModel.sourceTruth}");
     expect(source).toContain("title={drop.sourceTruth}");
@@ -99,12 +103,18 @@ describe("Admin analytics commerce mobile consolidation", () => {
     expect(source).not.toContain("<span>{drop.sourceTruth}</span>");
     expect(source).not.toContain("<p>Source: {drop.sourceTruth}</p>");
     expect(source).not.toContain("{item.sourceLabel} | {item.sourceTruth}");
+    expect(source).not.toContain("source {viewerSourceTruth.replace(/_/g, \" \")}");
+    expect(source).not.toContain("Raw identity and source details");
+    expect(source).not.toContain("Source truth");
     expect(source).not.toContain("Source label:");
     expect(source).not.toContain("Recovery label:");
     expect(source).not.toContain("Treasury truth lives in Platform Economy.");
     expect(source).not.toContain("commerceSnapshotModel.adjustedProfitFormula");
     expect(source).not.toContain("commerceSnapshotModel.yieldPer100GdFormula");
     expect(source).toContain("Decision source: {verifiedSnapshotLabel}");
+    expect(source).toContain("Decision source</div>");
+    expect(source).toContain("Identity and source details");
+    expect(source).toContain("Watch source");
     expect(source).toContain("Server ledger remains the treasury source.");
   });
 });

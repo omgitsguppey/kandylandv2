@@ -20,6 +20,7 @@ import {
 } from "@/lib/admin-analytics-contracts";
 import {
   formatAdminAnalyticsEvidenceSourceLabel,
+  formatAdminAnalyticsSourceStateLabel,
   formatAdminAnalyticsSourceTruthLabel,
 } from "@/lib/analytics/admin-analytics-display-state";
 import { coerceAdminSurfaceState } from "@/lib/admin-parity";
@@ -112,6 +113,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     scope: string | null | undefined,
     sourceTruth: string | null | undefined,
   ) => `${formatCommerceScopeLabel(scope)} | ${formatAdminAnalyticsSourceTruthLabel(sourceTruth)}`;
+  const formatCommerceReadableSourceLabel = (label: string | null | undefined) =>
+    !label || label === "Unknown source" ? "Source missing" : label;
+  const formatCommerceFundsLabel = (sourceOfFunds: string | null | undefined) =>
+    sourceOfFunds ? sourceOfFunds.replace(/[_/]+/gu, " ") : "Source missing";
   const commerceConversionLabel =
     commerceSnapshotModel.checkoutConversionValue !== null
       ? formatPercent(commerceSnapshotModel.checkoutConversionValue)
@@ -132,6 +137,12 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   );
   const recentCommerceFeedSourceLabel = formatAdminAnalyticsSourceTruthLabel(
     recentCommerceFeedModel.sourceTruth,
+  );
+  const topDropConversionReadableSourceLabel = formatCommerceReadableSourceLabel(
+    topDropConversionSourceLabel,
+  );
+  const recentCommerceFeedReadableSourceLabel = formatCommerceReadableSourceLabel(
+    recentCommerceFeedSourceLabel,
   );
   const gdSpentTooltip = [
     "Unlock spend split by source.",
@@ -253,6 +264,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     viewerUserJourneyRows,
     viewerPanelWarnings,
   } = viewerDrilldownContract;
+  const viewerSourceLabel = formatCommerceReadableSourceLabel(
+    formatAdminAnalyticsSourceTruthLabel(viewerSourceTruth),
+  );
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -806,7 +820,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 subtitle="Drops with enough views to evaluate unwrap conversion."
                 icon={ShoppingBag}
                 density="compact"
-                summaryLine={`${topDropConversionModel.visibleRows.length} visible | ${topDropConversionModel.totalRows} total | source ${topDropConversionSourceLabel}`}
+                summaryLine={`${topDropConversionModel.visibleRows.length} visible / ${topDropConversionModel.totalRows} total | ${topDropConversionReadableSourceLabel}`}
                 rightSlot={(
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <AnalyticsViewModeToggle
@@ -838,9 +852,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                       <div className="font-semibold text-white">{topDropConversionModel.range}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Source</div>
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Decision source</div>
                       <div className="font-semibold text-white" title={topDropConversionModel.sourceTruth}>
-                        {topDropConversionSourceLabel}
+                        {topDropConversionReadableSourceLabel}
                       </div>
                     </div>
                     <div>
@@ -983,12 +997,12 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 {drop.creatorName ? `${drop.creatorName} | ` : ""}{drop.shortDropId}
                               </p>
                               <details className="mt-1 text-[11px] text-gray-500">
-                                <summary className="cursor-pointer">Raw identity and source details</summary>
+                                <summary className="cursor-pointer">Identity and source details</summary>
                                 <p>Drop ID: {drop.dropId}</p>
                                 <p title={drop.sourceTruth}>
                                   Source: {formatAdminAnalyticsSourceTruthLabel(drop.sourceTruth)}
                                 </p>
-                                <p>Freshness: {drop.freshnessState}</p>
+                                <p>Freshness: {formatAdminAnalyticsSourceStateLabel(drop.freshnessState)}</p>
                               </details>
                             </div>
                             <div className="text-sm font-semibold text-white">{drop.views.toLocaleString()}</div>
@@ -1101,14 +1115,14 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 >
                   <div className="grid max-w-full gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 sm:grid-cols-3">
                     <div className="min-w-0">
-                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Source</div>
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Decision source</div>
                       <div className="truncate font-semibold text-white" title={recentCommerceFeedModel.sourceTruth}>
-                        {recentCommerceFeedSourceLabel}
+                        {recentCommerceFeedReadableSourceLabel}
                       </div>
                     </div>
                     <div className="min-w-0">
                       <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Freshness</div>
-                      <div className="truncate font-semibold text-white">{recentCommerceFeedModel.freshnessState}</div>
+                      <div className="truncate font-semibold text-white">{formatAdminAnalyticsSourceStateLabel(recentCommerceFeedModel.freshnessState)}</div>
                     </div>
                     <div className="min-w-0">
                       <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Last transaction</div>
@@ -1159,7 +1173,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               <td className="max-w-[10rem] px-3 py-2">
                                 <div className="truncate text-white">{item.sourceLabel}</div>
                                 <div className="truncate text-[11px] text-gray-500" title={item.sourceTruth}>
-                                  {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
+                                  {formatCommerceReadableSourceLabel(formatAdminAnalyticsSourceTruthLabel(item.sourceTruth))}
                                 </div>
                               </td>
                               <td className="px-3 py-2">
@@ -1202,7 +1216,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               {item.actorDisplayName} | {item.ageLabel} | {item.status}
                             </p>
                             <p className="mt-1 truncate text-[11px] text-gray-400">
-                              {item.sourceLabel} | {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
+                              {item.sourceLabel} | {formatCommerceReadableSourceLabel(formatAdminAnalyticsSourceTruthLabel(item.sourceTruth))}
                             </p>
                           </div>
                           <div className="max-w-[6.75rem] shrink-0 text-right">
@@ -1215,7 +1229,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               {item.amountDisplay}
                             </p>
                             <p className="mt-1 truncate text-[10px] uppercase tracking-[0.14em] text-gray-500">
-                              {item.sourceOfFunds}
+                              {formatCommerceFundsLabel(item.sourceOfFunds)}
                             </p>
                           </div>
                         </div>
@@ -1260,7 +1274,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 {item.sourceLabel}
                               </span>
                               <span className="max-w-full truncate rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-gray-400">
-                                {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
+                                {formatCommerceReadableSourceLabel(formatAdminAnalyticsSourceTruthLabel(item.sourceTruth))}
                               </span>
                             </div>
                           </div>
@@ -1399,8 +1413,8 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           <div className="font-semibold text-white">{String(viewerDrilldownRange).toUpperCase()}</div>
                         </div>
                         <div>
-                          <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Source truth</div>
-                          <div className="font-semibold text-white">{viewerSourceTruth.replace(/_/g, " ")}</div>
+                          <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Watch source</div>
+                          <div className="font-semibold text-white">{viewerSourceLabel}</div>
                         </div>
                         <div>
                           <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Last viewer session</div>
@@ -1764,7 +1778,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                     <span>
                                       {item.lastSeenAtMs ? formatRelativeTime(item.lastSeenAtMs, nowMs) : "Last viewer session unavailable"}
                                     </span>
-                                    <span>{item.freshnessState}</span>
+                                    <span>{formatAdminAnalyticsSourceStateLabel(item.freshnessState)}</span>
                                   </div>
                                 </div>
                               ))
@@ -1846,7 +1860,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 Top viewed drops by watch time
                               </p>
                               <p className="mt-1 text-xs text-gray-500">
-                                Page {boundedViewerDropPage} of {viewerDropPageCount}; source {viewerSourceTruth.replace(/_/g, " ")}
+                                Page {boundedViewerDropPage} of {viewerDropPageCount}; source {viewerSourceLabel}
                               </p>
                             </div>
                             <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
