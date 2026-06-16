@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-16T16:48:17.500Z",
+  "generatedAtUtc": "2026-06-16T16:52:25.602Z",
   "reportKey": "person-metrics-contract",
-  "currentHead": "c3b47c32ecd3c5a57d0f5e0b6f47c6ce6706d53c",
+  "currentHead": "5dc1121d0e42e739914ac5ca006a7f2b6f63e6a3",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -77,16 +77,9 @@
     "sourceUsesIdentityAndEnvelopeContracts": true
   },
   "changedFiles": [
-    "agent/state/current-beta-exit-status.generated.json",
     "agent/state/event-translation-bridge.generated.json",
     "agent/state/feature-registration-gate.generated.json",
-    "agent/state/person-metrics-contract.generated.json",
-    "agent/state/person-metrics-hydration.generated.json",
-    "agent/state/public-beta-score.generated.json",
-    "docs/agent-truth/event-translation-bridge.md",
-    "docs/agent-truth/feature-registration-gate.md",
-    "docs/agent-truth/person-metrics-contract.md",
-    "docs/agent-truth/person-metrics-hydration.md"
+    "docs/agent-truth/event-translation-bridge.md"
   ],
   "protectedChangedFiles": [],
   "validationFailures": []

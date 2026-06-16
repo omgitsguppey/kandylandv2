@@ -1,8 +1,8 @@
 {
   "reportKey": "feature-registration-gate",
   "registryVersion": "2026.05.feature-registration.1",
-  "generatedAtUtc": "2026-06-16T16:48:06.122Z",
-  "currentHead": "c3b47c32ecd3c5a57d0f5e0b6f47c6ce6706d53c",
+  "generatedAtUtc": "2026-06-16T16:52:00.527Z",
+  "currentHead": "5dc1121d0e42e739914ac5ca006a7f2b6f63e6a3",
   "status": "pass",
   "features": [
     {
@@ -4460,17 +4460,6 @@
     "src/app/page.tsx"
   ],
   "validationFailures": [],
-  "changedFiles": [
-    "agent/state/current-beta-exit-status.generated.json",
-    "agent/state/event-translation-bridge.generated.json",
-    "agent/state/feature-registration-gate.generated.json",
-    "agent/state/person-metrics-contract.generated.json",
-    "agent/state/person-metrics-hydration.generated.json",
-    "agent/state/public-beta-score.generated.json",
-    "docs/agent-truth/event-translation-bridge.md",
-    "docs/agent-truth/feature-registration-gate.md",
-    "docs/agent-truth/person-metrics-contract.md",
-    "docs/agent-truth/person-metrics-hydration.md"
-  ],
+  "changedFiles": [],
   "protectedChanges": []
 }
