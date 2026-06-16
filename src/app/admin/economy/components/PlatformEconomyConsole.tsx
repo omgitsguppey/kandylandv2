@@ -203,7 +203,7 @@ export function PlatformEconomyConsole() {
                     data-admin-economy-fixture-boundary="true"
                     data-admin-economy-fixture-state="source_missing"
                 >
-                    Local UI review only. Economy layout is inspectable; treasury, ledger, balance, provider, and reconciliation samples remain source_missing until a real admin session loads verified evidence.
+                    Local UI review only. Economy evidence is source_missing here. Use a real admin session before reviewing treasury, ledger, balance, provider, or reconciliation samples.
                 </section>
             ) : null}
 
@@ -233,7 +233,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.treasury,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "Treasury source_missing in local UI review. Use a real admin session for verified wallet, source-of-funds, and ledger samples."
+                            ? "Treasury evidence is source_missing in local review. Use a real admin session for verified wallet, source-of-funds, and ledger samples."
                             : "No treasury snapshot is available yet.",
                         children: (treasury) => (
                             <div className="grid gap-2">
@@ -263,7 +263,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.packages,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "Package evidence is source_missing in local UI review."
+                            ? "Package evidence is source_missing in local review."
                             : "No package configs are available yet.",
                         children: (packages) => (
                             <div className="grid gap-2">
@@ -295,7 +295,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.promos,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "Promo evidence is source_missing in local UI review."
+                            ? "Promo evidence is source_missing in local review."
                             : "No promo configs yet. Mutation routes are ready for draft promos.",
                         children: (promos) => (
                             <div className="grid gap-2">
@@ -326,7 +326,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.offers,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "Offer evidence is source_missing in local UI review."
+                            ? "Offer evidence is source_missing in local review."
                             : "No offer configs yet. Create draft offers only when the promo/package source is ready.",
                         children: (offers) => (
                             <div className="grid gap-2">
@@ -356,7 +356,7 @@ export function PlatformEconomyConsole() {
                     {renderSliceState({
                         slice: state.redemptions,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "Redemption evidence is source_missing in local UI review."
+                            ? "Redemption evidence is source_missing in local review."
                             : "No recent redemptions are available yet.",
                         children: (redemptions) => (
                             <div className="grid gap-2">
@@ -383,11 +383,11 @@ export function PlatformEconomyConsole() {
             )}
 
             {tab === "drift" && (
-                <SectionCard title="Drift" detail="Platform Economy is the winner. Any mismatch downstream must show exact expected versus actual fields.">
+                <SectionCard title="Drift" detail="Platform Economy is the canonical view. Any downstream mismatch must show the expected and actual fields.">
                     {renderSliceState({
                         slice: state.drift,
                         emptyMessage: isLocalAdminUiTestSession
-                            ? "Drift evidence is source_missing in local UI review."
+                            ? "Drift evidence is source_missing in local review."
                             : "No current economy drift detected across package, promo, wallet, revenue, or ledger snapshots.",
                         children: (drift) => (
                             <div className="grid gap-2">
@@ -415,7 +415,7 @@ export function PlatformEconomyConsole() {
                 <SectionCard title="Warnings" detail="Warnings are explicit. They do not silently reconcile downstream surfaces.">
                     <div className="grid gap-2">
                         {isLocalAdminUiTestSession ? (
-                            <div className="text-sm text-gray-500">Economy warnings are source_missing in local UI review.</div>
+                            <div className="text-sm text-gray-500">Economy warnings are source_missing in local review.</div>
                         ) : warnings.length ? warnings.map((warning, index) => (
                             <div key={`${warning.code}:${index}`} className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
                                 <div className="flex items-center justify-between gap-3">
