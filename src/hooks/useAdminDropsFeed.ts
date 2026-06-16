@@ -10,6 +10,9 @@ import type { Drop } from "@/types/db";
 import { createAutoHealingObserver } from "@/lib/self-healing";
 import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 
+const EMPTY_DROPS: Drop[] = [];
+const EMPTY_LEGACY_QUEUE_IDS = new Set<string>();
+
 export function useAdminDropsFeed(options: { enabled?: boolean } = {}) {
     const enabled = options.enabled !== false;
     const [drops, setDrops] = useState<Drop[]>([]);
@@ -21,11 +24,6 @@ export function useAdminDropsFeed(options: { enabled?: boolean } = {}) {
 
     useEffect(() => {
         if (!enabled) {
-            setDrops([]);
-            setLegacyQueueIds(new Set());
-            setLoading(false);
-            setLoadError(null);
-            setFromCache(false);
             return;
         }
 
@@ -78,11 +76,11 @@ export function useAdminDropsFeed(options: { enabled?: boolean } = {}) {
     }, [enabled]);
 
     return {
-        drops,
-        legacyQueueIds,
-        loading,
-        loadError,
+        drops: enabled ? drops : EMPTY_DROPS,
+        legacyQueueIds: enabled ? legacyQueueIds : EMPTY_LEGACY_QUEUE_IDS,
+        loading: enabled ? loading : false,
+        loadError: enabled ? loadError : null,
         /** Whether the most recent snapshot came from the Firestore client cache (not server-confirmed). */
-        fromCache,
+        fromCache: enabled ? fromCache : false,
     };
 }

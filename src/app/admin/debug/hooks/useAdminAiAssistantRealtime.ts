@@ -34,6 +34,18 @@ type ListenerErrors = {
     routesFailed: boolean;
 };
 
+const EMPTY_LISTENER_STATE = {
+    settingsLoaded: false,
+    diagnosticsLoaded: false,
+    routesLoaded: false,
+};
+
+const EMPTY_LISTENER_ERRORS: ListenerErrors = {
+    settingsFailed: false,
+    diagnosticsFailed: false,
+    routesFailed: false,
+};
+
 export function useAdminAiAssistantRealtime(
     summary: AdminAiDebugSummary | null | undefined,
     options: { enabled?: boolean } = {},
@@ -58,22 +70,6 @@ export function useAdminAiAssistantRealtime(
 
     useEffect(() => {
         if (!enabled) {
-            setSettings(normalizeAdminAiDebugAssistantSettingsSnapshot(null, {
-                enabled: summary?.enabled,
-                model: summary?.configured_model,
-            }));
-            setDiagnostics([]);
-            setRouteHealthByKey({});
-            setListenerState({
-                settingsLoaded: false,
-                diagnosticsLoaded: false,
-                routesLoaded: false,
-            });
-            setListenerErrors({
-                settingsFailed: false,
-                diagnosticsFailed: false,
-                routesFailed: false,
-            });
             return;
         }
 
@@ -293,21 +289,40 @@ export function useAdminAiAssistantRealtime(
     }, [enabled, summary?.configured_model, summary?.enabled]);
 
     const effectiveSettings = useMemo(
-        () => normalizeAdminAiDebugAssistantSettingsSnapshot(settings, {
+        () => normalizeAdminAiDebugAssistantSettingsSnapshot(enabled ? settings : null, {
             enabled: summary?.enabled,
             model: summary?.configured_model,
         }),
-        [settings, summary?.configured_model, summary?.enabled],
+        [enabled, settings, summary?.configured_model, summary?.enabled],
+    );
+    const effectiveDiagnostics = useMemo(
+        () => enabled
+            ? diagnostics.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+            : [],
+        [diagnostics, enabled],
+    );
+    const effectiveRouteHealth = useMemo(
+        () => enabled ? routeHealthByKey : {},
+        [enabled, routeHealthByKey],
+    );
+    const effectiveListenerState = useMemo(
+        () => enabled
+            ? {
+                ...listenerState,
+                ...listenerErrors,
+            }
+            : {
+                ...EMPTY_LISTENER_STATE,
+                ...EMPTY_LISTENER_ERRORS,
+            },
+        [enabled, listenerErrors, listenerState],
     );
 
     return useMemo(() => buildAdminAiDebugRealtimeSignals({
         summary,
         settings: effectiveSettings,
-        diagnostics: diagnostics.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry)),
-        routeHealth: routeHealthByKey,
-        listenerState: {
-            ...listenerState,
-            ...listenerErrors,
-        },
-    }), [diagnostics, effectiveSettings, listenerErrors, listenerState, routeHealthByKey, summary]);
+        diagnostics: effectiveDiagnostics,
+        routeHealth: effectiveRouteHealth,
+        listenerState: effectiveListenerState,
+    }), [effectiveDiagnostics, effectiveListenerState, effectiveRouteHealth, effectiveSettings, summary]);
 }

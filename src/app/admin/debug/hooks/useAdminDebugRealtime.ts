@@ -32,6 +32,23 @@ export type ClusteredRuntimeWarning = {
     freshnessKeys: string[];
 };
 
+const EMPTY_DEBUG_LISTENER_ERRORS: DebugListenerErrors = {
+    warningsFailed: false,
+    warningsLoaded: false,
+    routeHealthFailed: false,
+    routeHealthLoaded: false,
+    repairProposalsFailed: false,
+    repairProposalsLoaded: false,
+    heartbeatsFailed: false,
+    heartbeatsLoaded: false,
+};
+
+const EMPTY_WARNINGS: RuntimeWarningRecord[] = [];
+const EMPTY_ROUTE_HEALTH: RouteRuntimeHealthItem[] = [];
+const EMPTY_REPAIR_PROPOSALS: OrchestrationRepairProposalRecord[] = [];
+const EMPTY_QUEUE_HEARTBEATS: QueueJobHeartbeat[] = [];
+const EMPTY_CLUSTERED_WARNINGS: ClusteredRuntimeWarning[] = [];
+
 export function useAdminDebugRealtime(options: { enabled?: boolean } = {}) {
     const enabled = options.enabled ?? true;
     const [warnings, setWarnings] = useState<RuntimeWarningRecord[]>([]);
@@ -51,20 +68,6 @@ export function useAdminDebugRealtime(options: { enabled?: boolean } = {}) {
 
     useEffect(() => {
         if (!enabled) {
-            setWarnings([]);
-            setRouteHealth([]);
-            setRepairProposals([]);
-            setQueueHeartbeats([]);
-            setListenerErrors({
-                warningsFailed: false,
-                warningsLoaded: false,
-                routeHealthFailed: false,
-                routeHealthLoaded: false,
-                repairProposalsFailed: false,
-                repairProposalsLoaded: false,
-                heartbeatsFailed: false,
-                heartbeatsLoaded: false,
-            });
             return;
         }
 
@@ -193,15 +196,19 @@ export function useAdminDebugRealtime(options: { enabled?: boolean } = {}) {
 
     const activeWarnings = useMemo(() => clusteredWarnings.filter(w => w.status !== "ok"), [clusteredWarnings]);
     const historicalWarnings = useMemo(() => clusteredWarnings.filter(w => w.status === "ok"), [clusteredWarnings]);
+    const effectiveWarnings = enabled ? warnings : EMPTY_WARNINGS;
+    const effectiveClusteredWarnings = enabled ? clusteredWarnings : EMPTY_CLUSTERED_WARNINGS;
+    const effectiveActiveWarnings = enabled ? activeWarnings : EMPTY_CLUSTERED_WARNINGS;
+    const effectiveHistoricalWarnings = enabled ? historicalWarnings : EMPTY_CLUSTERED_WARNINGS;
 
     return {
-        rawWarnings: warnings,
-        clusteredWarnings,
-        activeWarnings,
-        historicalWarnings,
-        routeHealth,
-        repairProposals,
-        queueHeartbeats,
-        listenerErrors,
+        rawWarnings: effectiveWarnings,
+        clusteredWarnings: effectiveClusteredWarnings,
+        activeWarnings: effectiveActiveWarnings,
+        historicalWarnings: effectiveHistoricalWarnings,
+        routeHealth: enabled ? routeHealth : EMPTY_ROUTE_HEALTH,
+        repairProposals: enabled ? repairProposals : EMPTY_REPAIR_PROPOSALS,
+        queueHeartbeats: enabled ? queueHeartbeats : EMPTY_QUEUE_HEARTBEATS,
+        listenerErrors: enabled ? listenerErrors : EMPTY_DEBUG_LISTENER_ERRORS,
     };
 }

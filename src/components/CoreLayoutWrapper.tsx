@@ -136,7 +136,17 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const scrollControlsReady = !isHomeRoute || homepageAfterPaintLaneReady;
 
     useEffect(() => {
-        setDisplayMode(detectDeviceDisplayMode());
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const frame = window.requestAnimationFrame(() => {
+            setDisplayMode(detectDeviceDisplayMode());
+        });
+
+        return () => {
+            window.cancelAnimationFrame(frame);
+        };
     }, []);
 
     useEffect(() => {
