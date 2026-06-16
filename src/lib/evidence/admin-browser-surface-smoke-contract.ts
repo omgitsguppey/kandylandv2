@@ -14,7 +14,7 @@ export type AdminBrowserSurfaceEvidenceState =
   | "local_fixture_surface_verified"
   | "authenticated_shell_verified"
   | "authenticated_surface_verified"
-  | "manual_admin_auth_required"
+  | "authenticated_admin_signoff_missing"
   | "blocked_runtime_required";
 
 export type AdminBrowserSurfaceReportStatus =
@@ -122,7 +122,15 @@ export type AdminBrowserSurfaceSmokeReport = {
     accountFreeFixturePendingCount: number;
     unauthBoundaryEvidenceCount: number;
     unauthRedirectEvidenceCount: number;
-    manualAdminAuthRequiredCount: number;
+    sourceTruthStates: {
+      sourceContractOnly: number;
+      unauthBoundaryVerified: number;
+      accountFreeFixtureVerified: number;
+      accountFreeFixtureMissing: number;
+      authenticatedAdminVerified: number;
+      authenticatedAdminEvidenceMissing: number;
+      protectedLabelOnly: number;
+    };
     protectedSurfaceCount: number;
   };
   surfaces: AdminBrowserSurfaceDefinition[];
@@ -233,6 +241,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   const requiredAuthenticated = ADMIN_BROWSER_SURFACE_DEFINITIONS.flatMap((surface) =>
     surface.deviceBands.map((deviceBand) => ({ surface, deviceBand })),
   );
+  const requiredSurfaceBandKeys = new Set(requiredAuthenticated.map(({ surface, deviceBand }) => keyForEvidence(surface.surfaceId, deviceBand)));
   const missingAuthenticatedSurfaceIds = requiredAuthenticated
     .filter(({ surface, deviceBand }) => {
       const entry = evidenceBySurfaceBand.get(keyForEvidence(surface.surfaceId, deviceBand));
@@ -252,6 +261,14 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     entry.state === "unauth_boundary_verified" || entry.state === "unauth_redirect_verified",
   ).length;
   const unauthRedirectEvidenceCount = evidence.filter((entry) => entry.state === "unauth_redirect_verified").length;
+  const sourceContractOnlyCount = requiredAuthenticated.filter(({ surface, deviceBand }) => {
+    const entry = evidenceBySurfaceBand.get(keyForEvidence(surface.surfaceId, deviceBand));
+    return !entry || entry.state === "source_contract_only";
+  }).length;
+  const relevantUnauthBoundaryEvidenceCount = evidence.filter((entry) =>
+    requiredSurfaceBandKeys.has(keyForEvidence(entry.surfaceId, entry.deviceBand)) &&
+    (entry.state === "unauth_boundary_verified" || entry.state === "unauth_redirect_verified"),
+  ).length;
   const evidenceMode: AdminBrowserSurfaceEvidenceMode = authenticatedSurfaceEvidenceCount > 0
     ? "authenticated_present"
     : localFixtureSurfaceEvidenceCount > 0
@@ -381,7 +398,15 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
       accountFreeFixturePendingCount: missingAccountFreeFixtureSurfaceIds.length,
       unauthBoundaryEvidenceCount,
       unauthRedirectEvidenceCount,
-      manualAdminAuthRequiredCount: missingAuthenticatedSurfaceIds.length,
+      sourceTruthStates: {
+        sourceContractOnly: sourceContractOnlyCount,
+        unauthBoundaryVerified: relevantUnauthBoundaryEvidenceCount,
+        accountFreeFixtureVerified: accountFreeFixtureCoveredCount,
+        accountFreeFixtureMissing: missingAccountFreeFixtureSurfaceIds.length,
+        authenticatedAdminVerified: authenticatedSurfaceEvidenceCount,
+        authenticatedAdminEvidenceMissing: missingAuthenticatedSurfaceIds.length,
+        protectedLabelOnly: protectedSurfaceIds.length,
+      },
       protectedSurfaceCount: protectedSurfaceIds.length,
     },
     surfaces: [...ADMIN_BROWSER_SURFACE_DEFINITIONS],
@@ -440,6 +465,24 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   if (report.passed !== false) failures.push("admin browser smoke must not mark itself passed inside source validation.");
   if (report.canClearRuntimeGate || report.canClearProviderGate || report.canClearAdminTruthGate) {
     failures.push("admin browser smoke cannot clear runtime, provider, or admin truth gates.");
+  }
+  if (Object.prototype.hasOwnProperty.call(report.summary, "manualAdminAuthRequiredCount")) {
+    failures.push("admin browser smoke summary must expose sourceTruthStates instead of manualAdminAuthRequiredCount.");
+  }
+  if (report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing !== report.missingAuthenticatedSurfaceIds.length) {
+    failures.push("authenticatedAdminEvidenceMissing must match missingAuthenticatedSurfaceIds.");
+  }
+  if (report.summary.sourceTruthStates.accountFreeFixtureMissing !== report.missingAccountFreeFixtureSurfaceIds.length) {
+    failures.push("accountFreeFixtureMissing must match missingAccountFreeFixtureSurfaceIds.");
+  }
+  if (report.summary.sourceTruthStates.accountFreeFixtureVerified !== report.summary.accountFreeFixtureCoveredCount) {
+    failures.push("accountFreeFixtureVerified must match accountFreeFixtureCoveredCount.");
+  }
+  if (report.summary.sourceTruthStates.authenticatedAdminVerified !== report.summary.authenticatedSurfaceEvidenceCount) {
+    failures.push("authenticatedAdminVerified must match authenticatedSurfaceEvidenceCount.");
+  }
+  if (report.summary.sourceTruthStates.protectedLabelOnly !== report.protectedSurfaceIds.length) {
+    failures.push("protectedLabelOnly must match protectedSurfaceIds.");
   }
   if (report.summary.evidenceCount > 0 && report.evidenceProvenance.source === "none") {
     failures.push("browser evidence provenance must name the evidence source when evidence entries exist.");

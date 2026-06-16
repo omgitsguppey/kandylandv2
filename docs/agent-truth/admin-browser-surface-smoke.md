@@ -21,6 +21,13 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Account-free fixture checks pending: 18
 - Unauthenticated boundary checks present: 18
 - Unauthenticated redirect checks present: 0
+- Source contract only: 0
+- Unauthenticated boundary verified: 18
+- Account-free fixture verified: 0
+- Account-free fixture missing: 18
+- Authenticated admin verified: 0
+- Authenticated admin evidence missing: 18
+- Protected label-only surfaces: 1
 - Evidence source: local_in_app_browser
 - Evidence mode: unauthenticated_only
 - Evidence base URL: http://127.0.0.1:3210

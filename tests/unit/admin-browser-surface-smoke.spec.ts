@@ -89,7 +89,16 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(0);
     expect(report.summary.accountFreeFixtureCoveredCount).toBe(0);
     expect(report.summary.accountFreeFixturePendingCount).toBe(18);
-    expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
+    expect(report.summary.sourceTruthStates).toEqual({
+      sourceContractOnly: 18,
+      unauthBoundaryVerified: 0,
+      accountFreeFixtureVerified: 0,
+      accountFreeFixtureMissing: 18,
+      authenticatedAdminVerified: 0,
+      authenticatedAdminEvidenceMissing: 18,
+      protectedLabelOnly: 1,
+    });
+    expect(report.summary).not.toHaveProperty("manualAdminAuthRequiredCount");
     expect(report.missingAccountFreeFixtureSurfaceIds).toHaveLength(18);
     expect(report.evidenceProvenance.source).toBe("none");
     expect(report.evidenceProvenance.evidenceMode).toBe("none");
@@ -166,7 +175,8 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(0);
     expect(report.summary.accountFreeFixtureCoveredCount).toBe(0);
     expect(report.summary.accountFreeFixturePendingCount).toBeGreaterThan(0);
-    expect(report.summary.manualAdminAuthRequiredCount).toBeGreaterThan(0);
+    expect(report.summary.sourceTruthStates.unauthBoundaryVerified).toBe(14);
+    expect(report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing).toBe(18);
     expect(report.evidenceProvenance.source).toBe("local_in_app_browser");
     expect(report.evidenceProvenance.evidenceMode).toBe("unauthenticated_only");
     expect(report.evidenceProvenance.baseUrl).toBe("http://127.0.0.1:3210");
@@ -199,7 +209,9 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.accountFreeFixtureCoveredCount).toBe(14);
     expect(report.summary.accountFreeFixturePendingCount).toBe(4);
     expect(report.summary.authenticatedSurfaceEvidenceCount).toBe(0);
-    expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
+    expect(report.summary.sourceTruthStates.accountFreeFixtureVerified).toBe(14);
+    expect(report.summary.sourceTruthStates.accountFreeFixtureMissing).toBe(4);
+    expect(report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing).toBe(18);
     expect(report.evidenceProvenance.evidenceMode).toBe("local_fixture_only");
     expect(report.nextExactSteps).toEqual(expect.arrayContaining([
       expect.stringContaining("ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1"),
@@ -220,7 +232,9 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.accountFreeFixtureCoveredCount).toBe(18);
     expect(report.summary.accountFreeFixturePendingCount).toBe(0);
     expect(report.summary.authenticatedSurfaceEvidenceCount).toBe(0);
-    expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
+    expect(report.summary.sourceTruthStates.accountFreeFixtureVerified).toBe(18);
+    expect(report.summary.sourceTruthStates.accountFreeFixtureMissing).toBe(0);
+    expect(report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing).toBe(18);
     expect(report.missingAccountFreeFixtureSurfaceIds).toEqual([]);
     expect(report.missingAuthenticatedSurfaceIds).toHaveLength(18);
     expect(report.nextExactSteps).toEqual(expect.arrayContaining([
@@ -308,6 +322,10 @@ describe("admin browser surface smoke contract", () => {
       ...report,
       passed: true,
       canClearRuntimeGate: true,
+      summary: {
+        ...report.summary,
+        manualAdminAuthRequiredCount: 1,
+      },
       evidence: [
         ...report.evidence,
         {
@@ -328,6 +346,7 @@ describe("admin browser surface smoke contract", () => {
     expect(validateAdminBrowserSurfaceSmokeReport(invalid)).toEqual(expect.arrayContaining([
       "admin browser smoke must not mark itself passed inside source validation.",
       "admin browser smoke cannot clear runtime, provider, or admin truth gates.",
+      "admin browser smoke summary must expose sourceTruthStates instead of manualAdminAuthRequiredCount.",
       "evidence references unknown surface: admin_fake",
       "admin_fake:desktop overclaims formal gate impact.",
     ]));

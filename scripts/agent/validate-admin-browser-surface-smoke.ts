@@ -225,6 +225,13 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Account-free fixture checks pending: ${report.summary.accountFreeFixturePendingCount}`,
     `- Unauthenticated boundary checks present: ${report.summary.unauthBoundaryEvidenceCount}`,
     `- Unauthenticated redirect checks present: ${report.summary.unauthRedirectEvidenceCount}`,
+    `- Source contract only: ${report.summary.sourceTruthStates.sourceContractOnly}`,
+    `- Unauthenticated boundary verified: ${report.summary.sourceTruthStates.unauthBoundaryVerified}`,
+    `- Account-free fixture verified: ${report.summary.sourceTruthStates.accountFreeFixtureVerified}`,
+    `- Account-free fixture missing: ${report.summary.sourceTruthStates.accountFreeFixtureMissing}`,
+    `- Authenticated admin verified: ${report.summary.sourceTruthStates.authenticatedAdminVerified}`,
+    `- Authenticated admin evidence missing: ${report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing}`,
+    `- Protected label-only surfaces: ${report.summary.sourceTruthStates.protectedLabelOnly}`,
     `- Evidence source: ${report.evidenceProvenance.source}`,
     `- Evidence mode: ${report.evidenceProvenance.evidenceMode}`,
     `- Evidence base URL: ${report.evidenceProvenance.baseUrl ?? "none"}`,
@@ -306,7 +313,7 @@ function writeTemplate() {
       surfaceId: surface.surfaceId,
       route: surface.browserSmokePath,
       deviceBand,
-      state: "manual_admin_auth_required",
+      state: "authenticated_admin_signoff_missing",
       checkedAtUtc: "",
       urlAfterNavigation: "",
       selectorUsed: surface.authenticatedSelectors[0] ?? "",
@@ -348,5 +355,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Admin browser surface smoke OK: status=${report.status}, surfaces=${report.summary.adminSurfaceCount}, authenticatedPending=${report.summary.manualAdminAuthRequiredCount}.`,
+  `Admin browser surface smoke OK: status=${report.status}, surfaces=${report.summary.adminSurfaceCount}, authenticatedAdminEvidenceMissing=${report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing}.`,
 );
