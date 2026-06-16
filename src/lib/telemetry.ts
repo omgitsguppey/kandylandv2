@@ -172,6 +172,7 @@ function getEnrichedEventParams(eventName: string, eventParams?: Record<string, 
     const privacySettings = readPrivacySettingsSnapshot();
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
     const privacyDataAvailabilityReason = resolvePrivacyDataAvailabilityReason(privacySettings);
+    const privacyMetricExclusionReason = allowIdentifiedAnalytics ? "" : "privacy_limited";
     const identityLink = readClientIdentityLinkRecord();
     const sessionId = options?.sessionId ?? getSessionId();
     const eventTimestampMs = options?.eventTimestampMs ?? Date.now();
@@ -244,8 +245,8 @@ function getEnrichedEventParams(eventName: string, eventParams?: Record<string, 
         privacy_data_availability_reason: privacyDataAvailabilityReason,
         metric_exclusion_reason: typeof sanitizedParams.metric_exclusion_reason === "string" && sanitizedParams.metric_exclusion_reason
             ? sanitizedParams.metric_exclusion_reason
-            : allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
-        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+            : privacyMetricExclusionReason,
+        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : "privacy_limited",
         ...buildAnalyticsSemanticParams({
             pagePath: window.location.pathname,
             dropId: typeof sanitizedParams.drop_id === "string" ? sanitizedParams.drop_id : undefined,
@@ -657,6 +658,7 @@ export function trackIdentityLinked(input: {
     const privacySettings = readPrivacySettingsSnapshot();
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
     const privacyDataAvailabilityReason = resolvePrivacyDataAvailabilityReason(privacySettings);
+    const privacyMetricExclusionReason = allowIdentifiedAnalytics ? "" : "privacy_limited";
     const consentState = allowIdentifiedAnalytics ? "granted" : "denied";
     const identityLink = buildClientIdentityLinkRecord({
         userId: input.userId,
@@ -679,7 +681,7 @@ export function trackIdentityLinked(input: {
         diagnostic_only: true,
         metric_eligible: false,
         metric_exclusion_reason: "client_observed_identity_link",
-        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : "privacy_limited",
         privacy_data_availability_reason: privacyDataAvailabilityReason,
         identity_persistence_allowed: identityLink.persisted,
         consent_state: identityLink.consentState,
@@ -699,7 +701,8 @@ export function trackIdentityLinked(input: {
         diagnostic_only: true,
         metric_eligible: false,
         metric_exclusion_reason: "client_observed_identity_link",
-        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : "privacy_limited",
+        privacy_metric_exclusion_reason: privacyMetricExclusionReason,
         source_truth: "client_supporting",
         source_component: "client_identity_link_observer",
         canonical_link_source: "server_identity_link",

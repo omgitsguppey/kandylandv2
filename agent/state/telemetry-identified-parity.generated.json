@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-11T14:19:45.832Z",
-  "overallScore": 90,
+  "generatedAt": "2026-06-16T17:07:37.390Z",
+  "overallScore": 100,
   "status": "pass",
   "criticalFail": false,
   "userPersonParityGate": {
@@ -39,8 +39,8 @@
       "key": "normalization",
       "label": "Event Fact Normalization",
       "weight": 14,
-      "score": 6,
-      "status": "warning"
+      "score": 14,
+      "status": "pass"
     },
     {
       "key": "watch_notification_task",
@@ -60,8 +60,8 @@
       "key": "consent_clarity",
       "label": "Consent/Exclusion Clarity",
       "weight": 4,
-      "score": 2,
-      "status": "warning"
+      "score": 4,
+      "status": "pass"
     },
     {
       "key": "user_person_parity",
@@ -71,28 +71,7 @@
       "status": "pass"
     }
   ],
-  "findings": [
-    {
-      "severity": "major",
-      "title": "Identified event-fact normalization fields are incomplete",
-      "filePath": "src/lib/behavioral/event-fact-normalizer.ts",
-      "evidence": [
-        "normalizedAction/metricFamily/sourceTruth/sourceConfidence/metricEligible"
-      ],
-      "suggestedFix": "Persist the full parity fact projection into identified analytics facts.",
-      "id": "src/lib/behavioral/event-fact-normalizer.ts:identified_event-fact_normalization_fields_are_incomplete"
-    },
-    {
-      "severity": "moderate",
-      "title": "Consent exclusion clarity is incomplete",
-      "filePath": "src/lib/telemetry.ts",
-      "evidence": [
-        "privacy-limited identified data should not be labeled as broken"
-      ],
-      "suggestedFix": "Record privacy-limited exclusion reasons in identity-link and event-fact parity paths.",
-      "id": "src/lib/telemetry.ts:consent_exclusion_clarity_is_incomplete"
-    }
-  ],
+  "findings": [],
   "criticalFindings": [],
   "missingExpectedEvents": [],
   "unsupportedEventNotes": [

@@ -25,6 +25,7 @@ import {
     validateEventEnvelope,
 } from "@/lib/analytics/event-envelope-builder";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+import type { IdentifiedMetricParityFact } from "@/lib/behavioral/event-fact-normalizer";
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
 import type { RuntimeFact } from "@/lib/runtime-facts/runtime-fact-contract";
 
@@ -341,6 +342,25 @@ async function POST_handler(request: NextRequest) {
             }
 
             const ingestRuntimeFact = normalizeIdentifiedRuntimeFactForIngestWrite(runtimeFactResult.fact);
+            const parityFact: IdentifiedMetricParityFact = {
+                normalizedAction: ingestRuntimeFact.normalizedAction as IdentifiedMetricParityFact["normalizedAction"],
+                metricFamily: ingestRuntimeFact.metricFamily as IdentifiedMetricParityFact["metricFamily"],
+                actorUserId: ingestRuntimeFact.actor.actorUserId,
+                actorAdminId: ingestRuntimeFact.actor.actorAdminId,
+                actorCreatorId: ingestRuntimeFact.actor.actorCreatorId,
+                targetUserId: ingestRuntimeFact.target.targetUserId,
+                targetCreatorId: ingestRuntimeFact.target.targetCreatorId,
+                targetDropId: ingestRuntimeFact.target.targetDropId,
+                targetFileId: ingestRuntimeFact.target.targetFileId,
+                targetThreadId: ingestRuntimeFact.target.targetThreadId,
+                transactionId: ingestRuntimeFact.target.transactionId,
+                sourceTruth: ingestRuntimeFact.sourceTruth as IdentifiedMetricParityFact["sourceTruth"],
+                sourceConfidence: ingestRuntimeFact.confidence,
+                metricEligible: ingestRuntimeFact.metricEligible,
+                metricExclusionReason: ingestRuntimeFact.metricExclusionReason as IdentifiedMetricParityFact["metricExclusionReason"],
+                reasonCode: ingestRuntimeFact.metricExclusionReason,
+                behavioralFact: null,
+            };
             const finalEvent = createRuntimeFactFirestoreDocument({
                 runtimeFact: ingestRuntimeFact,
                 params: enrichedParams,
@@ -403,6 +423,14 @@ async function POST_handler(request: NextRequest) {
                 consentMode: canonicalIdentityEnvelope.consentMode,
                 eventEnvelope,
                 eventEnvelopeDedupeKey: `${eventEnvelope.eventName}|${eventEnvelope.sessionId}|${eventEnvelope.eventId}`,
+                normalizedAction: parityFact.normalizedAction,
+                normalizedActionName: parityFact.normalizedAction,
+                metricFamily: parityFact.metricFamily,
+                sourceTruth: parityFact.sourceTruth,
+                sourceConfidence: parityFact.sourceConfidence,
+                metricEligible: parityFact.metricEligible,
+                metricExclusionReason: parityFact.metricExclusionReason,
+                analyticsExclusionReason: parityFact.metricExclusionReason,
                 sourceIdentity: {
                     anonymousVisitorId: anonymousVisitorId || null,
                     sessionId: sessionId || null,
@@ -464,25 +492,7 @@ async function POST_handler(request: NextRequest) {
                     componentName: readStringParam(enrichedParams, "component_name", "componentName"),
                     eventModules: readEventModules(enrichedParams),
                     source: "identified_client_ingest",
-                    parityFact: {
-                        normalizedAction: ingestRuntimeFact.normalizedAction,
-                        metricFamily: ingestRuntimeFact.metricFamily as any,
-                        actorUserId: ingestRuntimeFact.actor.actorUserId,
-                        actorAdminId: ingestRuntimeFact.actor.actorAdminId,
-                        actorCreatorId: ingestRuntimeFact.actor.actorCreatorId,
-                        targetUserId: ingestRuntimeFact.target.targetUserId,
-                        targetCreatorId: ingestRuntimeFact.target.targetCreatorId,
-                        targetDropId: ingestRuntimeFact.target.targetDropId,
-                        targetFileId: ingestRuntimeFact.target.targetFileId,
-                        targetThreadId: ingestRuntimeFact.target.targetThreadId,
-                        transactionId: ingestRuntimeFact.target.transactionId,
-                        sourceTruth: ingestRuntimeFact.sourceTruth,
-                        sourceConfidence: ingestRuntimeFact.confidence,
-                        metricEligible: ingestRuntimeFact.metricEligible,
-                        metricExclusionReason: finalEvent.metricExclusionReason,
-                        reasonCode: finalEvent.metricExclusionReason,
-                        behavioralFact: null,
-                    } as any,
+                    parityFact,
                 });
             }
         }
