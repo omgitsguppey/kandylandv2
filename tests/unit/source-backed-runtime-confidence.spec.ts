@@ -56,6 +56,7 @@ describe("source-backed runtime confidence", () => {
   });
 
   it("gives runtime health source credit while runtime/provider smoke remains unverified", () => {
+    const generatedAtUtc = new Date().toISOString();
     const gates = buildPublicBetaEvidenceGates({
       scannerScore: 100,
       scannerStatus: "clean",
@@ -67,7 +68,7 @@ describe("source-backed runtime confidence", () => {
           passed: true,
           detail: "Source-backed runtime confidence only.",
           evidence: ["runtimeConfidenceScore=80", "launchGateImpact=does_not_clear_runtime_smoke"],
-          generatedAtUtc: "2026-05-20T00:00:00.000Z",
+          generatedAtUtc,
           sourceCommit: head,
         },
         runtimeSmokeEvidence: {
@@ -76,7 +77,7 @@ describe("source-backed runtime confidence", () => {
           passed: false,
           detail: "Deployed runtime smoke missing.",
           evidence: ["runtimeDeploymentSmokePassed=false"],
-          generatedAtUtc: "2026-05-20T00:00:00.000Z",
+          generatedAtUtc,
           sourceCommit: head,
         },
       },

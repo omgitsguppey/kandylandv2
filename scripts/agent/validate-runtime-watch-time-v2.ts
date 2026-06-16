@@ -48,6 +48,7 @@ const docsRelativePath = "docs/agent-truth/runtime-watch-time-v2.md";
 const modelPath = "src/lib/analytics/runtime-watch-time-v2.ts";
 const legacyModelPath = "src/lib/analytics/watch-time-v2.ts";
 const trackerPath = "src/components/Analytics/RuntimeWatchTracker.tsx";
+const telemetryPath = "src/lib/telemetry.ts";
 const eventContractPath = "src/lib/analytics/analytics-event-contract.ts";
 const viewerMediaPath = "src/app/dashboard/viewer/components/MediaViewer.tsx";
 
@@ -163,7 +164,7 @@ function buildReport(input: { currentHead: string; generatedAtUtc: string }): Ru
 
 function validateReport(
   report: RuntimeWatchTimeV2Report,
-  sources: { model: string; legacyModel: string; tracker: string; eventContract: string; viewerMedia: string },
+  sources: { model: string; legacyModel: string; tracker: string; telemetry: string; eventContract: string; viewerMedia: string },
 ) {
   const failures: string[] = [];
   if (report.reportKey !== "runtime-watch-time-v2") failures.push("reportKey must be runtime-watch-time-v2.");
@@ -183,7 +184,12 @@ function validateReport(
   if (!sources.model.includes("validateRuntimeWatchEventPayload")) failures.push("calm invalid payload validation missing.");
   if (!sources.legacyModel.includes("export * from \"./runtime-watch-time-v2\"")) failures.push("legacy watch-time-v2 module must re-export canonical runtime watch-time v2 model.");
   if (!sources.tracker.includes("visibilitychange") || !sources.tracker.includes("pagehide")) failures.push("pause/pagehide handling missing.");
-  if (!sources.tracker.includes("sendBeacon") || !sources.tracker.includes("keepalive")) failures.push("beacon/keepalive unload transport missing.");
+  if (!sources.tracker.includes("submitRuntimeWatchTelemetryEvent")) failures.push("runtime watch tracker must route unload transport through canonical telemetry helper.");
+  if (!sources.telemetry.includes("submitRuntimeWatchTelemetryEvent")
+    || !sources.telemetry.includes("sendBeacon")
+    || !sources.telemetry.includes("keepalive")) {
+    failures.push("beacon/keepalive unload transport missing from canonical telemetry helper.");
+  }
   for (const token of ["RuntimeWatchV2AnalyticsPayload", "mediaDurationMs", "playheadMs", "clientElapsedMs", "identityState"]) {
     if (!sources.eventContract.includes(token)) failures.push(`analytics event contract missing watch v2 token ${token}.`);
   }
@@ -260,6 +266,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     model: readRequired(modelPath),
     legacyModel: readRequired(legacyModelPath),
     tracker: readRequired(trackerPath),
+    telemetry: readRequired(telemetryPath),
     eventContract: readRequired(eventContractPath),
     viewerMedia: readRequired(viewerMediaPath),
   });

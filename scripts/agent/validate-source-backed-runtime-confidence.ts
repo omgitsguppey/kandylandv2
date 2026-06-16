@@ -104,9 +104,10 @@ function validatorResult(command: string, artifactPath: string, head: string): S
   return { command, status: "pass", artifactPath, detail: "Artifact is current for the latest code version." };
 }
 
-function deployedRuntimeSmokePresent() {
+function deployedRuntimeSmokePresent(head: string) {
   const smoke = readJson("agent/state/runtime-smoke-evidence.generated.json");
   if (!smoke) return false;
+  if (smoke.currentHead !== head && smoke.sourceCommit !== head) return false;
   const status = String(smoke.status ?? smoke.overallStatus ?? "");
   return smoke.passed === true && /passed|runtime_smoke_passed/u.test(status);
 }
@@ -306,7 +307,7 @@ function main() {
     generatedAtUtc: new Date().toISOString(),
     currentHead: head,
     runtimeContractsPresent,
-    deployedSmokePresent: deployedRuntimeSmokePresent(),
+    deployedSmokePresent: deployedRuntimeSmokePresent(head),
     watchTimeRuntimeSourceReady: flags.watchTimeRuntimeSourceReady,
     telemetryPipelineSourceReady: flags.telemetryPipelineSourceReady,
     walletLoadingSourceReady: flags.walletLoadingSourceReady,
