@@ -70,6 +70,47 @@ function formatPanelRecoveryCount(count: number, singular: string, plural = `${s
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
+type PanelRecoveryTruthState =
+  | "collecting"
+  | "source_ready_waiting_for_activity"
+  | "not_observed_but_expected"
+  | "source_missing"
+  | "materializer_missing"
+  | "bridge_missing"
+  | "runtime_evidence_required"
+  | "admin_truth_source_required"
+  | "provider_gated"
+  | "external_required"
+  | "broken";
+
+function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
+  switch (state) {
+    case "source_ready_waiting_for_activity":
+      return "source ready, waiting";
+    case "not_observed_but_expected":
+      return "not observed yet";
+    case "source_missing":
+      return "source missing";
+    case "materializer_missing":
+      return "materializer missing";
+    case "bridge_missing":
+      return "bridge missing";
+    case "runtime_evidence_required":
+      return "runtime evidence required";
+    case "admin_truth_source_required":
+      return "admin truth source required";
+    case "provider_gated":
+      return "provider evidence required";
+    case "external_required":
+      return "external evidence required";
+    case "broken":
+      return "broken";
+    case "collecting":
+    default:
+      return "collecting";
+  }
+}
+
 const AdminAnalyticsOperationsTab = dynamic(
   () => import("./components/AdminAnalyticsOperationsTab").then((module) => module.AdminAnalyticsOperationsTab),
 );
@@ -141,24 +182,25 @@ export default function AdminAnalyticsPage() {
   const panelHydrationSummary = state.panelHydration?.summary;
   const connectedPanelCount = panelHydrationSummary?.hydrated ?? 0;
   const totalPanelCount = panelHydrationSummary?.totalPanels ?? 0;
-  const collectingPanelCount = panelHydrationSummary
-    ? panelHydrationSummary.collecting + panelHydrationSummary.sourceReadyWaitingForActivity
-    : 0;
-  const verificationNeededPanelCount = panelHydrationSummary
-    ? panelHydrationSummary.sourceMissing +
-      panelHydrationSummary.materializerMissing +
-      panelHydrationSummary.bridgeMissing +
-      panelHydrationSummary.notObservedButExpected +
-      panelHydrationSummary.broken
-    : 0;
-  const externalProofPanelCount = panelHydrationSummary?.externalRequired ?? 0;
+  const panelRecoveryTruthItems: Array<{ state: PanelRecoveryTruthState; count: number }> = panelHydrationSummary
+    ? ([
+        { state: "collecting", count: panelHydrationSummary.collecting },
+        { state: "source_ready_waiting_for_activity", count: panelHydrationSummary.sourceReadyWaitingForActivity },
+        { state: "not_observed_but_expected", count: panelHydrationSummary.notObservedButExpected },
+        { state: "source_missing", count: panelHydrationSummary.sourceMissing },
+        { state: "materializer_missing", count: panelHydrationSummary.materializerMissing },
+        { state: "bridge_missing", count: panelHydrationSummary.bridgeMissing },
+        { state: "runtime_evidence_required", count: panelHydrationSummary.runtimeEvidenceRequired ?? 0 },
+        { state: "admin_truth_source_required", count: panelHydrationSummary.adminTruthSourceRequired ?? 0 },
+        { state: "provider_gated", count: panelHydrationSummary.providerGated ?? 0 },
+        { state: "external_required", count: panelHydrationSummary.externalRequired },
+        { state: "broken", count: panelHydrationSummary.broken },
+      ] satisfies Array<{ state: PanelRecoveryTruthState; count: number }>).filter((item) => item.count > 0)
+    : [];
   const panelRecoveryActions = panelHydrationSummary?.topNextActions ?? [];
   const showPanelRecovery =
     Boolean(panelHydrationSummary) &&
-    (verificationNeededPanelCount > 0 ||
-      collectingPanelCount > 0 ||
-      externalProofPanelCount > 0 ||
-      connectedPanelCount < totalPanelCount);
+    (panelRecoveryTruthItems.length > 0 || connectedPanelCount < totalPanelCount);
 
   if (needsSetup) {
     return (
@@ -333,11 +375,14 @@ export default function AdminAnalyticsPage() {
               <p className="font-semibold text-white">Panel recovery</p>
               <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-300">
                 <span>{connectedPanelCount}/{totalPanelCount} connected</span>
-                <span>{formatPanelRecoveryCount(verificationNeededPanelCount, "need", "need")} verification</span>
-                <span>{formatPanelRecoveryCount(collectingPanelCount, "collecting", "collecting")}</span>
-                {externalProofPanelCount > 0 ? (
-                  <span>{formatPanelRecoveryCount(externalProofPanelCount, "external proof", "external proof")}</span>
-                ) : null}
+                {panelRecoveryTruthItems.map((item) => {
+                  const label = formatPanelRecoveryTruthState(item.state);
+                  return (
+                    <span key={item.state} data-panel-recovery-truth-state={item.state}>
+                      {formatPanelRecoveryCount(item.count, label, label)}
+                    </span>
+                  );
+                })}
               </div>
             </div>
             {panelRecoveryActions.length > 0 ? (

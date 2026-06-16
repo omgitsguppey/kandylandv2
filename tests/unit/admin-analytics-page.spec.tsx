@@ -528,9 +528,16 @@ describe("AdminAnalyticsPage", () => {
 
     expect(container.textContent).toContain("Panel recovery");
     expect(container.textContent).toContain("3/11 connected");
-    expect(container.textContent).toContain("4 need verification");
-    expect(container.textContent).toContain("3 collecting");
-    expect(container.textContent).toContain("1 external proof");
+    expect(container.textContent).toContain("2 collecting");
+    expect(container.textContent).toContain("1 source ready, waiting");
+    expect(container.textContent).toContain("2 not observed yet");
+    expect(container.textContent).toContain("1 source missing");
+    expect(container.textContent).toContain("1 materializer missing");
+    expect(container.textContent).toContain("1 external evidence required");
+    expect(container.textContent).not.toContain("need verification");
+    expect(container.textContent).not.toContain("external proof");
+    expect(container.querySelector("[data-panel-recovery-truth-state='source_missing']")).toBeTruthy();
+    expect(container.querySelector("[data-panel-recovery-truth-state='external_required']")).toBeTruthy();
     expect(container.textContent).toContain("Top recovery actions");
     expect(container.textContent).not.toContain("platform_pulse:30d");
   });

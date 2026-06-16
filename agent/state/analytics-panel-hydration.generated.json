@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-16T20:50:38.659Z",
-  "currentHead": "2a37541bd94c6f134b994233b56c5f00b342b26b",
+  "generatedAtUtc": "2026-06-16T21:09:40.061Z",
+  "currentHead": "71535434321f733c6fbc196e1a44f2376cf2e1b7",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,40 +416,20 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 7,
+    "total": 2,
     "byClassification": {
-      "analytics_panel_hydration_artifact_expected": 4,
-      "real_source_change_needs_review": 3
+      "real_source_change_needs_review": 1,
+      "test_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
       {
-        "path": "agent/state/analytics-panel-hydration.generated.json",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/analytics-panel-hydration.md",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
+        "path": "src/app/admin/analytics/page.tsx",
         "classification": "real_source_change_needs_review"
       },
       {
-        "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "src/lib/release-readiness/live-panel-evidence-resolver.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "tests/unit/analytics-panel-hydration.spec.ts",
-        "classification": "analytics_panel_hydration_artifact_expected"
+        "path": "tests/unit/admin-analytics-page.spec.tsx",
+        "classification": "test_artifact_expected"
       }
     ],
     "sampleTruncated": false
