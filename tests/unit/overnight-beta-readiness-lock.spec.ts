@@ -100,7 +100,7 @@ function reportFixture(
       {
         id: "adminTruthSample",
         label: "Admin truth sample",
-        truthState: "manual_admin_truth_required",
+        truthState: "admin_truth_source_required",
         sourceStatus: "missing",
         nextAction: "Attach admin truth sample evidence.",
       },
@@ -135,7 +135,7 @@ describe("overnight beta readiness lock validator", () => {
       "manual_evidence_required",
       "external_evidence_required",
       "external_evidence_required",
-      "manual_admin_truth_required",
+      "admin_truth_source_required",
     ]);
     expect(failures).toEqual([]);
   });

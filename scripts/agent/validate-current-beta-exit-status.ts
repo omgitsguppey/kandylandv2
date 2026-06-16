@@ -28,7 +28,7 @@ export type CurrentBetaExitProofTruthState =
   | "stale_evidence"
   | "external_evidence_required"
   | "manual_evidence_required"
-  | "manual_admin_truth_required"
+  | "admin_truth_source_required"
   | "source_only_not_formal"
   | "unknown";
 
@@ -292,7 +292,7 @@ function proofTruthStateFor(input: {
     return "manual_evidence_required";
   }
   if (input.id === "adminTruthSample") {
-    return "manual_admin_truth_required";
+    return "admin_truth_source_required";
   }
   if (input.id === "providerSmoke" || input.id === "runtimeSmoke") {
     return "external_evidence_required";
@@ -308,7 +308,7 @@ function proofActionStateFor(
   if (truthState === "stale_evidence") return "refresh_stale_evidence";
   if (truthState === "source_only_not_formal") return "source_only_cannot_clear";
   if (truthState === "manual_evidence_required") return "attach_manual_evidence";
-  if (truthState === "manual_admin_truth_required") return "attach_admin_truth_sample";
+  if (truthState === "admin_truth_source_required") return "attach_admin_truth_sample";
   if (truthState === "external_evidence_required") return "attach_external_evidence";
   return id === "adminTruthSample" ? "attach_admin_truth_sample" : "unknown";
 }

@@ -1,8 +1,8 @@
 # Current Beta Exit Status
 
-Generated: 2026-06-16T20:05:04.663Z
+Generated: 2026-06-16T20:12:28.561Z
 
-Latest code version: 02e033fc1e53e3500ba0a61ff253f07a5ff0e08a
+Latest code version: da47647539108be47ca5a83159f423ffcc853199
 
 ## Summary
 
@@ -35,8 +35,8 @@ Latest code version: 02e033fc1e53e3500ba0a61ff253f07a5ff0e08a
 ## Refresh Plan
 
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
-- agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
+- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/evidence-capture-status.generated.json: Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:evidence-capture-status`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:source-truth-authority-map`.
@@ -50,6 +50,8 @@ Latest code version: 02e033fc1e53e3500ba0a61ff253f07a5ff0e08a
 
 - P1 manual_screenshot_evidence_missing: Attach real manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/.
 - P1 provider_smoke_evidence_missing: Attach redacted provider smoke evidence; source checks cannot create provider proof.
+- P1 runtime_smoke_evidence_stale: Attach deployed runtime smoke evidence for required user and creator routes.
+- P1 admin_truth_sample_evidence_stale: Attach a redacted admin truth sample artifact with source freshness.
 - P2 speed_security_owner_review_backlog: Keep speed/security P2 cost and route hardening backlog visible.
 
 ## Next Exact Steps

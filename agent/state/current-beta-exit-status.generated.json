@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-16T20:05:04.663Z",
+  "generatedAtUtc": "2026-06-16T20:12:28.981Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "02e033fc1e53e3500ba0a61ff253f07a5ff0e08a",
+  "currentHead": "da47647539108be47ca5a83159f423ffcc853199",
   "summary": {
     "betaVersion": "1.5.72",
     "betaScore": 69.89,
@@ -123,7 +123,7 @@
     {
       "command": "npm run check:evidence-capture-status",
       "status": "passed",
-      "evidence": "templates only; complete evidence remains missing."
+      "evidence": "runtime/admin evidence complete; provider evidence remains missing."
     },
     {
       "command": "npm run check:overnight-beta-readiness-lock",
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-16T20:05:04.663Z",
+      "generatedAtUtc": "2026-06-16T20:12:28.981Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -385,7 +385,8 @@
     "agent/state/operator-revenue-smoke.generated.json",
     "agent/state/source-truth-authority-map.generated.json",
     "agent/state/cost-4xx-reduction.generated.json",
-    "agent/state/speed-security-hardening.generated.json"
+    "agent/state/speed-security-hardening.generated.json",
+    "agent/state/current-beta-exit-status.generated.json"
   ],
   "remainingBlockers": [
     {
@@ -414,6 +415,15 @@
         "manual=missing; provider=missing; runtime=complete; adminTruth=complete; templates=4; complete=2"
       ],
       "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
+    },
+    {
+      "id": "provider-smoke",
+      "severity": "P1",
+      "status": "stale_provider_smoke_evidence",
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
     }
   ],
   "deferredOwnerReview": [

@@ -77,7 +77,7 @@ function proofLanesFor(
         ? "stale_evidence"
         : summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed")
           ? "current_formal_evidence"
-          : "manual_admin_truth_required",
+          : "admin_truth_source_required",
       actionState: summary.adminTruthSampleStatus.startsWith("stale_")
         ? "refresh_stale_evidence"
         : summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed")

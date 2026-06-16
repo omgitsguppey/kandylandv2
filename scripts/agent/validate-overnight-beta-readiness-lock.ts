@@ -40,7 +40,7 @@ export type OvernightEvidenceCaptureLane = {
     | "stale_evidence"
     | "capture_artifact_attached"
     | "manual_evidence_required"
-    | "manual_admin_truth_required"
+    | "admin_truth_source_required"
     | "external_evidence_required";
   sourceStatus: string;
   nextAction: string;
@@ -187,7 +187,7 @@ function captureLane(
       : id === "manualScreenshotQa"
         ? "manual_evidence_required"
         : id === "adminTruthSample"
-          ? "manual_admin_truth_required"
+          ? "admin_truth_source_required"
           : "external_evidence_required";
   return { id, label, truthState, sourceStatus, nextAction };
 }
