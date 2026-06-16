@@ -268,7 +268,7 @@ export const PERSON_METRIC_DEFINITIONS: PersonMetricDefinition[] = [
     id: "unwraps",
     label: "Unwraps",
     eventNames: ["drop_unwrapped", "creator_drop_unwrapped"],
-    sourceOfTruth: "payload reveal or consumed drop facts after entitlement access",
+    sourceOfTruth: "server unlock entitlement facts with payload reveal or consumed drop facts after entitlement access",
     consentEligibility: { depth: "necessary_product", allowedModes: NECESSARY_MODES },
     materializer: "person_metrics.unwraps",
     debugOwner: "analytics",

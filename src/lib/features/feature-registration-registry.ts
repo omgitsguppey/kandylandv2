@@ -297,6 +297,7 @@ const FEATURE_SEEDS: FeatureSeed[] = [
 ];
 
 const SYSTEM_INTERNAL_ROUTE_PREFIXES = [
+  "src/app/api/admin-ui-test-session",
   "src/app/dashboard/chat",
   "src/app/api/chat",
   "src/app/api/creator/messages",
