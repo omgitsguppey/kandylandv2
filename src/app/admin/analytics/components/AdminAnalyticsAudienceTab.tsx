@@ -268,7 +268,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     {" | "}Source: {audienceSourceStateLabel}
                   </p>
                   <p className="text-gray-500">
-                    Decision source: {verifiedSnapshotLabel}. Site analytics can explain gaps, but cannot create product totals.
+                    Decision source: {verifiedSnapshotLabel}. Site analytics are supporting evidence, not product truth.
                   </p>
                   <p className="text-gray-500">
                     Users source: GA4 site users | Views source: mixed GA + first-party

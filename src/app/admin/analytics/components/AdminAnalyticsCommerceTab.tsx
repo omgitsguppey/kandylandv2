@@ -301,7 +301,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   <p key={line}>{line}</p>
                 ))}
                 <p className="text-gray-400">
-                  Decision source: {verifiedSnapshotLabel}. {vendorEvidenceLabel} can explain gaps, but cannot create payment or GumDrop truth.
+                  Decision source: {verifiedSnapshotLabel}. {vendorEvidenceLabel} stays supporting evidence, not product truth.
                 </p>
                 <p className="text-gray-400">
                   Recovery evidence stays review-only until the server ledger confirms it.
