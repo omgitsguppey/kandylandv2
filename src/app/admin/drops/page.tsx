@@ -9,6 +9,7 @@ import { Drop } from "@/types/db";
 import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { toast } from "sonner";
 import { sendNotification } from "@/lib/notifications";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
@@ -79,6 +80,11 @@ const SORT_OPTIONS: Array<{ value: DropSortMode; label: string }> = [
     { value: "oldest", label: "Oldest" },
     { value: "alphabetical", label: "A-Z" },
 ];
+
+function getAdminDropsSafeErrorMessage(error: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
+}
 
 function buildCreatorFallback(drop: Drop) {
     if (drop.submittedByCreatorId) {
@@ -482,7 +488,7 @@ export default function AdminDropsPage() {
                 },
                 consoleLabel: "[Admin Drops] delete failed",
             });
-            toast.error(error.message || "Failed to delete drop.");
+            toast.error(getAdminDropsSafeErrorMessage(error, "Failed to delete drop."));
         }
     }, []);
 
@@ -530,7 +536,7 @@ export default function AdminDropsPage() {
                 },
                 consoleLabel: "[Admin Drops] review failed",
             });
-            toast.error(error.message || "Review failed.");
+            toast.error(getAdminDropsSafeErrorMessage(error, "Review failed."));
         } finally {
             setReviewingDropId(null);
         }
@@ -600,7 +606,7 @@ export default function AdminDropsPage() {
                 },
                 consoleLabel: "[Admin Drops] bulk delete failed",
             });
-            toast.error(error instanceof Error ? error.message : "One or more drops failed to delete.");
+            toast.error(getAdminDropsSafeErrorMessage(error, "One or more drops failed to delete."));
         }
     }, [selectedDropIds]);
 
@@ -638,7 +644,7 @@ export default function AdminDropsPage() {
                 },
                 consoleLabel: "[Admin Drops] queue toggle failed",
             });
-            toast.error(error.message || "Failed to toggle queue state.");
+            toast.error(getAdminDropsSafeErrorMessage(error, "Failed to toggle queue state."));
         }
     }, [mutateQueueConfig]);
 
