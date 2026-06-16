@@ -143,6 +143,7 @@ export function DebugGumdropRecoverySummary({
       data-admin-debug-gumdrop-recovery-source={gumdropRecovery.sourceReportPath}
       data-admin-debug-gumdrop-recovery-analytics-only={gumdropRecovery.analyticsOnlyEvidenceLabel || GUMDROP_ANALYTICS_ONLY_EVIDENCE_LABEL}
       data-admin-debug-gumdrop-recovery-money-action-allowed={gumdropRecovery.recoveryQueue.moneyAffectingRecoveryAllowedCount}
+      data-admin-debug-gumdrop-recovery-ledger-review-count={gumdropRecovery.recoveryQueue.ledgerProofRequiredCount}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -162,7 +163,7 @@ export function DebugGumdropRecoverySummary({
         <div className="rounded-md border border-white/10 bg-black/20 px-2.5 py-2">
           <p className="font-semibold text-white">Queue</p>
           <p>{gumdropRecovery.recoveryQueue.queueItemCount} dry-run item(s)</p>
-          <p className="text-gray-500">proof required {gumdropRecovery.recoveryQueue.ledgerProofRequiredCount}</p>
+          <p className="text-gray-500">ledger source needed {gumdropRecovery.recoveryQueue.ledgerProofRequiredCount}</p>
         </div>
         <div className="rounded-md border border-white/10 bg-black/20 px-2.5 py-2">
           <p className="font-semibold text-white">Protected review</p>

@@ -468,8 +468,11 @@ describe("admin debug control tower model", () => {
         expect(runtimeEvidence).toContain("data-admin-debug-gumdrop-recovery=\"true\"");
         expect(runtimeEvidence).toContain("data-admin-debug-gumdrop-recovery-state");
         expect(runtimeEvidence).toContain("data-admin-debug-gumdrop-recovery-analytics-only");
+        expect(runtimeEvidence).toContain("data-admin-debug-gumdrop-recovery-ledger-review-count");
         expect(runtimeEvidence).toContain("diagnostic_only_not_treasury_truth");
         expect(runtimeEvidence).toContain("money-action-allowed");
+        expect(runtimeEvidence).toContain("ledger source needed");
+        expect(runtimeEvidence).not.toContain("proof required");
         expect(runtimeEvidence).toContain("Ledger/server proof remains money truth");
         expect(runtimeEvidence).toContain("data-admin-debug-gumdrop-recovery-details=\"collapsed_by_default\"");
     });
