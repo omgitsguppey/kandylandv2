@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { PUBLIC_APP_VERSION } from "@/lib/release-notes/public-release-notes";
 import { toast } from "sonner";
 import {
@@ -114,6 +115,10 @@ function readVersionedCollapsedModule(
     return collapsedModules[getVersionedAdminAiModuleKey(key)] === true;
 }
 
+function getAdminAiStateSafeErrorMessage(issue: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(issue, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
+}
 
 export function useAdminAiState() {
 
@@ -318,7 +323,7 @@ export function useAdminAiState() {
                 detail: { adminView: "admin_ai_page", nextEnabled: !data.settings.enabled },
                 consoleLabel: "[Admin AI] toggle failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to update AI cover controls");
+            toast.error(getAdminAiStateSafeErrorMessage(issue, "Failed to update AI cover controls"));
         } finally {
             setUpdatingToggle(false);
         }
@@ -337,7 +342,7 @@ export function useAdminAiState() {
                 detail: { adminView: "admin_ai_page", modelId },
                 consoleLabel: "[Admin AI] model update failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to update the default AI image model");
+            toast.error(getAdminAiStateSafeErrorMessage(issue, "Failed to update the default AI image model"));
         } finally {
             setSavingModelId(null);
         }
@@ -360,7 +365,7 @@ export function useAdminAiState() {
                 detail: { adminView: "admin_ai_page", field, nextValue },
                 consoleLabel: "[Admin AI] reference toggle failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to update reference guidance");
+            toast.error(getAdminAiStateSafeErrorMessage(issue, "Failed to update reference guidance"));
         } finally {
             setSavingReferenceSettings(false);
         }
@@ -381,7 +386,7 @@ export function useAdminAiState() {
                 detail: { adminView: "admin_ai_page", nextValue },
                 consoleLabel: "[Admin AI] optimizer toggle failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to update prompt optimizer");
+            toast.error(getAdminAiStateSafeErrorMessage(issue, "Failed to update prompt optimizer"));
         } finally {
             setSavingReferenceSettings(false);
         }
@@ -427,7 +432,7 @@ export function useAdminAiState() {
                 detail: { adminView: "admin_ai_page", primary: options.primary, fileCount: files.length },
                 consoleLabel: "[Admin AI] reference upload failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to upload references");
+            toast.error(getAdminAiStateSafeErrorMessage(issue, "Failed to upload references"));
         } finally {
             setUploadingPrimary(false);
             setUploadingLibrary(false);
@@ -471,7 +476,7 @@ export function useAdminAiState() {
                 detail: { adminView: "admin_ai_page", assetId, patch },
                 consoleLabel: "[Admin AI] reference update failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to update reference");
+            toast.error(getAdminAiStateSafeErrorMessage(issue, "Failed to update reference"));
         } finally {
             setUpdatingReferenceId(null);
         }
@@ -498,7 +503,7 @@ export function useAdminAiState() {
                 detail: { adminView: "admin_ai_page", assetId },
                 consoleLabel: "[Admin AI] reference removal failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to remove reference");
+            toast.error(getAdminAiStateSafeErrorMessage(issue, "Failed to remove reference"));
         } finally {
             setRemovingReferenceId(null);
         }
@@ -524,7 +529,7 @@ export function useAdminAiState() {
                 detail: { adminView: "admin_ai_page" },
                 consoleLabel: "[Admin AI] template removal failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to remove primary style reference");
+            toast.error(getAdminAiStateSafeErrorMessage(issue, "Failed to remove primary style reference"));
         } finally {
             setRemovingReferenceId(null);
         }
@@ -558,7 +563,7 @@ export function useAdminAiState() {
                 detail: { adminView: "admin_ai_page" },
                 consoleLabel: "[Admin AI] prompt policy update failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to save prompt policy");
+            toast.error(getAdminAiStateSafeErrorMessage(issue, "Failed to save prompt policy"));
         } finally {
             setSavingPromptPolicy(false);
         }
@@ -585,7 +590,7 @@ export function useAdminAiState() {
                 detail: { adminView: "admin_ai_page", jobId, reusable },
                 consoleLabel: "[Admin AI] review gallery update failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to update gallery item");
+            toast.error(getAdminAiStateSafeErrorMessage(issue, "Failed to update gallery item"));
         } finally {
             setReviewingJobId(null);
         }
