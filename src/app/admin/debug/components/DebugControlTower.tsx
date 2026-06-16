@@ -144,7 +144,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                     </div>
                     <div className="shrink-0 text-left sm:text-right">
                         <AdminTruthBadge state={controlTowerBadgeState} className="mb-1" />
-                        <p className="text-[11px] font-semibold text-gray-300">{isLocalAdminUiTestSession ? "source_missing" : model?.canonicalPublicBetaReadinessStatus ?? "Readiness unavailable"}</p>
+                        <p className="text-[11px] font-semibold text-gray-300">{isLocalAdminUiTestSession ? "Waiting for verified source" : model?.canonicalPublicBetaReadinessStatus ?? "Readiness unavailable"}</p>
                         <p className="text-[11px] text-gray-400">{isLocalAdminUiTestSession ? "Local UI fixture" : loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
                     </div>
                 </div>
@@ -175,7 +175,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                     data-admin-debug-control-tower-fixture-boundary="true"
                     data-admin-debug-control-tower-fixture-state="source_missing"
                 >
-                    Control Tower reports are source_missing in local UI review until a real admin session loads verified debug evidence.
+                    Control Tower reports are waiting for verified debug evidence from a real admin session.
                 </div>
             ) : null}
 

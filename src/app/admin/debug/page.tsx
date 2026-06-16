@@ -112,7 +112,7 @@ type CompactDebugDetailItem = {
 };
 
 function localFixtureMeta(label: string) {
-    return `Local UI review does not verify ${label.toLowerCase()}.`;
+    return `Waiting for verified ${label.toLowerCase()} from a real admin session.`;
 }
 
 function toLocalFixtureSummaryItem(item: CompactDebugSummaryItem): CompactDebugSummaryItem {
@@ -133,7 +133,7 @@ function toLocalFixtureDetailItem(item: CompactDebugDetailItem): CompactDebugDet
         truthState: "unavailable",
         copy: createAdminDebugCardCopy({
             operatorSummary,
-            whyItMatters: "Local fixture mode checks layout and controls only; it does not load verified admin evidence.",
+            whyItMatters: "Local review checks layout and controls only; it does not load verified admin evidence.",
             recommendedNextCheck: "Use a real admin session or run the owned source validator before treating this lane as verified.",
             technicalEvidence: "Admin UI fixture mode bypasses debug route reads and realtime listeners.",
             sourceDetails: "local admin UI test session",
@@ -799,7 +799,7 @@ export default function DebugConsole() {
     ]);
 
     const sourceStateLabel = isLocalAdminUiTestSession
-        ? "source_missing"
+        ? "Waiting for source"
         : error
         ? "Failed"
         : !data && isLoading
@@ -1043,9 +1043,9 @@ export default function DebugConsole() {
                     data-admin-debug-fixture-state="source_missing"
                 >
                     <span className="font-semibold text-white">Local UI review only.</span>{" "}
-                    Debug Control Tower layout is inspectable; debug routes, realtime evidence,
-                    AI assistant signals, repair actions, and balance adjustments remain source_missing
-                    until a real admin session loads verified evidence.
+                    The Debug Console layout is inspectable, but route checks, realtime evidence,
+                    AI assistant signals, repair actions, and balance adjustments wait for a real
+                    admin session with verified evidence.
                 </div>
             ) : null}
 

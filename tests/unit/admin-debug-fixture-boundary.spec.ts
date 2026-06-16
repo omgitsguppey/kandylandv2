@@ -26,15 +26,17 @@ describe("admin debug local fixture boundary", () => {
     expect(pageSource).toContain("isAdminUiTestSessionUser(user)");
     expect(pageSource).toContain('data-admin-debug-fixture-boundary="true"');
     expect(pageSource).toContain('data-admin-debug-fixture-state="source_missing"');
-    expect(pageSource).toContain("Debug Control Tower layout is inspectable");
-    expect(pageSource).toContain("debug routes, realtime evidence,");
+    expect(pageSource).toContain("The Debug Console layout is inspectable");
+    expect(pageSource).toContain("route checks, realtime evidence,");
     expect(pageSource).toContain("toLocalFixtureSummaryItem");
     expect(pageSource).toContain("toLocalFixtureDetailItem");
     expect(pageSource).toContain("isLocalAdminUiTestSession ? items.map(toLocalFixtureSummaryItem) : items");
     expect(pageSource).toContain("isLocalAdminUiTestSession ? items.map(toLocalFixtureDetailItem) : items");
-    expect(pageSource).toContain("Local UI review does not verify");
-    expect(pageSource).toContain("Local fixture mode checks layout and controls only; it does not load verified admin evidence.");
+    expect(pageSource).toContain("Waiting for verified");
+    expect(pageSource).toContain("Local review checks layout and controls only; it does not load verified admin evidence.");
     expect(pageSource).toContain("local_fixture_source_missing");
+    expect(controlTowerSource).toContain("Waiting for verified source");
+    expect(controlTowerSource).toContain("waiting for verified debug evidence");
   });
 
   it("skips debug route reads and realtime listeners in fixture mode", () => {
