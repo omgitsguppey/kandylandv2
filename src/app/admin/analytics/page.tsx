@@ -24,6 +24,7 @@ import {
   type AnalyticsViewMode,
 } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import type { AdminAnalyticsSourceHierarchy } from "@/lib/analytics/admin-analytics-source-hierarchy";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
@@ -38,6 +39,8 @@ const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 import { useAdminAnalyticsState } from "./hooks/useAdminAnalyticsState";
 
 type OverviewDisplayState = "ready" | "cached" | "refresh_due" | "stale" | "partial" | "unavailable" | "loading";
+type AdminAnalyticsSourceHierarchySummary = Pick<AdminAnalyticsSourceHierarchy, "status" | "nextAction"> &
+  Partial<Pick<AdminAnalyticsSourceHierarchy, "consumerSourceMismatches" | "blockedAnalyticsConsumers">>;
 
 function mapOverviewDisplayStateToTruthState(displayState: OverviewDisplayState) {
   switch (displayState) {
@@ -127,6 +130,12 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
       return "Cached";
     case "stale":
       return "Refresh due";
+    case "consumer_source_mismatch":
+      return "Source mismatch";
+    case "source_agreement_failed":
+      return "Source agreement failed";
+    case "not_enough_sources":
+      return "More source evidence needed";
     case "failed":
       return "Unavailable";
     case "unavailable":
@@ -139,6 +148,33 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
     default:
       return value.replaceAll("_", " ");
   }
+}
+
+function formatSourceHierarchyCount(count: number, singular: string, plural = `${singular}s`) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHierarchySummary) {
+  const mismatchCount = sourceHierarchy.consumerSourceMismatches?.length ?? 0;
+  const blockedCount = sourceHierarchy.blockedAnalyticsConsumers?.length ?? 0;
+
+  if (mismatchCount > 0 && blockedCount > 0) {
+    const repairVerb = mismatchCount === 1 ? "needs" : "need";
+    const sourceLinkLabel = formatSourceHierarchyCount(mismatchCount, "source link");
+    const blockedViewLabel = formatSourceHierarchyCount(blockedCount, "analytics view");
+    return `${sourceLinkLabel} ${repairVerb} repair; ${blockedViewLabel} blocked.`;
+  }
+
+  if (mismatchCount > 0) {
+    const repairVerb = mismatchCount === 1 ? "needs" : "need";
+    return `${formatSourceHierarchyCount(mismatchCount, "source link")} ${repairVerb} repair.`;
+  }
+
+  if (blockedCount > 0) {
+    return `${formatSourceHierarchyCount(blockedCount, "analytics view")} blocked by source evidence.`;
+  }
+
+  return null;
 }
 
 function formatAdminAnalyticsSourceNote(note: string) {
@@ -175,11 +211,12 @@ export default function AdminAnalyticsPage() {
   const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalTruthState, historicalSourceLabel, analyticsOverviewDisplayMetrics, analyticsOverviewCards, adminAnalyticsSourceHierarchy } = state;
   const [mobileViewMode, setMobileViewMode] = useState<AnalyticsViewMode>("chart");
   const overviewSnapshotUnavailable = isKnownOverviewSnapshotUnavailable(blockingAnalyticsError);
-  const sourceHierarchy = adminAnalyticsSourceHierarchy ?? {
+  const sourceHierarchy: AdminAnalyticsSourceHierarchySummary = adminAnalyticsSourceHierarchy ?? {
     status: "unavailable",
     nextAction: "Analytics source hierarchy has not hydrated yet.",
   };
   const sourceHierarchyStatusLabel = formatAnalyticsShellStateLabel(sourceHierarchy.status);
+  const sourceHierarchySummary = formatSourceHierarchySummary(sourceHierarchy);
   const liveFeedStatusLabel = formatAnalyticsShellStateLabel(liveFeedStatus);
   const historicalQualityLabel = formatAnalyticsShellStateLabel(historicalTruthState);
   const primaryBlockingAnalyticsError = overviewSnapshotUnavailable ? null : blockingAnalyticsError;
@@ -329,6 +366,7 @@ export default function AdminAnalyticsPage() {
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <div className="space-y-1">
               <p className="font-semibold">Analytics source state: {sourceHierarchyStatusLabel}</p>
+              {sourceHierarchySummary ? <p>{sourceHierarchySummary}</p> : null}
               <p>{sourceHierarchy.nextAction}</p>
             </div>
           </div>

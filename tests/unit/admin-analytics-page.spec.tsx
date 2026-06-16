@@ -569,6 +569,39 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).not.toContain("view ·");
   });
 
+  it("summarizes source hierarchy mismatches without leaking enum labels", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      adminAnalyticsSourceHierarchy: {
+        status: "consumer_source_mismatch",
+        nextAction:
+          "Show source agreement failed in Debug and Analytics tab, then repair the mismatched source lane before canonical chart promotion.",
+        consumerSourceMismatches: [
+          "admin_analytics_overview",
+          "admin_analytics_charts",
+          "admin_analytics_insight_cards",
+        ],
+        blockedAnalyticsConsumers: [
+          "debug_data_validation",
+          "admin_analytics_overview",
+          "admin_analytics_charts",
+          "admin_analytics_insight_cards",
+          "admin_analytics_source_health",
+          "public_beta_score_evidence",
+        ],
+      },
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).toContain("Analytics source state: Source mismatch");
+    expect(container.textContent).toContain("3 source links need repair; 6 analytics views blocked.");
+    expect(container.textContent).toContain("Show source agreement failed in Debug and Analytics tab");
+    expect(container.textContent).not.toContain("consumer_source_mismatch");
+  });
+
   it("humanizes current-activity blocking errors", async () => {
     mockState.analyticsState = {
       ...mockState.analyticsState,
