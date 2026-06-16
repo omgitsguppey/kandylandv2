@@ -862,20 +862,26 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         </p>
                       ) : null}
 
-                      <div className="grid grid-cols-2 gap-2">
-                        {journeyFunnelModel.supportingEvents.map((item) => (
-                          <MetricCard
-                            key={item.stepKey}
-                            label={item.visibleLabel}
-                            value={journeyCountLabel(item.count)}
-                            hint={item.explanation}
-                            icon={item.stepKey === "shares" ? Share2 : CheckCircle2}
-                            truthState={historicalMetricTruthState}
-                            statusBadgeLabel={journeyFunnelBadgeLabel}
-                            className="rounded-[1rem] p-2 min-h-[4.75rem]"
-                            valueClassName="text-[1.05rem] leading-5 md:text-lg"
-                          />
-                        ))}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-2 px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                          <span>Supporting Events</span>
+                          <span>Separate from the chain</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {journeyFunnelModel.supportingEvents.map((item) => (
+                            <MetricCard
+                              key={item.stepKey}
+                              label={item.visibleLabel}
+                              value={journeyCountLabel(item.count)}
+                              hint={item.explanation}
+                              icon={item.stepKey === "shares" ? Share2 : CheckCircle2}
+                              truthState={historicalMetricTruthState}
+                              statusBadgeLabel={journeyFunnelBadgeLabel}
+                              className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                              valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                            />
+                          ))}
+                        </div>
                       </div>
                     </>
                   ) : null}
@@ -1165,6 +1171,12 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         {authOutcomeModel.timingMissingReason}
                       </p>
                     ) : null}
+                    <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                      <span className="font-semibold text-white">Timing review:</span>{" "}
+                      {authOutcomeModel.timingAvailable
+                        ? "Completed attempts include start and finish timestamps."
+                        : "Finish timing is unavailable until start and end timestamps hydrate."}
+                    </p>
 
                     {authCanRenderDetails ? (
                       <>

@@ -247,6 +247,9 @@ export function AdminOnboardingAnalyticsModules(props: {
                         )}
 
                         <div className="space-y-1.5">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                Step flow
+                            </p>
                             {model.perStep.map((step) => (
                                 <div key={step.stepKey} className="grid grid-cols-[minmax(0,1fr)_3rem] items-center gap-2 text-[10px]">
                                     <span className="truncate text-gray-400">{step.stepTitle}</span>
