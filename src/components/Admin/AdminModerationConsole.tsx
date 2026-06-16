@@ -176,7 +176,7 @@ export function AdminModerationConsole() {
                 >
                     <p className="font-bold">Local admin UI review only.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        Moderation layout is inspectable; thread transcripts, risk alerts, media evidence, and security-event samples remain source_missing until a real admin session loads verified moderation evidence.
+                        Moderation evidence is source_missing in local review. A real admin session is required for thread transcripts, risk alerts, media evidence, and security-event samples.
                     </p>
                 </div>
             ) : null}
@@ -197,14 +197,14 @@ export function AdminModerationConsole() {
                 ))}
             </section>
 
-            <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Moderation filters">
+            <div className="flex flex-wrap gap-1.5 pb-1 sm:gap-2" aria-label="Moderation filters">
                 {FILTERS.map((item) => (
                     <button
                         key={item}
                         type="button"
                         onClick={() => setFilter(item)}
                         aria-pressed={filter === item}
-                        className={cn("min-h-11 shrink-0 rounded-full border px-3 text-sm font-bold", filter === item ? "border-brand-purple/40 bg-brand-purple/15 text-white" : "border-white/10 bg-white/[0.03] text-gray-300")}
+                        className={cn("min-h-10 rounded-full border px-2.5 text-xs font-bold sm:min-h-11 sm:px-3 sm:text-sm", filter === item ? "border-brand-purple/40 bg-brand-purple/15 text-white" : "border-white/10 bg-white/[0.03] text-gray-300")}
                     >
                         {item}
                     </button>
@@ -240,9 +240,9 @@ export function AdminModerationConsole() {
                                 );
                             })}
                             {adminSessionState === "waiting_for_admin_session" ? <div className="p-3 text-xs text-gray-400">Waiting for admin session...</div> : null}
-                            {isLocalFixtureSourceMissing ? <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs text-amber-100">Moderation threads are source_missing in local UI review.</div> : null}
+                            {isLocalFixtureSourceMissing ? <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs text-amber-100">Moderation threads are source_missing in local review.</div> : null}
                             {isLoadingThreads && threads.length === 0 ? <div className="p-3 text-xs text-gray-400">Loading queue...</div> : null}
-                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-sm text-gray-400">{isLocalFixtureSourceMissing ? "No local moderation thread samples are loaded." : "No moderation threads linked."}</div> : null}
+                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-sm text-gray-400">{isLocalFixtureSourceMissing ? "No moderation thread evidence is loaded for local review." : "No moderation threads linked."}</div> : null}
                             {threadsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">{explainModerationRouteError(threadsError, "/api/admin/moderation/threads")}</div> : null}
                         </div>
                     </section>

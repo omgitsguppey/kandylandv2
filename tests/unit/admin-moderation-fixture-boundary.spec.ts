@@ -11,8 +11,10 @@ describe("admin moderation fixture boundary", () => {
   it("labels local admin UI fixture moderation evidence as source_missing", () => {
     expect(consoleSource).toContain('data-admin-moderation-fixture-boundary="true"');
     expect(consoleSource).toContain('data-admin-moderation-fixture-state="source_missing"');
-    expect(consoleSource).toContain("Moderation layout is inspectable");
-    expect(consoleSource).toContain("thread transcripts, risk alerts, media evidence, and security-event samples remain source_missing");
+    expect(consoleSource).toContain("Moderation evidence is source_missing in local review");
+    expect(consoleSource).toContain("thread transcripts, risk alerts, media evidence, and security-event samples");
+    expect(consoleSource).toContain('className="flex flex-wrap gap-1.5 pb-1 sm:gap-2"');
+    expect(consoleSource).not.toContain('className="flex gap-2 overflow-x-auto pb-1"');
     expect(consoleSource).toContain('data-moderation-truth-state={isLocalFixtureSourceMissing ? "source_missing"');
   });
 
@@ -35,9 +37,9 @@ describe("admin moderation fixture boundary", () => {
 
   it("distinguishes fixture source-missing from a healthy empty alert queue", () => {
     expect(alertsSource).toContain('"local_fixture_source_missing"');
-    expect(alertsSource).toContain("Risk alert evidence is source_missing in local UI review.");
-    expect(alertsSource).toContain("No local risk-alert samples are loaded.");
-    expect(consoleSource).toContain("Moderation threads are source_missing in local UI review.");
-    expect(consoleSource).toContain("No local moderation thread samples are loaded.");
+    expect(alertsSource).toContain("Risk alert evidence is source_missing in local review.");
+    expect(alertsSource).toContain("No risk-alert evidence is loaded for local review.");
+    expect(consoleSource).toContain("Moderation threads are source_missing in local review.");
+    expect(consoleSource).toContain("No moderation thread evidence is loaded for local review.");
   });
 });

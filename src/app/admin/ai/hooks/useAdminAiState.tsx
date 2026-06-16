@@ -294,7 +294,7 @@ export function useAdminAiState() {
 
     const persistSettingsPatch = async (patch: Partial<AdminAiDropCoverDashboard["settings"]>, successMessage: string) => {
         if (isLocalAdminUiTestSession) {
-            toast.error("Cover Ops settings are source_missing in local UI review");
+            toast.error("Cover Ops settings are source_missing in local review");
             return;
         }
         const response = await authFetch("/api/admin/ai/drop-covers", {

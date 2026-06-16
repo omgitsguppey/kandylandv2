@@ -100,13 +100,13 @@ export default function AIAdminPage() {
                         <div className="flex flex-wrap items-center gap-2">
                             <AdminStatusBadge state="unavailable" />
                             <span className="font-bold text-white">Local UI review only.</span>
-                            <span>Cover Ops layout is inspectable; AI runtime reads, uploads, settings, and review mutations remain source_missing until a real admin session provides verified evidence.</span>
+                            <span>Cover Ops data is source_missing in local review. Use a real admin session before reading runtime evidence, uploading references, changing settings, or reviewing generations.</span>
                         </div>
                     </div>
                 ) : null}
 
-                <nav className="sticky top-[calc(env(safe-area-inset-top)+0.5rem)] z-20 -mx-1 overflow-x-auto border-b border-white/10 bg-black/90 px-1 py-2 backdrop-blur md:static md:mx-0 md:rounded-[1rem] md:border md:bg-white/[0.03]">
-                    <div className="flex min-w-max gap-1 md:min-w-0 md:flex-wrap">
+                <nav className="sticky top-[calc(env(safe-area-inset-top)+0.5rem)] z-20 -mx-1 border-b border-white/10 bg-black/90 px-1 py-2 backdrop-blur md:static md:mx-0 md:rounded-[1rem] md:border md:bg-white/[0.03]">
+                    <div className="flex flex-wrap gap-1">
                         {ADMIN_AI_TASK_TABS.map((tab) => {
                             const Icon = tab.icon;
                             const isActive = activeTab === tab.id;
@@ -116,7 +116,7 @@ export default function AIAdminPage() {
                                     type="button"
                                     onClick={() => setActiveTab(tab.id)}
                                     aria-pressed={isActive}
-                                    className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3 text-sm font-semibold transition ${isActive ? "border-brand-purple/40 bg-brand-purple/15 text-white" : "border-white/10 bg-black/35 text-gray-300 hover:bg-white/5"}`}
+                                    className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold transition sm:min-h-10 sm:gap-2 sm:px-3 sm:text-sm ${isActive ? "border-brand-purple/40 bg-brand-purple/15 text-white" : "border-white/10 bg-black/35 text-gray-300 hover:bg-white/5"}`}
                                 >
                                     <Icon className="h-4 w-4" />
                                     {tab.label}

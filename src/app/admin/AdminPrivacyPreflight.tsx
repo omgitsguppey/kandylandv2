@@ -80,7 +80,7 @@ export function AdminPrivacyPreflight() {
                             <h2 className="text-lg font-bold text-white">Privacy &amp; Consent Preflight</h2>
                             <AdminStatusBadge state={overallState} />
                         </div>
-                        <p className="text-xs text-gray-400">Deterministic view of privacy, consent, dedupe, guest identity, and export truth.</p>
+                        <p className="text-xs text-gray-400">Deterministic view of privacy, consent, duplicate prevention, guest identity, and export truth.</p>
                         <p className="mt-1 text-xs text-gray-500">
                             Last evidence: {formatLastSeen(lastEvidenceAtUtc)} · Pass {passCount} · Review {reviewCount} · Error {errorCount} · Quiet {quietCount}
                         </p>
@@ -114,7 +114,7 @@ export function AdminPrivacyPreflight() {
                 >
                     <p className="font-bold">Local admin UI review only.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        Privacy console layout is inspectable; consent, export, dedupe, and guest identity preflight evidence remains source_missing until a real admin session loads verified privacy samples.
+                        Privacy evidence is source_missing in local review. A real admin session is required for consent, export, duplicate prevention, and guest identity preflight samples.
                     </p>
                 </div>
             ) : null}
@@ -161,7 +161,7 @@ export function AdminPrivacyPreflight() {
                 {!isLoading && !error && checks.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
                         {isLocalFixtureSourceMissing
-                            ? "Privacy console evidence is source_missing in local UI review."
+                            ? "Privacy evidence is source_missing in local review."
                             : "No privacy console evidence is available yet."}
                     </div>
                 ) : null}

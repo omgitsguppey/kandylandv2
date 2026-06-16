@@ -422,7 +422,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                     className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100"
                     data-admin-ai-description-fixture-boundary="true"
                 >
-                    <span className="font-semibold text-white">Local UI review only.</span> Description operations are source_missing until a real admin session loads verified AI runtime evidence.
+                    <span className="font-semibold text-white">Local UI review only.</span> Description operations are source_missing until a real admin session loads verified AI evidence.
                 </div>
             ) : null}
             <div className={cn("overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/70 px-3 py-3 backdrop-blur", compact ? "" : "sticky top-[calc(env(safe-area-inset-top)+0.75rem)] z-10")}>

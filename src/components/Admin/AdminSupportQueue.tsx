@@ -213,7 +213,7 @@ export function AdminSupportQueue() {
                     compact
                     actions={(
                         <span className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] ${isLocalAdminUiTestSession ? "border-amber-400/20 bg-amber-500/10 text-amber-100" : "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"}`}>
-                            {isLocalAdminUiTestSession ? "source_missing" : "API Verified"}
+                            {isLocalAdminUiTestSession ? "source_missing" : "Verified"}
                         </span>
                     )}
                 />
@@ -222,7 +222,7 @@ export function AdminSupportQueue() {
                         className="mt-3 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
                         data-admin-support-fixture-boundary="true"
                     >
-                        <span className="font-bold text-white">Local UI review only.</span> Support queue layout is inspectable; thread reads, replies, and status changes require real admin auth and remain source_missing here.
+                        <span className="font-bold text-white">Local UI review only.</span> Support queue data is source_missing here. Use a real admin session before reading threads, replying, or changing support status.
                     </div>
                 ) : null}
             </div>

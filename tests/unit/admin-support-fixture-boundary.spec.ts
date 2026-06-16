@@ -10,9 +10,9 @@ describe("admin support fixture boundary", () => {
   it("labels local admin UI fixture support evidence as source_missing, not API verified", () => {
     expect(queueSource).toContain("isAdminUiTestSessionUser(user)");
     expect(queueSource).toContain('data-admin-support-fixture-boundary="true"');
-    expect(queueSource).toContain("Support queue layout is inspectable");
-    expect(queueSource).toContain("thread reads, replies, and status changes require real admin auth");
-    expect(queueSource).toContain('{isLocalAdminUiTestSession ? "source_missing" : "API Verified"}');
+    expect(queueSource).toContain("Support queue data is source_missing here");
+    expect(queueSource).toContain("reading threads, replying, or changing support status");
+    expect(queueSource).toContain('{isLocalAdminUiTestSession ? "source_missing" : "Verified"}');
   });
 
   it("disables admin support route reads while fixture mode is active", () => {
