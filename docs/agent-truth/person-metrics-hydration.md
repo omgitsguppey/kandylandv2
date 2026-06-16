@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-16T16:52:33.508Z
+Generated: 2026-06-16T18:46:27.603Z
 Status: pass
-Current head: 5dc1121d0e42e739914ac5ca006a7f2b6f63e6a3
+Current head: f31aba5c8ab9d78af0e62ede79ef647570072394
 
 ## Contract
 
@@ -72,11 +72,11 @@ Current head: 5dc1121d0e42e739914ac5ca006a7f2b6f63e6a3
 
 ## Dirty Files
 
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
-- agent/state/person-metrics-contract.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/person-metrics-contract.md: stale_generated_artifact_to_regenerate
 
 ## Active Old Logic
 

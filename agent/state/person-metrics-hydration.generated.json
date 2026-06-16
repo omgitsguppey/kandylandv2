@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-06-16T16:52:33.508Z",
+  "generatedAtUtc": "2026-06-16T18:46:27.603Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4973,8 +4973,12 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "5dc1121d0e42e739914ac5ca006a7f2b6f63e6a3",
+  "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
   "dirtyFiles": [
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
@@ -4984,16 +4988,12 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/person-metrics-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-contract.md",
-      "classification": "stale_generated_artifact_to_regenerate"
     }
   ],
   "activeOldLogic": [],

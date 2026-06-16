@@ -1,8 +1,8 @@
 {
   "reportKey": "feature-registration-gate",
   "registryVersion": "2026.05.feature-registration.1",
-  "generatedAtUtc": "2026-06-16T18:39:59.776Z",
-  "currentHead": "266fa9ab1a2c88ce69527ca475054b281ce90fa4",
+  "generatedAtUtc": "2026-06-16T18:46:12.189Z",
+  "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
   "status": "pass",
   "features": [
     {
@@ -4461,10 +4461,8 @@
   ],
   "validationFailures": [],
   "changedFiles": [
-    "agent/state/event-translation-bridge.generated.json",
-    "agent/state/feature-registration-gate.generated.json",
-    "agent/state/telemetry-identified-parity.generated.json",
-    "docs/agent-truth/event-translation-bridge.md"
+    "agent/state/current-beta-exit-status.generated.json",
+    "agent/state/public-beta-score.generated.json"
   ],
   "protectedChanges": []
 }
