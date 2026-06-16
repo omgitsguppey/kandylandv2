@@ -5754,15 +5754,41 @@ export async function GET(request: NextRequest) {
                     ? "review"
                     : "live",
         };
+        let taskTriggerReadyCount = 0;
+        let taskTriggerPartialCount = 0;
+        let taskTriggerMissingCount = 0;
+        let lifecycleExpectedCount = 0;
+        let supportingTelemetryCount = 0;
+
+        for (const row of taskTelemetryMappingRows) {
+            if (row.eventPurpose === "task_trigger") {
+                if (row.mappingState === "ready") {
+                    taskTriggerReadyCount += 1;
+                } else if (row.mappingState === "needs_criteria" || row.mappingState === "shared_receipts") {
+                    taskTriggerPartialCount += 1;
+                } else if (row.mappingState === "needs_task_mapping") {
+                    taskTriggerMissingCount += 1;
+                }
+            }
+
+            if (row.eventPurpose === "task_lifecycle") {
+                lifecycleExpectedCount += 1;
+            }
+
+            if (row.mappingState === "supporting_not_task") {
+                supportingTelemetryCount += 1;
+            }
+        }
+
         const taskTelemetryMappingSummary: TaskTelemetryMappingSummary = {
             sourceStatus: buildTaskTelemetryMappingReconstruction({
                 catalogEventCount: new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName)).size,
                 mappingRowCount: taskTelemetryMappingRows.length,
-                taskTriggerReadyCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "ready").length,
-                taskTriggerPartialCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && (row.mappingState === "needs_criteria" || row.mappingState === "shared_receipts")).length,
-                taskTriggerMissingCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "needs_task_mapping").length,
-                lifecycleEventCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_lifecycle").length,
-                supportingTelemetryCount: taskTelemetryMappingRows.filter((row) => row.mappingState === "supporting_not_task").length,
+                taskTriggerReadyCount,
+                taskTriggerPartialCount,
+                taskTriggerMissingCount,
+                lifecycleEventCount: lifecycleExpectedCount,
+                supportingTelemetryCount,
                 sharedEventsNeedingCriteria: sharedEventGroups.filter((group) => group.ambiguityState !== "safe_with_criteria").length,
                 unsupportedRuntimeCount: unsupportedRuntimeGroups.reduce((sum, group) => sum + group.count, 0),
                 taskActivityLifecycleSamples: completedEvents7d.length + recentTaskEvents.length,
@@ -5780,11 +5806,11 @@ export async function GET(request: NextRequest) {
             unsupportedActiveAssignments: unsupportedRuntimeGroups
                 .filter((group) => group.source === "assignment" && (group.activityScope === "active" || group.activityScope === "mixed"))
                 .reduce((sum, group) => sum + group.count, 0),
-            taskTriggerReadyCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "ready").length,
-            taskTriggerPartialCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && (row.mappingState === "needs_criteria" || row.mappingState === "shared_receipts")).length,
-            taskTriggerMissingCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "needs_task_mapping").length,
-            lifecycleExpectedCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_lifecycle").length,
-            supportingTelemetryCount: taskTelemetryMappingRows.filter((row) => row.mappingState === "supporting_not_task").length,
+            taskTriggerReadyCount,
+            taskTriggerPartialCount,
+            taskTriggerMissingCount,
+            lifecycleExpectedCount,
+            supportingTelemetryCount,
             sharedEventGroups,
             receiptMappingGroups,
             unsupportedRuntimeGroups,
