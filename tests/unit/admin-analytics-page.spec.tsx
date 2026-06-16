@@ -134,6 +134,7 @@ const mockState = vi.hoisted(() => {
           topNextActions: [
             "Audience snapshot: Refresh analytics_admin_metric_snapshots before treating audience as hydrated.",
             "Commerce snapshot: Attach redacted provider evidence before clearing payment proof.",
+            "Traffic overview: Repair src/app/api/admin/analytics/historical/route.ts so Traffic overview can hydrate.",
           ],
         },
         panelStatus: {},
@@ -520,6 +521,10 @@ describe("AdminAnalyticsPage", () => {
       backgroundAnalyticsIssues: [
         "Historical analytics: No verified admin metric snapshot display payload is available for platform_pulse:30d.",
       ],
+      visibleDegradedCopy: [
+        "No verified snapshot-first realtime payload is available yet.",
+      ],
+      liveFeedDetail: "No verified snapshot-first realtime payload is available yet.",
     };
 
     await act(async () => {
@@ -527,6 +532,7 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain("Panel recovery");
+    expect(container.textContent).toContain("Current activity snapshot is still unavailable.");
     expect(container.textContent).toContain("3/11 connected");
     expect(container.textContent).toContain("2 collecting");
     expect(container.textContent).toContain("1 source ready, waiting");
@@ -536,9 +542,15 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).toContain("1 external evidence required");
     expect(container.textContent).not.toContain("need verification");
     expect(container.textContent).not.toContain("external proof");
+    expect(container.textContent).not.toContain("snapshot-first realtime payload");
+    expect(container.textContent).not.toContain("Repair src/");
+    expect(container.textContent).not.toContain("src/app/api");
     expect(container.querySelector("[data-panel-recovery-truth-state='source_missing']")).toBeTruthy();
     expect(container.querySelector("[data-panel-recovery-truth-state='external_required']")).toBeTruthy();
     expect(container.textContent).toContain("Top recovery actions");
+    expect(container.textContent).toContain(
+      "Traffic overview: Reconnect the source so Traffic overview can hydrate.",
+    );
     expect(container.textContent).not.toContain("platform_pulse:30d");
   });
 
@@ -552,5 +564,21 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).toContain("Snapshot");
     expect(container.textContent).toContain("Cached");
     expect(container.textContent).not.toContain("view ·");
+  });
+
+  it("humanizes current-activity blocking errors", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      blockingAnalyticsError: {
+        message: "No verified snapshot-first realtime payload is available yet.",
+      },
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).toContain("Current activity snapshot is still unavailable.");
+    expect(container.textContent).not.toContain("snapshot-first realtime payload");
   });
 });

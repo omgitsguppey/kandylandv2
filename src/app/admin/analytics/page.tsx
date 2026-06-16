@@ -141,6 +141,23 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
   }
 }
 
+function formatAdminAnalyticsSourceNote(note: string) {
+  return note
+    .replace("No verified snapshot-first realtime payload is available yet.", "Current activity snapshot is still unavailable.")
+    .replaceAll("Realtime analytics", "Current activity")
+    .replaceAll("realtime payload", "current activity snapshot")
+    .replaceAll("Historical analytics", "Historical snapshot");
+}
+
+function formatPanelRecoveryAction(action: string) {
+  const sourceRepairMatch = action.match(/^([^:]+): Repair [^ ]+ so (.+)$/u);
+  if (sourceRepairMatch) {
+    return `${sourceRepairMatch[1]}: Reconnect the source so ${sourceRepairMatch[2]}`;
+  }
+
+  return action.replaceAll("source_missing", "source missing");
+}
+
 const AdminAnalyticsOperationsTab = dynamic(
   () => import("./components/AdminAnalyticsOperationsTab").then((module) => module.AdminAnalyticsOperationsTab),
 );
@@ -203,7 +220,9 @@ export default function AdminAnalyticsPage() {
       ...visibleOverviewDegradedCopy,
       showHistoricalEmptyState ? "No events observed in this selected range" : null,
       isBackgroundSyncing ? "Background refresh running" : null,
-    ].filter((item): item is string => Boolean(item));
+    ]
+      .filter((item): item is string => Boolean(item))
+      .map(formatAdminAnalyticsSourceNote);
 
     return Array.from(new Set(items));
   }, [
@@ -396,7 +415,9 @@ export default function AdminAnalyticsPage() {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            {liveFeedDetail ? <p className="mt-2 text-amber-200/80">{liveFeedDetail}</p> : null}
+            {liveFeedDetail ? (
+              <p className="mt-2 text-amber-200/80">{formatAdminAnalyticsSourceNote(liveFeedDetail)}</p>
+            ) : null}
           </details>
         ) : null}
         {showPanelRecovery ? (
@@ -425,7 +446,7 @@ export default function AdminAnalyticsPage() {
                 </summary>
                 <ul className="mt-1 list-disc space-y-1 pl-4">
                   {panelRecoveryActions.slice(0, 3).map((action) => (
-                    <li key={action}>{action}</li>
+                    <li key={action} title={action}>{formatPanelRecoveryAction(action)}</li>
                   ))}
                 </ul>
               </details>
@@ -486,7 +507,7 @@ export default function AdminAnalyticsPage() {
       {primaryBlockingAnalyticsError && (
         <div className="rounded-[1.8rem] border border-red-500/20 bg-red-500/10 p-4">
           <p className="text-sm font-medium text-red-300">
-            {primaryBlockingAnalyticsError.message || "Analytics request failed."}
+            {formatAdminAnalyticsSourceNote(primaryBlockingAnalyticsError.message || "Analytics request failed.")}
           </p>
         </div>
       )}
