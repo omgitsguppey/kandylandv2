@@ -75,6 +75,7 @@ export type AdminAnalyticsDisplayState = {
 
 export type AdminAnalyticsOverviewDisplayState =
   | "ready"
+  | "cached"
   | "refresh_due"
   | "partial"
   | "unavailable"
@@ -113,6 +114,16 @@ export function resolveAdminAnalyticsOverviewMetricState(input: {
     return {
       displayState: "refresh_due",
       exactness: input.sourceTruth === "server_transactions" ? "derived" : "exact",
+    };
+  }
+
+  if (
+    input.sourceTruth === "last_verified_snapshot" ||
+    input.sourceTruth === "verified_snapshot"
+  ) {
+    return {
+      displayState: "cached",
+      exactness: "exact",
     };
   }
 

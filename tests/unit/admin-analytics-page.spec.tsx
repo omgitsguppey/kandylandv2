@@ -205,14 +205,16 @@ vi.mock("@/components/Admin/Analytics/AdminAnalyticsPrimitives", () => ({
     label,
     value,
     hint,
+    truthState,
     badgePlacement,
   }: {
     label: string;
     value: string | number;
     hint?: string;
+    truthState?: string;
     badgePlacement?: string;
   }) => (
-    <div data-badge-placement={badgePlacement}>
+    <div data-badge-placement={badgePlacement} data-truth-state={truthState}>
       {label}:{String(value)}
       {hint ? <span>{hint}</span> : null}
     </div>
@@ -450,6 +452,40 @@ describe("AdminAnalyticsPage", () => {
         (node) => node.getAttribute("data-badge-placement") === "hidden",
       ),
     ).toBe(true);
+  });
+
+  it("passes cached overview snapshot state through to primary metric cards", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      analyticsOverviewDisplayMetrics: {
+        ...(mockState.analyticsState as {
+          analyticsOverviewDisplayMetrics: Record<string, unknown>;
+        }).analyticsOverviewDisplayMetrics,
+        liveActive: {
+          id: "liveActive",
+          label: "Active Users",
+          displayValue: "12",
+          primaryValue: 12,
+          displayState: "cached",
+          exactness: "exact",
+          compactFreshnessLine: "Last verified data",
+          debugReason: "snapshot fallback",
+          debugSource: "last_verified_snapshot",
+          badgeLabel: "Showing last verified data",
+          showBadgeInPrimary: false,
+        },
+      },
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    const activeUsersCard = Array.from(container.querySelectorAll("[data-truth-state]")).find((node) =>
+      node.textContent?.includes("Active Users:12"),
+    );
+
+    expect(activeUsersCard?.getAttribute("data-truth-state")).toBe("cached");
   });
 
   it("summarizes panel recovery in one compact source strip", async () => {

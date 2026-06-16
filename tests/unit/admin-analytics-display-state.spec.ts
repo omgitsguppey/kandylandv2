@@ -228,6 +228,17 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     });
   });
 
+  it("labels last verified overview snapshots as cached instead of live", () => {
+    expect(resolveAdminAnalyticsOverviewMetricState({
+      primaryValue: 12,
+      truthState: "live",
+      sourceTruth: "last_verified_snapshot",
+    })).toEqual({
+      displayState: "cached",
+      exactness: "exact",
+    });
+  });
+
   it("does not treat missing values as fake zero or live overview truth", () => {
     const state = resolveAdminAnalyticsOverviewMetricState({
       primaryValue: null,

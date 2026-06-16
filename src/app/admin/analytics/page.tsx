@@ -37,12 +37,13 @@ const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
 import { useAdminAnalyticsState } from "./hooks/useAdminAnalyticsState";
 
-type OverviewDisplayState = "ready" | "refresh_due" | "stale" | "partial" | "unavailable" | "loading";
+type OverviewDisplayState = "ready" | "cached" | "refresh_due" | "stale" | "partial" | "unavailable" | "loading";
 
 function mapOverviewDisplayStateToTruthState(displayState: OverviewDisplayState) {
   switch (displayState) {
     case "ready":
       return "live";
+    case "cached":
     case "refresh_due":
       return "cached";
     case "stale":
