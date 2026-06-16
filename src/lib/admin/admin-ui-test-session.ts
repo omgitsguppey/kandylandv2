@@ -4,8 +4,10 @@ import { CONSENT_TRACKING_VERSION } from "@/lib/privacy/consent-tracking-contrac
 import type { UserProfile } from "@/types/db";
 
 export const ADMIN_UI_TEST_SESSION_STORAGE_KEY = "kandydrops.admin_ui_test_session.v1";
+export const ADMIN_UI_TEST_SESSION_COOKIE_KEY = "kandydrops_admin_ui_test_session_v1";
 export const ADMIN_UI_TEST_SESSION_ENV_FLAG = "NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION";
 export const ADMIN_UI_TEST_SESSION_QUERY_PARAM = "adminUiTestSession";
+export const ADMIN_UI_TEST_SESSION_BOOTSTRAP_PATH = "/api/admin-ui-test-session";
 const DEFAULT_QUERY_SESSION_TTL_MS = 30 * 60 * 1000;
 
 export type AdminUiTestSessionStatus =
@@ -73,6 +75,18 @@ function writeStoredAdminUiTestSessionValue(value: string) {
     window.localStorage?.setItem(ADMIN_UI_TEST_SESSION_STORAGE_KEY, value);
   } catch {
     // Storage can be unavailable in hardened local browser contexts; the query bootstrap still works for this page.
+  }
+}
+
+export function normalizeAdminUiTestSessionCookieValue(rawValue: string | null | undefined) {
+  if (!rawValue) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(rawValue);
+  } catch {
+    return rawValue;
   }
 }
 
@@ -269,5 +283,10 @@ export function clearAdminUiTestSession() {
     window.localStorage?.removeItem(ADMIN_UI_TEST_SESSION_STORAGE_KEY);
   } catch {
     // Best-effort cleanup only; unavailable storage cannot retain the fixture session.
+  }
+  try {
+    window.document.cookie = `${ADMIN_UI_TEST_SESSION_COOKIE_KEY}=; Max-Age=0; path=/; SameSite=Lax`;
+  } catch {
+    // Best-effort cleanup only; unavailable cookies cannot retain the fixture session.
   }
 }

@@ -72,6 +72,7 @@ import {
 import {
     clearAdminUiTestSession,
     readAdminUiTestSession,
+    resolveAdminUiTestSession,
 } from "@/lib/admin/admin-ui-test-session";
 import {
     buildAccountPrivacySettingsFromConsentSnapshot,
@@ -274,12 +275,26 @@ async function syncGuestConsentIntoAccountProfile(input: {
     };
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [authStateResolved, setAuthStateResolved] = useState(false);
-    const [adminUiTestSessionActive, setAdminUiTestSessionActive] = useState(false);
+export function AuthProvider({
+    children,
+    initialAdminUiTestSessionValue = null,
+}: {
+    children: ReactNode;
+    initialAdminUiTestSessionValue?: string | null;
+}) {
+    const initialAdminUiTestSession = initialAdminUiTestSessionValue
+        ? resolveAdminUiTestSession({ rawValue: initialAdminUiTestSessionValue })
+        : null;
+    const initialAdminUiTestSessionReady = initialAdminUiTestSession?.status === "ready"
+        && !!initialAdminUiTestSession.user
+        && !!initialAdminUiTestSession.userProfile;
+    const [user, setUser] = useState<User | null>(initialAdminUiTestSessionReady ? initialAdminUiTestSession.user : null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(
+        initialAdminUiTestSessionReady ? initialAdminUiTestSession.userProfile : null,
+    );
+    const [loading, setLoading] = useState(!initialAdminUiTestSessionReady);
+    const [authStateResolved, setAuthStateResolved] = useState(initialAdminUiTestSessionReady);
+    const [adminUiTestSessionActive, setAdminUiTestSessionActive] = useState(initialAdminUiTestSessionReady);
     const initialAuthResolvedRef = useRef(false);
     const autoRegisterInFlightRef = useRef<Set<string>>(new Set());
     const manualRegistrationStateRef = useRef<{ uid: string | null; email: string } | null>(null);
@@ -291,6 +306,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
     const pathnameRef = useRef(pathname);
+
+    useEffect(() => {
+        if (!initialAdminUiTestSessionReady || !initialAdminUiTestSession?.user) {
+            return;
+        }
+
+        currentAuthUidRef.current = initialAdminUiTestSession.user.uid;
+        syncClientSessionOwnership(`user:${initialAdminUiTestSession.user.uid}`);
+        syncLastVisitedPathOwner(initialAdminUiTestSession.user.uid);
+        syncIdentifiedTelemetryOwnership(null);
+    }, [initialAdminUiTestSession?.user, initialAdminUiTestSessionReady]);
 
     useEffect(() => {
         pathnameRef.current = pathname;
@@ -485,6 +511,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     useEffect(() => {
+        if (initialAdminUiTestSessionReady) {
+            return;
+        }
+
         let unsubscribe = () => { };
         let cancelled = false;
 
@@ -644,7 +674,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             cancelled = true;
             unsubscribe();
         };
-    }, [deleteNavigationSession, emitAuthPersistenceEvent, emitIdentityLinkContinuity]);
+    }, [deleteNavigationSession, emitAuthPersistenceEvent, emitIdentityLinkContinuity, initialAdminUiTestSessionReady]);
 
     useEffect(() => {
         if (!authStateResolved) {

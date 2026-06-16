@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -12,6 +13,11 @@ import { SITE_ORIGIN } from "@/lib/site-origin";
 import { UIDebug } from "@/components/UIDebug";
 import { CSPostHogProvider } from "@/components/Analytics/CSPostHogProvider";
 import { Ga4EvidenceTracker } from "@/components/Analytics/Ga4EvidenceTracker";
+import {
+  ADMIN_UI_TEST_SESSION_COOKIE_KEY,
+  isAdminUiTestSessionRuntimeEnabled,
+  normalizeAdminUiTestSessionCookieValue,
+} from "@/lib/admin/admin-ui-test-session";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -77,18 +83,29 @@ export const viewport = {
   userScalable: true,
 };
 
-export default function RootLayout({
+async function readInitialAdminUiTestSessionValue() {
+  if (!isAdminUiTestSessionRuntimeEnabled()) {
+    return null;
+  }
+
+  const cookieStore = await cookies();
+  return normalizeAdminUiTestSessionCookieValue(cookieStore.get(ADMIN_UI_TEST_SESSION_COOKIE_KEY)?.value);
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialAdminUiTestSessionValue = await readInitialAdminUiTestSessionValue();
+
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-purple selection:text-white flex flex-col">
         <UIDebug />
         <Ga4EvidenceTracker />
         <CSPostHogProvider>
-          <AuthProvider>
+          <AuthProvider initialAdminUiTestSessionValue={initialAdminUiTestSessionValue}>
             <AdminViewAsProvider>
               <RolloutProvider>
                 <SWRProvider>

@@ -1,19 +1,25 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { NextRequest } from "next/server";
 import { describe, expect, it } from "vitest";
 
+import { GET as bootstrapAdminUiTestSession } from "@/app/api/admin-ui-test-session/route";
 import {
+  ADMIN_UI_TEST_SESSION_BOOTSTRAP_PATH,
+  ADMIN_UI_TEST_SESSION_COOKIE_KEY,
   ADMIN_UI_TEST_SESSION_ENV_FLAG,
   ADMIN_UI_TEST_SESSION_QUERY_PARAM,
   ADMIN_UI_TEST_SESSION_STORAGE_KEY,
   buildAdminUiTestSessionStorageValue,
+  normalizeAdminUiTestSessionCookieValue,
   readAdminUiTestSession,
   resolveAdminUiTestSession,
 } from "@/lib/admin/admin-ui-test-session";
 
 const NOW = Date.UTC(2026, 5, 15, 12, 0, 0);
 const authContextSource = readFileSync(join(process.cwd(), "src/context/AuthContext.tsx"), "utf8");
+const rootLayoutSource = readFileSync(join(process.cwd(), "src/app/layout.tsx"), "utf8");
 
 function session(overrides: Record<string, unknown> = {}) {
   return JSON.stringify({
@@ -266,6 +272,69 @@ describe("admin UI test session", () => {
         process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = previousEnv;
       }
     }
+  });
+
+  it("mints a bounded local cookie fixture and redirects only to admin paths", () => {
+    const previousEnv = process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+    process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = "1";
+
+    try {
+      const response = bootstrapAdminUiTestSession(
+        new NextRequest(`http://localhost${ADMIN_UI_TEST_SESSION_BOOTSTRAP_PATH}?redirect=/admin/debug`),
+      );
+      const unsafeResponse = bootstrapAdminUiTestSession(
+        new NextRequest(`http://localhost${ADMIN_UI_TEST_SESSION_BOOTSTRAP_PATH}?redirect=https://example.invalid/`),
+      );
+
+      expect(response.status).toBeGreaterThanOrEqual(300);
+      expect(response.status).toBeLessThan(400);
+      expect(response.headers.get("location")).toBe("http://localhost/admin/debug");
+      expect(response.headers.get("set-cookie")).toContain(ADMIN_UI_TEST_SESSION_COOKIE_KEY);
+      expect(response.headers.get("set-cookie")?.toLowerCase()).toContain("samesite=lax");
+      const encodedCookieValue = response.headers.get("set-cookie")?.match(/=([^;]+)/)?.[1] ?? "";
+      expect(resolveAdminUiTestSession({
+        rawValue: normalizeAdminUiTestSessionCookieValue(encodedCookieValue),
+        nodeEnv: "development",
+        envFlag: "1",
+      }).status).toBe("ready");
+      expect(unsafeResponse.headers.get("location")).toBe("http://localhost/admin");
+    } finally {
+      if (previousEnv === undefined) {
+        delete process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+      } else {
+        process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = previousEnv;
+      }
+    }
+  });
+
+  it("does not expose the cookie bootstrap route when the fixture gate is disabled", () => {
+    const previousEnv = process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+    delete process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+
+    try {
+      const response = bootstrapAdminUiTestSession(
+        new NextRequest(`http://localhost${ADMIN_UI_TEST_SESSION_BOOTSTRAP_PATH}`),
+      );
+
+      expect(response.status).toBe(404);
+      expect(response.headers.get("set-cookie")).toBeNull();
+    } finally {
+      if (previousEnv === undefined) {
+        delete process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+      } else {
+        process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = previousEnv;
+      }
+    }
+  });
+
+  it("supports server-provided initial fixture auth for no-account Browser audits", () => {
+    expect(rootLayoutSource).toContain("readInitialAdminUiTestSessionValue");
+    expect(rootLayoutSource).toContain("ADMIN_UI_TEST_SESSION_COOKIE_KEY");
+    expect(rootLayoutSource).toContain("normalizeAdminUiTestSessionCookieValue");
+    expect(rootLayoutSource).toContain("initialAdminUiTestSessionValue={initialAdminUiTestSessionValue}");
+    expect(authContextSource).toContain("initialAdminUiTestSessionValue?: string | null");
+    expect(authContextSource).toContain("resolveAdminUiTestSession({ rawValue: initialAdminUiTestSessionValue })");
+    expect(authContextSource).toContain("if (initialAdminUiTestSessionReady) {\n            return;\n        }");
   });
 
   it("does not attempt server navigation-session sync with the local UI test identity", () => {
