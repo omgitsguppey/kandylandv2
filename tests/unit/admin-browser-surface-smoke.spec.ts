@@ -40,6 +40,21 @@ const BROWSER_HARNESS_CONTRACT = {
   writesOptionalEvidenceDir: true,
 };
 
+function fixtureEvidenceForAllDeviceBands() {
+  return ADMIN_BROWSER_SURFACE_DEFINITIONS.flatMap((surface) =>
+    surface.deviceBands.map((deviceBand) => ({
+      surfaceId: surface.surfaceId,
+      route: surface.route,
+      deviceBand,
+      state: "local_fixture_surface_verified" as const,
+      checkedAtUtc: "2026-06-11T12:00:00.000Z",
+      urlAfterNavigation: surface.browserSmokePath,
+      selectorUsed: surface.authenticatedSelectors[0],
+      visibleMarker: surface.authenticatedVisibleMarkers[0],
+    })),
+  );
+}
+
 describe("admin browser surface smoke contract", () => {
   it("tracks every admin page as authenticated browser-pending by default", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
@@ -72,7 +87,10 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.browserHarnessContractPresent).toBe(true);
     expect(report.summary.requiredAuthenticatedSurfaceCount).toBe(18);
     expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(0);
+    expect(report.summary.accountFreeFixtureCoveredCount).toBe(0);
+    expect(report.summary.accountFreeFixturePendingCount).toBe(18);
     expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
+    expect(report.missingAccountFreeFixtureSurfaceIds).toHaveLength(18);
     expect(report.evidenceProvenance.source).toBe("none");
     expect(report.evidenceProvenance.evidenceMode).toBe("none");
     expect(report.protectedSurfaceIds).toEqual(["admin_economy"]);
@@ -146,6 +164,8 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.unauthRedirectEvidenceCount).toBe(0);
     expect(report.summary.authenticatedSurfaceEvidenceCount).toBe(0);
     expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(0);
+    expect(report.summary.accountFreeFixtureCoveredCount).toBe(0);
+    expect(report.summary.accountFreeFixturePendingCount).toBeGreaterThan(0);
     expect(report.summary.manualAdminAuthRequiredCount).toBeGreaterThan(0);
     expect(report.evidenceProvenance.source).toBe("local_in_app_browser");
     expect(report.evidenceProvenance.evidenceMode).toBe("unauthenticated_only");
@@ -176,11 +196,39 @@ describe("admin browser surface smoke contract", () => {
 
     expect(report.status).toBe("authenticated_browser_pending");
     expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(14);
+    expect(report.summary.accountFreeFixtureCoveredCount).toBe(14);
+    expect(report.summary.accountFreeFixturePendingCount).toBe(4);
     expect(report.summary.authenticatedSurfaceEvidenceCount).toBe(0);
     expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
     expect(report.evidenceProvenance.evidenceMode).toBe("local_fixture_only");
     expect(report.nextExactSteps).toEqual(expect.arrayContaining([
       expect.stringContaining("ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1"),
+    ]));
+    expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual([]);
+  });
+
+  it("classifies full local fixture coverage without requiring real admin test accounts", () => {
+    const report = buildAdminBrowserSurfaceSmokeReport({
+      evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      evidence: fixtureEvidenceForAllDeviceBands(),
+    });
+
+    expect(report.status).toBe("local_fixture_browser_covered");
+    expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(18);
+    expect(report.summary.accountFreeFixtureCoveredCount).toBe(18);
+    expect(report.summary.accountFreeFixturePendingCount).toBe(0);
+    expect(report.summary.authenticatedSurfaceEvidenceCount).toBe(0);
+    expect(report.summary.manualAdminAuthRequiredCount).toBe(18);
+    expect(report.missingAccountFreeFixtureSurfaceIds).toEqual([]);
+    expect(report.missingAuthenticatedSurfaceIds).toHaveLength(18);
+    expect(report.nextExactSteps).toEqual(expect.arrayContaining([
+      expect.stringContaining("Account-free local admin route rendering is covered"),
+    ]));
+    expect(report.doesNotProve).toEqual(expect.arrayContaining([
+      expect.stringContaining("deployed runtime smoke"),
+      expect.stringContaining("production admin truth sample"),
     ]));
     expect(validateAdminBrowserSurfaceSmokeReport(report)).toEqual([]);
   });

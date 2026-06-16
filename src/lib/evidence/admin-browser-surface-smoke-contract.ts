@@ -20,6 +20,7 @@ export type AdminBrowserSurfaceEvidenceState =
 export type AdminBrowserSurfaceReportStatus =
   | "source_contract_ready"
   | "browser_boundary_partial"
+  | "local_fixture_browser_covered"
   | "authenticated_browser_pending"
   | "authenticated_browser_covered";
 
@@ -117,6 +118,8 @@ export type AdminBrowserSurfaceSmokeReport = {
     evidenceCount: number;
     authenticatedSurfaceEvidenceCount: number;
     localFixtureSurfaceEvidenceCount: number;
+    accountFreeFixtureCoveredCount: number;
+    accountFreeFixturePendingCount: number;
     unauthBoundaryEvidenceCount: number;
     unauthRedirectEvidenceCount: number;
     manualAdminAuthRequiredCount: number;
@@ -150,6 +153,7 @@ export type AdminBrowserSurfaceSmokeReport = {
   };
   evidence: AdminBrowserSurfaceEvidence[];
   missingAuthenticatedSurfaceIds: string[];
+  missingAccountFreeFixtureSurfaceIds: string[];
   protectedSurfaceIds: string[];
   doesNotProve: string[];
   nextExactSteps: string[];
@@ -235,8 +239,15 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
       return !entry || !isAuthenticatedEvidenceState(entry.state);
     })
     .map(({ surface, deviceBand }) => `${surface.surfaceId}:${deviceBand}`);
+  const missingAccountFreeFixtureSurfaceIds = requiredAuthenticated
+    .filter(({ surface, deviceBand }) => {
+      const entry = evidenceBySurfaceBand.get(keyForEvidence(surface.surfaceId, deviceBand));
+      return !entry || (!isLocalFixtureEvidenceState(entry.state) && !isAuthenticatedEvidenceState(entry.state));
+    })
+    .map(({ surface, deviceBand }) => `${surface.surfaceId}:${deviceBand}`);
   const authenticatedSurfaceEvidenceCount = evidence.filter((entry) => isAuthenticatedEvidenceState(entry.state)).length;
   const localFixtureSurfaceEvidenceCount = evidence.filter((entry) => isLocalFixtureEvidenceState(entry.state)).length;
+  const accountFreeFixtureCoveredCount = requiredAuthenticated.length - missingAccountFreeFixtureSurfaceIds.length;
   const unauthBoundaryEvidenceCount = evidence.filter((entry) =>
     entry.state === "unauth_boundary_verified" || entry.state === "unauth_redirect_verified",
   ).length;
@@ -305,6 +316,8 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
 
   const status: AdminBrowserSurfaceReportStatus = authenticatedSurfaceEvidenceCount === requiredAuthenticated.length
     ? "authenticated_browser_covered"
+    : missingAccountFreeFixtureSurfaceIds.length === 0
+      ? "local_fixture_browser_covered"
     : unauthBoundaryEvidenceCount > 0
       ? "browser_boundary_partial"
       : missingAuthenticatedSurfaceIds.length > 0
@@ -364,6 +377,8 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
       evidenceCount: evidence.length,
       authenticatedSurfaceEvidenceCount,
       localFixtureSurfaceEvidenceCount,
+      accountFreeFixtureCoveredCount,
+      accountFreeFixturePendingCount: missingAccountFreeFixtureSurfaceIds.length,
       unauthBoundaryEvidenceCount,
       unauthRedirectEvidenceCount,
       manualAdminAuthRequiredCount: missingAuthenticatedSurfaceIds.length,
@@ -378,11 +393,14 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     browserHarnessContract,
     evidence,
     missingAuthenticatedSurfaceIds,
+    missingAccountFreeFixtureSurfaceIds,
     protectedSurfaceIds,
     doesNotProve: [...FORMAL_GATE_LIMITS],
     nextExactSteps: [
-      "Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session, then rerun npm run check:admin-browser-surface-smoke with the same evidence dir to classify the compact per-surface evidence.",
-      "For local account-free UI rendering checks only, run NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1 and ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1 ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser; this records local_fixture_surface_verified evidence and does not reduce manual authenticated signoff.",
+      missingAccountFreeFixtureSurfaceIds.length > 0
+        ? "For local account-free UI rendering checks, run NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1 and ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1 ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser; this records local_fixture_surface_verified evidence without requiring real admin test accounts."
+        : "Account-free local admin route rendering is covered by fixture evidence; keep it separate from real authenticated admin signoff, deployed runtime proof, and production admin truth samples.",
+      "Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session only when real auth/session/browser signoff is required, then rerun npm run check:admin-browser-surface-smoke with the same evidence dir.",
       "For direct in-app Browser audits without Playwright, start the local dev server with NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1, open /api/admin-ui-test-session?redirect=/admin once to mint the bounded local fixture cookie, then navigate admin routes normally; this proves local route rendering only.",
       "After reviewing the local fragment output, copy only intentional compact evidence into agent/evidence/admin-browser-surface-smoke/evidence.json when it should become tracked evidence.",
       "Keep /admin/economy in protected label-only review; browser smoke cannot prove GumDrop/payment truth.",

@@ -221,6 +221,8 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Evidence entries: ${report.summary.evidenceCount}`,
     `- Authenticated checks present: ${report.summary.authenticatedSurfaceEvidenceCount}`,
     `- Local fixture checks present: ${report.summary.localFixtureSurfaceEvidenceCount}`,
+    `- Account-free fixture checks covered: ${report.summary.accountFreeFixtureCoveredCount}`,
+    `- Account-free fixture checks pending: ${report.summary.accountFreeFixturePendingCount}`,
     `- Unauthenticated boundary checks present: ${report.summary.unauthBoundaryEvidenceCount}`,
     `- Unauthenticated redirect checks present: ${report.summary.unauthRedirectEvidenceCount}`,
     `- Evidence source: ${report.evidenceProvenance.source}`,
@@ -279,6 +281,12 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     "",
     ...(report.missingAuthenticatedSurfaceIds.length > 0
       ? report.missingAuthenticatedSurfaceIds.map((surfaceId) => `- ${surfaceId}`)
+      : ["- none"]),
+    "",
+    "## Missing Account-Free Fixture Evidence",
+    "",
+    ...(report.missingAccountFreeFixtureSurfaceIds.length > 0
+      ? report.missingAccountFreeFixtureSurfaceIds.map((surfaceId) => `- ${surfaceId}`)
       : ["- none"]),
     "",
     "## Does Not Prove",

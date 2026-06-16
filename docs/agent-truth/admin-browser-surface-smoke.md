@@ -17,6 +17,8 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Evidence entries: 18
 - Authenticated checks present: 0
 - Local fixture checks present: 0
+- Account-free fixture checks covered: 0
+- Account-free fixture checks pending: 18
 - Unauthenticated boundary checks present: 18
 - Unauthenticated redirect checks present: 0
 - Evidence source: local_in_app_browser
@@ -111,6 +113,27 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - admin_privacy:desktop
 - admin_economy:desktop
 
+## Missing Account-Free Fixture Evidence
+
+- admin_overview:mobile
+- admin_overview:desktop
+- admin_analytics:mobile
+- admin_analytics:desktop
+- admin_drops:desktop
+- admin_users:mobile
+- admin_users:desktop
+- admin_user_detail:desktop
+- admin_roster:desktop
+- admin_debug:mobile
+- admin_debug:desktop
+- admin_ai:desktop
+- admin_support:desktop
+- admin_moderation:desktop
+- admin_content:desktop
+- admin_queue:desktop
+- admin_privacy:desktop
+- admin_economy:desktop
+
 ## Does Not Prove
 
 - local browser smoke does not clear deployed runtime smoke
@@ -120,8 +143,8 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 
 ## Next Exact Steps
 
-- Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session, then rerun npm run check:admin-browser-surface-smoke with the same evidence dir to classify the compact per-surface evidence.
-- For local account-free UI rendering checks only, run NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1 and ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1 ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser; this records local_fixture_surface_verified evidence and does not reduce manual authenticated signoff.
+- For local account-free UI rendering checks, run NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1 and ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1 ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser; this records local_fixture_surface_verified evidence without requiring real admin test accounts.
+- Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session only when real auth/session/browser signoff is required, then rerun npm run check:admin-browser-surface-smoke with the same evidence dir.
 - For direct in-app Browser audits without Playwright, start the local dev server with NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1, open /api/admin-ui-test-session?redirect=/admin once to mint the bounded local fixture cookie, then navigate admin routes normally; this proves local route rendering only.
 - After reviewing the local fragment output, copy only intentional compact evidence into agent/evidence/admin-browser-surface-smoke/evidence.json when it should become tracked evidence.
 - Keep /admin/economy in protected label-only review; browser smoke cannot prove GumDrop/payment truth.
