@@ -106,12 +106,12 @@ assertIncludes("AdminStatusBadge", statusBadge, "label?: string");
 
 assertIncludes("AdminAnalyticsPage", page, "visibleDegradedCopy");
 assertIncludes("AdminAnalyticsPage", page, "title={backgroundAnalyticsIssues.join(\" | \")}");
-assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewCards.mobileShare.displayValue");
-assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewCards.revenue.displayValue");
-assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewCards.purchases.displayValue");
-assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewCards.mobileShare.statusBadgeLabel}");
-assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewCards.revenue.statusBadgeLabel}");
-assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewCards.purchases.statusBadgeLabel}");
+assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewDisplayMetrics.mobileShare.displayValue");
+assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewDisplayMetrics.revenue.displayValue");
+assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewDisplayMetrics.purchases.displayValue");
+assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewDisplayMetrics.mobileShare.badgeLabel}");
+assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewDisplayMetrics.revenue.badgeLabel}");
+assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewDisplayMetrics.purchases.badgeLabel}");
 assertNotIncludes("AdminAnalyticsPage", page, "backgroundAnalyticsIssues.join(\" · \")");
 assertNotIncludes("AdminAnalyticsPage", page, "mobile users in range");
 assertNotIncludes("AdminAnalyticsPage", page, "checkout starts ·");
