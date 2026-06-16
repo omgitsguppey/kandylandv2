@@ -56,6 +56,7 @@ import {
 } from "@/lib/route-runtime-health";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { resolveAdminInputTruthState, type AdminTruthState } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
@@ -85,6 +86,11 @@ function formatRelative(timestamp?: number) {
 function formatWindowHours(windowMs?: number) {
     if (!windowMs) return "current";
     return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
+}
+
+function getAdminDebugSafeErrorMessage(error: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
 }
 
 type CompactDebugSummaryItem = {
@@ -290,7 +296,7 @@ export default function DebugConsole() {
                 detail: patch,
                 consoleLabel: "[Admin Debug] preference save failed",
             });
-            toast.error(preferenceError instanceof Error ? preferenceError.message : "Failed to save debug preferences.");
+            toast.error(getAdminDebugSafeErrorMessage(preferenceError, "Failed to save debug preferences."));
         } finally {
             setSavingDebugPreferences(false);
         }
@@ -855,7 +861,7 @@ export default function DebugConsole() {
                 },
                 consoleLabel: "[Admin Debug] AI assistant settings save failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "AI assistant settings update failed");
+            toast.error(getAdminDebugSafeErrorMessage(issue, "AI assistant settings update failed"));
         } finally {
             setSavingAiAssistantSettings(false);
         }
@@ -886,7 +892,7 @@ export default function DebugConsole() {
                 },
                 consoleLabel: "[Admin Debug] AI live guidance generation failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to generate live AI guidance.");
+            toast.error(getAdminDebugSafeErrorMessage(issue, "Failed to generate live AI guidance."));
         } finally {
             setRunningAiAssistantLiveCall(false);
         }
