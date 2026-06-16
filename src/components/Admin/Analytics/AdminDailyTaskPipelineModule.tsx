@@ -105,11 +105,12 @@ export function AdminDailyTaskPipelineModule(props: {
                             ))}
                         </div>
 
-                        <div className="grid gap-1.5 rounded-[1rem] border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] text-gray-400 sm:grid-cols-4">
-                            <span>Start: <span className="text-white">{formatRate(props.model.rates.startFromAssignedPct)}</span></span>
-                            <span>Complete: <span className="text-white">{formatRate(props.model.rates.completionFromStartedPct)}</span></span>
-                            <span>Failed: <span className="text-white">{formatRate(props.model.rates.failureFromAssignedPct)}</span></span>
-                            <span>Coverage: <span className="text-white">{formatRate(props.model.timingCoveragePercent)}</span></span>
+                        <div className="grid gap-1.5 rounded-[1rem] border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] text-gray-400 sm:grid-cols-5">
+                            <span>Start rate uses <span className="text-white">{props.model.startRate.formula}</span>: {formatRate(props.model.rates.startFromAssignedPct)}</span>
+                            <span>Completed / started: <span className="text-white">{formatRate(props.model.rates.completionFromStartedPct)}</span></span>
+                            <span>Completed / assigned: <span className="text-white">{formatRate(props.model.rates.completionFromAssignedPct)}</span></span>
+                            <span>Failed / assigned: <span className="text-white">{formatRate(props.model.rates.failureFromAssignedPct)}</span></span>
+                            <span>Fail after start: <span className="text-white">{formatRate(props.model.rates.failureAfterStartPct)}</span></span>
                         </div>
 
                         {guidanceNeedsReview ? (
@@ -163,11 +164,19 @@ export function AdminDailyTaskPipelineModule(props: {
                             </div>
                         )}
 
-                        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-                            <SpeedTile label="Avg finish" value={formatSpeed(props.model.avgCompletionSeconds)} />
-                            <SpeedTile label="Median" value={formatSpeed(props.model.medianCompletionSeconds)} />
-                            <SpeedTile label="Timed" value={formatCount(props.model.timedCompletionCount)} />
-                            <SpeedTile label="Coverage" value={formatRate(props.model.timingCoveragePercent)} />
+                        <div className="space-y-1.5" data-task-pipeline-timing-recommendation={props.model.timingRecommendation}>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                Completion speed
+                            </p>
+                            <p className="text-[10px] leading-4 text-gray-400">
+                                {props.model.timingRecommendation}
+                            </p>
+                            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                                <SpeedTile label="Avg finish" value={formatSpeed(props.model.avgCompletionSeconds)} />
+                                <SpeedTile label="Median" value={formatSpeed(props.model.medianCompletionSeconds)} />
+                                <SpeedTile label="Timed" value={formatCount(props.model.timedCompletionCount)} />
+                                <SpeedTile label="Coverage" value={formatRate(props.model.timingCoveragePercent)} />
+                            </div>
                         </div>
 
                         <div className="space-y-1.5">
