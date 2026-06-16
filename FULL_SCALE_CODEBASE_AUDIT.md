@@ -13887,3 +13887,5 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+## [2026-06-16 #000] PRE: Optimize multiple array filters in admin debug route for telemetry mapping rows to O(N) single-pass iteration
+## [2026-06-16 #000] POST: Replaced O(k*N) multiple Array.filter loops on taskTelemetryMappingRows with a single pass for...of loop inside src/app/api/admin/debug/route.ts. Verified metrics extraction works properly.
