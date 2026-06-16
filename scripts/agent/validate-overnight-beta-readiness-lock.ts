@@ -4,6 +4,9 @@ import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import {
+  betaExitReviewStateFor,
+  buildProofLanes,
+  formalEvidenceStatus,
   validateCurrentBetaExitStatusReport,
   type CurrentBetaExitStatusReport,
 } from "./validate-current-beta-exit-status";
@@ -29,6 +32,25 @@ export type OvernightNextDayPrompt = {
   commands: string[];
 };
 
+export type OvernightEvidenceCaptureLane = {
+  id: "manualScreenshotQa" | "providerSmoke" | "runtimeSmoke" | "adminTruthSample";
+  label: string;
+  truthState:
+    | "source_blocked"
+    | "stale_evidence"
+    | "capture_artifact_attached"
+    | "manual_evidence_required"
+    | "manual_admin_truth_required"
+    | "external_evidence_required";
+  sourceStatus: string;
+  nextAction: string;
+};
+
+export type OvernightBetaExitReviewState =
+  | "ready_for_review"
+  | "blocked_by_source_state"
+  | "blocked_by_formal_evidence";
+
 export type OvernightBetaReadinessLockReport = {
   generatedAtUtc: string;
   currentHead: string;
@@ -45,11 +67,8 @@ export type OvernightBetaReadinessLockReport = {
   remainingBlockers: OvernightBlocker[];
   nextDayPrompts: OvernightNextDayPrompt[];
   doNotTouchList: string[];
-  canStartScreenshots: boolean;
-  canStartProviderSmoke: boolean;
-  canStartRuntimeSmoke: boolean;
-  canStartAdminTruthCapture: boolean;
-  canStartBetaExitReview: boolean;
+  evidenceCaptureStates: OvernightEvidenceCaptureLane[];
+  betaExitReviewState: OvernightBetaExitReviewState;
 };
 
 type JsonObject = Record<string, unknown>;
@@ -151,6 +170,91 @@ function countByStatus(lanes: unknown, status: string) {
   return lanes.filter((lane) => lane && typeof lane === "object" && (lane as JsonObject).status === status).length;
 }
 
+function captureLane(
+  id: OvernightEvidenceCaptureLane["id"],
+  label: string,
+  sourceReady: boolean,
+  evidenceCaptureCurrent: boolean,
+  sourceStatus: string,
+  nextAction: string,
+): OvernightEvidenceCaptureLane {
+  const truthState: OvernightEvidenceCaptureLane["truthState"] = !sourceReady
+    ? "source_blocked"
+    : !evidenceCaptureCurrent && sourceStatus === "complete"
+      ? "stale_evidence"
+    : sourceStatus === "complete"
+      ? "capture_artifact_attached"
+      : id === "manualScreenshotQa"
+        ? "manual_evidence_required"
+        : id === "adminTruthSample"
+          ? "manual_admin_truth_required"
+          : "external_evidence_required";
+  return { id, label, truthState, sourceStatus, nextAction };
+}
+
+function buildEvidenceCaptureStates(
+  sourceReady: boolean,
+  evidenceCaptureCurrent: boolean,
+  evidenceSummary: JsonObject,
+): OvernightEvidenceCaptureLane[] {
+  return [
+    captureLane(
+      "manualScreenshotQa",
+      "Manual screenshot QA",
+      sourceReady,
+      evidenceCaptureCurrent,
+      stringAt(evidenceSummary, ["manualScreenshotEvidence"], "missing"),
+      "Attach real manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/.",
+    ),
+    captureLane(
+      "providerSmoke",
+      "Provider smoke",
+      sourceReady,
+      evidenceCaptureCurrent,
+      stringAt(evidenceSummary, ["providerSmokeEvidence"], "missing"),
+      "Attach redacted provider smoke evidence; source checks cannot create provider proof.",
+    ),
+    captureLane(
+      "runtimeSmoke",
+      "Runtime smoke",
+      sourceReady,
+      evidenceCaptureCurrent,
+      stringAt(evidenceSummary, ["runtimeSmokeEvidence"], "missing"),
+      "Attach deployed runtime smoke evidence for required user and creator routes.",
+    ),
+    captureLane(
+      "adminTruthSample",
+      "Admin truth sample",
+      sourceReady,
+      evidenceCaptureCurrent,
+      stringAt(evidenceSummary, ["adminTruthSampleEvidence"], "missing"),
+      "Attach a redacted admin truth sample artifact with source freshness.",
+    ),
+  ];
+}
+
+function evidenceCaptureReportIsCurrent(evidence: JsonObject, head: string) {
+  const commit = stringAt(evidence, ["currentHead"], stringAt(evidence, ["sourceCommit"], ""));
+  return commit.length > 0 && commit === head;
+}
+
+function blockerIdForLane(lane: OvernightEvidenceCaptureLane) {
+  const suffix = lane.truthState === "stale_evidence" ? "stale" : "missing";
+  if (lane.id === "manualScreenshotQa") return `manual_screenshot_evidence_${suffix}`;
+  if (lane.id === "providerSmoke") return `provider_smoke_evidence_${suffix}`;
+  if (lane.id === "runtimeSmoke") return `runtime_smoke_evidence_${suffix}`;
+  return `admin_truth_sample_evidence_${suffix}`;
+}
+
+function blockerForLane(lane: OvernightEvidenceCaptureLane): OvernightBlocker {
+  return {
+    id: blockerIdForLane(lane),
+    severity: "P1",
+    status: lane.truthState,
+    nextAction: lane.nextAction,
+  };
+}
+
 export function buildOvernightBetaReadinessLockReport(now = new Date()): OvernightBetaReadinessLockReport {
   const head = currentHead();
   const betaScore = readJson("agent/state/public-beta-score.generated.json");
@@ -173,13 +277,15 @@ export function buildOvernightBetaReadinessLockReport(now = new Date()): Overnig
   const p1OpenCount = Math.max(numberAt(sourceTruth, ["summary", "p1Count"], 0), numberAt(cost4xx, ["p1Count"], 0));
   const speedCritical = numberAt(speedSecurity, ["domainScores", "apiRouteSecurityExploitHardening", "criticalCount"], 0);
   const evidenceSummary = at<JsonObject>(evidence, ["summary"], {});
-  const evidenceMissing = [
-    evidenceSummary.manualScreenshotEvidence,
-    evidenceSummary.providerSmokeEvidence,
-    evidenceSummary.runtimeSmokeEvidence,
-    evidenceSummary.adminTruthSampleEvidence,
-  ].some((status) => status !== "complete");
   const canStartEvidence = p0Count === 0 && p1OpenCount === 0 && speedCritical === 0;
+  const evidenceCaptureStates = buildEvidenceCaptureStates(
+    canStartEvidence,
+    evidenceCaptureReportIsCurrent(evidence, head),
+    evidenceSummary,
+  );
+  const evidenceBlockers = evidenceCaptureStates
+    .filter((lane) => lane.truthState !== "capture_artifact_attached")
+    .map(blockerForLane);
 
   return {
     generatedAtUtc: now.toISOString(),
@@ -221,30 +327,7 @@ export function buildOvernightBetaReadinessLockReport(now = new Date()): Overnig
       `findings=${Array.isArray((speedSecurity as JsonObject).findings) ? ((speedSecurity as JsonObject).findings as unknown[]).length : 0}; ` +
       `critical=${speedCritical}; p2BacklogVisible=true`,
     remainingBlockers: [
-      {
-        id: "manual_screenshot_evidence_missing",
-        severity: "P1",
-        status: "missing",
-        nextAction: "Attach manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/.",
-      },
-      {
-        id: "provider_smoke_evidence_missing",
-        severity: "P1",
-        status: "missing",
-        nextAction: "Attach redacted PayPal/GumDrop/creator spend provider smoke evidence.",
-      },
-      {
-        id: "runtime_smoke_evidence_missing",
-        severity: "P1",
-        status: "missing",
-        nextAction: "Attach deployed runtime smoke evidence for the required user and creator routes.",
-      },
-      {
-        id: "admin_truth_sample_evidence_missing",
-        severity: "P1",
-        status: "missing",
-        nextAction: "Attach a redacted admin truth sample artifact with source freshness.",
-      },
+      ...evidenceBlockers,
       {
         id: "speed_security_owner_review_backlog",
         severity: "P2",
@@ -301,11 +384,12 @@ export function buildOvernightBetaReadinessLockReport(now = new Date()): Overnig
       "BigQuery",
       "deployment config",
     ],
-    canStartScreenshots: canStartEvidence,
-    canStartProviderSmoke: canStartEvidence,
-    canStartRuntimeSmoke: canStartEvidence,
-    canStartAdminTruthCapture: canStartEvidence,
-    canStartBetaExitReview: !evidenceMissing,
+    evidenceCaptureStates,
+    betaExitReviewState: !canStartEvidence
+      ? "blocked_by_source_state"
+      : evidenceCaptureStates.some((lane) => lane.truthState !== "capture_artifact_attached")
+        ? "blocked_by_formal_evidence"
+        : "ready_for_review",
   };
 }
 
@@ -323,8 +407,8 @@ export function validateOvernightBetaReadinessLockReport(
   if (!isGeneratedArtifactCurrent(version)) {
     failures.push(`report currentHead must match git HEAD (${head}) or an accepted generated artifact version.`);
   }
-  if (report.canStartBetaExitReview && /\bmissing\b/iu.test(report.evidenceStatus)) {
-    failures.push("canStartBetaExitReview must remain false while required evidence is missing.");
+  if (report.betaExitReviewState === "ready_for_review" && /\bmissing\b/iu.test(report.evidenceStatus)) {
+    failures.push("betaExitReviewState must not be ready_for_review while required evidence is missing.");
   }
   if (/pass(ed)?/iu.test(report.cloudSqlCostStatus) && /not_detected_in_repo|config_not_in_repo/iu.test(report.cloudSqlCostStatus)) {
     failures.push("not_detected_in_repo and config_not_in_repo statuses must not be marked pass.");
@@ -348,9 +432,21 @@ export function validateOvernightBetaReadinessLockReport(
   for (const required of ["admin backend", "GumDrop math", "PayPal runtime", "Firebase rules", "Cloud Functions", "BigQuery"]) {
     if (!mustNotTouch.includes(required)) failures.push(`doNotTouchList must include ${required}.`);
   }
+  const legacyReport = report as unknown as Record<string, unknown>;
+  for (const legacyField of ["canStartScreenshots", "canStartProviderSmoke", "canStartRuntimeSmoke", "canStartAdminTruthCapture", "canStartBetaExitReview"]) {
+    if (legacyField in legacyReport) {
+      failures.push(`${legacyField} must not be emitted; use evidenceCaptureStates and betaExitReviewState.`);
+    }
+  }
+  if (!Array.isArray(report.evidenceCaptureStates) || report.evidenceCaptureStates.length !== 4) {
+    failures.push("evidenceCaptureStates must include all four formal evidence lanes.");
+  }
+  if (!["ready_for_review", "blocked_by_source_state", "blocked_by_formal_evidence"].includes(report.betaExitReviewState)) {
+    failures.push("betaExitReviewState must be a source-derived truth state.");
+  }
   if (!/\bp0=0\b/iu.test(report.cost4xxStatus) || !/\bp1=0\b/iu.test(report.cost4xxStatus)) {
-    if (report.canStartScreenshots || report.canStartProviderSmoke || report.canStartRuntimeSmoke || report.canStartAdminTruthCapture) {
-      failures.push("evidence capture starts require clear source P0/P1 cost/4xx status.");
+    if (report.evidenceCaptureStates.some((lane) => lane.truthState !== "source_blocked")) {
+      failures.push("evidence capture states must remain source_blocked until source P0/P1 cost/4xx status is clear.");
     }
   }
   return failures;
@@ -358,57 +454,29 @@ export function validateOvernightBetaReadinessLockReport(
 
 function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockReport): CurrentBetaExitStatusReport {
   const publicBetaScore = readJson("agent/state/public-beta-score.generated.json");
+  const evidence = readJson("agent/state/evidence-capture-status.generated.json");
   const operatorSmoke = operatorRevenueSmokeSummary();
-  const visualEvidenceStatus = "source_only_screenshotEvidenceAttached_false";
-  const providerSmokeStatus = "missing_formal_evidence";
-  const runtimeSmokeStatus = "runtime_unverified";
-  const adminTruthSampleStatus = "missing_or_unknown";
-  const proofLanes: CurrentBetaExitStatusReport["summary"]["proofLanes"] = [
-    {
-      id: "manualScreenshotQa",
-      label: "Manual screenshot QA",
-      truthState: "source_only_not_formal",
-      sourceStatus: visualEvidenceStatus,
-      sourcePath: "agent/state/ui-visual-smoke-minimal.generated.json",
-      captureStatus: "missing",
-      sourceCommit: report.currentHead,
-      canClearGate: false,
-      nextAction: "Attach real manual screenshot QA evidence before treating visual proof as current.",
-    },
-    {
-      id: "providerSmoke",
-      label: "Provider smoke",
-      truthState: "external_evidence_required",
-      sourceStatus: providerSmokeStatus,
-      sourcePath: "agent/state/provider-smoke-evidence.generated.json",
-      captureStatus: "missing",
-      sourceCommit: report.currentHead,
-      canClearGate: false,
-      nextAction: "Attach redacted provider smoke evidence; operator confirmation alone cannot clear provider proof.",
-    },
-    {
-      id: "runtimeSmoke",
-      label: "Runtime smoke",
-      truthState: "external_evidence_required",
-      sourceStatus: runtimeSmokeStatus,
-      sourcePath: "agent/state/runtime-smoke-evidence.generated.json",
-      captureStatus: "missing",
-      sourceCommit: report.currentHead,
-      canClearGate: false,
-      nextAction: "Attach or refresh deployed runtime smoke evidence for the current code version.",
-    },
-    {
-      id: "adminTruthSample",
-      label: "Admin truth sample",
-      truthState: "manual_admin_truth_required",
-      sourceStatus: adminTruthSampleStatus,
-      sourcePath: "agent/state/admin-truth-sample-evidence.generated.json",
-      captureStatus: "missing",
-      sourceCommit: report.currentHead,
-      canClearGate: false,
-      nextAction: "Attach or refresh a redacted admin truth sample for the current code version.",
-    },
-  ];
+  const captureSummary = at<JsonObject>(evidence, ["summary"], {});
+  const manualVisual = readJson("agent/state/ui-visual-smoke-minimal.generated.json");
+  const provider = readJson("agent/state/provider-smoke-evidence.generated.json");
+  const runtime = readJson("agent/state/runtime-smoke-evidence.generated.json");
+  const admin = readJson("agent/state/admin-truth-sample-evidence.generated.json");
+  const visualEvidenceStatus = formalEvidenceStatus(manualVisual, report.currentHead, "source_only_screenshotEvidenceAttached_false", "stale_visual_evidence");
+  const providerSmokeStatus = formalEvidenceStatus(provider, report.currentHead, "missing_formal_evidence", "stale_provider_smoke_evidence");
+  const runtimeSmokeStatus = formalEvidenceStatus(runtime, report.currentHead, "runtime_unverified", "stale_runtime_smoke_evidence");
+  const adminTruthSampleStatus = formalEvidenceStatus(admin, report.currentHead, "missing_or_unknown", "stale_admin_truth_sample_evidence");
+  const proofLanes = buildProofLanes({
+    head: report.currentHead,
+    visualEvidenceStatus,
+    providerSmokeStatus,
+    runtimeSmokeStatus,
+    adminTruthSampleStatus,
+    captureSummary,
+    manualVisual,
+    provider,
+    runtime,
+    admin,
+  });
   const refreshPlan = buildRefreshPlan([
     currentExitRelativePath,
     "agent/state/public-beta-score.generated.json",
@@ -469,10 +537,11 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       liveRuntimeEvidenceStatus: liveRuntimeEvidenceStatusSummary(),
       speedSecurityStatus: report.speedSecurityStatus,
       releaseNotesStatus: "same_commit_release_note_artifacts_required",
-      canStartManualScreenshotQa: proofLanes.find((lane) => lane.id === "manualScreenshotQa")?.canClearGate !== true,
-      canStartProviderSmoke: proofLanes.find((lane) => lane.id === "providerSmoke")?.canClearGate !== true,
-      canStartRuntimeSmoke: proofLanes.find((lane) => lane.id === "runtimeSmoke")?.canClearGate !== true,
-      canStartBetaExitReview: false,
+      betaExitReviewState: betaExitReviewStateFor({
+        launchGateStatus: stringAt(publicBetaScore, ["launchGateStatus"], "owner_review"),
+        liveRuntimeEvidenceStatus: liveRuntimeEvidenceStatusSummary(),
+        proofLanes,
+      }),
       proofLanes,
     },
     checksRun: [
@@ -562,13 +631,10 @@ Latest code version: ${report.currentHead}
 - Evidence status: ${report.evidenceStatus}
 - Speed/security status: ${report.speedSecurityStatus}
 
-## Start Gates
+## Evidence Truth States
 
-- Screenshots can start: ${report.canStartScreenshots}
-- Provider smoke can start: ${report.canStartProviderSmoke}
-- Runtime smoke can start: ${report.canStartRuntimeSmoke}
-- Admin truth capture can start: ${report.canStartAdminTruthCapture}
-- Beta exit review can start: ${report.canStartBetaExitReview}
+${report.evidenceCaptureStates.map((lane) => `- ${lane.label}: ${lane.truthState} (${lane.sourceStatus})`).join("\n")}
+- Beta exit review: ${report.betaExitReviewState}
 
 ## Remaining Blockers
 
@@ -611,12 +677,10 @@ Latest code version: ${report.currentHead}
 - Speed/security: ${report.summary.speedSecurityStatus}
 - Release notes: ${report.summary.releaseNotesStatus}
 
-## Start Gates
+## Evidence Truth States
 
-- Manual screenshot QA can start: ${report.summary.canStartManualScreenshotQa}
-- Provider smoke can start: ${report.summary.canStartProviderSmoke}
-- Runtime smoke can start: ${report.summary.canStartRuntimeSmoke}
-- Beta exit review can start: ${report.summary.canStartBetaExitReview}
+${report.summary.proofLanes.map((lane) => `- ${lane.label}: ${lane.truthState}; action=${lane.actionState}; source=${lane.sourceStatus}; capture=${lane.captureStatus}`).join("\n")}
+- Beta exit review: ${report.summary.betaExitReviewState}
 
 ## Refresh Plan
 
@@ -656,9 +720,8 @@ function main() {
 
   console.log(
     `Overnight beta readiness lock passed. beta=${report.betaScore}/${report.betaStatus} ` +
-      `screenshots=${report.canStartScreenshots} provider=${report.canStartProviderSmoke} ` +
-      `runtime=${report.canStartRuntimeSmoke} adminTruth=${report.canStartAdminTruthCapture} ` +
-      `betaExit=${report.canStartBetaExitReview}`,
+      `evidenceCapture=${report.evidenceCaptureStates.map((lane) => `${lane.id}:${lane.truthState}`).join(",")} ` +
+      `betaExit=${report.betaExitReviewState}`,
   );
 }
 

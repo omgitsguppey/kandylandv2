@@ -32,10 +32,26 @@ export type CurrentBetaExitProofTruthState =
   | "source_only_not_formal"
   | "unknown";
 
+export type CurrentBetaExitProofActionState =
+  | "gate_cleared"
+  | "refresh_stale_evidence"
+  | "attach_manual_evidence"
+  | "attach_external_evidence"
+  | "attach_admin_truth_sample"
+  | "source_only_cannot_clear"
+  | "unknown";
+
+export type CurrentBetaExitReviewState =
+  | "ready_for_review"
+  | "blocked_by_formal_evidence"
+  | "blocked_by_live_evidence"
+  | "blocked_by_launch_gate";
+
 export type CurrentBetaExitProofLane = {
   id: CurrentBetaExitProofLaneId;
   label: string;
   truthState: CurrentBetaExitProofTruthState;
+  actionState: CurrentBetaExitProofActionState;
   sourceStatus: string;
   sourcePath: string;
   captureStatus: string;
@@ -88,10 +104,7 @@ export type CurrentBetaExitStatusReport = {
     liveRuntimeEvidenceStatus?: string;
     speedSecurityStatus: string;
     releaseNotesStatus: string;
-    canStartManualScreenshotQa: boolean;
-    canStartProviderSmoke: boolean;
-    canStartRuntimeSmoke: boolean;
-    canStartBetaExitReview: boolean;
+    betaExitReviewState: CurrentBetaExitReviewState;
     proofLanes: CurrentBetaExitProofLane[];
   };
   checksRun: CurrentBetaExitCheck[];
@@ -229,7 +242,7 @@ function boolValue(value: unknown) {
   return value === true;
 }
 
-function formalEvidenceStatus(
+export function formalEvidenceStatus(
   artifact: Record<string, unknown> | null,
   head: string,
   fallback: string,
@@ -287,6 +300,19 @@ function proofTruthStateFor(input: {
   return "unknown";
 }
 
+function proofActionStateFor(
+  id: CurrentBetaExitProofLaneId,
+  truthState: CurrentBetaExitProofTruthState,
+): CurrentBetaExitProofActionState {
+  if (truthState === "current_formal_evidence") return "gate_cleared";
+  if (truthState === "stale_evidence") return "refresh_stale_evidence";
+  if (truthState === "source_only_not_formal") return "source_only_cannot_clear";
+  if (truthState === "manual_evidence_required") return "attach_manual_evidence";
+  if (truthState === "manual_admin_truth_required") return "attach_admin_truth_sample";
+  if (truthState === "external_evidence_required") return "attach_external_evidence";
+  return id === "adminTruthSample" ? "attach_admin_truth_sample" : "unknown";
+}
+
 function buildProofLane(input: {
   id: CurrentBetaExitProofLaneId;
   label: string;
@@ -302,6 +328,7 @@ function buildProofLane(input: {
     id: input.id,
     label: input.label,
     truthState,
+    actionState: proofActionStateFor(input.id, truthState),
     sourceStatus: input.sourceStatus,
     sourcePath: input.sourcePath,
     captureStatus: input.captureStatus,
@@ -311,7 +338,7 @@ function buildProofLane(input: {
   };
 }
 
-function buildProofLanes(input: {
+export function buildProofLanes(input: {
   head: string;
   visualEvidenceStatus: string;
   providerSmokeStatus: string;
@@ -367,6 +394,21 @@ function buildProofLanes(input: {
   ];
 }
 
+function liveRuntimeEvidenceBlocksReview(status: string | undefined) {
+  return /\b(provider_required|admin_required|billing_required|manual_required|runtime_export_required|not_observed_but_expected)\b/u.test(status ?? "");
+}
+
+export function betaExitReviewStateFor(input: {
+  launchGateStatus: string | undefined;
+  liveRuntimeEvidenceStatus: string | undefined;
+  proofLanes: CurrentBetaExitProofLane[];
+}): CurrentBetaExitReviewState {
+  if (input.proofLanes.some((lane) => lane.canClearGate !== true)) return "blocked_by_formal_evidence";
+  if (liveRuntimeEvidenceBlocksReview(input.liveRuntimeEvidenceStatus)) return "blocked_by_live_evidence";
+  if (input.launchGateStatus !== "launch_ready") return "blocked_by_launch_gate";
+  return "ready_for_review";
+}
+
 function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, head: string): CurrentBetaExitStatusReport {
   const beta = readJson("agent/state/public-beta-score.generated.json");
   const evidenceCapture = readEvidenceCaptureStatus();
@@ -393,13 +435,20 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     runtime,
     admin,
   });
+  const existingSummary = { ...(report.summary as CurrentBetaExitStatusReport["summary"] & Record<string, unknown>) };
+  delete existingSummary.canStartManualScreenshotQa;
+  delete existingSummary.canStartRuntimeSmoke;
+  delete existingSummary.canStartProviderSmoke;
+  delete existingSummary.canStartBetaExitReview;
+  const launchGateStatus = stringValue(beta?.launchGateStatus, report.summary.launchGateStatus);
+  const liveRuntimeEvidenceStatus = stringValue(record(captureSummary.liveRuntimeEvidence).statusSummary, report.summary.liveRuntimeEvidenceStatus);
   const summary = {
-    ...report.summary,
+    ...existingSummary,
     betaScore: numberValue(beta?.overallScore, report.summary.betaScore),
     betaStatus: stringValue(beta?.readinessStatus, report.summary.betaStatus),
     scoreVersion: stringValue(beta?.scoreVersion, report.summary.scoreVersion),
     healthScore: numberValue(beta?.healthScore, report.summary.healthScore),
-    launchGateStatus: stringValue(beta?.launchGateStatus, report.summary.launchGateStatus),
+    launchGateStatus,
     sourceHealthScore: numberValue(beta?.sourceHealthScore, report.summary.sourceHealthScore),
     runtimeHealthScore: numberValue(beta?.runtimeHealthScore, report.summary.runtimeHealthScore),
     evidenceCompletenessScore: numberValue(beta?.evidenceCompletenessScore, report.summary.evidenceCompletenessScore),
@@ -419,11 +468,12 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     operatorRevenueSmokeBetaGateImpact: operator?.summary?.betaGateImpact ?? report.summary.operatorRevenueSmokeBetaGateImpact,
     operatorRevenueSmokeNote: operator?.plainLanguageNote
       ?? "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
-    liveRuntimeEvidenceStatus: stringValue(record(captureSummary.liveRuntimeEvidence).statusSummary, report.summary.liveRuntimeEvidenceStatus),
-    canStartManualScreenshotQa: proofLanes.find((lane) => lane.id === "manualScreenshotQa")?.canClearGate !== true,
-    canStartRuntimeSmoke: proofLanes.find((lane) => lane.id === "runtimeSmoke")?.canClearGate !== true,
-    canStartProviderSmoke: proofLanes.find((lane) => lane.id === "providerSmoke")?.canClearGate !== true,
-    canStartBetaExitReview: false,
+    liveRuntimeEvidenceStatus,
+    betaExitReviewState: betaExitReviewStateFor({
+      launchGateStatus,
+      liveRuntimeEvidenceStatus,
+      proofLanes,
+    }),
     proofLanes,
   } satisfies CurrentBetaExitStatusReport["summary"];
   const remainingBlockers = [
@@ -539,10 +589,10 @@ export function validateCurrentBetaExitStatusReport(
     failures.push("live runtime evidence bridge status must be represented with the daily activity import path.");
   }
   if (
-    report.summary.canStartBetaExitReview
-    && /\b(provider_required|admin_required|billing_required|manual_required|runtime_export_required|not_observed_but_expected)\b/u.test(report.summary.liveRuntimeEvidenceStatus ?? "")
+    report.summary.betaExitReviewState === "ready_for_review"
+    && liveRuntimeEvidenceBlocksReview(report.summary.liveRuntimeEvidenceStatus)
   ) {
-    failures.push("current beta exit cannot start while live runtime evidence bridge has formal or unobserved blockers.");
+    failures.push("betaExitReviewState must not be ready_for_review while live runtime evidence bridge has formal or unobserved blockers.");
   }
   const costLaneValues = [
     report.summary.cloudRunCostReadiness,
@@ -573,7 +623,6 @@ export function validateCurrentBetaExitStatusReport(
       failures.push(`proofLanes must include ${id}.`);
     }
   }
-  const proofLaneById = new Map(proofLanes.map((lane) => [lane.id, lane]));
   const expectedProofStatuses: Record<CurrentBetaExitProofLaneId, string> = {
     manualScreenshotQa: report.summary.visualEvidenceStatus,
     providerSmoke: report.summary.providerSmokeStatus,
@@ -596,18 +645,27 @@ export function validateCurrentBetaExitStatusReport(
     if (lane.canClearGate && lane.truthState !== "current_formal_evidence") {
       failures.push(`${lane.id} proof lane canClearGate must only be true for current_formal_evidence.`);
     }
+    if (lane.actionState !== proofActionStateFor(lane.id, lane.truthState)) {
+      failures.push(`${lane.id} proof lane actionState must be derived from truthState.`);
+    }
     if (lane.truthState === "current_formal_evidence" && !formalStatusPassed(lane.id, lane.sourceStatus)) {
       failures.push(`${lane.id} current_formal_evidence must come from a formal passed source status.`);
     }
   }
-  if (report.summary.canStartManualScreenshotQa === proofLaneById.get("manualScreenshotQa")?.canClearGate) {
-    failures.push("canStartManualScreenshotQa must be an action flag derived as the inverse of manualScreenshotQa canClearGate.");
+  const legacySummary = report.summary as Record<string, unknown>;
+  for (const legacyField of ["canStartManualScreenshotQa", "canStartProviderSmoke", "canStartRuntimeSmoke", "canStartBetaExitReview"]) {
+    if (legacyField in legacySummary) {
+      failures.push(`${legacyField} must not be emitted; use proofLanes truthState/actionState and betaExitReviewState.`);
+    }
   }
-  if (report.summary.canStartProviderSmoke === proofLaneById.get("providerSmoke")?.canClearGate) {
-    failures.push("canStartProviderSmoke must be an action flag derived as the inverse of providerSmoke canClearGate.");
-  }
-  if (report.summary.canStartRuntimeSmoke === proofLaneById.get("runtimeSmoke")?.canClearGate) {
-    failures.push("canStartRuntimeSmoke must be an action flag derived as the inverse of runtimeSmoke canClearGate.");
+  if (
+    report.summary.betaExitReviewState !== betaExitReviewStateFor({
+      launchGateStatus: report.summary.launchGateStatus,
+      liveRuntimeEvidenceStatus: report.summary.liveRuntimeEvidenceStatus,
+      proofLanes,
+    })
+  ) {
+    failures.push("betaExitReviewState must be derived from proof lanes, live runtime evidence, and launch gate status.");
   }
   const operatorRevenueSmoke = readOperatorRevenueSmoke();
   if (operatorRevenueSmoke) {
@@ -641,16 +699,16 @@ export function validateCurrentBetaExitStatusReport(
     if (!["missing_formal_evidence", "operator_reported_not_formal_provider_smoke", "stale_provider_smoke_evidence"].includes(report.summary.providerSmokeStatus)) {
       failures.push("provider smoke gate must remain missing/stale formal evidence after operator confirmation.");
     }
-    if (summary.canStartBetaExitReview === true || report.summary.canStartBetaExitReview) {
-      failures.push("operator-confirmed revenue smoke alone must not mark beta exit ready.");
+    if (summary.canStartBetaExitReview === true || report.summary.betaExitReviewState === "ready_for_review") {
+      failures.push("operator-confirmed revenue smoke alone must not mark betaExitReviewState ready_for_review.");
     }
   }
 
-  if ((visualMissing || providerMissing || runtimeMissing) && report.summary.canStartBetaExitReview) {
-    failures.push("canStartBetaExitReview must be false while visual/provider/runtime evidence is missing.");
+  if ((visualMissing || providerMissing || runtimeMissing) && report.summary.betaExitReviewState === "ready_for_review") {
+    failures.push("betaExitReviewState must not be ready_for_review while visual/provider/runtime evidence is missing.");
   }
-  if (report.summary.launchGateStatus !== "launch_ready" && report.summary.canStartBetaExitReview) {
-    failures.push("canStartBetaExitReview must be false until launchGateStatus is launch_ready.");
+  if (report.summary.launchGateStatus !== "launch_ready" && report.summary.betaExitReviewState === "ready_for_review") {
+    failures.push("betaExitReviewState must not be ready_for_review until launchGateStatus is launch_ready.");
   }
   if (visualMissing && /\b(pass|passed|complete|completed)\b/iu.test(report.summary.visualEvidenceStatus)) {
     failures.push("visual QA must not be marked passed while screenshot evidence is missing.");
@@ -707,8 +765,8 @@ export function validateCurrentBetaExitStatusReport(
       captureSummary.runtimeSmokeEvidence,
       captureSummary.adminTruthSampleEvidence,
     ].some((status) => status !== "complete");
-    if (evidenceCaptureMissing && report.summary.canStartBetaExitReview) {
-      failures.push("canStartBetaExitReview must be false while evidence capture status has missing lanes.");
+    if (evidenceCaptureMissing && report.summary.betaExitReviewState === "ready_for_review") {
+      failures.push("betaExitReviewState must not be ready_for_review while evidence capture status has missing lanes.");
     }
   }
 

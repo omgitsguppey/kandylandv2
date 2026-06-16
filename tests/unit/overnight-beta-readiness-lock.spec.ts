@@ -75,21 +75,47 @@ function reportFixture(
       "BigQuery",
       "deployment config",
     ],
-    canStartScreenshots: true,
-    canStartProviderSmoke: true,
-    canStartRuntimeSmoke: true,
-    canStartAdminTruthCapture: true,
-    canStartBetaExitReview: false,
+    evidenceCaptureStates: [
+      {
+        id: "manualScreenshotQa",
+        label: "Manual screenshot QA",
+        truthState: "manual_evidence_required",
+        sourceStatus: "missing",
+        nextAction: "Attach manual screenshot QA evidence.",
+      },
+      {
+        id: "providerSmoke",
+        label: "Provider smoke",
+        truthState: "external_evidence_required",
+        sourceStatus: "missing",
+        nextAction: "Attach provider smoke evidence.",
+      },
+      {
+        id: "runtimeSmoke",
+        label: "Runtime smoke",
+        truthState: "external_evidence_required",
+        sourceStatus: "missing",
+        nextAction: "Attach runtime smoke evidence.",
+      },
+      {
+        id: "adminTruthSample",
+        label: "Admin truth sample",
+        truthState: "manual_admin_truth_required",
+        sourceStatus: "missing",
+        nextAction: "Attach admin truth sample evidence.",
+      },
+    ],
+    betaExitReviewState: "blocked_by_formal_evidence",
     ...overrides,
   };
 }
 
 describe("overnight beta readiness lock validator", () => {
   it("blocks beta exit when evidence is missing", () => {
-    const report = reportFixture({ canStartBetaExitReview: true });
+    const report = reportFixture({ betaExitReviewState: "ready_for_review" });
 
     expect(validateOvernightBetaReadinessLockReport(report, "head")).toContain(
-      "canStartBetaExitReview must remain false while required evidence is missing.",
+      "betaExitReviewState must not be ready_for_review while required evidence is missing.",
     );
   });
 
@@ -101,15 +127,27 @@ describe("overnight beta readiness lock validator", () => {
     );
   });
 
-  it("allows screenshot, provider, runtime, and admin truth capture to start when source blockers are clear", () => {
+  it("classifies source-clear evidence lanes with truthful capture states", () => {
     const report = reportFixture();
     const failures = validateOvernightBetaReadinessLockReport(report, "head");
 
-    expect(report.canStartScreenshots).toBe(true);
-    expect(report.canStartProviderSmoke).toBe(true);
-    expect(report.canStartRuntimeSmoke).toBe(true);
-    expect(report.canStartAdminTruthCapture).toBe(true);
+    expect(report.evidenceCaptureStates.map((lane) => lane.truthState)).toEqual([
+      "manual_evidence_required",
+      "external_evidence_required",
+      "external_evidence_required",
+      "manual_admin_truth_required",
+    ]);
     expect(failures).toEqual([]);
+  });
+
+  it("rejects legacy evidence start booleans", () => {
+    const report = reportFixture({
+      canStartProviderSmoke: true,
+    } as unknown as Partial<OvernightBetaReadinessLockReport>);
+
+    expect(validateOvernightBetaReadinessLockReport(report, "head")).toContain(
+      "canStartProviderSmoke must not be emitted; use evidenceCaptureStates and betaExitReviewState.",
+    );
   });
 
   it("requires stale launch reports to be classified in source truth status", () => {

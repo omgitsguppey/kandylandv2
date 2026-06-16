@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-06-16T19:33:06.848Z",
+  "generatedAtUtc": "2026-06-16T19:51:31.488Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "f344152eed45ccea1a3e018d716dcc39c5b112d2",
+  "currentHead": "3736d072dfdd1f28d6fef673f083c25e12f827d1",
   "summary": {
-    "betaVersion": "1.5.71",
+    "betaVersion": "1.5.72",
     "betaScore": 69.89,
     "betaStatus": "Stale evidence",
     "scoreVersion": "beta_health_v2",
@@ -42,15 +42,13 @@
     "liveRuntimeEvidenceStatus": "live_runtime_evidence_bridge=source_ready_waiting_for_activity; live_activity_confirmed=0; aggregate_activity_confirmed=0; source_ready_waiting_for_activity=1; not_observed_but_expected=6; runtime_export_required=3; provider_required=2; admin_required=1; billing_required=1; source_missing=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json",
     "speedSecurityStatus": "52/beta-risk; findings=83; critical=0; p2BacklogVisible=true",
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
-    "canStartManualScreenshotQa": true,
-    "canStartProviderSmoke": true,
-    "canStartRuntimeSmoke": true,
-    "canStartBetaExitReview": false,
+    "betaExitReviewState": "blocked_by_formal_evidence",
     "proofLanes": [
       {
         "id": "manualScreenshotQa",
         "label": "Manual screenshot QA",
         "truthState": "stale_evidence",
+        "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_visual_evidence",
         "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
         "captureStatus": "missing",
@@ -62,6 +60,7 @@
         "id": "providerSmoke",
         "label": "Provider smoke",
         "truthState": "stale_evidence",
+        "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_provider_smoke_evidence",
         "sourcePath": "agent/state/provider-smoke-evidence.generated.json",
         "captureStatus": "missing",
@@ -73,6 +72,7 @@
         "id": "runtimeSmoke",
         "label": "Runtime smoke",
         "truthState": "stale_evidence",
+        "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_runtime_smoke_evidence",
         "sourcePath": "agent/state/runtime-smoke-evidence.generated.json",
         "captureStatus": "complete",
@@ -84,6 +84,7 @@
         "id": "adminTruthSample",
         "label": "Admin truth sample",
         "truthState": "stale_evidence",
+        "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_admin_truth_sample_evidence",
         "sourcePath": "agent/state/admin-truth-sample-evidence.generated.json",
         "captureStatus": "complete",
@@ -122,7 +123,7 @@
     {
       "command": "npm run check:evidence-capture-status",
       "status": "passed",
-      "evidence": "runtime/admin evidence complete; provider evidence remains missing."
+      "evidence": "templates only; complete evidence remains missing."
     },
     {
       "command": "npm run check:overnight-beta-readiness-lock",
@@ -137,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-16T19:33:06.848Z",
+      "generatedAtUtc": "2026-06-16T19:51:31.488Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -152,8 +153,8 @@
       "label": "Public beta score",
       "status": "stale_source_version",
       "needsRefresh": true,
-      "generatedAtUtc": "2026-06-16T19:13:45.600Z",
-      "ageHours": 0.1768561111111111,
+      "generatedAtUtc": "2026-06-16T19:33:15.258Z",
+      "ageHours": 0.3045083333333333,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -168,7 +169,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T18:49:41.389Z",
-      "ageHours": 312.57802583333336,
+      "ageHours": 313.03058305555555,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -183,7 +184,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:37.034Z",
-      "ageHours": 328.74590222222224,
+      "ageHours": 329.19845944444444,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -198,7 +199,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:58:51.998Z",
-      "ageHours": 328.4250788888889,
+      "ageHours": 328.8776361111111,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -213,7 +214,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:17.434Z",
-      "ageHours": 328.7513466666667,
+      "ageHours": 329.2039038888889,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -228,7 +229,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:19.659Z",
-      "ageHours": 2.150728611111111,
+      "ageHours": 2.6032858333333335,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -243,7 +244,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:24.640Z",
-      "ageHours": 328.749345,
+      "ageHours": 329.2019022222222,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -258,7 +259,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:32.199Z",
-      "ageHours": 328.7472452777778,
+      "ageHours": 329.1998025,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -273,7 +274,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:40.411Z",
-      "ageHours": 2.1449641666666666,
+      "ageHours": 2.597521388888889,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -288,7 +289,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:46.945Z",
-      "ageHours": 2.143149166666667,
+      "ageHours": 2.595706388888889,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -400,41 +401,40 @@
     "agent/state/operator-revenue-smoke.generated.json",
     "agent/state/source-truth-authority-map.generated.json",
     "agent/state/cost-4xx-reduction.generated.json",
-    "agent/state/speed-security-hardening.generated.json",
-    "agent/state/current-beta-exit-status.generated.json"
+    "agent/state/speed-security-hardening.generated.json"
   ],
   "remainingBlockers": [
     {
       "id": "manual_screenshot_evidence_missing",
       "severity": "P1",
-      "status": "missing",
+      "status": "manual_evidence_required",
       "evidence": [
         "manual=missing; provider=missing; runtime=complete; adminTruth=complete; templates=4; complete=2"
       ],
-      "nextAction": "Attach manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/."
+      "nextAction": "Attach real manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/."
     },
     {
       "id": "provider_smoke_evidence_missing",
       "severity": "P1",
-      "status": "missing",
+      "status": "external_evidence_required",
       "evidence": [
         "manual=missing; provider=missing; runtime=complete; adminTruth=complete; templates=4; complete=2"
       ],
-      "nextAction": "Attach redacted PayPal/GumDrop/creator spend provider smoke evidence."
+      "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
     },
     {
-      "id": "runtime_smoke_evidence_missing",
+      "id": "runtime_smoke_evidence_stale",
       "severity": "P1",
-      "status": "missing",
+      "status": "stale_evidence",
       "evidence": [
         "manual=missing; provider=missing; runtime=complete; adminTruth=complete; templates=4; complete=2"
       ],
-      "nextAction": "Attach deployed runtime smoke evidence for the required user and creator routes."
+      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
     },
     {
-      "id": "admin_truth_sample_evidence_missing",
+      "id": "admin_truth_sample_evidence_stale",
       "severity": "P1",
-      "status": "missing",
+      "status": "stale_evidence",
       "evidence": [
         "manual=missing; provider=missing; runtime=complete; adminTruth=complete; templates=4; complete=2"
       ],
@@ -448,15 +448,6 @@
         "manual=missing; provider=missing; runtime=complete; adminTruth=complete; templates=4; complete=2"
       ],
       "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
-    },
-    {
-      "id": "provider-smoke",
-      "severity": "P1",
-      "status": "stale_provider_smoke_evidence",
-      "evidence": [
-        "agent/state/provider-smoke-evidence.generated.json"
-      ],
-      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
     }
   ],
   "deferredOwnerReview": [

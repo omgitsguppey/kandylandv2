@@ -1,39 +1,39 @@
 {
-  "generatedAtUtc": "2026-06-03T03:46:13.747Z",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-  "betaScore": 89,
-  "betaStatus": "Runtime unverified",
+  "generatedAtUtc": "2026-06-16T19:51:31.488Z",
+  "currentHead": "3736d072dfdd1f28d6fef673f083c25e12f827d1",
+  "betaScore": 69.89,
+  "betaStatus": "Stale evidence",
   "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
   "sourceTruthStatus": "passed; active=12; supporting=6; retiredLaunchArtifacts=3",
   "cost4xxStatus": "passed; p0=0; p1=0; p2=7; route4xx=3",
   "cloudRunCostStatus": "cost_review_required",
   "cloudSqlCostStatus": "not_detected_in_repo",
   "geminiCloudAssistCostStatus": "cost_review_required",
-  "evidenceStatus": "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0",
-  "speedSecurityStatus": "51/beta-risk; findings=86; critical=0; p2BacklogVisible=true",
+  "evidenceStatus": "manual=missing; provider=missing; runtime=complete; adminTruth=complete; templates=4; complete=2",
+  "speedSecurityStatus": "52/beta-risk; findings=83; critical=0; p2BacklogVisible=true",
   "remainingBlockers": [
     {
       "id": "manual_screenshot_evidence_missing",
       "severity": "P1",
-      "status": "missing",
-      "nextAction": "Attach manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/."
+      "status": "manual_evidence_required",
+      "nextAction": "Attach real manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/."
     },
     {
       "id": "provider_smoke_evidence_missing",
       "severity": "P1",
-      "status": "missing",
-      "nextAction": "Attach redacted PayPal/GumDrop/creator spend provider smoke evidence."
+      "status": "external_evidence_required",
+      "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
     },
     {
-      "id": "runtime_smoke_evidence_missing",
+      "id": "runtime_smoke_evidence_stale",
       "severity": "P1",
-      "status": "missing",
-      "nextAction": "Attach deployed runtime smoke evidence for the required user and creator routes."
+      "status": "stale_evidence",
+      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
     },
     {
-      "id": "admin_truth_sample_evidence_missing",
+      "id": "admin_truth_sample_evidence_stale",
       "severity": "P1",
-      "status": "missing",
+      "status": "stale_evidence",
       "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
     },
     {
@@ -92,9 +92,35 @@
     "BigQuery",
     "deployment config"
   ],
-  "canStartScreenshots": true,
-  "canStartProviderSmoke": true,
-  "canStartRuntimeSmoke": true,
-  "canStartAdminTruthCapture": true,
-  "canStartBetaExitReview": false
+  "evidenceCaptureStates": [
+    {
+      "id": "manualScreenshotQa",
+      "label": "Manual screenshot QA",
+      "truthState": "manual_evidence_required",
+      "sourceStatus": "missing",
+      "nextAction": "Attach real manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/."
+    },
+    {
+      "id": "providerSmoke",
+      "label": "Provider smoke",
+      "truthState": "external_evidence_required",
+      "sourceStatus": "missing",
+      "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
+    },
+    {
+      "id": "runtimeSmoke",
+      "label": "Runtime smoke",
+      "truthState": "stale_evidence",
+      "sourceStatus": "complete",
+      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
+    },
+    {
+      "id": "adminTruthSample",
+      "label": "Admin truth sample",
+      "truthState": "stale_evidence",
+      "sourceStatus": "complete",
+      "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
+    }
+  ],
+  "betaExitReviewState": "blocked_by_formal_evidence"
 }

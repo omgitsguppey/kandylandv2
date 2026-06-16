@@ -18,6 +18,11 @@ function proofLanesFor(
         : summary.visualEvidenceStatus.includes("source_only")
           ? "source_only_not_formal"
           : "manual_evidence_required",
+      actionState: summary.visualEvidenceStatus.startsWith("stale_")
+        ? "refresh_stale_evidence"
+        : summary.visualEvidenceStatus.includes("source_only")
+          ? "source_only_cannot_clear"
+          : "attach_manual_evidence",
       sourceStatus: summary.visualEvidenceStatus,
       sourcePath: "agent/state/ui-visual-smoke-minimal.generated.json",
       captureStatus: "missing",
@@ -33,6 +38,11 @@ function proofLanesFor(
         : summary.providerSmokeStatus.includes("formal_provider_smoke_passed")
           ? "current_formal_evidence"
           : "external_evidence_required",
+      actionState: summary.providerSmokeStatus.startsWith("stale_")
+        ? "refresh_stale_evidence"
+        : summary.providerSmokeStatus.includes("formal_provider_smoke_passed")
+          ? "gate_cleared"
+          : "attach_external_evidence",
       sourceStatus: summary.providerSmokeStatus,
       sourcePath: "agent/state/provider-smoke-evidence.generated.json",
       captureStatus: summary.providerSmokeStatus.includes("formal_provider_smoke_passed") ? "complete" : "missing",
@@ -48,6 +58,11 @@ function proofLanesFor(
         : summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed")
           ? "current_formal_evidence"
           : "external_evidence_required",
+      actionState: summary.runtimeSmokeStatus.startsWith("stale_")
+        ? "refresh_stale_evidence"
+        : summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed")
+          ? "gate_cleared"
+          : "attach_external_evidence",
       sourceStatus: summary.runtimeSmokeStatus,
       sourcePath: "agent/state/runtime-smoke-evidence.generated.json",
       captureStatus: summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed") ? "complete" : "missing",
@@ -63,6 +78,11 @@ function proofLanesFor(
         : summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed")
           ? "current_formal_evidence"
           : "manual_admin_truth_required",
+      actionState: summary.adminTruthSampleStatus.startsWith("stale_")
+        ? "refresh_stale_evidence"
+        : summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed")
+          ? "gate_cleared"
+          : "attach_admin_truth_sample",
       sourceStatus: summary.adminTruthSampleStatus,
       sourcePath: "agent/state/admin-truth-sample-evidence.generated.json",
       captureStatus: summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed") ? "complete" : "missing",
@@ -118,10 +138,7 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       liveRuntimeEvidenceStatus: "live_runtime_evidence_bridge=source_ready_waiting_for_activity; live_activity_confirmed=0; aggregate_activity_confirmed=0; not_observed_but_expected=6; provider_required=2; admin_required=1; billing_required=1; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json",
       speedSecurityStatus: "51/beta-risk; findings=91; critical=0",
       releaseNotesStatus: "passed_same_commit_validator",
-      canStartManualScreenshotQa: true,
-      canStartProviderSmoke: true,
-      canStartRuntimeSmoke: true,
-      canStartBetaExitReview: false,
+      betaExitReviewState: "blocked_by_formal_evidence",
       proofLanes: [],
     },
     checksRun: [
@@ -193,12 +210,12 @@ describe("current beta exit status validator", () => {
     const report = reportFixture({
       summary: {
         ...reportFixture().summary,
-        canStartBetaExitReview: true,
+        betaExitReviewState: "ready_for_review",
       },
     });
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
-      "canStartBetaExitReview must be false while visual/provider/runtime evidence is missing.",
+      "betaExitReviewState must not be ready_for_review while visual/provider/runtime evidence is missing.",
     );
   });
 
@@ -208,12 +225,12 @@ describe("current beta exit status validator", () => {
         ...reportFixture().summary,
         visualEvidenceStatus: "formal_screenshot_evidence_attached",
         runtimeSmokeStatus: "formal_runtime_smoke_passed",
-        canStartBetaExitReview: true,
+        betaExitReviewState: "ready_for_review",
       },
     });
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
-      "canStartBetaExitReview must be false while visual/provider/runtime evidence is missing.",
+      "betaExitReviewState must not be ready_for_review while visual/provider/runtime evidence is missing.",
     );
   });
 
@@ -223,19 +240,19 @@ describe("current beta exit status validator", () => {
         ...reportFixture().summary,
         visualEvidenceStatus: "formal_screenshot_evidence_attached",
         providerSmokeStatus: "formal_provider_smoke_passed",
-        canStartBetaExitReview: true,
+        betaExitReviewState: "ready_for_review",
       },
     });
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
-      "canStartBetaExitReview must be false while visual/provider/runtime evidence is missing.",
+      "betaExitReviewState must not be ready_for_review while visual/provider/runtime evidence is missing.",
     );
   });
 
-  it("allows screenshot QA to start when source, economy, and user creator P0/P1 counts are zero", () => {
+  it("describes screenshot QA with a source-derived proof lane state", () => {
     const report = reportFixture();
 
-    expect(report.summary.canStartManualScreenshotQa).toBe(true);
+    expect(report.summary.proofLanes.find((lane) => lane.id === "manualScreenshotQa")?.actionState).toBe("source_only_cannot_clear");
     expect(validateCurrentBetaExitStatusReport(report, "head")).toEqual([]);
   });
 
@@ -252,16 +269,17 @@ describe("current beta exit status validator", () => {
     );
   });
 
-  it("derives manual screenshot action state from the proof lane", () => {
+  it("rejects legacy manual proof start booleans", () => {
+    const legacySummary = {
+      ...reportFixture().summary,
+      canStartManualScreenshotQa: true,
+    } as CurrentBetaExitStatusReport["summary"] & Record<string, unknown>;
     const report = reportFixture({
-      summary: {
-        ...reportFixture().summary,
-        canStartManualScreenshotQa: false,
-      },
+      summary: legacySummary,
     });
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
-      "canStartManualScreenshotQa must be an action flag derived as the inverse of manualScreenshotQa canClearGate.",
+      "canStartManualScreenshotQa must not be emitted; use proofLanes truthState/actionState and betaExitReviewState.",
     );
   });
 
