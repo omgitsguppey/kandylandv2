@@ -60,6 +60,22 @@ function cleanString(value: unknown, fallback: string) {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
 }
 
+function readStoredAdminUiTestSessionValue() {
+  try {
+    return window.localStorage?.getItem(ADMIN_UI_TEST_SESSION_STORAGE_KEY) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredAdminUiTestSessionValue(value: string) {
+  try {
+    window.localStorage?.setItem(ADMIN_UI_TEST_SESSION_STORAGE_KEY, value);
+  } catch {
+    // Storage can be unavailable in hardened local browser contexts; the query bootstrap still works for this page.
+  }
+}
+
 export function isAdminUiTestSessionRuntimeEnabled(input: {
   nodeEnv?: string;
   envFlag?: string;
@@ -229,13 +245,29 @@ export function readAdminUiTestSession(): AdminUiTestSessionResolution {
   }
 
   const querySessionRequested = new URLSearchParams(window.location.search).get(ADMIN_UI_TEST_SESSION_QUERY_PARAM) === "1";
+  const storedValue = readStoredAdminUiTestSessionValue();
+  const runtimeEnabled = isAdminUiTestSessionRuntimeEnabled();
+  const storedResolution = storedValue && runtimeEnabled
+    ? resolveAdminUiTestSession({ rawValue: storedValue })
+    : null;
+  const querySessionValue = querySessionRequested && runtimeEnabled && storedResolution?.status !== "ready"
+    ? buildAdminUiTestSessionStorageValue()
+    : null;
+
+  if (querySessionValue) {
+    writeStoredAdminUiTestSessionValue(querySessionValue);
+  }
+
   return resolveAdminUiTestSession({
-    rawValue: window.localStorage.getItem(ADMIN_UI_TEST_SESSION_STORAGE_KEY)
-      ?? (querySessionRequested ? buildAdminUiTestSessionStorageValue() : null),
+    rawValue: querySessionValue ?? storedValue,
   });
 }
 
 export function clearAdminUiTestSession() {
   if (typeof window === "undefined") return;
-  window.localStorage.removeItem(ADMIN_UI_TEST_SESSION_STORAGE_KEY);
+  try {
+    window.localStorage?.removeItem(ADMIN_UI_TEST_SESSION_STORAGE_KEY);
+  } catch {
+    // Best-effort cleanup only; unavailable storage cannot retain the fixture session.
+  }
 }

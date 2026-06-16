@@ -5,8 +5,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   ADMIN_UI_TEST_SESSION_ENV_FLAG,
+  ADMIN_UI_TEST_SESSION_QUERY_PARAM,
   ADMIN_UI_TEST_SESSION_STORAGE_KEY,
   buildAdminUiTestSessionStorageValue,
+  readAdminUiTestSession,
   resolveAdminUiTestSession,
 } from "@/lib/admin/admin-ui-test-session";
 
@@ -26,6 +28,49 @@ function session(overrides: Record<string, unknown> = {}) {
 }
 
 describe("admin UI test session", () => {
+  function withWindow(input: {
+    search: string;
+    initialStorage?: string | null;
+    storageUnavailable?: boolean;
+    run: (storage: Map<string, string>) => void;
+  }) {
+    const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+    const storage = new Map<string, string>();
+    if (input.initialStorage) {
+      storage.set(ADMIN_UI_TEST_SESSION_STORAGE_KEY, input.initialStorage);
+    }
+
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: {
+        location: {
+          search: input.search,
+        },
+        localStorage: input.storageUnavailable
+          ? undefined
+          : {
+              getItem: (key: string) => storage.get(key) ?? null,
+              setItem: (key: string, value: string) => {
+                storage.set(key, value);
+              },
+              removeItem: (key: string) => {
+                storage.delete(key);
+              },
+            },
+      },
+    });
+
+    try {
+      input.run(storage);
+    } finally {
+      if (previousWindow) {
+        Object.defineProperty(globalThis, "window", previousWindow);
+      } else {
+        Reflect.deleteProperty(globalThis, "window");
+      }
+    }
+  }
+
   it("is hard-disabled in production even when the env flag is set", () => {
     const resolved = resolveAdminUiTestSession({
       rawValue: session(),
@@ -100,6 +145,127 @@ describe("admin UI test session", () => {
     expect(parsed.enabled).toBe(true);
     expect(parsed.role).toBe("admin");
     expect(parsed.expiresAt).toBe(NOW + 30_000);
+  });
+
+  it("persists a bounded account-free browser fixture when the query bootstrap is used", () => {
+    const previousEnv = process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+    process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = "1";
+
+    try {
+      withWindow({
+        search: `?${ADMIN_UI_TEST_SESSION_QUERY_PARAM}=1`,
+        run: (storage) => {
+          const resolved = readAdminUiTestSession();
+          const storedValue = storage.get(ADMIN_UI_TEST_SESSION_STORAGE_KEY);
+
+          expect(resolved.status).toBe("ready");
+          expect(resolved.userProfile?.role).toBe("admin");
+          expect(storedValue).toBeTruthy();
+          expect(JSON.parse(storedValue ?? "{}")).toMatchObject({
+            enabled: true,
+            role: "admin",
+            uid: "admin-ui-smoke",
+          });
+        },
+      });
+    } finally {
+      if (previousEnv === undefined) {
+        delete process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+      } else {
+        process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = previousEnv;
+      }
+    }
+  });
+
+  it("does not overwrite an existing local admin browser fixture", () => {
+    const previousEnv = process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+    process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = "1";
+    const existingSession = buildAdminUiTestSessionStorageValue({
+      uid: "existing-admin-ui-smoke",
+      nowMs: Date.now(),
+      ttlMs: 60_000,
+    });
+
+    try {
+      withWindow({
+        search: `?${ADMIN_UI_TEST_SESSION_QUERY_PARAM}=1`,
+        initialStorage: existingSession,
+        run: (storage) => {
+          const resolved = readAdminUiTestSession();
+
+          expect(resolved.status).toBe("ready");
+          expect(resolved.user?.uid).toBe("existing-admin-ui-smoke");
+          expect(storage.get(ADMIN_UI_TEST_SESSION_STORAGE_KEY)).toBe(existingSession);
+        },
+      });
+    } finally {
+      if (previousEnv === undefined) {
+        delete process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+      } else {
+        process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = previousEnv;
+      }
+    }
+  });
+
+  it("refreshes an expired local fixture when the query bootstrap is requested", () => {
+    const previousEnv = process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+    process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = "1";
+    const expiredSession = session({ uid: "expired-admin-ui-smoke", expiresAt: NOW - 1 });
+
+    try {
+      withWindow({
+        search: `?${ADMIN_UI_TEST_SESSION_QUERY_PARAM}=1`,
+        initialStorage: expiredSession,
+        run: (storage) => {
+          const resolved = readAdminUiTestSession();
+          const storedValue = storage.get(ADMIN_UI_TEST_SESSION_STORAGE_KEY) ?? "";
+          const stored = JSON.parse(storedValue) as { enabled?: boolean; role?: string; uid?: string; expiresAt?: number };
+
+          expect(resolved.status).toBe("ready");
+          expect(resolved.user?.uid).toBe("admin-ui-smoke");
+          expect(storedValue).not.toBe(expiredSession);
+          expect(stored).toMatchObject({
+            enabled: true,
+            role: "admin",
+            uid: "admin-ui-smoke",
+          });
+          expect(typeof stored.expiresAt).toBe("number");
+          expect(stored.expiresAt ?? 0).toBeGreaterThan(Date.now());
+        },
+      });
+    } finally {
+      if (previousEnv === undefined) {
+        delete process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+      } else {
+        process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = previousEnv;
+      }
+    }
+  });
+
+  it("still resolves a query-scoped fixture when browser storage is unavailable", () => {
+    const previousEnv = process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+    process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = "1";
+
+    try {
+      withWindow({
+        search: `?${ADMIN_UI_TEST_SESSION_QUERY_PARAM}=1`,
+        storageUnavailable: true,
+        run: (storage) => {
+          const resolved = readAdminUiTestSession();
+
+          expect(resolved.status).toBe("ready");
+          expect(resolved.user?.uid).toBe("admin-ui-smoke");
+          expect(resolved.userProfile?.role).toBe("admin");
+          expect(storage.has(ADMIN_UI_TEST_SESSION_STORAGE_KEY)).toBe(false);
+        },
+      });
+    } finally {
+      if (previousEnv === undefined) {
+        delete process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION;
+      } else {
+        process.env.NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION = previousEnv;
+      }
+    }
   });
 
   it("does not attempt server navigation-session sync with the local UI test identity", () => {
