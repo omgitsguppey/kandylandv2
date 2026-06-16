@@ -118,6 +118,7 @@ const EMPTY_TASK_LEADERBOARD: TaskLeaderboardItem[] = [];
 const ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST =
   "ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST";
 const ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS = 0;
+const ADMIN_ANALYTICS_PREFERENCES_REFRESH_INTERVAL_MS = 0;
 const ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_DETAIL =
   "Raw Firestore realtime listeners are disabled for compact Admin Analytics display; using the snapshot-first realtime route and Admin Debug raw evidence instead.";
 const ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_SOURCE_LABEL =
@@ -810,7 +811,7 @@ export function useAdminAnalyticsState() {
     mutate: mutateAnalyticsPreferences,
   } = useAdminPollingSWR<AnalyticsPreferencesResponse>(
     isLocalAdminUiTestSession ? null : "/api/admin/analytics/preferences",
-    30_000,
+    ADMIN_ANALYTICS_PREFERENCES_REFRESH_INTERVAL_MS,
     {
       keepPreviousData: true,
     },
