@@ -1078,7 +1078,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 rightSlot={
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <div
-                      className="inline-flex min-h-11 rounded-full border border-white/10 bg-black/25 p-1"
+                      className="inline-flex min-h-9 rounded-full border border-white/10 bg-black/25 p-0.5"
                       data-recent-commerce-feed-view-mode={recentCommerceFeedViewMode}
                       aria-label="Recent commerce feed view mode"
                     >
@@ -1091,7 +1091,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                             onClick={() => setRecentCommerceFeedViewMode(option.id)}
                             aria-pressed={active}
                             className={cn(
-                              "inline-flex min-h-9 items-center rounded-full px-2.5 text-[11px] font-bold transition-colors",
+                              "inline-flex min-h-8 items-center rounded-full px-2 text-[10px] font-bold transition-colors md:px-2.5 md:text-[11px]",
                               active
                                 ? "bg-brand-purple/20 text-white"
                                 : "text-gray-400 hover:bg-white/5 hover:text-white",

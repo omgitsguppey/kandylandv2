@@ -567,6 +567,9 @@ describe("AdminAnalyticsPage", () => {
 
     expect(container.textContent).toContain("Panel status");
     expect(container.textContent).toContain("Current activity snapshot is still unavailable.");
+    const sourceNotes = container.querySelector("details[title]");
+    expect(sourceNotes?.getAttribute("title")).toContain("Current activity snapshot is still unavailable.");
+    expect(sourceNotes?.getAttribute("title")).not.toContain("Realtime analytics");
     expect(container.textContent).toContain("3/11 connected");
     expect(container.textContent).toContain("5 waiting");
     expect(container.textContent).toContain("3 need source");

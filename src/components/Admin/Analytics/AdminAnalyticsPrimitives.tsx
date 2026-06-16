@@ -193,7 +193,7 @@ export function AnalyticsViewModeToggle({
 }: AnalyticsViewModeToggleProps) {
     return (
         <div
-            className={cn("inline-flex min-h-11 rounded-full border border-white/10 bg-black/25 p-1", className)}
+            className={cn("inline-flex min-h-9 rounded-full border border-white/10 bg-black/25 p-0.5", className)}
             data-admin-analytics-view-mode={value}
             aria-label="Analytics view mode"
         >
@@ -208,14 +208,14 @@ export function AnalyticsViewModeToggle({
                         aria-label={option.label}
                         aria-pressed={active}
                         className={cn(
-                            "inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-bold transition-colors",
+                            "inline-flex min-h-8 items-center gap-1 rounded-full px-2 text-[10px] font-bold transition-colors md:gap-1.5 md:px-2.5 md:text-[11px]",
                             active
                                 ? "bg-brand-purple/20 text-white"
                                 : "text-gray-400 hover:bg-white/5 hover:text-white",
                         )}
                     >
                         <Icon className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">{option.label}</span>
+                        <span className="hidden md:inline">{option.label}</span>
                     </button>
                 );
             })}

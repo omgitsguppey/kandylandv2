@@ -153,7 +153,9 @@ for (const codeNeedle of [
   includes(analyticsHook, codeNeedle, "Admin Analytics state hook");
 }
 
-includes(analyticsPage, 'title={backgroundAnalyticsIssues.join(" | ")}', "Admin Analytics degraded title");
+includes(analyticsPage, "...sourceStatusItems", "Admin Analytics degraded title");
+includes(analyticsPage, "liveFeedDetail ? formatAdminAnalyticsSourceNote(liveFeedDetail) : null", "Admin Analytics degraded title");
+notIncludes(analyticsPage, 'title={backgroundAnalyticsIssues.join(" | ")}', "Admin Analytics degraded title");
 includes(analyticsDisplayState, "Realtime delayed. Showing last verified snapshot.", "Display state realtime failure copy");
 includes(analyticsDisplayState, "No verified snapshot yet.", "Display state no-snapshot copy");
 includes(commerceSnapshot, "Promo and bonus GD are excluded from revenue.", "Commerce visible revenue rule");

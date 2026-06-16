@@ -65,14 +65,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const realtimeCacheHint = livePulseModel.primaryDisplaySource === "verified_snapshot"
     ? livePulseModel.latestVerifiedSnapshotExists
       ? "Last verified data"
-      : "No verified live snapshot yet"
+      : "No verified activity snapshot yet"
     : liveResponse?.liveTruthLabel === "stale"
-    ? "Live updates are delayed"
+    ? "Snapshot refresh delayed"
     : liveResponse?.cacheState === "fresh"
       ? "Updated"
       : liveResponse?.liveTruthLabel === "fallback"
         ? "Showing last verified data"
-        : "Live updates";
+        : "Current activity";
   const compactLiveMetricClass = "rounded-[1rem] p-2 min-h-[4.75rem]";
   const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";
   const [livePulseViewMode, setLivePulseViewMode] = React.useState<AnalyticsViewMode>("cards");
@@ -128,7 +128,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     livePulseModel.guestSnapshotTruthState === "unavailable"
       ? "Guest samples unavailable"
       : livePulseModel.mode === "delayed_snapshot"
-        ? "Live updates delayed"
+        ? "Snapshot refresh delayed"
         : null;
   const catalogMappingSentence =
     eventMixModel.eventsNeedingCatalogMapping === null

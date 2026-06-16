@@ -1366,16 +1366,16 @@ export function useAdminAnalyticsState() {
       ?.info?.requiresSetup;
   const backgroundAnalyticsIssues = [
     effectiveLiveResponse && liveError
-      ? `Realtime analytics: ${liveError.message || "Background refresh failed."}`
+      ? `Current activity: ${liveError.message || "Background refresh failed."}`
       : null,
     historicalResponse && historicalError
       ? `Historical analytics: ${historicalError.message || "Background refresh failed."}`
       : null,
     ...(effectiveLiveResponse?.issues || []).map(
-      (issue) => `Realtime analytics: ${issue}`,
+      (issue) => `Current activity: ${issue}`,
     ),
     ...(liveRealtime.feedStatus === "partial" || liveRealtime.feedStatus === "failed"
-      ? [`Realtime analytics: ${liveRealtime.feedDetail}`]
+      ? [`Current activity: ${liveRealtime.feedDetail}`]
       : []),
     ...(historicalResponse?.issues || []).map(
       (issue) => `Historical analytics: ${issue}`,
@@ -1476,11 +1476,11 @@ export function useAdminAnalyticsState() {
   const analyticsWarmState = isPrimingAnalytics
     ? "Refreshing"
     : liveRealtime.feedStatus === "realtime"
-      ? "Live updates active"
+      ? "Current activity active"
       : liveRealtime.feedStatus === "partial"
-        ? "Live updates partial"
+        ? "Current activity partial"
         : liveRealtime.feedStatus === "failed"
-          ? "Live updates delayed"
+          ? "Snapshot refresh delayed"
           : isBackgroundSyncing
             ? "Refreshing"
             : "Showing last verified data";
@@ -1581,7 +1581,7 @@ export function useAdminAnalyticsState() {
     overviewFallbackPurchasesValue !== null && overviewFallbackPurchasesDisplay !== null;
   const sharedFallbackExplanation = analyticsSnapshotPending
     ? "Analytics snapshot pending; showing canonical fallback truth."
-    : "Realtime analytics snapshot missing; showing canonical fallback truth.";
+    : "Current activity snapshot missing; showing canonical fallback truth.";
   const historicalOverviewWaitingLabel = historicalLoading ? "Waiting" : "Unavailable";
   const overviewUnavailableDisplay = historicalOverviewWaitingLabel === "Waiting" ? "No snapshot yet" : historicalOverviewWaitingLabel;
 
@@ -2011,7 +2011,7 @@ export function useAdminAnalyticsState() {
     historicalOverviewResponse?.cacheRevalidating === true && historicalLoading;
   const visibleDegradedMainCopy =
     backgroundAnalyticsIssues.length > 0
-      ? "Live updates are delayed. Showing last verified data."
+      ? "Snapshot refresh delayed. Showing last verified data."
       : "";
   const visibleHistoricalEstimationCopy = historicalEstimationReason
     ? "Guest traffic is estimated for this range."
@@ -3039,7 +3039,7 @@ export function useAdminAnalyticsState() {
   });
   const liveBlockingIssues =
     !effectiveLiveResponse && liveError
-      ? [liveError.message || "Realtime analytics request failed."]
+      ? [liveError.message || "Current activity request failed."]
       : [];
   const historicalBlockingIssues =
     !historicalResponse && historicalError
@@ -3047,13 +3047,13 @@ export function useAdminAnalyticsState() {
       : [];
   const liveBackgroundIssues = [
     effectiveLiveResponse && liveError
-      ? `Realtime analytics refresh failed: ${liveError.message || "Background refresh failed."}`
+      ? `Current activity refresh failed: ${liveError.message || "Background refresh failed."}`
       : null,
     ...(effectiveLiveResponse?.issues || []).map(
-      (issue) => `Realtime analytics issue: ${issue}`,
+      (issue) => `Current activity issue: ${issue}`,
     ),
     ...(liveRealtime.feedStatus === "partial" || liveRealtime.feedStatus === "failed"
-      ? [`Realtime analytics issue: ${liveRealtime.feedDetail}`]
+      ? [`Current activity issue: ${liveRealtime.feedDetail}`]
       : []),
   ].filter((issue): issue is string => Boolean(issue));
   const historicalBackgroundIssues = [

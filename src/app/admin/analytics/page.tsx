@@ -178,6 +178,8 @@ function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHiera
 function formatAdminAnalyticsSourceNote(note: string) {
   return note
     .replace("No verified snapshot-first realtime payload is available yet.", "Current activity snapshot is still unavailable.")
+    .replaceAll("Live updates are delayed", "Snapshot refresh delayed")
+    .replaceAll("Live updates delayed", "Snapshot refresh delayed")
     .replaceAll("Realtime analytics", "Current activity")
     .replaceAll("realtime payload", "current activity snapshot")
     .replaceAll("Historical analytics", "Historical snapshot");
@@ -455,7 +457,10 @@ export default function AdminAnalyticsPage() {
         {sourceStatusItems.length > 0 ? (
           <details
             className="mt-2 rounded-md border border-amber-400/20 bg-amber-500/10 px-2 py-1 text-xs text-amber-100"
-            title={backgroundAnalyticsIssues.join(" | ")}
+            title={[
+              ...sourceStatusItems,
+              liveFeedDetail ? formatAdminAnalyticsSourceNote(liveFeedDetail) : null,
+            ].filter((item): item is string => Boolean(item)).join(" | ")}
           >
             <summary className="min-h-9 cursor-pointer pt-2 font-semibold">Source notes ({sourceStatusItems.length})</summary>
             <ul className="mt-1 list-disc space-y-1 pl-4">
