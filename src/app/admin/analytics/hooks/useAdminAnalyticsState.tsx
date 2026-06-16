@@ -841,7 +841,7 @@ export function useAdminAnalyticsState() {
 
     try {
       if (isLocalAdminUiTestSession) {
-        toast.info("Analytics preferences are source_missing in local UI review.");
+        toast.info("Analytics preferences need a real admin session with verified snapshots.");
         return;
       }
 

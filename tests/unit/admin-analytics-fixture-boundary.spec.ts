@@ -20,9 +20,8 @@ describe("admin analytics local fixture boundary", () => {
   it("labels local admin UI fixture analytics evidence as source_missing", () => {
     expect(pageSource).toContain('data-admin-analytics-fixture-boundary="true"');
     expect(pageSource).toContain('data-admin-analytics-fixture-state="source_missing"');
-    expect(pageSource).toContain("Activity snapshots, historical");
-    expect(pageSource).toContain("source samples stay");
-    expect(pageSource).toContain("source_missing until a real admin");
+    expect(pageSource).toContain("analytics data waits for verified snapshots");
+    expect(pageSource).not.toContain("analytics data stays source_missing");
   });
 
   it("skips top-level admin analytics reads and preference writes for fixture sessions", () => {
@@ -31,7 +30,7 @@ describe("admin analytics local fixture boundary", () => {
     expect(hookSource).toContain('isLocalAdminUiTestSession ? null : "/api/admin/analytics/realtime"');
     expect(hookSource).toContain("isLocalAdminUiTestSession ? null : historicalUrl");
     expect(hookSource).toContain('isLocalAdminUiTestSession ? null : "/api/admin/overview"');
-    expect(hookSource).toContain("Analytics preferences are source_missing in local UI review.");
+    expect(hookSource).toContain("Analytics preferences need a real admin session with verified snapshots.");
   });
 
   it("skips section drilldown override reads in fixture sessions", () => {
