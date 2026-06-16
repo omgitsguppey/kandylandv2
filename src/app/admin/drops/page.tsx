@@ -188,12 +188,12 @@ export default function AdminDropsPage() {
     const [statusFilter, setStatusFilter] = useState<DropStatusFilter>("all");
     const [creatorFilter, setCreatorFilter] = useState("all");
     const [sortMode, setSortMode] = useState<DropSortMode>("last-active");
-    const { drops, legacyQueueIds, loading, loadError } = useAdminDropsFeed();
     const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
+    const { drops, legacyQueueIds, loading, loadError } = useAdminDropsFeed({ enabled: !isLocalAdminUiTestSession });
     const {
         data: queueConfig,
         mutate: mutateQueueConfig,
-    } = useAdminPollingSWR<AdminDropQueueConfig>("/api/admin/queue", 30_000);
+    } = useAdminPollingSWR<AdminDropQueueConfig>(isLocalAdminUiTestSession ? null : "/api/admin/queue", 30_000);
     const nowMs = useNow({ intervalMs: 60_000, initialNowMs: 0, enabled: drops.length > 0 });
 
     const deferredSearch = useDeferredValue(searchDraft.trim().toLowerCase());
@@ -204,6 +204,11 @@ export default function AdminDropsPage() {
     }, [drops]);
 
     useEffect(() => {
+        if (isLocalAdminUiTestSession) {
+            setCreatorOptions([]);
+            return;
+        }
+
         let cancelled = false;
 
         const fetchCreatorOptions = async () => {
@@ -236,7 +241,7 @@ export default function AdminDropsPage() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const queueOrder = useMemo(() => queueConfig?.queue ?? [], [queueConfig]);
     const queuePositionMap = useMemo(() => {
@@ -806,8 +811,9 @@ export default function AdminDropsPage() {
                     <div
                         className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3 text-xs text-amber-100"
                         data-admin-drops-fixture-boundary="true"
+                        data-admin-drops-fixture-state="source_missing"
                     >
-                        Local UI review only. Drop list rendering is inspectable; create, review, queue, notify, duplicate, edit, and delete require real admin auth.
+                        Local UI review only. Drop list rendering is inspectable; drop feed, creator options, queue state, create, review, queue, notify, duplicate, edit, and delete remain source_missing until real admin auth loads verified records.
                     </div>
                 ) : null}
 

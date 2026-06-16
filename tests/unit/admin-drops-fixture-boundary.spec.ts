@@ -9,8 +9,12 @@ describe("admin drops local fixture boundary", () => {
   it("keeps local admin UI fixture reviews read-only for mutation controls", () => {
     expect(source).toContain("isAdminUiTestSessionUser(user)");
     expect(source).toContain('data-admin-drops-fixture-boundary="true"');
+    expect(source).toContain('data-admin-drops-fixture-state="source_missing"');
     expect(source).toContain("Drop list rendering is inspectable");
-    expect(source).toContain("create, review, queue, notify, duplicate, edit, and delete require real admin auth");
+    expect(source).toContain("drop feed, creator options, queue state, create, review, queue, notify, duplicate, edit, and delete remain source_missing");
+    expect(source).toContain("useAdminDropsFeed({ enabled: !isLocalAdminUiTestSession })");
+    expect(source).toContain('useAdminPollingSWR<AdminDropQueueConfig>(isLocalAdminUiTestSession ? null : "/api/admin/queue", 30_000)');
+    expect(source).toContain("if (isLocalAdminUiTestSession) {\n            setCreatorOptions([]);\n            return;\n        }");
     expect(source).toContain("if (isLocalAdminUiTestSession) {\n            return;\n        }");
     expect(source).toContain('disabled={isLocalAdminUiTestSession}');
     expect(source).toContain('disabled={isLocalAdminUiTestSession || reviewingDropId === drop.id}');

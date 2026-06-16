@@ -10,7 +10,8 @@ import type { Drop } from "@/types/db";
 import { createAutoHealingObserver } from "@/lib/self-healing";
 import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 
-export function useAdminDropsFeed() {
+export function useAdminDropsFeed(options: { enabled?: boolean } = {}) {
+    const enabled = options.enabled !== false;
     const [drops, setDrops] = useState<Drop[]>([]);
     const [legacyQueueIds, setLegacyQueueIds] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(true);
@@ -19,6 +20,15 @@ export function useAdminDropsFeed() {
     const [fromCache, setFromCache] = useState(true);
 
     useEffect(() => {
+        if (!enabled) {
+            setDrops([]);
+            setLegacyQueueIds(new Set());
+            setLoading(false);
+            setLoadError(null);
+            setFromCache(false);
+            return;
+        }
+
         let cancelled = false;
         const dropsQuery = query(collection(db, "drops"), orderBy("validFrom", "desc"));
         
@@ -65,7 +75,7 @@ export function useAdminDropsFeed() {
             cancelled = true;
             control.cleanup();
         };
-    }, []);
+    }, [enabled]);
 
     return {
         drops,
