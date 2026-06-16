@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-03T16:31:45.014Z",
-  "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
+  "generatedAtUtc": "2026-06-16T16:48:12.009Z",
+  "currentHead": "c3b47c32ecd3c5a57d0f5e0b6f47c6ce6706d53c",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -49,7 +49,7 @@
     "producersConnected": 768,
     "eventEnvelopesTranslated": 768,
     "materializersMapped": 768,
-    "personMetricsMapped": 208,
+    "personMetricsMapped": 249,
     "gaps": 0
   },
   "waitingOnActivity": [
@@ -5433,20 +5433,20 @@
   "gaps": [],
   "dirtyFiles": [
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/state/debug-panel-output-triage.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-runtime-evidence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/person-metrics-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
@@ -5457,80 +5457,20 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/targeted-behavior-evidence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/debug-runtime-evidence.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/targeted-behavior-evidence.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-debug-panel-output-triage.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugControlTower.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugControlTowerCards.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/admin-debug-control-tower-component.spec.tsx",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/admin-debug-control-tower.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/debug-panel-output-triage.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
   "validationFailures": [],

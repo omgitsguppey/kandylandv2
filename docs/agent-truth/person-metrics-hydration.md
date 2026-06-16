@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-03T16:31:44.993Z
+Generated: 2026-06-16T16:48:23.472Z
 Status: pass
-Current head: 8aa6201b66ffda8c5ad9e9150e56615990547f6d
+Current head: c3b47c32ecd3c5a57d0f5e0b6f47c6ce6706d53c
 
 ## Contract
 
@@ -72,31 +72,16 @@ Current head: 8aa6201b66ffda8c5ad9e9150e56615990547f6d
 
 ## Dirty Files
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/debug-panel-output-triage.generated.json: current_generated_artifact_to_commit
-- agent/state/debug-runtime-evidence.generated.json: current_generated_artifact_to_commit
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/person-metrics-contract.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- agent/state/repo-spring-cleaning-rewire.generated.json: current_generated_artifact_to_commit
-- agent/state/targeted-behavior-evidence.generated.json: current_generated_artifact_to_commit
-- agent/state/telemetry-admin-debug-truth.generated.json: current_generated_artifact_to_commit
-- agent/state/user-facing-feature-connection-audit.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/debug-runtime-evidence.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/feature-registration-gate.md: documentation_artifact_expected
+- docs/agent-truth/person-metrics-contract.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- docs/agent-truth/targeted-behavior-evidence.md: documentation_artifact_expected
-- docs/agent-truth/telemetry-admin-debug-truth.md: documentation_artifact_expected
-- scripts/agent/validate-admin-debug-control-tower.ts: validator_artifact_expected
-- scripts/agent/validate-debug-panel-output-triage.ts: validator_artifact_expected
-- src/app/admin/debug/components/DebugControlTower.tsx: real_source_change_needs_review
-- src/app/admin/debug/components/DebugControlTowerCards.tsx: real_source_change_needs_review
-- src/lib/agent-score/core.ts: real_source_change_needs_review
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- tests/unit/admin-debug-control-tower-component.spec.tsx: test_artifact_expected
-- tests/unit/admin-debug-control-tower.spec.ts: test_artifact_expected
-- tests/unit/debug-panel-output-triage.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 
