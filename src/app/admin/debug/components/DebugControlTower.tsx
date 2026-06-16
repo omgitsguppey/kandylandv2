@@ -28,7 +28,13 @@ import {
     toBadgeState,
 } from "./DebugControlTowerCards";
 
-export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: AdminUserTruthSnapshot | null }) {
+export function DebugControlTower({
+    businessSnapshot,
+    isLocalAdminUiTestSession = false,
+}: {
+    businessSnapshot?: AdminUserTruthSnapshot | null;
+    isLocalAdminUiTestSession?: boolean;
+}) {
     const [model, setModel] = useState<AdminDebugControlTowerModel | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -36,6 +42,13 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
 
     useEffect(() => {
         let cancelled = false;
+
+        if (isLocalAdminUiTestSession) {
+            setModel(null);
+            setLoading(false);
+            setError(null);
+            return;
+        }
 
         async function loadControlTower() {
             setLoading(true);
@@ -77,7 +90,7 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const filteredSections = useMemo(() => {
         if (!model) {
@@ -101,7 +114,9 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
     }, [activeFilter, model?.reports]);
 
     const Icon = model?.criticalCount ? AlertTriangle : loading ? Clock3 : CheckCircle2;
-    const controlTruthState = model?.truthState ?? (loading ? "unknown" : error ? "failed" : "unavailable");
+    const controlTruthState = isLocalAdminUiTestSession
+        ? "missing"
+        : model?.truthState ?? (loading ? "unknown" : error ? "failed" : "unavailable");
     const resolvedBusinessSnapshot = model?.businessSnapshot ?? businessSnapshot ?? null;
     const canonicalBusinessTruthState = model?.businessTruthState ?? resolveControlTowerBusinessTruthState(resolvedBusinessSnapshot);
     const controlTowerBadgeState = controlTruthState === "missing" || controlTruthState === "unknown"
@@ -148,8 +163,8 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                     </div>
                     <div className="shrink-0 text-left sm:text-right">
                         <AdminTruthBadge state={controlTowerBadgeState} className="mb-1" />
-                        <p className="text-[11px] font-semibold text-gray-300">{model?.canonicalPublicBetaReadinessStatus ?? "Readiness unavailable"}</p>
-                        <p className="text-[11px] text-gray-400">{loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
+                        <p className="text-[11px] font-semibold text-gray-300">{isLocalAdminUiTestSession ? "source_missing" : model?.canonicalPublicBetaReadinessStatus ?? "Readiness unavailable"}</p>
+                        <p className="text-[11px] text-gray-400">{isLocalAdminUiTestSession ? "Local UI fixture" : loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
                     </div>
                 </div>
                 {model ? (
@@ -177,6 +192,15 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
             {error ? (
                 <div className="rounded-lg border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-100" data-debug-truth-state="failed">
                     {error}
+                </div>
+            ) : null}
+            {isLocalAdminUiTestSession ? (
+                <div
+                    className="rounded-lg border border-amber-400/25 bg-amber-500/10 p-3 text-sm text-amber-100"
+                    data-admin-debug-control-tower-fixture-boundary="true"
+                    data-admin-debug-control-tower-fixture-state="source_missing"
+                >
+                    Control Tower reports are source_missing in local UI review until a real admin session loads verified debug evidence.
                 </div>
             ) : null}
 

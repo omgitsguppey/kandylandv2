@@ -34,7 +34,11 @@ type ListenerErrors = {
     routesFailed: boolean;
 };
 
-export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null | undefined): AdminAiDebugRealtimeSignals {
+export function useAdminAiAssistantRealtime(
+    summary: AdminAiDebugSummary | null | undefined,
+    options: { enabled?: boolean } = {},
+): AdminAiDebugRealtimeSignals {
+    const enabled = options.enabled ?? true;
     const [settings, setSettings] = useState(() => normalizeAdminAiDebugAssistantSettingsSnapshot(null, {
         enabled: summary?.enabled,
         model: summary?.configured_model,
@@ -53,6 +57,26 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
     });
 
     useEffect(() => {
+        if (!enabled) {
+            setSettings(normalizeAdminAiDebugAssistantSettingsSnapshot(null, {
+                enabled: summary?.enabled,
+                model: summary?.configured_model,
+            }));
+            setDiagnostics([]);
+            setRouteHealthByKey({});
+            setListenerState({
+                settingsLoaded: false,
+                diagnosticsLoaded: false,
+                routesLoaded: false,
+            });
+            setListenerErrors({
+                settingsFailed: false,
+                diagnosticsFailed: false,
+                routesFailed: false,
+            });
+            return;
+        }
+
         let cancelled = false;
 
         const settingsControl = createAutoHealingObserver(() => onSnapshot(
@@ -266,7 +290,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
             writeRouteControl.cleanup();
             fixRouteControl.cleanup();
         };
-    }, [summary?.configured_model, summary?.enabled]);
+    }, [enabled, summary?.configured_model, summary?.enabled]);
 
     const effectiveSettings = useMemo(
         () => normalizeAdminAiDebugAssistantSettingsSnapshot(settings, {

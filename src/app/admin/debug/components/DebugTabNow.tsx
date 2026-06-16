@@ -53,6 +53,7 @@ export interface DebugTabNowProps {
     panelLogWarnCount: number;
     panelLogFailCount: number;
     trackingSummary: any;
+    isLocalAdminUiTestSession?: boolean;
 }
 
 /* ─── Component ─── */
@@ -69,6 +70,7 @@ export function DebugTabNow({
     panelLogWarnCount,
     panelLogFailCount,
     trackingSummary,
+    isLocalAdminUiTestSession = false,
 }: DebugTabNowProps) {
     const writerWarnCount = data?.opsHealth?.materializerSummary?.warn ?? 0;
     const writerFailCount = data?.opsHealth?.materializerSummary?.fail ?? 0;
@@ -120,7 +122,10 @@ export function DebugTabNow({
             data-admin-debug-source-heavy-default="collapsed"
             data-admin-debug-source-drawer-count="1"
         >
-            <DebugControlTower businessSnapshot={adminUserTruthSnapshot} />
+            <DebugControlTower
+                businessSnapshot={adminUserTruthSnapshot}
+                isLocalAdminUiTestSession={isLocalAdminUiTestSession}
+            />
 
             <Section
                 title="Current source drilldowns"

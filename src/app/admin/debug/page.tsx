@@ -55,6 +55,7 @@ import {
     summarizeRouteRuntimeHealth,
 } from "@/lib/route-runtime-health";
 import { authFetch } from "@/lib/authFetch";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
@@ -189,6 +190,7 @@ function CompactDebugStatusRail({
 
 export default function DebugConsole() {
     const { user, userProfile } = useAuth();
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
     const isCompactViewport = useCompactViewport();
     const [processing, setProcessing] = useState(false);
     const [repairingId, setRepairingId] = useState<string | null>(null);
@@ -203,7 +205,7 @@ export default function DebugConsole() {
     const debugPreferencesHydratedRef = useRef(false);
     const focusRefreshAtRef = useRef(0);
 
-    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 60000, {
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>(isLocalAdminUiTestSession ? null : "/api/admin/debug", 60000, {
         keepPreviousData: false,
     });
 
@@ -215,21 +217,24 @@ export default function DebugConsole() {
         repairProposals: realtimeRepairProposals,
         queueHeartbeats: realtimeQueueHeartbeats,
         listenerErrors: debugRealtimeState,
-    } = useAdminDebugRealtime();
-    const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>("/api/admin/debug/preferences", 15000, {
+    } = useAdminDebugRealtime({ enabled: !isLocalAdminUiTestSession });
+    const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>(isLocalAdminUiTestSession ? null : "/api/admin/debug/preferences", 15000, {
         // Preferences are non-blocking UI state, so preserving the prior value while refetching is intentional.
         keepPreviousData: true,
     });
-    const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>("/api/admin/debug/assistant", 15000, {
+    const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>(isLocalAdminUiTestSession ? null : "/api/admin/debug/assistant", 15000, {
         keepPreviousData: false,
     });
-    const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview();
+    const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview({ enabled: !isLocalAdminUiTestSession });
 
     const revalidatePrimaryDebugTruth = useCallback(() => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
         void mutate();
         void mutateOverview();
         void mutateAiDebug();
-    }, [mutate, mutateAiDebug, mutateOverview]);
+    }, [isLocalAdminUiTestSession, mutate, mutateAiDebug, mutateOverview]);
 
     useEffect(() => {
         const preferences = debugPreferencesData?.preferences;
@@ -278,6 +283,11 @@ export default function DebugConsole() {
     }) => {
         setSavingDebugPreferences(true);
         try {
+            if (isLocalAdminUiTestSession) {
+                toast.info("Debug preferences are source_missing in local UI review.");
+                return;
+            }
+
             const response = await authFetch("/api/admin/debug/preferences", {
                 method: "PUT",
                 body: JSON.stringify(patch),
@@ -300,7 +310,7 @@ export default function DebugConsole() {
         } finally {
             setSavingDebugPreferences(false);
         }
-    }, [mutateDebugPreferences]);
+    }, [isLocalAdminUiTestSession, mutateDebugPreferences]);
 
     const handleActiveTabChange = useCallback((nextTab: DebugTabId) => {
         setActiveTab(nextTab);
@@ -476,7 +486,7 @@ export default function DebugConsole() {
         setAiAssistantEnabled(aiDebugData.enabled !== false);
         setAiAssistantModel(aiDebugData.configured_model || aiDebugData.resolved_model || aiDebugData.model || AI_DEBUG_ASSISTANT_MODEL);
     }, [aiDebugData]);
-    const aiAssistantRealtime = useAdminAiAssistantRealtime(aiDebugData);
+    const aiAssistantRealtime = useAdminAiAssistantRealtime(aiDebugData, { enabled: !isLocalAdminUiTestSession });
 
     const aiStatusLabel = aiDebugError
         ? "Unavailable"
@@ -739,21 +749,27 @@ export default function DebugConsole() {
         taskIssueCopy,
     ]);
 
-    const sourceStateLabel = error
+    const sourceStateLabel = isLocalAdminUiTestSession
+        ? "source_missing"
+        : error
         ? "Failed"
         : !data && isLoading
             ? "Loading"
             : systemStateHealthy
                 ? "Live"
                 : "Needs review";
-    const sourceStateTone = error
+    const sourceStateTone = isLocalAdminUiTestSession
+        ? "bg-amber-400"
+        : error
         ? "bg-red-500"
         : !data && isLoading
             ? "bg-amber-400"
             : systemStateHealthy
                 ? "bg-emerald-500"
                 : "bg-amber-400";
-    const sourceStateTextClass = error
+    const sourceStateTextClass = isLocalAdminUiTestSession
+        ? "text-amber-200"
+        : error
         ? "text-red-300"
         : !data && isLoading
             ? "text-amber-200"
@@ -762,6 +778,11 @@ export default function DebugConsole() {
                 : "text-amber-200";
 
     const refreshAll = async () => {
+        if (isLocalAdminUiTestSession) {
+            toast.info("Debug evidence is source_missing in local UI review.");
+            return;
+        }
+
         await Promise.all([mutate(), mutateDebugPreferences(), mutateOverview(), mutateAiDebug()]);
         toast.success("Debug console refreshed");
     };
@@ -770,6 +791,11 @@ export default function DebugConsole() {
         if (!user) return;
         setProcessing(true);
         try {
+            if (isLocalAdminUiTestSession) {
+                toast.error("Balance adjustments require a real admin session.");
+                return;
+            }
+
             const amount = Number.parseInt(simAmount, 10);
             const response = await authFetch("/api/admin/balance", {
                 method: "POST",
@@ -803,6 +829,11 @@ export default function DebugConsole() {
     const handleRepairProposal = async (proposalId: string, action: "apply" | "dismiss") => {
         setRepairingId(proposalId);
         try {
+            if (isLocalAdminUiTestSession) {
+                toast.error("Repair actions require a real admin session.");
+                return;
+            }
+
             const response = await authFetch("/api/admin/orchestration/repairs", {
                 method: "POST",
                 body: JSON.stringify({ proposalId, action }),
@@ -834,6 +865,11 @@ export default function DebugConsole() {
     const handleSaveAiAssistantSettings = async () => {
         setSavingAiAssistantSettings(true);
         try {
+            if (isLocalAdminUiTestSession) {
+                toast.info("AI debug settings are source_missing in local UI review.");
+                return;
+            }
+
             const response = await authFetch("/api/admin/debug/assistant", {
                 method: "PUT",
                 body: JSON.stringify({
@@ -870,6 +906,11 @@ export default function DebugConsole() {
     const handleRunAiAssistantLiveCall = async () => {
         setRunningAiAssistantLiveCall(true);
         try {
+            if (isLocalAdminUiTestSession) {
+                toast.info("Live AI debug guidance requires a real admin session.");
+                return;
+            }
+
             const response = await authFetch("/api/admin/debug/assistant", {
                 method: "POST",
                 body: JSON.stringify({ action: "generate_live_summary" }),
@@ -946,6 +987,19 @@ export default function DebugConsole() {
                 )}
             />
 
+            {isLocalAdminUiTestSession ? (
+                <div
+                    className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
+                    data-admin-debug-fixture-boundary="true"
+                    data-admin-debug-fixture-state="source_missing"
+                >
+                    <span className="font-semibold text-white">Local UI review only.</span>{" "}
+                    Debug Control Tower layout is inspectable; debug routes, realtime evidence,
+                    AI assistant signals, repair actions, and balance adjustments remain source_missing
+                    until a real admin session loads verified evidence.
+                </div>
+            ) : null}
+
             <CompactDebugStatusRail items={compactSummaryItems} detailItems={detailItems} />
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
@@ -969,6 +1023,7 @@ export default function DebugConsole() {
                     panelLogWarnCount={panelLogWarnCount}
                     panelLogFailCount={panelLogFailCount}
                     trackingSummary={data?.trackingSummary}
+                    isLocalAdminUiTestSession={isLocalAdminUiTestSession}
                 />
             ) : activeTab === "actions" ? (
                 <DebugTabActions

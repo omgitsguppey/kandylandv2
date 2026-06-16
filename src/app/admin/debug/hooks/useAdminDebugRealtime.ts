@@ -32,7 +32,8 @@ export type ClusteredRuntimeWarning = {
     freshnessKeys: string[];
 };
 
-export function useAdminDebugRealtime() {
+export function useAdminDebugRealtime(options: { enabled?: boolean } = {}) {
+    const enabled = options.enabled ?? true;
     const [warnings, setWarnings] = useState<RuntimeWarningRecord[]>([]);
     const [routeHealth, setRouteHealth] = useState<RouteRuntimeHealthItem[]>([]);
     const [repairProposals, setRepairProposals] = useState<OrchestrationRepairProposalRecord[]>([]);
@@ -49,6 +50,24 @@ export function useAdminDebugRealtime() {
     });
 
     useEffect(() => {
+        if (!enabled) {
+            setWarnings([]);
+            setRouteHealth([]);
+            setRepairProposals([]);
+            setQueueHeartbeats([]);
+            setListenerErrors({
+                warningsFailed: false,
+                warningsLoaded: false,
+                routeHealthFailed: false,
+                routeHealthLoaded: false,
+                repairProposalsFailed: false,
+                repairProposalsLoaded: false,
+                heartbeatsFailed: false,
+                heartbeatsLoaded: false,
+            });
+            return;
+        }
+
         let warningsCancelled = false;
         const warningsQuery = query(
             collection(db, RUNTIME_WARNING_COLLECTION),
@@ -134,7 +153,7 @@ export function useAdminDebugRealtime() {
             controlRepairProposals.cleanup();
             controlHeartbeats.cleanup();
         };
-    }, []);
+    }, [enabled]);
 
     const clusteredWarnings = useMemo(() => {
         const clusters = new Map<string, ClusteredRuntimeWarning>();
