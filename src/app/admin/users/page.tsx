@@ -6,10 +6,12 @@ import { UserProfile } from "@/types/db";
 import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Clock3, Activity, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
 import { BalanceAdjustmentModal } from "@/components/Admin/BalanceAdjustmentModal";
 import { TransactionHistoryModal } from "@/components/Admin/TransactionHistoryModal";
 import { authFetch } from "@/lib/authFetch";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
@@ -80,6 +82,7 @@ function getAdminUsersSafeErrorMessage(error: unknown, fallback: string) {
 }
 
 export default function UserManagementPage() {
+    const { user } = useAuth();
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [userAnalytics, setUserAnalytics] = useState<Record<string, UserAnalytics>>({});
     const [dropReferences, setDropReferences] = useState<Record<string, DropReference>>({});
@@ -119,6 +122,7 @@ export default function UserManagementPage() {
     const lastUsableSummaryRef = useRef(false);
     const lastUsableUsersRef = useRef(false);
     const lastUsableBehaviorLeaderboardRef = useRef(false);
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
 
     const mergeUserDetail = useCallback((result: AdminUsersLaneResponse) => {
         const detailUser = result.users?.[0];
@@ -134,6 +138,13 @@ export default function UserManagementPage() {
     }, []);
 
     const fetchUserDetail = useCallback(async (user: UserProfile, options: { openContent?: boolean } = {}) => {
+        if (isLocalAdminUiTestSession) {
+            toast.info("User detail requires a real admin session. Local UI review is source_missing.");
+            if (options.openContent) {
+                setContentUser(user);
+            }
+            return;
+        }
         setSelectedUserDetailLoading(user.uid);
         try {
             const response = await authFetch(`/api/admin/users?mode=detail&userId=${encodeURIComponent(user.uid)}`);
@@ -174,9 +185,18 @@ export default function UserManagementPage() {
         } finally {
             setSelectedUserDetailLoading(null);
         }
-    }, [mergeUserDetail]);
+    }, [isLocalAdminUiTestSession, mergeUserDetail]);
 
     const fetchSummary = useCallback(async (options: { silent?: boolean; reason?: string } = {}) => {
+        if (isLocalAdminUiTestSession) {
+            setSummary(null);
+            lastUsableSummaryRef.current = false;
+            setSnapshotRefreshState("unavailable");
+            if (!options.silent) {
+                setSummaryLoading(false);
+            }
+            return;
+        }
         if (!options.silent) {
             setSummaryLoading(true);
         }
@@ -214,9 +234,20 @@ export default function UserManagementPage() {
                 setSummaryLoading(false);
             }
         }
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const fetchUsers = useCallback(async (options: { silent?: boolean; reason?: string } = {}) => {
+        if (isLocalAdminUiTestSession) {
+            setUsers([]);
+            setUserAnalytics({});
+            setDropReferences({});
+            lastUsableUsersRef.current = false;
+            setSnapshotRefreshState("unavailable");
+            if (!options.silent) {
+                setLoading(false);
+            }
+            return;
+        }
         if (!options.silent) {
             setLoading(true);
         }
@@ -254,7 +285,7 @@ export default function UserManagementPage() {
                 setLoading(false);
             }
         }
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const fetchBehaviorLeaderboard = useCallback(async (
         options: {
@@ -266,6 +297,15 @@ export default function UserManagementPage() {
     ) => {
         const page = options.page ?? behaviorLeaderboardPage;
         const filter = options.filter ?? behaviorLeaderboardFilter;
+        if (isLocalAdminUiTestSession) {
+            setBehaviorLeaderboard(null);
+            lastUsableBehaviorLeaderboardRef.current = false;
+            setSnapshotRefreshState("unavailable");
+            if (!options.silent) {
+                setBehaviorLeaderboardLoading(false);
+            }
+            return;
+        }
         if (!options.silent) {
             setBehaviorLeaderboardLoading(true);
         }
@@ -307,7 +347,7 @@ export default function UserManagementPage() {
                 setBehaviorLeaderboardLoading(false);
             }
         }
-    }, [behaviorLeaderboardFilter, behaviorLeaderboardPage]);
+    }, [behaviorLeaderboardFilter, behaviorLeaderboardPage, isLocalAdminUiTestSession]);
 
     useEffect(() => {
         fetchSummary();
@@ -332,7 +372,7 @@ export default function UserManagementPage() {
     }, [fetchBehaviorLeaderboard, fetchSummary, fetchUsers]);
 
     const usersRealtimePulse = useAdminUsersRealtime({
-        enabled: viewMode === "users",
+        enabled: viewMode === "users" && !isLocalAdminUiTestSession,
         hasSnapshotValue: Boolean(summary),
         onInvalidate: scheduleRealtimeRefresh,
     });
@@ -350,6 +390,11 @@ export default function UserManagementPage() {
     }, [behaviorLeaderboardFilter, behaviorLeaderboardPage, fetchBehaviorLeaderboard]);
 
     const fetchFeedback = async () => {
+        if (isLocalAdminUiTestSession) {
+            setFeedback([]);
+            setLoadingFeedback(false);
+            return;
+        }
         setLoadingFeedback(true);
         try {
             const response = await authFetch("/api/admin/feedback");
@@ -569,6 +614,13 @@ export default function UserManagementPage() {
 
     const handleUpdateStatus = async () => {
         if (!actionUser || !actionType) return;
+        if (isLocalAdminUiTestSession) {
+            toast.info("User status changes require a real admin session. Local UI review is read-only.");
+            setActionType(null);
+            setActionUser(null);
+            setReason("");
+            return;
+        }
         setProcessing(true);
 
         try {
@@ -616,6 +668,12 @@ export default function UserManagementPage() {
 
     const handleUpdateUsername = async () => {
         if (!editUsernameUser) return;
+        if (isLocalAdminUiTestSession) {
+            toast.info("Username changes require a real admin session. Local UI review is read-only.");
+            setEditUsernameUser(null);
+            setEditUsernameInput("");
+            return;
+        }
         setProcessing(true);
         try {
             const response = await authFetch(`/api/admin/users/${editUsernameUser.uid}/username`, {
@@ -640,6 +698,11 @@ export default function UserManagementPage() {
     const handleManageContent = async (action: 'add' | 'remove', dropId: string) => {
         const normalizedDropId = dropId.trim();
         if (!contentUser || !normalizedDropId) return;
+        if (isLocalAdminUiTestSession) {
+            toast.info("Content access changes require a real admin session. Local UI review is read-only.");
+            setContentActionProcessing(false);
+            return;
+        }
         setContentActionProcessing(true);
         try {
             if (action === 'add' && contentUser.unlockedContent?.includes(normalizedDropId)) {
@@ -692,6 +755,10 @@ export default function UserManagementPage() {
 
     // --- Role & Verification Management ---
     const handleRoleUpdate = async (uid: string, newRole: 'user' | 'creator' | 'admin') => {
+        if (isLocalAdminUiTestSession) {
+            toast.info("Role changes require a real admin session. Local UI review is read-only.");
+            return;
+        }
         try {
             const response = await authFetch("/api/admin/users", {
                 method: "PUT",
@@ -720,6 +787,10 @@ export default function UserManagementPage() {
     };
 
     const handleVerification = async (uid: string, isVerified: boolean) => {
+        if (isLocalAdminUiTestSession) {
+            toast.info("Verification changes require a real admin session. Local UI review is read-only.");
+            return;
+        }
         try {
             const response = await authFetch("/api/admin/users", {
                 method: "PUT",
@@ -827,6 +898,19 @@ export default function UserManagementPage() {
                     </>
                 }
             />
+
+            {isLocalAdminUiTestSession ? (
+                <div
+                    className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+                    data-admin-users-fixture-boundary="true"
+                    data-admin-users-fixture-state="source_missing"
+                >
+                    <p className="font-bold">Local admin UI review only.</p>
+                    <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                        User-management layout is inspectable; user metrics, feedback, task controls, identity, payment, and content-access samples remain source_missing until a real admin session loads verified records.
+                    </p>
+                </div>
+            ) : null}
 
             {viewMode === 'users' && (
                 <>
@@ -1529,7 +1613,20 @@ export default function UserManagementPage() {
             )}
 
             {viewMode === 'tasks' && (
-                <AdminTasksManager users={users} />
+                isLocalAdminUiTestSession ? (
+                    <div
+                        className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 text-sm text-gray-300"
+                        data-admin-users-tasks-fixture-boundary="true"
+                        data-admin-users-tasks-fixture-state="source_missing"
+                    >
+                        <p className="font-bold text-white">Task controls require verified admin task data.</p>
+                        <p className="mt-2 text-xs leading-5 text-gray-400">
+                            Local UI review keeps the task builder read-only and skips admin task reads/writes until a real admin session is available.
+                        </p>
+                    </div>
+                ) : (
+                    <AdminTasksManager users={users} />
+                )
             )}
 
             {/* Action Modals */}
