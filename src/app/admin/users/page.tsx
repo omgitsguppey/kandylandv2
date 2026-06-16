@@ -18,6 +18,7 @@ import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { trackEvent } from "@/lib/telemetry";
 import {
     buildEngagementBehavioralExplanation,
@@ -72,6 +73,11 @@ type AdminUsersLaneResponse = Partial<AdminUsersResponse> & {
     success: boolean;
     loadingLane?: "summary" | "list" | "selectedUser" | "behavioralDetail";
 };
+
+function getAdminUsersSafeErrorMessage(error: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
+}
 
 export default function UserManagementPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -161,7 +167,7 @@ export default function UserManagementPage() {
                 },
                 consoleLabel: "[Admin Users] fetch selected user detail failed",
             });
-            toast.error(error instanceof Error ? error.message : "Failed to load user detail");
+            toast.error(getAdminUsersSafeErrorMessage(error, "Failed to load user detail"));
             if (options.openContent) {
                 setContentUser(user);
             }
@@ -201,7 +207,7 @@ export default function UserManagementPage() {
                 consoleLabel: "[Admin Users] fetch users summary failed",
             });
             if (!options.silent || !lastUsableSummaryRef.current) {
-                toast.error(error instanceof Error ? error.message : "Failed to load user metrics");
+                toast.error(getAdminUsersSafeErrorMessage(error, "Failed to load user metrics"));
             }
         } finally {
             if (!options.silent) {
@@ -241,7 +247,7 @@ export default function UserManagementPage() {
                 consoleLabel: "[Admin Users] fetch user list failed",
             });
             if (!options.silent) {
-                toast.error(error instanceof Error ? error.message : "Failed to load user list");
+                toast.error(getAdminUsersSafeErrorMessage(error, "Failed to load user list"));
             }
         } finally {
             if (!options.silent) {
@@ -294,7 +300,7 @@ export default function UserManagementPage() {
                 consoleLabel: "[Admin Users] fetch behavior leaderboard failed",
             });
             if (!options.silent) {
-                toast.error(error instanceof Error ? error.message : "Failed to load behavior leaderboard");
+                toast.error(getAdminUsersSafeErrorMessage(error, "Failed to load behavior leaderboard"));
             }
         } finally {
             if (!options.silent) {
@@ -602,7 +608,7 @@ export default function UserManagementPage() {
                 },
                 consoleLabel: "[Admin Users] update status failed",
             });
-            toast.error(error.message || "Failed to update user status.");
+            toast.error(getAdminUsersSafeErrorMessage(error, "Failed to update user status."));
         } finally {
             setProcessing(false);
         }
@@ -623,7 +629,7 @@ export default function UserManagementPage() {
             setEditUsernameUser(null);
             setEditUsernameInput("");
         } catch (error: any) {
-            toast.error(error.message || "Failed to update username.");
+            toast.error(getAdminUsersSafeErrorMessage(error, "Failed to update username."));
         } finally {
             setProcessing(false);
         }
@@ -678,7 +684,7 @@ export default function UserManagementPage() {
                 },
                 consoleLabel: "[Admin Users] manage content failed",
             });
-            toast.error(error.message || "Failed to update content access.");
+            toast.error(getAdminUsersSafeErrorMessage(error, "Failed to update content access."));
         } finally {
             setContentActionProcessing(false);
         }
@@ -709,7 +715,7 @@ export default function UserManagementPage() {
                 },
                 consoleLabel: "[Admin Users] update role failed",
             });
-            toast.error(error.message || "Failed to update role");
+            toast.error(getAdminUsersSafeErrorMessage(error, "Failed to update role"));
         }
     };
 
@@ -736,7 +742,7 @@ export default function UserManagementPage() {
                 },
                 consoleLabel: "[Admin Users] update verification failed",
             });
-            toast.error(error.message || "Failed to update verification");
+            toast.error(getAdminUsersSafeErrorMessage(error, "Failed to update verification"));
         }
     };
 
