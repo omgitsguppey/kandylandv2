@@ -229,13 +229,15 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     expect(model.guestMixLabel).toBe("Auth 0 · Guest unavailable");
     expect(model.topWarningDetail).toBe("No guest analytics batches were materialized in the realtime source window.");
   });
-  it("keeps detailed source doctrine out of primary Live Pulse copy", () => {
+  it("keeps detailed source doctrine out of primary Activity Snapshot copy", () => {
     const source = readFileSync(
       join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
       "utf8",
     );
 
     expect(source).toContain("defaultExpanded={false}");
+    expect(source).toContain('title="Activity Snapshot"');
+    expect(source).not.toContain('title="Live Pulse"');
     expect(source).toContain('data-admin-analytics-live-pulse-default-expanded="false"');
     expect(source).not.toContain("raw logs stay");
     expect(source).toContain("livePulseCompactStatusLine");

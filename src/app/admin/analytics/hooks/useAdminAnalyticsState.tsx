@@ -1813,7 +1813,7 @@ export function useAdminAnalyticsState() {
     },
     moduleConfig: {
       moduleKey: "live_pulse",
-      title: "Live Pulse",
+      title: "Activity Snapshot",
       refreshAvailable: true,
       metricValue: effectiveLiveResponse?.totalActive ?? null,
       serverConfirmedZero:

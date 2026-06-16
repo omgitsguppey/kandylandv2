@@ -267,9 +267,9 @@ function buildRecommendation(input: {
   failureCount: number;
 }) {
   if (!input.hasResponse && input.loading) return "Waiting for first snapshot.";
-  if (!input.hasResponse) return "Live interaction stream unavailable for this range.";
+  if (!input.hasResponse) return "Interaction snapshot unavailable for this range.";
   if (input.freshnessState === "stale" || input.freshnessState === "expired") {
-    return "Showing stale recent-event snapshot. Newer live telemetry has not arrived in this stream.";
+    return "Showing stale recent-event snapshot. Newer telemetry has not arrived in this stream.";
   }
   if (input.failureCount > 0) return "Recent task failures are present.";
   return "Showing recent interaction snapshot with grouped duplicate events.";
@@ -442,7 +442,7 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
           : "STALE";
   const warnings: string[] = [];
   if (streamSourceMode === "stale_snapshot") {
-    warnings.push("Showing stale recent-event snapshot. Newer live telemetry has not arrived in this stream.");
+    warnings.push("Showing stale recent-event snapshot. Newer telemetry has not arrived in this stream.");
   }
   if (failureCount > 0) {
     warnings.push("Recent task failures are present.");
@@ -499,14 +499,14 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
       hasResponse,
     }),
     visibleCopy: streamSourceMode === "live"
-      ? "Showing live recent-event stream."
+      ? "First-party backend interaction snapshot; realtime is not claimed unless the source upgrades."
       : streamSourceMode === "snapshot"
-        ? "Showing recent-event snapshot. This lane is not claiming live presence."
+        ? "First-party backend interaction snapshot; realtime is not claimed unless the source upgrades."
         : streamSourceMode === "stale_snapshot"
-          ? "Showing stale recent-event snapshot. Newer live telemetry has not arrived in this stream."
+          ? "Showing stale recent-event snapshot. Newer telemetry has not arrived in this stream."
           : input.loading
             ? "Waiting for first snapshot."
-            : "Live interaction stream unavailable for this range.",
+            : "Interaction snapshot unavailable for this range.",
     streamSourceStatusDetail: hasResponse
       ? `Source ${sourceTruth}. Last event ${lastEventAt ? new Date(lastEventAt).toISOString() : "unknown"}. Generated ${generatedAtMs ? new Date(generatedAtMs).toISOString() : "unknown"}.`
       : input.loading

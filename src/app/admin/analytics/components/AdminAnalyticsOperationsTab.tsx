@@ -413,8 +413,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     <>
 <>
             <SectionCard
-              title="Live Pulse"
-              subtitle="First-party realtime presence and graph health."
+              title="Activity Snapshot"
+              subtitle="Recent first-party activity and graph health."
               icon={Activity}
               density="compact"
               defaultExpanded={false}
@@ -550,7 +550,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 ) : (
                   <div className="flex h-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/25 px-3 text-center text-xs text-gray-400">
                     {livePulseModel.backendSnapshotStatus === "available"
-                      ? "Graph awaiting live upgrade."
+                      ? "Graph waiting for a realtime upgrade."
                       : liveLoading ? "Graph awaiting first snapshot." : "No verified graph data yet."}
                   </div>
                 )}
@@ -567,7 +567,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <div className="rounded-[1rem] border border-white/10 bg-black/30 p-2.5 md:p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                      Realtime surfaces
+                      Snapshot surfaces
                     </p>
                     <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
                       {livePulseModel.surfaces.length} lanes
@@ -586,7 +586,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     ) : (
                       <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
-                        Surface detail has no verified live upgrade yet.
+                        Surface detail has no verified realtime upgrade yet.
                       </div>
                     )}
                   </div>
@@ -596,7 +596,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     ) : (
                       <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
-                        Surface detail has no verified live upgrade yet.
+                        Surface detail has no verified realtime upgrade yet.
                       </div>
                     )}
                   </div>
@@ -1717,7 +1717,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 </SectionCard>
 
             <SectionCard
-              title="Live Interaction Stream"
+              title="Interaction Snapshot"
               subtitle="Recent telemetry snapshot with freshness, actor, and task-failure truth."
               icon={Clock3}
               rightSlot={(
@@ -1778,7 +1778,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 >
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                      Recent interaction stream
+                      Recent interaction snapshot
                     </p>
                     <span className="text-[10px] text-gray-500">
                       source / actor / surface truth

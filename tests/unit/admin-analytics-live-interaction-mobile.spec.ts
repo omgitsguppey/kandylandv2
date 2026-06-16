@@ -9,7 +9,9 @@ const source = readFileSync(
 );
 
 describe("Admin analytics live interaction mobile consolidation", () => {
-  it("renders Live Interaction Stream as one compact mobile view mode at a time", () => {
+  it("renders Interaction Snapshot as one compact mobile view mode at a time", () => {
+    expect(source).toContain('title="Interaction Snapshot"');
+    expect(source).not.toContain('title="Live Interaction Stream"');
     expect(source).toContain("liveInteractionViewMode");
     expect(source).toContain("setLiveInteractionViewMode");
     expect(source).toContain("data-admin-analytics-mobile-view-mode={liveInteractionViewMode}");

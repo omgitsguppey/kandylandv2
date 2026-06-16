@@ -36,10 +36,12 @@ const helper = read("src/lib/admin-analytics-live-interaction-stream.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 const doc = read("docs/agent-truth/admin-analytics-live-interaction-stream.md");
 const section = component.slice(
-  component.indexOf('title="Live Interaction Stream"'),
+  component.indexOf('title="Interaction Snapshot"'),
   component.indexOf('title="Data Validation"'),
 );
 
+assertIncludes("AdminAnalyticsOperationsTab", component, 'title="Interaction Snapshot"');
+assertNotIncludes("AdminAnalyticsOperationsTab", component, 'title="Live Interaction Stream"');
 assertIncludes("AdminAnalyticsOperationsTab", component, "liveInteractionStreamModel");
 assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_LIVE_INTERACTION_STREAM_DEBUG__");
@@ -52,6 +54,7 @@ assertIncludes("Live Interaction Stream section", section, "No user interactions
 assertNotIncludes("Live Interaction Stream section", section, "{event.type}");
 assertNotIncludes("Live Interaction Stream section", section, "rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5");
 assertNotIncludes("Live Interaction Stream section", section, "TASK_ASSIGNED");
+assertNotIncludes("Live Interaction Stream section", section, 'title="Live Interaction Stream"');
 
 for (const phrase of BANNED_VISIBLE_COPY) {
   assertNotIncludes("visible Live Interaction Stream copy", section, phrase);

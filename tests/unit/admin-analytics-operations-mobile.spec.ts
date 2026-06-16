@@ -9,7 +9,9 @@ const source = readFileSync(
 );
 
 describe("Admin analytics operations mobile consolidation", () => {
-  it("renders Live Pulse as one compact mobile view mode at a time", () => {
+  it("renders Activity Snapshot as one compact mobile view mode at a time", () => {
+    expect(source).toContain('title="Activity Snapshot"');
+    expect(source).not.toContain('title="Live Pulse"');
     expect(source).toContain("livePulseViewMode");
     expect(source).toContain("setLivePulseViewMode");
     expect(source).toContain("data-admin-analytics-mobile-view-mode={livePulseViewMode}");

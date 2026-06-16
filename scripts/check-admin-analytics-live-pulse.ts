@@ -40,10 +40,12 @@ const debugRoute = read("src/app/api/admin/debug/route.ts");
 const primitives = read("src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx");
 const doc = read("docs/agent-truth/admin-analytics-live-pulse.md");
 const livePulseSection = component.slice(
-  component.indexOf('title="Live Pulse"'),
+  component.indexOf('title="Activity Snapshot"'),
   component.indexOf('title="Journey Funnel"'),
 );
 
+assertIncludes("AdminAnalyticsOperationsTab", component, 'title="Activity Snapshot"');
+assertNotIncludes("AdminAnalyticsOperationsTab", component, 'title="Live Pulse"');
 assertIncludes("AdminAnalyticsOperationsTab", component, "livePulseModel");
 assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("AdminAnalyticsOperationsTab", component, "resolveAdminAnalyticsLivePulseBadgeLabel");
@@ -53,8 +55,8 @@ assertNotIncludes("AdminAnalyticsOperationsTab", component, "function formatJour
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_LIVE_PULSE_DEBUG__");
 assertIncludes("AdminAnalyticsOperationsTab", component, "compactChartHeightClass");
 assertIncludes("AdminAnalyticsOperationsTab", component, "Graph awaiting first snapshot.");
-assertIncludes("AdminAnalyticsOperationsTab", component, "Graph awaiting live upgrade.");
-assertIncludes("AdminAnalyticsOperationsTab", component, "Surface detail has no verified live upgrade yet.");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Graph waiting for a realtime upgrade.");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Surface detail has no verified realtime upgrade yet.");
 assertIncludes("AdminAnalyticsOperationsTab", component, "displayLabel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "topWarningDetail");
 assertIncludes("AdminAnalyticsOperationsTab", component, "guestEstimateState");
@@ -83,6 +85,8 @@ assertNotIncludes("Live Pulse section", livePulseSection, "Graph waiting for liv
 assertNotIncludes("Live Pulse section", livePulseSection, "Graph source unavailable");
 assertNotIncludes("Live Pulse section", livePulseSection, "Surface detail waiting for live data.");
 assertNotIncludes("Live Pulse section", livePulseSection, "Realtime surfaces are waiting for presence rows.");
+assertNotIncludes("Live Pulse section", livePulseSection, 'title="Live Pulse"');
+assertNotIncludes("Live Pulse section", livePulseSection, "Realtime surfaces");
 
 for (const phrase of BANNED_VISIBLE_COPY) {
   assertNotIncludes("visible Live Pulse copy", livePulseSection, phrase);
