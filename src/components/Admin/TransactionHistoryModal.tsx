@@ -7,6 +7,7 @@ import { ArrowDownLeft, ArrowUpRight, Loader2, ScrollText, TrendingUp } from "lu
 import { Button } from "@/components/ui/Button";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import {
     getTransactionBadgeLabel,
@@ -18,6 +19,11 @@ import { Transaction, UserProfile } from "@/types/db";
 interface Props {
     user: UserProfile | null;
     onClose: () => void;
+}
+
+function getAdminTransactionHistorySafeErrorMessage(error: unknown) {
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? "Failed to load transactions" : safeError.operatorMessage;
 }
 
 export function TransactionHistoryModal({ user, onClose }: Props) {
@@ -50,7 +56,7 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                     consoleLabel: "[Transaction History Modal] fetch failed",
                 });
                 setTransactions([]);
-                setError(error instanceof Error ? error.message : "Failed to load transactions");
+                setError(getAdminTransactionHistorySafeErrorMessage(error));
             } finally {
                 setLoading(false);
             }
