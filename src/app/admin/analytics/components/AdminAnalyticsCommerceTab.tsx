@@ -86,14 +86,32 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const commerceBadgeLabel = resolveAdminAnalyticsCommerceBadgeLabel(commerceSnapshotModel);
   const verifiedSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot");
   const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
-  const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
-  const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
   const compactMetricClass = "rounded-[1rem] p-2";
   const compactMetricValueClass = "text-lg leading-6 md:text-xl";
+  const formatCommerceScopeLabel = (scope: string | null | undefined) => {
+    switch (scope) {
+      case "rolling_30d":
+        return "30D";
+      case "lifetime":
+        return "All time";
+      case "selected_range":
+        return commerceSnapshotModel.selectedRangeLabel;
+      case "":
+      case null:
+      case undefined:
+        return "Selected range";
+      default:
+        return scope.replace(/[_/]+/gu, " ");
+    }
+  };
+  const formatCommerceMetricLabel = (label: string) =>
+    label
+      .replace(/\bgd\b/giu, "GumDrops")
+      .replace(/\bAdj\.\s*/u, "Adjusted ");
   const formatCommerceSourceHint = (
     scope: string | null | undefined,
     sourceTruth: string | null | undefined,
-  ) => `${scope ?? "Unknown scope"} | ${formatAdminAnalyticsSourceTruthLabel(sourceTruth)}`;
+  ) => `${formatCommerceScopeLabel(scope)} | ${formatAdminAnalyticsSourceTruthLabel(sourceTruth)}`;
   const commerceConversionLabel =
     commerceSnapshotModel.checkoutConversionValue !== null
       ? formatPercent(commerceSnapshotModel.checkoutConversionValue)
@@ -116,24 +134,25 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     recentCommerceFeedModel.sourceTruth,
   );
   const gdSpentTooltip = [
-    gdSpentCard?.explanation ?? "GumDrops spent through internal unwrap/access records.",
+    "Unlock spend split by source.",
     `Paid ${formatCommerceValue(commerceSnapshotModel.paidGdSpentValue, formatCompactNumber, "Unavailable")}`,
     `Reward ${formatCommerceValue(commerceSnapshotModel.rewardFreeGdSpentValue, formatCompactNumber, "Unavailable")}`,
     `Unknown ${formatCommerceValue(commerceSnapshotModel.unknownSourceGdSpentValue, formatCompactNumber, "Unavailable")}`,
   ].join(" | ");
   const adjustedProfitTooltip = [
-    commerceSnapshotModel.adjustedProfitFormula,
+    "Gross revenue minus fees and promo/bonus basis.",
     `Gross ${formatCommerceValue(commerceSnapshotModel.revenueValue, formatMoney, "Unavailable")}`,
     `Fees ${formatCommerceValue(commerceSnapshotModel.paymentFeesUsdValue, formatMoney, "Unavailable")}`,
-    `Promo basis ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}`,
+    `Promo/bonus ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}`,
   ].join(" | ");
   const yieldTooltip = [
-    commerceSnapshotModel.yieldPer100GdFormula,
+    "Revenue per 100 delivered paid-source GumDrops.",
     `Paid base ${formatCommerceValue(commerceSnapshotModel.paidBaseDeliveredGdValue, formatCompactNumber, "Unavailable")}`,
     `Paid bonus ${formatCommerceValue(commerceSnapshotModel.paidBonusDeliveredGdValue, formatCompactNumber, "Unavailable")}`,
   ].join(" | ");
   const promoTooltip = [
-    `Bonus GD ${formatCommerceValue(commerceSnapshotModel.bonusGdGranted, formatCompactNumber, "Unavailable")}`,
+    "Promo and bonus value stay separate from revenue.",
+    `Bonus GumDrops ${formatCommerceValue(commerceSnapshotModel.bonusGdGranted, formatCompactNumber, "Unavailable")}`,
     `Discount ${formatCommerceValue(commerceSnapshotModel.promoDiscountUsdValue, formatMoney, "Unavailable")}`,
     `Value basis ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}`,
   ].join(" | ");
@@ -249,7 +268,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     <>
             <SectionCard
               title="Commerce Snapshot"
-              subtitle="Money in, completed purchases, GD spend, and funnel health."
+              subtitle="Money in, completed purchases, GumDrop spend, and funnel health."
               icon={DollarSign}
               defaultExpanded
               rightSlot={renderSectionRangeControl("commerceSnapshot")}
@@ -265,10 +284,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   <p key={line}>{line}</p>
                 ))}
                 <p className="text-gray-400">
-                  Source label: {verifiedSnapshotLabel}. {vendorEvidenceLabel} stays supporting evidence, not product truth.
+                  Decision source: {verifiedSnapshotLabel}. {vendorEvidenceLabel} can explain gaps, but cannot create payment or GumDrop truth.
                 </p>
                 <p className="text-gray-400">
-                  Recovery label: {debugRecoveryLabel}; {recoveryReviewLabel}.
+                  Recovery evidence stays review-only until the server ledger confirms it.
                 </p>
               </div>
 
@@ -288,7 +307,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <div>
                   <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Treasury</div>
                   <div className="font-semibold text-white">Platform Economy</div>
-                  <div className="text-gray-400">Treasury truth lives in Platform Economy.</div>
+                  <div className="text-gray-400">Server ledger remains the treasury source.</div>
                 </div>
               </div>
 
@@ -306,7 +325,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
 
               <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                 <MetricCard
-                  label={revenueCard?.label ?? "Revenue"}
+                  label={formatCommerceMetricLabel(revenueCard?.label ?? "Revenue")}
                   value={formatCommerceValue(commerceSnapshotModel.revenueValue, formatMoney)}
                   hint={formatCommerceSourceHint(revenueCard?.scope, revenueCard?.sourceTruth)}
                   icon={DollarSign}
@@ -317,7 +336,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   dictionaryTooltip={revenueCard?.explanation ?? "Completed real-money purchases from internal payment records. Promo and bonus value are excluded."}
                 />
                 <MetricCard
-                  label={purchasesCard?.label ?? "Purchases"}
+                  label={formatCommerceMetricLabel(purchasesCard?.label ?? "Purchases")}
                   value={formatCommerceValue(commerceSnapshotModel.purchaseCompletionsValue, formatCompactNumber)}
                   hint={formatCommerceSourceHint(purchasesCard?.scope, purchasesCard?.sourceTruth)}
                   icon={CheckCircle2}
@@ -328,7 +347,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   dictionaryTooltip={purchasesCard?.explanation ?? "Server-confirmed completed purchases, not checkout starts."}
                 />
                 <MetricCard
-                  label={checkoutCard?.label ?? "Checkout Starts"}
+                  label={formatCommerceMetricLabel(checkoutCard?.label ?? "Checkout Starts")}
                   value={formatCommerceValue(commerceSnapshotModel.checkoutStartsValue, formatCompactNumber)}
                   hint={formatCommerceSourceHint(checkoutCard?.scope, checkoutCard?.sourceTruth)}
                   icon={Funnel}
@@ -339,7 +358,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   dictionaryTooltip={checkoutCard?.explanation ?? "Checkout start telemetry. It is separate from completed purchases."}
                 />
                 <MetricCard
-                  label={gdSpentCard?.label ?? "GD Spent"}
+                  label={formatCommerceMetricLabel(gdSpentCard?.label ?? "GumDrops Spent")}
                   value={formatCommerceValue(commerceSnapshotModel.gdSpentValue, formatCompactNumber)}
                   hint={formatCommerceSourceHint(gdSpentCard?.scope, gdSpentCard?.sourceTruth)}
                   icon={ShoppingBag}
@@ -353,7 +372,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
 
               <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">
                 <MetricCard
-                  label={adjustedProfitCard?.label ?? "Adj. Profit"}
+                  label={formatCommerceMetricLabel(adjustedProfitCard?.label ?? "Adjusted Profit")}
                   value={formatCommerceValue(commerceSnapshotModel.adjustedProfitValue, formatMoney)}
                   hint={formatCommerceSourceHint(adjustedProfitCard?.scope, adjustedProfitCard?.sourceTruth)}
                   icon={Wallet}
@@ -364,7 +383,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   dictionaryTooltip={adjustedProfitTooltip}
                 />
                 <MetricCard
-                  label={yieldCard?.label ?? "Yield / 100 GD"}
+                  label={formatCommerceMetricLabel(yieldCard?.label ?? "Yield / 100 GumDrops")}
                   value={formatCommerceValue(commerceSnapshotModel.yieldPer100GdValue, formatMoney)}
                   hint={formatCommerceSourceHint(yieldCard?.scope, yieldCard?.sourceTruth)}
                   icon={Sparkles}
@@ -375,7 +394,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   dictionaryTooltip={yieldTooltip}
                 />
                 <MetricCard
-                  label={walletCard?.label ?? "Wallet Opens"}
+                  label={formatCommerceMetricLabel(walletCard?.label ?? "Wallet Opens")}
                   value={formatCommerceValue(commerceSnapshotModel.walletOpensValue, formatCompactNumber)}
                   hint={formatCommerceSourceHint(walletCard?.scope, walletCard?.sourceTruth)}
                   icon={Wallet}
@@ -386,7 +405,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   dictionaryTooltip={walletCard?.explanation ?? "Wallet open telemetry for the selected range."}
                 />
                 <MetricCard
-                  label={promoCard?.label ?? "Promo Impact"}
+                  label={formatCommerceMetricLabel(promoCard?.label ?? "Promo Impact")}
                   value={formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}
                   hint={formatCommerceSourceHint(promoCard?.scope, promoCard?.sourceTruth)}
                   icon={Candy}
@@ -403,7 +422,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   {commerceConversionFooter}
                 </div>
                 <div className="text-gray-400">
-                  Revenue source: completed internal payment records. Treasury truth lives in Platform Economy.
+                  Revenue comes from completed internal payment records. Treasury source stays in Platform Economy.
                 </div>
                 <div className="text-brand-purple">
                   {commerceSnapshotModel.needsAttention.length > 0
