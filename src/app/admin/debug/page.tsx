@@ -73,6 +73,8 @@ const DEBUG_TABS: Array<{ id: DebugTabId; label: string; icon: typeof Activity }
     { id: "advanced", label: "Advanced", icon: Terminal },
 ];
 
+const ADMIN_DEBUG_PREFERENCES_REFRESH_INTERVAL_MS = 0;
+
 function formatRelative(timestamp?: number) {
     if (!timestamp) return "No recent activity";
     const deltaMs = Math.max(0, Date.now() - timestamp);
@@ -218,10 +220,14 @@ export default function DebugConsole() {
         queueHeartbeats: realtimeQueueHeartbeats,
         listenerErrors: debugRealtimeState,
     } = useAdminDebugRealtime({ enabled: !isLocalAdminUiTestSession });
-    const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>(isLocalAdminUiTestSession ? null : "/api/admin/debug/preferences", 15000, {
+    const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>(
+        isLocalAdminUiTestSession ? null : "/api/admin/debug/preferences",
+        ADMIN_DEBUG_PREFERENCES_REFRESH_INTERVAL_MS,
+        {
         // Preferences are non-blocking UI state, so preserving the prior value while refetching is intentional.
         keepPreviousData: true,
-    });
+        },
+    );
     const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>(isLocalAdminUiTestSession ? null : "/api/admin/debug/assistant", 15000, {
         keepPreviousData: false,
     });
