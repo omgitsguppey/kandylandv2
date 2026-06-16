@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
+import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { BehavioralVerdictCard } from "@/components/Admin/BehavioralVerdictCard";
@@ -251,6 +252,39 @@ const CREATOR_SEGMENTATION_STATUS_OPTIONS = [
     { value: "segment_assigned", label: "Assigned" },
 ] as const satisfies Array<{ value: CreatorApplicationState["segmentationStatus"]; label: string }>;
 
+const ADMIN_USER_DETAIL_BROWSER_SMOKE_USER_ID = "browser-smoke-user";
+
+const ADMIN_USER_DETAIL_BROWSER_SMOKE_PROFILE: UserProfile = {
+    uid: ADMIN_USER_DETAIL_BROWSER_SMOKE_USER_ID,
+    email: "browser-smoke-user@example.invalid",
+    displayName: "Browser Smoke User",
+    username: "browser-smoke-user",
+    photoURL: null,
+    role: "user",
+    isVerified: false,
+    gumDropsBalance: 0,
+    gumDropsPurchasedBalance: 0,
+    gumDropsRewardBalance: 0,
+    unlockedContent: [],
+    createdAt: 1_735_689_600_000,
+    status: "active",
+    onboardingCompleted: false,
+    privacySettings: {
+        consentMode: "minimal_analytics",
+        consentDecision: "minimal",
+        consentSource: "account_settings",
+        allowRecommendations: false,
+        showInAnonymousStats: false,
+        anonymousAnalyticsEnabled: true,
+        identifiedAnalyticsEnabled: false,
+        honorGlobalPrivacyControl: true,
+        consentUpdatedAt: 1_735_689_600_000,
+    },
+    accountSettings: {
+        timezone: "UTC",
+    },
+};
+
 function getValidationClasses(status: "pass" | "warn" | "fail") {
     if (status === "pass") {
         return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
@@ -307,7 +341,7 @@ function getSupportStateClasses(state: SupportReadinessState) {
 export default function AdminUserAnalyticsPage() {
     const params = useParams();
     const router = useRouter();
-    const { userProfile, loading: authLoading } = useAuth();
+    const { user, userProfile, loading: authLoading } = useAuth();
 
     const userId = params?.userId as string;
 
@@ -330,9 +364,34 @@ export default function AdminUserAnalyticsPage() {
     const [error, setError] = useState<string | null>(null);
 
     const isAdmin = userProfile?.role === "admin";
+    const isLocalAdminUiTestSession = isAdminUiTestSessionUser(user);
+    const isLocalAdminUserDetailFixture = isLocalAdminUiTestSession && userId === ADMIN_USER_DETAIL_BROWSER_SMOKE_USER_ID;
 
     const loadUserData = useCallback(async () => {
-        if (authLoading || !isAdmin || !userId) {
+        if (authLoading) {
+            return;
+        }
+
+        if (isLocalAdminUserDetailFixture) {
+            setTargetUser(ADMIN_USER_DETAIL_BROWSER_SMOKE_PROFILE);
+            setTransactions([]);
+            setAnalytics(null);
+            setBehavioralProfile(null);
+            setRecommendationDebug(null);
+            setSecuritySummary(null);
+            setSecurityEvents([]);
+            setSupportReadiness(null);
+            setCreatorOps(null);
+            setCreatorApplicationState(null);
+            setCreatorOnboardingCanonical(null);
+            setCreatorOnboardingHistory([]);
+            setError(null);
+            setLoading(false);
+            return;
+        }
+
+        if (!isAdmin || !userId) {
+            setLoading(false);
             return;
         }
 
@@ -400,7 +459,7 @@ export default function AdminUserAnalyticsPage() {
         } finally {
             setLoading(false);
         }
-    }, [authLoading, isAdmin, userId]);
+    }, [authLoading, isAdmin, isLocalAdminUserDetailFixture, userId]);
 
     useEffect(() => {
         void loadUserData();
@@ -679,6 +738,15 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                 )}
             />
+
+            {isLocalAdminUserDetailFixture ? (
+                <div
+                    className="rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
+                    data-admin-user-detail-fixture-boundary="true"
+                >
+                    <span className="font-bold text-white">Local UI review only.</span> User detail layout is inspectable; analytics, support, security, recommendation, and payment/user metric samples are source_missing until a real admin session loads a verified user record.
+                </div>
+            ) : null}
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
