@@ -180,6 +180,11 @@ function buildGalleryDescription(item: AdminAiDropDescriptionDashboard["reviewGa
     return item.descriptionText || "No description text stored.";
 }
 
+function getAdminAiDescriptionSafeErrorMessage(issue: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(issue, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
+}
+
 export function AdminAiDescriptionOperations({ compact = false }: { compact?: boolean } = {}) {
     const [refreshIntervalMs, setRefreshIntervalMs] = useState(ADMIN_AI_DROP_DESCRIPTION_IDLE_POLL_INTERVAL_MS);
     const [galleryFilter, setGalleryFilter] = useState<GalleryFilter>("all");
@@ -321,7 +326,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                 detail: { adminView: "admin_ai_page", patch },
                 consoleLabel: "[Admin AI Description] settings update failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to update description settings");
+            toast.error(getAdminAiDescriptionSafeErrorMessage(issue, "Failed to update description settings"));
         } finally {
             setUpdatingSettings(false);
         }
@@ -355,7 +360,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                 detail: { adminView: "admin_ai_page" },
                 consoleLabel: "[Admin AI Description] prompt policy save failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to save description prompt policy");
+            toast.error(getAdminAiDescriptionSafeErrorMessage(issue, "Failed to save description prompt policy"));
         } finally {
             setSavingPolicy(false);
         }
@@ -382,7 +387,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                 detail: { adminView: "admin_ai_page", jobId, action },
                 consoleLabel: "[Admin AI Description] feedback update failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Failed to update description feedback");
+            toast.error(getAdminAiDescriptionSafeErrorMessage(issue, "Failed to update description feedback"));
         } finally {
             setFeedbackingJobId(null);
         }
