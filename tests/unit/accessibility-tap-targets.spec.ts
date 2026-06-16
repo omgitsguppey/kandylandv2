@@ -97,7 +97,8 @@ describe("accessibility tap target launch contracts", () => {
         expect(source).toContain("aria-label=\"Analytics view mode\"");
         expect(source).toContain("aria-label={option.label}");
         expect(source).toContain("aria-pressed={active}");
-        expect(source).toContain("hidden sm:inline");
+        expect(source).toContain("hidden md:inline");
+        expect(source).toContain("const showRightSlot = Boolean(rightSlot) && (!collapsible || expanded)");
     });
 
     it("admin drop action buttons keep accessible names when compact text is hidden", () => {

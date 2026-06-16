@@ -130,6 +130,7 @@ export function SectionCard({
 }: SectionCardProps) {
     const [expanded, setExpanded] = useState(defaultExpanded);
     const compact = density === "compact";
+    const showRightSlot = Boolean(rightSlot) && (!collapsible || expanded);
 
     return (
         <section
@@ -167,7 +168,7 @@ export function SectionCard({
                     ) : null}
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                    {rightSlot}
+                    {showRightSlot ? rightSlot : null}
                     {collapsible ? (
                         <button
                             type="button"
