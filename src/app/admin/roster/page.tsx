@@ -431,6 +431,13 @@ export default function AdminRosterPage() {
         let cancelled = false;
 
         async function loadRoster() {
+            if (isLocalAdminUiTestSession) {
+                setRoster(null);
+                setSelectedUserId(null);
+                setLoading(false);
+                return;
+            }
+
             try {
                 setLoading(true);
                 const params = new URLSearchParams();
@@ -473,9 +480,15 @@ export default function AdminRosterPage() {
         return () => {
             cancelled = true;
         };
-    }, [focusUserId, query, selectedUserId]);
+    }, [focusUserId, isLocalAdminUiTestSession, query, selectedUserId]);
 
     useEffect(() => {
+        if (isLocalAdminUiTestSession) {
+            setDetail(null);
+            setDetailLoading(false);
+            return;
+        }
+
         if (!selectedUserId) {
             setDetail(null);
             return;
@@ -521,9 +534,15 @@ export default function AdminRosterPage() {
         return () => {
             cancelled = true;
         };
-    }, [selectedUserId]);
+    }, [isLocalAdminUiTestSession, selectedUserId]);
 
     useEffect(() => {
+        if (isLocalAdminUiTestSession) {
+            setAgreementTemplate(null);
+            setAgreementTemplateForm(DEFAULT_AGREEMENT_TEMPLATE_FORM);
+            return;
+        }
+
         let cancelled = false;
 
         async function loadAgreementTemplate() {
@@ -562,9 +581,13 @@ export default function AdminRosterPage() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [isLocalAdminUiTestSession]);
 
     const refreshSelectedDetail = async () => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         if (!selectedUserId) {
             return;
         }
@@ -579,6 +602,10 @@ export default function AdminRosterPage() {
     };
 
     const refreshRoster = async () => {
+        if (isLocalAdminUiTestSession) {
+            return;
+        }
+
         const params = new URLSearchParams();
         if (query.trim().length >= 2) {
             params.set("q", query.trim());
@@ -592,6 +619,10 @@ export default function AdminRosterPage() {
     };
 
     const refreshAgreementTemplate = async () => {
+        if (isLocalAdminUiTestSession) {
+            throw new Error("Creator roster agreement template source_missing in local UI review.");
+        }
+
         const response = await authFetch("/api/admin/creator-agreements");
         const result = await response.json() as { success?: boolean; activeTemplate?: CreatorAgreementTemplateAdminView; error?: string };
         if (!response.ok || !result.success || !result.activeTemplate) {
@@ -1070,8 +1101,9 @@ export default function AdminRosterPage() {
                     <div
                         className="mb-4 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
                         data-admin-roster-fixture-boundary="true"
+                        data-admin-roster-fixture-state="source_missing"
                     >
-                        <span className="font-bold text-white">Local UI review only.</span> Creator roster data is inspectable; creation, approval, agreement, account, and fan-experience writes require real admin auth.
+                        <span className="font-bold text-white">Local UI review only.</span> Creator roster source data is source_missing; layout is inspectable, while roster, detail, agreement, creation, approval, account, and fan-experience evidence require real admin auth.
                     </div>
                 ) : null}
                 <section className="grid gap-4 lg:grid-cols-[0.94fr_1.06fr]">
@@ -1079,17 +1111,17 @@ export default function AdminRosterPage() {
                         <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
                             <div className="min-w-[180px] rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Needs admin</p>
-                                <p className="mt-2 text-2xl font-black text-white">{entriesByDecision.needs_review.length}</p>
+                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "source_missing" : entriesByDecision.needs_review.length}</p>
                                 <p className="mt-1 text-xs leading-5 text-zinc-400">Creators waiting for your next action.</p>
                             </div>
                             <div className="min-w-[180px] rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Waiting on creator</p>
-                                <p className="mt-2 text-2xl font-black text-white">{entriesByDecision.waiting.length}</p>
+                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "source_missing" : entriesByDecision.waiting.length}</p>
                                 <p className="mt-1 text-xs leading-5 text-zinc-400">Agreement, ID, or intake steps still missing.</p>
                             </div>
                             <div className="min-w-[180px] rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Live creators</p>
-                                <p className="mt-2 text-2xl font-black text-white">{roster?.summary.creatorCount ?? approvedLiveCreators.length}</p>
+                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "source_missing" : roster?.summary.creatorCount ?? approvedLiveCreators.length}</p>
                                 <p className="mt-1 text-xs leading-5 text-zinc-400">Approved creators with active access.</p>
                             </div>
                         </div>
@@ -1117,7 +1149,7 @@ export default function AdminRosterPage() {
                                     <div className="mt-4 space-y-3">
                                         {visibleDecisionEntries.length === 0 && approvedLiveCreators.length === 0 ? (
                                             <div className="rounded-2xl border border-dashed border-white/10 bg-black/30 px-4 py-5 text-sm text-zinc-400">
-                                                No approved creators match this view right now.
+                                                {isLocalAdminUiTestSession ? "Approved creator source data is source_missing in local UI review." : "No approved creators match this view right now."}
                                             </div>
                                         ) : visibleDecisionEntries.map((entry) => (
                                             <button
@@ -1162,7 +1194,7 @@ export default function AdminRosterPage() {
                                     <div className="mt-4 space-y-3">
                                         {visibleDecisionEntries.length === 0 ? (
                                             <div className="rounded-2xl border border-dashed border-white/10 bg-black/30 px-4 py-5 text-sm text-zinc-400">
-                                                No creators match this decision queue right now.
+                                                {isLocalAdminUiTestSession ? "Creator decision queue source data is source_missing in local UI review." : "No creators match this decision queue right now."}
                                             </div>
                                         ) : visibleDecisionEntries.map((entry) => (
                                             <button
