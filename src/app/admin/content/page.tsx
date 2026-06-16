@@ -219,13 +219,13 @@ export default function ContentManagerPage() {
         <div className="space-y-4 md:space-y-5">
             <PageViewEvent eventName="admin_content_viewed" />
             <AdminPageHeader
-                eyebrow="Admin Storage"
-                title="Content Manager"
-                subtitle="Manage Firebase Storage assets."
+                eyebrow="Admin content"
+                title="Storage assets"
+                subtitle="Review uploaded drop media. Uploads and deletes need verified admin access."
                 compact
                 actions={
                     <>
-                    <Button variant="ghost" onClick={() => setRefreshTrigger(prev => prev + 1)}>
+                    <Button variant="ghost" size="icon" aria-label="Refresh storage assets" onClick={() => setRefreshTrigger(prev => prev + 1)}>
                         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                     </Button>
                     <div className="relative">
@@ -236,9 +236,9 @@ export default function ContentManagerPage() {
                             disabled={uploading || isLocalAdminUiTestSession}
                             aria-label="Upload content file"
                         />
-                        <Button variant="brand" disabled={uploading || isLocalAdminUiTestSession}>
+                        <Button variant="brand" size="sm" disabled={uploading || isLocalAdminUiTestSession}>
                             {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                            {isLocalAdminUiTestSession ? "Upload unavailable" : "Upload File"}
+                            {isLocalAdminUiTestSession ? "Upload unavailable" : "Upload file"}
                         </Button>
                     </div>
                     </>
@@ -247,16 +247,17 @@ export default function ContentManagerPage() {
 
             {isLocalAdminUiTestSession ? (
                 <div
-                    className="rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3 text-xs text-amber-100"
+                    className="rounded-lg border border-amber-400/20 bg-amber-400/10 p-3 text-xs leading-5 text-amber-100"
                     data-admin-content-fixture-boundary="true"
+                    data-admin-content-source-state="source_missing"
                 >
-                    Local UI review only. Storage listing, upload, and delete require real admin auth; no storage sample is proven here.
+                    <span className="font-semibold text-amber-50">Source missing.</span> Storage samples, uploads, and deletes need a verified admin session.
                 </div>
             ) : null}
 
             {error ? (
                 <div
-                    className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200"
+                    className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm leading-5 text-red-200"
                     data-admin-content-safe-error="true"
                 >
                     {error}
@@ -264,7 +265,7 @@ export default function ContentManagerPage() {
             ) : null}
 
             {/* Compact Filter Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex flex-wrap items-center gap-2 pb-1">
                 {tabs.map((tab) => {
                     const count = tab === "All" ? files.length : files.filter(f => classifyFile(f) === tab).length;
                     return (
@@ -277,8 +278,8 @@ export default function ContentManagerPage() {
                                     : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
                             }`}
                         >
-                            {tab}
-                            <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${activeTab === tab ? "bg-black/10 text-black" : "bg-black/30 text-gray-300"}`}>
+                            <span>{tab}</span>
+                            <span className={activeTab === tab ? "text-black/60" : "text-gray-500"}>
                                 {count}
                             </span>
                         </button>
@@ -294,13 +295,13 @@ export default function ContentManagerPage() {
                         <p className="text-sm">Loading assets...</p>
                     </div>
                 ) : files.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
+                    <div className="rounded-lg border border-dashed border-white/10 bg-black/20 p-6 text-center text-sm leading-5 text-gray-400">
                         {isLocalAdminUiTestSession
-                            ? "Storage source_missing for local UI review. Use a real admin session for storage sample evidence."
-                            : "No files found in 'drops' folder."}
+                            ? "No storage sample is loaded for this local review. Use a real admin session to verify assets."
+                            : "No drop assets found."}
                     </div>
                 ) : filteredFiles.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
+                    <div className="rounded-lg border border-dashed border-white/10 bg-black/20 p-6 text-center text-sm text-gray-400">
                         No files match the {activeTab} category.
                     </div>
                 ) : (
@@ -311,10 +312,10 @@ export default function ContentManagerPage() {
                         const isVideoPreview = Boolean(previewUrl) && ['mp4', 'webm', 'ogg', 'mov'].some(ext => file.name.toLowerCase().endsWith(ext));
 
                         return (
-                        <div key={file.id} className="group relative flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4 rounded-2xl border border-white/10 bg-black/35 p-3 md:p-4 transition-all hover:border-white/20 hover:bg-white/[0.03]">
+                        <div key={file.id} className="group relative flex flex-col gap-2.5 rounded-lg border border-white/10 bg-black/35 p-2.5 transition-all hover:border-white/20 hover:bg-white/[0.03] sm:flex-row sm:items-center md:gap-3 md:p-3">
                             
                             <div className="flex items-start gap-3 w-full sm:w-auto overflow-hidden">
-                                <div className="shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl bg-black/50 overflow-hidden flex items-center justify-center border border-white/5 relative">
+                                <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/5 bg-black/50 md:h-16 md:w-16">
                                     {isImagePreview ? (
                                         <Image src={previewUrl} alt={file.name} fill sizes="(max-width: 768px) 64px, 80px" className="object-cover bg-black" />
                                     ) : isVideoPreview ? (
@@ -326,7 +327,7 @@ export default function ContentManagerPage() {
                                 <div className="min-w-0 flex-1 sm:hidden">
                                     {/* Mobile layout title/metadata */}
                                     <div className="font-semibold text-sm text-white truncate w-full" title={file.name}>{file.name}</div>
-                                    <div className="mt-1 text-[11px] text-gray-500 font-mono truncate" title={displayPath}>{truncatePath(displayPath, 35)}</div>
+                                    <div className="mt-0.5 truncate font-mono text-[11px] text-gray-500" title={displayPath}>{truncatePath(displayPath, 35)}</div>
                                     <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-gray-400">
                                         {file.size ? <span className="bg-white/5 px-1.5 py-0.5 rounded uppercase">{formatBytes(file.size)}</span> : null}
                                         {file.timeCreated ? <span>{new Date(file.timeCreated).toLocaleDateString()}</span> : null}
@@ -337,27 +338,27 @@ export default function ContentManagerPage() {
                             <div className="hidden sm:block min-w-0 flex-1">
                                 {/* Desktop layout title/metadata */}
                                 <div className="font-semibold text-sm text-white truncate max-w-lg" title={file.name}>{file.name}</div>
-                                <div className="mt-1 text-[11px] text-gray-500 font-mono truncate max-w-lg" title={displayPath}>{truncatePath(displayPath, 50)}</div>
-                                <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-gray-400">
-                                    {file.size ? <span className="bg-white/5 border border-white/5 px-1.5 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider">{formatBytes(file.size)}</span> : null}
+                                <div className="mt-0.5 truncate font-mono text-[11px] text-gray-500" title={displayPath}>{truncatePath(displayPath, 50)}</div>
+                                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-400">
+                                    {file.size ? <span className="text-[10px] font-medium uppercase">{formatBytes(file.size)}</span> : null}
                                     {file.timeCreated ? <span>{new Date(file.timeCreated).toLocaleDateString()}</span> : null}
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-1.5 sm:gap-2 sm:shrink-0 pt-2 sm:pt-0 border-t border-white/5 sm:border-0 mt-1 sm:mt-0 justify-between sm:justify-end w-full sm:w-auto">
+                            <div className="mt-1 flex w-full items-center justify-between gap-1.5 border-t border-white/5 pt-2 sm:mt-0 sm:w-auto sm:shrink-0 sm:justify-end sm:border-0 sm:pt-0">
                                 <div className="flex items-center gap-1.5">
                                     <button
                                         onClick={() => previewUrl ? window.open(previewUrl, '_blank', 'noopener,noreferrer') : undefined}
-                                        className="inline-flex items-center justify-center p-2 rounded-lg bg-white/5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                                        title={previewUrl ? "View File" : "Preview unavailable"}
+                                        className="inline-flex items-center justify-center rounded-md bg-white/5 p-2 text-gray-300 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                                        title={previewUrl ? "Open preview" : "Preview unavailable"}
                                         disabled={!previewUrl}
                                     >
                                         <ExternalLink className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={() => previewUrl ? copyToClipboard(previewUrl) : undefined}
-                                        className="inline-flex items-center justify-center p-2 rounded-lg bg-white/5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                                        title={previewUrl ? "Copy short-lived preview URL" : "Preview unavailable"}
+                                        className="inline-flex items-center justify-center rounded-md bg-white/5 p-2 text-gray-300 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                                        title={previewUrl ? "Copy preview link" : "Preview unavailable"}
                                         disabled={!previewUrl}
                                     >
                                         <Copy className="w-4 h-4" />
@@ -365,8 +366,8 @@ export default function ContentManagerPage() {
                                 </div>
                                 <button
                                     onClick={() => handleDelete(file.id)}
-                                    className="inline-flex items-center justify-center p-2 rounded-lg bg-red-500/10 text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-red-500/10 disabled:hover:text-red-400"
-                                    title={isLocalAdminUiTestSession ? "Delete requires real admin auth" : "Delete File"}
+                                    className="inline-flex items-center justify-center rounded-md bg-red-500/10 p-2 text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-red-500/10 disabled:hover:text-red-400"
+                                    title={isLocalAdminUiTestSession ? "Delete requires verified admin access" : "Delete file"}
                                     disabled={isLocalAdminUiTestSession}
                                 >
                                     <Trash2 className="w-4 h-4" />

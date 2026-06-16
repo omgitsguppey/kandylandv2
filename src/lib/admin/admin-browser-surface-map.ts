@@ -143,7 +143,7 @@ export const ADMIN_BROWSER_SURFACE_DEFINITIONS = [
     group: "content",
     deviceBands: ["desktop"],
     requiresAdminAuth: true,
-    authenticatedVisibleMarkers: ["Content Manager", "Admin Storage"],
+    authenticatedVisibleMarkers: ["Storage assets", "Admin content"],
     authenticatedSelectors: ['[data-admin-browser-surface="admin_content"]'],
     browserSmokeReason: "Content management affordances must be hidden, disabled, or unavailable when not implemented.",
   },
