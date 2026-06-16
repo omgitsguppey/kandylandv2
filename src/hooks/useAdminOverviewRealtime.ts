@@ -68,9 +68,10 @@ const SNAPSHOT_READY_DEBUG_META: AdminOverviewRealtimeDebugMeta = {
   businessTruthSource: ADMIN_OVERVIEW_REALTIME_POLICY.businessTruthSource,
 };
 
-export function useAdminOverviewRealtime() {
+export function useAdminOverviewRealtime(options: { enabled?: boolean } = {}) {
+  const enabled = options.enabled !== false;
   const { data: serverData, error, isLoading, mutate } = useAuthSWR<AdminOverviewResponse>(
-    "/api/admin/overview",
+    enabled ? "/api/admin/overview" : null,
     {
       keepPreviousData: true,
       revalidateOnFocus: false,

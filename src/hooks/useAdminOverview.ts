@@ -2,6 +2,6 @@
 
 import { useAdminOverviewRealtime } from "./useAdminOverviewRealtime";
 
-export function useAdminOverview() {
-    return useAdminOverviewRealtime();
+export function useAdminOverview(options: { enabled?: boolean } = {}) {
+    return useAdminOverviewRealtime(options);
 }
