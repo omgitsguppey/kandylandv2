@@ -11,6 +11,7 @@ import {
 } from "@/lib/ai-drop-descriptions";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 import { CompactAiActionButton } from "@/components/Admin/CompactAiActionButton";
@@ -71,6 +72,11 @@ function runtimeTone(status?: AdminAiDropDescriptionRuntimeStatus) {
         default:
             return "border-amber-400/20 bg-amber-500/10 text-amber-100";
     }
+}
+
+function getAdminAiDescriptionPanelSafeErrorMessage(error: unknown, fallback: string) {
+    const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
+    return safeError.errorKey === "unknown_error" ? fallback : safeError.operatorMessage;
 }
 
 export function AiDropDescriptionGeneratorPanel({
@@ -187,7 +193,7 @@ export function AiDropDescriptionGeneratorPanel({
                 },
                 consoleLabel: "[AI Drop Description Panel] generation failed",
             });
-            const message = error instanceof Error ? error.message : "Description generation failed";
+            const message = getAdminAiDescriptionPanelSafeErrorMessage(error, "Description generation failed");
             setGenerationError(message);
             toast.error(message);
         } finally {
@@ -235,7 +241,7 @@ export function AiDropDescriptionGeneratorPanel({
                 },
                 consoleLabel: "[AI Drop Description Panel] feedback failed",
             });
-            toast.error(error instanceof Error ? error.message : "Description feedback failed");
+            toast.error(getAdminAiDescriptionPanelSafeErrorMessage(error, "Description feedback failed"));
         } finally {
             setFeedbackingJobId(null);
         }
