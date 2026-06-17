@@ -99,14 +99,14 @@ export function AdminModerationConsole() {
     const threadCountLabel = adminSessionState === "waiting_for_admin_session"
         ? "Waiting..."
         : adminSessionState === "local_fixture_source_missing"
-            ? "source_missing"
+            ? "No thread source"
         : threadsError
             ? "Unavailable"
             : `${threads.length} threads`;
     const alertCountLabel = adminSessionState === "waiting_for_admin_session"
         ? "Waiting..."
         : adminSessionState === "local_fixture_source_missing"
-            ? "source_missing"
+            ? "No alert source"
         : alertsError
             ? "Alerts unavailable"
             : `${alerts.length} alerts`;
@@ -114,10 +114,25 @@ export function AdminModerationConsole() {
     const statusLabel = isLoadingThreads || isLoadingMessages || isLoadingAlerts
         ? "Loading"
         : isLocalFixtureSourceMissing
-            ? "Partial"
+            ? "No source"
             : model.failedDataSources > 0
                 ? "Degraded"
                 : "Ready";
+    const summaryCards = isLocalFixtureSourceMissing
+        ? [
+            ["Unresolved", "No source", "No risk-alert source loaded"],
+            ["High/Critical", "No source", "No risk score source loaded"],
+            ["Confirmed", "No source", "No server evidence source loaded"],
+            ["Heuristic", "No source", "No heuristic evidence source loaded"],
+            ["Sources", "No source", "Real admin session required"],
+        ]
+        : [
+            ["Unresolved", model.unresolvedAlerts, "Risk alerts in feed"],
+            ["High/Critical", model.highOrCriticalRiskCount, "Human review first"],
+            ["Confirmed", model.confirmedEvidenceCount, "Server-backed evidence"],
+            ["Heuristic", model.heuristicOnlyCount, "Never auto-punitive alone"],
+            ["Sources", model.failedDataSources, model.failedDataSources > 0 ? "Partial / failed" : "Live"],
+        ];
 
     function selectAlert(alertId: string) {
         setSelectedAlertId(alertId);
@@ -184,19 +199,13 @@ export function AdminModerationConsole() {
                 >
                     <p className="font-bold">Local admin UI review only.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        Moderation evidence is source_missing in local review. A real admin session is required for thread transcripts, risk alerts, media evidence, and security-event samples.
+                        No verified moderation source is loaded in local review. A real admin session is required for thread transcripts, risk alerts, media evidence, and security-event samples.
                     </p>
                 </div>
             ) : null}
 
             <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5" data-moderation-control-tower="true">
-                {[
-                    ["Unresolved", model.unresolvedAlerts, "Risk alerts in feed"],
-                    ["High/Critical", model.highOrCriticalRiskCount, "Human review first"],
-                    ["Confirmed", model.confirmedEvidenceCount, "Server-backed evidence"],
-                    ["Heuristic", model.heuristicOnlyCount, "Never auto-punitive alone"],
-                    ["Sources", model.failedDataSources, model.failedDataSources > 0 ? "Partial / failed" : "Live"],
-                ].map(([label, value, detail]) => (
+                {summaryCards.map(([label, value, detail]) => (
                     <article key={label} className="rounded-2xl border border-white/10 bg-black/25 p-3">
                         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">{label}</p>
                         <p className="mt-2 text-2xl font-black text-white">{value}</p>
@@ -248,7 +257,7 @@ export function AdminModerationConsole() {
                                 );
                             })}
                             {adminSessionState === "waiting_for_admin_session" ? <div className="p-3 text-xs text-gray-400">Waiting for admin session...</div> : null}
-                            {isLocalFixtureSourceMissing ? <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs text-amber-100">Moderation threads are source_missing in local review.</div> : null}
+                            {isLocalFixtureSourceMissing ? <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs text-amber-100">No verified moderation thread source is loaded in local review.</div> : null}
                             {isLoadingThreads && threads.length === 0 ? <div className="p-3 text-xs text-gray-400">Loading queue...</div> : null}
                             {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-sm text-gray-400">{isLocalFixtureSourceMissing ? "No moderation thread evidence is loaded for local review." : "No moderation threads linked."}</div> : null}
                             {threadsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">{explainModerationRouteError(threadsError, "/api/admin/moderation/threads")}</div> : null}

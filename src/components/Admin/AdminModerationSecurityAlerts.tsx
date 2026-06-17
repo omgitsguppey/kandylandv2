@@ -113,7 +113,7 @@ export function AdminModerationSecurityAlerts({
                     <div className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-gray-400">Waiting for admin session...</div>
                 ) : null}
                 {adminSessionState === "local_fixture_source_missing" ? (
-                    <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">Risk alert evidence is source_missing in local review.</div>
+                    <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">No verified risk-alert source is loaded in local review.</div>
                 ) : null}
                 {!isLoading && alerts.length === 0 && !error ? (
                     <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-gray-400">
