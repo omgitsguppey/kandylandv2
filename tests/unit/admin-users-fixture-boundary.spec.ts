@@ -13,6 +13,7 @@ describe("admin users fixture boundary", () => {
     expect(source).toContain("This local review shows the users layout only.");
     expect(source).toContain("User metrics, feedback, task controls, identity, payment, and content access need a real admin session");
     expect(source).toContain("No consent source loaded");
+    expect(source).toContain("Behavioral metrics wait for consent and source materialization before they can be shown.");
     expect(source).toContain("No verified user source is loaded in local review");
   });
 

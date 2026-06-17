@@ -1119,7 +1119,7 @@ export default function UserManagementPage() {
                                     : `${userManagementSummaries.filter((entry) => entry.consentMode.mode !== "unavailable").length} consent records visible`}
                             </p>
                             <p className="mt-1 text-[11px] leading-5 text-gray-400">
-                                Behavioral metrics remain unavailable when consent or source materialization is missing.
+                                Behavioral metrics wait for consent and source materialization before they can be shown.
                             </p>
                         </div>
                         <div className="rounded-xl border border-white/10 bg-black/25 p-3" data-admin-user-management-metric-confidence="summary">
