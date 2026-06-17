@@ -46,6 +46,7 @@ const chatServer = readRequired("src/lib/server/chat.ts");
 const subscriptionsRoute = readRequired("src/app/api/creator/subscriptions/route.ts");
 const requestsRoute = readRequired("src/app/api/creator/requests/route.ts");
 const bookingsRoute = readRequired("src/app/api/creator/bookings/route.ts");
+const subscriptionRenewalRoute = readRequired("src/app/api/cron/process-creator-subscriptions/route.ts");
 const dropsUnlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
 const packageCatalog = readRequired("src/lib/gumdrops-packages.ts");
@@ -72,6 +73,8 @@ for (const expected of [
   "sourceClassification: canonicalCredit.sourceClassification",
   "gumdropRewardTotal: isRewardTransaction ? positiveAmount : 0",
   "gumdropPurchaseBonusTotal",
+  "readPaidSourceBalanceForRestrictedSpend",
+  "sourceState: \"legacy_total_only\"",
 ]) {
   requireIncludes(ledger, expected, "GumDrop ledger source-of-funds helper");
 }
@@ -119,12 +122,14 @@ for (const expected of [
   "purchasedOnly: true",
   "spendCreatorExperienceGumdrops",
   "spendSourceAwareGumdrops(current, amount, {",
+  "readPaidSourceBalanceForRestrictedSpend",
 ]) {
   requireIncludes(creatorExperiences, expected, "Creator paid-only spend policies");
 }
-for (const source of [chatServer, subscriptionsRoute, requestsRoute, bookingsRoute]) {
+for (const source of [chatServer, subscriptionsRoute, requestsRoute, bookingsRoute, subscriptionRenewalRoute]) {
   requireIncludes(source, "purchasedAmountSpent", "Creator/chat spend route source metadata");
   requireIncludes(source, "rewardAmountSpent", "Creator/chat spend route source metadata");
+  requireIncludes(source, "readPaidSourceBalanceForRestrictedSpend", "Creator/chat paid-only spend route source metadata");
 }
 requireIncludes(dropsUnlockRoute, "spendSourceAwareGumdrops(sourceAwareBalance, unlockCost)", "Normal Drop unlock route");
 requireNotIncludes(dropsUnlockRoute, "purchasedOnly: true", "Normal Drop unlock route");
@@ -152,6 +157,7 @@ for (const expected of [
   "credits paid purchase packages without bonuses into purchased source only",
   "keeps daily and task rewards in reward source only",
   "lets creator paid-only spend use paid-pack bonus",
+  "does not promote legacy total-only balances to paid-source restricted spend",
   "gumdropRewardTotal).toBe(0)",
   "gumdropPurchaseBonusTotal).toBe(50)",
 ]) {

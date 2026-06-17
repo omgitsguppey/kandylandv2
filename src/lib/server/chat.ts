@@ -43,7 +43,7 @@ import {
     buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch,
-    readSourceAwareBalance,
+    readPaidSourceBalanceForRestrictedSpend,
     spendCreatorExperienceGumdrops,
 } from "@/lib/server/creator-experiences";
 import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
@@ -749,7 +749,7 @@ export async function getChatThreadDetailForViewer(input: {
     const subscriptionActive = await readSubscriptionActive(threadRecord.userId, threadRecord.creatorId);
     const subscriberFreeChatApplies = shouldGrantSubscriberFreeChat(subscriptionActive, creator.creatorSettings);
     const participantBalance = viewerRole === "user"
-        ? readSourceAwareBalance(participant.raw)
+        ? readPaidSourceBalanceForRestrictedSpend(participant.raw).balance
         : { total: 0, purchased: 0, reward: 0 };
     const pricing = buildChatPricingSummary({
         purchasedBalanceGd: participantBalance.purchased,
@@ -979,7 +979,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             settingsConfigured: true,
         });
         const participantBalance = viewerRole === "user"
-            ? readSourceAwareBalance(participant.raw)
+            ? readPaidSourceBalanceForRestrictedSpend(participant.raw).balance
             : { total: 0, purchased: 0, reward: 0 };
         let nextParticipantBalance = participantBalance;
         const costGd = viewerRole === "creator"

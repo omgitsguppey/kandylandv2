@@ -20,7 +20,7 @@ import {
     buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch,
-    readSourceAwareBalance,
+    readPaidSourceBalanceForRestrictedSpend,
     spendCreatorExperienceGumdrops,
 } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
@@ -352,7 +352,7 @@ async function POST_handler(request: NextRequest) {
 
             const slotKey = buildBookingSlotKey({ creatorId, serviceType, startAt, durationMinutes });
             const priceGd = bookingPricing.priceGd;
-            const balance = readSourceAwareBalance(userData);
+            const balance = readPaidSourceBalanceForRestrictedSpend(userData).balance;
             if (bookingSnap.exists || transactionSnap.exists) {
                 const bookingData = bookingSnap.data() as Record<string, unknown> | undefined;
                 const existingPrice = typeof bookingData?.priceGd === "number" ? bookingData.priceGd : priceGd;

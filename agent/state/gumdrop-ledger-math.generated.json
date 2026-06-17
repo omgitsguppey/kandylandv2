@@ -1,8 +1,8 @@
 {
   "reportKey": "gumdrop-ledger-math",
   "contractVersion": "2026.05.gumdrop-ledger-math.1",
-  "generatedAtUtc": "2026-06-11T14:05:54.694Z",
-  "currentHead": "fca594c435f4a2418c6d96a10602a2ee422c014e",
+  "generatedAtUtc": "2026-06-17T19:32:07.617Z",
+  "currentHead": "60f4c304abbda91c42f1bb1923771134338a2a81",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "toolingDegraded": false,
@@ -10,8 +10,15 @@
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
-  "paymentRuntimeTouched": false,
+  "paymentRuntimeTouched": true,
   "packageMathTouched": false,
+  "sourceOfFundsGuardTouched": true,
+  "protectedRuntimeDiff": [
+    {
+      "path": "src/lib/gumdrop-ledger.ts",
+      "classification": "source_of_funds_guard_expected"
+    }
+  ],
   "sourceBuckets": [
     "paid_gd",
     "paid_bonus_gd",
@@ -73,19 +80,19 @@
     "sourceHealth": 91.7,
     "runtimeHealth": 72.8,
     "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 69.89
   },
   "scoreAfter": {
     "sourceHealth": 91.7,
     "runtimeHealth": 72.8,
     "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 69.89
   },
   "scoreDimensions": [
     "sourceHealth",
@@ -98,131 +105,19 @@
   "openPullRequests": [],
   "dirtyFiles": [
     {
-      "path": "agent/context/doctrine.cards.jsonl",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/context/doctrine.index.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/context/file-size-budget.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/context/legacy-registry.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/context/surface-contracts.jsonl",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/context/task-pack.generated.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/context/validator-map.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/blast-radius.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/canonical-helpers.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/dependency-graph.summary.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/governance-truth.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/known-pitfalls.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/package-manager-truth.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/recent-passes.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/repo-inventory.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/retrieval-index.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/runtime-observability.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/surface-map.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/ui-surface-coverage.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/verification-commands.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/index/workflow-guidance.json",
-      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
-    },
-    {
-      "path": "agent/state/admin-cms-workflow-audit.generated.json",
+      "path": "agent/state/admin-surface-hydration.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
+      "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/background-job-idempotency-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/bug-report-truth-terminal-state.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/canonical-math-authority-ledger.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/canonical-math-ledger.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/config-env-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/content-media-pipeline-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/cookie-banner-settings-sync.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/global-cost-surfaces.generated.json",
+      "path": "agent/state/cost-risk-exit-pass.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -230,119 +125,15 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/identity-handoff-spine.generated.json",
+      "path": "docs/agent-truth/admin-surface-hydration.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/media-upload-lifecycle.generated.json",
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/orphaned-logic-score.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/private-media-access.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/provider-smoke-evidence.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/route-sample-freshness-classifier.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-80-reconciliation-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-dimension-80-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/settings-creator-dashboard-split.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/sql-mirror-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/sql-sync.payload.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/stale-route-sample-classification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/support-policy-surface-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-dependency-graph.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-identified-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/treasury-reconciliation-engine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/treasury-structure-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-management-status-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-profile-api-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/admin-cms-drop-workflow.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/background-jobs-idempotency.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/bug-report-truth-terminal-state.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/canonical-math-ledger.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/config-env-contract.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/content-media-pipeline.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/cookie-banner-settings-sync.md",
+      "path": "docs/agent-truth/cost-risk-exit-pass.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -350,76 +141,76 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/doctrine/surfaces/wallet.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/media-upload-lifecycle.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "scripts/agent/validate-gumdrop-ledger-math.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "scripts/agent/validate-gumdrop-source-of-funds-truth.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/private-media-access.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/route-sample-freshness-classifier.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/score-dimension-80-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/stale-route-sample-classification.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/support-policy-surface-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-dependency-graph.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/treasury-reconciliation-engine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/treasury-structure-contract.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/user-management-status-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/user-profile-api-contract.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
+      "path": "src/app/api/creator/bookings/route.ts",
       "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
     },
     {
-      "path": "scripts/agent/build-agent-indexes.ts",
+      "path": "src/app/api/creator/requests/route.ts",
       "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
     },
     {
-      "path": "scripts/agent/chat-cost-status-cleanup-shared.ts",
+      "path": "src/app/api/creator/subscriptions/route.ts",
+      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
+    },
+    {
+      "path": "src/app/api/cron/process-creator-subscriptions/route.ts",
+      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
+    },
+    {
+      "path": "src/lib/gumdrop-ledger.ts",
+      "classification": "source_of_funds_guard_expected"
+    },
+    {
+      "path": "src/lib/problem-state-copy.ts",
+      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
+    },
+    {
+      "path": "src/lib/server/chat.ts",
+      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
+    },
+    {
+      "path": "src/lib/server/creator-experiences.ts",
+      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
+    },
+    {
+      "path": "tests/unit/creator-bookings-route.spec.ts",
+      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
+    },
+    {
+      "path": "tests/unit/creator-bookings-transaction-route.spec.ts",
+      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
+    },
+    {
+      "path": "tests/unit/creator-requests-route.spec.ts",
+      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
+    },
+    {
+      "path": "tests/unit/creator-subscriptions-route.spec.ts",
+      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
+    },
+    {
+      "path": "tests/unit/gumdrop-ledger.spec.ts",
+      "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
+    },
+    {
+      "path": "tests/unit/server-chat-send.spec.ts",
       "classification": "unrelated_dirty_outside_gumdrop_ledger_math"
     }
   ],
-  "dirtyFileCount": 148,
-  "dirtyFilesTruncated": true,
+  "dirtyFileCount": 26,
+  "dirtyFilesTruncated": false,
   "validationFailures": [],
   "nextExactSteps": [
     "Keep payment/package runtime untouched; use gumdrop-ledger-math for future source-bucket audits."

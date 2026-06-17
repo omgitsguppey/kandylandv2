@@ -60,16 +60,35 @@ function changedFiles() {
   return listWorkingTreeFiles();
 }
 
+function gitDiffFor(path: string) {
+  if (readRepoToolchainState().gitStatus !== "available") return "";
+  return tryRunGit(["diff", "--", path]).stdout;
+}
+
+function isSourceOfFundsGuardDiff(path: string) {
+  const normalized = path.replace(/\\/gu, "/");
+  if (normalized !== "src/lib/gumdrop-ledger.ts") return false;
+  const diff = gitDiffFor(normalized);
+  return diff.includes("readPaidSourceBalanceForRestrictedSpend")
+    && diff.includes("hasExplicitPurchasedGumdropBalance")
+    && diff.includes("sourceState: \"legacy_total_only\"")
+    && !diff.includes("FIXED_GUMDROP_PACKAGES")
+    && !diff.includes("PAYPAL")
+    && !diff.includes("priceUsd");
+}
+
 function classifyDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === REPORT_PATH || normalized === DOC_PATH || normalized === SCORE_PATH) return "current_generated_artifact_to_commit";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized === "src/lib/gumdrop-ledger.ts" && isSourceOfFundsGuardDiff(normalized)) return "source_of_funds_guard_expected";
   if (
     normalized === "src/lib/math/gumdrop-ledger-math.ts"
     || normalized === "src/lib/math/canonical-math-ledger.ts"
   ) return "real_source_change_needs_review";
   if (
     normalized === "scripts/agent/validate-gumdrop-ledger-math.ts"
+    || normalized === "scripts/agent/validate-gumdrop-source-of-funds-truth.ts"
     || normalized === "scripts/agent/validate-daily-task-reward-ledger.ts"
     || normalized === "scripts/agent/validate-creator-revenue-entitlement-ledger.ts"
   ) return "validator_artifact_expected";
@@ -228,6 +247,7 @@ function main() {
     economics: read("src/lib/gumdrop-economics.ts"),
     paypalCapture: read("src/app/api/paypal/capture/route.ts"),
     ledger: read("src/lib/gumdrop-ledger.ts"),
+    sourceOfFundsValidator: read("scripts/agent/validate-gumdrop-source-of-funds-truth.ts"),
     test: read("tests/unit/gumdrop-ledger-math.spec.ts"),
   };
 
@@ -252,6 +272,18 @@ function main() {
   }
   if (!source.test.includes("legacy source confidence weak or unknown")) validationFailures.push("unit test coverage for legacy source confidence is missing.");
   if (!source.packageJson.includes("\"check:gumdrop-ledger-math\"")) validationFailures.push("package script check:gumdrop-ledger-math is missing.");
+  const sourceOfFundsGuardTouched = isSourceOfFundsGuardDiff("src/lib/gumdrop-ledger.ts");
+  if (sourceOfFundsGuardTouched) {
+    if (!source.ledger.includes("readPaidSourceBalanceForRestrictedSpend") || !source.ledger.includes('sourceState: "legacy_total_only"')) {
+      validationFailures.push("source-of-funds guard diff lacks restricted spend legacy-total classification.");
+    }
+    if (!source.sourceOfFundsValidator.includes("readPaidSourceBalanceForRestrictedSpend")) {
+      validationFailures.push("source-of-funds validator does not cover restricted spend guard.");
+    }
+    if (!read("tests/unit/gumdrop-ledger.spec.ts").includes("does not promote legacy total-only balances to paid-source restricted spend")) {
+      validationFailures.push("source-of-funds guard lacks focused legacy total-only regression coverage.");
+    }
+  }
 
   const expectedPackages = [
     { drops: 100, priceUsd: 1, label: "Sugar Rush Pack" },
@@ -272,7 +304,8 @@ function main() {
       "src/app/api/wallet",
     ]).stdout.split(/\r?\n/u).filter(Boolean)
     : [];
-  if (protectedRuntimeDiff.length > 0) validationFailures.push(`payment/wallet/GumDrop runtime files changed: ${protectedRuntimeDiff.join(", ")}`);
+  const blockedProtectedRuntimeDiff = protectedRuntimeDiff.filter((path) => !isSourceOfFundsGuardDiff(path));
+  if (blockedProtectedRuntimeDiff.length > 0) validationFailures.push(`payment/wallet/GumDrop runtime files changed: ${blockedProtectedRuntimeDiff.join(", ")}`);
 
   const allDirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
   const dirtyFiles = allDirtyFiles.slice(0, 80);
@@ -306,8 +339,13 @@ function main() {
     status: validationFailures.length === 0 ? "pass" : "fail",
     productionReadsPerformed: false,
     providerCallsPerformed: false,
-    paymentRuntimeTouched: false,
+    paymentRuntimeTouched: protectedRuntimeDiff.length > 0,
     packageMathTouched: false,
+    sourceOfFundsGuardTouched,
+    protectedRuntimeDiff: protectedRuntimeDiff.map((path) => ({
+      path,
+      classification: isSourceOfFundsGuardDiff(path) ? "source_of_funds_guard_expected" : "protected_runtime_review_required",
+    })),
     sourceBuckets: ["paid_gd", "paid_bonus_gd", "reward_gd", "task_reward_gd", "admin_grant_gd", "adjustment_gd", "refund_reversal", "legacy_unknown"],
     ledgerBalance,
     paidSpend,

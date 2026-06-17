@@ -18,7 +18,7 @@ import {
     buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch,
-    readSourceAwareBalance,
+    readPaidSourceBalanceForRestrictedSpend,
     spendCreatorExperienceGumdrops,
 } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
@@ -285,7 +285,7 @@ async function POST_handler(request: NextRequest) {
             }
 
             const priceGd = requestPricing?.priceGd ?? (typeof selectedCategory.priceGd === "number" ? Math.round(selectedCategory.priceGd) : 0);
-            const balance = readSourceAwareBalance(userData);
+            const balance = readPaidSourceBalanceForRestrictedSpend(userData).balance;
             if (requestSnap.exists || transactionSnap.exists) {
                 const requestData = requestSnap.data() as Record<string, unknown> | undefined;
                 const existingPrice = typeof requestData?.priceGd === "number" ? requestData.priceGd : priceGd;

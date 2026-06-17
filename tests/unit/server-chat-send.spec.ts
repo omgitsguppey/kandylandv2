@@ -117,7 +117,6 @@ vi.mock("@/lib/server/server-diagnostics", () => ({
 }));
 
 import { buildChatThreadId, type ChatInsufficientFundsPayload } from "@/lib/chat";
-import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
 import { ChatClientError, sendChatMessageForViewer } from "@/lib/server/chat";
 
 describe("sendChatMessageForViewer", () => {
@@ -140,7 +139,7 @@ describe("sendChatMessageForViewer", () => {
         });
     });
 
-    it("allows text sends for legacy purchased-only balances", async () => {
+    it("blocks text sends when only a legacy total balance exists", async () => {
         mockState.documents.set(`users/${userId}`, {
             uid: userId,
             role: "user",
@@ -149,38 +148,20 @@ describe("sendChatMessageForViewer", () => {
             gumDropsBalance: 10,
         });
 
-        const result = await sendChatMessageForViewer({
+        await expect(sendChatMessageForViewer({
             callerUid: userId,
             callerEmail: "fan@example.com",
             callerRole: "user",
             threadId,
             text: "hello there",
             messageKind: "text",
-        });
-
-        const participant = mockState.documents.get(`users/${userId}`);
-
-        expect(result.costGd).toBe(1);
-        expect(result.message).toMatchObject({
-            text: "hello there",
-            costGd: 1,
-            messageKind: "text",
-        });
-        expect(result.pricing).toMatchObject({
-            purchasedBalanceGd: 9,
-            textPriceGd: 1,
-        });
-        expect(participant).toMatchObject({
-            gumDropsBalance: 9,
-            gumDropsPurchasedBalance: 9,
-            gumDropsRewardBalance: 0,
-        });
-        const storedThread = mockState.documents.get(`creator_message_threads/${threadId}`);
-        expect(storedThread?.lastMessagePreview).not.toBe("hello there");
-        expect(softOpenChatValue(buildChatSoftSealScope(threadId, "preview"), storedThread?.lastMessagePreview as string)).toBe("hello there");
-        expect(storedThread).toMatchObject({
-            unreadCountForCreator: 1,
-            unreadCountForUser: 0,
+        })).rejects.toMatchObject({
+            status: 409,
+            body: expect.objectContaining({
+                errorCode: "insufficient_paid_gumdrops",
+                purchasedBalanceGd: 0,
+                paidGdShortfall: 1,
+            }),
         });
     });
 
@@ -191,6 +172,8 @@ describe("sendChatMessageForViewer", () => {
             displayName: "Fan One",
             username: "fanone",
             gumDropsBalance: 10,
+            gumDropsPurchasedBalance: 10,
+            gumDropsRewardBalance: 0,
         });
 
         const input = {
@@ -297,6 +280,8 @@ describe("sendChatMessageForViewer", () => {
             displayName: "Fan One",
             username: "fanone",
             gumDropsBalance: 10,
+            gumDropsPurchasedBalance: 10,
+            gumDropsRewardBalance: 0,
         });
         mockState.documents.set(`creator_message_threads/${threadId}`, {
             id: threadId,
@@ -381,6 +366,8 @@ describe("sendChatMessageForViewer", () => {
             displayName: "Fan One",
             username: "fanone",
             gumDropsBalance: 10,
+            gumDropsPurchasedBalance: 10,
+            gumDropsRewardBalance: 0,
         });
         mockState.trackServerEvent
             .mockRejectedValueOnce(new Error("analytics unavailable"))

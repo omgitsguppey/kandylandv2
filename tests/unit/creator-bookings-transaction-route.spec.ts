@@ -66,6 +66,12 @@ const mockState = vi.hoisted(() => {
         guardApiRequest: vi.fn(),
         handleApiError: vi.fn(),
         buildBookingSlotKey: vi.fn((input: { creatorId: string; serviceType: string; startAt: number; durationMinutes: number }) => `${input.creatorId}:${input.serviceType}:${input.startAt}:${input.durationMinutes}`),
+        buildCreatorBookingSlots: vi.fn(() => ({
+            slots: [
+                { startAt: 1780000000000, durationMinutes: 30, serviceType: "phone" },
+                { startAt: 1780000000000, durationMinutes: 30, serviceType: "video" },
+            ],
+        })),
         buildCreatorAccrual: vi.fn((input: { sourceType: string; sourceId: string }) => ({
             sourceType: input.sourceType,
             sourceId: input.sourceId,
@@ -77,6 +83,28 @@ const mockState = vi.hoisted(() => {
             userTransactionId: `txn_${input.idempotencyKey.replace(/[^a-z0-9_-]/gi, "_")}`,
             creatorAccrualId: `accrual_${input.idempotencyKey.replace(/[^a-z0-9_-]/gi, "_")}`,
             creatorExperienceRecordId: `booking_${input.idempotencyKey.replace(/[^a-z0-9_-]/gi, "_")}`,
+        })),
+        buildCreatorExperienceAttribution: vi.fn((input: any) => ({
+            ...input,
+            creatorShareGd: 500,
+            platformShareGd: Math.max(0, input.grossSpendGd - 500),
+            cashoutValueUsd: 5,
+            paidSourceRequired: true,
+            attributionTruth: "creator_experience_paid_source",
+        })),
+        buildCreatorExperienceTransactionAttributionExtra: vi.fn((attribution: any) => ({
+            purchasedAmountSpent: attribution.purchasedAmountSpent,
+            rewardAmountSpent: attribution.rewardAmountSpent,
+            ledgerSource: "purchased",
+            source_policy: "creator_experience_paid_only",
+            creatorId: attribution.creatorId,
+            userId: attribution.userId,
+            userTransactionId: attribution.userTransactionId,
+            creatorAccrualId: attribution.creatorAccrualId,
+            creatorExperienceRecordId: attribution.creatorExperienceRecordId,
+            creatorShareGd: attribution.creatorShareGd,
+            cashoutValueUsd: attribution.cashoutValueUsd,
+            platformShareGd: attribution.platformShareGd,
         })),
         buildCreatorExperienceTelemetryPayload: vi.fn((input: any) => ({
             actorType: input.marker.actorType,
@@ -104,10 +132,26 @@ const mockState = vi.hoisted(() => {
         buildSourceAwareBalancePatch: vi.fn((next: { total: number }) => ({ gumDropsBalance: next.total })),
         calculateBookingPriceGd: vi.fn(() => 1000),
         readSourceAwareBalance: vi.fn(() => ({ total: 2000, purchased: 2000, reward: 0 })),
+        readPaidSourceBalanceForRestrictedSpend: vi.fn((source: { gumDropsBalance?: unknown; gumDropsPurchasedBalance?: unknown; gumDropsRewardBalance?: unknown }) => {
+            const total = typeof source.gumDropsBalance === "number" && Number.isFinite(source.gumDropsBalance) ? source.gumDropsBalance : 0;
+            if (typeof source.gumDropsPurchasedBalance !== "number" || !Number.isFinite(source.gumDropsPurchasedBalance)) {
+                return { balance: { total, purchased: 0, reward: 0 }, sourceState: "legacy_total_only", paidSourceEligible: false };
+            }
+
+            return {
+                balance: {
+                    total,
+                    purchased: source.gumDropsPurchasedBalance,
+                    reward: typeof source.gumDropsRewardBalance === "number" && Number.isFinite(source.gumDropsRewardBalance) ? source.gumDropsRewardBalance : Math.max(0, total - source.gumDropsPurchasedBalance),
+                },
+                sourceState: "explicit_paid_source",
+                paidSourceEligible: true,
+            };
+        }),
         spendCreatorExperienceGumdrops: vi.fn(() => ({ ok: true, next: { total: 1000, purchased: 1000, reward: 0 }, purchasedSpent: 1000, rewardSpent: 0, ledgerSource: "purchased" })),
         isWithinAnyWindow: vi.fn(() => true),
         buildCompletedGumdropTransaction: vi.fn(() => ({ verifiedServerSide: true })),
-        trackServerEvent: vi.fn(),
+        trackServerEvent: vi.fn(() => Promise.resolve()),
         adminDb: {
             collection(name: string) {
                 return {
@@ -133,14 +177,18 @@ const mockState = vi.hoisted(() => {
             this.guardApiRequest.mockReset();
             this.handleApiError.mockReset();
             this.buildBookingSlotKey.mockClear();
+            this.buildCreatorBookingSlots.mockClear();
             this.buildCreatorAccrual.mockClear();
             this.buildCreatorExperienceIdempotencyKey.mockClear();
             this.buildCreatorExperienceRecordIds.mockClear();
+            this.buildCreatorExperienceAttribution.mockClear();
+            this.buildCreatorExperienceTransactionAttributionExtra.mockClear();
             this.buildCreatorExperienceTelemetryPayload.mockClear();
             this.buildCreatorExperienceTransactionDebug.mockClear();
             this.buildSourceAwareBalancePatch.mockClear();
             this.calculateBookingPriceGd.mockClear();
             this.readSourceAwareBalance.mockClear();
+            this.readPaidSourceBalanceForRestrictedSpend.mockClear();
             this.spendCreatorExperienceGumdrops.mockClear();
             this.isWithinAnyWindow.mockReset();
             this.isWithinAnyWindow.mockReturnValue(true);
@@ -164,14 +212,76 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
 vi.mock("@/app/api/creator/bookings/booking-timezone", () => ({
     isWithinAnyWindow: mockState.isWithinAnyWindow,
 }));
+vi.mock("@/lib/creator-booking-slots", () => ({
+    buildCreatorBookingSlots: mockState.buildCreatorBookingSlots,
+}));
+vi.mock("@/lib/creator-settings/creator-pricing-resolver", () => ({
+    resolveCreatorBookingPricing: vi.fn(() => ({
+        kind: "booking",
+        serviceType: "video",
+        durationMinutes: 30,
+        enabled: true,
+        priceGd: 1000,
+        ratePerMinuteGd: 1000,
+        subscriptionDiscountApplied: false,
+        source: "creator_settings",
+        paidOnly: true,
+    })),
+}));
 vi.mock("@/lib/creator-experiences", () => ({
+    CREATOR_BOOKING_RATES: { phone: 500, video: 1000 },
+    CREATOR_MESSAGE_COSTS: { text: 1, image: 5, video: 10 },
+    CREATOR_SUBSCRIPTION_MIN_GD: 500,
     CREATOR_BOOKING_MIN_MINUTES: 5,
+    DEFAULT_CREATOR_SETTINGS: {
+        subscriptionsEnabled: true,
+        subscriptionPriceGd: 500,
+        bookingsEnabled: true,
+        customRequestsEnabled: true,
+        phoneRatePerMinuteGd: 500,
+        videoRatePerMinuteGd: 1000,
+        bookingMinimumMinutes: 5,
+        videoSubscriberDiscountPercent: 50,
+        requestCategories: [],
+        availabilityWindows: [],
+        availabilityTimezone: "America/Chicago",
+    },
     CREATOR_COLLECTIONS: {
         bookings: "creator_call_bookings",
         subscriptions: "creator_subscriptions",
         ledgerAccruals: "creator_ledger_accruals",
     },
     isCreatorRole: (role: unknown) => role === "creator",
+    normalizeCreatorSettings: (value: unknown) => ({
+        subscriptionsEnabled: true,
+        subscriptionPriceGd: 500,
+        bookingsEnabled: true,
+        customRequestsEnabled: true,
+        phoneRatePerMinuteGd: 500,
+        videoRatePerMinuteGd: 1000,
+        bookingMinimumMinutes: 5,
+        videoSubscriberDiscountPercent: 50,
+        requestCategories: [],
+        availabilityWindows: [],
+        availabilityTimezone: "America/Chicago",
+        ...(value && typeof value === "object" ? value as Record<string, unknown> : {}),
+    }),
+    normalizeCreatorRestrictions: (value: unknown) => ({
+        messagingRestricted: false,
+        broadcastsRestricted: false,
+        subscriptionsRestricted: false,
+        bookingsRestricted: false,
+        customRequestsRestricted: false,
+        dropSubmissionsRestricted: false,
+        payoutsRestricted: false,
+        ...(value && typeof value === "object" ? value as Record<string, unknown> : {}),
+    }),
+    normalizeCreatorRequestCategories: (value: unknown) => Array.isArray(value) ? value : [],
+    normalizeCreatorAvailabilityWindows: (value: unknown) => Array.isArray(value) ? value : [],
+    normalizePositiveWholeNumber: (value: unknown, fallback: number) => {
+        const numeric = typeof value === "number" ? value : Number(value);
+        return Number.isFinite(numeric) && numeric > 0 ? Math.floor(numeric) : fallback;
+    },
 }));
 vi.mock("@/lib/server/creator-experiences", () => ({
     CREATOR_EXPERIENCE_PAID_EVENTS: {
@@ -179,13 +289,16 @@ vi.mock("@/lib/server/creator-experiences", () => ({
     },
     buildBookingSlotKey: mockState.buildBookingSlotKey,
     buildCreatorAccrual: mockState.buildCreatorAccrual,
+    buildCreatorExperienceAttribution: mockState.buildCreatorExperienceAttribution,
     buildCreatorExperienceIdempotencyKey: mockState.buildCreatorExperienceIdempotencyKey,
     buildCreatorExperienceRecordIds: mockState.buildCreatorExperienceRecordIds,
     buildCreatorExperienceTelemetryPayload: mockState.buildCreatorExperienceTelemetryPayload,
+    buildCreatorExperienceTransactionAttributionExtra: mockState.buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug: mockState.buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch: mockState.buildSourceAwareBalancePatch,
     calculateBookingPriceGd: mockState.calculateBookingPriceGd,
     readSourceAwareBalance: mockState.readSourceAwareBalance,
+    readPaidSourceBalanceForRestrictedSpend: mockState.readPaidSourceBalanceForRestrictedSpend,
     spendCreatorExperienceGumdrops: mockState.spendCreatorExperienceGumdrops,
 }));
 vi.mock("@/lib/server/gumdrop-ledger", () => ({
@@ -204,7 +317,12 @@ describe("creator bookings route transaction truth", () => {
             error: error instanceof Error ? error.message : String(error),
         }, { status: 500 }));
         mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1", email: "fan@example.com" });
-        mockState.setDocument("users", "fan_1", { role: "user", gumDropsBalance: 2000 });
+        mockState.setDocument("users", "fan_1", {
+            role: "user",
+            gumDropsBalance: 2000,
+            gumDropsPurchasedBalance: 2000,
+            gumDropsRewardBalance: 0,
+        });
         mockState.setDocument("users", "creator_1", {
             role: "creator",
             creatorSettings: {
@@ -396,7 +514,12 @@ describe("creator bookings route transaction truth", () => {
     });
 
     it("rejects insufficient paid balance with typed copy without writing paid records", async () => {
-        mockState.readSourceAwareBalance.mockReturnValueOnce({ total: 1500, purchased: 250, reward: 1250 });
+        mockState.setDocument("users", "fan_1", {
+            role: "user",
+            gumDropsBalance: 1500,
+            gumDropsPurchasedBalance: 250,
+            gumDropsRewardBalance: 1250,
+        });
         mockState.spendCreatorExperienceGumdrops.mockReturnValueOnce({ ok: false, error: "Insufficient purchased balance." } as any);
 
         const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {
@@ -457,6 +580,7 @@ describe("creator bookings route transaction truth", () => {
                 bookingsEnabled: false,
                 availabilityWindows: [{ dayOfWeek: 5, startHour: 9, startMinute: 0, endHour: 17, endMinute: 0, serviceTypes: ["phone", "video"] }],
             },
+            creatorRestrictions: { bookingsRestricted: true },
         });
 
         const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {

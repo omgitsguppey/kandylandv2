@@ -140,6 +140,22 @@ const mockState = vi.hoisted(() => {
             gumDropsRewardBalance: next.reward,
         })),
         readSourceAwareBalance: vi.fn(() => ({ total: 1200, purchased: 1200, reward: 0 })),
+        readPaidSourceBalanceForRestrictedSpend: vi.fn((source: { gumDropsBalance?: unknown; gumDropsPurchasedBalance?: unknown; gumDropsRewardBalance?: unknown }) => {
+            const total = typeof source.gumDropsBalance === "number" && Number.isFinite(source.gumDropsBalance) ? source.gumDropsBalance : 0;
+            if (typeof source.gumDropsPurchasedBalance !== "number" || !Number.isFinite(source.gumDropsPurchasedBalance)) {
+                return { balance: { total, purchased: 0, reward: 0 }, sourceState: "legacy_total_only", paidSourceEligible: false };
+            }
+
+            return {
+                balance: {
+                    total,
+                    purchased: source.gumDropsPurchasedBalance,
+                    reward: typeof source.gumDropsRewardBalance === "number" && Number.isFinite(source.gumDropsRewardBalance) ? source.gumDropsRewardBalance : Math.max(0, total - source.gumDropsPurchasedBalance),
+                },
+                sourceState: "explicit_paid_source",
+                paidSourceEligible: true,
+            };
+        }),
         spendCreatorExperienceGumdrops: vi.fn((balance: { total: number; purchased: number; reward: number }, amount: number, policyKey: string) => {
             if (policyKey !== "subscription" || balance.purchased < amount) {
                 return { ok: false, error: "Insufficient purchased balance." };
@@ -154,7 +170,7 @@ const mockState = vi.hoisted(() => {
             };
         }),
         buildCompletedGumdropTransaction: vi.fn(() => ({ id: "txn" })),
-        trackServerEvent: vi.fn(),
+        trackServerEvent: vi.fn(() => Promise.resolve()),
         adminDb: {
             collection(name: string) {
                 return {
@@ -194,6 +210,7 @@ const mockState = vi.hoisted(() => {
             this.buildCreatorExperienceTransactionDebug.mockClear();
             this.buildSourceAwareBalancePatch.mockClear();
             this.readSourceAwareBalance.mockClear();
+            this.readPaidSourceBalanceForRestrictedSpend.mockClear();
             this.spendCreatorExperienceGumdrops.mockClear();
             this.buildCompletedGumdropTransaction.mockClear();
             this.trackServerEvent.mockClear();
@@ -215,13 +232,58 @@ vi.mock("@/lib/server/rate-limit", () => ({
     STANDARD: {},
 }));
 vi.mock("@/lib/creator-experiences", () => ({
+    CREATOR_BOOKING_RATES: { phone: 500, video: 1000 },
+    CREATOR_MESSAGE_COSTS: { text: 1, image: 5, video: 10 },
     CREATOR_SUBSCRIPTION_MIN_GD: 500,
+    DEFAULT_CREATOR_SETTINGS: {
+        subscriptionsEnabled: true,
+        subscriptionPriceGd: 500,
+        bookingsEnabled: true,
+        customRequestsEnabled: true,
+        phoneRatePerMinuteGd: 500,
+        videoRatePerMinuteGd: 1000,
+        bookingMinimumMinutes: 5,
+        videoSubscriberDiscountPercent: 50,
+        requestCategories: [],
+        availabilityWindows: [],
+        availabilityTimezone: "America/Chicago",
+    },
     CREATOR_COLLECTIONS: {
         subscriptions: "creator_subscriptions",
         ledgerAccruals: "creator_ledger_accruals",
     },
     isCreatorRole: (role: unknown) => role === "creator",
     isCreatorOrAdminRole: (role: unknown) => role === "creator" || role === "admin",
+    normalizeCreatorSettings: (value: unknown) => ({
+        subscriptionsEnabled: true,
+        subscriptionPriceGd: 500,
+        bookingsEnabled: true,
+        customRequestsEnabled: true,
+        phoneRatePerMinuteGd: 500,
+        videoRatePerMinuteGd: 1000,
+        bookingMinimumMinutes: 5,
+        videoSubscriberDiscountPercent: 50,
+        requestCategories: [],
+        availabilityWindows: [],
+        availabilityTimezone: "America/Chicago",
+        ...(value && typeof value === "object" ? value as Record<string, unknown> : {}),
+    }),
+    normalizeCreatorRestrictions: (value: unknown) => ({
+        messagingRestricted: false,
+        broadcastsRestricted: false,
+        subscriptionsRestricted: false,
+        bookingsRestricted: false,
+        customRequestsRestricted: false,
+        dropSubmissionsRestricted: false,
+        payoutsRestricted: false,
+        ...(value && typeof value === "object" ? value as Record<string, unknown> : {}),
+    }),
+    normalizeCreatorRequestCategories: (value: unknown) => Array.isArray(value) ? value : [],
+    normalizeCreatorAvailabilityWindows: (value: unknown) => Array.isArray(value) ? value : [],
+    normalizePositiveWholeNumber: (value: unknown, fallback: number) => {
+        const numeric = typeof value === "number" ? value : Number(value);
+        return Number.isFinite(numeric) && numeric > 0 ? Math.floor(numeric) : fallback;
+    },
 }));
 vi.mock("@/lib/server/creator-experiences", () => ({
     CREATOR_EXPERIENCE_PAID_EVENTS: {
@@ -239,6 +301,7 @@ vi.mock("@/lib/server/creator-experiences", () => ({
     buildCreatorExperienceTransactionDebug: mockState.buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch: mockState.buildSourceAwareBalancePatch,
     readSourceAwareBalance: mockState.readSourceAwareBalance,
+    readPaidSourceBalanceForRestrictedSpend: mockState.readPaidSourceBalanceForRestrictedSpend,
     spendCreatorExperienceGumdrops: mockState.spendCreatorExperienceGumdrops,
 }));
 vi.mock("@/lib/server/gumdrop-ledger", () => ({
@@ -389,7 +452,12 @@ describe("creator subscriptions route", () => {
 
     it("subscribes successfully when the creator is eligible and balance is sufficient", async () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
-        mockState.setDocument("users", "fan_1", { role: "user", gumDropsBalance: 1200 });
+        mockState.setDocument("users", "fan_1", {
+            role: "user",
+            gumDropsBalance: 1200,
+            gumDropsPurchasedBalance: 1200,
+            gumDropsRewardBalance: 0,
+        });
         mockState.setDocument("users", "creator_1", {
             role: "creator",
             displayName: "Creator One",
@@ -504,7 +572,12 @@ describe("creator subscriptions route", () => {
 
     it("prevents duplicate fan pass charges for the same idempotency key", async () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
-        mockState.setDocument("users", "fan_1", { role: "user", gumDropsBalance: 1200 });
+        mockState.setDocument("users", "fan_1", {
+            role: "user",
+            gumDropsBalance: 1200,
+            gumDropsPurchasedBalance: 1200,
+            gumDropsRewardBalance: 0,
+        });
         mockState.setDocument("users", "creator_1", {
             role: "creator",
             displayName: "Creator One",
@@ -563,7 +636,12 @@ describe("creator subscriptions route", () => {
 
     it("starts a new paid Fan Pass after a canceled subscription", async () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
-        mockState.setDocument("users", "fan_1", { role: "user", gumDropsBalance: 1200 });
+        mockState.setDocument("users", "fan_1", {
+            role: "user",
+            gumDropsBalance: 1200,
+            gumDropsPurchasedBalance: 1200,
+            gumDropsRewardBalance: 0,
+        });
         mockState.setDocument("users", "creator_1", {
             role: "creator",
             displayName: "Creator One",

@@ -8,12 +8,14 @@ import type { ActorMarker } from "@/lib/identity/actor-markers";
 import { assertCreatorExperienceSpendIsPurchasedOnly } from "@/lib/gumdrop-source-of-funds";
 import {
     buildSourceAwareBalancePatch,
+    readPaidSourceBalanceForRestrictedSpend,
     readSourceAwareBalance,
     spendSourceAwareGumdrops,
     type SourceAwareGumdropBalance,
 } from "@/lib/gumdrop-ledger";
 export {
     buildSourceAwareBalancePatch,
+    readPaidSourceBalanceForRestrictedSpend,
     readSourceAwareBalance,
     spendSourceAwareGumdrops,
     type SourceAwareGumdropBalance,

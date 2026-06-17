@@ -8,6 +8,12 @@ export type SourceAwareGumdropBalance = {
     reward: number;
 };
 
+export type RestrictedPaidSourceBalance = {
+    balance: SourceAwareGumdropBalance;
+    sourceState: "explicit_paid_source" | "legacy_total_only";
+    paidSourceEligible: boolean;
+};
+
 const CREATOR_SPEND_TRANSACTION_TYPES = new Set([
     "creator_message_text",
     "creator_message_image",
@@ -93,6 +99,38 @@ export function creditSourceAwareGumdrops(
         total: current.total + credit,
         purchased: current.purchased + credit,
         reward: current.reward,
+    };
+}
+
+export function hasExplicitPurchasedGumdropBalance(source: {
+    gumDropsPurchasedBalance?: unknown;
+}) {
+    return typeof source.gumDropsPurchasedBalance === "number" && Number.isFinite(source.gumDropsPurchasedBalance);
+}
+
+export function readPaidSourceBalanceForRestrictedSpend(source: {
+    gumDropsBalance?: unknown;
+    gumDropsPurchasedBalance?: unknown;
+    gumDropsRewardBalance?: unknown;
+}): RestrictedPaidSourceBalance {
+    const total = normalizeGumdropBalance(source.gumDropsBalance);
+
+    if (!hasExplicitPurchasedGumdropBalance(source)) {
+        return {
+            balance: {
+                total,
+                purchased: 0,
+                reward: 0,
+            },
+            sourceState: "legacy_total_only",
+            paidSourceEligible: false,
+        };
+    }
+
+    return {
+        balance: readSourceAwareBalance(source),
+        sourceState: "explicit_paid_source",
+        paidSourceEligible: true,
     };
 }
 

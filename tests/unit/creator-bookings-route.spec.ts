@@ -87,12 +87,58 @@ vi.mock("@/lib/server/rate-limit", () => ({
     STANDARD: {},
 }));
 vi.mock("@/lib/creator-experiences", () => ({
+    CREATOR_BOOKING_RATES: { phone: 500, video: 1000 },
+    CREATOR_MESSAGE_COSTS: { text: 1, image: 5, video: 10 },
+    CREATOR_SUBSCRIPTION_MIN_GD: 500,
     CREATOR_BOOKING_MIN_MINUTES: 5,
+    DEFAULT_CREATOR_SETTINGS: {
+        subscriptionsEnabled: true,
+        subscriptionPriceGd: 500,
+        bookingsEnabled: true,
+        customRequestsEnabled: true,
+        phoneRatePerMinuteGd: 500,
+        videoRatePerMinuteGd: 1000,
+        bookingMinimumMinutes: 5,
+        videoSubscriberDiscountPercent: 50,
+        requestCategories: [],
+        availabilityWindows: [],
+        availabilityTimezone: "America/Chicago",
+    },
     CREATOR_COLLECTIONS: {
         bookings: "creator_call_bookings",
         subscriptions: "creator_subscriptions",
     },
     isCreatorRole: (role: unknown) => role === "creator" || role === "admin",
+    normalizeCreatorSettings: (value: unknown) => ({
+        subscriptionsEnabled: true,
+        subscriptionPriceGd: 500,
+        bookingsEnabled: true,
+        customRequestsEnabled: true,
+        phoneRatePerMinuteGd: 500,
+        videoRatePerMinuteGd: 1000,
+        bookingMinimumMinutes: 5,
+        videoSubscriberDiscountPercent: 50,
+        requestCategories: [],
+        availabilityWindows: [],
+        availabilityTimezone: "America/Chicago",
+        ...(value && typeof value === "object" ? value as Record<string, unknown> : {}),
+    }),
+    normalizeCreatorRestrictions: (value: unknown) => ({
+        messagingRestricted: false,
+        broadcastsRestricted: false,
+        subscriptionsRestricted: false,
+        bookingsRestricted: false,
+        customRequestsRestricted: false,
+        dropSubmissionsRestricted: false,
+        payoutsRestricted: false,
+        ...(value && typeof value === "object" ? value as Record<string, unknown> : {}),
+    }),
+    normalizeCreatorRequestCategories: (value: unknown) => Array.isArray(value) ? value : [],
+    normalizeCreatorAvailabilityWindows: (value: unknown) => Array.isArray(value) ? value : [],
+    normalizePositiveWholeNumber: (value: unknown, fallback: number) => {
+        const numeric = typeof value === "number" ? value : Number(value);
+        return Number.isFinite(numeric) && numeric > 0 ? Math.floor(numeric) : fallback;
+    },
 }));
 vi.mock("@/lib/server/creator-experiences", () => ({
     buildBookingSlotKey: vi.fn(),
@@ -100,6 +146,7 @@ vi.mock("@/lib/server/creator-experiences", () => ({
     buildSourceAwareBalancePatch: vi.fn(),
     calculateBookingPriceGd: vi.fn(),
     readSourceAwareBalance: vi.fn(),
+    readPaidSourceBalanceForRestrictedSpend: vi.fn(),
     spendCreatorExperienceGumdrops: vi.fn(),
 }));
 vi.mock("@/lib/server/gumdrop-ledger", () => ({

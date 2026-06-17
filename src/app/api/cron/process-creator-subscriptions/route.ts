@@ -13,7 +13,7 @@ import {
     buildCreatorExperienceAttribution,
     buildCreatorExperienceTransactionAttributionExtra,
     buildSourceAwareBalancePatch,
-    readSourceAwareBalance,
+    readPaidSourceBalanceForRestrictedSpend,
     spendCreatorExperienceGumdrops,
 } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
@@ -239,7 +239,7 @@ async function GET_handler(request: NextRequest) {
                         return { status: "failed" as const, amount: priceGd };
                     }
 
-                    const balance = readSourceAwareBalance(userData);
+                    const balance = readPaidSourceBalanceForRestrictedSpend(userData).balance;
                     const spend = spendCreatorExperienceGumdrops(balance, priceGd, "subscription");
                     const creatorDisplayName = typeof creatorData.displayName === "string" && creatorData.displayName.trim().length > 0
                         ? creatorData.displayName.trim()

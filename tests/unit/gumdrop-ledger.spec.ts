@@ -5,6 +5,7 @@ import {
     classifyGumdropTransaction,
     creditSourceAwareGumdrops,
     getTransactionRevenueCents,
+    readPaidSourceBalanceForRestrictedSpend,
     readSourceAwareBalance,
     spendSourceAwareGumdrops,
 } from "@/lib/gumdrop-ledger";
@@ -17,6 +18,34 @@ describe("gumdrop ledger", () => {
             total: 24,
             purchased: 24,
             reward: 0,
+        });
+    });
+
+    it("does not promote legacy total-only balances to paid-source restricted spend", () => {
+        expect(readPaidSourceBalanceForRestrictedSpend({
+            gumDropsBalance: 24,
+        })).toEqual({
+            balance: {
+                total: 24,
+                purchased: 0,
+                reward: 0,
+            },
+            sourceState: "legacy_total_only",
+            paidSourceEligible: false,
+        });
+
+        expect(readPaidSourceBalanceForRestrictedSpend({
+            gumDropsBalance: 24,
+            gumDropsPurchasedBalance: 12,
+            gumDropsRewardBalance: 12,
+        })).toEqual({
+            balance: {
+                total: 24,
+                purchased: 12,
+                reward: 12,
+            },
+            sourceState: "explicit_paid_source",
+            paidSourceEligible: true,
         });
     });
 

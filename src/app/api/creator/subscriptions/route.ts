@@ -19,7 +19,7 @@ import {
     buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch,
-    readSourceAwareBalance,
+    readPaidSourceBalanceForRestrictedSpend,
     spendCreatorExperienceGumdrops,
 } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
@@ -528,7 +528,7 @@ async function POST_handler(request: NextRequest) {
             }
 
             const priceGd = fanPassPricing.priceGd;
-            const balance = readSourceAwareBalance(userData);
+            const balance = readPaidSourceBalanceForRestrictedSpend(userData).balance;
             if (transactionSnap.exists || (subscriptionSnap.exists && (subscriptionSnap.data() as Record<string, unknown>).status === "active")) {
                 return {
                     action: "subscribe" as const,

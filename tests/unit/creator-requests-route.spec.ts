@@ -121,9 +121,25 @@ const mockState = vi.hoisted(() => {
         })),
         buildSourceAwareBalancePatch: vi.fn((next: { total: number }) => ({ gumDropsBalance: next.total })),
         readSourceAwareBalance: vi.fn(() => ({ total: 1000, purchased: 1000, reward: 0 })),
+        readPaidSourceBalanceForRestrictedSpend: vi.fn((source: { gumDropsBalance?: unknown; gumDropsPurchasedBalance?: unknown; gumDropsRewardBalance?: unknown }) => {
+            const total = typeof source.gumDropsBalance === "number" && Number.isFinite(source.gumDropsBalance) ? source.gumDropsBalance : 0;
+            if (typeof source.gumDropsPurchasedBalance !== "number" || !Number.isFinite(source.gumDropsPurchasedBalance)) {
+                return { balance: { total, purchased: 0, reward: 0 }, sourceState: "legacy_total_only", paidSourceEligible: false };
+            }
+
+            return {
+                balance: {
+                    total,
+                    purchased: source.gumDropsPurchasedBalance,
+                    reward: typeof source.gumDropsRewardBalance === "number" && Number.isFinite(source.gumDropsRewardBalance) ? source.gumDropsRewardBalance : Math.max(0, total - source.gumDropsPurchasedBalance),
+                },
+                sourceState: "explicit_paid_source",
+                paidSourceEligible: true,
+            };
+        }),
         spendCreatorExperienceGumdrops: vi.fn(() => ({ ok: true, next: { total: 700, purchased: 700, reward: 0 }, purchasedSpent: 300, rewardSpent: 0, ledgerSource: "purchased" })),
         buildCompletedGumdropTransaction: vi.fn(() => ({ verifiedServerSide: true })),
-        trackServerEvent: vi.fn(),
+        trackServerEvent: vi.fn(() => Promise.resolve()),
         adminDb: {
             collection(name: string) {
                 return {
@@ -157,6 +173,7 @@ const mockState = vi.hoisted(() => {
             this.buildCreatorExperienceTransactionDebug.mockClear();
             this.buildSourceAwareBalancePatch.mockClear();
             this.readSourceAwareBalance.mockClear();
+            this.readPaidSourceBalanceForRestrictedSpend.mockClear();
             this.spendCreatorExperienceGumdrops.mockClear();
             this.buildCompletedGumdropTransaction.mockClear();
             this.trackServerEvent.mockClear();
@@ -176,11 +193,57 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
     withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
 }));
 vi.mock("@/lib/creator-experiences", () => ({
+    CREATOR_BOOKING_RATES: { phone: 500, video: 1000 },
+    CREATOR_MESSAGE_COSTS: { text: 1, image: 5, video: 10 },
+    CREATOR_SUBSCRIPTION_MIN_GD: 500,
+    DEFAULT_CREATOR_SETTINGS: {
+        subscriptionsEnabled: true,
+        subscriptionPriceGd: 500,
+        bookingsEnabled: true,
+        customRequestsEnabled: true,
+        phoneRatePerMinuteGd: 500,
+        videoRatePerMinuteGd: 1000,
+        bookingMinimumMinutes: 5,
+        videoSubscriberDiscountPercent: 50,
+        requestCategories: [],
+        availabilityWindows: [],
+        availabilityTimezone: "America/Chicago",
+    },
     CREATOR_COLLECTIONS: {
         requests: "creator_custom_requests",
         ledgerAccruals: "creator_ledger_accruals",
     },
     isCreatorRole: (role: unknown) => role === "creator",
+    normalizeCreatorSettings: (value: unknown) => ({
+        subscriptionsEnabled: true,
+        subscriptionPriceGd: 500,
+        bookingsEnabled: true,
+        customRequestsEnabled: true,
+        phoneRatePerMinuteGd: 500,
+        videoRatePerMinuteGd: 1000,
+        bookingMinimumMinutes: 5,
+        videoSubscriberDiscountPercent: 50,
+        requestCategories: [],
+        availabilityWindows: [],
+        availabilityTimezone: "America/Chicago",
+        ...(value && typeof value === "object" ? value as Record<string, unknown> : {}),
+    }),
+    normalizeCreatorRestrictions: (value: unknown) => ({
+        messagingRestricted: false,
+        broadcastsRestricted: false,
+        subscriptionsRestricted: false,
+        bookingsRestricted: false,
+        customRequestsRestricted: false,
+        dropSubmissionsRestricted: false,
+        payoutsRestricted: false,
+        ...(value && typeof value === "object" ? value as Record<string, unknown> : {}),
+    }),
+    normalizeCreatorRequestCategories: (value: unknown) => Array.isArray(value) ? value : [],
+    normalizeCreatorAvailabilityWindows: (value: unknown) => Array.isArray(value) ? value : [],
+    normalizePositiveWholeNumber: (value: unknown, fallback: number) => {
+        const numeric = typeof value === "number" ? value : Number(value);
+        return Number.isFinite(numeric) && numeric > 0 ? Math.floor(numeric) : fallback;
+    },
 }));
 vi.mock("@/lib/server/creator-experiences", () => ({
     CREATOR_EXPERIENCE_PAID_EVENTS: {
@@ -195,6 +258,7 @@ vi.mock("@/lib/server/creator-experiences", () => ({
     buildCreatorExperienceTransactionDebug: mockState.buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch: mockState.buildSourceAwareBalancePatch,
     readSourceAwareBalance: mockState.readSourceAwareBalance,
+    readPaidSourceBalanceForRestrictedSpend: mockState.readPaidSourceBalanceForRestrictedSpend,
     spendCreatorExperienceGumdrops: mockState.spendCreatorExperienceGumdrops,
 }));
 vi.mock("@/lib/server/gumdrop-ledger", () => ({
@@ -213,7 +277,12 @@ describe("creator requests route transaction truth", () => {
             error: error instanceof Error ? error.message : String(error),
         }, { status: 500 }));
         mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1", email: "fan@example.com" });
-        mockState.setDocument("users", "fan_1", { role: "user", gumDropsBalance: 1000 });
+        mockState.setDocument("users", "fan_1", {
+            role: "user",
+            gumDropsBalance: 1000,
+            gumDropsPurchasedBalance: 1000,
+            gumDropsRewardBalance: 0,
+        });
         mockState.setDocument("users", "creator_1", {
             role: "creator",
             creatorSettings: {
