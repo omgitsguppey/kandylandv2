@@ -294,7 +294,7 @@ export function getAdminTruthStateBadgeLabel(
   if (state === "legacy_fallback") return "LEGACY";
   if (state === "blocked") return "BLOCKED";
   if (state === "review") return "REVIEW";
-  return "UNAVAILABLE";
+  return "NO SOURCE";
 }
 
 export function getAdminTruthStateDescription(state: AdminTruthState) {

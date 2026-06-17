@@ -13,6 +13,14 @@ describe("AdminTruthBadge", () => {
     expect(renderBadge("blocked")).toContain('data-admin-truth-has-usable-value="false"');
   });
 
+  it("shows unavailable truth as source-missing copy without changing the state attribute", () => {
+    const markup = renderBadge("unavailable");
+
+    expect(markup).toContain('data-admin-truth-state="unavailable"');
+    expect(markup).toContain("NO SOURCE");
+    expect(markup).not.toContain(">UNAVAILABLE<");
+  });
+
   it("preserves usable evidence markers for states that can expose values", () => {
     expect(renderBadge("cached")).toContain('data-admin-truth-has-usable-value="true"');
     expect(renderBadge("live")).toContain('data-admin-truth-has-usable-value="true"');
