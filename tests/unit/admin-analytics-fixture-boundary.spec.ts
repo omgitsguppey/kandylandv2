@@ -19,6 +19,10 @@ const preferencesSource = readFileSync(
   join(process.cwd(), "src/lib/admin-analytics-preferences.ts"),
   "utf8",
 );
+const historicalRouteSource = readFileSync(
+  join(process.cwd(), "src/app/api/admin/analytics/historical/route.ts"),
+  "utf8",
+);
 
 describe("admin analytics local fixture boundary", () => {
   it("labels local admin UI fixture analytics evidence as source_missing", () => {
@@ -64,6 +68,8 @@ describe("admin analytics local fixture boundary", () => {
   it("defaults admin analytics hydration to launch history without enabling raw polling", () => {
     expect(preferencesSource).toContain('ADMIN_ANALYTICS_DEFAULT_RANGE = "all"');
     expect(hookSource).toContain("const historicalUrl = `/api/admin/analytics/historical?period=${ADMIN_ANALYTICS_DEFAULT_RANGE}`");
+    expect(historicalRouteSource).toContain("shouldHydrateDefaultLaunchHistoryFromSources");
+    expect(historicalRouteSource).toContain("hydrating launch history from bounded canonical source collections");
     expect(hookSource).toContain("Launch history hydrating; showing verified snapshots");
     expect(hookSource).toContain("Launch history hydrating; showing 30D transaction fallback");
     expect(hookSource).toContain("Hydrating launch history from source evidence");

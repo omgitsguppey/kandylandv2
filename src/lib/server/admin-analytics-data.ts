@@ -23,6 +23,7 @@ export {
 
 const ADMIN_ANALYTICS_HISTORICAL_CACHE_TTL_MS = ANALYTICS_NON_PRIORITY_TTL_MS;
 const ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT = 370;
+const ADMIN_ANALYTICS_ALL_TIME_DAILY_ROLLUP_LIMIT = 2_500;
 const ADMIN_ANALYTICS_EVENT_FACT_LIMIT = 500;
 const ADMIN_ANALYTICS_EVENT_STATS_LIMIT = 500;
 const ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT = 200;
@@ -43,6 +44,9 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
   allowVendorReports?: boolean;
 }) {
   const { analyticsClient, propertyId, startDate, endDate, startDayKey, startMs, period, timelineBucket, section, allowVendorReports = false } = input;
+  const dailyRollupLimit = period === "all"
+    ? ADMIN_ANALYTICS_ALL_TIME_DAILY_ROLLUP_LIMIT
+    : ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT;
 
   return readThroughEphemeralRouteCache({
     key: `admin-historical-sources:${propertyId}:${startDate}:${endDate}:${startDayKey}:${startMs}:${period ?? "default"}:${timelineBucket}:${section ?? "all"}`,
@@ -207,70 +211,84 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       channel: "analytics",
       label: "daily analytics rollups",
       issues,
-      reader: () => adminDb.collection("analytics_rollups_daily")
-        .where("dayKey", ">=", startDayKey)
-        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
-        .get(),
+      reader: () => {
+        const collection = adminDb.collection("analytics_rollups_daily");
+        return period === "all"
+          ? collection.limit(dailyRollupLimit).get()
+          : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
+      },
     }),
     safeQueryWithDiagnostics({
       routeName: "admin/analytics/historical",
       channel: "analytics",
       label: "page analytics rollups",
       issues,
-      reader: () => adminDb.collection("analytics_page_daily")
-        .where("dayKey", ">=", startDayKey)
-        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
-        .get(),
+      reader: () => {
+        const collection = adminDb.collection("analytics_page_daily");
+        return period === "all"
+          ? collection.limit(dailyRollupLimit).get()
+          : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
+      },
     }),
     safeQueryWithDiagnostics({
       routeName: "admin/analytics/historical",
       channel: "analytics",
       label: "drop analytics rollups",
       issues,
-      reader: () => adminDb.collection("analytics_drop_daily")
-        .where("dayKey", ">=", startDayKey)
-        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
-        .get(),
+      reader: () => {
+        const collection = adminDb.collection("analytics_drop_daily");
+        return period === "all"
+          ? collection.limit(dailyRollupLimit).get()
+          : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
+      },
     }),
     safeQueryWithDiagnostics({
       routeName: "admin/analytics/historical",
       channel: "analytics",
       label: "task analytics rollups",
       issues,
-      reader: () => adminDb.collection("analytics_task_daily")
-        .where("dayKey", ">=", startDayKey)
-        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
-        .get(),
+      reader: () => {
+        const collection = adminDb.collection("analytics_task_daily");
+        return period === "all"
+          ? collection.limit(dailyRollupLimit).get()
+          : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
+      },
     }),
     safeQueryWithDiagnostics({
       routeName: "admin/analytics/historical",
       channel: "commerce",
       label: "commerce analytics rollups",
       issues,
-      reader: () => adminDb.collection("analytics_commerce_daily")
-        .where("dayKey", ">=", startDayKey)
-        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
-        .get(),
+      reader: () => {
+        const collection = adminDb.collection("analytics_commerce_daily");
+        return period === "all"
+          ? collection.limit(dailyRollupLimit).get()
+          : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
+      },
     }),
     safeQueryWithDiagnostics({
       routeName: "admin/analytics/historical",
       channel: "analytics",
       label: "session analytics facts",
       issues,
-      reader: () => adminDb.collection("analytics_session_facts")
-        .where("dayKey", ">=", startDayKey)
-        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
-        .get(),
+      reader: () => {
+        const collection = adminDb.collection("analytics_session_facts");
+        return period === "all"
+          ? collection.limit(dailyRollupLimit).get()
+          : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
+      },
     }),
     safeQueryWithDiagnostics({
       routeName: "admin/analytics/historical",
       channel: "analytics",
       label: "pipeline analytics",
       issues,
-      reader: () => adminDb.collection("analytics_pipeline_daily")
-        .where("dayKey", ">=", startDayKey)
-        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
-        .get(),
+      reader: () => {
+        const collection = adminDb.collection("analytics_pipeline_daily");
+        return period === "all"
+          ? collection.limit(dailyRollupLimit).get()
+          : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
+      },
     }),
     period === "all"
       ? safeQueryWithDiagnostics({
@@ -465,6 +483,20 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
           .get(),
       }),
   ]);
+
+      const cappedDailySources = [
+        ["analytics_rollups_daily", dailyRollupsSnapshot.size],
+        ["analytics_page_daily", pageRollupsSnapshot.size],
+        ["analytics_drop_daily", dropDailySnapshot.size],
+        ["analytics_task_daily", taskDailySnapshot.size],
+        ["analytics_commerce_daily", commerceDailySnapshot.size],
+        ["analytics_session_facts", sessionFactsSnapshot.size],
+        ["analytics_pipeline_daily", pipelineHealthSnapshot.size],
+      ].filter(([, size]) => typeof size === "number" && size >= dailyRollupLimit)
+        .map(([source]) => source);
+      if (cappedDailySources.length > 0) {
+        issues.push(`Historical daily source sample reached the ${dailyRollupLimit} document cap for ${period === "all" ? "all-time launch history" : "the selected range"}: ${cappedDailySources.join(", ")}.`);
+      }
 
       const [
         telemetryLogsByEvent,

@@ -117,6 +117,10 @@ type HistoricalSnapshotAuthorityTarget = {
     section: string | null;
 };
 
+function shouldHydrateDefaultLaunchHistoryFromSources(target: HistoricalSnapshotAuthorityTarget) {
+    return target.section === null && target.moduleKey === "platform_pulse" && target.rangeKey === "all";
+}
+
 function toTimestampNumber(value: unknown) {
     if (typeof value === "number" && Number.isFinite(value)) {
         return value;
@@ -946,6 +950,7 @@ async function GET_handler(request: NextRequest) {
         const section = searchParams.get("section")?.trim() || null;
         const forceRefresh = searchParams.get("refresh") === "1" || searchParams.get("forceRefresh") === "1";
         const snapshotAuthorityTarget = resolveHistoricalSnapshotAuthorityTarget(section, period);
+        let snapshotAuthorityHydrationIssue: string | null = null;
         const ga4EvidenceState = buildGa4EvidenceState({
             propertyId,
             measurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || process.env.GA_MEASUREMENT_ID,
@@ -956,7 +961,14 @@ async function GET_handler(request: NextRequest) {
 
         if (snapshotAuthorityTarget && !viewerUser && !forceRefresh) {
             const snapshotAuthorityResult = await readHistoricalSnapshotAuthorityPayload(snapshotAuthorityTarget);
-            return finalize(NextResponse.json(snapshotAuthorityResult.payload, { status: snapshotAuthorityResult.status }));
+            if (snapshotAuthorityResult.status === 200 || !shouldHydrateDefaultLaunchHistoryFromSources(snapshotAuthorityTarget)) {
+                return finalize(NextResponse.json(snapshotAuthorityResult.payload, { status: snapshotAuthorityResult.status }));
+            }
+
+            snapshotAuthorityHydrationIssue =
+                snapshotAuthorityResult.payload.cacheValidationIssues?.[0]
+                ?? snapshotAuthorityResult.payload.error
+                ?? "No verified all-time platform snapshot is available.";
         }
 
         if (!propertyId) {
@@ -1025,6 +1037,9 @@ async function GET_handler(request: NextRequest) {
                 section,
                 allowVendorReports: forceRefresh,
             });
+            if (snapshotAuthorityHydrationIssue) {
+                issues.push(`All-time platform snapshot is missing; hydrating launch history from bounded canonical source collections. ${snapshotAuthorityHydrationIssue}`);
+            }
 
             const {
                 chartData,

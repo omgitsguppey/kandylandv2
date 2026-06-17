@@ -23,6 +23,7 @@ const mockState = vi.hoisted(() => {
         name: string;
         clauses: QueryClause[];
         orderBys: OrderClause[];
+        limits: number[];
     }> = [];
 
     const createQuerySnapshot = (docs: MockDoc[]) => ({
@@ -34,6 +35,7 @@ const mockState = vi.hoisted(() => {
     const createCollectionRef = (name: string) => {
         const clauses: QueryClause[] = [];
         const orderBys: OrderClause[] = [];
+        const limits: number[] = [];
 
         const applyClauses = (docs: MockDoc[]) => docs.filter((doc) => {
             const raw = doc.data();
@@ -58,6 +60,10 @@ const mockState = vi.hoisted(() => {
                 orderBys.push({ field, direction });
                 return this;
             },
+            limit(value: number) {
+                limits.push(value);
+                return this;
+            },
             doc(id: string) {
                 return {
                     get: async () => {
@@ -75,6 +81,7 @@ const mockState = vi.hoisted(() => {
                     name,
                     clauses: [...clauses],
                     orderBys: [...orderBys],
+                    limits: [...limits],
                 });
 
                 return createQuerySnapshot(applyClauses(collections.get(name) ?? [])) as FirebaseFirestore.QuerySnapshot;
@@ -181,5 +188,37 @@ describe("fetchAdminHistoricalAnalyticsSources", () => {
                 }),
             ]),
         });
+    });
+
+    it("reads all-time launch history rollups without requiring modern dayKey fields", async () => {
+        const startMs = Date.UTC(2020, 0, 1, 0, 0, 0);
+        mockState.collections.set("analytics_page_daily", [
+            {
+                id: "2024-01-15__home",
+                data: () => ({
+                    pagePath: "/",
+                    viewCount: 9,
+                }),
+            },
+        ]);
+
+        const result = await fetchAdminHistoricalAnalyticsSources({
+            analyticsClient: {} as never,
+            propertyId: "prop_123",
+            startDate: "2020-01-01",
+            endDate: "2026-06-17",
+            startDayKey: "2020-01-01",
+            startMs,
+            period: "all",
+            timelineBucket: "day",
+        });
+
+        const pageRollupQuery = mockState.queryHistory.find((entry) => entry.name === "analytics_page_daily");
+        const dailyRollupQuery = mockState.queryHistory.find((entry) => entry.name === "analytics_rollups_daily");
+
+        expect(result.pageRollupsSnapshot.size).toBe(1);
+        expect(pageRollupQuery?.clauses.some((clause) => clause.field === "dayKey")).toBe(false);
+        expect(pageRollupQuery?.limits).toContain(2_500);
+        expect(dailyRollupQuery?.limits).toContain(2_500);
     });
 });
