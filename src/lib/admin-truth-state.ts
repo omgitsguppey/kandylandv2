@@ -55,6 +55,7 @@ const LEGACY_TRUTH_STATE_MAP: Record<TruthLikeState, AdminTruthState> = {
 
 const ADMIN_MISSING_VALUE_LABELS = new Set([
   "[unavailable]",
+  "not loaded",
   "not recorded",
 ]);
 

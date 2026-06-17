@@ -40,8 +40,12 @@ describe("admin truth state", () => {
 
   it("keeps natural missing-value copy from becoming live data", () => {
     expect(hasUsableAdminTruthValue("Not recorded")).toBe(false);
+    expect(hasUsableAdminTruthValue("Not loaded")).toBe(false);
     expect(resolveAdminInputTruthState({
       value: "Not recorded",
+    }).truthState).toBe("unavailable");
+    expect(resolveAdminInputTruthState({
+      value: "Not loaded",
     }).truthState).toBe("unavailable");
   });
 });

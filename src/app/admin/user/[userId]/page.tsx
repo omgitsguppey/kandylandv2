@@ -210,6 +210,8 @@ type SupportReadinessState = SupportReadinessSnapshot["summary"]["state"];
 type CreatorApplicationState = NonNullable<UserProfile["creatorApplication"]>;
 type CreatorRestrictionFlags = NonNullable<UserProfile["creatorRestrictions"]>;
 
+const ADMIN_USER_DETAIL_MISSING_LABEL = "Not loaded";
+
 const CREATOR_RESTRICTION_FIELDS = [
     { key: "messagingRestricted", label: "Restrict messaging", description: "Blocks paid chat and direct creator replies." },
     { key: "broadcastsRestricted", label: "Restrict broadcasts", description: "Stops follower broadcasts and creator alerts." },
@@ -548,6 +550,21 @@ export default function AdminUserAnalyticsPage() {
         sourceConfigured: true,
         reviewRequired: Boolean(parity?.validations?.some((item) => item.status !== "pass")),
     });
+    const supportSummaryClassName = supportReadiness
+        ? getSupportStateClasses(supportReadiness.summary.state)
+        : "border-gray-500/30 bg-gray-500/10 text-gray-300";
+    const supportSummaryLabel = supportReadiness?.summary.stateLabel ?? "Support snapshot not loaded";
+    const paritySummaryStatus = parity?.validations?.some((item) => item.status === "fail")
+        ? "fail"
+        : parity?.validations?.some((item) => item.status === "warn")
+            ? "warn"
+            : parity
+                ? "pass"
+                : "warn";
+    const paritySummaryClassName = parity
+        ? getValidationClasses(paritySummaryStatus)
+        : "border-gray-500/30 bg-gray-500/10 text-gray-300";
+    const paritySummaryLabel = parity ? `${parity.score}% parity` : "Parity snapshot not loaded";
     const engagementExplanation = buildEngagementBehavioralExplanation({
         engagement,
         behaviorRollup,
@@ -1079,8 +1096,8 @@ export default function AdminUserAnalyticsPage() {
                             </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getSupportStateClasses(supportReadiness?.summary.state || "ready")}`}>
-                            {supportReadiness?.summary.stateLabel || "Ready for support"}
+                        <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportSummaryClassName}`}>
+                            {supportSummaryLabel}
                         </span>
                         <Link
                             href={`/admin/support?userId=${targetUser.uid}`}
@@ -1107,13 +1124,13 @@ export default function AdminUserAnalyticsPage() {
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Open support threads</p>
                                 <div className="mt-1"><AdminTruthBadge state={supportTruthState} hasUsableValue={Boolean(supportReadiness)} /></div>
-                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness ? supportReadiness.summary.openThreads : "[unavailable]"}</p>
-                                <p className="mt-1 text-xs text-gray-400">{supportReadiness ? supportReadiness.summary.totalThreads : "[unavailable]"} historical threads.</p>
+                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness ? supportReadiness.summary.openThreads : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
+                                <p className="mt-1 text-xs text-gray-400">{supportReadiness ? supportReadiness.summary.totalThreads : ADMIN_USER_DETAIL_MISSING_LABEL} historical threads.</p>
                             </div>
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support signals</p>
                                 <div className="mt-1"><AdminTruthBadge state={supportTruthState} hasUsableValue={Boolean(supportReadiness)} /></div>
-                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness ? supportReadiness.summary.bugReportCount : "[unavailable]"}</p>
+                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness ? supportReadiness.summary.bugReportCount : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
                                 <p className="mt-1 text-xs text-gray-400">Bug reports still surface here as support intake signals.</p>
                             </div>
                         </div>
@@ -1148,7 +1165,7 @@ export default function AdminUserAnalyticsPage() {
                                 </p>
                             </div>
                             <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                                {supportReadiness ? `${supportReadiness.signals.length} loaded` : "[unavailable]"}
+                                {supportReadiness ? `${supportReadiness.signals.length} loaded` : ADMIN_USER_DETAIL_MISSING_LABEL}
                             </span>
                         </div>
 
@@ -1219,8 +1236,8 @@ export default function AdminUserAnalyticsPage() {
                     <span className="flex items-center gap-2">
                         <Activity className="h-4 w-4 text-brand-purple" /> Source diagnostics
                     </span>
-                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.validations?.some((item) => item.status === "fail") ? "fail" : parity?.validations?.some((item) => item.status === "warn") ? "warn" : "pass")}`}>
-                        {parity ? `${parity.score}% parity` : "[unavailable] parity"}
+                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${paritySummaryClassName}`}>
+                        {paritySummaryLabel}
                     </span>
                 </summary>
 
@@ -1228,15 +1245,15 @@ export default function AdminUserAnalyticsPage() {
                     <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Overall Confidence</p>
                         <div className="mt-1"><AdminTruthBadge state={parityTruthState} hasUsableValue={Boolean(parity)} /></div>
-                        <p className="mt-2 text-3xl font-black text-white">{parity ? `${parity.score}%` : "[unavailable]"}</p>
+                        <p className="mt-2 text-3xl font-black text-white">{parity ? `${parity.score}%` : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
                         <p className="mt-1 text-xs text-gray-400">Purchase and unlock analytics aligned across indexed sources.</p>
                     </div>
                     <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Purchase Parity</p>
-                                <p className="mt-2 text-3xl font-black text-white">{parity ? parity.purchase.canonicalCount : "[unavailable]"}</p>
-                                <p className="mt-1 text-xs text-gray-400">{parity ? parity.purchase.populatedSources : "[unavailable]"} populated sources</p>
+                                <p className="mt-2 text-3xl font-black text-white">{parity ? parity.purchase.canonicalCount : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
+                                <p className="mt-1 text-xs text-gray-400">{parity ? parity.purchase.populatedSources : ADMIN_USER_DETAIL_MISSING_LABEL} populated sources</p>
                             </div>
                             <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.purchase.status ?? "fail")}`}>
                                 {parity?.purchase.status ?? "fail"}
@@ -1247,8 +1264,8 @@ export default function AdminUserAnalyticsPage() {
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Unlock Parity</p>
-                                <p className="mt-2 text-3xl font-black text-white">{parity ? parity.unlock.canonicalCount : "[unavailable]"}</p>
-                                <p className="mt-1 text-xs text-gray-400">{parity ? parity.unlock.populatedSources : "[unavailable]"} populated sources</p>
+                                <p className="mt-2 text-3xl font-black text-white">{parity ? parity.unlock.canonicalCount : ADMIN_USER_DETAIL_MISSING_LABEL}</p>
+                                <p className="mt-1 text-xs text-gray-400">{parity ? parity.unlock.populatedSources : ADMIN_USER_DETAIL_MISSING_LABEL} populated sources</p>
                             </div>
                             <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.unlock.status ?? "fail")}`}>
                                 {parity?.unlock.status ?? "fail"}

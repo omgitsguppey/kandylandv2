@@ -26,4 +26,14 @@ describe("admin user detail fixture boundary", () => {
     expect(apiFetch).toBeGreaterThan(fixtureBranch);
     expect(source).toContain("if (!isAdmin || !userId)");
   });
+
+  it("does not show missing support or parity snapshots as ready or pass-like data", () => {
+    expect(source).toContain('const ADMIN_USER_DETAIL_MISSING_LABEL = "Not loaded"');
+    expect(source).toContain("Support snapshot not loaded");
+    expect(source).toContain("Parity snapshot not loaded");
+    expect(source).toContain("supportSummaryClassName");
+    expect(source).toContain("paritySummaryClassName");
+    expect(source).not.toContain('"Ready for support"');
+    expect(source).not.toContain('"[unavailable]"');
+  });
 });
