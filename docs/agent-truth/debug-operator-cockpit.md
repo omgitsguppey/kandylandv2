@@ -29,7 +29,7 @@ Status: admin debug information hierarchy. The cockpit summarizes what to fix ne
 
 - Owner: repo
 - State: stale
-- Score impact estimate: 14
+- Score impact estimate: 17
 - Next action: npm run check:launch-pr-triage
 
 ### 4. Admin Truth Status

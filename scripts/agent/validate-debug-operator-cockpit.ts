@@ -210,7 +210,10 @@ const failures = validateDebugOperatorCockpit(report);
 const page = read("src/app/admin/debug/components/DebugControlTower.tsx");
 const cockpitComponent = read("src/app/admin/debug/components/DebugOperatorCockpit.tsx");
 
-if (!page.includes("<DebugOperatorCockpit cockpit={model?.operatorCockpit} />")) {
+if (
+  !page.includes("<DebugOperatorCockpit cockpit={model?.operatorCockpit} />")
+  && !page.includes("<DebugOperatorCockpit cockpit={model.operatorCockpit} />")
+) {
   failures.push("debug panel lacks operator cockpit default view.");
 }
 if (!cockpitComponent.includes("data-debug-raw-dump-default-open={String(cockpit.rawDumpDefaultOpen)}")) {

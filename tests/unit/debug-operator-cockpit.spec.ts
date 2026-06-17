@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -83,6 +86,15 @@ const baseInput: DebugOperatorCockpitInput = {
 };
 
 describe("debug operator cockpit", () => {
+  it("keeps the operator cockpit in the guarded Control Tower default view", () => {
+    const controlTowerSource = readFileSync(
+      join(process.cwd(), "src/app/admin/debug/components/DebugControlTower.tsx"),
+      "utf8",
+    );
+
+    expect(controlTowerSource).toContain("<DebugOperatorCockpit cockpit={model.operatorCockpit} />");
+  });
+
   it("orders the default cockpit while keeping formal evidence out of source-fix sections", () => {
     const cockpit = buildDebugOperatorCockpit(baseInput, {
       generatedAtUtc: "2026-05-21T06:15:00.000Z",

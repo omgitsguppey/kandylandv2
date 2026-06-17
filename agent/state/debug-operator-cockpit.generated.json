@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-24T14:52:00.092Z",
+  "generatedAtUtc": "2026-06-17T07:19:58.567Z",
   "reportKey": "debug-operator-cockpit",
-  "currentHead": "48d8c64ecce16f4ae346e49f5607099e0d686d26",
-  "sourceCommit": "48d8c64ecce16f4ae346e49f5607099e0d686d26",
+  "currentHead": "a4e4a031d47c95ce96ceb5d05055c6b3b5995467",
+  "sourceCommit": "a4e4a031d47c95ce96ceb5d05055c6b3b5995467",
   "overallStatus": "pass",
   "rawDumpDefaultOpen": false,
   "defaultSections": [
@@ -31,7 +31,7 @@
       "operatorSummary": "Run these current registered refresh commands before trusting stale snapshots.",
       "owner": "repo",
       "state": "stale",
-      "scoreImpactEstimate": 14,
+      "scoreImpactEstimate": 17,
       "nextAction": "npm run check:launch-pr-triage",
       "items": [
         {
@@ -59,12 +59,60 @@
           "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
         },
         {
+          "artifact": "agent/state/overnight-final-integration-lock.generated.json",
+          "staleReason": "stale_source_version",
+          "refreshCommand": "npm run check:overnight-final-integration-lock",
+          "scoreImpactEstimate": 2,
+          "owner": "repo",
+          "dependencyOrder": 8,
+          "canRunAutomatically": true,
+          "blockedReason": "",
+          "source": "refresh_plan",
+          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
+        },
+        {
+          "artifact": "agent/state/beta-evidence-gap-map.generated.json",
+          "staleReason": "stale_source_version",
+          "refreshCommand": "npm run check:beta-evidence-gap-map",
+          "scoreImpactEstimate": 1.8,
+          "owner": "evidence",
+          "dependencyOrder": 9,
+          "canRunAutomatically": true,
+          "blockedReason": "",
+          "source": "refresh_plan",
+          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
+        },
+        {
+          "artifact": "agent/state/beta-evidence-lane-prep.generated.json",
+          "staleReason": "stale_source_version",
+          "refreshCommand": "npm run check:beta-evidence-lane-prep",
+          "scoreImpactEstimate": 1.6,
+          "owner": "evidence",
+          "dependencyOrder": 10,
+          "canRunAutomatically": true,
+          "blockedReason": "",
+          "source": "refresh_plan",
+          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
+        },
+        {
           "artifact": "agent/state/beta-freshness-language.generated.json",
           "staleReason": "stale_source_version",
           "refreshCommand": "npm run check:beta-freshness-language",
-          "scoreImpactEstimate": 1,
+          "scoreImpactEstimate": 1.4,
           "owner": "beta",
-          "dependencyOrder": 9,
+          "dependencyOrder": 11,
+          "canRunAutomatically": true,
+          "blockedReason": "",
+          "source": "refresh_plan",
+          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
+        },
+        {
+          "artifact": "agent/state/final-pr-stale-cleanup.generated.json",
+          "staleReason": "stale_source_version",
+          "refreshCommand": "npm run check:final-pr-stale-cleanup",
+          "scoreImpactEstimate": 1.2,
+          "owner": "repo",
+          "dependencyOrder": 12,
           "canRunAutomatically": true,
           "blockedReason": "",
           "source": "refresh_plan",
@@ -76,59 +124,11 @@
           "refreshCommand": "npm run check:current-beta-exit-status",
           "scoreImpactEstimate": 1,
           "owner": "beta",
-          "dependencyOrder": 10,
-          "canRunAutomatically": true,
-          "blockedReason": "",
-          "source": "refresh_plan",
-          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
-        },
-        {
-          "artifact": "agent/state/public-beta-score.generated.json",
-          "staleReason": "stale_source_version",
-          "refreshCommand": "npm run score:beta && npm run check:beta-score",
-          "scoreImpactEstimate": 1,
-          "owner": "beta",
-          "dependencyOrder": 11,
-          "canRunAutomatically": true,
-          "blockedReason": "",
-          "source": "refresh_plan",
-          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
-        },
-        {
-          "artifact": "agent/state/creator-drop-status-metrics.generated.json",
-          "staleReason": "stale_source_version",
-          "refreshCommand": "npm run check:creator-drop-status-metrics",
-          "scoreImpactEstimate": 1,
-          "owner": "creator",
-          "dependencyOrder": 12,
-          "canRunAutomatically": true,
-          "blockedReason": "",
-          "source": "refresh_plan",
-          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
-        },
-        {
-          "artifact": "agent/state/creator-lane-debug-parity.generated.json",
-          "staleReason": "stale",
-          "refreshCommand": "npm run check:creator-lane-debug-parity",
-          "scoreImpactEstimate": 1,
-          "owner": "creator",
-          "dependencyOrder": 13,
-          "canRunAutomatically": true,
-          "blockedReason": "",
-          "source": "score_impact",
-          "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
-        },
-        {
-          "artifact": "agent/state/creator-lane-legacy-truth-inventory.generated.json",
-          "staleReason": "stale",
-          "refreshCommand": "npm run check:creator-lane-legacy-truth-inventory",
-          "scoreImpactEstimate": 1,
-          "owner": "creator",
           "dependencyOrder": 14,
           "canRunAutomatically": true,
           "blockedReason": "",
-          "source": "score_impact",
-          "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
+          "source": "refresh_plan",
+          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
         }
       ],
       "title": "Stale Artifact Refresh Queue"
