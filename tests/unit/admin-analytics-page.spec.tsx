@@ -400,7 +400,7 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain(
-      "No overview snapshot has loaded yet. Showing available confirmed metrics.",
+      "Overview snapshot unavailable. Showing available confirmed metrics.",
     );
     expect(container.textContent).not.toContain("platform_pulse:30d");
     expect(container.textContent).not.toContain(

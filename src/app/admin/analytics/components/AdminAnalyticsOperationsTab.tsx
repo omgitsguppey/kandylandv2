@@ -731,7 +731,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     Next source step: generate bounded sample activity, refresh snapshots, or inspect Debug.
                   </p>
                   <p className="text-[10px] text-gray-500" title={journeyFunnelModel.algorithmRecommendation ?? undefined}>
-                    Exact funnel waits for ordered actor/session transitions.
+                    Exact funnel unavailable until ordered actor/session transitions exist.
                   </p>
                 </div>
               ) : (
