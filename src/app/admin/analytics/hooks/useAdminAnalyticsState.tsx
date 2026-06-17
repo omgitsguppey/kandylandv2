@@ -1517,7 +1517,7 @@ export function useAdminAnalyticsState() {
         ? `Previous ${range.toUpperCase()} snapshot (revalidation failed)`
         : historicalLoading
           ? "Waiting for first analytics snapshot"
-          : "Historical data unavailable";
+          : "No historical snapshot yet";
   const historicalOverviewSourceLabel =
     usedHistoricalOverviewFallbackSnapshot
       ? "Last validated snapshot; refresh in progress"
