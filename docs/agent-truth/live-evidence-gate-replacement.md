@@ -5,8 +5,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Summary
 
-- Generated: `2026-06-16T20:14:19.476Z`
-- Current head: `a4afc0c1369c3d8a1d847d26cb19f90af95d0502`
+- Generated: `2026-06-17T01:16:12.829Z`
+- Current head: `42216dcbe460b441ad9af1c376971f3a932ec5dc`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 ```json
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-06-16T20:14:19.476Z",
-  "currentHead": "a4afc0c1369c3d8a1d847d26cb19f90af95d0502",
+  "generatedAtUtc": "2026-06-17T01:16:12.829Z",
+  "currentHead": "42216dcbe460b441ad9af1c376971f3a932ec5dc",
   "broadManualGatesBefore": [
     "operator-final visual QA",
     "manual production smoke",
