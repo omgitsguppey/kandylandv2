@@ -268,6 +268,7 @@ export default function ContentManagerPage() {
             <div className="flex flex-wrap items-center gap-2 pb-1">
                 {tabs.map((tab) => {
                     const count = tab === "All" ? files.length : files.filter(f => classifyFile(f) === tab).length;
+                    const countLabel = isLocalAdminUiTestSession ? "--" : count;
                     return (
                         <button
                             key={tab}
@@ -280,7 +281,7 @@ export default function ContentManagerPage() {
                         >
                             <span>{tab}</span>
                             <span className={activeTab === tab ? "text-black/60" : "text-gray-500"}>
-                                {count}
+                                {countLabel}
                             </span>
                         </button>
                     );

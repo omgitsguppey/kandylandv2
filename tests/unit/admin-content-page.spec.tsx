@@ -64,6 +64,7 @@ describe("ContentManagerPage", () => {
     expect(await screen.findByText(/No source loaded/i)).toBeInTheDocument();
     expect(screen.getByText(/No storage sample is loaded for this local review/i)).toBeInTheDocument();
     expect(screen.getByText(/Storage samples, uploads, and deletes need a verified admin session/i)).toHaveAttribute("data-admin-content-source-state", "source_missing");
+    expect(screen.getByRole("button", { name: /All --/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Upload needs admin/i })).toBeDisabled();
     expect(screen.getByLabelText("Upload content file")).toBeDisabled();
     expect(mockState.authFetch).not.toHaveBeenCalled();
