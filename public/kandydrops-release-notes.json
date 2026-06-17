@@ -1,11 +1,64 @@
 {
-  "currentVersion": "1.5.80",
-  "betaReleaseCounter": 580,
+  "currentVersion": "1.5.81",
+  "betaReleaseCounter": 581,
   "channel": "beta",
-  "generatedAt": "2026-06-17T23:36:15.796Z",
-  "generatedAtUtc": "2026-06-17T23:36:15.796Z",
-  "lastCommitSha": "b4a9133d19e95e6dd8f3594c2ee4486493ce20db",
+  "generatedAt": "2026-06-17T23:53:31.574Z",
+  "generatedAtUtc": "2026-06-17T23:53:31.574Z",
+  "lastCommitSha": "baad3fda8c2c3daee290eaaf1fea4206df5ad84f",
   "notes": [
+    {
+      "version": "1.5.81",
+      "previousVersion": "1.5.80",
+      "betaReleaseCounter": 581,
+      "previousBetaReleaseCounter": 580,
+      "commitSha": "baad3fda8c2c3daee290eaaf1fea4206df5ad84f",
+      "commitTitle": "fix(admin): simplify surface actions",
+      "commitCount": 2,
+      "commitShas": [
+        "df13950384a448a1868c1f295b4811fcae9f57da",
+        "baad3fda8c2c3daee290eaaf1fea4206df5ad84f"
+      ],
+      "committedAt": "2026-06-17T23:52:49.000Z",
+      "generatedAt": "2026-06-17T23:53:31.573Z",
+      "committedAtUtc": "2026-06-17T23:52:49.000Z",
+      "generatedAtUtc": "2026-06-17T23:53:31.573Z",
+      "updatedAtUtc": "2026-06-17T23:53:31.573Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "drops-viewer",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-surface-modal-replacement.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/admin-surface-modal-replacement.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/drops/page.tsx",
+        "src/components/Admin/AdminDropsAtGlancePanel.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-page.spec.tsx"
+      ],
+      "sourceCommit": "baad3fda8c2c3daee290eaaf1fea4206df5ad84f"
+    },
     {
       "version": "1.5.80",
       "previousVersion": "1.5.79",
@@ -2559,54 +2612,6 @@
         "tests/unit/admin-analytics-operations-mobile.spec.ts"
       ],
       "sourceCommit": "44b3c2caa7dccab8aa18692bfb06b80f85d736a5"
-    },
-    {
-      "version": "1.5.56",
-      "previousVersion": "1.5.55",
-      "betaReleaseCounter": 556,
-      "previousBetaReleaseCounter": 555,
-      "commitSha": "9425b0663b79381f201d2989c17eaf07a8c48a6a",
-      "commitTitle": "fix(admin): add compact navigation destination modes",
-      "commitCount": 2,
-      "commitShas": [
-        "141997d2e35ceeb94a36094bd354d511c45431ef",
-        "9425b0663b79381f201d2989c17eaf07a8c48a6a"
-      ],
-      "committedAt": "2026-06-04T01:05:53.000Z",
-      "generatedAt": "2026-06-04T01:06:08.224Z",
-      "committedAtUtc": "2026-06-04T01:05:53.000Z",
-      "generatedAtUtc": "2026-06-04T01:06:08.224Z",
-      "updatedAtUtc": "2026-06-04T01:06:08.224Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-audience-mobile.spec.ts",
-        "tests/unit/admin-analytics-commerce-mobile.spec.ts"
-      ],
-      "sourceCommit": "9425b0663b79381f201d2989c17eaf07a8c48a6a"
     }
   ]
 }
