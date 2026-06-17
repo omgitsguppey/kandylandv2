@@ -12,7 +12,7 @@ GitHub is the source repository. GitHub-hosted Actions are not the source of dep
 - Cloud Build runs deterministic repo checks from source-controlled YAML.
 - Firebase Functions may ingest webhooks, record automation events, or enqueue work, but must not pretend to be a general-purpose repo build runner.
 - GitHub Actions workflows are manual fallbacks only until hosted-runner billing is reliable again.
-- GitHub Actions release-note push events are intentionally skipped before runner allocation while hosted-runner billing is locked.
+- GitHub Actions release-note workflow is workflow_dispatch-only so push commits do not create skipped or pending fallback checks.
 
 ## Cloud Build CI
 

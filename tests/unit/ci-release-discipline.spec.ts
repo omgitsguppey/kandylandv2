@@ -14,6 +14,7 @@ describe("ci release discipline", () => {
     expect(report.workflows.some((workflow) => workflow.file === ".github/workflows/ci.yml")).toBe(true);
     expect(report.releaseNotesFreshnessOwner).toBe("check:release-notes");
     expect(report.externalCheckProviderBoundaries).toBe(true);
+    expect(report.manualFallbackPushCheckRisks).toEqual([]);
     expect(report.externalCheckProviders.map((provider) => provider.githubCheckName)).toEqual(
       expect.arrayContaining(["Firebase App Hosting", "Google Cloud Build", "Graphite App"]),
     );
@@ -28,5 +29,14 @@ describe("ci release discipline", () => {
     expect(graphite?.releaseGateClassification).toBe("not_authoritative_for_source_release");
     expect(graphite?.requiredBeforeBetaExit).toBe(false);
     expect(graphite?.nextExactAction).toContain("remove it from required branch checks");
+  });
+
+  it("keeps manual fallback workflows from creating push-time status checks", () => {
+    const report = buildCiReleaseDisciplineReport();
+    const releaseNotesWorkflow = report.workflows.find((workflow) => workflow.file === ".github/workflows/public-release-notes.yml");
+
+    expect(releaseNotesWorkflow?.classification).toBe("release_notes_fallback");
+    expect(releaseNotesWorkflow?.trigger).toBe("workflow_dispatch");
+    expect(report.staleReleaseRisks).toEqual([]);
   });
 });

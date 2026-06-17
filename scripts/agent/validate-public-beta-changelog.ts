@@ -265,20 +265,29 @@ for (const expected of [
 }
 
 for (const expected of [
-  "paths-ignore:",
-  "\"public/kandydrops-release-notes.json\"",
-  "\"src/lib/release-notes/public-release-notes.ts\"",
-  "\"src/lib/release-notes/release-version-contract.ts\"",
-  "\"docs/agent-truth/public-beta-release-notes.md\"",
-  "\"CHANGELOG.md\"",
-  "github.event_name == 'workflow_dispatch' &&",
+  "workflow_dispatch:",
   "!contains(github.event.head_commit.message || '', '[skip release-notes]')",
-  "Push events are retained for paths-ignore only",
+  "lane workflow_dispatch-only as a manual fallback",
+  "push commits do not get",
+  "branch protection can mistake for release truth",
   "contents: read",
   "git diff --exit-code -- public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts src/lib/release-notes/release-version-contract.ts CHANGELOG.md",
   "npm run check:release-notes",
 ]) {
   requireIncludes(releaseWorkflow, expected, "public-release-notes workflow");
+}
+
+for (const forbidden of [
+  "paths-ignore:",
+  "Push events are retained for paths-ignore only",
+  "github.event_name == 'workflow_dispatch' &&",
+  /^\s*push\s*:/mu,
+]) {
+  if (typeof forbidden === "string") {
+    requireExcludes(releaseWorkflow, forbidden, "public-release-notes workflow");
+  } else if (forbidden.test(releaseWorkflow)) {
+    failures.push("public-release-notes workflow must not define a push trigger.");
+  }
 }
 
 for (const expected of [
@@ -307,8 +316,8 @@ for (const [label, source] of [
 }
 
 for (const expected of [
-  "GitHub Actions release-note workflow is manual-only while hosted-runner billing is locked.",
-  "Push events must resolve as skipped before runner allocation.",
+  "GitHub Actions release-note workflow is workflow_dispatch-only while hosted-runner billing is locked.",
+  "Push commits must not create skipped or pending GitHub Actions release-note checks.",
   "Patch notes are same-commit artifacts.",
   "Automation validates; it does not create follow-up commits.",
   "Separate docs(release) commits are legacy/forbidden except explicit manual recovery.",
@@ -318,7 +327,7 @@ for (const expected of [
 
 for (const expected of [
   "GitHub Actions workflows are manual fallbacks only until hosted-runner billing is reliable again.",
-  "push events are intentionally skipped before runner allocation",
+  "GitHub Actions release-note workflow is workflow_dispatch-only so push commits do not create skipped or pending fallback checks.",
 ]) {
   requireIncludes(firebaseAutomationDocs, expected, "firebase-owned automation docs");
 }

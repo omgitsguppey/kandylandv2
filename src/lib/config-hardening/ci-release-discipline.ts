@@ -34,10 +34,20 @@ export type CiReleaseDisciplineReport = {
   betaExitFreshnessOwner: string;
   providerCommandsSeparated: boolean;
   externalCheckProviderBoundaries: boolean;
+  manualFallbackPushCheckRisks: string[];
   accidentalDeployRisks: string[];
   staleReleaseRisks: string[];
   remainingGaps: string[];
 };
+
+function hasPushTrigger(text: string) {
+  return /^\s*push\s*:/mu.test(text) || /^\s*on:\s*\[[^\]]*\bpush\b[^\]]*\]/imu.test(text);
+}
+
+function hasWorkflowDispatchTrigger(text: string) {
+  return /^\s*workflow_dispatch\s*:/mu.test(text)
+    || /^\s*on:\s*\[[^\]]*\bworkflow_dispatch\b[^\]]*\]/imu.test(text);
+}
 
 function commandsFrom(text: string) {
   return text.split(/\r?\n/u)
@@ -49,6 +59,8 @@ function commandsFrom(text: string) {
 function workflowFor(file: string): CiWorkflowEntry {
   const text = readText(file);
   const lower = text.toLowerCase();
+  const hasPush = hasPushTrigger(text);
+  const hasWorkflowDispatch = hasWorkflowDispatchTrigger(text);
   const classification = file.includes("cloud-readiness")
     ? "manual_cloud_readiness"
     : file.includes("dependency")
@@ -60,7 +72,13 @@ function workflowFor(file: string): CiWorkflowEntry {
           : "source_validation";
   return {
     file,
-    trigger: text.includes("workflow_dispatch") && !text.match(/\non:\s*\[\s*push/u) ? "workflow_dispatch" : "mixed",
+    trigger: hasPush && hasWorkflowDispatch
+      ? "push_and_workflow_dispatch"
+      : hasPush
+        ? "push"
+        : hasWorkflowDispatch
+          ? "workflow_dispatch"
+          : "other",
     command: commandsFrom(text),
     environment: file.includes("cloud-readiness") ? "manual_cloud_readiness" : "github_actions_manual_fallback",
     secretsUsed: [...text.matchAll(/\$\{\{\s*(?:secrets|vars)\.([A-Z0-9_]+)/gu)].map((match) => match[1]).sort(),
@@ -111,6 +129,10 @@ const EXTERNAL_CHECK_PROVIDERS: ExternalCheckProviderEntry[] = [
 export function buildCiReleaseDisciplineReport(options: { generatedAtUtc?: string } = {}): CiReleaseDisciplineReport {
   const workflows = listFiles([".github/workflows"], [".yml", ".yaml"]).map(workflowFor);
   const externalCheckProviders = EXTERNAL_CHECK_PROVIDERS;
+  const manualFallbackPushCheckRisks = workflows
+    .filter((workflow) => workflow.trigger.includes("push"))
+    .filter((workflow) => workflow.classification !== "source_validation")
+    .map((workflow) => workflow.file);
   return {
     generatedAtUtc: options.generatedAtUtc || new Date().toISOString(),
     workflows,
@@ -120,8 +142,9 @@ export function buildCiReleaseDisciplineReport(options: { generatedAtUtc?: strin
     betaExitFreshnessOwner: "check:current-beta-exit-status",
     providerCommandsSeparated: workflows.every((workflow) => workflow.providerCallRisk === "none" || workflow.classification === "manual_cloud_readiness"),
     externalCheckProviderBoundaries: externalCheckProviders.every((provider) => !provider.canBeClearedBySourceChecks && provider.nextExactAction.length > 0),
+    manualFallbackPushCheckRisks,
     accidentalDeployRisks: workflows.filter((workflow) => workflow.deploymentRisk === "deploy_capable").map((workflow) => workflow.file),
-    staleReleaseRisks: [],
+    staleReleaseRisks: manualFallbackPushCheckRisks.map((file) => `${file} creates push-time fallback checks; make it workflow_dispatch-only or promote it to a real source validation lane.`),
     remainingGaps: [
       "GitHub workflows are manual fallback or release-note fallback; Cloud Build/provider state remains external evidence.",
       "Firebase App Hosting rollout, Google Cloud Build trigger health, and Graphite app checks cannot be cleared by source-only validators.",
@@ -135,6 +158,7 @@ export function validateCiReleaseDisciplineReport(report: CiReleaseDisciplineRep
   if (report.accidentalDeployRisks.length > 0) failures.push("release command can deploy accidentally");
   if (!report.providerCommandsSeparated) failures.push("provider-call command in source validation loop");
   if (!report.externalCheckProviderBoundaries) failures.push("external check providers can be mistaken for source-owned gates");
+  if (report.manualFallbackPushCheckRisks.length > 0) failures.push(`manual fallback workflows create push check noise: ${report.manualFallbackPushCheckRisks.join(", ")}`);
   if (report.releaseNotesFreshnessOwner !== "check:release-notes") failures.push("release notes can be stale while release passes");
   for (const provider of report.externalCheckProviders) {
     if (provider.canBeClearedBySourceChecks) failures.push(`${provider.githubCheckName} incorrectly clears from source checks`);
