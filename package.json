@@ -146,7 +146,6 @@
         "check:final-release-exit-readiness-packet": "tsx scripts/agent/validate-final-release-exit-readiness-packet.ts",
         "check:live-evidence-gate-replacement": "tsx scripts/agent/validate-live-evidence-gate-replacement.ts",
         "check:analytics-panel-hydration": "tsx scripts/agent/validate-analytics-panel-hydration.ts",
-        "check:analytics-hydration-consolidation": "tsx scripts/agent/validate-analytics-hydration-consolidation.ts",
         "check:backend-route-inventory": "tsx scripts/agent/validate-backend-route-inventory.ts",
         "check:backend-service-ownership": "tsx scripts/agent/validate-backend-service-ownership.ts",
         "check:backend-cost-consolidation": "tsx scripts/agent/validate-backend-cost-consolidation.ts",

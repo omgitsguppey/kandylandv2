@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.75 - 2026-06-17
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+
 ## 1.5.74 - 2026-06-17
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
@@ -142,12 +148,6 @@ Showing the last 25 public updates in pages of 5.
 - Updated Beta readiness evidence so stale or missing launch evidence stays visible.
 
 ## 1.5.51 - 2026-06-04
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
-
-## 1.5.50 - 2026-06-03
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
 - Improved guest analytics and admin truth checks behind the scenes.

@@ -580,9 +580,9 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain("Panel status");
-    expect(container.textContent).toContain("No current activity snapshot has loaded yet.");
     const sourceNotes = container.querySelector("details[title]");
-    expect(sourceNotes?.getAttribute("title")).toContain("No current activity snapshot has loaded yet.");
+    expect(sourceNotes?.getAttribute("title")).not.toContain("No current activity snapshot has loaded yet.");
+    expect(sourceNotes?.getAttribute("title")).not.toContain("Collecting activity");
     expect(sourceNotes?.getAttribute("title")).not.toContain("Realtime analytics");
     expect(container.textContent).toContain("3/11 showing data");
     expect(container.textContent).toContain("5 collecting");
@@ -718,7 +718,7 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("No current activity snapshot has loaded yet.");
+    expect(container.textContent).toContain("Collecting activity.");
     expect(container.textContent).not.toContain("snapshot-first realtime payload");
   });
 });

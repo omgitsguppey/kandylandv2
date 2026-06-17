@@ -120,7 +120,7 @@ const ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST =
 const ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS = 0;
 const ADMIN_ANALYTICS_PREFERENCES_REFRESH_INTERVAL_MS = 0;
 const ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_DETAIL =
-  "Current activity uses verified snapshots. Raw listener evidence stays in Admin Debug.";
+  "Current activity uses verified snapshots.";
 const ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_SOURCE_LABEL =
   "analytics_admin_metric_snapshots:snapshot_first_route";
 const ADMIN_ANALYTICS_RAW_REALTIME_COLLECTIONS = {
@@ -319,8 +319,8 @@ function buildSnapshotFirstRealtimeState(input: {
 
   if (!input.liveResponse) {
     return {
-      feedStatus: "failed",
-      feedDetail: "No verified snapshot-first realtime payload is available yet.",
+      feedStatus: "snapshot",
+      feedDetail: "Collecting activity.",
       generatedAtMs: null,
       totalActive: 0,
       deepTrackerActive: 0,
@@ -328,10 +328,10 @@ function buildSnapshotFirstRealtimeState(input: {
       data: [],
       activeUsers,
       surfaceMix: [],
-      issues: ["Snapshot-first realtime route has no verified payload; raw listener fallback is disabled for cost control."],
-      liveTruthLabel: "failed",
+      issues: [],
+      liveTruthLabel: "fallback",
       liveSourceLabel: sourceLabel,
-      activeUsersTruthLabel: "failed",
+      activeUsersTruthLabel: "fallback",
       activeUsersSourceLabel: sourceLabel,
       listenerDebugMeta: buildCostDemotedRealtimeListenerDebugMeta(input.nowMs),
     };

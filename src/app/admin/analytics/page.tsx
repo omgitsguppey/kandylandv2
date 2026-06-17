@@ -179,7 +179,7 @@ function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHiera
 
 function formatAdminAnalyticsSourceNote(note: string) {
   return note
-    .replace("No verified snapshot-first realtime payload is available yet.", "No current activity snapshot has loaded yet.")
+    .replace("No verified snapshot-first realtime payload is available yet.", "Collecting activity.")
     .replaceAll("Live updates are delayed", "Snapshot refresh delayed")
     .replaceAll("Live updates delayed", "Snapshot refresh delayed")
     .replaceAll("Realtime analytics", "Current activity")
@@ -195,16 +195,19 @@ function formatAdminAnalyticsSourceStatusItem(note: string) {
     normalized.includes("snapshot-first realtime route") ||
     normalized.includes("admin debug raw evidence");
   const genericVerifiedSnapshotCopy =
-    normalized === "showing last verified data." ||
-    normalized === "showing last verified data" ||
+    normalized.includes("showing last verified data") ||
     normalized === "verified snapshot shown." ||
     normalized === "verified snapshot shown" ||
-    normalized === "snapshot refresh delayed. showing last verified data.";
+    normalized.includes("snapshot refresh delayed");
   const genericDebugPrompt =
-    normalized === "open debug for source details." ||
-    normalized === "open debug for source details";
+    normalized.includes("open debug for source details");
+  const genericCollectingCopy =
+    normalized === "collecting activity." ||
+    normalized === "collecting activity" ||
+    normalized === "no current activity snapshot has loaded yet." ||
+    normalized === "no current activity snapshot has loaded yet";
 
-  if (debugOnlySourceDetail || genericVerifiedSnapshotCopy || genericDebugPrompt) {
+  if (debugOnlySourceDetail || genericVerifiedSnapshotCopy || genericDebugPrompt || genericCollectingCopy) {
     return null;
   }
 

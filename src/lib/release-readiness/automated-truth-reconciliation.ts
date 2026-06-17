@@ -226,15 +226,15 @@ const VALIDATOR_AUTHORITY_DEPRECATION_MAP = [
   },
   {
     id: "agent/state/analytics-hydration-consolidation.generated.json",
-    classification: "deprecation_map_only",
+    classification: "retired_duplicate_consumer",
     canonicalReplacement: "agent/state/analytics-panel-hydration.generated.json",
-    action: "Keep as legacy evidence until references are retired; analytics panel truth is canonical.",
+    action: "Retired by analytics admin reorg; analytics panel truth is canonical.",
   },
   {
     id: "agent/state/analytics-hydration-consolidation-audit.generated.json",
-    classification: "deprecation_map_only",
+    classification: "retired_duplicate_consumer",
     canonicalReplacement: "agent/state/analytics-panel-hydration.generated.json",
-    action: "Keep as legacy evidence until references are retired; analytics panel truth is canonical.",
+    action: "Retired by analytics admin reorg; analytics panel truth is canonical.",
   },
   {
     id: "agent/state/live-evidence-gate-replacement.generated.json",

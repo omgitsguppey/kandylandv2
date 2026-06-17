@@ -68,6 +68,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/release-readiness/automated-truth-reconciliation.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "scripts/agent/validate-event-liveness-audit.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
@@ -85,9 +86,19 @@ function classifyDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/global-user-dedupe-normalization.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
   if (normalized === "tests/unit/event-liveness-audit.spec.ts") return "test_artifact_expected";
-  if (normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
-  if (normalized === "tests/unit/analytics-hydration-consolidation.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/analytics-admin-reorg.generated.json") return "analytics_admin_reorg_artifact_expected";
+  if (normalized === "docs/agent-truth/analytics-admin-reorg.md") return "analytics_admin_reorg_artifact_expected";
+  if (
+    normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts" ||
+    normalized === "tests/unit/analytics-hydration-consolidation.spec.ts" ||
+    normalized === "agent/state/analytics-hydration-consolidation.generated.json" ||
+    normalized === "agent/state/analytics-hydration-consolidation-audit.generated.json" ||
+    normalized === "docs/agent-truth/analytics-hydration-consolidation.md" ||
+    normalized === "docs/agent-truth/analytics-hydration-consolidation-audit.md"
+  ) {
+    return "retired_duplicate_analytics_hydration_lane";
+  }
   if (normalized === "tests/unit/admin-analytics-page.spec.tsx") return "test_artifact_expected";
   if (/^src\/lib\/agent-score\/(algorithmic-evidence-policy|core|evidence-quality|formal-evidence-bridge|regression-risk-refresh-plan)\.ts$/u.test(normalized)) {
     return "beta_studio_consolidation_source_expected";
@@ -108,10 +119,6 @@ function classifyDirtyFile(path: string) {
   if (normalized === "tests/unit/regression-risk-high-blast-refresh.spec.ts") return "beta_studio_consolidation_test_expected";
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "beta_studio_consolidation_validator_expected";
   if (normalized === "tests/unit/public-beta-score.spec.ts") return "beta_studio_consolidation_test_expected";
-  if (normalized === "agent/state/analytics-hydration-consolidation.generated.json") return "current_generated_artifact_to_commit";
-  if (normalized === "agent/state/analytics-hydration-consolidation-audit.generated.json") return "current_generated_artifact_to_commit";
-  if (normalized === "docs/agent-truth/analytics-hydration-consolidation.md") return "documentation_artifact_expected";
-  if (normalized === "docs/agent-truth/analytics-hydration-consolidation-audit.md") return "documentation_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (normalized === "CHANGELOG.md" || normalized === "public/kandydrops-release-notes.json" || normalized.startsWith("src/lib/release-notes/")) return "release_artifact_expected";
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
