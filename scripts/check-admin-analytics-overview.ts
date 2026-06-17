@@ -105,13 +105,14 @@ assertIncludes("AdminStatusBadge", statusBadge, "aria-label");
 assertIncludes("AdminStatusBadge", statusBadge, "label?: string");
 
 assertIncludes("AdminAnalyticsPage", page, "visibleDegradedCopy");
-assertIncludes("AdminAnalyticsPage", page, "title={backgroundAnalyticsIssues.join(\" | \")}");
+assertIncludes("AdminAnalyticsPage", page, "title={visibleOverviewDegradedCopy.join(\" | \")}");
 assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewDisplayMetrics.mobileShare.displayValue");
 assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewDisplayMetrics.revenue.displayValue");
 assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewDisplayMetrics.purchases.displayValue");
 assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewDisplayMetrics.mobileShare.badgeLabel}");
 assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewDisplayMetrics.revenue.badgeLabel}");
 assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewDisplayMetrics.purchases.badgeLabel}");
+assertNotIncludes("AdminAnalyticsPage", page, "title={backgroundAnalyticsIssues.join(\" | \")}");
 assertNotIncludes("AdminAnalyticsPage", page, "backgroundAnalyticsIssues.join(\" · \")");
 assertNotIncludes("AdminAnalyticsPage", page, "mobile users in range");
 assertNotIncludes("AdminAnalyticsPage", page, "checkout starts ·");
@@ -119,7 +120,7 @@ for (const phrase of BANNED_VISIBLE_COPY) {
   assertNotIncludes("AdminAnalyticsPage", page.toLowerCase(), phrase);
 }
 
-const degradedCopyMatch = hook.match(/Live updates are delayed\. Showing last verified data\./);
+const degradedCopyMatch = hook.match(/Snapshot refresh delayed\. Showing last verified data\./);
 if (!degradedCopyMatch) {
   fail("short degraded copy is missing from the analytics state hook");
 }
