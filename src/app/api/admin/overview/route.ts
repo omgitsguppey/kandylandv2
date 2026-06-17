@@ -25,7 +25,6 @@ import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
-import { readAdminUserTruthSnapshot } from "@/lib/server/admin-user-truth-snapshot";
 
 type CachedAdminOverviewSnapshot = Partial<AdminOverviewResponse> & {
   payload?: AdminOverviewResponse;
@@ -37,6 +36,7 @@ type CachedAdminOverviewSnapshot = Partial<AdminOverviewResponse> & {
 };
 
 const OVERVIEW_SNAPSHOT_ID = "admin_overview_snapshot";
+const ADMIN_USERS_SNAPSHOT_ID = "admin_users_snapshot";
 const OVERVIEW_WINDOW_DAYS = 30;
 const PLATFORM_PULSE_MATERIALIZER_SOURCES = [
   "analytics_commerce_daily",
@@ -293,6 +293,19 @@ function normalizeCachedOverview(input: {
   };
 }
 
+function readCachedUserTruthSnapshot(raw: unknown): AdminOverviewResponse["truthSnapshot"] {
+  if (!raw || typeof raw !== "object") return undefined;
+  const record = raw as {
+    truthSnapshot?: AdminOverviewResponse["truthSnapshot"];
+    userTruthSnapshot?: AdminOverviewResponse["truthSnapshot"];
+    payload?: {
+      truthSnapshot?: AdminOverviewResponse["truthSnapshot"];
+      userTruthSnapshot?: AdminOverviewResponse["truthSnapshot"];
+    };
+  };
+  return record.truthSnapshot ?? record.userTruthSnapshot ?? record.payload?.truthSnapshot ?? record.payload?.userTruthSnapshot;
+}
+
 async function GET_handler(request: NextRequest) {
   const startedAt = Date.now();
   const finalize = (response: NextResponse, error?: unknown) => {
@@ -320,23 +333,21 @@ async function GET_handler(request: NextRequest) {
 
     const nowMs = Date.now();
     const contract = getAdminHotCacheSnapshotContract(OVERVIEW_SNAPSHOT_ID);
-    const [snapshotDoc, heartbeatDoc] = await Promise.all([
+    const [snapshotDoc, heartbeatDoc, usersSnapshotDoc] = await Promise.all([
       adminDb.collection(ADMIN_HOT_CACHE_COLLECTION).doc(OVERVIEW_SNAPSHOT_ID).get(),
       adminDb.collection(ADMIN_HEARTBEAT_COLLECTION).doc(OVERVIEW_SNAPSHOT_ID).get(),
+      adminDb.collection(ADMIN_HOT_CACHE_COLLECTION).doc(ADMIN_USERS_SNAPSHOT_ID).get(),
     ]);
     const heartbeat = heartbeatDoc.exists ? heartbeatDoc.data() as AdminHeartbeatRecord : null;
     const body = snapshotDoc.exists
       ? normalizeCachedOverview({ raw: snapshotDoc.data() as CachedAdminOverviewSnapshot, heartbeat, nowMs })
       : buildMissingSnapshotResponse(nowMs, heartbeat);
-    let userTruthSnapshot = body.truthSnapshot ?? null;
-    let userTruthSnapshotIssue: string | null = null;
-    if (!userTruthSnapshot) {
-      try {
-        userTruthSnapshot = await readAdminUserTruthSnapshot({ db: adminDb, generatedAt: nowMs });
-      } catch (error) {
-        userTruthSnapshotIssue = `Admin user truth snapshot unavailable: ${getErrorMessage(error)}`;
-      }
-    }
+    const userTruthSnapshot = body.truthSnapshot
+      ?? (usersSnapshotDoc.exists ? readCachedUserTruthSnapshot(usersSnapshotDoc.data()) : undefined)
+      ?? null;
+    const userTruthSnapshotIssue = userTruthSnapshot
+      ? null
+      : "Admin user truth snapshot is unavailable from the hot cache.";
 
     return finalize(NextResponse.json({
       ...body,
@@ -358,9 +369,9 @@ async function GET_handler(request: NextRequest) {
         sourceTruth: "hot_cache",
         ttlSeconds: contract?.ttlSeconds ?? ADMIN_HOT_CACHE_TTL_SECONDS,
         pageLoadReadModel: userTruthSnapshot && !body.truthSnapshot
-          ? "snapshot_doc_plus_heartbeat_doc_plus_user_truth_fallback"
+          ? "snapshot_doc_plus_heartbeat_doc_plus_user_truth_snapshot_doc"
           : "snapshot_doc_plus_heartbeat_doc",
-        broadFallbackReadsRun: Boolean(userTruthSnapshot && !body.truthSnapshot),
+        broadFallbackReadsRun: false,
         platformPulseMaterializerSources: PLATFORM_PULSE_MATERIALIZER_SOURCES,
         supportBugUserChannels: SUPPORT_BUG_USER_CHANNELS,
         recentTransactionSerializationContract: RECENT_TRANSACTION_SERIALIZATION_CONTRACT_MARKERS,

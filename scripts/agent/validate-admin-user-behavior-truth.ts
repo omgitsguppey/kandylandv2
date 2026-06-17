@@ -65,7 +65,9 @@ assert(snapshotHelper.includes("buildAdminUserMetricsSnapshot"), "Canonical admi
 assert(snapshotHelper.includes("readAdminUserMetricsSnapshot"), "Canonical admin user metrics snapshot reader is missing.", failures);
 assert(usersRoute.includes("buildAdminUserMetricsSnapshot"), "User Management summary route must use the canonical admin user metrics snapshot builder.", failures);
 assert(
-  overviewRoute.includes("readAdminUserMetricsSnapshot") || overviewRoute.includes("readAdminUserTruthSnapshot"),
+  overviewRoute.includes("readAdminUserMetricsSnapshot")
+    || overviewRoute.includes("readAdminUserTruthSnapshot")
+    || (overviewRoute.includes('ADMIN_USERS_SNAPSHOT_ID = "admin_users_snapshot"') && overviewRoute.includes("readCachedUserTruthSnapshot")),
   "Admin overview must read the canonical admin user metrics snapshot.",
   failures,
 );

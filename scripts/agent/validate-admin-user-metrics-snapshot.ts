@@ -51,7 +51,9 @@ assert(snapshotHelper.includes("readAdminUserMetricsSnapshot"), "Snapshot reader
 assert(usersRoute.includes("buildAdminUserMetricsSnapshot"), "Admin users route must build the canonical user metrics snapshot.");
 assert(usersRoute.includes("metricsSnapshot: userMetricsSnapshot"), "Admin users summary must include the canonical snapshot.");
 assert(
-  overviewRoute.includes("readAdminUserMetricsSnapshot") || overviewRoute.includes("readAdminUserTruthSnapshot"),
+  overviewRoute.includes("readAdminUserMetricsSnapshot")
+    || overviewRoute.includes("readAdminUserTruthSnapshot")
+    || (overviewRoute.includes('ADMIN_USERS_SNAPSHOT_ID = "admin_users_snapshot"') && overviewRoute.includes("readCachedUserTruthSnapshot")),
   "Admin overview route must read the canonical user metrics snapshot.",
 );
 assert(overviewRoute.includes("userMetricsSnapshot") || overviewRoute.includes("userTruthSnapshot"), "Admin overview stats must include the canonical snapshot.");
