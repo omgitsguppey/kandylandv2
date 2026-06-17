@@ -28,7 +28,7 @@ type OnboardingStepItem = {
     dropOffCount: number;
 };
 
-const NO_TIMING_SAMPLE_LABEL = "No timing sample";
+const NO_TIMING_SAMPLE_LABEL = "Timing unavailable";
 const NO_SLOW_STEP_SAMPLE_LABEL = "No slow-step sample";
 
 function OnboardingDiscrepancyCallout({
@@ -194,7 +194,7 @@ export function AdminOnboardingAnalyticsModules(props: {
                             <MetricCard
                                 label="Avg Time"
                                 value={durationLabel(model.avgCompletionTime.value)}
-                                hint={model.timingMissing ? NO_TIMING_SAMPLE_LABEL : "Mean completion time"}
+                                hint={model.timingMissing ? "Timing unavailable" : "Mean completion time"}
                                 icon={Clock3}
                                 truthState={model.truthState}
                                 statusBadgeLabel={velocityBadgeLabel}
