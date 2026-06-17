@@ -20,5 +20,9 @@ describe("admin drops local fixture boundary", () => {
     expect(source).toContain('disabled={isLocalAdminUiTestSession}');
     expect(source).toContain('disabled={isLocalAdminUiTestSession || reviewingDropId === drop.id}');
     expect(source).toContain('isLocalAdminUiTestSession ? "Create needs admin" : "Create Drop"');
+    expect(source).toContain('const dropVisibilityLabel = isLocalAdminUiTestSession');
+    expect(source).toContain('"No drop source loaded"');
+    expect(source).toContain('className="flex flex-wrap gap-2 px-1"');
+    expect(source).not.toContain("min-w-max");
   });
 });

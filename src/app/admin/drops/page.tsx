@@ -455,6 +455,9 @@ export default function AdminDropsPage() {
         () => filteredDrops.reduce((total, item) => total + (selectedDropIds.has(item.drop.id) ? 1 : 0), 0),
         [filteredDrops, selectedDropIds],
     );
+    const dropVisibilityLabel = isLocalAdminUiTestSession
+        ? "No drop source loaded"
+        : `${filteredDrops.length} of ${drops.length} drops visible`;
 
     const pendingCreatorSubmissionCount = useMemo(
         () => dropViewModels.filter((item) => item.drop.approvalStatus === "pending_review").length,
@@ -838,8 +841,8 @@ export default function AdminDropsPage() {
                             />
                         </label>
 
-                        <div className="-mx-1 overflow-x-auto pb-1">
-                            <div className="flex min-w-max gap-2 px-1">
+                        <div className="pb-1">
+                            <div className="flex flex-wrap gap-2 px-1">
                                 {STATUS_FILTER_OPTIONS.map((option) => (
                                     <button
                                         key={option.value}
@@ -875,7 +878,7 @@ export default function AdminDropsPage() {
 
                         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/6 pt-2.5">
                             <p className="text-xs text-gray-400">
-                                {filteredDrops.length} of {drops.length} drops visible
+                                {dropVisibilityLabel}
                             </p>
                             {(searchDraft.length > 0 || statusFilter !== "all" || creatorFilter !== "all" || sortMode !== "last-active") ? (
                                 <button
