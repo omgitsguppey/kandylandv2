@@ -23,6 +23,12 @@ import {
 import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
+import {
+  buildAuthMethodChartRows,
+  buildGuestQualityChartRows,
+  buildJourneyFunnelChartRows,
+  formatAuthFailureReason,
+} from "./AdminAnalyticsOperationsTab.utils";
 
 export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const {
@@ -178,15 +184,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     journeyFunnelModel.biggestDropoffStep && journeyFunnelModel.biggestDropoffPercent !== null
       ? `${journeyFunnelModel.biggestDropoffStep} ${formatPercent(journeyFunnelModel.biggestDropoffPercent)}`
       : "No drop-off sample";
-  const journeyFunnelChartRows = journeyFunnelModel.steps.map((step) => ({
-    ...step,
-    chartLabel:
-      step.visibleLabel.length > 14
-        ? `${step.visibleLabel.slice(0, 14)}...`
-        : step.visibleLabel,
-    countValue: step.displayedCount ?? 0,
-    percentValue: step.displayedPercent === null ? 0 : Math.round(step.displayedPercent * 100),
-  }));
+  const journeyFunnelChartRows = buildJourneyFunnelChartRows(journeyFunnelModel.steps);
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -207,27 +205,13 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     : formatDuration(authOutcomeModel.avgFinish.value / 1000);
   const authHasUsableSample = authOutcomeModel.hasUsableAuthSample;
   const authCanRenderDetails = authOutcomeModel.canRenderMethodDetails;
-  const formatAuthFailureReason = (failureCode: string | null | undefined) =>
-    !failureCode || failureCode === "failure_code_unavailable"
-      ? "Failure reason not captured"
-      : failureCode;
   const authGroupValue = (group: typeof authOutcomeModel.methodGroups.emailPassword) =>
     group.attempts === null ? noAuthSampleLabel : `${formatCompactNumber(group.attempts)} attempts`;
   const authGroupHint = (group: typeof authOutcomeModel.methodGroups.emailPassword) =>
     group.attempts === null
       ? "No tracked attempts"
       : `${formatCompactNumber(group.failures ?? 0)} failed · ${formatCompactNumber(group.successes ?? 0)} succeeded`;
-  const authMethodChartRows = authOutcomeModel.methodBreakdown.map((item) => ({
-    ...item,
-    chartLabel:
-      item.visibleLabel.length > 14
-        ? `${item.visibleLabel.slice(0, 14)}...`
-        : item.visibleLabel,
-    attemptsValue: item.attempts ?? 0,
-    successesValue: item.successes ?? 0,
-    failuresValue: item.failures ?? 0,
-    unfinishedValue: item.unfinished ?? 0,
-  }));
+  const authMethodChartRows = buildAuthMethodChartRows(authOutcomeModel.methodBreakdown);
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -262,28 +246,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
         `${guestBounceQualityModel.signedInBounce.sampleCount} signed-in views`,
         guestBounceQualityModel.signedInBounce.explanation,
       ].join(" | ");
-  const guestQualityChartRows = [
-    {
-      label: "Estimated views",
-      value: guestBounceQualityModel.estimatedGuestViews.value ?? 0,
-      source: guestBounceQualityModel.estimatedGuestViews.sourceTruth,
-      state: guestBounceQualityModel.estimatedGuestViews.freshnessState,
-    },
-    {
-      label: "Guest sample",
-      value: guestBounceQualityModel.guestQuality.state === "available"
-        ? guestBounceQualityModel.guestQuality.sampleCount
-        : 0,
-      source: guestBounceQualityModel.guestQuality.state,
-      state: guestBounceQualityModel.guestQuality.state,
-    },
-    {
-      label: "Signed-in sample",
-      value: guestBounceQualityModel.signedInBounce.sampleCount ?? 0,
-      source: guestBounceQualityModel.signedInBounce.freshnessState,
-      state: guestBounceQualityModel.signedInBounce.freshnessState,
-    },
-  ];
+  const guestQualityChartRows = buildGuestQualityChartRows(guestBounceQualityModel);
 
   React.useEffect(() => {
     if (typeof window === "undefined") {

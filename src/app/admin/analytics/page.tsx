@@ -26,15 +26,12 @@ import {
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import type { AdminAnalyticsSourceHierarchy } from "@/lib/analytics/admin-analytics-source-hierarchy";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
 
 import {
   RANGE_OPTIONS,
   TAB_OPTIONS,
 } from "./AnalyticsHelpers";
-
-const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
 import { useAdminAnalyticsState } from "./hooks/useAdminAnalyticsState";
 

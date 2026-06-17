@@ -27,6 +27,12 @@ import { coerceAdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
+import {
+  formatCommerceFundsLabel,
+  formatCommerceMetricLabel,
+  formatCommerceReadableSourceLabel,
+  formatCommerceSourceHint,
+} from "./AdminAnalyticsCommerceTab.utils";
 
 type RecentCommerceFeedViewMode = "cards" | "table" | "timeline";
 
@@ -94,34 +100,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const noSampleLabel = "No sample";
   const noRateSampleLabel = "No rate sample";
   const noWatchSampleLabel = "No watch sample";
-  const formatCommerceScopeLabel = (scope: string | null | undefined) => {
-    switch (scope) {
-      case "rolling_30d":
-        return "30D";
-      case "lifetime":
-        return "All time";
-      case "selected_range":
-        return commerceSnapshotModel.selectedRangeLabel;
-      case "":
-      case null:
-      case undefined:
-        return "Selected range";
-      default:
-        return scope.replace(/[_/]+/gu, " ");
-    }
-  };
-  const formatCommerceMetricLabel = (label: string) =>
-    label
-      .replace(/\bgd\b/giu, "GumDrops")
-      .replace(/\bAdj\.\s*/u, "Adjusted ");
-  const formatCommerceSourceHint = (
+  const formatCommerceCardSourceHint = (
     scope: string | null | undefined,
     sourceTruth: string | null | undefined,
-  ) => `${formatCommerceScopeLabel(scope)} | ${formatAdminAnalyticsSourceTruthLabel(sourceTruth)}`;
-  const formatCommerceReadableSourceLabel = (label: string | null | undefined) =>
-    !label || label === "Unknown source" ? "Source missing" : label;
-  const formatCommerceFundsLabel = (sourceOfFunds: string | null | undefined) =>
-    sourceOfFunds ? sourceOfFunds.replace(/[_/]+/gu, " ") : "Source missing";
+  ) => formatCommerceSourceHint(scope, sourceTruth, commerceSnapshotModel.selectedRangeLabel);
   const commerceConversionLabel =
     commerceSnapshotModel.checkoutConversionValue !== null
       ? formatPercent(commerceSnapshotModel.checkoutConversionValue)
@@ -352,7 +334,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={formatCommerceMetricLabel(revenueCard?.label ?? "Revenue")}
                   value={formatCommerceValue(commerceSnapshotModel.revenueValue, formatMoney)}
-                  hint={formatCommerceSourceHint(revenueCard?.scope, revenueCard?.sourceTruth)}
+                  hint={formatCommerceCardSourceHint(revenueCard?.scope, revenueCard?.sourceTruth)}
                   icon={DollarSign}
                   truthState={commerceSnapshotModel.metrics.revenue.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -363,7 +345,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={formatCommerceMetricLabel(purchasesCard?.label ?? "Purchases")}
                   value={formatCommerceValue(commerceSnapshotModel.purchaseCompletionsValue, formatCompactNumber)}
-                  hint={formatCommerceSourceHint(purchasesCard?.scope, purchasesCard?.sourceTruth)}
+                  hint={formatCommerceCardSourceHint(purchasesCard?.scope, purchasesCard?.sourceTruth)}
                   icon={CheckCircle2}
                   truthState={commerceSnapshotModel.metrics.purchases.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -374,7 +356,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={formatCommerceMetricLabel(checkoutCard?.label ?? "Checkout Starts")}
                   value={formatCommerceValue(commerceSnapshotModel.checkoutStartsValue, formatCompactNumber)}
-                  hint={formatCommerceSourceHint(checkoutCard?.scope, checkoutCard?.sourceTruth)}
+                  hint={formatCommerceCardSourceHint(checkoutCard?.scope, checkoutCard?.sourceTruth)}
                   icon={Funnel}
                   truthState={commerceSnapshotModel.metrics.checkoutStarts.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -385,7 +367,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={formatCommerceMetricLabel(gdSpentCard?.label ?? "GumDrops Spent")}
                   value={formatCommerceValue(commerceSnapshotModel.gdSpentValue, formatCompactNumber)}
-                  hint={formatCommerceSourceHint(gdSpentCard?.scope, gdSpentCard?.sourceTruth)}
+                  hint={formatCommerceCardSourceHint(gdSpentCard?.scope, gdSpentCard?.sourceTruth)}
                   icon={ShoppingBag}
                   truthState={commerceSnapshotModel.metrics.gdSpent.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -399,7 +381,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={formatCommerceMetricLabel(adjustedProfitCard?.label ?? "Adjusted Profit")}
                   value={formatCommerceValue(commerceSnapshotModel.adjustedProfitValue, formatMoney)}
-                  hint={formatCommerceSourceHint(adjustedProfitCard?.scope, adjustedProfitCard?.sourceTruth)}
+                  hint={formatCommerceCardSourceHint(adjustedProfitCard?.scope, adjustedProfitCard?.sourceTruth)}
                   icon={Wallet}
                   truthState={commerceSnapshotModel.metrics.adjustedProfit.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -410,7 +392,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={formatCommerceMetricLabel(yieldCard?.label ?? "Yield / 100 GumDrops")}
                   value={formatCommerceValue(commerceSnapshotModel.yieldPer100GdValue, formatMoney)}
-                  hint={formatCommerceSourceHint(yieldCard?.scope, yieldCard?.sourceTruth)}
+                  hint={formatCommerceCardSourceHint(yieldCard?.scope, yieldCard?.sourceTruth)}
                   icon={Sparkles}
                   truthState={commerceSnapshotModel.metrics.yieldPer100Gd.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -421,7 +403,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={formatCommerceMetricLabel(walletCard?.label ?? "Wallet Opens")}
                   value={formatCommerceValue(commerceSnapshotModel.walletOpensValue, formatCompactNumber)}
-                  hint={formatCommerceSourceHint(walletCard?.scope, walletCard?.sourceTruth)}
+                  hint={formatCommerceCardSourceHint(walletCard?.scope, walletCard?.sourceTruth)}
                   icon={Wallet}
                   truthState={commerceSnapshotModel.metrics.walletOpens.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
@@ -432,7 +414,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label={formatCommerceMetricLabel(promoCard?.label ?? "Promo Impact")}
                   value={formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, noSourceLabel)}
-                  hint={formatCommerceSourceHint(promoCard?.scope, promoCard?.sourceTruth)}
+                  hint={formatCommerceCardSourceHint(promoCard?.scope, promoCard?.sourceTruth)}
                   icon={Candy}
                   truthState={commerceSnapshotModel.metrics.promoImpact.truthState}
                   statusBadgeLabel={commerceBadgeLabel}

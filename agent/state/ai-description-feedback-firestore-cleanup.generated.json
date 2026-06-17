@@ -1,8 +1,0 @@
-{
-  "reportKey": "ai-description-feedback-firestore-cleanup",
-  "generatedAtUtc": "2026-05-24T22:10:20.155Z",
-  "status": "fixed_current",
-  "fixedField": "lastEditedByUid",
-  "route": "admin/ai/drop-descriptions/feedback:POST",
-  "validationFailures": []
-}

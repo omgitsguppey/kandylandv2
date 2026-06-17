@@ -20,6 +20,14 @@ import {
   formatAdminAnalyticsSourceTruthLabel,
 } from "@/lib/analytics/admin-analytics-display-state";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
+import {
+  buildAudienceRegionChartRows,
+  filterAudienceTopPathRows,
+  formatAudienceRegionCount,
+  formatAudienceRegionLabel,
+  formatAudienceSeriesLabel,
+  type AudienceTopPathFilter,
+} from "./AdminAnalyticsAudienceTab.utils";
 
 export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const {
@@ -55,6 +63,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const noSourceLabel = "No source";
   const noSampleLabel = "No sample";
   const noEngagementSampleLabel = "No engagement sample";
+  const unknownRegionFallbackLabel = "Unknown location";
   React.useEffect(() => {
     (window as typeof window & {
       __KANDYDROPS_ADMIN_ANALYTICS_AUDIENCE_SNAPSHOT_DEBUG__?: unknown;
@@ -118,17 +127,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const estimatedGuestDays = audienceSnapshotModel.recovery.mode === "estimated_guest_bridge"
     ? audienceSnapshotModel.recovery.recoveredDays.length
     : 0;
-  const formatAudienceSeriesLabel = (label: string) =>
-    label.replaceAll("GA4", "Site").replaceAll("GA ", "Site ");
   const [topPathsSearch, setTopPathsSearch] = React.useState("");
-  const [topPathsFilter, setTopPathsFilter] = React.useState<
-    | "all"
-    | "high_volume_low_engagement"
-    | "zero_time"
-    | "creator"
-    | "legal_static"
-    | "dashboard_authenticated"
-  >("all");
+  const [topPathsFilter, setTopPathsFilter] = React.useState<AudienceTopPathFilter>("all");
   const [topPathsPage, setTopPathsPage] = React.useState(1);
   const [topPathsPageSize, setTopPathsPageSize] = React.useState(10);
   const [returnCadenceViewMode, setReturnCadenceViewMode] = React.useState<AnalyticsViewMode>("cards");
@@ -136,33 +136,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const [navigationDestinationsViewMode, setNavigationDestinationsViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [topPathsViewMode, setTopPathsViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [regionsViewMode, setRegionsViewMode] = React.useState<AnalyticsViewMode>("cards");
-  const filteredTopPathRows = React.useMemo(() => {
-    const search = topPathsSearch.trim().toLowerCase();
-    return topPathsModel.rows.filter((row) => {
-      const matchesSearch =
-        search.length === 0
-          || row.path.toLowerCase().includes(search)
-          || row.label.toLowerCase().includes(search);
-      if (!matchesSearch) {
-        return false;
-      }
-
-      switch (topPathsFilter) {
-        case "high_volume_low_engagement":
-          return row.issueState === "warning";
-        case "zero_time":
-          return (row.avgTimeSeconds ?? 0) <= 1;
-        case "creator":
-          return row.routeGroup === "creator";
-        case "legal_static":
-          return row.routeGroup === "legal" || row.routeGroup === "support";
-        case "dashboard_authenticated":
-          return row.routeGroup === "dashboard" || row.routeGroup === "auth";
-        default:
-          return true;
-      }
-    });
-  }, [topPathsFilter, topPathsModel.rows, topPathsSearch]);
+  const filteredTopPathRows = React.useMemo(
+    () => filterAudienceTopPathRows(topPathsModel.rows, topPathsSearch, topPathsFilter),
+    [topPathsFilter, topPathsModel.rows, topPathsSearch],
+  );
   const pagedTopPathRows = React.useMemo(() => {
     const startIndex = (topPathsPage - 1) * topPathsPageSize;
     return filteredTopPathRows.slice(startIndex, startIndex + topPathsPageSize);
@@ -205,36 +182,16 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     });
     return rows.slice(0, 10);
   }, [filteredRegionRows, regionsFilterMode]);
-  const formatRegionLabel = React.useCallback((item: typeof regionsModel.rows[number]) => {
-    if (!item.city && !item.country) {
-      return "Unknown location";
-    }
-    if (!item.city && item.country) {
-      return `Unknown city, ${item.country}`;
-    }
-    if (item.city && !item.country) {
-      return `${item.city}, Unknown country`;
-    }
-    return `${item.city}, ${item.country}`;
-  }, [regionsModel]);
-  const formatRegionCount = (count: number) => {
-    const unitLabel = count === 1
-      ? regionsModel.countUnit.replace(/s$/u, "")
-      : regionsModel.countUnit;
-    return `${count.toLocaleString()} ${unitLabel}`;
-  };
+  const formatRegionLabel = (item: typeof regionsModel.rows[number]) =>
+    formatAudienceRegionLabel(item, unknownRegionFallbackLabel);
+  const formatRegionCount = (count: number) => formatAudienceRegionCount(count, regionsModel.countUnit);
   const regionPrimaryMetricLabel = regionsFilterMode === "raw"
     ? "Raw traffic"
     : "Adjusted external";
-  const regionChartRows = React.useMemo(() => (
-    regionRowsForDisplay.map((item) => ({
-      ...item,
-      displayLabel: formatRegionLabel(item),
-      chartLabel: formatRegionLabel(item).length > 18
-        ? `${formatRegionLabel(item).slice(0, 18)}...`
-        : formatRegionLabel(item),
-    }))
-  ), [formatRegionLabel, regionRowsForDisplay]);
+  const regionChartRows = React.useMemo(
+    () => buildAudienceRegionChartRows(regionRowsForDisplay),
+    [regionRowsForDisplay],
+  );
 
   return (
     <>
