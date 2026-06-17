@@ -300,6 +300,22 @@ export default function AdminAnalyticsPage() {
       item.state !== "not_observed_but_expected",
     )
     .reduce((total, item) => total + item.count, 0);
+  const panelRecoverySourceGapCount = panelRecoveryTruthItems
+    .filter((item) =>
+      item.state === "source_missing" ||
+      item.state === "materializer_missing" ||
+      item.state === "bridge_missing" ||
+      item.state === "broken",
+    )
+    .reduce((total, item) => total + item.count, 0);
+  const panelRecoveryEvidenceGateCount = panelRecoveryTruthItems
+    .filter((item) =>
+      item.state === "runtime_evidence_required" ||
+      item.state === "admin_truth_source_required" ||
+      item.state === "provider_gated" ||
+      item.state === "external_required",
+    )
+    .reduce((total, item) => total + item.count, 0);
   const panelRecoveryActions = panelHydrationSummary?.topNextActions ?? [];
   const showPanelRecovery =
     Boolean(panelHydrationSummary) &&
@@ -483,7 +499,17 @@ export default function AdminAnalyticsPage() {
               <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-300">
                 <span>{connectedPanelCount}/{totalPanelCount} connected</span>
                 {panelRecoveryWaitingCount > 0 ? <span>{panelRecoveryWaitingCount} waiting</span> : null}
-                {panelRecoveryNeedsEvidenceCount > 0 ? <span>{panelRecoveryNeedsEvidenceCount} need source</span> : null}
+                {panelRecoverySourceGapCount > 0 ? (
+                  <span>{formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap")}</span>
+                ) : null}
+                {panelRecoveryEvidenceGateCount > 0 ? (
+                  <span>{formatPanelRecoveryCount(panelRecoveryEvidenceGateCount, "evidence gate")}</span>
+                ) : null}
+                {panelRecoveryNeedsEvidenceCount > 0 &&
+                panelRecoverySourceGapCount === 0 &&
+                panelRecoveryEvidenceGateCount === 0 ? (
+                  <span>{panelRecoveryNeedsEvidenceCount} need review</span>
+                ) : null}
               </div>
             </div>
             {panelRecoveryTruthItems.length > 0 || panelRecoveryActions.length > 0 ? (

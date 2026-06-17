@@ -572,7 +572,9 @@ describe("AdminAnalyticsPage", () => {
     expect(sourceNotes?.getAttribute("title")).not.toContain("Realtime analytics");
     expect(container.textContent).toContain("3/11 connected");
     expect(container.textContent).toContain("5 waiting");
-    expect(container.textContent).toContain("3 need source");
+    expect(container.textContent).toContain("2 source gaps");
+    expect(container.textContent).toContain("1 evidence gate");
+    expect(container.textContent).not.toContain("3 need source");
     expect(container.textContent).toContain("Status details");
     expect(container.textContent).toContain("2 collecting");
     expect(container.textContent).toContain("1 ready, waiting");
