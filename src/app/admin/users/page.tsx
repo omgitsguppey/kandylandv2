@@ -569,6 +569,13 @@ export default function UserManagementPage() {
         return new Map(userManagementSummaries.map((entry) => [entry.identity.userId, entry]));
     }, [userManagementSummaries]);
     const lowConfidenceUsers = userManagementSummaries.filter((entry) => entry.personMetricConfidence.lowConfidenceCount > 0 || entry.activitySummary.state === "collecting");
+    const exactIdentityCount = userManagementSummaries.filter((entry) => entry.identity.identityConfidence === "exact").length;
+    const identityHandoffSummaryLabel = isLocalAdminUiTestSession
+        ? "-- exact / -- shown"
+        : `${exactIdentityCount} exact / ${userManagementSummaries.length} shown`;
+    const metricConfidenceSummaryLabel = isLocalAdminUiTestSession
+        ? "-- collecting / low-confidence rows"
+        : `${lowConfidenceUsers.length} collecting / low-confidence rows`;
     const userSummaryTruthState = pageData.truthState;
     const usersRealtimePulseTruthState = pageData.realtimePulseTruthState;
     const getOnboardingBadge = (user: UserProfile, analytics?: UserAnalytics) =>
@@ -989,7 +996,7 @@ export default function UserManagementPage() {
                                 </div>
                                 <div className="text-[10px] text-gray-500">
                                     {behaviorLeaderboard
-                                        ? `${behaviorLeaderboard.totalEligibleUsers} eligible · page size ${behaviorLeaderboard.pageSize}`
+                                        ? `${behaviorLeaderboard.totalEligibleUsers} eligible - page size ${behaviorLeaderboard.pageSize}`
                                         : "Loading behavior source"}
                                 </div>
                             </div>
@@ -1034,7 +1041,7 @@ export default function UserManagementPage() {
                                             </div>
                                         </div>
                                         <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-gray-300">
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">value {row.valueScore ?? "—"}</span>
+                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">value {row.valueScore ?? "--"}</span>
                                             <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">confidence {row.behaviorConfidence}%</span>
                                             <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{row.purchaseCount} purchases</span>
                                             <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{row.unlockCount} unwraps</span>
@@ -1055,7 +1062,7 @@ export default function UserManagementPage() {
                             <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
                                 <div className="text-[10px] text-gray-500">
                                     {behaviorLeaderboard
-                                        ? `Page ${behaviorLeaderboard.page} of ${behaviorLeaderboard.totalPages} · generated ${formatUtcLabel(behaviorLeaderboard.generatedAtUtc)}`
+                                        ? `Page ${behaviorLeaderboard.page} of ${behaviorLeaderboard.totalPages} - generated ${formatUtcLabel(behaviorLeaderboard.generatedAtUtc)}`
                                         : "Page 1"}
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -1097,7 +1104,7 @@ export default function UserManagementPage() {
                                 />
                             </div>
                             <p className="mt-2 text-sm font-bold text-white">
-                                {userManagementSummaries.filter((entry) => entry.identity.identityConfidence === "exact").length} exact / {userManagementSummaries.length} shown
+                                {identityHandoffSummaryLabel}
                             </p>
                             <p className="mt-1 text-[11px] leading-5 text-gray-400">
                                 Guest link status is visible per row. Raw user/event rows stay behind detail actions.
@@ -1133,7 +1140,7 @@ export default function UserManagementPage() {
                                 />
                             </div>
                             <p className="mt-2 text-sm font-bold text-white">
-                                {lowConfidenceUsers.length} collecting / low-confidence rows
+                                {metricConfidenceSummaryLabel}
                             </p>
                             <p className="mt-1 text-[11px] leading-5 text-gray-400">
                                 Missing metrics show their producer, bridge, or materializer in the user detail drilldown.

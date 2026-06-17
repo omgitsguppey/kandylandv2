@@ -14,7 +14,11 @@ describe("admin users fixture boundary", () => {
     expect(source).toContain("User metrics, feedback, task controls, identity, payment, and content access need a real admin session");
     expect(source).toContain("No consent source loaded");
     expect(source).toContain("Behavioral metrics wait for consent and source materialization before they can be shown.");
+    expect(source).toContain('"-- exact / -- shown"');
+    expect(source).toContain('"-- collecting / low-confidence rows"');
     expect(source).toContain("No verified user source is loaded in local review");
+    expect(source).not.toContain("—");
+    expect(source).not.toContain("·");
   });
 
   it("skips user, feedback, behavior, and realtime reads in fixture mode", () => {
