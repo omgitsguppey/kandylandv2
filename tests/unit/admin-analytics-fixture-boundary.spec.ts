@@ -77,4 +77,13 @@ describe("admin analytics local fixture boundary", () => {
     expect(hookSource).not.toContain("Waiting for first analytics snapshot");
     expect(hookSource).not.toContain('ADMIN_ANALYTICS_DEFAULT_RANGE = "30d"');
   });
+
+  it("keeps all-time platform snapshots from short-circuiting launch-history recovery", () => {
+    expect(historicalRouteSource).toContain("const shouldHydrateLaunchHistoryFromSources =");
+    expect(historicalRouteSource).toContain("shouldHydrateDefaultLaunchHistoryFromSources(snapshotAuthorityTarget)");
+    expect(historicalRouteSource).toContain("snapshotAuthorityResult.status === 200 && !shouldHydrateLaunchHistoryFromSources");
+    expect(historicalRouteSource).toContain(
+      "Canonical all-time platform snapshot is available as hot-cache context; source collections remain used for launch-history continuity.",
+    );
+  });
 });

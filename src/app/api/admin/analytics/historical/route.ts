@@ -960,15 +960,23 @@ async function GET_handler(request: NextRequest) {
         });
 
         if (snapshotAuthorityTarget && !viewerUser && !forceRefresh) {
+            const shouldHydrateLaunchHistoryFromSources =
+                shouldHydrateDefaultLaunchHistoryFromSources(snapshotAuthorityTarget);
             const snapshotAuthorityResult = await readHistoricalSnapshotAuthorityPayload(snapshotAuthorityTarget);
-            if (snapshotAuthorityResult.status === 200 || !shouldHydrateDefaultLaunchHistoryFromSources(snapshotAuthorityTarget)) {
+            if (snapshotAuthorityResult.status === 200 && !shouldHydrateLaunchHistoryFromSources) {
+                return finalize(NextResponse.json(snapshotAuthorityResult.payload, { status: snapshotAuthorityResult.status }));
+            }
+
+            if (!shouldHydrateLaunchHistoryFromSources) {
                 return finalize(NextResponse.json(snapshotAuthorityResult.payload, { status: snapshotAuthorityResult.status }));
             }
 
             snapshotAuthorityHydrationIssue =
-                snapshotAuthorityResult.payload.cacheValidationIssues?.[0]
-                ?? snapshotAuthorityResult.payload.error
-                ?? "No verified all-time platform snapshot is available.";
+                snapshotAuthorityResult.status === 200
+                    ? "Canonical all-time platform snapshot is available as hot-cache context; source collections remain used for launch-history continuity."
+                    : (snapshotAuthorityResult.payload.cacheValidationIssues?.[0]
+                    ?? snapshotAuthorityResult.payload.error
+                    ?? "No verified all-time platform snapshot is available.");
         }
 
         if (!propertyId) {
@@ -1038,7 +1046,7 @@ async function GET_handler(request: NextRequest) {
                 allowVendorReports: forceRefresh,
             });
             if (snapshotAuthorityHydrationIssue) {
-                issues.push(`All-time platform snapshot is missing; hydrating launch history from bounded canonical source collections. ${snapshotAuthorityHydrationIssue}`);
+                issues.push(`All-time platform snapshot authority note; hydrating launch history from bounded canonical source collections. ${snapshotAuthorityHydrationIssue}`);
             }
 
             const {
