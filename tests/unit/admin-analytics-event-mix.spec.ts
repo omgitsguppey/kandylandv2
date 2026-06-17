@@ -94,4 +94,40 @@ describe("buildAdminAnalyticsEventMixModel", () => {
     expect(model.fakeZeroPrevented).toBe(true);
     expect(model.badgeLabel).toBe("WAIT");
   });
+
+  it("keeps refresh-due event mix snapshots as cached truth instead of live truth", () => {
+    const model = buildAdminAnalyticsEventMixModel({
+      selectedRange: "24h",
+      response: {
+        ...response(),
+        cacheState: "refresh_due",
+        staleButVerified: true,
+        cacheRevalidating: true,
+      },
+      eventBreakdown: [
+        { eventName: "drop_clicked", count: 20 },
+        { eventName: "viewer_opened", count: 10 },
+      ],
+      componentContexts: [
+        {
+          key: "drops",
+          label: "Drops",
+          count: 30,
+          uniqueUsers: 12,
+          experienceCount: 2,
+          lastSeenAt: 1,
+          exampleEvent: "drop_clicked",
+        },
+      ],
+      eventLabels: {},
+      loading: false,
+      overviewTruthState: "live",
+    });
+
+    expect(model.staleSnapshotUsed).toBe(false);
+    expect(model.truthState).toBe("cached");
+    expect(model.badgeLabel).toBe("DELAYED");
+    expect(model.eventRows[0]?.truthState).toBe("cached");
+    expect(model.eventMixSourceMode).toBe("backend_snapshot");
+  });
 });

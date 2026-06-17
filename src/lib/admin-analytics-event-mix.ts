@@ -144,11 +144,19 @@ export function buildAdminAnalyticsEventMixModel(input: {
   const inferredCategoryGuardrail = "Catalog-inferred categories must not be shown as verified route or surface context.";
   const hasResponse = Boolean(input.response);
   const stale = Boolean(input.response && (input.error || input.response.cacheState === "stale"));
+  const cacheRefreshDue = Boolean(
+    input.response &&
+      (input.response.cacheState === "refresh_due" ||
+        input.response.staleButVerified ||
+        input.response.cacheRevalidating),
+  );
   const cache = Boolean(input.response?.cacheState && input.response?.cacheState !== "miss");
   const truthState: AdminSurfaceState = !hasResponse
     ? input.loading ? "loading" : "unavailable"
     : stale
       ? "stale"
+      : cacheRefreshDue
+        ? "cached"
       : input.overviewTruthState ?? "live";
   const sourceMode: EventMixSourceMode = !hasResponse
     ? input.loading ? "waiting" : "error"
@@ -247,7 +255,7 @@ export function buildAdminAnalyticsEventMixModel(input: {
       ? "WAIT"
       : sourceMode === "error"
         ? "ERROR"
-        : stale
+        : stale || cacheRefreshDue
           ? "DELAYED"
           : actualSurfaceContextState !== "available" || (eventsNeedingCatalogMapping ?? 0) > 0
             ? "PARTIAL"
