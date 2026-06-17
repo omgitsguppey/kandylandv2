@@ -587,10 +587,12 @@ export default function AdminUserAnalyticsPage() {
         revenueExistsButPurchaseCountMissing: Boolean(totalSpentUsd > 0 && !(analytics?.purchaseCount || 0)),
         reviewSummary: analytics?.commerceEmptyReason || undefined,
     });
+    const observedViewCount = behaviorRollup?.views ?? analytics?.viewCount;
+    const positiveWatchTimeObserved = typeof behaviorRollup?.watchTimeMs === "number" && behaviorRollup.watchTimeMs > 0;
     const metricReviewDecision = buildAdminReviewBadge({
         truthState: metricTruthState,
         missingRequiredData: !analytics,
-        viewsExistButWatchMissing: Boolean((behaviorRollup?.views ?? analytics?.viewCount ?? 0) > 0 && !(behaviorRollup?.watchTimeMs ?? 0)),
+        viewsExistButWatchMissing: Boolean(typeof observedViewCount === "number" && observedViewCount > 0 && !positiveWatchTimeObserved),
         onboardedMissingAuthStats: Boolean((behaviorRollup?.onboardingCompleted || targetUser?.onboardingCompleted) && !(behaviorRollup?.authEvents ?? analytics?.authSuccessCount)),
         reviewSummary: analytics?.metricIntegrityFailures?.[0],
     });
@@ -609,9 +611,25 @@ export default function AdminUserAnalyticsPage() {
         reviewSummary: recommendationVerdict.summary,
     });
 
+    const formatBehaviorCountLabel = useCallback((value: number | null | undefined) => {
+        if (typeof value !== "number" || !Number.isFinite(value)) {
+            return "No source";
+        }
+
+        return value.toLocaleString();
+    }, []);
+
     const watchTimeLabel = useMemo(() => {
-        const watchTimeMs = behaviorRollup?.watchTimeMs ?? 0;
-        if (!watchTimeMs) {
+        if (!behaviorRollup) {
+            return "No source";
+        }
+
+        const watchTimeMs = behaviorRollup.watchTimeMs;
+        if (typeof watchTimeMs !== "number" || !Number.isFinite(watchTimeMs)) {
+            return "No source";
+        }
+
+        if (watchTimeMs === 0) {
             return "0m";
         }
 
@@ -779,11 +797,11 @@ export default function AdminUserAnalyticsPage() {
                             { label: "Delivered", value: `${deliveredGumDrops.toLocaleString()} GD` },
                             { label: "Effective rate", value: `$${effectiveUsdPer100Gd.toFixed(2)} / 100 GD` },
                             { label: "Avg order", value: `$${averageOrderUsd.toFixed(2)}` },
-                            { label: "Actions", value: (behaviorRollup?.totalActions ?? analytics?.eventCount ?? 0).toLocaleString() },
-                            { label: "Views", value: (behaviorRollup?.views ?? analytics?.viewCount ?? 0).toLocaleString() },
+                            { label: "Actions", value: formatBehaviorCountLabel(behaviorRollup?.totalActions ?? analytics?.eventCount) },
+                            { label: "Views", value: formatBehaviorCountLabel(behaviorRollup?.views ?? analytics?.viewCount) },
                             { label: "Engagement", value: engagementExplanation.verdict },
                             { label: "Value", value: valueExplanation.verdict, tone: "text-brand-purple" },
-                            { label: "Auth", value: (behaviorRollup?.authEvents ?? analytics?.authSuccessCount ?? 0).toLocaleString() },
+                            { label: "Auth", value: formatBehaviorCountLabel(behaviorRollup?.authEvents ?? analytics?.authSuccessCount) },
                             { label: "Watch time", value: watchTimeLabel },
                             { label: "Last seen", value: (behaviorRollup?.lastSeenAt ?? analytics?.lastSeenAt) ? formatDistanceToNow(behaviorRollup?.lastSeenAt ?? analytics!.lastSeenAt, { addSuffix: true }) : "No activity" },
                         ].map((item) => (
