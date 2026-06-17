@@ -299,6 +299,91 @@ describe("buildHistoricalTrafficOverview", () => {
     expect(overview.guestTraffic.exactGuestViews).toBe(10);
     expect(overview.guestTraffic.truthLabel).toBe("exact");
   });
+
+  it("recovers all-time users and device samples from first-party source facts when GA rows are absent", () => {
+    const overview = buildHistoricalTrafficOverview({
+      responseRows: [],
+      eventRows: [],
+      geoRows: [],
+      geoPathRows: [],
+      deviceRows: [],
+      pageRows: [],
+      dailyRollups: [],
+      pageRollups: [
+        doc("2024-02-10__home", {
+          pagePath: "/",
+          viewCount: 6,
+        }),
+      ],
+      analyticsEventFacts: [
+        doc("fact_mobile_user", {
+          eventName: "home_page_viewed",
+          timestamp: Date.UTC(2024, 1, 10, 12, 0, 0),
+          userId: "user_1",
+          sessionId: "session_user_1",
+          deviceCategory: "mobile",
+          pagePath: "/",
+        }),
+      ],
+      guestBatchDocs: [
+        doc("guest_batch_1", {
+          anonymousVisitorId: "guest_1",
+          sessionId: "session_guest_1",
+          deviceCategory: "desktop",
+          receivedAtMs: Date.UTC(2024, 1, 10, 12, 5, 0),
+          events: [
+            {
+              type: "page_view",
+              path: "/",
+              timestamp: Date.UTC(2024, 1, 10, 12, 5, 0),
+            },
+          ],
+        }),
+      ],
+      guestSessionDocs: [],
+      sessionFacts: [
+        doc("session_fact_tablet", {
+          sessionId: "session_tablet_1",
+          userId: "user_2",
+          deviceCategory: "tablet",
+          dayKey: "2024-02-10",
+          firstEventAtMs: Date.UTC(2024, 1, 10, 12, 15, 0),
+          startedCount: 1,
+          completedCount: 1,
+        }),
+      ],
+      startMs: Date.UTC(2020, 0, 1, 0, 0, 0),
+      endMs: Date.UTC(2024, 1, 10, 23, 59, 59),
+      startDayKey: "2024-02-10",
+      endDayKey: "2024-02-10",
+      timelineBucket: "day",
+      authenticatedPageViewEventNames: new Set(["home_page_viewed"]),
+    });
+
+    expect(overview.totals.users).toBe(3);
+    expect(overview.totals.views).toBe(7);
+    expect(overview.totals.sessions).toBe(3);
+    expect(overview.devices).toEqual([
+      {
+        device: "mobile",
+        users: 1,
+        sessions: 1,
+        engagementRate: 0,
+      },
+      {
+        device: "desktop",
+        users: 1,
+        sessions: 1,
+        engagementRate: 0,
+      },
+      {
+        device: "tablet",
+        users: 1,
+        sessions: 1,
+        engagementRate: 1,
+      },
+    ]);
+  });
 });
 
 describe("admin analytics historical route snapshot authority", () => {

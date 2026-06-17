@@ -37,6 +37,71 @@ function readPageRollupViews(data: Record<string, unknown>) {
   );
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
+
+function readNestedString(data: Record<string, unknown>, keys: string[]) {
+  const params = asRecord(data.params);
+  const metadata = asRecord(data.metadata);
+  for (const key of keys) {
+    const direct = toStringValue(data[key]);
+    if (direct) return direct;
+    const param = toStringValue(params[key]);
+    if (param) return param;
+    const meta = toStringValue(metadata[key]);
+    if (meta) return meta;
+  }
+
+  return "";
+}
+
+function normalizeDeviceCategory(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return "unknown";
+  if (/\b(tablet|ipad)\b/u.test(normalized)) return "tablet";
+  if (/\b(mobile|iphone|android|phone|ios)\b/u.test(normalized)) return "mobile";
+  if (/\b(desktop|windows|macintosh|linux|chromeos)\b/u.test(normalized)) return "desktop";
+  return "unknown";
+}
+
+function readDeviceCategory(data: Record<string, unknown>) {
+  const explicit = readNestedString(data, [
+    "deviceCategory",
+    "device",
+    "deviceType",
+    "clientDevice",
+    "formFactor",
+    "platform",
+  ]);
+  const normalizedExplicit = normalizeDeviceCategory(explicit);
+  if (normalizedExplicit !== "unknown") return normalizedExplicit;
+
+  return normalizeDeviceCategory(readNestedString(data, [
+    "userAgent",
+    "user_agent",
+    "ua",
+  ]));
+}
+
+function readActorKey(data: Record<string, unknown>, fallback: string) {
+  const userId = readNestedString(data, ["userId", "actorUserId", "uid"]);
+  if (userId) return `user:${userId}`;
+  const guestId = readNestedString(data, ["guestId", "anonymousVisitorId", "anonymousId"]);
+  if (guestId) return `guest:${guestId}`;
+  const sessionId = readNestedString(data, ["sessionId", "clientSessionId", "sessionKey"]);
+  if (sessionId) return `session:${sessionId}`;
+  return fallback;
+}
+
+function readSessionKey(data: Record<string, unknown>, fallback: string) {
+  const sessionId = readNestedString(data, ["sessionId", "clientSessionId", "sessionKey"]);
+  if (sessionId) return `session:${sessionId}`;
+  return fallback;
+}
+
 export function buildHistoricalTrafficOverview(input: {
   responseRows: AnalyticsReportRow[];
   eventRows: AnalyticsReportRow[];
@@ -131,6 +196,20 @@ export function buildHistoricalTrafficOverview(input: {
   const authenticatedPageViewsByHour = new Map<string, number>();
   const viewerSessionsByDay = new Map<string, number>();
   const viewerSessionsByHour = new Map<string, number>();
+  const firstPartyActorKeysByDay = new Map<string, Set<string>>();
+  const firstPartyActorKeysByHour = new Map<string, Set<string>>();
+  const firstPartySessionKeysByDay = new Map<string, Set<string>>();
+  const firstPartySessionKeysByHour = new Map<string, Set<string>>();
+  const addActorKey = (bucketMap: Map<string, Set<string>>, bucketKey: string, actorKey: string) => {
+    const bucket = bucketMap.get(bucketKey) || new Set<string>();
+    bucket.add(actorKey);
+    bucketMap.set(bucketKey, bucket);
+  };
+  const addSessionKey = (bucketMap: Map<string, Set<string>>, bucketKey: string, sessionKey: string) => {
+    const bucket = bucketMap.get(bucketKey) || new Set<string>();
+    bucket.add(sessionKey);
+    bucketMap.set(bucketKey, bucket);
+  };
   analyticsEventFacts.forEach((doc) => {
     const data = doc.data() as Record<string, unknown>;
     const eventName = toStringValue(data.eventName);
@@ -139,10 +218,17 @@ export function buildHistoricalTrafficOverview(input: {
       return;
     }
 
+    const dayKey = toStringValue(data.dayKey) || timestampToDayKey(timestamp);
+    const hourKey = toStringValue(data.hourKey) || timestampToHourKey(timestamp);
+    const actorKey = readActorKey(data, `fact:${doc.id}`);
+    const sessionKey = readSessionKey(data, actorKey);
+    addActorKey(firstPartyActorKeysByDay, dayKey, actorKey);
+    addActorKey(firstPartyActorKeysByHour, hourKey, actorKey);
+    addSessionKey(firstPartySessionKeysByDay, dayKey, sessionKey);
+    addSessionKey(firstPartySessionKeysByHour, hourKey, sessionKey);
+
     if (authenticatedPageViewEventNames.has(eventName)) {
       const pagePath = toStringValue(data.pagePath) || authenticatedPagePathFallbacks[eventName] || "/";
-      const dayKey = toStringValue(data.dayKey) || timestampToDayKey(timestamp);
-      const hourKey = toStringValue(data.hourKey) || timestampToHourKey(timestamp);
       authenticatedPageViewsByPath.set(pagePath, (authenticatedPageViewsByPath.get(pagePath) || 0) + 1);
       authenticatedPageViewsByDay.set(dayKey, (authenticatedPageViewsByDay.get(dayKey) || 0) + 1);
       authenticatedPageViewsByHour.set(hourKey, (authenticatedPageViewsByHour.get(hourKey) || 0) + 1);
@@ -158,6 +244,8 @@ export function buildHistoricalTrafficOverview(input: {
 
   const guestPageViewsByDay = new Map<string, number>();
   const guestPageViewsByHour = new Map<string, number>();
+  const guestBatchSessionsByDay = new Map<string, Set<string>>();
+  const guestBatchSessionsByHour = new Map<string, Set<string>>();
   const rawGuestPageStatsByPath = new Map<string, { views: number; clicks: number; dwellMsTotal: number; dwellSamples: number }>();
   guestBatchDocs.forEach((doc) => {
     const data = doc.data() as Record<string, unknown>;
@@ -175,6 +263,14 @@ export function buildHistoricalTrafficOverview(input: {
       if (eventType === "page_view") {
         const dayKey = timestampToDayKey(timestamp);
         const hourKey = timestampToHourKey(timestamp);
+        const actorKey = readActorKey(event, readActorKey(data, `guest-batch:${doc.id}`));
+        const sessionKey = readSessionKey(event, readSessionKey(data, `guest-batch:${doc.id}`));
+        addActorKey(firstPartyActorKeysByDay, dayKey, actorKey);
+        addActorKey(firstPartyActorKeysByHour, hourKey, actorKey);
+        addSessionKey(firstPartySessionKeysByDay, dayKey, sessionKey);
+        addSessionKey(firstPartySessionKeysByHour, hourKey, sessionKey);
+        addSessionKey(guestBatchSessionsByDay, dayKey, sessionKey);
+        addSessionKey(guestBatchSessionsByHour, hourKey, sessionKey);
         guestPageViewsByDay.set(dayKey, (guestPageViewsByDay.get(dayKey) || 0) + 1);
         guestPageViewsByHour.set(hourKey, (guestPageViewsByHour.get(hourKey) || 0) + 1);
         pageStats.views += 1;
@@ -213,6 +309,12 @@ export function buildHistoricalTrafficOverview(input: {
 
     const dayKey = toStringValue(data.dayKey) || (anchorTimestamp > 0 ? timestampToDayKey(anchorTimestamp) : startDayKey);
     const hourKey = toStringValue(data.hourKey) || (anchorTimestamp > 0 ? timestampToHourKey(anchorTimestamp) : `${dayKey}T00`);
+    const actorKey = readActorKey(data, `session-fact:${doc.id}`);
+    const sessionKey = readSessionKey(data, `session-fact:${doc.id}`);
+    addActorKey(firstPartyActorKeysByDay, dayKey, actorKey);
+    addActorKey(firstPartyActorKeysByHour, hourKey, actorKey);
+    addSessionKey(firstPartySessionKeysByDay, dayKey, sessionKey);
+    addSessionKey(firstPartySessionKeysByHour, hourKey, sessionKey);
     sessionFactSessionsByDay.set(dayKey, (sessionFactSessionsByDay.get(dayKey) || 0) + startedCount);
     sessionFactSessionsByHour.set(hourKey, (sessionFactSessionsByHour.get(hourKey) || 0) + startedCount);
   });
@@ -239,6 +341,10 @@ export function buildHistoricalTrafficOverview(input: {
 
     const dayKey = toStringValue(data.dayKey) || (anchorTimestamp > 0 ? timestampToDayKey(anchorTimestamp) : startDayKey);
     const hourKey = toStringValue(data.hourKey) || (anchorTimestamp > 0 ? timestampToHourKey(anchorTimestamp) : `${dayKey}T00`);
+    addActorKey(firstPartyActorKeysByDay, dayKey, `guest-session:${sessionKey}`);
+    addActorKey(firstPartyActorKeysByHour, hourKey, `guest-session:${sessionKey}`);
+    addSessionKey(firstPartySessionKeysByDay, dayKey, `guest-session:${sessionKey}`);
+    addSessionKey(firstPartySessionKeysByHour, hourKey, `guest-session:${sessionKey}`);
     guestSessionKeys.add(sessionKey);
     const daySet = guestSessionSessionsByDay.get(dayKey) || new Set<string>();
     daySet.add(sessionKey);
@@ -290,19 +396,26 @@ export function buildHistoricalTrafficOverview(input: {
       ? Math.max(
           viewerSessionsByHour.get(bucketKey) || 0,
           sessionFactSessionsByHour.get(bucketKey) || 0,
+          guestBatchSessionsByHour.get(bucketKey)?.size || 0,
           guestSessionSessionsByHour.get(bucketKey)?.size || 0,
+          firstPartySessionKeysByHour.get(bucketKey)?.size || 0,
         )
       : Math.max(
           rollup?.viewerSessions ?? 0,
           viewerSessionsByDay.get(bucketKey) || 0,
           sessionFactSessionsByDay.get(bucketKey) || 0,
+          guestBatchSessionsByDay.get(bucketKey)?.size || 0,
           guestSessionSessionsByDay.get(bucketKey)?.size || 0,
+          firstPartySessionKeysByDay.get(bucketKey)?.size || 0,
         );
+    const firstPartyUsers = isHourly
+      ? firstPartyActorKeysByHour.get(bucketKey)?.size || 0
+      : firstPartyActorKeysByDay.get(bucketKey)?.size || 0;
 
     return {
       date: isHourly ? hourKeyToLabel(bucketKey) : dayKeyToLabel(bucketKey),
       rawDate: isHourly ? hourKeyToRawDate(bucketKey) : dayKeyToRawDate(bucketKey),
-      users: ga?.users ?? 0,
+      users: Math.max(ga?.users ?? 0, firstPartyUsers, firstPartySessions),
       views: Math.max(ga?.views ?? 0, firstPartyViews, rollup?.totalEvents ?? 0),
       sessions: Math.max(ga?.sessions ?? 0, firstPartySessions),
       newUsers: ga?.newUsers ?? 0,
@@ -472,12 +585,97 @@ export function buildHistoricalTrafficOverview(input: {
     adjustedSharePct: regionDemandAdjustedTotal > 0 ? row.adjustedCount / regionDemandAdjustedTotal : 0,
   }));
 
-  const devices = deviceRows.map((row) => ({
+  const deviceRowsFromGa = deviceRows.map((row) => ({
     device: row.dimensionValues?.[0]?.value || "unknown",
     users: parseInt(row.metricValues?.[0]?.value || "0", 10),
     sessions: parseInt(row.metricValues?.[1]?.value || "0", 10),
     engagementRate: parseFloat(row.metricValues?.[2]?.value || "0"),
   }));
+  const inferredDeviceRows = (() => {
+    const devicesByCategory = new Map<string, { actorKeys: Set<string>; sessionKeys: Set<string>; engagementEvents: number; totalEvents: number }>();
+    const upsertDevice = (category: string, actorKey: string, sessionKey: string, engaged: boolean) => {
+      const entry = devicesByCategory.get(category) || {
+        actorKeys: new Set<string>(),
+        sessionKeys: new Set<string>(),
+        engagementEvents: 0,
+        totalEvents: 0,
+      };
+      entry.actorKeys.add(actorKey);
+      entry.sessionKeys.add(sessionKey);
+      entry.totalEvents += 1;
+      if (engaged) entry.engagementEvents += 1;
+      devicesByCategory.set(category, entry);
+    };
+
+    analyticsEventFacts.forEach((doc) => {
+      const data = doc.data() as Record<string, unknown>;
+      const timestamp = toNumber(data.timestamp);
+      if (timestamp < startMs || timestamp > endMs) return;
+      const category = readDeviceCategory(data);
+      upsertDevice(
+        category,
+        readActorKey(data, `fact:${doc.id}`),
+        readSessionKey(data, readActorKey(data, `fact:${doc.id}`)),
+        Boolean(toNumber(data.durationMs) || toStringValue(data.eventName).includes("engaged")),
+      );
+    });
+
+    guestBatchDocs.forEach((doc) => {
+      const data = doc.data() as Record<string, unknown>;
+      const events = Array.isArray(data.events) ? (data.events as Array<Record<string, unknown>>) : [];
+      const docCategory = readDeviceCategory(data);
+      events.forEach((event, index) => {
+        const timestamp = toNumber(event.timestamp) || toNumber(data.receivedAtMs);
+        if (timestamp < startMs || timestamp > endMs) return;
+        const category = readDeviceCategory(event);
+        upsertDevice(
+          category === "unknown" ? docCategory : category,
+          readActorKey(event, readActorKey(data, `guest-batch:${doc.id}`)),
+          readSessionKey(event, readSessionKey(data, `guest-batch:${doc.id}`)),
+          toStringValue(event.type) !== "page_view" || toNumber(event.durationMs) > 0 || index > 0,
+        );
+      });
+    });
+
+    guestSessionDocs.forEach((doc) => {
+      const data = doc.data() as Record<string, unknown>;
+      const anchorTimestamp = toNumber(data.lastReceivedAtMs)
+        || toNumber(data.firstEventAtMs)
+        || toNumber(data.lastEventAt)
+        || toNumber(data.updatedAt);
+      if (anchorTimestamp > 0 && (anchorTimestamp < startMs || anchorTimestamp > endMs)) return;
+      const sessionKey = readSessionKey(data, `guest-session:${doc.id}`);
+      upsertDevice(readDeviceCategory(data), readActorKey(data, sessionKey), sessionKey, toNumber(data.eventCount) > 1);
+    });
+
+    sessionFacts.forEach((doc) => {
+      const data = doc.data() as Record<string, unknown>;
+      const startedCount = Math.max(0, toNumber(data.startedCount));
+      if (startedCount <= 0) return;
+      const anchorTimestamp = toNumber(data.firstEventAtMs)
+        || toNumber(data.firstEventAt)
+        || toNumber(data.lastEventAtMs)
+        || toNumber(data.lastEventAt);
+      if (anchorTimestamp > 0 && (anchorTimestamp < startMs || anchorTimestamp > endMs)) return;
+      upsertDevice(
+        readDeviceCategory(data),
+        readActorKey(data, `session-fact:${doc.id}`),
+        readSessionKey(data, `session-fact:${doc.id}`),
+        toNumber(data.completedCount) > 0 || toNumber(data.engagedCount) > 0,
+      );
+    });
+
+    return [...devicesByCategory.entries()]
+      .map(([device, entry]) => ({
+        device,
+        users: entry.actorKeys.size,
+        sessions: entry.sessionKeys.size,
+        engagementRate: entry.totalEvents > 0 ? entry.engagementEvents / entry.totalEvents : 0,
+      }))
+      .filter((row) => row.users > 0 || row.sessions > 0)
+      .sort((left, right) => right.users - left.users || right.sessions - left.sessions);
+  })();
+  const devices = deviceRowsFromGa.length > 0 ? deviceRowsFromGa : inferredDeviceRows;
 
   const gaPagesMap = new Map<string, { views: number; avgTime: number; engagementRate: number }>();
   pageRows.forEach((row) => {
