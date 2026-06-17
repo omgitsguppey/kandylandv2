@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-17T02:24:26.516Z
+Generated: 2026-06-17T23:07:21.043Z
 Status: pass
-Current head: 7cf1ea434bab50842a223111f99d5e10c215b49e
+Current head: 152fd438123eff5ca3025fa080b53cbf4d88dfa5
 
 ## Contract
 
@@ -53,7 +53,23 @@ Current head: 7cf1ea434bab50842a223111f99d5e10c215b49e
 
 ## Dirty Files
 
-- none
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
+- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
+- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx: real_source_change_needs_review
+- src/app/admin/analytics/page.tsx: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/server/admin-analytics-historical-validation.ts: real_source_change_needs_review
+- src/types/admin-analytics.ts: real_source_change_needs_review
+- tests/unit/admin-data-validation.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

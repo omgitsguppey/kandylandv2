@@ -308,6 +308,48 @@ describe("buildHistoricalValidationSummary", () => {
     expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("ready");
   });
 
+  it("keeps per-day launch recovery source labels without promoting GA4 to product truth", () => {
+    const summary = build({
+      selectedRange: "all",
+      gaPresentDayKeys: ["2026-05-01", "2026-05-02", "2026-05-03"],
+      snapshotPresentDayKeys: ["2026-05-01"],
+      legacyPresentDayKeys: ["2026-05-03"],
+      expectedDayKeys: ["2026-05-01", "2026-05-02", "2026-05-03"],
+      recentWindowDayKeys: ["2026-05-01", "2026-05-02", "2026-05-03"],
+    });
+    const coverage = summary.analyticsSourceHealth.launchHistoryCoverage;
+
+    expect(coverage?.sourceDayCounts).toMatchObject({
+      firstParty: 1,
+      ga4: 3,
+      historicalSnapshot: 1,
+      legacySupport: 1,
+    });
+    expect(coverage?.days).toEqual([
+      expect.objectContaining({
+        dayKey: "2026-05-01",
+        recovered: true,
+        confidence: "verified",
+        sourceCounts: expect.objectContaining({ first_party: 1, ga4: 1 }),
+      }),
+      expect.objectContaining({
+        dayKey: "2026-05-02",
+        recovered: true,
+        confidence: "fallback",
+        sourceCounts: expect.objectContaining({ first_party: 0, ga4: 1 }),
+        nextAction: expect.stringContaining("first-party"),
+      }),
+      expect.objectContaining({
+        dayKey: "2026-05-03",
+        recovered: true,
+        confidence: "fallback",
+        sourceCounts: expect.objectContaining({ first_party: 0, ga4: 1, legacySupport: 1 }),
+      }),
+    ]);
+    expect(coverage?.days[1]?.reason).toContain("external evidence only");
+    expect(summary.analyticsSourceHealth.sourceAgreement.state).toBe("failed");
+  });
+
   it("names partial or empty module coverage gaps with missing sources and validators", () => {
     const summary = build();
     const moduleCoverageCheck = summary.validations.find((check) => check.checkKey === "module_coverage");

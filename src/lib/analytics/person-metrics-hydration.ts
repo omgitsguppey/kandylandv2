@@ -962,7 +962,9 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-metric-display-accuracy.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/metric-display-accuracy.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/analytics-panel-hydration.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/launch-analytics-recovery.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/analytics-panel-hydration.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/launch-analytics-recovery.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "test_artifact_expected";
   if (
@@ -977,6 +979,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   }
   if (/^src\/lib\/admin-analytics\/panel-hydration-(contract|registry|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/release-readiness/live-panel-evidence-resolver.ts") return "real_source_change_needs_review";
   if (/^src\/lib\/release-readiness\/(live-evidence-gate-contract|live-evidence-resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";

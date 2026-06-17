@@ -861,10 +861,30 @@ export interface AnalyticsSourceHealth {
     recoveredDayCount: number;
     preLaunchIgnoredDayCount: number;
     sourceDayCounts: {
+      firstParty: number;
       ga4: number;
       historicalSnapshot: number;
       legacySupport: number;
     };
+    missingRanges: string[];
+    duplicateRanges: string[];
+    sourceOverlapRanges: string[];
+    days: Array<{
+      dayKey: string;
+      expected: true;
+      recovered: boolean;
+      sourceCounts: {
+        first_party: 0 | 1;
+        ga4: 0 | 1;
+        historicalSnapshot: 0 | 1;
+        legacySupport: 0 | 1;
+      };
+      internalAdminExcludedCount: number | null;
+      duplicateSourceCount: number;
+      confidence: "verified" | "mixed" | "partial" | "fallback" | "unknown";
+      reason: string;
+      nextAction: string;
+    }>;
     state: "available" | "partial" | "source_missing";
     reason: string;
   };

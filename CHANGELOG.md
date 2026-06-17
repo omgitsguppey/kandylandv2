@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.79 - 2026-06-17
+- Clearer Admin Analytics source status
+- Clarified when analytics history is recovered from first-party sources.
+- Kept GA4 and legacy analytics labeled as evidence instead of product truth.
+- Improved Admin Analytics source labels so missing data is not shown as zero.
+
 ## 1.5.78 - 2026-06-17
 - Improved drops and viewer reliability
 - Improved drop and viewer reliability so usage states stay easier to understand.
@@ -141,12 +147,6 @@ Showing the last 25 public updates in pages of 5.
 - Updated Beta readiness evidence so stale or missing launch evidence stays visible.
 
 ## 1.5.55 - 2026-06-04
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
-
-## 1.5.54 - 2026-06-04
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
 - Improved guest analytics and admin truth checks behind the scenes.

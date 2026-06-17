@@ -1525,6 +1525,41 @@ export function useAdminAnalyticsState() {
     launchHistoryCoverage?.firstRecoveredDayKey
       ? `${launchHistoryCoverage.state === "available" ? "Launch history recovered" : "Launch history partially recovered"} since ${launchHistoryCoverage.firstRecoveredDayKey}`
       : null;
+  const launchSourceCounts = launchHistoryCoverage?.sourceDayCounts;
+  const launchRecoverySourceLabel = launchSourceCounts
+    ? launchSourceCounts.firstParty > 0 && launchSourceCounts.ga4 > 0
+      ? "Mixed"
+      : launchSourceCounts.firstParty > 0
+        ? "First-party"
+        : launchSourceCounts.ga4 > 0
+          ? "GA4"
+          : launchSourceCounts.legacySupport > 0
+            ? "Fallback"
+            : "Unknown"
+    : "Unknown";
+  const sourceAgreementState =
+    historicalOverviewResponse?.analyticsSourceHealth?.sourceAgreement.state ??
+    historicalResponse?.analyticsSourceHealth?.sourceAgreement.state ??
+    "not_enough_sources";
+  const launchRecoveryConfidenceLabel =
+    sourceAgreementState === "pass" && launchHistoryCoverage?.state === "available"
+      ? "verified"
+      : sourceAgreementState === "failed"
+        ? "review"
+        : launchHistoryCoverage?.state === "partial" || sourceAgreementState === "review"
+          ? "partial"
+          : launchHistoryCoverage?.state === "source_missing"
+            ? "unknown"
+            : "partial";
+  const launchRecoverySummary = {
+    sourceLabel: launchRecoverySourceLabel,
+    confidenceLabel: launchRecoveryConfidenceLabel,
+    coverageLabel: launchHistoryCoverage
+      ? `${launchHistoryCoverage.recoveredDayCount}/${launchHistoryCoverage.expectedDayCount} launch days`
+      : "Coverage waiting",
+    missingRangeCount: launchHistoryCoverage?.missingRanges.length ?? 0,
+    sourceAgreementState,
+  };
 
   const historicalSourceLabel =
     historicalOverviewResponse && !historicalError
@@ -3431,6 +3466,7 @@ export function useAdminAnalyticsState() {
     rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter,
     clearAllFilters, clearViewerFilter,
     showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing, historicalTruthState, historicalSourceLabel, historicalOverviewSourceLabel, visibleDegradedCopy,
+    launchRecoverySummary,
     adminAnalyticsSourceHierarchy, panelHydration,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals, authOutcomeModel,
     authOnboardingDiscrepancies, onboardingVelocityModel, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,

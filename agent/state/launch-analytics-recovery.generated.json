@@ -1,0 +1,160 @@
+{
+  "reportKey": "launch-analytics-recovery",
+  "generatedAtUtc": "2026-06-17T23:07:20.725Z",
+  "currentHead": "152fd438123eff5ca3025fa080b53cbf4d88dfa5",
+  "evidenceClass": "generated_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "rawSensitiveDataAllowed": false,
+  "status": "source_agreement_failed",
+  "sourceMap": {
+    "primaryTruth": "first_party",
+    "secondSource": "ga4",
+    "fallbackSources": [
+      "historicalSnapshot",
+      "legacySupport"
+    ],
+    "firstPartyOwns": [
+      "user identity",
+      "person metrics",
+      "purchases",
+      "unlocks",
+      "drops",
+      "watch",
+      "tasks",
+      "creator/admin actions"
+    ],
+    "ga4Owns": [
+      "sessions",
+      "views",
+      "device mix",
+      "region demand",
+      "top paths",
+      "acquisition-style comparison"
+    ],
+    "ga4CannotClear": [
+      "wallet",
+      "GumDrop balance",
+      "unlock entitlement",
+      "creator revenue",
+      "person-level product truth"
+    ]
+  },
+  "launchHistoryCoverage": {
+    "expectedDayCount": 3,
+    "recoveredDayCount": 3,
+    "sourceDayCounts": {
+      "first_party": 1,
+      "ga4": 3,
+      "historicalSnapshot": 1,
+      "legacySupport": 1
+    },
+    "dayCoverage": [
+      {
+        "dayKey": "2026-05-01",
+        "expected": true,
+        "recovered": true,
+        "sourceCounts": {
+          "first_party": 1,
+          "ga4": 1,
+          "historicalSnapshot": 1,
+          "legacySupport": 0
+        },
+        "internalAdminExcludedCount": null,
+        "duplicateSourceCount": 1,
+        "confidence": "verified",
+        "reason": "First-party snapshot evidence is present for this day; GA4 remains comparison evidence only.",
+        "nextAction": "Use first-party truth for identity, purchase, unlock, watch, task, creator, and admin metrics; compare GA4 only as second source."
+      },
+      {
+        "dayKey": "2026-05-02",
+        "expected": true,
+        "recovered": true,
+        "sourceCounts": {
+          "first_party": 0,
+          "ga4": 1,
+          "historicalSnapshot": 0,
+          "legacySupport": 0
+        },
+        "internalAdminExcludedCount": null,
+        "duplicateSourceCount": 0,
+        "confidence": "fallback",
+        "reason": "Only external or legacy evidence is present for this day; it cannot overwrite first-party product truth.",
+        "nextAction": "Recover first-party materialization before promoting this day to canonical product analytics."
+      },
+      {
+        "dayKey": "2026-05-03",
+        "expected": true,
+        "recovered": true,
+        "sourceCounts": {
+          "first_party": 0,
+          "ga4": 1,
+          "historicalSnapshot": 0,
+          "legacySupport": 1
+        },
+        "internalAdminExcludedCount": null,
+        "duplicateSourceCount": 1,
+        "confidence": "fallback",
+        "reason": "Only external or legacy evidence is present for this day; it cannot overwrite first-party product truth.",
+        "nextAction": "Recover first-party materialization before promoting this day to canonical product analytics."
+      }
+    ],
+    "missingRanges": {
+      "ga4": [],
+      "historical_snapshot": [
+        "2026-05-02",
+        "2026-05-03"
+      ],
+      "legacy_support": [
+        "2026-05-01",
+        "2026-05-02"
+      ]
+    },
+    "duplicateRanges": [],
+    "sourceOverlapRanges": [
+      "2026-05-01",
+      "2026-05-03"
+    ],
+    "staleInputEvidence": true,
+    "sourceAgreementEvidenceHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136"
+  },
+  "sourceAgreement": {
+    "comparedSources": [
+      "ga4",
+      "historical_snapshot",
+      "legacy_support"
+    ],
+    "comparedMetrics": [
+      "day_bucket_presence",
+      "coverage_delta_pct"
+    ],
+    "tolerance": "10% day coverage delta triggers review; 25% day coverage delta or repeated disagreement fails.",
+    "disagreementCount": 3,
+    "maxDeltaPct": 67,
+    "state": "failed",
+    "classifications": [
+      "stale_generated_evidence"
+    ],
+    "nextAction": "Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity."
+  },
+  "adminPanelConnection": {
+    "totalPanels": 41,
+    "hydratedPanels": 10,
+    "sourceMissingPanels": 0,
+    "materializerMissingPanels": 0,
+    "bridgeMissingPanels": 0,
+    "runtimeEvidenceRequiredPanels": 2,
+    "externalRequiredPanels": 4
+  },
+  "nextExactSteps": [
+    "Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party snapshots before chart promotion.",
+    "Compare GA4 day buckets only as second-source evidence; do not average or overwrite first-party product metrics.",
+    "Keep missing days labeled source missing until a bounded source window proves zero.",
+    "Repair source agreement before treating admin charts as canonical launch-history truth."
+  ],
+  "validationFailures": []
+}

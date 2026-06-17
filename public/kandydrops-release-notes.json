@@ -1,11 +1,62 @@
 {
-  "currentVersion": "1.5.78",
-  "betaReleaseCounter": 578,
+  "currentVersion": "1.5.79",
+  "betaReleaseCounter": 579,
   "channel": "beta",
-  "generatedAt": "2026-06-17T22:43:35.450Z",
-  "generatedAtUtc": "2026-06-17T22:43:35.450Z",
-  "lastCommitSha": "75952c946f9288778857f3dec0c77216cc4af36e",
+  "generatedAt": "2026-06-17T23:13:47.477Z",
+  "generatedAtUtc": "2026-06-17T23:13:47.477Z",
+  "lastCommitSha": "66b3ec000ad4eb3ca531292e2d4079a065fe973c",
   "notes": [
+    {
+      "version": "1.5.79",
+      "previousVersion": "1.5.78",
+      "betaReleaseCounter": 579,
+      "previousBetaReleaseCounter": 578,
+      "commitSha": "66b3ec000ad4eb3ca531292e2d4079a065fe973c",
+      "commitTitle": "analytics: normalize launch recovery sources",
+      "commitCount": 1,
+      "commitShas": [
+        "66b3ec000ad4eb3ca531292e2d4079a065fe973c"
+      ],
+      "committedAt": "2026-06-17T23:11:39.000Z",
+      "generatedAt": "2026-06-17T23:13:47.476Z",
+      "committedAtUtc": "2026-06-17T23:11:39.000Z",
+      "generatedAtUtc": "2026-06-17T23:13:47.476Z",
+      "updatedAtUtc": "2026-06-17T23:13:47.476Z",
+      "category": "Fixed",
+      "title": "Clearer Admin Analytics source status",
+      "summary": "Improved Admin Analytics so source agreement, launch history recovery, and missing evidence states are easier to understand.",
+      "userFacingTitle": "Clearer Admin Analytics source status",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Clarified when analytics history is recovered from first-party sources.",
+        "Kept GA4 and legacy analytics labeled as evidence instead of product truth.",
+        "Improved Admin Analytics source labels so missing data is not shown as zero."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/event-translation-bridge.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/person-metrics-hydration.generated.json",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/event-translation-bridge.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/person-metrics-hydration.md",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/types/admin-analytics.ts",
+        "tests/unit/admin-data-validation.spec.ts"
+      ],
+      "sourceCommit": "66b3ec000ad4eb3ca531292e2d4079a065fe973c"
+    },
     {
       "version": "1.5.78",
       "previousVersion": "1.5.77",
@@ -2537,53 +2588,6 @@
         "tests/unit/admin-analytics-commerce-mobile.spec.ts"
       ],
       "sourceCommit": "01b03cb4c3aedf644f96f5dd7a8d54e492d33195"
-    },
-    {
-      "version": "1.5.54",
-      "previousVersion": "1.5.53",
-      "betaReleaseCounter": 554,
-      "previousBetaReleaseCounter": 553,
-      "commitSha": "03fcb3339f8258ffadcacb2d1d3069025cedc7f1",
-      "commitTitle": "fix(admin): add compact watch depth analytics modes",
-      "commitCount": 2,
-      "commitShas": [
-        "26b2b418bde3429af2297dbab2761d75fa0933e5",
-        "03fcb3339f8258ffadcacb2d1d3069025cedc7f1"
-      ],
-      "committedAt": "2026-06-04T00:42:29.000Z",
-      "generatedAt": "2026-06-04T00:42:45.700Z",
-      "committedAtUtc": "2026-06-04T00:42:29.000Z",
-      "generatedAtUtc": "2026-06-04T00:42:45.700Z",
-      "updatedAtUtc": "2026-06-04T00:42:45.700Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-commerce-mobile.spec.ts"
-      ],
-      "sourceCommit": "03fcb3339f8258ffadcacb2d1d3069025cedc7f1"
     }
   ]
 }

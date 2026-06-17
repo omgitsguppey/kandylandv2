@@ -234,7 +234,7 @@ const AdminTaskAndNotificationModules = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalTruthState, historicalSourceLabel, analyticsOverviewDisplayMetrics, adminAnalyticsSourceHierarchy } = state;
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalSourceLabel, analyticsOverviewDisplayMetrics, adminAnalyticsSourceHierarchy } = state;
   const [mobileViewMode, setMobileViewMode] = useState<AnalyticsViewMode>("chart");
   const overviewSnapshotUnavailable = isKnownOverviewSnapshotUnavailable(blockingAnalyticsError);
   const sourceHierarchy: AdminAnalyticsSourceHierarchySummary = adminAnalyticsSourceHierarchy ?? {
@@ -243,15 +243,13 @@ export default function AdminAnalyticsPage() {
   };
   const sourceHierarchyStatusLabel = formatAnalyticsShellStateLabel(sourceHierarchy.status);
   const sourceHierarchySummary = formatSourceHierarchySummary(sourceHierarchy);
-  const liveFeedStatusLabel = formatAnalyticsShellStateLabel(liveFeedStatus);
-  const historicalQualityLabel = formatAnalyticsShellStateLabel(historicalTruthState);
   const dataStatusSummary = [
     `Last updated: ${liveSnapshotLabel}`,
-    `Historical: ${historicalSnapshotLabel}`,
+    `Coverage: ${state.launchRecoverySummary.coverageLabel}`,
   ];
   const sourceQualitySummary = [
-    `Source: ${liveFeedStatusLabel}`,
-    `Quality: ${historicalQualityLabel}`,
+    `Source: ${state.launchRecoverySummary.sourceLabel}`,
+    `Confidence: ${state.launchRecoverySummary.confidenceLabel}`,
   ];
   const primaryBlockingAnalyticsError = overviewSnapshotUnavailable ? null : blockingAnalyticsError;
   const visibleOverviewDegradedCopy = (visibleDegradedCopy ?? []).filter(
@@ -487,6 +485,7 @@ export default function AdminAnalyticsPage() {
             </p>
             <p className="mt-1 text-[11px] leading-4 text-gray-400">
               {launchRecoveryRange?.label ?? "All"} keeps launch history available. Missing stays labeled; estimates are not zero.
+              {state.launchRecoverySummary.missingRangeCount > 0 ? ` ${state.launchRecoverySummary.missingRangeCount} range(s) still need recovery.` : ""}
             </p>
           </div>
           <AnalyticsViewModeToggle value={mobileViewMode} onChange={setMobileViewMode} />

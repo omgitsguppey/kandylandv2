@@ -152,7 +152,23 @@ function buildInternalPhaseOneBullets() {
 }
 
 function buildAcceptedPatchCopy(titles: string[], changedFiles: string[], descriptor: ReturnType<typeof buildReleaseDescriptor>, userFacing: boolean) {
+  const normalized = `${titles.join(" ")} ${changedFiles.join(" ")}`.toLowerCase();
+  const adminAnalyticsPatch = /\badmin\b/u.test(normalized) && /\banalytics\b/u.test(normalized);
+
   if (!userFacing) {
+    if (adminAnalyticsPatch) {
+      return {
+        title: "Clearer Admin Analytics source status",
+        summary: "Improved Admin Analytics so source agreement, launch history recovery, and missing evidence states are easier to understand.",
+        surfaceCategory: "App experience" as const,
+        bullets: [
+          "Clarified when analytics history is recovered from first-party sources.",
+          "Kept GA4 and legacy analytics labeled as evidence instead of product truth.",
+          "Improved Admin Analytics source labels so missing data is not shown as zero.",
+        ],
+      };
+    }
+
     return {
       title: "Bug fixes and general improvements",
       summary: "Bug fixes and general improvements.",
@@ -161,7 +177,6 @@ function buildAcceptedPatchCopy(titles: string[], changedFiles: string[], descri
     };
   }
 
-  const normalized = `${titles.join(" ")} ${changedFiles.join(" ")}`.toLowerCase();
   const mixedPhaseOneBatch = descriptor.affectedSurfaces.length > 2
     || /\b(analytics|readiness|launch|evidence|score|hardening)\b/u.test(normalized);
 

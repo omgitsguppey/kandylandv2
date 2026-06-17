@@ -574,6 +574,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (/^tests\/unit\/(admin-debug-control-tower|admin-debug-control-tower-component|debug-panel-output-triage)\.spec\.tsx?$/u.test(normalized)) return "test_artifact_expected";
   if (/^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
   if (normalized === "tests/unit/admin-analytics-page.spec.tsx") return "test_artifact_expected";
   if (normalized === "src/lib/agent-score/core.ts") return "real_source_change_needs_review";
   if (/^agent\/state\/(debug-panel-output-triage|debug-runtime-evidence|event-translation-bridge|person-metrics-hydration|public-beta-score|repo-spring-cleaning-rewire|targeted-behavior-evidence|telemetry-admin-debug-truth|user-facing-feature-connection-audit)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
@@ -728,6 +729,8 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/analytics-panel-hydration.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/analytics-panel-hydration.md") return "documentation_artifact_expected";
+  if (normalized === "agent/state/launch-analytics-recovery.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/launch-analytics-recovery.md") return "documentation_artifact_expected";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/drop-watch-time-contract.ts") return "real_source_change_needs_review";

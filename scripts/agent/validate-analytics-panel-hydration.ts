@@ -11,6 +11,8 @@ import { buildLivePanelEvidenceReport } from "@/lib/release-readiness/live-panel
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/analytics-panel-hydration.generated.json";
 const DOC_PATH = "docs/agent-truth/analytics-panel-hydration.md";
+const LAUNCH_RECOVERY_REPORT_PATH = "agent/state/launch-analytics-recovery.generated.json";
+const LAUNCH_RECOVERY_DOC_PATH = "docs/agent-truth/launch-analytics-recovery.md";
 
 function run(command: string, args: readonly string[]) {
   try {
@@ -30,6 +32,18 @@ function write(path: string, value: string) {
   const fullPath = join(ROOT, path);
   mkdirSync(dirname(fullPath), { recursive: true });
   writeFileSync(fullPath, value, "utf8");
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function asStringArray(value: unknown) {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+}
+
+function asNumber(value: unknown, fallback = 0) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
 function changedFiles() {
@@ -65,6 +79,9 @@ function classifyDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/live-evidence-gate-replacement.md") return "documentation_artifact_expected";
   if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/lib/server/admin-analytics-historical-validation.ts") return "real_source_change_needs_review";
+  if (normalized === "src/types/admin-analytics.ts") return "real_source_change_needs_review";
+  if (normalized === "tests/unit/admin-data-validation.spec.ts") return "test_artifact_expected";
   if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
@@ -89,6 +106,8 @@ function classifyDirtyFile(path: string) {
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "agent/state/analytics-admin-reorg.generated.json") return "analytics_admin_reorg_artifact_expected";
   if (normalized === "docs/agent-truth/analytics-admin-reorg.md") return "analytics_admin_reorg_artifact_expected";
+  if (normalized === LAUNCH_RECOVERY_REPORT_PATH) return "launch_analytics_recovery_artifact_expected";
+  if (normalized === LAUNCH_RECOVERY_DOC_PATH) return "launch_analytics_recovery_artifact_expected";
   if (
     normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts" ||
     normalized === "tests/unit/analytics-hydration-consolidation.spec.ts" ||
@@ -265,6 +284,200 @@ function compactReport(
   };
 }
 
+function buildLaunchAnalyticsRecoveryReport(input: {
+  generatedAtUtc: string;
+  currentHead: string;
+  panelReport: ReturnType<typeof buildAnalyticsPanelHydrationReport>;
+}) {
+  const sourceAgreementReport = readJson("agent/state/source-agreement-failure-detail.generated.json");
+  const sourceAgreementHead = typeof sourceAgreementReport?.currentHead === "string" ? sourceAgreementReport.currentHead : null;
+  const sourceAgreementDetail = asRecord(sourceAgreementReport?.detail);
+  const coverageRows = Array.isArray(sourceAgreementDetail.perSourceCoverage)
+    ? sourceAgreementDetail.perSourceCoverage.map((entry) => asRecord(entry))
+    : [];
+  const daysBySource = new Map<string, Set<string>>();
+  for (const row of coverageRows) {
+    const source = typeof row.source === "string" ? row.source : "unknown";
+    daysBySource.set(source, new Set(asStringArray(row.days)));
+  }
+
+  const ga4Days = daysBySource.get("ga4") ?? new Set<string>();
+  const historicalSnapshotDays = daysBySource.get("historical_snapshot") ?? new Set<string>();
+  const legacySupportDays = daysBySource.get("legacy_support") ?? new Set<string>();
+  const expectedDays = [...new Set([...ga4Days, ...historicalSnapshotDays, ...legacySupportDays])].sort();
+  const dayCoverage = expectedDays.map((dayKey) => {
+    const hasFirstParty = historicalSnapshotDays.has(dayKey);
+    const hasGa4 = ga4Days.has(dayKey);
+    const hasLegacy = legacySupportDays.has(dayKey);
+    const recovered = hasFirstParty || hasGa4 || hasLegacy;
+    const confidence = hasFirstParty && hasGa4
+      ? "verified"
+      : hasFirstParty && hasLegacy
+        ? "mixed"
+        : hasFirstParty
+          ? "partial"
+          : hasGa4 || hasLegacy
+            ? "fallback"
+            : "unknown";
+    return {
+      dayKey,
+      expected: true,
+      recovered,
+      sourceCounts: {
+        first_party: hasFirstParty ? 1 : 0,
+        ga4: hasGa4 ? 1 : 0,
+        historicalSnapshot: hasFirstParty ? 1 : 0,
+        legacySupport: hasLegacy ? 1 : 0,
+      },
+      internalAdminExcludedCount: null,
+      duplicateSourceCount: Math.max(0, Number(hasFirstParty) + Number(hasGa4) + Number(hasLegacy) - 1),
+      confidence,
+      reason: recovered
+        ? hasFirstParty
+          ? "First-party snapshot evidence is present for this day; GA4 remains comparison evidence only."
+          : "Only external or legacy evidence is present for this day; it cannot overwrite first-party product truth."
+        : "No source evidence is present for this day.",
+      nextAction: hasFirstParty
+        ? "Use first-party truth for identity, purchase, unlock, watch, task, creator, and admin metrics; compare GA4 only as second source."
+        : "Recover first-party materialization before promoting this day to canonical product analytics.",
+    };
+  });
+  const sourceDayCounts = {
+    first_party: historicalSnapshotDays.size,
+    ga4: ga4Days.size,
+    historicalSnapshot: historicalSnapshotDays.size,
+    legacySupport: legacySupportDays.size,
+  };
+  const rawSourceAgreementState = sourceAgreementDetail.sourceAgreementStatus;
+  const sourceAgreementState = typeof rawSourceAgreementState === "string"
+    ? rawSourceAgreementState
+    : asNumber(sourceAgreementDetail.disagreementCount, 0) > 1 || asNumber(sourceAgreementDetail.maxDeltaPct, 0) > 25
+      ? "failed"
+      : asNumber(sourceAgreementDetail.disagreementCount, 0) > 0
+      ? "review"
+      : expectedDays.length > 0 ? "pass" : "not_enough_sources";
+  const staleEvidence = sourceAgreementHead !== null && sourceAgreementHead !== input.currentHead;
+  const status = expectedDays.length === 0
+    ? "source_evidence_missing"
+    : sourceAgreementState === "failed" || sourceAgreementState === "fail"
+      ? "source_agreement_failed"
+      : staleEvidence
+        ? "stale_evidence_review"
+        : "review";
+
+  return {
+    reportKey: "launch-analytics-recovery",
+    generatedAtUtc: input.generatedAtUtc,
+    currentHead: input.currentHead,
+    evidenceClass: "generated_snapshot",
+    canClearSourceGate: true,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
+    productionReadsPerformed: false,
+    providerCallsPerformed: false,
+    rawSensitiveDataAllowed: false,
+    status,
+    sourceMap: {
+      primaryTruth: "first_party",
+      secondSource: "ga4",
+      fallbackSources: ["historicalSnapshot", "legacySupport"],
+      firstPartyOwns: ["user identity", "person metrics", "purchases", "unlocks", "drops", "watch", "tasks", "creator/admin actions"],
+      ga4Owns: ["sessions", "views", "device mix", "region demand", "top paths", "acquisition-style comparison"],
+      ga4CannotClear: ["wallet", "GumDrop balance", "unlock entitlement", "creator revenue", "person-level product truth"],
+    },
+    launchHistoryCoverage: {
+      expectedDayCount: expectedDays.length,
+      recoveredDayCount: dayCoverage.filter((day) => day.recovered).length,
+      sourceDayCounts,
+      dayCoverage,
+      missingRanges: asRecord(sourceAgreementDetail.missingDaysBySource),
+      duplicateRanges: [],
+      sourceOverlapRanges: dayCoverage.filter((day) => day.duplicateSourceCount > 0).map((day) => day.dayKey),
+      staleInputEvidence: staleEvidence,
+      sourceAgreementEvidenceHead: sourceAgreementHead,
+    },
+    sourceAgreement: {
+      comparedSources: asStringArray(sourceAgreementDetail.comparedSources),
+      comparedMetrics: asStringArray(sourceAgreementDetail.comparedMetrics),
+      tolerance: "10% day coverage delta triggers review; 25% day coverage delta or repeated disagreement fails.",
+      disagreementCount: asNumber(sourceAgreementDetail.disagreementCount, 0),
+      maxDeltaPct: typeof sourceAgreementDetail.maxDeltaPct === "number" ? sourceAgreementDetail.maxDeltaPct : null,
+      state: sourceAgreementState,
+      classifications: staleEvidence
+        ? ["stale_generated_evidence"]
+        : expectedDays.length < 2
+          ? ["not_enough_sources"]
+          : ["date_range_mismatch"],
+      nextAction: typeof sourceAgreementDetail.nextAction === "string"
+        ? sourceAgreementDetail.nextAction
+        : "Run the all-time historical analytics source path and keep GA4 as second-source evidence.",
+    },
+    adminPanelConnection: {
+      totalPanels: input.panelReport.totalPanels,
+      hydratedPanels: input.panelReport.hydratedPanels,
+      sourceMissingPanels: input.panelReport.sourceMissingPanels,
+      materializerMissingPanels: input.panelReport.materializerMissingPanels,
+      bridgeMissingPanels: input.panelReport.bridgeMissingPanels,
+      runtimeEvidenceRequiredPanels: input.panelReport.runtimeEvidenceRequiredPanels,
+      externalRequiredPanels: input.panelReport.externalRequiredPanels,
+    },
+    nextExactSteps: [
+      "Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party snapshots before chart promotion.",
+      "Compare GA4 day buckets only as second-source evidence; do not average or overwrite first-party product metrics.",
+      "Keep missing days labeled source missing until a bounded source window proves zero.",
+      "Repair source agreement before treating admin charts as canonical launch-history truth.",
+    ],
+    validationFailures: [],
+  };
+}
+
+function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsRecoveryReport>) {
+  return [
+    "# Launch Analytics Recovery",
+    "",
+    `Generated: ${report.generatedAtUtc}`,
+    `Current head: ${report.currentHead}`,
+    `Status: ${report.status}`,
+    "",
+    "## Source Order",
+    "",
+    "- First-party/user activity is primary product truth.",
+    "- GA4 is second-source evidence for sessions, views, device mix, regions, top paths, and acquisition-like comparisons.",
+    "- Historical snapshots and legacy support can explain gaps, but they do not overwrite first-party user, purchase, unlock, watch, task, creator, admin, wallet, or GumDrop truth.",
+    "",
+    "## Launch Coverage",
+    "",
+    `- Recovered days: ${report.launchHistoryCoverage.recoveredDayCount}/${report.launchHistoryCoverage.expectedDayCount}`,
+    `- First-party days: ${report.launchHistoryCoverage.sourceDayCounts.first_party}`,
+    `- GA4 days: ${report.launchHistoryCoverage.sourceDayCounts.ga4}`,
+    `- Legacy support days: ${report.launchHistoryCoverage.sourceDayCounts.legacySupport}`,
+    `- Stale input evidence: ${report.launchHistoryCoverage.staleInputEvidence ? "yes" : "no"}`,
+    "",
+    "## Source Agreement",
+    "",
+    `- State: ${String(report.sourceAgreement.state)}`,
+    `- Compared sources: ${report.sourceAgreement.comparedSources.join(", ") || "none"}`,
+    `- Disagreements: ${report.sourceAgreement.disagreementCount}`,
+    `- Max delta: ${report.sourceAgreement.maxDeltaPct ?? "unknown"}`,
+    `- Next action: ${report.sourceAgreement.nextAction}`,
+    "",
+    "## Admin Panel Connection",
+    "",
+    `- Hydrated panels: ${report.adminPanelConnection.hydratedPanels}/${report.adminPanelConnection.totalPanels}`,
+    `- Source missing: ${report.adminPanelConnection.sourceMissingPanels}`,
+    `- Materializer missing: ${report.adminPanelConnection.materializerMissingPanels}`,
+    `- Bridge missing: ${report.adminPanelConnection.bridgeMissingPanels}`,
+    `- Runtime evidence required: ${report.adminPanelConnection.runtimeEvidenceRequiredPanels}`,
+    `- External evidence required: ${report.adminPanelConnection.externalRequiredPanels}`,
+    "",
+    "## Next Steps",
+    "",
+    ...report.nextExactSteps.map((step) => `- ${step}`),
+    "",
+  ].join("\n");
+}
+
 function main() {
   const generatedAtUtc = new Date().toISOString();
   const currentHead = run("git", ["rev-parse", "HEAD"]) || "unknown";
@@ -290,6 +503,9 @@ function main() {
 
   write(REPORT_PATH, `${JSON.stringify(compactReport(report, livePanelEvidence, validationFailures), null, 2)}\n`);
   write(DOC_PATH, renderDoc(finalReport));
+  const launchRecoveryReport = buildLaunchAnalyticsRecoveryReport({ generatedAtUtc, currentHead, panelReport: report });
+  write(LAUNCH_RECOVERY_REPORT_PATH, `${JSON.stringify(launchRecoveryReport, null, 2)}\n`);
+  write(LAUNCH_RECOVERY_DOC_PATH, renderLaunchRecoveryDoc(launchRecoveryReport));
 
   if (validationFailures.length > 0) {
     console.error("analytics-panel-hydration validation failed:");

@@ -74,10 +74,30 @@ export interface AnalyticsSourceHealth {
     recoveredDayCount: number;
     preLaunchIgnoredDayCount: number;
     sourceDayCounts: {
+      firstParty: number;
       ga4: number;
       historicalSnapshot: number;
       legacySupport: number;
     };
+    missingRanges: string[];
+    duplicateRanges: string[];
+    sourceOverlapRanges: string[];
+    days: Array<{
+      dayKey: string;
+      expected: true;
+      recovered: boolean;
+      sourceCounts: {
+        first_party: 0 | 1;
+        ga4: 0 | 1;
+        historicalSnapshot: 0 | 1;
+        legacySupport: 0 | 1;
+      };
+      internalAdminExcludedCount: number | null;
+      duplicateSourceCount: number;
+      confidence: "verified" | "mixed" | "partial" | "fallback" | "unknown";
+      reason: string;
+      nextAction: string;
+    }>;
     state: "available" | "partial" | "source_missing";
     reason: string;
   };
@@ -111,6 +131,94 @@ export interface AnalyticsSourceHealth {
     state: "ready" | "partial" | "source_disagreement" | "gap_detected" | "unavailable";
     reason: string;
   };
+}
+
+function collapseDayRanges(days: string[]) {
+  const sorted = [...new Set(days)].sort();
+  const ranges: string[] = [];
+  let start: string | null = null;
+  let previous: string | null = null;
+
+  const nextDay = (dayKey: string) => {
+    const next = new Date(`${dayKey}T00:00:00.000Z`);
+    next.setUTCDate(next.getUTCDate() + 1);
+    return next.toISOString().slice(0, 10);
+  };
+
+  for (const dayKey of sorted) {
+    if (!start) {
+      start = dayKey;
+      previous = dayKey;
+      continue;
+    }
+
+    if (previous && dayKey === nextDay(previous)) {
+      previous = dayKey;
+      continue;
+    }
+
+    ranges.push(start === previous ? start : `${start}..${previous}`);
+    start = dayKey;
+    previous = dayKey;
+  }
+
+  if (start) ranges.push(start === previous ? start : `${start}..${previous}`);
+  return ranges;
+}
+
+function buildLaunchHistoryDayCoverage(input: {
+  expectedDays: string[];
+  gaPresentDays: Set<string>;
+  snapshotPresentDays: Set<string>;
+  legacyPresentDays: Set<string>;
+}) {
+  return input.expectedDays.map((dayKey) => {
+    const hasGa4 = input.gaPresentDays.has(dayKey);
+    const hasFirstParty = input.snapshotPresentDays.has(dayKey);
+    const hasLegacy = input.legacyPresentDays.has(dayKey);
+    const sourceCount = Number(hasGa4) + Number(hasFirstParty) + Number(hasLegacy);
+    const recovered = sourceCount > 0;
+    const confidence: "verified" | "mixed" | "partial" | "fallback" | "unknown" = hasFirstParty && hasGa4
+      ? "verified"
+      : hasFirstParty && hasLegacy
+        ? "mixed"
+        : hasFirstParty
+          ? "partial"
+          : hasGa4 || hasLegacy
+            ? "fallback"
+            : "unknown";
+    const reason = !recovered
+      ? "No launch-history source bucket was found for this day."
+      : hasFirstParty && hasGa4
+        ? "First-party snapshot and GA4 second-source evidence both cover this day."
+        : hasFirstParty
+          ? "First-party snapshot covers this day; second-source agreement is incomplete."
+          : hasGa4
+            ? "GA4 covers this day as external evidence only; first-party truth is still required for identity, purchase, unlock, watch, and creator metrics."
+            : "Legacy support covers this day as fallback evidence only.";
+    const nextAction = !recovered
+      ? "Recover a first-party daily snapshot or keep this day marked source missing."
+      : hasFirstParty
+        ? "Use first-party truth for product metrics and compare GA4 only as second-source evidence."
+        : "Require first-party materialization before treating this day as canonical product truth.";
+
+    return {
+      dayKey,
+      expected: true as const,
+      recovered,
+      sourceCounts: {
+        first_party: hasFirstParty ? 1 as const : 0 as const,
+        ga4: hasGa4 ? 1 as const : 0 as const,
+        historicalSnapshot: hasFirstParty ? 1 as const : 0 as const,
+        legacySupport: hasLegacy ? 1 as const : 0 as const,
+      },
+      internalAdminExcludedCount: null,
+      duplicateSourceCount: Math.max(0, sourceCount - 1),
+      confidence,
+      reason,
+      nextAction,
+    };
+  });
 }
 
 export interface DataValidationPanelState {
@@ -485,6 +593,15 @@ function buildAnalyticsSourceHealth(input: {
           ? "No day-bucket evidence was available for the selected range."
           : "Availability, continuity, and source agreement checks passed for the selected chart range.";
   const lastRecoveredDayKey = observedExpectedDays[observedExpectedDays.length - 1] ?? null;
+  const launchHistoryDays = buildLaunchHistoryDayCoverage({
+    expectedDays,
+    gaPresentDays,
+    snapshotPresentDays,
+    legacyPresentDays,
+  });
+  const duplicateRangeDays = launchHistoryDays
+    .filter((day) => day.duplicateSourceCount > 0)
+    .map((day) => day.dayKey);
   const launchHistoryCoverage: AnalyticsSourceHealth["launchHistoryCoverage"] = input.selectedRange === "all"
     ? {
         rangeStartDayKey: expectedDays[0] ?? null,
@@ -495,10 +612,15 @@ function buildAnalyticsSourceHealth(input: {
         recoveredDayCount: unionPresentDays.size,
         preLaunchIgnoredDayCount,
         sourceDayCounts: {
+          firstParty: input.snapshotPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
           ga4: input.gaPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
           historicalSnapshot: input.snapshotPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
           legacySupport: input.legacyPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
         },
+        missingRanges: collapseDayRanges(missingDays),
+        duplicateRanges: [],
+        sourceOverlapRanges: collapseDayRanges(duplicateRangeDays),
+        days: launchHistoryDays,
         state: unionPresentDays.size === 0
           ? "source_missing"
           : missingDays.length === 0
