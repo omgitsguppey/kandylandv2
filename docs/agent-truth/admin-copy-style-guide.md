@@ -79,7 +79,7 @@ For Admin Overview, Admin Analytics, and Admin Debug launch work:
 - A verified snapshot means the main UI must not show generic Waiting.
 - Event Mix visible copy says ranked event activity; raw event keys belong in Debug.
 - Commerce copy must state that promo and bonus GD are excluded from revenue when revenue is shown.
-- Admin Overview truth labels are Updated, Showing last verified data, Refreshing overview, Live updates delayed, and Waiting for first overview snapshot.
+- Admin Overview truth labels are Updated, Showing last verified data, Refreshing overview, Snapshot refresh delayed, and Waiting for first overview snapshot.
 
 ## User Problem-State Copy
 

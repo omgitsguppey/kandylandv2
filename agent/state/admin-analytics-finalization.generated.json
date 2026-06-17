@@ -35,7 +35,7 @@
         "docs/agent-truth/admin-revenue-trends.md"
       ],
       "before": "Overview truth labels exposed server/listener wording such as Waiting for server truth, Live server truth, Realtime warming up, Server rollup only, and Fallback active.",
-      "after": "Overview uses operator copy: Updated, Showing last verified data, Refreshing overview, Live updates delayed, and Waiting for first overview snapshot.",
+      "after": "Overview uses operator copy: Updated, Showing last verified data, Refreshing overview, Snapshot refresh delayed, and Waiting for first overview snapshot.",
       "risk": "low"
     },
     {
