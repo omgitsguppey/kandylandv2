@@ -32,6 +32,13 @@ describe("admin users fixture boundary", () => {
     expect(source).toContain("<AdminTasksManager users={users} />");
   });
 
+  it("does not show an empty quoted search when no user filter is active", () => {
+    expect(source).toContain("No users match");
+    expect(source).toContain("No users found.");
+    expect(source).toContain("searchQuery.trim()");
+    expect(source).not.toContain('No users found matching &quot;{searchQuery}&quot;');
+  });
+
   it("guards user-management mutations behind real admin sessions", () => {
     expect(source).toContain("User status changes require a real admin session");
     expect(source).toContain("Username changes require a real admin session");

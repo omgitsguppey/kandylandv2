@@ -1165,7 +1165,9 @@ export default function UserManagementPage() {
                                     ) : filteredUsers.length === 0 ? (
                                         <tr>
                                             <td colSpan={8} className="p-8 text-center text-gray-500">
-                                                No users found matching &quot;{searchQuery}&quot;
+                                                {searchQuery.trim()
+                                                    ? <>No users match &quot;{searchQuery.trim()}&quot;.</>
+                                                    : "No users found."}
                                             </td>
                                         </tr>
                                     ) : (
