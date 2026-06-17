@@ -17,7 +17,7 @@ import {
   actorMarkerToTelemetryPayload,
   assertKnownActor,
   buildAdminOnBehalfMarker,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 import {
   buildAdminViewAsDebugFields,
   buildAdminViewAsTelemetryPayload,

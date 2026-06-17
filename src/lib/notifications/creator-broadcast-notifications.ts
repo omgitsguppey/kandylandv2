@@ -2,7 +2,7 @@ import "server-only";
 
 import { FieldValue } from "firebase-admin/firestore";
 
-import type { CreatorBroadcastAudience } from "@/lib/creator-broadcasts/broadcast-contract";
+import type { CreatorBroadcastAudience } from "@/lib/creator/broadcasts/broadcast-contract";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
 import { buildNotificationRecord } from "@/lib/notification-contracts";

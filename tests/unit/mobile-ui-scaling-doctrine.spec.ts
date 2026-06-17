@@ -7,7 +7,7 @@ import {
   getMobileModuleClassNames,
   getSkeletonClassForModule,
   MOBILE_SCALE_CONTRACT,
-} from "@/lib/ui/mobile-scale-contract";
+} from "@/lib/frontend-hardening/ui/mobile-scale-contract";
 import {
   buildMobileUiScalingDoctrineReport,
   validateMobileUiScalingDoctrineReport,
@@ -77,7 +77,7 @@ describe("mobile UI scaling doctrine", () => {
         packageJson: "check:mobile-ui-scaling-doctrine",
       },
       changedFiles: [
-        "src/lib/ui/mobile-scale-contract.ts",
+        "src/lib/frontend-hardening/ui/mobile-scale-contract.ts",
         "docs/agent-truth/mobile-ui-scaling-doctrine.md",
       ],
       hardcodedScanMatches: ["src/components/Admin/Foo.tsx:1:p-8"],

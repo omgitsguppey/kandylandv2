@@ -10,7 +10,7 @@ import {
   getMobileDensityForSurface,
   getMobileModuleClassNames,
   getSkeletonClassForModule,
-} from "../../src/lib/ui/mobile-scale-contract";
+} from "../../src/lib/frontend-hardening/ui/mobile-scale-contract";
 
 type Severity = "P0" | "P1" | "P2";
 type FindingStatus = "fixed" | "missing" | "deferred";
@@ -206,7 +206,7 @@ export function buildMobileUiScalingDoctrineReport(
     fixesApplied,
     prCleanupActions: ["No open mobile UI, layout scale, dashboard card, skeleton, hydration, or CSS cleanup PRs were present at start."],
     nextFixOrder: [
-      "Use src/lib/ui/mobile-scale-contract.ts for new or touched mobile modules before adding page-local density classes.",
+      "Use src/lib/frontend-hardening/ui/mobile-scale-contract.ts for new or touched mobile modules before adding page-local density classes.",
       "Replace hardcoded p-8, display-size headings, raw h-screen, and unapproved nested scroll in touched files only.",
       "Keep top nav, bottom nav, and chat changes in their existing dedicated shell-safe validators.",
     ],
@@ -245,7 +245,7 @@ function readInputs(): MobileUiScalingDoctrineInputs {
       doctrine: optionalRead(docsRelativePath),
     },
     sources: {
-      contract: optionalRead("src/lib/ui/mobile-scale-contract.ts"),
+      contract: optionalRead("src/lib/frontend-hardening/ui/mobile-scale-contract.ts"),
       packageJson: read("package.json"),
     },
     changedFiles: changedFiles(),

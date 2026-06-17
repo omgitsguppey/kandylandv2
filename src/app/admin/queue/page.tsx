@@ -16,8 +16,8 @@ import { Drop } from "@/types/db";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { formatAdminCompactDateTime, formatAdminTimeLabel } from "@/lib/admin-drop-formatting";
-import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
-import { createStaleRequestGuard, getMobileSkeletonClass } from "@/lib/ui/loading-state-contract";
+import { getMobileModuleClassNames } from "@/lib/frontend-hardening/ui/mobile-scale-contract";
+import { createStaleRequestGuard, getMobileSkeletonClass } from "@/lib/frontend-hardening/ui/loading-state-contract";
 import {
     buildAdminQueueProjection,
     buildReadableQueueScheduleSummary,

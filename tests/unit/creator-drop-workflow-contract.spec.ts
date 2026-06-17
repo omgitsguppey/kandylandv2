@@ -4,7 +4,7 @@ import {
   CREATOR_DROP_WORKFLOW_STATES,
   CREATOR_DROP_WORKFLOW_TRANSITIONS,
   getCreatorDropTransition,
-} from "@/lib/creator-drops/creator-drop-workflow-contract";
+} from "@/lib/creator/drops/creator-drop-workflow-contract";
 
 describe("creator drop workflow contract", () => {
   it("declares every creator-facing status required by the approval workflow", () => {

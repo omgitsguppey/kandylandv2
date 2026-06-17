@@ -5,7 +5,7 @@ import {
   CREATOR_DROP_4XX_POLICIES,
   getCreatorDrop4xxPolicy,
   isCreatorDrop4xxRetryable,
-} from "@/lib/creator-drops/creator-drop-4xx-policy";
+} from "@/lib/creator/drops/creator-drop-4xx-policy";
 
 describe("creator drop 4xx policy", () => {
   it("covers the expected creator drop client error classes", () => {

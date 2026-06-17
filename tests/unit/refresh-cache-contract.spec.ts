@@ -11,7 +11,7 @@ import {
   resolveRefreshCacheDisplayState,
   shouldShowWaiting,
   type RefreshCacheRecord,
-} from "@/lib/cache/refresh-cache-contract";
+} from "@/lib/runtime/cache/refresh-cache-contract";
 
 function record(overrides: Partial<RefreshCacheRecord> = {}): RefreshCacheRecord {
   return {

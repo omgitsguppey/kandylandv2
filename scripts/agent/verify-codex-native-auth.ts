@@ -15,7 +15,7 @@ import {
   type AuthSurfaceStatus,
   type AuthSurfaceStatusCode,
   type CodexAuthReadinessReport,
-} from "../../src/lib/devops/auth-surface-contract";
+} from "../../src/lib/config-hardening/devops/auth-surface-contract";
 import { ensureDirectory, nowIso, writeJsonFile, type Json } from "./shared";
 
 type CommandResult = {

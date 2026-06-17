@@ -24,7 +24,7 @@ import {
   type UiVisualSmokeStatus,
 } from "../../src/lib/evidence/ui-visual-smoke-contract";
 import { summarizeNonEventScorePolicy } from "../../src/lib/agent-score/non-event-score-policy";
-import type { DeviceBand } from "../../src/lib/ui/mobile-scale-contract";
+import type { DeviceBand } from "../../src/lib/frontend-hardening/ui/mobile-scale-contract";
 import { loadDebugEvidenceForAuditDomains } from "./load-debug-evidence-for-audit";
 import { buildScore80CostReadinessFromRepo } from "./validate-score-80-cost-readiness";
 import type {

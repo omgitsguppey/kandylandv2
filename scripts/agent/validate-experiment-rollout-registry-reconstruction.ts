@@ -1,6 +1,6 @@
 import fs from "node:fs";
 
-const source = fs.readFileSync("src/lib/experiments/experiment-rollout-registry-status.ts", "utf8");
+const source = fs.readFileSync("src/lib/features/experiments/experiment-rollout-registry-status.ts", "utf8");
 const route = fs.readFileSync("src/app/api/admin/debug/route.ts", "utf8");
 const ui = fs.readFileSync("src/app/admin/debug/components/DebugAdvancedExperiments.tsx", "utf8");
 const tests = fs.readFileSync("tests/unit/experiment-rollout-registry-reconstruction.spec.ts", "utf8");

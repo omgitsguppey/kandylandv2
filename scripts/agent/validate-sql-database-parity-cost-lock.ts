@@ -114,7 +114,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/empty-live-lane-classifier.ts") return "real_source_change_needs_review";
-  if (normalized === "src/lib/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/features/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-sql-database-parity-cost-lock.ts") return "validator_artifact_expected";
   if (/^scripts\/agent\/validate-(admin-debug-control-tower|pwa-service-worker-safety|notification-pwa-score-lock|drop-watch-time-accuracy|session-bounce-calculation|user-journey-behavioral-intelligence|event-translation-bridge|person-metrics-hydration)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized === "tests/unit/sql-database-parity-cost-lock.spec.ts") return "test_artifact_expected";

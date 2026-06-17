@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { MAJOR_SURFACE_PARITY_IDS } from "@/lib/parity/surface-parity-contract";
-import { SURFACE_TELEMETRY_EVENT_SPINE } from "@/lib/telemetry/surface-telemetry-contract";
+import { SURFACE_TELEMETRY_EVENT_SPINE } from "@/lib/analytics/telemetry/surface-telemetry-contract";
 import { SURFACE_STATE_IDS } from "@/lib/parity/surface-state-contract";
 import { ROLE_PERMISSION_IDS, ROLE_PERMISSION_ROLES } from "@/lib/parity/role-permission-contract";
 import {

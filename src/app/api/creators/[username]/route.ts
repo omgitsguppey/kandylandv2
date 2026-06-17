@@ -10,7 +10,7 @@ import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { CREATOR_COLLECTIONS, isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
 import { sanitizeDropForClient } from "@/lib/server/drops";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
-import { buildCreatorProfileTimeline } from "@/lib/creator-profile/timeline-contract";
+import { buildCreatorProfileTimeline } from "@/lib/creator/profile/timeline-contract";
 import {
     resolveCreatorMonetizationSettings,
     resolveUserFacingCreatorMonetization,

@@ -52,7 +52,7 @@ const files = {
   header: "src/components/Creators/CreatorProfileHeader.tsx",
   client: "src/app/creators/[username]/CreatorProfileClient.tsx",
   feed: "src/components/Creators/CreatorProfileTimelineFeed.tsx",
-  timelineContract: "src/lib/creator-profile/timeline-contract.ts",
+  timelineContract: "src/lib/creator/profile/timeline-contract.ts",
   broadcastArtifact: "agent/state/creator-broadcast-timeline-prep.generated.json",
   dropSubmissionContract: "src/lib/drops/drop-submission-contract.ts",
   packageJson: "package.json",

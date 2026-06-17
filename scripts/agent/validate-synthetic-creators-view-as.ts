@@ -20,7 +20,7 @@ function requireIncludes(source: string, needle: string, label: string) {
 }
 
 const helper = read("src/lib/admin/synthetic-creators-view-as.ts");
-const actorMarkers = read("src/lib/identity/actor-markers.ts");
+const actorMarkers = read("src/lib/identity-truth/identity/actor-markers.ts");
 const rosterRoute = read("src/app/api/admin/roster/route.ts");
 const viewAsRoute = read("src/app/api/admin/view-as-creator/route.ts");
 const rosterPage = read("src/app/admin/roster/page.tsx");

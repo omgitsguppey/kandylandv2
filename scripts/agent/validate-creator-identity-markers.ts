@@ -25,7 +25,7 @@ function requireNotIncludes(source: string, needle: string, label: string) {
   }
 }
 
-const helper = read("src/lib/identity/actor-markers.ts");
+const helper = read("src/lib/identity-truth/identity/actor-markers.ts");
 const syntheticHelper = read("src/lib/admin/synthetic-creators-view-as.ts");
 const analyticsContract = read("src/lib/analytics/analytics-event-contract.ts");
 const serverAnalytics = read("src/lib/server/analytics.ts");

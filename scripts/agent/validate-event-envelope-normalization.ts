@@ -93,7 +93,7 @@ function main() {
   const contractSource = read("src/lib/analytics/event-envelope-contract.ts");
   const builderSource = read("src/lib/analytics/event-envelope-builder.ts");
   const telemetrySource = read("src/lib/telemetry.ts");
-  const telemetrySafetySource = read("src/lib/telemetry-safety.ts");
+  const telemetrySafetySource = read("src/lib/analytics/telemetry-safety.ts");
   const anonymousIngestSource = read("src/app/api/analytics/ingest/route.ts");
   const identifiedIngestSource = read("src/app/api/analytics/ingest-identified/route.ts");
   const adminDebugRouteSource = read("src/app/api/admin/debug/route.ts");

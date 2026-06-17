@@ -1,4 +1,4 @@
-import { getMobileSkeletonClass } from "@/lib/ui/loading-state-contract";
+import { getMobileSkeletonClass } from "@/lib/frontend-hardening/ui/loading-state-contract";
 
 const adminAnalyticsCardSkeletonClassName = getMobileSkeletonClass("admin", "evidence");
 const adminAnalyticsHeaderSkeletonClassName = getMobileSkeletonClass("admin", "overview", "h-9 max-w-xs");

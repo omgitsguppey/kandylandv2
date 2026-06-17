@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import { nowIso, readText, writeTextFile } from "./shared";
 
 const TELEMETRY_CATALOG_PATH = "src/lib/telemetry-catalog.ts";
-const SURFACE_CATALOG_PATH = "src/lib/telemetry/surface-telemetry-catalog-events.ts";
+const SURFACE_CATALOG_PATH = "src/lib/analytics/telemetry/surface-telemetry-catalog-events.ts";
 const OUTPUT_PATH = "shared/runtime/telemetry-event-manifest.ts";
 
 type ManifestEvent = {

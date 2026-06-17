@@ -8,7 +8,7 @@ import {
   buildAdminOnBehalfMarker,
   classifyActorFromUser,
   explainActorMarker,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 
 describe("creator actor identity markers", () => {
   it("classifies user, creator, admin, owner_admin, system, guest, and unknown actors", () => {

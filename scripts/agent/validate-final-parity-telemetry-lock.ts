@@ -14,8 +14,8 @@ import {
   validateSurfaceParityRegistry,
 } from "@/lib/parity/surface-parity-contract";
 import { SURFACE_PARITY_REGISTRY, SUPERSEDED_PARITY_VALIDATORS } from "@/lib/parity/surface-parity-registry";
-import { SURFACE_TELEMETRY_EVENT_SPINE, validateSurfaceTelemetryRegistry } from "@/lib/telemetry/surface-telemetry-contract";
-import { SURFACE_TELEMETRY_REGISTRY } from "@/lib/telemetry/surface-telemetry-registry";
+import { SURFACE_TELEMETRY_EVENT_SPINE, validateSurfaceTelemetryRegistry } from "@/lib/analytics/telemetry/surface-telemetry-contract";
+import { SURFACE_TELEMETRY_REGISTRY } from "@/lib/analytics/telemetry/surface-telemetry-registry";
 import { validateSurfaceStateRegistry } from "@/lib/parity/surface-state-contract";
 import { SURFACE_STATE_REGISTRY } from "@/lib/parity/surface-state-resolver";
 import { ROLE_PERMISSION_IDS, ROLE_PERMISSION_ROLES, validateRolePermissionRegistry } from "@/lib/parity/role-permission-contract";

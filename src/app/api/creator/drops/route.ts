@@ -5,7 +5,7 @@ import {
     buildCreatorDrop4xxPayload,
     getCreatorDrop4xxPolicy,
     type CreatorDrop4xxClass,
-} from "@/lib/creator-drops/creator-drop-4xx-policy";
+} from "@/lib/creator/drops/creator-drop-4xx-policy";
 import { isCreatorRole } from "@/lib/creator-experiences";
 import { resolveCreatorDropMetrics } from "@/lib/drops/drop-metrics-resolver";
 import { buildCreatorPendingDropPayload, sanitizeCreatorDropSubmission } from "@/lib/drops/drop-submission-contract";

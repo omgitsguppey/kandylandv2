@@ -22,7 +22,7 @@ import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { formatCompactGd, resolveWalletBalanceSplit } from "@/lib/gumdrop-formatting";
-import { createStaleRequestGuard } from "@/lib/ui/loading-state-contract";
+import { createStaleRequestGuard } from "@/lib/frontend-hardening/ui/loading-state-contract";
 import { getPaymentProblemCopy } from "@/lib/problem-state-copy";
 import {
   resolveBundlePromoOffer,

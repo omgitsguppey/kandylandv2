@@ -17,7 +17,7 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import {
     buildCreatorBroadcastSourceRecord,
     resolveCreatorBroadcastAudience,
-} from "@/lib/creator-broadcasts/broadcast-contract";
+} from "@/lib/creator/broadcasts/broadcast-contract";
 import {
     CREATOR_BROADCAST_NOTIFICATION_BATCH_LIMIT,
     enqueueCreatorBroadcastNotifications,

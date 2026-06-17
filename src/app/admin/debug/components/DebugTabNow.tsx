@@ -1,7 +1,7 @@
 "use client";
 
 import { buildAdminDebugSystemHealthNowModel } from "@/lib/admin-debug-summary-cards";
-import { resolveControlTowerBusinessTruthState } from "@/lib/admin-debug/control-tower-truth";
+import { resolveControlTowerBusinessTruthState } from "@/lib/admin/debug/control-tower-truth";
 import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
 import { Pill, Section } from "./DebugPrimitives";
 import { DebugCreatorLane } from "./DebugCreatorLane";

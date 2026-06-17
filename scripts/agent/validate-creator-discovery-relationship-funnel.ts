@@ -50,7 +50,7 @@ function classifyDirtyFile(filePath: string) {
   if (normalized === "src/components/CreatorDiscoveryRail.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/creators/[username]/CreatorProfileClient.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
-  if (normalized === "src/lib/telemetry/surface-telemetry-catalog-events.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/telemetry/surface-telemetry-catalog-events.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";

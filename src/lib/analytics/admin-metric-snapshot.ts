@@ -3,7 +3,7 @@ import {
   getDisplaySnapshot,
   resolveRefreshCacheDisplayState,
   type RefreshCacheDisplayState,
-} from "@/lib/cache/refresh-cache-contract";
+} from "@/lib/runtime/cache/refresh-cache-contract";
 
 export const ADMIN_METRIC_SNAPSHOT_SCHEMA_VERSION = "admin_metric_snapshot_v1";
 export const ADMIN_METRIC_SNAPSHOT_MAX_AGE_MS = 5 * 60 * 1000;

@@ -5,7 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import { CheckCircle2, Clock, AlertTriangle, XCircle, Database, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
-import { summarizeAdminIssueForOperator } from "@/lib/admin-copy/admin-truth-copy";
+import { summarizeAdminIssueForOperator } from "@/lib/admin/copy/admin-truth-copy";
 import { type AdminModuleVerification, type AdminSurfaceState } from "@/lib/admin-parity";
 import { resolveAdminVerificationTruthState } from "@/lib/admin-truth-state";
 

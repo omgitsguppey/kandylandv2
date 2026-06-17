@@ -3,7 +3,7 @@ import {
   getTelemetryEventExtensionMetadata,
   normalizeTelemetryEventName,
 } from "@/lib/telemetry-catalog";
-import { getSurfaceTelemetryCatalogEventOverride } from "@/lib/telemetry/surface-telemetry-catalog-events";
+import { getSurfaceTelemetryCatalogEventOverride } from "@/lib/analytics/telemetry/surface-telemetry-catalog-events";
 import { normalizeConsentMode } from "@/lib/privacy/consent-tracking-policy";
 import {
   buildEventIdentityEnvelope,

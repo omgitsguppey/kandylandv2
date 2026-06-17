@@ -22,7 +22,7 @@ function requireIncludes(source: string, needle: string, label: string) {
 const contract = readRequired("src/lib/analytics/analytics-event-contract.ts");
 const legacyMapper = readRequired("src/lib/analytics/legacy-event-mapping.ts");
 const clientSession = readRequired("src/lib/client-session.ts");
-const telemetrySafety = readRequired("src/lib/telemetry-safety.ts");
+const telemetrySafety = readRequired("src/lib/analytics/telemetry-safety.ts");
 const telemetry = readRequired("src/lib/telemetry.ts");
 const catalog = readRequired("src/lib/telemetry-catalog.ts");
 const legacyDoc = readRequired("docs/agent-truth/analytics-legacy-recovery.md");

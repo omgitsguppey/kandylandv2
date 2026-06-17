@@ -28,7 +28,7 @@ import {
     buildCreatorRelationshipTelemetryPayload,
     classifyCreatorRelationshipState,
 } from "@/lib/discovery/creator-relationship-contract";
-import type { CreatorProfileTimelineItem } from "@/lib/creator-profile/timeline-contract";
+import type { CreatorProfileTimelineItem } from "@/lib/creator/profile/timeline-contract";
 import { resolveCreatorPublicExperienceState } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
 import { loadUiContinuityModules, readUiJson, type UiContinuityModuleState } from "@/lib/ui-continuity";

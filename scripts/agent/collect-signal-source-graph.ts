@@ -34,7 +34,7 @@ import {
   type GeneratedReportCompletenessMetadata,
   type GeneratedReportCleanupMetadata,
   type GeneratedReportFreshness,
-} from "../../src/lib/generated-reports/generated-report-contract";
+} from "../../src/lib/agent-governance/generated-reports/generated-report-contract";
 
 const REPORT_PATH = "agent/state/signal-source-graph.generated.json";
 const MAX_EXAMPLES = 25;

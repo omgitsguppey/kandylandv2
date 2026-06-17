@@ -397,7 +397,7 @@ export const BILLING_SPIKE_SURFACES: BillingSpikeSurfaceEntry[] = [
     sourceFiles: [
       "src/app/api/creator/broadcasts/route.ts",
       "src/components/Creators/CreatorBroadcastManager.tsx",
-      "src/lib/creator-broadcasts/broadcast-contract.ts",
+      "src/lib/creator/broadcasts/broadcast-contract.ts",
       "src/lib/notifications/creator-broadcast-notifications.ts",
     ],
     billingProducts: ["Firestore writes", "FCM fanout", "Cloud Run compute"],

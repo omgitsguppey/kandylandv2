@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
-import { buildCreatorDrop4xxPayload } from "@/lib/creator-drops/creator-drop-4xx-policy";
+import { buildCreatorDrop4xxPayload } from "@/lib/creator/drops/creator-drop-4xx-policy";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { sanitizeAdminDropPayload } from "@/lib/drops/drop-submission-contract";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";

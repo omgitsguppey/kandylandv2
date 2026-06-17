@@ -7,7 +7,7 @@ import {
   PWA_SERVICE_WORKER_TELEMETRY_EVENTS,
   buildPwaServiceWorkerDebugLane,
   classifyPwaServiceWorkerSafety,
-} from "@/lib/pwa/pwa-service-worker-contract";
+} from "@/lib/features/pwa/pwa-service-worker-contract";
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/pwa-service-worker-safety.generated.json";
@@ -96,9 +96,9 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (normalized === "tests/unit/source-truth-authority-map.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/notification-pwa-score-lock.spec.ts") return "test_artifact_expected";
   if (
-    normalized === "src/lib/pwa/pwa-service-worker-contract.ts"
+    normalized === "src/lib/features/pwa/pwa-service-worker-contract.ts"
     || normalized === "src/lib/debug/empty-live-lane-classifier.ts"
-    || normalized === "src/lib/pwa/pwa-update-telemetry.ts"
+    || normalized === "src/lib/features/pwa/pwa-update-telemetry.ts"
     || normalized === "src/lib/firebase-messaging.ts"
     || normalized === "src/components/PwaRuntimeBridge.tsx"
     || normalized === "src/lib/telemetry-catalog.ts"
@@ -202,8 +202,8 @@ function renderDoc(report: any) {
 function main() {
   const serviceWorker = read("public/firebase-messaging-sw.js");
   const pwaBridge = read("src/components/PwaRuntimeBridge.tsx");
-  const contractSource = read("src/lib/pwa/pwa-service-worker-contract.ts");
-  const telemetrySource = read("src/lib/pwa/pwa-update-telemetry.ts");
+  const contractSource = read("src/lib/features/pwa/pwa-service-worker-contract.ts");
+  const telemetrySource = read("src/lib/features/pwa/pwa-update-telemetry.ts");
   const catalogSource = read("src/lib/telemetry-catalog.ts");
   const debugSource = read("src/lib/debug/debug-panel-tracking-summary.ts");
   const testSource = read("tests/unit/pwa-service-worker-safety.spec.ts");

@@ -6,7 +6,7 @@ import {
   KANDYDROPS_PROJECT_ID,
   buildWifBootstrapPlan,
   type CodexAuthReadinessReport,
-} from "../../src/lib/devops/auth-surface-contract";
+} from "../../src/lib/config-hardening/devops/auth-surface-contract";
 
 const root = process.cwd();
 const reportPath = path.join(root, AUTH_READINESS_REPORT_PATH);

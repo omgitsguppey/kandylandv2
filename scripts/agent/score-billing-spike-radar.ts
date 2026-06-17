@@ -108,9 +108,9 @@ const STALE_SOURCE_PATTERN_REPLACEMENTS: Record<string, { replacementPatterns: s
     replacementPatterns: ["docs/agent-truth/runtime-watch-time-v2.md"],
     reason: "Runtime watch-time v2 evidence moved to the runtime-watch-time-v2 report.",
   },
-  "src/lib/creator-dashboard/creator-broadcasts.ts": {
+  "src/lib/creator/dashboard/creator-broadcasts.ts": {
     replacementPatterns: [
-      "src/lib/creator-broadcasts/broadcast-contract.ts",
+      "src/lib/creator/broadcasts/broadcast-contract.ts",
       "src/lib/notifications/creator-broadcast-notifications.ts",
     ],
     reason: "Creator broadcast source truth was split into broadcast contract and notification fanout owners.",

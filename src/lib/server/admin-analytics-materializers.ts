@@ -9,7 +9,7 @@ import {
 import {
   buildCanonicalMaterializerSourcePolicy,
   type MaterializerSourcePolicy,
-} from "@/lib/materializers/materializer-source-policy";
+} from "@/lib/analytics/materializers/materializer-source-policy";
 
 export const ADMIN_ANALYTICS_SNAPSHOT_MODULE_KEYS = [
   "platform_pulse",

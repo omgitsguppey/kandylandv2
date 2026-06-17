@@ -11,7 +11,7 @@ import {
 import {
   deriveGeneratedReportFreshness,
   type GeneratedReportFreshness,
-} from "../../src/lib/generated-reports/generated-report-contract";
+} from "../../src/lib/agent-governance/generated-reports/generated-report-contract";
 
 type SectionResult = {
   name: string;
@@ -131,8 +131,8 @@ const analyticsIngestIdentified = readRequired("src/app/api/analytics/ingest-ide
 const analyticsIngestAnonymous = readRequired("src/app/api/analytics/ingest/route.ts");
 const analyticsGovernance = readRequired("src/lib/server/analytics-governance.ts");
 const analyticsMetrics = readRequired("src/lib/server/analytics-metrics.ts");
-const materializerContract = readRequired("src/lib/materializers/materializer-contract.ts");
-const materializerSourcePolicy = readRequired("src/lib/materializers/materializer-source-policy.ts");
+const materializerContract = readRequired("src/lib/analytics/materializers/materializer-contract.ts");
+const materializerSourcePolicy = readRequired("src/lib/analytics/materializers/materializer-source-policy.ts");
 const behavioralRuntime = readRequired("functions/src/behavioral-intelligence-runtime.ts");
 const analyticsTruthRuntime = readRequired("functions/src/analytics-truth-runtime.ts");
 const analyticsTruthCli = readRequired("functions/src/analytics-truth-cli.ts");
@@ -159,7 +159,7 @@ const adminStatsBar = readRequired("src/components/Admin/AdminStatsBar.tsx");
 const adminModuleVerificationCard = readRequired("src/components/Admin/AdminModuleVerificationCard.tsx");
 const debugPrimitives = readRequired("src/app/admin/debug/components/DebugPrimitives.tsx");
 const aiHelpers = readRequired("src/app/admin/ai/AiHelpers.tsx");
-const debugControlTowerTruth = readRequired("src/lib/admin-debug/control-tower-truth.ts");
+const debugControlTowerTruth = readRequired("src/lib/admin/debug/control-tower-truth.ts");
 const debugControlTowerLoader = readRequired("src/lib/server/admin-debug-control-tower-loader.ts");
 const debugControlTowerRoute = readRequired("src/app/api/admin/debug/control-tower/route.ts");
 const debugControlTower = readRequired("src/app/admin/debug/components/DebugControlTower.tsx");
@@ -175,7 +175,7 @@ const usersRealtimeHook = readRequired("src/hooks/useAdminUsersRealtime.ts");
 const adminUsersRealtimeRoute = readRequired("src/app/api/admin/users/realtime/route.ts");
 const adminAdminPage = readRequired("src/app/admin/page.tsx");
 const adminLiveRuntime = readRequired("src/lib/admin-analytics-live-runtime.ts");
-const generatedReportContract = readRequired("src/lib/generated-reports/generated-report-contract.ts");
+const generatedReportContract = readRequired("src/lib/agent-governance/generated-reports/generated-report-contract.ts");
 const generatedReportAuthorityState = readRequired("agent/state/generated-report-authority.generated.json");
 const generatedReportValidator = readRequired("scripts/agent/validate-generated-report-authority.ts");
 const validatorAuthority = readRequired("agent/context/validator-authority.json");

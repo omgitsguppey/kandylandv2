@@ -66,7 +66,7 @@ import { buildAdminAnalyticsTopPathsModel } from "@/lib/admin-analytics-top-path
 import { buildAdminAnalyticsRegionDemandModel } from "@/lib/admin-analytics-region-demand";
 import { buildAdminAnalyticsTopDropConversionModel } from "@/lib/admin-analytics-top-drop-conversion";
 import { buildAdminAnalyticsRecentCommerceFeedState } from "@/lib/admin-analytics-recent-commerce-feed";
-import { summarizeAdminIssueForOperator } from "@/lib/admin-copy/admin-truth-copy";
+import { summarizeAdminIssueForOperator } from "@/lib/admin/copy/admin-truth-copy";
 import { PUBLIC_APP_VERSION } from "@/lib/release-notes/public-release-notes";
 
 

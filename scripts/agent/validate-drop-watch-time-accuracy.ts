@@ -140,7 +140,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/math/drop-watch-unlock-math.ts") return "real_source_change_needs_review";
-  if (normalized === "src/lib/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/features/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-drop-watch-time-accuracy.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-drop-watch-unlock-math.ts") return "validator_artifact_expected";
   if (/^scripts\/agent\/validate-(admin-debug-control-tower|pwa-service-worker-safety|notification-pwa-score-lock|session-bounce-calculation|user-journey-behavioral-intelligence|sql-database-parity-cost-lock|event-translation-bridge|person-metrics-hydration|canonical-math-authority-ledger|duration-math-normalization)\.ts$/u.test(normalized)) return "validator_artifact_expected";

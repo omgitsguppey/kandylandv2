@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { deriveGeneratedReportFreshness } from "@/lib/generated-reports/generated-report-contract";
+import { deriveGeneratedReportFreshness } from "@/lib/agent-governance/generated-reports/generated-report-contract";
 
 describe("generated report contract", () => {
   it("treats current-head mismatches as stale even inside the age window", () => {

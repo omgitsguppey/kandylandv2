@@ -1,4 +1,4 @@
-import type { DeviceBand } from "@/lib/ui/mobile-scale-contract";
+import type { DeviceBand } from "@/lib/frontend-hardening/ui/mobile-scale-contract";
 
 export type UiVisualSmokeStatus =
   | "operator_final_pending"

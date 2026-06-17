@@ -5,7 +5,7 @@ import {
   type GeneratedReportCleanupMetadata,
   type GeneratedReportCompletenessMetadata,
   type GeneratedReportFreshness,
-} from "@/lib/generated-reports/generated-report-contract";
+} from "@/lib/agent-governance/generated-reports/generated-report-contract";
 import {
   currentGitHead,
   lineCount,

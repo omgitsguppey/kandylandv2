@@ -43,7 +43,7 @@ import {
   buildAdminOnBehalfMarker,
   buildActorMarkerDebugFields,
   type ActorMarker,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { buildAdminUserMetricsSnapshot } from "@/lib/server/admin-user-metrics-snapshot";

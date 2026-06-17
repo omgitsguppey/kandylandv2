@@ -1,6 +1,6 @@
 import {
   resolveBehavioralExperimentTraffic,
-} from "@/lib/experiments/behavioral-experiment-contract";
+} from "@/lib/features/experiments/behavioral-experiment-contract";
 
 export type BehavioralExperimentUnitType = "userId" | "anonymousVisitorId" | "sessionId";
 export type BehavioralExperimentAssignedVariant = "control" | "variant";

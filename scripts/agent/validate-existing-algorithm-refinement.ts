@@ -164,7 +164,7 @@ function hasAll(source: string, snippets: string[]) {
 function buildInventory(inputs: ExistingAlgorithmReportInputs): ExistingAlgorithmInventoryEntry[] {
   const betaCore = getFile(inputs, "src/lib/agent-score/core.ts");
   const betaEvidence = getFile(inputs, "src/lib/agent-score/evidence-quality.ts");
-  const mobile = getFile(inputs, "src/lib/ui/mobile-scale-contract.ts");
+  const mobile = getFile(inputs, "src/lib/frontend-hardening/ui/mobile-scale-contract.ts");
   const telemetryPolicy = getFile(inputs, "src/lib/analytics/client-tracking-policy.ts");
   const telemetryGraph = getFile(inputs, "src/lib/analytics/telemetry-dependency-graph.ts");
   const materialization = getFile(inputs, "src/lib/analytics/materialization-contract.ts");
@@ -175,7 +175,7 @@ function buildInventory(inputs: ExistingAlgorithmReportInputs): ExistingAlgorith
   const dropScope = getFile(inputs, "src/lib/server/creator-drop-scope.ts");
   const creatorOverviewDoc = getFile(inputs, "docs/agent-truth/creator-dashboard-overview-stats.md");
   const marquee = getFile(inputs, "src/components/ui/MarqueeText.tsx");
-  const loading = getFile(inputs, "src/lib/ui/loading-state-contract.ts");
+  const loading = getFile(inputs, "src/lib/frontend-hardening/ui/loading-state-contract.ts");
 
   const betaReady = hasAll(betaCore, ["sourceHealthScore", "runtimeHealthScore", "scoreDeltaDrivers"])
     && hasAll(betaEvidence, ["source_ready", "owner_review", "blocksLaunch"]);
@@ -208,7 +208,7 @@ function buildInventory(inputs: ExistingAlgorithmReportInputs): ExistingAlgorith
     },
     {
       name: "mobile_scaling_self_checks",
-      file: "src/lib/ui/mobile-scale-contract.ts",
+      file: "src/lib/frontend-hardening/ui/mobile-scale-contract.ts",
       purpose: "Classify mobile density by surface/module and flag desktop-stuffed classes before UI work lands.",
       consumers: ["scripts/agent/validate-mobile-ui-final-lock.ts", "future UI validators"],
       inputs: ["surface", "moduleType", "deviceBand", "className", "skeleton state"],
@@ -300,7 +300,7 @@ function buildInventory(inputs: ExistingAlgorithmReportInputs): ExistingAlgorith
     },
     {
       name: "loading_hydration_stale_request_guards",
-      file: "src/lib/ui/loading-state-contract.ts",
+      file: "src/lib/frontend-hardening/ui/loading-state-contract.ts",
       purpose: "Prevent stale async responses from overwriting newer state and keep skeletons sized to final modules.",
       consumers: ["mobile dashboard/settings/admin loading validators", "async UI loaders"],
       inputs: ["request ids", "module type", "device band", "loaded/error states"],
@@ -329,7 +329,7 @@ function duplicateFindings(inputs: ExistingAlgorithmReportInputs): AlgorithmFind
   const findings: AlgorithmFinding[] = [];
   const publicCreator = getFile(inputs, "src/lib/creator-public-pages.ts");
   const dropStatus = getFile(inputs, "src/lib/drop-status.ts");
-  const mobile = getFile(inputs, "src/lib/ui/mobile-scale-contract.ts");
+  const mobile = getFile(inputs, "src/lib/frontend-hardening/ui/mobile-scale-contract.ts");
   const telemetry = getFile(inputs, "src/lib/analytics/client-tracking-policy.ts");
   const beta = getFile(inputs, "src/lib/agent-score/core.ts");
 
@@ -352,7 +352,7 @@ function duplicateFindings(inputs: ExistingAlgorithmReportInputs): AlgorithmFind
   if (!hasAll(mobile, ["MOBILE_SCALE_THRESHOLDS", "p-6", "text-3xl"])) {
     findings.push({
       severity: "p1",
-      file: "src/lib/ui/mobile-scale-contract.ts",
+      file: "src/lib/frontend-hardening/ui/mobile-scale-contract.ts",
       detail: "Mobile density helper does not encode current desktop-sprawl thresholds.",
     });
   }

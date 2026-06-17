@@ -28,7 +28,7 @@ const LEGACY_VALIDATORS = new Set<string>([
 
 const SURFACE_DEFAULT_CONTRACTS: Record<string, string[]> = {
   "admin-debug": [
-    "src/lib/admin-debug/control-tower-truth.ts",
+    "src/lib/admin/debug/control-tower-truth.ts",
     "src/lib/server/admin-debug-control-tower-loader.ts",
     "src/lib/server/admin-user-truth-snapshot.ts",
   ],
@@ -112,14 +112,14 @@ const SURFACE_DEFAULT_CONTRACTS: Record<string, string[]> = {
   "legacy-phaseout": [
     "src/lib/legacy/admin-analytics-legacy-registry.ts",
     "agent/context/legacy-registry.json",
-    "src/lib/materializers/materializer-source-policy.ts",
+    "src/lib/analytics/materializers/materializer-source-policy.ts",
   ],
   support: [
     "src/app/api/notifications/route.ts",
     "src/lib/notification-contracts.ts",
   ],
   "generated-report-authority": [
-    "src/lib/generated-reports/generated-report-contract.ts",
+    "src/lib/agent-governance/generated-reports/generated-report-contract.ts",
     "agent/state/generated-report-authority.generated.json",
     "agent/context/doctrine-registry.json",
   ],

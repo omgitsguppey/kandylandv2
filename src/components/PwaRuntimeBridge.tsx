@@ -7,8 +7,8 @@ import { detectDeviceDisplayMode } from "@/lib/device-layout-contract";
 import {
     classifyPwaServiceWorkerSafety,
     type PwaServiceWorkerSafetyInput,
-} from "@/lib/pwa/pwa-service-worker-contract";
-import { trackPwaServiceWorkerEvent } from "@/lib/pwa/pwa-update-telemetry";
+} from "@/lib/features/pwa/pwa-service-worker-contract";
+import { trackPwaServiceWorkerEvent } from "@/lib/features/pwa/pwa-update-telemetry";
 import { PUBLIC_APP_VERSION } from "@/lib/release-notes/public-release-notes";
 import { trackEvent } from "@/lib/telemetry";
 

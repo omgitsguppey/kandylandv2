@@ -321,7 +321,7 @@ export function classifyRolePermissionDirtyFile(path: string): RolePermissionDir
   if (normalized === "tests/unit/role-permission-parity.spec.ts") return "test_artifact_expected";
   if (/^src\/lib\/parity\/role-permission-(contract|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (/^src\/lib\/parity\/surface-state-(contract|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
-  if (normalized === "src/lib/telemetry/surface-telemetry-registry.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/telemetry/surface-telemetry-registry.ts") return "real_source_change_needs_review";
   if (
     normalized === "package.json"
     || normalized === "package-lock.json"

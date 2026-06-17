@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildExperimentRolloutRegistryStatus } from "@/lib/experiments/experiment-rollout-registry-status";
+import { buildExperimentRolloutRegistryStatus } from "@/lib/features/experiments/experiment-rollout-registry-status";
 
 describe("experiment rollout registry reconstruction", () => {
   it("does not treat missing registry as configured zero", () => {

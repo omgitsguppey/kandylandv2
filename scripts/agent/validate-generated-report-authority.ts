@@ -15,7 +15,7 @@ import {
   type GeneratedReportBaselineStatus,
   type GeneratedReportCleanupMetadata,
   type GeneratedReportCompletenessMetadata,
-} from "../../src/lib/generated-reports/generated-report-contract";
+} from "../../src/lib/agent-governance/generated-reports/generated-report-contract";
 import {
   nowIso,
   readJsonFile,

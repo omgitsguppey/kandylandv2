@@ -5,7 +5,7 @@ import { buildTaskCatalogRuntimeReconstruction } from "@/lib/tasks/task-catalog-
 import { buildTaskTelemetryMappingReconstruction } from "@/lib/tasks/task-telemetry-mapping-engine";
 import { buildBehavioralIntelligenceSnapshotStatus } from "@/lib/behavioral/behavioral-intelligence-snapshot-status";
 import { buildTelemetryTruthRecoveryStatus } from "@/lib/analytics/telemetry-truth-recovery-status";
-import { buildExperimentRolloutRegistryStatus } from "@/lib/experiments/experiment-rollout-registry-status";
+import { buildExperimentRolloutRegistryStatus } from "@/lib/features/experiments/experiment-rollout-registry-status";
 
 describe("debug cockpit batch 35 behavior stack", () => {
   it("classifies every zero-shell lane with an actionable source/formula status", () => {

@@ -11,8 +11,8 @@ import { authFetch } from "@/lib/authFetch";
 import { resolveCreatorDropMetrics, type CreatorDropMetricsResolution } from "@/lib/drops/drop-metrics-resolver";
 import { resolveDropStatus, type DropStatusResolution } from "@/lib/drops/drop-status-resolver";
 import { trackEvent } from "@/lib/telemetry";
-import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
-import { createStaleRequestGuard, getMobileSkeletonClass, getModuleLoadingState } from "@/lib/ui/loading-state-contract";
+import { getMobileModuleClassNames } from "@/lib/frontend-hardening/ui/mobile-scale-contract";
+import { createStaleRequestGuard, getMobileSkeletonClass, getModuleLoadingState } from "@/lib/frontend-hardening/ui/loading-state-contract";
 
 type CreatorDropReviewStatus = "draft" | "submitted" | "pending_review" | "approved" | "needs_changes" | "rejected" | "expired";
 type CreatorDropFilter = "all" | CreatorDropReviewStatus;

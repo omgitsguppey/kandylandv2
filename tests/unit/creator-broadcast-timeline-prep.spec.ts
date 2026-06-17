@@ -6,14 +6,14 @@ import { describe, expect, it } from "vitest";
 import {
   buildCreatorBroadcastSourceRecord,
   normalizeCreatorBroadcastAudience,
-} from "@/lib/creator-broadcasts/broadcast-contract";
+} from "@/lib/creator/broadcasts/broadcast-contract";
 import {
   buildCreatorBroadcastNotificationIdentity,
   mergeCreatorBroadcastRecipients,
 } from "@/lib/notifications/creator-broadcast-notifications";
 import {
   buildCreatorProfileTimeline,
-} from "@/lib/creator-profile/timeline-contract";
+} from "@/lib/creator/profile/timeline-contract";
 
 const root = process.cwd();
 

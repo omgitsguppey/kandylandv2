@@ -1,5 +1,5 @@
 import { buildGeneratedArtifactSizePolicyReport, validateGeneratedArtifactSizePolicyReport } from "@/lib/test-hardening/generated-artifact-size-policy";
-import { buildGeneratedReportCompleteness } from "@/lib/generated-reports/generated-report-contract";
+import { buildGeneratedReportCompleteness } from "@/lib/agent-governance/generated-reports/generated-report-contract";
 import { writeCompactJson, writeText } from "@/lib/test-hardening/test-hardening-shared";
 
 const report = buildGeneratedArtifactSizePolicyReport();

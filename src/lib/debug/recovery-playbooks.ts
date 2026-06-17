@@ -439,7 +439,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       ],
       sourceFiles: [
         "src/lib/creator-settings/creator-settings-contract.ts",
-        "src/lib/creator-dashboard/creator-settings-contract.ts",
+        "src/lib/creator/dashboard/creator-settings-contract.ts",
         "src/app/dashboard/creator/settings/page.tsx",
         "src/app/api/creator/settings/route.ts",
         "agent/state/creator-settings-control-plane.generated.json",

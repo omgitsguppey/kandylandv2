@@ -387,7 +387,7 @@ function syntheticCards(surfaceMap: SurfaceDoctrineMap, validatorMap: ValidatorM
       blockedPatterns: ["full markdown by default", "generated reports selected as doctrine"],
       validators: ["optimize:doctrine-context", "check:doctrine-retrieval-optimizer"],
       keywords: tokensFrom("doctrine retrieval optimizer context savings cost utility coverage conflict"),
-      fileGlobs: ["src/lib/doctrine/**", "scripts/agent/optimize-doctrine-context.ts", "scripts/agent/validate-doctrine-retrieval-optimizer.ts"],
+      fileGlobs: ["src/lib/agent-governance/doctrine/**", "scripts/agent/optimize-doctrine-context.ts", "scripts/agent/validate-doctrine-retrieval-optimizer.ts"],
       supersedes: [],
       conflictsWith: [],
       lastReviewed: "2026-05-05",

@@ -62,7 +62,7 @@ import {
     type SyntheticCreatorType,
     type SyntheticLegalEvidenceMode,
 } from "@/lib/admin/synthetic-creators-view-as";
-import type { ActorMarker } from "@/lib/identity/actor-markers";
+import type { ActorMarker } from "@/lib/identity-truth/identity/actor-markers";
 
 export const CREATOR_ONBOARDING_SUBMISSION_STATUSES = [
     "onboarding_started",

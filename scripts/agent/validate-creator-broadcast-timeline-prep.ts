@@ -33,14 +33,14 @@ function finding(id: string, severity: "p0" | "p1" | "p2", file: string, summary
 }
 
 const route = read("src/app/api/creator/broadcasts/route.ts");
-const broadcastContract = has("src/lib/creator-broadcasts/broadcast-contract.ts")
-  ? read("src/lib/creator-broadcasts/broadcast-contract.ts")
+const broadcastContract = has("src/lib/creator/broadcasts/broadcast-contract.ts")
+  ? read("src/lib/creator/broadcasts/broadcast-contract.ts")
   : "";
 const notificationContract = has("src/lib/notifications/creator-broadcast-notifications.ts")
   ? read("src/lib/notifications/creator-broadcast-notifications.ts")
   : "";
-const timelineContract = has("src/lib/creator-profile/timeline-contract.ts")
-  ? read("src/lib/creator-profile/timeline-contract.ts")
+const timelineContract = has("src/lib/creator/profile/timeline-contract.ts")
+  ? read("src/lib/creator/profile/timeline-contract.ts")
   : "";
 const profileRoute = read("src/app/api/creators/[username]/route.ts");
 const profileClient = read("src/app/creators/[username]/CreatorProfileClient.tsx");
@@ -105,16 +105,16 @@ const summary = {
 const findings = [
   finding("control-plane-dependency", "p2", "src/lib/creator-settings/creator-settings-contract.ts", "Creator settings control plane is present and reused.", summary.settingsControlPlanePresent),
   finding("telemetry-closure-dependency", "p2", "src/lib/analytics/telemetry-dependency-graph.ts", "Telemetry dependency graph exists for this source-truth lane.", summary.telemetryClosurePresent),
-  finding("broadcast-contract", "p1", "src/lib/creator-broadcasts/broadcast-contract.ts", "Creator broadcast source contract defines audience/status/timeline/source truth.", summary.broadcastContractCreated),
+  finding("broadcast-contract", "p1", "src/lib/creator/broadcasts/broadcast-contract.ts", "Creator broadcast source contract defines audience/status/timeline/source truth.", summary.broadcastContractCreated),
   finding("source-record", "p1", "src/app/api/creator/broadcasts/route.ts", "Broadcast route persists creator_broadcasts source records.", summary.broadcastRoutePersistsSourceRecord),
   finding("bounded-fanout", "p1", "src/lib/notifications/creator-broadcast-notifications.ts", "Follower notification fanout is bounded and not aggregate/unbounded.", summary.boundedNotificationFanout),
   finding("follower-source", "p1", "src/lib/notifications/creator-broadcast-notifications.ts", "Recipients resolve from canonical follower relationships with notification opt-in.", summary.canonicalFollowerRecipientSource),
   finding("subscriber-source", "p2", "src/lib/notifications/creator-broadcast-notifications.ts", "Fan Pass subscriber audience resolves from active creator subscriptions.", summary.fanPassRecipientSource),
   finding("idempotency", "p1", "src/lib/notifications/creator-broadcast-notifications.ts", "Per-recipient notification idempotency keys and deterministic document ids exist.", summary.notificationIdempotencyPresent),
-  finding("audience", "p1", "src/lib/creator-broadcasts/broadcast-contract.ts", "Broadcast audiences use followers/subscribers terminology instead of legacy all_fans.", summary.audienceContractClear),
-  finding("timeline-contract", "p1", "src/lib/creator-profile/timeline-contract.ts", "Creator profile timeline contract exists for drops and broadcasts.", summary.timelineContractCreated),
-  finding("timeline-filtering", "p1", "src/lib/creator-profile/timeline-contract.ts", "Timeline excludes draft broadcasts and non-active/pending drops.", summary.timelineExcludesDraftPending),
-  finding("timeline-state", "p1", "src/lib/creator-profile/timeline-contract.ts", "Timeline exposes source/empty/disabled states instead of treating missing data as zero.", summary.timelineMissingNotZero),
+  finding("audience", "p1", "src/lib/creator/broadcasts/broadcast-contract.ts", "Broadcast audiences use followers/subscribers terminology instead of legacy all_fans.", summary.audienceContractClear),
+  finding("timeline-contract", "p1", "src/lib/creator/profile/timeline-contract.ts", "Creator profile timeline contract exists for drops and broadcasts.", summary.timelineContractCreated),
+  finding("timeline-filtering", "p1", "src/lib/creator/profile/timeline-contract.ts", "Timeline excludes draft broadcasts and non-active/pending drops.", summary.timelineExcludesDraftPending),
+  finding("timeline-state", "p1", "src/lib/creator/profile/timeline-contract.ts", "Timeline exposes source/empty/disabled states instead of treating missing data as zero.", summary.timelineMissingNotZero),
   finding("profile-route", "p2", "src/app/api/creators/[username]/route.ts", "Public creator profile route returns timeline source data.", summary.profileRouteExposesTimeline),
   finding("mobile-preview", "p2", "src/components/Creators/CreatorUpdatesFeed.tsx", "Creator profile has compact broadcast timeline preview hooks.", summary.mobilePreviewHookPresent),
   finding("telemetry", "p1", "src/app/api/creator/broadcasts/route.ts", "Broadcast creation and notification enqueue count are tracked.", summary.telemetryPresent),

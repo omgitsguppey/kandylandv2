@@ -25,7 +25,7 @@ import {
   TELEMETRY_EVENT_EXTENSION_METADATA,
   getTelemetryEventExtensionMetadata,
 } from "@/lib/telemetry-catalog";
-import { getSurfaceTelemetryEventDefinitionByName } from "@/lib/telemetry/surface-telemetry-registry";
+import { getSurfaceTelemetryEventDefinitionByName } from "@/lib/analytics/telemetry/surface-telemetry-registry";
 import type { PublicBetaHealthDimension } from "@/lib/agent-score/core";
 
 export type EventTranslationActivityStatus =
@@ -704,7 +704,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "src/components/Dashboard/NotificationPromptBanner.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
   if (/^src\/lib\/product-integrity\/(product-body-map|central-normalizer|interpretive-brain|body-system-wiring-repair|final-product-integrity-lock)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
-  if (normalized === "src/lib/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/features/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-sql-database-parity-cost-lock.ts") return "validator_artifact_expected";
   if (normalized === "src/lib/analytics/global-user-dedupe-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/global-user-dedupe-engine.ts") return "real_source_change_needs_review";

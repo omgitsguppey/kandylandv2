@@ -9,7 +9,7 @@ import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type { AdminDebugControlTowerModel, AdminDebugControlTowerSection } from "@/lib/admin-debug-control-tower";
-import { resolveControlTowerBusinessTruthState } from "@/lib/admin-debug/control-tower-truth";
+import { resolveControlTowerBusinessTruthState } from "@/lib/admin/debug/control-tower-truth";
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 import { cn } from "@/lib/utils";
 import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth";

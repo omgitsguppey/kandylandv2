@@ -199,7 +199,7 @@ export function classifyNotificationPwaScoreLockDirtyFile(path: string) {
   if (normalized.startsWith("tests/unit/notification-") || normalized === "tests/unit/pwa-service-worker-safety.spec.ts") return "test_artifact_expected";
   if (
     normalized.startsWith("src/lib/notifications/")
-    || normalized.startsWith("src/lib/pwa/")
+    || normalized.startsWith("src/lib/features/pwa/")
     || normalized === "src/lib/debug/empty-live-lane-classifier.ts"
     || normalized === "src/lib/debug/admin-summary-lane-status-classifier.ts"
     || normalized === "src/lib/debug/debug-panel-tracking-summary.ts"

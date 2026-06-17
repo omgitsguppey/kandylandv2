@@ -11,7 +11,7 @@ import {
 import { DEFAULT_CREATOR_SETTINGS } from "../../src/lib/creator-experiences";
 import { resolveCreatorPublicExperienceState } from "../../src/lib/creator-public-pages";
 import { resolveDropLifecycleStatus } from "../../src/lib/drop-status";
-import { assertNoDesktopStuffing } from "../../src/lib/ui/mobile-scale-contract";
+import { assertNoDesktopStuffing } from "../../src/lib/frontend-hardening/ui/mobile-scale-contract";
 
 const repoRoot = process.cwd();
 
@@ -102,7 +102,7 @@ describe("existing algorithm refinement", () => {
         ["src/lib/creator-public-pages.ts", "settings.subscriptionPriceGd || CREATOR_SUBSCRIPTION_MIN_GD"],
         ["src/lib/analytics/client-tracking-policy.ts", "behavior_signal"],
         ["src/lib/agent-score/core.ts", "source_ready runtime_proven"],
-        ["src/lib/ui/mobile-scale-contract.ts", "p-8 text-4xl"],
+        ["src/lib/frontend-hardening/ui/mobile-scale-contract.ts", "p-8 text-4xl"],
       ]),
     });
 

@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
 import { classifyEmptyLiveLane } from "@/lib/debug/empty-live-lane-classifier";
-import { buildPwaServiceWorkerDebugLane, type PwaServiceWorkerDebugLane } from "@/lib/pwa/pwa-service-worker-contract";
+import { buildPwaServiceWorkerDebugLane, type PwaServiceWorkerDebugLane } from "@/lib/features/pwa/pwa-service-worker-contract";
 
 import {
   currentHead,
@@ -67,7 +67,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/empty-live-lane-classifier.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
-  if (normalized === "src/lib/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/features/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-debug-signal-grouping.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "real_source_change_needs_review";

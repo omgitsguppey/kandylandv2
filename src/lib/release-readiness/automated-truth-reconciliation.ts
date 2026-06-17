@@ -358,7 +358,7 @@ const MAJOR_LANES = [
   ["drops-unlock-unwrap-watch", "src/app/api/drops", "src/app/api/viewer/watch-session/route.ts", "src/lib/math/drop-watch-unlock-math.ts", "src/lib/analytics/drop-watch-time-engine.ts", "src/lib/behavioral/unlock-watch-journey-normalization.ts", "src/lib/debug/debug-panel-tracking-summary.ts"],
   ["chat", "src/lib/chat", "src/components/Chat", "src/lib/product-integrity/central-normalizer.ts", "src/lib/debug/debug-panel-tracking-summary.ts", "agent/state/chat-functionality-score-lock.generated.json"],
   ["daily-tasks-rewards", "src/lib/tasks", "src/lib/math/gumdrop-ledger-math.ts", "src/lib/behavioral/user-journey-builder.ts", "agent/state/daily-task-debug-score-lock.generated.json"],
-  ["notifications-pwa", "src/lib/notifications", "src/lib/pwa", "src/lib/product-integrity/central-normalizer.ts", "agent/state/notification-pwa-score-lock.generated.json"],
+  ["notifications-pwa", "src/lib/notifications", "src/lib/features/pwa", "src/lib/product-integrity/central-normalizer.ts", "agent/state/notification-pwa-score-lock.generated.json"],
   ["account-settings-support-delete-export", "src/lib/settings", "src/app/api/support", "src/app/api/user/delete", "src/lib/product-integrity/product-body-map.ts"],
   ["creator-settings", "src/lib/creator-monetization/creator-monetization-contract.ts", "src/lib/features/feature-registration-registry.ts", "src/lib/debug/debug-panel-tracking-summary.ts"],
   ["creator-monetization-fan-pass-entitlements", "src/lib/fan-pass/fan-pass-access-resolver.ts", "src/lib/creator-monetization/creator-entitlement-resolver.ts", "src/lib/math/creator-revenue-entitlement-math.ts", "agent/state/creator-monetization-readiness-lock.generated.json"],

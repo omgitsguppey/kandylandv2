@@ -28,7 +28,7 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { isWithinAnyWindow } from "./booking-timezone";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
-import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
+import { assertKnownActor, buildActorMarker } from "@/lib/identity-truth/identity/actor-markers";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 const CREATOR_BOOKINGS_READ_LIMIT = 200;

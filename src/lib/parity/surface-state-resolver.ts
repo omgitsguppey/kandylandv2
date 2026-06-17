@@ -3,7 +3,7 @@ import type {
   SurfaceParityContract,
   SurfaceParityId,
 } from "@/lib/parity/surface-parity-contract";
-import { getSurfaceTelemetryEventDefinitionByName } from "@/lib/telemetry/surface-telemetry-registry";
+import { getSurfaceTelemetryEventDefinitionByName } from "@/lib/analytics/telemetry/surface-telemetry-registry";
 
 import {
   SURFACE_STATE_IDS,
@@ -297,7 +297,7 @@ export function classifySurfaceStateDirtyFile(path: string): SurfaceStateDirtyCl
   if (normalized === "tests/unit/creator-discovery-rail.spec.tsx") return "test_artifact_expected";
   if (/^src\/lib\/parity\/surface-state-(contract|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (/^src\/lib\/parity\/role-permission-(contract|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
-  if (normalized === "src/lib/telemetry/surface-telemetry-registry.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/telemetry/surface-telemetry-registry.ts") return "real_source_change_needs_review";
   if (normalized === "src/components/CreatorDiscoveryRail.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/problem-state-copy.ts" || normalized === "src/lib/errors/error-dictionary.ts") return "real_source_change_needs_review";
   if (

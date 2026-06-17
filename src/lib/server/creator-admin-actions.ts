@@ -2,7 +2,7 @@ import "server-only";
 
 import { buildCreatorOnboardingCanonicalRecord, buildCreatorOnboardingUserProjection, type CreatorOnboardingCanonicalRecord, normalizeCreatorOnboardingCanonicalRecord } from "@/lib/creator-onboarding";
 import { isCreatorOwnerEmail } from "@/lib/creator-admin";
-import { actorMarkerToTelemetryPayload, assertKnownActor, buildAdminOnBehalfMarker, type ActorMarker } from "@/lib/identity/actor-markers";
+import { actorMarkerToTelemetryPayload, assertKnownActor, buildAdminOnBehalfMarker, type ActorMarker } from "@/lib/identity-truth/identity/actor-markers";
 import { buildCreatorAdminLifecycleEvents, buildCreatorAdminLifecycleSource, CREATOR_ADMIN_ACTIONS, OWNER_ONLY_CREATOR_ADMIN_ACTIONS, parseCreatorAdminActionRequest, readCreatorAdminActionRole, readCreatorAdminActionString, stripUndefinedDeep, type CreatorAdminAction, type CreatorAdminActionCaller, type CreatorAdminActionRequest, type CreatorAdminActionResult } from "@/lib/server/creator-admin-action-contract";
 import { sendCreatorAgreementDispatch, countersignCreatorAgreementDispatch } from "@/lib/server/creator-agreement-documents";
 import { trackServerEvent } from "@/lib/server/analytics";

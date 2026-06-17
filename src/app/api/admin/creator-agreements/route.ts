@@ -44,7 +44,7 @@ import {
   assertKnownActor,
   buildAdminOnBehalfMarker,
   type ActorMarker,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 
 const MAX_AGREEMENT_UPLOAD_BYTES = 12 * 1024 * 1024;
 const CREATOR_AGREEMENT_JSON_BODY_LIMIT_BYTES = 16_384;

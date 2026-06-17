@@ -23,7 +23,7 @@ import {
     assertKnownActor,
     buildActorMarker,
     buildActorMarkerDebugFields,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 
 const APPROVED_APPLICATION_EDIT_ERROR = "Approved creator applications must be managed through the standard creator profile tools.";
 

@@ -22,7 +22,7 @@ import {
     actorMarkerToTelemetryPayload,
     assertKnownActor,
     buildActorMarker,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 
 function buildErrorResponse(status: number, message: string) {
     return NextResponse.json({ error: message }, { status });

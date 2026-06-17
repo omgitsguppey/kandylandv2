@@ -5,14 +5,14 @@ import { TELEMETRY_EVENT_OPTIONS } from "@/lib/telemetry-catalog";
 import {
   SURFACE_TELEMETRY_EVENT_SPINE,
   validateSurfaceTelemetryRegistry,
-} from "@/lib/telemetry/surface-telemetry-contract";
+} from "@/lib/analytics/telemetry/surface-telemetry-contract";
 import {
   SURFACE_TELEMETRY_REGISTRY,
   buildSurfaceTelemetryParityReport,
   classifySurfaceTelemetryDirtyFile,
   getSurfaceTelemetryEventDefinitionByName,
   listSurfaceTelemetryCatalogEvents,
-} from "@/lib/telemetry/surface-telemetry-registry";
+} from "@/lib/analytics/telemetry/surface-telemetry-registry";
 
 describe("surface telemetry parity", () => {
   it("registers the canonical event spine for every major surface", () => {

@@ -1,5 +1,5 @@
 import { classifySourceWindowZeroShell } from "@/lib/debug/source-window-zero-shell-classifier";
-import type { ExperimentRolloutRegistryReport } from "@/lib/experiments/experiment-rollout-registry-contract";
+import type { ExperimentRolloutRegistryReport } from "@/lib/features/experiments/experiment-rollout-registry-contract";
 
 export function buildExperimentRolloutRegistryStatus(input: {
   configuredCount: number;

@@ -7,7 +7,7 @@ import {
     buildActorMarker,
     buildActorMarkerDebugFields,
     type ActorMarker,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { normalizeCreatorApplication, resolveCreatorQueuePosition } from "@/lib/creator-application";
 import {

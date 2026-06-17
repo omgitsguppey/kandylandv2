@@ -26,7 +26,7 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { buildFanPassTelemetry } from "@/lib/fan-pass/fan-pass-access-resolver";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
-import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
+import { assertKnownActor, buildActorMarker } from "@/lib/identity-truth/identity/actor-markers";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 const CREATOR_SUBSCRIPTIONS_READ_LIMIT = 500;

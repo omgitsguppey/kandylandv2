@@ -16,7 +16,7 @@ import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-led
 import { buildNotificationPermissionDebugLane } from "@/lib/notifications/notification-permission-contract";
 import { buildPushTokenDebugLane } from "@/lib/notifications/push-token-contract";
 import { buildNotificationTargetingDebugLane } from "@/lib/notifications/notification-intent-contract";
-import { buildPwaServiceWorkerDebugLane } from "@/lib/pwa/pwa-service-worker-contract";
+import { buildPwaServiceWorkerDebugLane } from "@/lib/features/pwa/pwa-service-worker-contract";
 import { buildAuthProviderConflictDebugLane } from "@/lib/auth/auth-provider-conflict-contract";
 import { buildAuthPersistenceDebugLane } from "@/lib/auth/auth-persistence-contract";
 import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
@@ -1310,7 +1310,7 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       label: "PWA/service worker",
       trackingSystem: "pwa_service_worker",
       sourceOwner: "notifications",
-      sourceOfTruth: "src/lib/pwa/pwa-service-worker-contract.ts",
+      sourceOfTruth: "src/lib/features/pwa/pwa-service-worker-contract.ts",
       status: pwaServiceWorker.status === "unavailable" ? "unavailable" : pwaServiceWorker.status === "degraded" ? "degraded" : pwaServiceWorker.status === "source_ready_not_registered" ? "source_ready_not_registered" : "live",
       severity: severityFromCounts(pwaServiceWorker.forbiddenCacheSafe ? 0 : 1, pwaServiceWorkerWarnings, pwaServiceWorker.status === "unavailable" ? "unavailable" : pwaServiceWorker.status === "degraded" ? "degraded" : pwaServiceWorker.status === "source_ready_not_registered" ? "source_ready_not_registered" : "live"),
       scoreImpact: "medium",

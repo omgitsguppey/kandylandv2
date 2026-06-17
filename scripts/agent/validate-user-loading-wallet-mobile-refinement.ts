@@ -303,8 +303,8 @@ function readInputs(): UserLoadingWalletMobileRefinementInputs {
       packageJson: read("package.json"),
       mobileFinalLockDoc: optionalRead("docs/agent-truth/mobile-ui-final-lock.md"),
       mobileLoadingDoc: optionalRead("docs/agent-truth/mobile-loading-hydration-stability.md"),
-      mobileScaleContract: optionalRead("src/lib/ui/mobile-scale-contract.ts"),
-      loadingContract: optionalRead("src/lib/ui/loading-state-contract.ts"),
+      mobileScaleContract: optionalRead("src/lib/frontend-hardening/ui/mobile-scale-contract.ts"),
+      loadingContract: optionalRead("src/lib/frontend-hardening/ui/loading-state-contract.ts"),
       files,
     },
   };

@@ -4,7 +4,7 @@ import {
   buildPwaServiceWorkerStatusCleanupReport,
   validatePwaServiceWorkerStatusCleanupReport,
 } from "../../scripts/agent/tracking-runtime-surface-status-cleanup-shared";
-import { buildPwaServiceWorkerDebugLane } from "@/lib/pwa/pwa-service-worker-contract";
+import { buildPwaServiceWorkerDebugLane } from "@/lib/features/pwa/pwa-service-worker-contract";
 
 describe("pwa service worker status cleanup", () => {
   it("does not degrade optional clean PWA safety only because registration was not observed", () => {

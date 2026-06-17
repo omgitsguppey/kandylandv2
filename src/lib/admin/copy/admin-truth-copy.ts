@@ -8,7 +8,7 @@ import {
   type AdminOperatorBadgeLabel,
   type AdminOperatorState,
   type AdminStatusSeverity,
-} from "@/lib/admin-copy/admin-copy-registry";
+} from "@/lib/admin/copy/admin-copy-registry";
 
 export type AdminTruthCopyInput = {
   moduleKey?: string | null;

@@ -11,11 +11,11 @@ import {
   normalizeBehavioralExperimentConfig,
   validateBehavioralExperimentConfig,
   validateNoFutureEventsInTraining,
-} from "../../src/lib/experiments/behavioral-experiment-contract";
+} from "../../src/lib/features/experiments/behavioral-experiment-contract";
 import {
   assignBehavioralExperiment,
   resolveBehavioralExperimentUnit,
-} from "../../src/lib/experiments/experiment-assignment";
+} from "../../src/lib/features/experiments/experiment-assignment";
 
 const repoRoot = process.cwd();
 
@@ -39,8 +39,8 @@ function check(label: string, pass: boolean, detail: string): Check {
 
 function main() {
   const packageJson = JSON.parse(read("package.json")) as { scripts?: Record<string, string> };
-  const contractSource = read("src/lib/experiments/behavioral-experiment-contract.ts");
-  const assignmentSource = read("src/lib/experiments/experiment-assignment.ts");
+  const contractSource = read("src/lib/features/experiments/behavioral-experiment-contract.ts");
+  const assignmentSource = read("src/lib/features/experiments/experiment-assignment.ts");
   const docs = read("docs/agent-truth/behavioral-experiments.md");
   const calibrationDocs = read("docs/agent-truth/behavioral-math-calibration.md");
   const rankingDocs = read("docs/agent-truth/recommendation-ranking.md");
@@ -212,8 +212,8 @@ function main() {
     ),
     check(
       "created files exist",
-      exists("src/lib/experiments/behavioral-experiment-contract.ts")
-        && exists("src/lib/experiments/experiment-assignment.ts")
+      exists("src/lib/features/experiments/behavioral-experiment-contract.ts")
+        && exists("src/lib/features/experiments/experiment-assignment.ts")
         && exists("scripts/agent/validate-behavioral-experiments.ts")
         && exists("docs/agent-truth/behavioral-experiments.md"),
       "Experiment contract, assignment helper, validator, and doctrine doc must exist.",

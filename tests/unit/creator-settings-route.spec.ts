@@ -152,7 +152,7 @@ vi.mock("@/lib/server/analytics", () => ({
   trackServerEvent: vi.fn(async () => undefined),
 }));
 
-vi.mock("@/lib/identity/actor-markers", () => ({
+vi.mock("@/lib/identity-truth/identity/actor-markers", () => ({
   actorMarkerToTelemetryPayload: vi.fn(() => ({})),
   assertKnownActor: vi.fn((value: unknown) => value),
   buildActorMarker: vi.fn((value: unknown) => value),

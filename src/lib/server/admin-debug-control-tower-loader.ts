@@ -8,7 +8,7 @@ import {
 import {
   groupRuntimeEvidenceByFingerprintAndSource,
   resolveControlTowerBusinessTruthState,
-} from "@/lib/admin-debug/control-tower-truth";
+} from "@/lib/admin/debug/control-tower-truth";
 import { readAdminUserTruthSnapshot } from "@/lib/server/admin-user-truth-snapshot";
 import { listRecentDebugEvidence } from "@/lib/server/debug-evidence-store";
 

@@ -93,7 +93,7 @@ function main() {
   const contractSource = read("src/lib/analytics/identity-handoff-contract.ts");
   const engineSource = read("src/lib/analytics/identity-handoff-engine.ts");
   const telemetrySource = read("src/lib/telemetry.ts");
-  const telemetrySafetySource = read("src/lib/telemetry-safety.ts");
+  const telemetrySafetySource = read("src/lib/analytics/telemetry-safety.ts");
   const trackerSource = read("src/components/Analytics/DeepTracker.tsx");
   const anonymousIngestSource = read("src/app/api/analytics/ingest/route.ts");
   const identifiedIngestSource = read("src/app/api/analytics/ingest-identified/route.ts");

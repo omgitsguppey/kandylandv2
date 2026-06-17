@@ -1,4 +1,4 @@
-import { CREATOR_DASHBOARD_SETTINGS_TOOLS } from "@/lib/creator-dashboard/creator-settings-contract";
+import { CREATOR_DASHBOARD_SETTINGS_TOOLS } from "@/lib/creator/dashboard/creator-settings-contract";
 import { USER_SETTINGS_SURFACE_TOOLS } from "@/lib/settings/user-settings-contract";
 
 export const SETTINGS_SURFACE_POLICY = {

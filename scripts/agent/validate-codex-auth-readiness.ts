@@ -7,7 +7,7 @@ import {
   REQUIRED_AUTH_SURFACES,
   type AuthSurfaceStatus,
   type CodexAuthReadinessReport,
-} from "../../src/lib/devops/auth-surface-contract";
+} from "../../src/lib/config-hardening/devops/auth-surface-contract";
 
 const root = process.cwd();
 const failures: string[] = [];
@@ -83,7 +83,7 @@ function validateSurface(surface: AuthSurfaceStatus) {
 }
 
 for (const filePath of [
-  "src/lib/devops/auth-surface-contract.ts",
+  "src/lib/config-hardening/devops/auth-surface-contract.ts",
   "scripts/agent/verify-codex-native-auth.ts",
   "scripts/agent/plan-cloud-auth-bootstrap.ts",
   "scripts/agent/validate-codex-auth-readiness.ts",

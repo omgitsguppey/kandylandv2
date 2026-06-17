@@ -87,7 +87,7 @@ describe("surface state parity", () => {
 
   it("classifies Creator Spotlight state and parity artifacts for focused homepage work", () => {
     expect(classifySurfaceStateDirtyFile("src/components/CreatorDiscoveryRail.tsx")).toBe("real_source_change_needs_review");
-    expect(classifySurfaceStateDirtyFile("src/lib/telemetry/surface-telemetry-registry.ts")).toBe("real_source_change_needs_review");
+    expect(classifySurfaceStateDirtyFile("src/lib/analytics/telemetry/surface-telemetry-registry.ts")).toBe("real_source_change_needs_review");
     expect(classifySurfaceStateDirtyFile("tests/unit/creator-discovery-rail.spec.tsx")).toBe("test_artifact_expected");
     expect(classifySurfaceStateDirtyFile("tests/unit/surface-telemetry-parity.spec.ts")).toBe("test_artifact_expected");
     expect(classifySurfaceStateDirtyFile("agent/state/frontend-telemetry-consolidation.generated.json")).toBe("current_generated_artifact_to_commit");

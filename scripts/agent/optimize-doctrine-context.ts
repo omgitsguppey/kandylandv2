@@ -3,7 +3,7 @@ import {
   writeOptimizedDoctrineContext,
   OPTIMIZED_DOCTRINE_CONTEXT_PATH,
   type DoctrineRetrievalInput,
-} from "../../src/lib/doctrine/doctrine-retrieval-optimizer";
+} from "../../src/lib/agent-governance/doctrine/doctrine-retrieval-optimizer";
 
 function readArg(name: string) {
   const index = process.argv.indexOf(name);

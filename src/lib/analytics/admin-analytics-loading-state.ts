@@ -1,6 +1,6 @@
 import type { AdminMetricSnapshot } from "@/lib/analytics/admin-metric-snapshot";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
-import { getDisplaySnapshot } from "@/lib/cache/refresh-cache-contract";
+import { getDisplaySnapshot } from "@/lib/runtime/cache/refresh-cache-contract";
 
 export type AdminAnalyticsWaitingReason =
   | "snapshot_available"

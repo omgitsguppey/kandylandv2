@@ -2,7 +2,7 @@ import {
     actorMarkerToTelemetryPayload,
     buildActorMarker,
     type ActorMarkerUserLike,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 
 export const CREATOR_DASHBOARD_ROUTE = "/dashboard/creator";
 export const CREATOR_SETTINGS_ROUTE = "/dashboard/creator/settings";

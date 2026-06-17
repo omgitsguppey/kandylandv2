@@ -5,7 +5,7 @@ import {
   formatAdminSurfaceStateLabel,
   type AdminSurfaceState,
 } from "@/lib/admin-parity";
-import { getAdminStatusBadgeLabel, getAdminStatusExplanation } from "@/lib/admin-copy/admin-truth-copy";
+import { getAdminStatusBadgeLabel, getAdminStatusExplanation } from "@/lib/admin/copy/admin-truth-copy";
 import { LAUNCH_BADGE_CONTAINMENT_CLASSNAME } from "@/lib/design-system";
 import { cn } from "@/lib/utils";
 

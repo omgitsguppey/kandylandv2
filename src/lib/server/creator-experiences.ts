@@ -4,7 +4,7 @@ import { createHash } from "crypto";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { CREATOR_REVENUE_SHARE, buildCreatorRelationshipId, calculateCreatorCashoutUsd, getCreatorBookingRate, getCreatorMessageCost, normalizeCreatorRestrictions, normalizeCreatorSettings, normalizePositiveWholeNumber } from "@/lib/creator-experiences";
-import type { ActorMarker } from "@/lib/identity/actor-markers";
+import type { ActorMarker } from "@/lib/identity-truth/identity/actor-markers";
 import { assertCreatorExperienceSpendIsPurchasedOnly } from "@/lib/gumdrop-source-of-funds";
 import {
     buildSourceAwareBalancePatch,

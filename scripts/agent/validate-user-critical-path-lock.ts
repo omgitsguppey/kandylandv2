@@ -10,7 +10,7 @@ import {
 import {
   deriveGeneratedReportFreshness,
   type GeneratedReportFreshness,
-} from "../../src/lib/generated-reports/generated-report-contract";
+} from "../../src/lib/agent-governance/generated-reports/generated-report-contract";
 
 type SectionResult = {
   name: string;

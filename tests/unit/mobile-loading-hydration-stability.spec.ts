@@ -9,7 +9,7 @@ import {
   getMobileSkeletonClass,
   getModuleLoadingState,
   shouldShowCompactSkeleton,
-} from "../../src/lib/ui/loading-state-contract";
+} from "../../src/lib/frontend-hardening/ui/loading-state-contract";
 
 const baseSources = {
   loadingContract: "createStaleRequestGuard getMobileSkeletonClass getModuleLoadingState shouldShowCompactSkeleton",

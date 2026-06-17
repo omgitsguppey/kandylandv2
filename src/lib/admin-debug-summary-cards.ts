@@ -1,6 +1,6 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
-import type { AdminDebugExplanation } from "@/lib/admin-copy/admin-truth-copy";
-import { buildAdminDebugExplanation } from "@/lib/admin-copy/admin-truth-copy";
+import type { AdminDebugExplanation } from "@/lib/admin/copy/admin-truth-copy";
+import { buildAdminDebugExplanation } from "@/lib/admin/copy/admin-truth-copy";
 import { classifyAiAssistantRuntimeStatus } from "@/lib/debug/ai-assistant-runtime-status";
 import { reconcileRouteHealth } from "@/lib/debug/route-health-reconciler";
 

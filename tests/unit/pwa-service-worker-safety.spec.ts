@@ -6,10 +6,10 @@ import {
   buildPwaServiceWorkerDebugLane,
   classifyPwaServiceWorkerSafety,
   shouldBypassServiceWorkerCache,
-} from "@/lib/pwa/pwa-service-worker-contract";
+} from "@/lib/features/pwa/pwa-service-worker-contract";
 import {
   buildPwaUpdateTelemetryEnvelope,
-} from "@/lib/pwa/pwa-update-telemetry";
+} from "@/lib/features/pwa/pwa-update-telemetry";
 
 describe("PWA service worker safety", () => {
   it("blocks sensitive wallet, payment, chat, auth, and private content paths from service worker caching", () => {

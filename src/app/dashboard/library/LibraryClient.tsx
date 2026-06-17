@@ -11,8 +11,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Drop } from "@/types/db";
 import { OwnedDropGalleryCard } from "@/components/Dashboard/OwnedDropGalleryCard";
 import { trackEvent } from "@/lib/telemetry";
-import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
-import { getMobileSkeletonClass } from "@/lib/ui/loading-state-contract";
+import { getMobileModuleClassNames } from "@/lib/frontend-hardening/ui/mobile-scale-contract";
+import { getMobileSkeletonClass } from "@/lib/frontend-hardening/ui/loading-state-contract";
 
 type Ratio = "1:1" | "16:9" | "9:16";
 

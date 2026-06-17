@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { CREATOR_FEATURE_PARITY_MAP } from "@/lib/creator-features/creator-feature-parity-map";
+import { CREATOR_FEATURE_PARITY_MAP } from "@/lib/creator/features/creator-feature-parity-map";
 
 describe("creator feature parity map", () => {
   it("maps creator surfaces through source truth, status, user/admin consumers, telemetry, debug, and 4xx", () => {

@@ -46,7 +46,7 @@ import {
     readPaidSourceBalanceForRestrictedSpend,
     spendCreatorExperienceGumdrops,
 } from "@/lib/server/creator-experiences";
-import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
+import { assertKnownActor, buildActorMarker } from "@/lib/identity-truth/identity/actor-markers";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { AuthError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";

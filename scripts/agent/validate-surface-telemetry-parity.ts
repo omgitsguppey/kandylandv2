@@ -15,12 +15,12 @@ import { TELEMETRY_EVENT_OPTIONS } from "@/lib/telemetry-catalog";
 import {
   SURFACE_TELEMETRY_EVENT_SPINE,
   validateSurfaceTelemetryRegistry,
-} from "@/lib/telemetry/surface-telemetry-contract";
+} from "@/lib/analytics/telemetry/surface-telemetry-contract";
 import {
   SURFACE_TELEMETRY_REGISTRY,
   buildSurfaceTelemetryParityReport,
   listSurfaceTelemetryCatalogEvents,
-} from "@/lib/telemetry/surface-telemetry-registry";
+} from "@/lib/analytics/telemetry/surface-telemetry-registry";
 import { listWorkingTreeFiles, readRepoToolchainState } from "./shared";
 
 const ROOT = process.cwd();

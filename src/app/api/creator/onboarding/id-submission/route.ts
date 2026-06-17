@@ -24,7 +24,7 @@ import {
     assertKnownActor,
     buildActorMarker,
     type ActorMarker,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 
 const MAX_ID_UPLOAD_BYTES = 15 * 1024 * 1024;
 const ALLOWED_ID_CONTENT_TYPES = new Set([

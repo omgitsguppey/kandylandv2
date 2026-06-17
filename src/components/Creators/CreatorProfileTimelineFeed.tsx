@@ -3,7 +3,7 @@
 import { Megaphone, Sparkles } from "lucide-react";
 
 import { MarqueeText } from "@/components/ui/MarqueeText";
-import type { CreatorProfileTimelineItem } from "@/lib/creator-profile/timeline-contract";
+import type { CreatorProfileTimelineItem } from "@/lib/creator/profile/timeline-contract";
 import { cn } from "@/lib/utils";
 import type { Drop } from "@/types/db";
 

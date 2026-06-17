@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { buildGeneratedReportCompleteness } from "@/lib/generated-reports/generated-report-contract";
+import { buildGeneratedReportCompleteness } from "@/lib/agent-governance/generated-reports/generated-report-contract";
 import { buildGeneratedReportSchemaContractReport, validateGeneratedReportSchemaContractReport } from "@/lib/type-hardening/generated-report-schema-contract";
 
 const ROOT = process.cwd();

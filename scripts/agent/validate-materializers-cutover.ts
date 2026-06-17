@@ -19,8 +19,8 @@ const analyticsTruthCli = read("functions/src/analytics-truth-cli.ts");
 const behavioralRebuild = read("scripts/rebuild-behavioral-intelligence.ts");
 const analyticsRebuild = read("scripts/rebuild-analytics-truth.ts");
 const adminMaterializers = read("src/lib/server/admin-analytics-materializers.ts");
-const contract = read("src/lib/materializers/materializer-contract.ts");
-const sourcePolicy = read("src/lib/materializers/materializer-source-policy.ts");
+const contract = read("src/lib/analytics/materializers/materializer-contract.ts");
+const sourcePolicy = read("src/lib/analytics/materializers/materializer-source-policy.ts");
 const packageJson = read("package.json");
 
 assert(contract.includes("CanonicalMaterializerEnvelope"), "Materializer contract must define a canonical envelope.");

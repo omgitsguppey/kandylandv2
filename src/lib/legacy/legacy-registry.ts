@@ -117,7 +117,7 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
       "src/lib/analytics/analytics-event-contract.ts",
       "src/lib/behavioral/normalize-event-fact.ts",
       "src/lib/behavioral/event-fact-normalizer.ts",
-      "src/lib/identity/actor-markers.ts",
+      "src/lib/identity-truth/identity/actor-markers.ts",
       "src/lib/server/analytics.ts",
       "scripts/agent/validate-synthetic-creators-view-as.ts",
       "scripts/agent/validate-admin-projection-analytics-exclusion.ts",

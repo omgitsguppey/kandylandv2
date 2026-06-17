@@ -22,7 +22,7 @@ import {
     assertKnownActor,
     buildActorMarker,
     type ActorMarker,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 
 const MAX_USER_REGISTER_BODY_BYTES = 32 * 1024;
 

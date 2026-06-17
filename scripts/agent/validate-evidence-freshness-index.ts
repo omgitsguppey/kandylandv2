@@ -7,7 +7,7 @@ import {
   GENERATED_REPORT_SCAN_ROOTS,
   deriveGeneratedReportFreshness,
   isGeneratedReportPath,
-} from "../../src/lib/generated-reports/generated-report-contract";
+} from "../../src/lib/agent-governance/generated-reports/generated-report-contract";
 import { ensureDirectory, getPackageScripts, nowIso, writeJsonFile, writeTextFile, type Json } from "./shared";
 
 const REPORT_PATH = "agent/state/evidence-freshness-index.generated.json";

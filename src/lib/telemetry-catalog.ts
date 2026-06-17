@@ -4,7 +4,7 @@ import {
   type BehaviorDebugVisibility,
   type BehaviorFeatureId,
 } from "@/lib/behavioral/behavior-feature-registry";
-import { SURFACE_TELEMETRY_CATALOG_EVENT_OPTIONS_TO_APPEND } from "@/lib/telemetry/surface-telemetry-catalog-events";
+import { SURFACE_TELEMETRY_CATALOG_EVENT_OPTIONS_TO_APPEND } from "@/lib/analytics/telemetry/surface-telemetry-catalog-events";
 
 export type TelemetryEventCategory =
   | "auth"

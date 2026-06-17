@@ -19,7 +19,7 @@ import {
   buildActorMarkerDebugFields,
   buildAdminOnBehalfMarker,
   type ActorMarker,
-} from "@/lib/identity/actor-markers";
+} from "@/lib/identity-truth/identity/actor-markers";
 import { handleApiError } from "@/lib/server/auth";
 import {
   buildAdminErrorResponse,

@@ -7,7 +7,7 @@ const requiredFiles = [
   "src/lib/tasks/task-telemetry-mapping-engine.ts",
   "src/lib/behavioral/behavioral-intelligence-snapshot-status.ts",
   "src/lib/analytics/telemetry-truth-recovery-formulas.ts",
-  "src/lib/experiments/experiment-rollout-registry-status.ts",
+  "src/lib/features/experiments/experiment-rollout-registry-status.ts",
   "agent/state/debug-cockpit-batch35-behavior-stack.generated.json",
   "docs/agent-truth/debug-cockpit-batch35-behavior-stack.md",
 ];

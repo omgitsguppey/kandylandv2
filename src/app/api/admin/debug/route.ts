@@ -59,7 +59,7 @@ import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-led
 import { buildBehaviorNormalizationInternals } from "@/lib/behavioral/behavior-normalization-internals-engine";
 import { buildBehavioralIntelligenceSnapshotStatus } from "@/lib/behavioral/behavioral-intelligence-snapshot-status";
 import { buildTelemetryTruthRecoveryStatus } from "@/lib/analytics/telemetry-truth-recovery-status";
-import { buildExperimentRolloutRegistryStatus } from "@/lib/experiments/experiment-rollout-registry-status";
+import { buildExperimentRolloutRegistryStatus } from "@/lib/features/experiments/experiment-rollout-registry-status";
 import { classifySourceWindowZeroShell } from "@/lib/debug/source-window-zero-shell-classifier";
 import { buildTaskCatalogRuntimeReconstruction } from "@/lib/tasks/task-catalog-coverage-engine";
 import { buildTaskTelemetryMappingReconstruction } from "@/lib/tasks/task-telemetry-mapping-engine";

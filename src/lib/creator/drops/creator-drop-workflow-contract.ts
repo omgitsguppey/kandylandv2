@@ -1,4 +1,4 @@
-import type { CreatorDrop4xxClass } from "@/lib/creator-drops/creator-drop-4xx-policy";
+import type { CreatorDrop4xxClass } from "@/lib/creator/drops/creator-drop-4xx-policy";
 
 export const CREATOR_DROP_WORKFLOW_STATES = [
     "draft",

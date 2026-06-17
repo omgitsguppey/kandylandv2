@@ -4,14 +4,14 @@ import { dirname, join } from "node:path";
 import {
   DEFAULT_MAX_DOCTRINE_TOKENS,
   HIGH_RISK_MAX_DOCTRINE_CARDS,
-} from "../../src/lib/doctrine/doctrine-context-cost";
+} from "../../src/lib/agent-governance/doctrine/doctrine-context-cost";
 import {
   loadDoctrineCards,
   optimizeDoctrineContext,
   writeOptimizedDoctrineContext,
   type DoctrineRetrievalInput,
   type OptimizedDoctrineContext,
-} from "../../src/lib/doctrine/doctrine-retrieval-optimizer";
+} from "../../src/lib/agent-governance/doctrine/doctrine-retrieval-optimizer";
 
 const root = process.cwd();
 const reportPath = "agent/state/doctrine-retrieval-optimizer.generated.json";
@@ -167,10 +167,10 @@ function validateSample(sample: SampleTask, context: OptimizedDoctrineContext) {
 }
 
 for (const filePath of [
-  "src/lib/doctrine/doctrine-retrieval-optimizer.ts",
-  "src/lib/doctrine/doctrine-coverage-score.ts",
-  "src/lib/doctrine/doctrine-context-cost.ts",
-  "src/lib/doctrine/doctrine-conflict-score.ts",
+  "src/lib/agent-governance/doctrine/doctrine-retrieval-optimizer.ts",
+  "src/lib/agent-governance/doctrine/doctrine-coverage-score.ts",
+  "src/lib/agent-governance/doctrine/doctrine-context-cost.ts",
+  "src/lib/agent-governance/doctrine/doctrine-conflict-score.ts",
   "scripts/agent/optimize-doctrine-context.ts",
   "scripts/agent/validate-doctrine-retrieval-optimizer.ts",
   "agent/context/optimized-task-context.generated.json",

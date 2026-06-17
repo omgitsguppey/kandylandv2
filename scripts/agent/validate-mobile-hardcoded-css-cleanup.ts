@@ -290,7 +290,7 @@ function readInputs(): MobileHardcodedCssCleanupInputs {
     generatedAtUtc: new Date().toISOString(),
     changedFiles: changedFiles(),
     sources: {
-      contract: optionalRead("src/lib/ui/mobile-scale-contract.ts"),
+      contract: optionalRead("src/lib/frontend-hardening/ui/mobile-scale-contract.ts"),
       packageJson: read("package.json"),
       files,
     },

@@ -28,8 +28,8 @@ function fail(file: string | undefined, message: string) {
 }
 
 const requiredFiles = [
-  "src/lib/admin-copy/admin-truth-copy.ts",
-  "src/lib/admin-copy/admin-copy-registry.ts",
+  "src/lib/admin/copy/admin-truth-copy.ts",
+  "src/lib/admin/copy/admin-copy-registry.ts",
   "src/lib/problem-state-copy.ts",
   "tests/unit/admin-truth-copy.spec.ts",
   "tests/unit/problem-state-copy.spec.ts",
@@ -41,8 +41,8 @@ for (const file of requiredFiles) {
   read(file);
 }
 
-const registry = read("src/lib/admin-copy/admin-copy-registry.ts");
-const mapper = read("src/lib/admin-copy/admin-truth-copy.ts");
+const registry = read("src/lib/admin/copy/admin-copy-registry.ts");
+const mapper = read("src/lib/admin/copy/admin-truth-copy.ts");
 const problemCopy = read("src/lib/problem-state-copy.ts");
 const debugCards = read("src/lib/admin-debug-summary-cards.ts");
 
@@ -58,7 +58,7 @@ for (const expected of [
   "summarizeAdminIssueForOperator",
 ]) {
   if (!mapper.includes(`function ${expected}`) && !mapper.includes(`const ${expected}`)) {
-    fail("src/lib/admin-copy/admin-truth-copy.ts", `Missing admin copy helper: ${expected}.`);
+    fail("src/lib/admin/copy/admin-truth-copy.ts", `Missing admin copy helper: ${expected}.`);
   }
 }
 
@@ -83,7 +83,7 @@ for (const pattern of [
   "fake_zero_prevented",
 ]) {
   if (!registry.includes(pattern)) {
-    fail("src/lib/admin-copy/admin-copy-registry.ts", `Missing registered admin copy pattern: ${pattern}.`);
+    fail("src/lib/admin/copy/admin-copy-registry.ts", `Missing registered admin copy pattern: ${pattern}.`);
   }
 }
 
@@ -100,7 +100,7 @@ for (const expected of [
 
 for (const badge of ["LIVE", "UPDATED", "REFRESHING", "DELAYED", "EST", "PARTIAL", "WAIT", "REVIEW", "ERROR", "SNAP"]) {
   if (!registry.includes(`"${badge}"`)) {
-    fail("src/lib/admin-copy/admin-copy-registry.ts", `Approved badge label is not registered: ${badge}.`);
+    fail("src/lib/admin/copy/admin-copy-registry.ts", `Approved badge label is not registered: ${badge}.`);
   }
 }
 

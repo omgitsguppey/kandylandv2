@@ -30,7 +30,7 @@ function requireNotIncludes(source: string, forbidden: string, label: string) {
 }
 
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
-const controlTowerTruth = readRequired("src/lib/admin-debug/control-tower-truth.ts");
+const controlTowerTruth = readRequired("src/lib/admin/debug/control-tower-truth.ts");
 const controlTowerLoader = readRequired("src/lib/server/admin-debug-control-tower-loader.ts");
 const controlTowerRoute = readRequired("src/app/api/admin/debug/control-tower/route.ts");
 const controlTowerComponent = readRequired("src/app/admin/debug/components/DebugControlTower.tsx");

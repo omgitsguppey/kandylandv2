@@ -8,7 +8,7 @@ import type {
   PwaServiceWorkerStatus,
   PwaServiceWorkerTelemetryEvent,
   PwaUpdateStatus,
-} from "@/lib/pwa/pwa-service-worker-contract";
+} from "@/lib/features/pwa/pwa-service-worker-contract";
 
 export type PwaUpdateTelemetryPayload = {
   eventName: PwaServiceWorkerTelemetryEvent;

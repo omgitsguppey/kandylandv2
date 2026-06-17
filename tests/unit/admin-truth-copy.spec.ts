@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import {
   ADMIN_OPERATOR_BADGE_LABELS,
-} from "@/lib/admin-copy/admin-copy-registry";
+} from "@/lib/admin/copy/admin-copy-registry";
 import {
   buildAdminDebugExplanation,
   buildDeveloperDebugCopy,
   buildOperatorStatusCopy,
   getAdminStatusBadgeLabel,
   summarizeAdminIssueForOperator,
-} from "@/lib/admin-copy/admin-truth-copy";
+} from "@/lib/admin/copy/admin-truth-copy";
 
 const BANNED_MAIN_COPY = [
   "failed closed",

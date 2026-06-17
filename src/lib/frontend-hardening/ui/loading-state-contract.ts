@@ -2,7 +2,7 @@ import {
   getSkeletonClassForModule,
   type MobileModuleType,
   type MobileUiSurface,
-} from "@/lib/ui/mobile-scale-contract";
+} from "@/lib/frontend-hardening/ui/mobile-scale-contract";
 
 export type ModuleLoadingState = "idle" | "loading" | "refreshing" | "loaded" | "empty" | "error";
 

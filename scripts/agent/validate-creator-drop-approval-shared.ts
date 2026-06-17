@@ -103,9 +103,9 @@ function writeDoc(key: CreatorDropRepairKey, report: Report) {
 }
 
 function buildFindings() {
-  const workflow = read("src/lib/creator-drops/creator-drop-workflow-contract.ts");
-  const policy = read("src/lib/creator-drops/creator-drop-4xx-policy.ts");
-  const featureMap = read("src/lib/creator-features/creator-feature-parity-map.ts");
+  const workflow = read("src/lib/creator/drops/creator-drop-workflow-contract.ts");
+  const policy = read("src/lib/creator/drops/creator-drop-4xx-policy.ts");
+  const featureMap = read("src/lib/creator/features/creator-feature-parity-map.ts");
   const manager = read("src/components/Creators/CreatorDropManager.tsx");
   const modal = read("src/components/Admin/CreateDropModal.tsx");
   const creatorRoute = read("src/app/api/creator/drops/route.ts");

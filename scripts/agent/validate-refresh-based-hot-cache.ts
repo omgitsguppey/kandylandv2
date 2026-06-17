@@ -26,7 +26,7 @@ function requireNotIncludes(source: string, needle: string, label: string) {
   }
 }
 
-const contract = readRequired("src/lib/cache/refresh-cache-contract.ts");
+const contract = readRequired("src/lib/runtime/cache/refresh-cache-contract.ts");
 const snapshotContract = readRequired("src/lib/analytics/admin-metric-snapshot.ts");
 const snapshotStore = readRequired("src/lib/server/admin-analytics-snapshots.ts");
 const loadingHelper = readRequired("src/lib/analytics/admin-analytics-loading-state.ts");

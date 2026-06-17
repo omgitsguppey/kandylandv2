@@ -11,7 +11,7 @@ describe("SIGNAL telemetry graph collector", () => {
       trackedFiles: [
         "src/lib/telemetry.ts",
         "src/lib/telemetry-catalog.ts",
-        "src/lib/telemetry/surface-telemetry-catalog-events.ts",
+        "src/lib/analytics/telemetry/surface-telemetry-catalog-events.ts",
         "src/lib/analytics/person-metrics-contract.ts",
         "src/lib/analytics/telemetry-intent-aliases.ts",
         "src/app/api/analytics/ingest/route.ts",

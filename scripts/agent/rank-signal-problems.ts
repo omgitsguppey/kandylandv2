@@ -21,7 +21,7 @@ import {
   type GeneratedReportCompletenessMetadata,
   type GeneratedReportCleanupMetadata,
   type GeneratedReportFreshness,
-} from "../../src/lib/generated-reports/generated-report-contract";
+} from "../../src/lib/agent-governance/generated-reports/generated-report-contract";
 import { selectVerificationPlan, type VerificationPlan } from "./verification-selector";
 import { buildSignalSourceGraphReportFromRepo } from "./collect-signal-source-graph";
 

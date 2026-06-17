@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { buildCreatorProfileTimeline } from "@/lib/creator-profile/timeline-contract";
+import { buildCreatorProfileTimeline } from "@/lib/creator/profile/timeline-contract";
 
 const root = process.cwd();
 

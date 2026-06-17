@@ -109,7 +109,7 @@ function collectChangedFiles() {
       "src/app/api/creator/bookings/route.ts",
       "src/app/api/creator/subscriptions/route.ts",
       "src/app/dashboard/profile/hooks/useProfileState.tsx",
-      "src/lib/creator-dashboard/",
+      "src/lib/creator/dashboard/",
       "src/lib/settings/",
       "src/lib/telemetry-catalog.ts",
       "docs/agent-truth/user-settings-surface.md",
