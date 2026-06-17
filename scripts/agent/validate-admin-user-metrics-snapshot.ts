@@ -59,7 +59,8 @@ assert(
 assert(overviewRoute.includes("userMetricsSnapshot") || overviewRoute.includes("userTruthSnapshot"), "Admin overview stats must include the canonical snapshot.");
 assert(types.includes("metricsSnapshot?: AdminUserMetricsSnapshot"), "UsersSummary must expose snapshot metadata.");
 assert(usersPage.includes("data-admin-metric-source") && usersPage.includes("data-admin-metric-freshness"), "Admin users page must expose metric source/freshness metadata.");
-assert(statsBar.includes("data-admin-metric-source") && statsBar.includes("data-admin-metric-freshness"), "Admin stats bar must expose metric source/freshness metadata.");
+assert(statsBar.includes("data-admin-metric-freshness"), "Admin stats bar must expose metric freshness metadata.");
+assert(!statsBar.includes("data-admin-metric-source"), "Admin stats bar must not expose stale metric source debug metadata.");
 assert(usersPage.includes("useAdminUsersRealtime("), "Admin users page must use the shared realtime pulse hook.");
 assert(!usersPage.includes('authFetch("/api/admin/users/realtime"'), "Admin users page must not stream business metrics directly from the realtime route.");
 assert(usersPage.includes("snapshotRefreshState"), "Admin users page must keep a snapshot refresh state separate from the realtime pulse.");

@@ -39,6 +39,8 @@ describe("AdminStatsBar compact platform pulse", () => {
     );
 
     expect(container.querySelectorAll("[data-admin-metric-id]")).toHaveLength(6);
+    expect(container.querySelector("[data-admin-metric-source]")).toBeNull();
+    expect(container.querySelectorAll("[data-admin-metric-freshness]")).toHaveLength(6);
     expect(container.querySelector("[data-admin-platform-pulse-grid]")?.className).toContain("grid-cols-2");
     expect(container.querySelector("[data-admin-platform-pulse-grid]")?.className).toContain("md:grid-cols-3");
 
