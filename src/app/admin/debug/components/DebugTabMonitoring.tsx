@@ -70,6 +70,19 @@ function truthForRouteRuntimeDisplayState(state: RouteRuntimeDisplayBadgeState) 
     if (state === "no_sample") return "unavailable" as const;
     return "live" as const;
 }
+function labelForRouteRuntimeBadge(label: string) {
+    return label.toLowerCase().includes("slow samples") ? "Slow samples" : label;
+}
+function formatChatTriple(label: "Native chat" | "Compat chat", summary: {
+    currentFailCount: number;
+    staleRoutes: number;
+    unseenRoutes: number;
+}) {
+    const failLabel = label === "Native chat" ? "Native chat fail" : "Compat chat fail";
+    const staleLabel = label === "Native chat" ? "Native chat stale" : "Compat chat stale";
+    const unseenLabel = label === "Native chat" ? "Native chat unseen" : "Compat chat unseen";
+    return `${failLabel}: ${summary.currentFailCount} / ${staleLabel}: ${summary.staleRoutes} / ${unseenLabel}: ${summary.unseenRoutes}`;
+}
 function toneForQueueContinuityStatus(status?: string) {
     if (status === "healthy_current") return "good" as const;
     if (status === "broken_drift") return "bad" as const;
@@ -303,6 +316,8 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
     const routeRuntimeChatFailCount = routeRuntimeRollup.cohorts.chat_native.currentFailCount + routeRuntimeRollup.cohorts.chat_compat.currentFailCount;
     const routeRuntimeChatStaleCount = routeRuntimeRollup.cohorts.chat_native.staleRoutes + routeRuntimeRollup.cohorts.chat_compat.staleRoutes;
     const routeRuntimeChatUnseenCount = routeRuntimeRollup.cohorts.chat_native.unseenRoutes + routeRuntimeRollup.cohorts.chat_compat.unseenRoutes;
+    const nativeChatTriple = formatChatTriple("Native chat", routeRuntimeRollup.cohorts.chat_native);
+    const compatChatTriple = formatChatTriple("Compat chat", routeRuntimeRollup.cohorts.chat_compat);
     const routeRuntimeChatTruthState = routeRuntimeChatFailCount > 0
         ? "failed"
         : routeRuntimeChatStaleCount > 0
@@ -317,15 +332,19 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
             <Pill label="Observed" value={routeRuntimeRollup.observedCount} truthState={routeRuntimeRollup.observedCount > 0 ? "live" : "unavailable"} badgeLabel={routeRuntimeRollup.observedCount > 0 ? "LOADED" : "NO SAMPLE"} />
             <Pill label="Filter" value={routeRuntimeFilter.replace("_", " ")} truthState={routeRuntimeLoaded ? "live" : "unavailable"} badgeLabel="INFO" />
             {routeRuntimeDisplay.badges.map((badge) => (
-                <Pill key={badge.label} label={badge.label} value={badge.value} tone={toneForRouteRuntimeDisplayState(badge.state)} truthState={truthForRouteRuntimeDisplayState(badge.state)} badgeLabel={badge.state.toUpperCase()} />
+                <Pill key={badge.label} label={labelForRouteRuntimeBadge(badge.label)} value={badge.value} tone={toneForRouteRuntimeDisplayState(badge.state)} truthState={truthForRouteRuntimeDisplayState(badge.state)} badgeLabel={badge.state.toUpperCase()} />
             ))}
             <Pill
                 label="Chat routes"
-                value={`${routeRuntimeChatFailCount} fail / ${routeRuntimeChatStaleCount} stale / ${routeRuntimeChatUnseenCount} unseen`}
+                value={`${nativeChatTriple} | ${compatChatTriple}`}
                 tone={routeRuntimeChatFailCount > 0 ? "bad" : routeRuntimeChatStaleCount > 0 || routeRuntimeChatUnseenCount > 0 ? "warn" : "good"}
                 truthState={routeRuntimeChatTruthState}
                 badgeLabel="DRILLDOWN"
             />
+            <span className="sr-only">
+                Native chat observed {routeRuntimeRollup.cohorts.chat_native.observedRoutes}. Native chat samples {routeRuntimeRollup.cohorts.chat_native.samples}.
+                Compat observed {routeRuntimeRollup.cohorts.chat_compat.observedRoutes}. Compat samples {routeRuntimeRollup.cohorts.chat_compat.samples}.
+            </span>
         </>
     );
 

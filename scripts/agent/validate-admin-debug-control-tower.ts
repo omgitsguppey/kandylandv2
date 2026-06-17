@@ -2329,7 +2329,8 @@ for (const expected of [
   "Fallback views:",
   "Top source events:",
   "No navigation tap or destination-view events found in this range.",
-  "Source: {item.sourceTruth}",
+  "formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)",
+  "title={item.sourceTruth}",
 ]) {
   requireIncludes(adminAnalyticsAudienceTab, expected, "Navigation destinations audience panel");
 }
@@ -2598,6 +2599,7 @@ try {
     /^src\/types\/db\.ts$/u,
     /^src\/types\/admin-analytics\.ts$/u,
     /^tests\/unit\/admin-analytics-event-mix\.spec\.ts$/u,
+    /^tests\/unit\/admin-analytics-audience-mobile\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-live-interaction-stream\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-device-mix\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-top-paths\.spec\.ts$/u,

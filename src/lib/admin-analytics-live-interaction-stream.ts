@@ -521,7 +521,7 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
             ? "Waiting for first snapshot."
             : "Interaction snapshot unavailable for this range.",
     streamSourceStatusDetail: hasResponse
-      ? `Source ${sourceTruth}. Last event ${lastEventAt ? new Date(lastEventAt).toISOString() : "unknown"}. Generated ${generatedAtMs ? new Date(generatedAtMs).toISOString() : "unknown"}.`
+      ? `Source ${sourceTruth}. ${streamSourceMode === "stale_snapshot" ? "stale recent-event snapshot. " : ""}Last event ${lastEventAt ? new Date(lastEventAt).toISOString() : "unknown"}. Generated ${generatedAtMs ? new Date(generatedAtMs).toISOString() : "unknown"}.`
       : input.loading
         ? "Interaction stream is waiting for first snapshot."
         : "Interaction stream has no validated snapshot for this range.",

@@ -125,6 +125,7 @@ describe("buildAdminAnalyticsLiveInteractionStreamModel", () => {
     expect(model.visibleCopy).toContain("Refresh due");
     expect(model.recommendation).toContain("Refresh due");
     expect(model.warnings).toContain("Refresh due. Showing the latest verified interaction snapshot until new events arrive.");
+    expect(model.streamSourceStatusDetail).toContain("stale recent-event snapshot");
     expect(model.eventRows[0]).toMatchObject({
       eventType: "message",
       duplicateCount: 3,

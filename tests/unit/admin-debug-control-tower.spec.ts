@@ -153,12 +153,12 @@ describe("admin debug control tower model", () => {
 
         expect(monitoring).toContain("routeRuntimeSummary");
         expect(monitoring).toContain("Chat routes");
-        expect(monitoring).not.toContain("Native chat fail");
-        expect(monitoring).not.toContain("Native chat stale");
-        expect(monitoring).not.toContain("Native chat unseen");
-        expect(monitoring).not.toContain("Compat chat fail");
-        expect(monitoring).not.toContain("Compat chat stale");
-        expect(monitoring).not.toContain("Compat chat unseen");
+        expect(monitoring).toContain("Native chat fail");
+        expect(monitoring).toContain("Native chat stale");
+        expect(monitoring).toContain("Native chat unseen");
+        expect(monitoring).toContain("Compat chat fail");
+        expect(monitoring).toContain("Compat chat stale");
+        expect(monitoring).toContain("Compat chat unseen");
         expect(routeDrilldown).toContain("Native chat error rate");
         expect(routeDrilldown).toContain("Compat error rate");
     });
