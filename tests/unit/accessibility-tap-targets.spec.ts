@@ -99,6 +99,10 @@ describe("accessibility tap target launch contracts", () => {
         expect(source).toContain("aria-pressed={active}");
         expect(source).toContain("hidden md:inline");
         expect(source).toContain("const showRightSlot = Boolean(rightSlot) && (!collapsible || expanded)");
+        expect(source).toContain("aria-label={dictionaryTooltip}");
+        expect(source).toContain("bottom-full left-1/2");
+        expect(source).toContain("hidden w-48 -translate-x-1/2");
+        expect(source).toContain("sm:block");
     });
 
     it("admin drop action buttons keep accessible names when compact text is hidden", () => {

@@ -267,8 +267,11 @@ export function MetricCard({
                     <span className={cn("min-w-0", compactPrimary ? "whitespace-normal leading-4" : "truncate")}>{label}</span>
                     {dictionaryTooltip && (
                         <div className="group relative ml-1 flex shrink-0 items-center">
-                            <Info className="h-3 w-3 text-gray-400 hover:text-white transition-colors cursor-help" />
-                            <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-48 -translate-x-1/2 opacity-0 transition-opacity group-hover:opacity-100">
+                            <Info
+                                aria-label={dictionaryTooltip}
+                                className="h-3 w-3 text-gray-400 hover:text-white transition-colors cursor-help"
+                            />
+                            <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-48 -translate-x-1/2 opacity-0 transition-opacity group-hover:opacity-100 sm:block">
                                 <div className="rounded-lg border border-white/10 bg-black/95 p-2 text-[10px] font-medium normal-case leading-tight text-gray-300 shadow-xl backdrop-blur-md">
                                     {dictionaryTooltip}
                                 </div>
