@@ -40,11 +40,29 @@ function formatUserWatchQualityReason(reason?: string) {
     }
 }
 
+const DEBUG_VALUE_NOT_LOADED = "Not loaded";
+
+function countWhenPanelLoaded(panelLoaded: boolean, value: unknown) {
+    return panelLoaded && typeof value === "number" ? value : DEBUG_VALUE_NOT_LOADED;
+}
+
+function valueWhenPanelLoaded(panelLoaded: boolean, value: unknown, fallback = "unknown"): string | number {
+    if (!panelLoaded) return DEBUG_VALUE_NOT_LOADED;
+    if (typeof value === "number" || typeof value === "string") return value;
+    return fallback;
+}
+
 export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
     const panel = data?.behavioralIntelligencePanel;
     const recoveryPanel = data?.telemetryTruthRecoveryPanel;
+    const behaviorPanelLoaded = Boolean(panel);
+    const recoveryPanelLoaded = Boolean(recoveryPanel);
     const behavioralSourceStatus = panel?.sourceStatus?.status;
     const recoverySourceStatus = recoveryPanel?.sourceStatus?.status;
+    const behavioralTruthState = truthStateForSourceStatus(behavioralSourceStatus?.status);
+    const behavioralBadgeLabel = badgeForSourceStatus(behavioralSourceStatus?.status);
+    const recoveryTruthState = truthStateForSourceStatus(recoverySourceStatus?.status);
+    const recoveryBadgeLabel = badgeForSourceStatus(recoverySourceStatus?.status);
     const dropRows = panel?.dropRows || [];
     const rankingModeLabel = panel?.activeRankingMode === "ml_active"
         ? "ML active"
@@ -73,11 +91,11 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                 defaultOpen={false}
                 summary={
                     <>
-                        <Pill label="Source state" value={behavioralSourceStatus?.status || "unknown"} tone={toneForSourceStatus(behavioralSourceStatus?.status)} truthState={truthStateForSourceStatus(behavioralSourceStatus?.status)} badgeLabel={badgeForSourceStatus(behavioralSourceStatus?.status)} />
-                        <Pill label="User profiles" value={panel?.userProfiles ?? 0} truthState={truthStateForSourceStatus(behavioralSourceStatus?.status)} badgeLabel={badgeForSourceStatus(behavioralSourceStatus?.status)} />
-                        <Pill label="Drop profiles" value={panel?.dropProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Ranking mode" value={rankingModeLabel} tone={panel?.activeRankingMode === "unknown" ? "warn" : "good"} truthState={panel?.activeRankingMode === "unknown" ? "degraded" : "live"} badgeLabel="LOADED" />
-                        <Pill label="Freshness" value={panel?.overallFreshnessState || "unknown"} tone={panel?.overallFreshnessState === "live" ? "good" : "warn"} truthState={panel?.overallFreshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
+                        <Pill label="Source state" value={behavioralSourceStatus?.status || "unknown"} tone={toneForSourceStatus(behavioralSourceStatus?.status)} truthState={behavioralTruthState} badgeLabel={behavioralBadgeLabel} />
+                        <Pill label="User profiles" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.userProfiles)} truthState={behavioralTruthState} badgeLabel={behavioralBadgeLabel} />
+                        <Pill label="Drop profiles" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.dropProfiles)} truthState={behavioralTruthState} badgeLabel={behavioralBadgeLabel} />
+                        <Pill label="Ranking mode" value={behaviorPanelLoaded ? rankingModeLabel : DEBUG_VALUE_NOT_LOADED} tone={behaviorPanelLoaded && panel?.activeRankingMode !== "unknown" ? "good" : "warn"} truthState={behaviorPanelLoaded ? (panel?.activeRankingMode === "unknown" ? "degraded" : "live") : behavioralTruthState} badgeLabel={behaviorPanelLoaded ? "LOADED" : behavioralBadgeLabel} />
+                        <Pill label="Freshness" value={valueWhenPanelLoaded(behaviorPanelLoaded, panel?.overallFreshnessState)} tone={panel?.overallFreshnessState === "live" ? "good" : "warn"} truthState={behaviorPanelLoaded ? (panel?.overallFreshnessState === "live" ? "live" : "degraded") : behavioralTruthState} badgeLabel={behaviorPanelLoaded ? "LOADED" : behavioralBadgeLabel} />
                     </>
                 }
             >
@@ -86,13 +104,13 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Snapshot status</p>
                             <div className="mt-3 flex flex-wrap gap-2">
-                                <Pill label="Users" value={panel?.userProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
-                                <Pill label="Guests" value={panel?.guestProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
-                                <Pill label="Drops" value={panel?.dropProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
-                                <Pill label="Rebuild freshness" value={panel?.rebuildFreshnessState || "unknown"} tone={panel?.rebuildFreshnessState === "live" ? "good" : "warn"} truthState={panel?.rebuildFreshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
-                                <Pill label="Drop freshness" value={panel?.dropProfileFreshnessState || "unknown"} tone={panel?.dropProfileFreshnessState === "live" ? "good" : "warn"} truthState={panel?.dropProfileFreshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
-                                <Pill label="ML validation" value={mlValidationLabel} tone={panel?.mlValidationState === "active" ? "good" : panel?.mlValidationState === "missing" ? "bad" : "warn"} truthState={panel?.mlValidationState === "active" ? "live" : panel?.mlValidationState === "missing" ? "failed" : "degraded"} badgeLabel="LOADED" />
-                                <Pill label="Connected modules" value={`${panel?.connectedModuleCount ?? 0}/9`} tone={(panel?.missingModuleCount ?? 0) === 0 ? "good" : "warn"} truthState={(panel?.missingModuleCount ?? 0) === 0 ? "live" : "degraded"} badgeLabel="LOADED" />
+                                <Pill label="Users" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.userProfiles)} truthState={behavioralTruthState} badgeLabel={behavioralBadgeLabel} />
+                                <Pill label="Guests" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.guestProfiles)} truthState={behavioralTruthState} badgeLabel={behavioralBadgeLabel} />
+                                <Pill label="Drops" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.dropProfiles)} truthState={behavioralTruthState} badgeLabel={behavioralBadgeLabel} />
+                                <Pill label="Rebuild freshness" value={valueWhenPanelLoaded(behaviorPanelLoaded, panel?.rebuildFreshnessState)} tone={panel?.rebuildFreshnessState === "live" ? "good" : "warn"} truthState={behaviorPanelLoaded ? (panel?.rebuildFreshnessState === "live" ? "live" : "degraded") : behavioralTruthState} badgeLabel={behaviorPanelLoaded ? "LOADED" : behavioralBadgeLabel} />
+                                <Pill label="Drop freshness" value={valueWhenPanelLoaded(behaviorPanelLoaded, panel?.dropProfileFreshnessState)} tone={panel?.dropProfileFreshnessState === "live" ? "good" : "warn"} truthState={behaviorPanelLoaded ? (panel?.dropProfileFreshnessState === "live" ? "live" : "degraded") : behavioralTruthState} badgeLabel={behaviorPanelLoaded ? "LOADED" : behavioralBadgeLabel} />
+                                <Pill label="ML validation" value={behaviorPanelLoaded ? mlValidationLabel : DEBUG_VALUE_NOT_LOADED} tone={panel?.mlValidationState === "active" ? "good" : panel?.mlValidationState === "missing" ? "bad" : "warn"} truthState={behaviorPanelLoaded ? (panel?.mlValidationState === "active" ? "live" : panel?.mlValidationState === "missing" ? "failed" : "degraded") : behavioralTruthState} badgeLabel={behaviorPanelLoaded ? "LOADED" : behavioralBadgeLabel} />
+                                <Pill label="Connected modules" value={behaviorPanelLoaded ? `${panel?.connectedModuleCount ?? 0}/9` : DEBUG_VALUE_NOT_LOADED} tone={behaviorPanelLoaded && (panel?.missingModuleCount ?? 0) === 0 ? "good" : "warn"} truthState={behaviorPanelLoaded ? ((panel?.missingModuleCount ?? 0) === 0 ? "live" : "degraded") : behavioralTruthState} badgeLabel={behaviorPanelLoaded ? "LOADED" : behavioralBadgeLabel} />
                             </div>
                             <p className="mt-3 text-sm text-gray-300">
                                 Latest rebuild {panel?.latestRebuildAtUtc ? formatRelative(Date.parse(panel.latestRebuildAtUtc)) : "unknown"}.
@@ -100,10 +118,10 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                             </p>
                             <p className="mt-2 text-sm text-gray-400">{panel?.overallFreshnessExplanation || "Behavioral freshness is not available."}</p>
                             <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-                                <StatCard label="Sample size" value={panel?.sampleSize ?? 0} meta={`${behavioralSourceStatus?.nextAction || "ML stays deterministic below 50 samples and experimental below 200."}`} truthState={truthStateForSourceStatus(behavioralSourceStatus?.status)} />
-                                <StatCard label="Precision@5" value={panel?.validationMetrics?.precisionAt5 ?? 0} meta={`Baseline ${panel?.validationMetrics?.baselineComparison || "not_tested"}`} truthState="live" />
-                                <StatCard label="Calibration error" value={panel?.validationMetrics?.calibrationError ?? 0} meta={`Confidence formula: ${panel?.confidenceFormula || "missing"}`} truthState="live" />
-                                <StatCard label="Deterministic baseline" value={panel?.deterministicBaselineState || "missing"} meta={`Model v${panel?.modelVersion || "unknown"}`} truthState={panel?.deterministicBaselineState === "available" ? "live" : "failed"} />
+                                <StatCard label="Sample size" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.sampleSize)} meta={`${behavioralSourceStatus?.nextAction || "ML stays deterministic below 50 samples and experimental below 200."}`} truthState={behavioralTruthState} />
+                                <StatCard label="Precision@5" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.validationMetrics?.precisionAt5)} meta={`Baseline ${behaviorPanelLoaded ? panel?.validationMetrics?.baselineComparison || "not_tested" : "not loaded"}`} truthState={behaviorPanelLoaded ? "live" : behavioralTruthState} />
+                                <StatCard label="Calibration error" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.validationMetrics?.calibrationError)} meta={`Confidence formula: ${behaviorPanelLoaded ? panel?.confidenceFormula || "missing" : "not loaded"}`} truthState={behaviorPanelLoaded ? "live" : behavioralTruthState} />
+                                <StatCard label="Deterministic baseline" value={valueWhenPanelLoaded(behaviorPanelLoaded, panel?.deterministicBaselineState, "missing")} meta={`Model v${behaviorPanelLoaded ? panel?.modelVersion || "unknown" : "not loaded"}`} truthState={behaviorPanelLoaded ? (panel?.deterministicBaselineState === "available" ? "live" : "failed") : behavioralTruthState} />
                             </div>
                         </div>
                     </div>
@@ -159,11 +177,11 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                 defaultOpen={false}
                 summary={
                     <>
-                        <Pill label="Source state" value={recoverySourceStatus?.status || "unknown"} tone={toneForSourceStatus(recoverySourceStatus?.status)} truthState={truthStateForSourceStatus(recoverySourceStatus?.status)} badgeLabel={badgeForSourceStatus(recoverySourceStatus?.status)} />
-                        <Pill label="Drop metrics" value={recoveryPanel?.dropMetricCount ?? 0} truthState={truthStateForSourceStatus(recoverySourceStatus?.status)} badgeLabel={badgeForSourceStatus(recoverySourceStatus?.status)} />
-                        <Pill label="User metrics" value={recoveryPanel?.userMetricCount ?? 0} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Repairs" value={recoveryPanel?.openRepairCount ?? 0} tone={(recoveryPanel?.openRepairCount ?? 0) > 0 ? "warn" : "good"} truthState={(recoveryPanel?.openRepairCount ?? 0) > 0 ? "degraded" : "live"} badgeLabel="LOADED" />
-                        <Pill label="Quality" value={recoveryPanel?.qualityState || "unknown"} tone={recoveryPanel?.qualityState === "verified" ? "good" : "warn"} truthState={recoveryPanel?.qualityState === "verified" ? "live" : "degraded"} badgeLabel="LOADED" />
+                        <Pill label="Source state" value={recoverySourceStatus?.status || "unknown"} tone={toneForSourceStatus(recoverySourceStatus?.status)} truthState={recoveryTruthState} badgeLabel={recoveryBadgeLabel} />
+                        <Pill label="Drop metrics" value={countWhenPanelLoaded(recoveryPanelLoaded, recoveryPanel?.dropMetricCount)} truthState={recoveryTruthState} badgeLabel={recoveryBadgeLabel} />
+                        <Pill label="User metrics" value={countWhenPanelLoaded(recoveryPanelLoaded, recoveryPanel?.userMetricCount)} truthState={recoveryTruthState} badgeLabel={recoveryBadgeLabel} />
+                        <Pill label="Repairs" value={countWhenPanelLoaded(recoveryPanelLoaded, recoveryPanel?.openRepairCount)} tone={recoveryPanelLoaded && (recoveryPanel?.openRepairCount ?? 0) > 0 ? "warn" : "good"} truthState={recoveryPanelLoaded ? ((recoveryPanel?.openRepairCount ?? 0) > 0 ? "degraded" : "live") : recoveryTruthState} badgeLabel={recoveryPanelLoaded ? "LOADED" : recoveryBadgeLabel} />
+                        <Pill label="Quality" value={valueWhenPanelLoaded(recoveryPanelLoaded, recoveryPanel?.qualityState)} tone={recoveryPanel?.qualityState === "verified" ? "good" : "warn"} truthState={recoveryPanelLoaded ? (recoveryPanel?.qualityState === "verified" ? "live" : "degraded") : recoveryTruthState} badgeLabel={recoveryPanelLoaded ? "LOADED" : recoveryBadgeLabel} />
                     </>
                 }
             >
@@ -182,11 +200,11 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Global truth summary</p>
                             <div className="mt-3 flex flex-wrap gap-2">
-                                <Pill label="Freshness" value={recoveryPanel?.freshnessState || "unknown"} tone={recoveryPanel?.freshnessState === "live" ? "good" : "warn"} truthState={recoveryPanel?.freshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
-                                <Pill label="Last rebuild" value={recoveryPanel?.lastRebuildAtUtc ? formatRelative(Date.parse(recoveryPanel.lastRebuildAtUtc)) : "unknown"} tone={recoveryPanel?.freshnessState === "live" ? "good" : "warn"} truthState={recoveryPanel?.freshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
-                                <Pill label="Formula state" value={recoveryPanel?.formulaState || "unknown"} tone={recoveryPanel?.formulaState === "documented" ? "good" : "warn"} truthState={recoveryPanel?.formulaState === "documented" ? "live" : "degraded"} badgeLabel="LOADED" />
-                                <Pill label="Actionable repairs" value={recoveryPanel?.actionableRepairCount ?? 0} tone={(recoveryPanel?.actionableRepairCount ?? 0) > 0 ? "warn" : "good"} truthState={(recoveryPanel?.actionableRepairCount ?? 0) > 0 ? "degraded" : "live"} badgeLabel="LOADED" />
-                                <Pill label="Inspect-only" value={recoveryPanel?.inspectOnlyRepairCount ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                <Pill label="Freshness" value={valueWhenPanelLoaded(recoveryPanelLoaded, recoveryPanel?.freshnessState)} tone={recoveryPanel?.freshnessState === "live" ? "good" : "warn"} truthState={recoveryPanelLoaded ? (recoveryPanel?.freshnessState === "live" ? "live" : "degraded") : recoveryTruthState} badgeLabel={recoveryPanelLoaded ? "LOADED" : recoveryBadgeLabel} />
+                                <Pill label="Last rebuild" value={recoveryPanelLoaded && recoveryPanel?.lastRebuildAtUtc ? formatRelative(Date.parse(recoveryPanel.lastRebuildAtUtc)) : DEBUG_VALUE_NOT_LOADED} tone={recoveryPanel?.freshnessState === "live" ? "good" : "warn"} truthState={recoveryPanelLoaded ? (recoveryPanel?.freshnessState === "live" ? "live" : "degraded") : recoveryTruthState} badgeLabel={recoveryPanelLoaded ? "LOADED" : recoveryBadgeLabel} />
+                                <Pill label="Formula state" value={valueWhenPanelLoaded(recoveryPanelLoaded, recoveryPanel?.formulaState)} tone={recoveryPanel?.formulaState === "documented" ? "good" : "warn"} truthState={recoveryPanelLoaded ? (recoveryPanel?.formulaState === "documented" ? "live" : "degraded") : recoveryTruthState} badgeLabel={recoveryPanelLoaded ? "LOADED" : recoveryBadgeLabel} />
+                                <Pill label="Actionable repairs" value={countWhenPanelLoaded(recoveryPanelLoaded, recoveryPanel?.actionableRepairCount)} tone={recoveryPanelLoaded && (recoveryPanel?.actionableRepairCount ?? 0) > 0 ? "warn" : "good"} truthState={recoveryPanelLoaded ? ((recoveryPanel?.actionableRepairCount ?? 0) > 0 ? "degraded" : "live") : recoveryTruthState} badgeLabel={recoveryPanelLoaded ? "LOADED" : recoveryBadgeLabel} />
+                                <Pill label="Inspect-only" value={countWhenPanelLoaded(recoveryPanelLoaded, recoveryPanel?.inspectOnlyRepairCount)} tone="neutral" truthState={recoveryPanelLoaded ? "live" : recoveryTruthState} badgeLabel={recoveryPanelLoaded ? "LOADED" : recoveryBadgeLabel} />
                             </div>
                             <div className="mt-3 grid grid-cols-2 gap-3">
                                 <StatCard label="Observed views" value={recoveryPanel?.observedViews ?? 0} meta={recoveryPanel?.formulas?.observedViews || "Observed formula missing. ACTIONABLE: document observed view formula."} truthState={truthStateForSourceStatus(recoverySourceStatus?.status)} />

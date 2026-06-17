@@ -15,6 +15,13 @@ describe("behavior task telemetry UI cleanup", () => {
     expect(combined).toContain("badgeForSourceStatus");
     expect(combined).toContain("truthStateForSourceStatus");
     expect(combined).toContain("toneForSourceStatus");
+    expect(behaviorUi).toContain("const DEBUG_VALUE_NOT_LOADED = \"Not loaded\"");
+    expect(behaviorUi).toContain("const behaviorPanelLoaded = Boolean(panel)");
+    expect(behaviorUi).toContain("const recoveryPanelLoaded = Boolean(recoveryPanel)");
+    expect(behaviorUi).toContain("value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.dropProfiles)}");
+    expect(behaviorUi).toContain("value={countWhenPanelLoaded(recoveryPanelLoaded, recoveryPanel?.userMetricCount)}");
+    expect(behaviorUi).not.toContain('<Pill label="Drop profiles" value={panel?.dropProfiles ?? 0} truthState="live"');
+    expect(behaviorUi).not.toContain('<Pill label="User metrics" value={recoveryPanel?.userMetricCount ?? 0} truthState="live"');
   });
 
   it("makes formula-missing states actionable in telemetry recovery", () => {
