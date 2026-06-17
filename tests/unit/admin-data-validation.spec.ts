@@ -185,7 +185,7 @@ describe("buildHistoricalValidationSummary", () => {
     });
     expect(summary.validations.find((check) => check.checkKey === "unlock_access_truth")?.status).toBe("warn");
     expect(summary.validations.find((check) => check.checkKey === "unlock_funnel_telemetry")).toMatchObject({
-      status: "warn",
+      status: "fail",
       passAllowed: false,
       passBlockedReason: "unlock_telemetry_undercount",
     });
@@ -288,7 +288,7 @@ describe("buildHistoricalValidationSummary", () => {
     expect(moduleCoverageCheck?.detail).toContain("missing");
     expect(moduleCoverageCheck?.moduleCoverage?.modules.find((module) => module.moduleId === "task_guidance")).toMatchObject({
       dependentPanels: expect.arrayContaining(["Onboarding/task parity"]),
-      nextValidator: "check:daily-task-telemetry-truth",
+      nextValidator: "check:task-guidance-telemetry-contract",
     });
   });
 

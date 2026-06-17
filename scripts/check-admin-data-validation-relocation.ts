@@ -54,8 +54,12 @@ assertIncludes("DebugAdvancedDataValidation", debugComponent, "/api/admin/analyt
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "data?.dataValidation ?? buildFallbackPanelState(data)");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "status: \"not_validated\"");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "Validation has not run for this range yet.");
-assertIncludes("DebugAdvancedDataValidation", debugComponent, "Validation failed. Retry the validation route or inspect admin analytics historical route errors.");
-assertIncludes("DebugAdvancedDataValidation", debugComponent, "cacheState === \"unknown\" ? \"UNKNOWN\"");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "Validation failed. {effectiveNextAction}");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "Retry the validation route or inspect admin analytics historical route errors.");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "cacheDisplayState(panelState.cacheState)");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "cacheTruthState(panelState.cacheState)");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "cacheBadgeLabel(panelState.cacheState)");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "REFRESH DUE");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "badgeLabel={panelState.lastValidatedAtUtc ? \"INFO\" : \"NOT VALIDATED\"}");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "Analytics source health");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "Commerce parity");
@@ -89,11 +93,16 @@ for (const required of [
 assertIncludes("validation builder", validationBuilder, "required_sample_missing");
 assertIncludes("validation builder", validationBuilder, "stale_validation");
 assertIncludes("validation builder", validationBuilder, "input.status === \"pass\" && !passAllowed");
-assertIncludes("validation builder", validationBuilder, "telemetryLogCount > 0 && input.firstPartyAuthenticatedEvents > 0");
-assertIncludes("validation builder", validationBuilder, "input.taskGuidance.viewed === 0 && input.taskGuidance.tapped === 0 && input.taskGuidance.completed === 0");
+assertIncludes("validation builder", validationBuilder, "input.firstPartyAuthenticatedEvents > 0 && input.canonicalSampleCount === 0");
+assertIncludes("validation builder", validationBuilder, "canonicalAuthenticatedEventCount: input.firstPartyAuthenticatedEvents");
+assertIncludes("validation builder", validationBuilder, "telemetryGate.passAllowed");
+assertIncludes("validation builder", validationBuilder, "input.taskGuidance.viewed === 0");
+assertIncludes("validation builder", validationBuilder, "input.taskGuidance.tapped === 0");
+assertIncludes("validation builder", validationBuilder, "input.taskGuidance.completed === 0");
 assertIncludes("validation builder", validationBuilder, "purchase_revenue_truth");
 assertIncludes("validation builder", validationBuilder, "purchase_funnel_telemetry");
-assertIncludes("validation builder", validationBuilder, "unlock_parity");
+assertIncludes("validation builder", validationBuilder, "unlock_access_truth");
+assertIncludes("validation builder", validationBuilder, "unlock_funnel_telemetry");
 assertIncludes("validation builder", validationBuilder, "pipeline_health");
 assertIncludes("validation builder", validationBuilder, "module_coverage");
 
