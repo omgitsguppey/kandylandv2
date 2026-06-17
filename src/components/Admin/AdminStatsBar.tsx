@@ -6,7 +6,7 @@ import type { AdminOverviewIssueDetail, AdminOverviewResponse, PlatformPulseMetr
 import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { buildAdminReviewBadge } from "@/lib/behavioral/review-badge-rules";
-import type { AdminTruthState } from "@/lib/admin-truth-state";
+import { resolveAdminMetricTruthState, type AdminTruthState } from "@/lib/admin-truth-state";
 import { calculatePlatformPulseDelta, classifyPlatformPulseTrend, formatPlatformPulseDelta } from "@/lib/admin/platform-pulse-window";
 import { cn } from "@/lib/utils";
 
@@ -81,15 +81,16 @@ function metricNeedsIssueBadge(metric: PlatformPulseMetric) {
 }
 
 function resolveIssueTruthState(metric: PlatformPulseMetric): AdminTruthState {
-    if (metric.issueState === "error") return "failed";
-    if (metric.issueState === "blocked") return "blocked";
-    if (metric.issueState === "unavailable") return "unavailable";
-    if (metric.issueState === "stale") return "stale";
-    if (metric.freshnessState === "unknown") return "unavailable";
-    if (metric.freshnessState === "blocked") return "blocked";
-    if (metric.freshnessState === "unavailable") return "unavailable";
-    if (metric.freshnessState === "stale") return "stale";
-    return "review";
+    const truthState =
+        metric.issueState === "error" ? "failed" :
+            metric.issueState && metric.issueState !== "ok" ? metric.issueState :
+                metric.freshnessState;
+
+    return resolveAdminMetricTruthState({
+        truthState,
+        value: metric.primaryValue,
+        reviewRequired: metric.issueState === "review" || metric.warnings.length > 0,
+    });
 }
 
 export function AdminStatsBar({ platformPulse, overviewIssues, truthState }: AdminStatsBarProps) {

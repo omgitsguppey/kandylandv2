@@ -45,7 +45,13 @@ assert(files.packageJson.includes('"check:admin-truth-replacement"'), "package.j
 assert(files.snapshotContract.includes("sourceTruthBreakdown"), "Admin user truth snapshot must expose sourceTruthBreakdown.", failures);
 assert(files.snapshotContract.includes("returnedLast7Days") && files.snapshotContract.includes("validWatchTimeMs"), "Admin user truth snapshot contract is incomplete.", failures);
 assert(files.snapshotServer.includes("toAdminUserTruthSnapshot") && files.snapshotServer.includes("readAdminUserTruthSnapshot"), "Admin user truth snapshot server wrapper is missing.", failures);
-assert(files.overviewRoute.includes("readAdminUserTruthSnapshot"), "Admin Overview must use admin-user-truth-snapshot.", failures);
+assert(
+  files.overviewRoute.includes("ADMIN_USERS_SNAPSHOT_ID")
+    && files.overviewRoute.includes("readCachedUserTruthSnapshot")
+    && !files.overviewRoute.includes("readAdminUserTruthSnapshot"),
+  "Admin Overview must read the admin-user truth snapshot from the hot cache, not broad page-load fallback reads.",
+  failures,
+);
 assert(files.usersRoute.includes("buildAdminUserTruthSnapshot") || files.usersRoute.includes("toAdminUserTruthSnapshot"), "User Management must use admin-user-truth-snapshot.", failures);
 assert(files.usersPage.includes("summary?.truthSnapshot") || files.usersPage.includes("metricsSnapshot"), "User Management must render the canonical snapshot payload.", failures);
 assert(files.rollupContract.includes("recommendationConfidence") && files.rollupContract.includes("shouldHideRecommendations"), "User behavior truth contract is incomplete.", failures);
@@ -59,14 +65,14 @@ assert(files.eventNormalizer.includes("admin_projection") && files.eventNormaliz
 assert(files.legacyRegistry.includes('classification: "blocked"') && files.legacyRegistry.includes("src/lib/admin-analytics-live-runtime.ts"), "Legacy registry must block old live-runtime formulas.", failures);
 assert(files.truthState.includes('"privacy_limited"') && files.truthState.includes('"legacy_fallback"') && files.truthState.includes('"blocked"'), "Admin truth state must expose the replacement truth states.", failures);
 assert(files.truthBadge.includes("data-admin-truth-state"), "Admin truth badge must keep the explicit truth marker.", failures);
-assert(files.aiHelpers.includes("AdminTruthBadge"), "Admin AI helpers must render canonical truth badges.", failures);
+assert(files.aiHelpers.includes("AdminMetricCard"), "Admin AI helpers must render canonical metric cards with truth badges.", failures);
 assert(files.adminStatsBar.includes("AdminTruthBadge"), "Admin stats bar must render canonical truth badges.", failures);
 assert(files.adminModuleVerificationCard.includes("AdminTruthBadge"), "Admin module verification card must render canonical truth badges.", failures);
 assert(files.debugPrimitives.includes("AdminTruthBadge"), "Admin debug primitives must render canonical truth badges.", failures);
-assert(files.aiHelpers.includes("resolveAdminTruthState"), "Admin AI helpers must resolve AdminTruthState through the canonical helper.", failures);
-assert(files.adminStatsBar.includes("resolveAdminTruthState"), "Admin stats bar must resolve AdminTruthState through the canonical helper.", failures);
-assert(files.adminModuleVerificationCard.includes("resolveAdminTruthState"), "Admin module verification card must resolve AdminTruthState through the canonical helper.", failures);
-assert(files.debugPrimitives.includes("resolveAdminTruthState"), "Admin debug primitives must resolve AdminTruthState through the canonical helper.", failures);
+assert(files.aiHelpers.includes("resolveAdminInputTruthState"), "Admin AI helpers must resolve AdminTruthState through the canonical helper.", failures);
+assert(files.adminStatsBar.includes("resolveAdminMetricTruthState"), "Admin stats bar must resolve AdminTruthState through the canonical helper.", failures);
+assert(files.adminModuleVerificationCard.includes("resolveAdminVerificationTruthState"), "Admin module verification card must resolve AdminTruthState through the canonical helper.", failures);
+assert(files.debugPrimitives.includes("resolveAdminInputTruthState"), "Admin debug primitives must resolve AdminTruthState through the canonical helper.", failures);
 for (const [label, source] of [
   ["Admin analytics helpers", files.analyticsHelpers],
   ["Admin AI helpers", files.aiHelpers],
