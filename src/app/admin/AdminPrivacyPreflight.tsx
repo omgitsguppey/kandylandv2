@@ -114,7 +114,7 @@ export function AdminPrivacyPreflight() {
                 >
                     <p className="font-bold">Local admin UI review only.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        Privacy evidence is source_missing in local review. A real admin session is required for consent, export, duplicate prevention, and guest identity preflight samples.
+                        No verified privacy source is loaded in local review. A real admin session is required for consent, export, duplicate prevention, and guest identity preflight samples.
                     </p>
                 </div>
             ) : null}
@@ -161,7 +161,7 @@ export function AdminPrivacyPreflight() {
                 {!isLoading && !error && checks.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
                         {isLocalFixtureSourceMissing
-                            ? "Privacy evidence is source_missing in local review."
+                            ? "No verified privacy source is loaded in local review."
                             : "No privacy console evidence is available yet."}
                     </div>
                 ) : null}

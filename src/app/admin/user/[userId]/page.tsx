@@ -806,7 +806,7 @@ export default function AdminUserAnalyticsPage() {
                     className="rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
                     data-admin-user-detail-fixture-boundary="true"
                 >
-                    <span className="font-bold text-white">Local UI review only.</span> User detail layout is inspectable; analytics, support, security, recommendation, and payment/user metric samples are source_missing until a real admin session loads a verified user record.
+                    <span className="font-bold text-white">Local UI review only.</span> User detail layout is inspectable; analytics, support, security, recommendation, and payment/user metric samples need a real admin session before they show a verified user record.
                 </div>
             ) : null}
 

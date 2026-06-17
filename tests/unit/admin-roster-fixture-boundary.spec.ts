@@ -10,12 +10,14 @@ describe("admin roster fixture boundary", () => {
     expect(source).toContain("isAdminUiTestSessionUser(user)");
     expect(source).toContain('data-admin-roster-fixture-boundary="true"');
     expect(source).toContain('data-admin-roster-fixture-state="source_missing"');
-    expect(source).toContain("Creator roster data is source_missing in local review");
+    expect(source).toContain("No verified creator roster source is loaded in local review");
     expect(source).toContain("Account controls require real admin auth");
     expect(source).toContain("Fan-experience settings require real admin auth");
-    expect(source).toContain('{isLocalAdminUiTestSession ? "source_missing" : entriesByDecision.needs_review.length}');
-    expect(source).toContain('{isLocalAdminUiTestSession ? "source_missing" : entriesByDecision.waiting.length}');
-    expect(source).toContain('{isLocalAdminUiTestSession ? "source_missing" : roster?.summary.creatorCount ?? approvedLiveCreators.length}');
+    expect(source).toContain('{isLocalAdminUiTestSession ? "No source" : entriesByDecision.needs_review.length}');
+    expect(source).toContain('{isLocalAdminUiTestSession ? "No source" : entriesByDecision.waiting.length}');
+    expect(source).toContain('{isLocalAdminUiTestSession ? "No source" : roster?.summary.creatorCount ?? approvedLiveCreators.length}');
+    expect(source).toContain("No creator decision queue source is loaded in local UI review");
+    expect(source).toContain('creatorMutationDisabled ? "Create needs admin"');
 
     expect(source).toContain("disabled={creatorMutationDisabled || creating}");
     expect(source).toContain('disabled={creatorMutationDisabled || agreementSaving === "create_template"}');

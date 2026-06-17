@@ -139,7 +139,7 @@ export default function UserManagementPage() {
 
     const fetchUserDetail = useCallback(async (user: UserProfile, options: { openContent?: boolean } = {}) => {
         if (isLocalAdminUiTestSession) {
-            toast.info("User detail requires a real admin session. Local UI review is source_missing.");
+            toast.info("User detail requires a real admin session. No verified user source is loaded in local review.");
             if (options.openContent) {
                 setContentUser(user);
             }
@@ -907,7 +907,7 @@ export default function UserManagementPage() {
                 >
                     <p className="font-bold">Local admin UI review only.</p>
                     <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                        This local review shows the users layout only. User metrics, feedback, task controls, identity, payment, and content access stay source_missing until a real admin session loads verified records.
+                        This local review shows the users layout only. User metrics, feedback, task controls, identity, payment, and content access need a real admin session before they show verified records.
                     </p>
                 </div>
             ) : null}
@@ -1114,7 +1114,9 @@ export default function UserManagementPage() {
                                 />
                             </div>
                             <p className="mt-2 text-sm font-bold text-white">
-                                {userManagementSummaries.filter((entry) => entry.consentMode.mode !== "unavailable").length} consent records visible
+                                {isLocalAdminUiTestSession
+                                    ? "No consent source loaded"
+                                    : `${userManagementSummaries.filter((entry) => entry.consentMode.mode !== "unavailable").length} consent records visible`}
                             </p>
                             <p className="mt-1 text-[11px] leading-5 text-gray-400">
                                 Behavioral metrics remain unavailable when consent or source materialization is missing.

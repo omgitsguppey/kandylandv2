@@ -7,10 +7,10 @@ const componentSource = readFileSync(join(process.cwd(), "src/app/admin/AdminPri
 const hookSource = readFileSync(join(process.cwd(), "src/hooks/useAdminPrivacyPreflight.ts"), "utf8");
 
 describe("admin privacy fixture boundary", () => {
-  it("labels local admin UI fixture privacy evidence as source_missing", () => {
+  it("labels local admin UI fixture privacy evidence as no-source", () => {
     expect(componentSource).toContain('data-admin-privacy-fixture-boundary="true"');
     expect(componentSource).toContain('data-admin-privacy-fixture-state="source_missing"');
-    expect(componentSource).toContain("Privacy evidence is source_missing in local review");
+    expect(componentSource).toContain("No verified privacy source is loaded in local review");
     expect(componentSource).toContain("consent, export, duplicate prevention, and guest identity preflight samples");
     expect(componentSource).toContain('data-privacy-console-overall-state={isLocalFixtureSourceMissing ? "source_missing"');
   });

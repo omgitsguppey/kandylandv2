@@ -15,7 +15,7 @@ describe("admin user detail fixture boundary", () => {
     expect(source).toContain("setAnalytics(null)");
     expect(source).toContain('data-admin-user-detail-fixture-boundary="true"');
     expect(source).toContain("User detail layout is inspectable");
-    expect(source).toContain("source_missing until a real admin session loads a verified user record");
+    expect(source).toContain("need a real admin session before they show a verified user record");
   });
 
   it("keeps real admin sessions on the canonical admin user API path", () => {

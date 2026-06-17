@@ -620,7 +620,7 @@ export default function AdminRosterPage() {
 
     const refreshAgreementTemplate = async () => {
         if (isLocalAdminUiTestSession) {
-            throw new Error("Creator roster agreement template source_missing in local UI review.");
+            throw new Error("No verified agreement template source is loaded in local UI review.");
         }
 
         const response = await authFetch("/api/admin/creator-agreements");
@@ -1103,7 +1103,7 @@ export default function AdminRosterPage() {
                         data-admin-roster-fixture-boundary="true"
                         data-admin-roster-fixture-state="source_missing"
                     >
-                        <span className="font-bold text-white">Local UI review only.</span> Creator roster data is source_missing in local review. Roster details, agreements, creation, approval, account controls, and fan experience evidence require a real admin session.
+                        <span className="font-bold text-white">Local UI review only.</span> No verified creator roster source is loaded in local review. Roster details, agreements, creation, approval, account controls, and fan experience evidence require a real admin session.
                     </div>
                 ) : null}
                 <section className="grid gap-4 lg:grid-cols-[0.94fr_1.06fr]">
@@ -1111,17 +1111,17 @@ export default function AdminRosterPage() {
                         <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
                             <div className="min-w-[180px] rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Needs admin</p>
-                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "source_missing" : entriesByDecision.needs_review.length}</p>
+                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "No source" : entriesByDecision.needs_review.length}</p>
                                 <p className="mt-1 text-xs leading-5 text-zinc-400">Creators waiting for your next action.</p>
                             </div>
                             <div className="min-w-[180px] rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Waiting on creator</p>
-                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "source_missing" : entriesByDecision.waiting.length}</p>
+                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "No source" : entriesByDecision.waiting.length}</p>
                                 <p className="mt-1 text-xs leading-5 text-zinc-400">Agreement, ID, or intake steps still missing.</p>
                             </div>
                             <div className="min-w-[180px] rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Live creators</p>
-                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "source_missing" : roster?.summary.creatorCount ?? approvedLiveCreators.length}</p>
+                                <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "No source" : roster?.summary.creatorCount ?? approvedLiveCreators.length}</p>
                                 <p className="mt-1 text-xs leading-5 text-zinc-400">Approved creators with active access.</p>
                             </div>
                         </div>
@@ -1149,7 +1149,7 @@ export default function AdminRosterPage() {
                                     <div className="mt-4 space-y-3">
                                         {visibleDecisionEntries.length === 0 && approvedLiveCreators.length === 0 ? (
                                             <div className="rounded-2xl border border-dashed border-white/10 bg-black/30 px-4 py-5 text-sm text-zinc-400">
-                                                {isLocalAdminUiTestSession ? "Approved creator source data is source_missing in local UI review." : "No approved creators match this view right now."}
+                                                {isLocalAdminUiTestSession ? "No approved creator source is loaded in local UI review." : "No approved creators match this view right now."}
                                             </div>
                                         ) : visibleDecisionEntries.map((entry) => (
                                             <button
@@ -1194,7 +1194,7 @@ export default function AdminRosterPage() {
                                     <div className="mt-4 space-y-3">
                                         {visibleDecisionEntries.length === 0 ? (
                                             <div className="rounded-2xl border border-dashed border-white/10 bg-black/30 px-4 py-5 text-sm text-zinc-400">
-                                                {isLocalAdminUiTestSession ? "Creator decision queue source data is source_missing in local UI review." : "No creators match this decision queue right now."}
+                                                {isLocalAdminUiTestSession ? "No creator decision queue source is loaded in local UI review." : "No creators match this decision queue right now."}
                                             </div>
                                         ) : visibleDecisionEntries.map((entry) => (
                                             <button
@@ -1285,7 +1285,7 @@ export default function AdminRosterPage() {
                                 ) : null}
                                 <div className="mt-4 flex justify-end">
                                     <button type="button" onClick={() => void handleCreateCreator()} disabled={creatorMutationDisabled || creating} className="rounded-full bg-white px-5 py-3 text-sm font-bold text-black disabled:opacity-50">
-                                        {creatorMutationDisabled ? "Create unavailable" : creating ? "Creating..." : "Create account"}
+                                        {creatorMutationDisabled ? "Create needs admin" : creating ? "Creating..." : "Create account"}
                                     </button>
                                 </div>
                                 <details className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("agreement_templates", event.currentTarget.open)}>

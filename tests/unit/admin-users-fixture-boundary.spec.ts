@@ -6,12 +6,14 @@ import { describe, expect, it } from "vitest";
 const source = readFileSync(join(process.cwd(), "src/app/admin/users/page.tsx"), "utf8");
 
 describe("admin users fixture boundary", () => {
-  it("labels local admin UI fixture user-management evidence as source_missing", () => {
+  it("labels local admin UI fixture user-management evidence as no-source", () => {
     expect(source).toContain("isAdminUiTestSessionUser(user)");
     expect(source).toContain('data-admin-users-fixture-boundary="true"');
     expect(source).toContain('data-admin-users-fixture-state="source_missing"');
     expect(source).toContain("This local review shows the users layout only.");
-    expect(source).toContain("User metrics, feedback, task controls, identity, payment, and content access stay source_missing");
+    expect(source).toContain("User metrics, feedback, task controls, identity, payment, and content access need a real admin session");
+    expect(source).toContain("No consent source loaded");
+    expect(source).toContain("No verified user source is loaded in local review");
   });
 
   it("skips user, feedback, behavior, and realtime reads in fixture mode", () => {
