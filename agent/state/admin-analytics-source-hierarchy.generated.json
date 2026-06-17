@@ -1,7 +1,7 @@
 {
   "reportKey": "admin-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-17T03:20:15.988Z",
-  "currentHead": "c53af7c31791a93cbbde09799cdf9ff5dd78b419",
+  "generatedAtUtc": "2026-06-17T03:22:13.448Z",
+  "currentHead": "7d0a4475fcc249ff5cc3957308ffd88cd3efcafb",
   "fixtureEvidence": {
     "evidenceKind": "source_fixture",
     "scenario": "debug_has_data_analytics_empty_source_agreement_failed",
