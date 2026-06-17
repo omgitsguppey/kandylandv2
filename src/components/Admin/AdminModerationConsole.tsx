@@ -43,7 +43,7 @@ function turnLabel(sender?: string) {
 
 function explainModerationRouteError(error: Error | null, route: string) {
     if (!error) {
-        return `${route} is unavailable.`;
+        return `${route} source is not ready.`;
     }
 
     if (error.message === "Admin permission required.") {
@@ -101,14 +101,14 @@ export function AdminModerationConsole() {
         : adminSessionState === "local_fixture_source_missing"
             ? "No thread source"
         : threadsError
-            ? "Unavailable"
+            ? "Thread source failed"
             : `${threads.length} threads`;
     const alertCountLabel = adminSessionState === "waiting_for_admin_session"
         ? "Waiting..."
         : adminSessionState === "local_fixture_source_missing"
             ? "No alert source"
         : alertsError
-            ? "Alerts unavailable"
+            ? "Alert source failed"
             : `${alerts.length} alerts`;
     const isLocalFixtureSourceMissing = adminSessionState === "local_fixture_source_missing";
     const statusLabel = isLoadingThreads || isLoadingMessages || isLoadingAlerts
@@ -358,8 +358,8 @@ export function AdminModerationConsole() {
                                                     {action === "reviewed" ? "Mark reviewed" : action === "escalated" ? "Escalate" : "Dismiss false positive"}
                                                 </button>
                                             ))}
-                                            <button type="button" disabled data-moderation-action-state="not_implemented" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Restrict account unavailable</button>
-                                            <button type="button" disabled data-moderation-action-state="not_implemented" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Disable file access unavailable</button>
+                                            <button type="button" disabled data-moderation-action-state="not_implemented" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Restrict account needs admin wiring</button>
+                                            <button type="button" disabled data-moderation-action-state="not_implemented" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Disable file access needs admin wiring</button>
                                         </div>
                                     </article>
                                 </aside>
