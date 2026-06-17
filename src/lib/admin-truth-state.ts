@@ -93,7 +93,7 @@ export function hasUsableAdminTruthValue(...values: unknown[]) {
   });
 }
 
-function stateCanExposeUsableAdminValue(state: AdminTruthState) {
+export function stateCanExposeUsableAdminValue(state: AdminTruthState) {
   return state !== "unavailable" && state !== "failed" && state !== "blocked";
 }
 

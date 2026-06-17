@@ -5,6 +5,7 @@ import {
   getAdminTruthStateBadgeLabel,
   getAdminTruthStateClasses,
   getAdminTruthStateDescription,
+  stateCanExposeUsableAdminValue,
   type AdminTruthState,
 } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
@@ -24,7 +25,11 @@ export function AdminTruthBadge({
   pendingInitialLoad?: boolean;
   hasUsableValue?: boolean;
 }) {
-  const badgeLabel = label ?? getAdminTruthStateBadgeLabel(state, { pendingInitialLoad, hasUsableValue });
+  const exposesUsableValue = Boolean(hasUsableValue && stateCanExposeUsableAdminValue(state));
+  const badgeLabel = label ?? getAdminTruthStateBadgeLabel(state, {
+    pendingInitialLoad,
+    hasUsableValue: exposesUsableValue,
+  });
   const description = getAdminTruthStateDescription(state);
 
   return (
@@ -32,8 +37,8 @@ export function AdminTruthBadge({
       title={title ?? description}
       aria-label={`${badgeLabel}. ${description}`}
       data-admin-truth-state={state}
-      data-admin-truth-has-usable-value={hasUsableValue ? "true" : "false"}
-      data-admin-truth-pending-initial-load={pendingInitialLoad ? "true" : "false"}
+      data-admin-truth-has-usable-value={exposesUsableValue ? "true" : "false"}
+      data-admin-truth-pending-initial-load={pendingInitialLoad && !exposesUsableValue ? "true" : "false"}
       className={cn(
         "inline-flex rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
         LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
