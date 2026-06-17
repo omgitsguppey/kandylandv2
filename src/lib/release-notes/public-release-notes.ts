@@ -1,13 +1,60 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.73",
-  "betaReleaseCounter": 573,
+  "currentVersion": "1.5.74",
+  "betaReleaseCounter": 574,
   "channel": "beta",
-  "generatedAt": "2026-06-17T00:30:57.647Z",
-  "generatedAtUtc": "2026-06-17T00:30:57.647Z",
-  "lastCommitSha": "422fc7f96fcc7087120ea5a3d4af68b71e55fe89",
+  "generatedAt": "2026-06-17T00:55:03.319Z",
+  "generatedAtUtc": "2026-06-17T00:55:03.319Z",
+  "lastCommitSha": "59ed9c52c096664fe493f1b8f41d7db3897b5cdf",
   "notes": [
+    {
+      "version": "1.5.74",
+      "previousVersion": "1.5.73",
+      "betaReleaseCounter": 574,
+      "previousBetaReleaseCounter": 573,
+      "commitSha": "59ed9c52c096664fe493f1b8f41d7db3897b5cdf",
+      "commitTitle": "fix(deploy): restore deployment readiness",
+      "commitCount": 2,
+      "commitShas": [
+        "e8b7cef206389e34a660d047f967bbb768607a89",
+        "59ed9c52c096664fe493f1b8f41d7db3897b5cdf"
+      ],
+      "committedAt": "2026-06-17T00:53:13.000Z",
+      "generatedAt": "2026-06-17T00:55:03.318Z",
+      "committedAtUtc": "2026-06-17T00:53:13.000Z",
+      "generatedAtUtc": "2026-06-17T00:55:03.318Z",
+      "updatedAtUtc": "2026-06-17T00:55:03.318Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/same-commit-release-head-discipline.generated.json",
+        "docs/agent-truth/same-commit-release-head-discipline.md",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "sourceCommit": "59ed9c52c096664fe493f1b8f41d7db3897b5cdf"
+    },
     {
       "version": "1.5.73",
       "previousVersion": "1.5.72",
@@ -2007,55 +2054,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-debug-compact-layout.spec.ts"
       ],
       "sourceCommit": "89f8ee2b07fdb057f8ecefb96d2140c35e7e071c"
-    },
-    {
-      "version": "1.5.49",
-      "previousVersion": "1.5.48",
-      "betaReleaseCounter": 549,
-      "previousBetaReleaseCounter": 548,
-      "commitSha": "53355223290248fe5d06ab6706fafc064801b90c",
-      "commitTitle": "fix(admin): compact debug system health panel",
-      "commitCount": 2,
-      "commitShas": [
-        "7a5bd39e4c2163d5daa61d1f324ff0e94dee7c08",
-        "53355223290248fe5d06ab6706fafc064801b90c"
-      ],
-      "committedAt": "2026-06-03T23:41:23.000Z",
-      "generatedAt": "2026-06-03T23:41:36.790Z",
-      "committedAtUtc": "2026-06-03T23:41:23.000Z",
-      "generatedAtUtc": "2026-06-03T23:41:36.790Z",
-      "updatedAtUtc": "2026-06-03T23:41:36.790Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-        "src/app/admin/debug/components/DebugTabNow.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-audience-mobile.spec.ts",
-        "tests/unit/admin-debug-compact-layout.spec.ts"
-      ],
-      "sourceCommit": "53355223290248fe5d06ab6706fafc064801b90c"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
