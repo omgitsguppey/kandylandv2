@@ -13,6 +13,7 @@ import type {
     PlatformEconomyPromoRecord,
     PlatformEconomyRedemptionRecord,
     PlatformEconomyTreasurySummary,
+    PlatformEconomyWarning,
 } from "@/lib/platform-economy";
 
 import { PlatformEconomyStrip } from "./PlatformEconomyStrip";
@@ -35,16 +36,16 @@ const TABS: Array<{ id: EconomyTabId; label: string }> = [
 ];
 
 function formatUsd(value: number | null | undefined) {
-    return value == null ? "â€”" : `$${value.toFixed(2)}`;
+    return value == null ? "--" : `$${value.toFixed(2)}`;
 }
 
 function formatRate(value: number | null | undefined) {
-    return value == null ? "â€”" : `$${value.toFixed(2)} / 100 GD`;
+    return value == null ? "--" : `$${value.toFixed(2)} / 100 GD`;
 }
 
 function formatWindow(start: string | null | undefined, end: string | null | undefined) {
     if (!start && !end) return "No window";
-    return `${start ? new Date(start).toLocaleDateString() : "now"} â†’ ${end ? new Date(end).toLocaleDateString() : "open"}`;
+    return `${start ? new Date(start).toLocaleDateString() : "now"} -> ${end ? new Date(end).toLocaleDateString() : "open"}`;
 }
 
 function StatusChip({ value }: { value: string }) {
@@ -63,6 +64,22 @@ function SectionCard({ title, detail, children }: { title: string; detail: strin
             {children}
         </section>
     );
+}
+
+function summarizeSourceWarnings(warnings: PlatformEconomyWarning[]) {
+    if (warnings.length === 0) return null;
+    const labels = warnings.slice(0, 2).map((warning) => warning.label);
+    const remaining = warnings.length - labels.length;
+    return `${labels.join(" / ")}${remaining > 0 ? ` / +${remaining} more` : ""}`;
+}
+
+function getTreasuryStripSourceState(slice: EconomySliceState<PlatformEconomyTreasurySummary>, isLocalAdminUiTestSession: boolean) {
+    if (isLocalAdminUiTestSession) return "source_missing";
+    if (slice.error) return "failed";
+    if (slice.loading && slice.data == null) return "collecting";
+    if (slice.data?.freshnessState === "review") return "review";
+    if (slice.data == null) return "source_missing";
+    return "live";
 }
 
 const ECONOMY_ENDPOINTS = [
@@ -118,7 +135,7 @@ function renderSliceState<T>({
     }
 
     if (slice.loading && slice.data == null) {
-        return <div className="text-sm text-gray-500">Loading this section…</div>;
+        return <div className="text-sm text-gray-500">Loading this section...</div>;
     }
 
     if (slice.data == null) {
@@ -188,6 +205,7 @@ export function PlatformEconomyConsole() {
     }, [isLocalAdminUiTestSession]);
 
     const warnings = useMemo(() => collectEconomyWarnings(state), [state]);
+    const treasuryStripSourceState = getTreasuryStripSourceState(state.treasury, isLocalAdminUiTestSession);
     const warningsStillLoading =
         state.treasury.loading ||
         state.packages.loading ||
@@ -210,7 +228,7 @@ export function PlatformEconomyConsole() {
             <PlatformEconomyStrip
                 treasury={state.treasury.data}
                 warningCount={warnings.length}
-                sourceState={isLocalAdminUiTestSession ? "source_missing" : "live"}
+                sourceState={treasuryStripSourceState}
             />
 
             <div className="flex flex-wrap gap-1.5 rounded-[1.1rem] border border-white/10 bg-black/20 p-1.5">
@@ -237,21 +255,27 @@ export function PlatformEconomyConsole() {
                             : "No treasury snapshot is available yet.",
                         children: (treasury) => (
                             <div className="grid gap-2">
-                                {treasury.walletRows.map((row) => (
-                                    <div key={row.userId} className="rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
-                                        <div className="flex items-center justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <Link href={row.adminUserHref} className="truncate text-sm font-medium text-white hover:text-brand-purple">{row.displayName}</Link>
-                                                <div className="text-[11px] text-gray-500">{row.shortUserId}</div>
-                                            </div>
-                                            <div className="flex flex-wrap gap-1.5 text-[11px]">
-                                                <StatusChip value={`total ${row.totalGd.toLocaleString()} GD`} />
-                                                <StatusChip value={`paid ${row.paidGd.toLocaleString()}`} />
-                                                <StatusChip value={`reward ${row.rewardFreeGd.toLocaleString()}`} />
+                                {treasury.walletRows.map((row) => {
+                                    const sourceWarningSummary = summarizeSourceWarnings(row.sourceWarnings);
+                                    return (
+                                        <div key={row.userId} className="rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
+                                            <div className="flex items-center justify-between gap-3">
+                                                <div className="min-w-0">
+                                                    <Link href={row.adminUserHref} className="truncate text-sm font-medium text-white hover:text-brand-purple">{row.displayName}</Link>
+                                                    <div className="text-[11px] text-gray-500">{row.shortUserId}</div>
+                                                    {sourceWarningSummary ? (
+                                                        <div className="mt-1 text-[11px] text-amber-200">{sourceWarningSummary}</div>
+                                                    ) : null}
+                                                </div>
+                                                <div className="flex flex-wrap gap-1.5 text-[11px]">
+                                                    <StatusChip value={`total ${row.totalGd.toLocaleString()} GD`} />
+                                                    <StatusChip value={`paid-source ${row.paidGd.toLocaleString()}`} />
+                                                    <StatusChip value={`reward/free ${row.rewardFreeGd.toLocaleString()}`} />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ),
                     })}
@@ -304,12 +328,12 @@ export function PlatformEconomyConsole() {
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <div className="truncate text-sm font-medium text-white">{promo.title}</div>
-                                                <div className="text-[11px] text-gray-500">{promo.code} Â· {promo.promoType}</div>
+                                                <div className="text-[11px] text-gray-500">{promo.code} / {promo.promoType}</div>
                                             </div>
                                             <div className="flex flex-wrap gap-1.5 text-[11px]">
                                                 <StatusChip value={promo.active ? "active" : "draft"} />
                                                 <StatusChip value={promo.stackable ? "stackable" : "non-stackable"} />
-                                                <StatusChip value={`max/user ${promo.maxPerUser ?? "â€”"}`} />
+                                                <StatusChip value={`max/user ${promo.maxPerUser ?? "--"}`} />
                                                 <StatusChip value={formatRate(promo.effectiveUsdPer100GdImpact)} />
                                             </div>
                                         </div>
@@ -335,7 +359,7 @@ export function PlatformEconomyConsole() {
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <div className="truncate text-sm font-medium text-white">{offer.offerType}</div>
-                                                <div className="text-[11px] text-gray-500">{offer.eligibleAudience} Â· {formatWindow(offer.startsAtUtc, offer.endsAtUtc)}</div>
+                                                <div className="text-[11px] text-gray-500">{offer.eligibleAudience} / {formatWindow(offer.startsAtUtc, offer.endsAtUtc)}</div>
                                             </div>
                                             <div className="flex flex-wrap gap-1.5 text-[11px]">
                                                 <StatusChip value={offer.active ? "active" : "draft"} />
@@ -365,7 +389,7 @@ export function PlatformEconomyConsole() {
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <div className="truncate text-sm font-medium text-white">{row.packageLabel}</div>
-                                                <div className="text-[11px] text-gray-500">{row.shortUserId} Â· {new Date(row.createdAtUtc).toLocaleString()}</div>
+                                                <div className="text-[11px] text-gray-500">{row.shortUserId} / {new Date(row.createdAtUtc).toLocaleString()}</div>
                                             </div>
                                             <div className="flex flex-wrap gap-1.5 text-[11px]">
                                                 <StatusChip value={`paid ${formatUsd(row.priceUsdPaid)}`} />
@@ -396,7 +420,7 @@ export function PlatformEconomyConsole() {
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <div className="truncate text-sm font-medium text-white">{row.surface}</div>
-                                                <div className="text-[11px] text-gray-500">{row.expected} Â· {row.actual}</div>
+                                                <div className="text-[11px] text-gray-500">{row.expected} / {row.actual}</div>
                                             </div>
                                             <div className="flex flex-wrap gap-1.5 text-[11px]">
                                                 <StatusChip value={row.severity} />

@@ -37,6 +37,7 @@ export function collectEconomyWarnings(state: PlatformEconomyDashboardState) {
     const warnings: PlatformEconomyWarning[] = [];
 
     state.treasury.data?.warnings.forEach((warning) => warnings.push(warning));
+    state.treasury.data?.walletRows.forEach((row) => row.sourceWarnings.forEach((warning) => warnings.push(warning)));
     state.packages.data?.forEach((record) => record.warnings.forEach((warning) => warnings.push(warning)));
     state.promos.data?.forEach((record) => record.warnings.forEach((warning) => warnings.push(warning)));
     state.offers.data?.forEach((record) => record.warnings.forEach((warning) => warnings.push(warning)));
