@@ -1,11 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
+import { badgeForSourceStatus, Pill, Section, ScrollWrap, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 import { DebugMonitoringRoutes, type DebugMonitoringRoutesProps } from "./DebugMonitoringRoutes";
 import { buildRouteRuntimeSummaryTruth } from "@/lib/route-runtime-health";
 import { buildRouteRuntimeDisplayStatus, type RouteRuntimeDisplayBadgeState } from "@/lib/debug/route-runtime-display-status";
 import { buildRouteRuntimeRollup } from "@/lib/debug/route-runtime-rollup-engine";
+
+const DEBUG_MONITORING_NOT_LOADED = "Not loaded";
+
+type DebugMonitoringSourceStatus =
+    | "loaded_with_data"
+    | "loaded_empty_with_source_window"
+    | "source_ready_no_sample_loaded"
+    | "source_missing_actionable";
+
+function sourceStatusForOptionalNumber(value: unknown, sourceLoaded: boolean): DebugMonitoringSourceStatus {
+    if (!sourceLoaded || typeof value !== "number" || !Number.isFinite(value)) return "source_missing_actionable";
+    return value > 0 ? "loaded_with_data" : "loaded_empty_with_source_window";
+}
+
+function sourceStatusForSampleArray(value: unknown, sourceLoaded: boolean): DebugMonitoringSourceStatus {
+    if (!sourceLoaded || !Array.isArray(value)) return "source_missing_actionable";
+    return value.length > 0 ? "loaded_with_data" : "source_ready_no_sample_loaded";
+}
+
+function countValueForOptionalNumber(value: unknown, sourceLoaded: boolean): string | number {
+    const status = sourceStatusForOptionalNumber(value, sourceLoaded);
+    return status === "source_missing_actionable" ? DEBUG_MONITORING_NOT_LOADED : Number(value);
+}
+
+function countValueForSampleArray(value: unknown, sourceLoaded: boolean): string | number {
+    const status = sourceStatusForSampleArray(value, sourceLoaded);
+    return status === "source_missing_actionable" || !Array.isArray(value) ? DEBUG_MONITORING_NOT_LOADED : value.length;
+}
 
 /* ─── Helpers ─── */
 function formatTimestamp(timestamp?: number) {
@@ -313,6 +341,15 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
     const recentEventFlowRows = buildRecentEventFlowRows(data?.orchestration?.events || []);
     const lowConfidenceCauses = buildLowConfidenceCauseBreakdown(recentEventFlowRows);
     const latestEventRow = recentEventFlowRows[0];
+    const monitoringDataLoaded = Boolean(data);
+    const orchestrationEventsStatus = sourceStatusForOptionalNumber(data?.stats?.orchestrationEvents, monitoringDataLoaded);
+    const orchestrationLowConfidenceStatus = sourceStatusForOptionalNumber(data?.stats?.orchestrationLowConfidence, monitoringDataLoaded);
+    const recentEventRowsStatus = sourceStatusForSampleArray(recentEventFlowRows, monitoringDataLoaded);
+    const recentTaskEventsStatus = sourceStatusForSampleArray(data?.recentTaskEvents, monitoringDataLoaded);
+    const taskRollupsStatus = sourceStatusForSampleArray(data?.taskRollups, monitoringDataLoaded);
+    const dailyTaskSeriesStatus = sourceStatusForSampleArray(data?.dailyTaskSeries, monitoringDataLoaded);
+    const receiptsLast7dStatus = sourceStatusForOptionalNumber(data?.stats?.receiptsLast7d, monitoringDataLoaded);
+    const recentReceiptsStatus = sourceStatusForSampleArray(data?.recentReceipts, monitoringDataLoaded);
     const routeRuntimeChatFailCount = routeRuntimeRollup.cohorts.chat_native.currentFailCount + routeRuntimeRollup.cohorts.chat_compat.currentFailCount;
     const routeRuntimeChatStaleCount = routeRuntimeRollup.cohorts.chat_native.staleRoutes + routeRuntimeRollup.cohorts.chat_compat.staleRoutes;
     const routeRuntimeChatUnseenCount = routeRuntimeRollup.cohorts.chat_native.unseenRoutes + routeRuntimeRollup.cohorts.chat_compat.unseenRoutes;
@@ -600,9 +637,9 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 </div>
             </Section>
 
-            <Section title="Recent event flow" subtitle="Derived recent events normalized from telemetry and backend signals." defaultOpen={!isCompactViewport} summary={<><Pill label="Events" value={data?.stats?.orchestrationEvents ?? 0} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Low confidence" value={data?.stats?.orchestrationLowConfidence ?? 0} tone={(data?.stats?.orchestrationLowConfidence ?? 0) ? "warn" : "good"} badgeLabel={(data?.stats?.orchestrationLowConfidence ?? 0) ? "REVIEW" : "INFO"} /><Pill label="Unique rows" value={recentEventFlowRows.length} truthState={data ? "live" : "unavailable"} badgeLabel="GROUPED" /><Pill label="Last event age" value={latestEventRow?.ageLabel || "unknown"} truthState={latestEventRow ? "live" : "unavailable"} badgeLabel={latestEventRow?.freshnessState?.toUpperCase() || "UNKNOWN"} /></>}>
+            <Section title="Recent event flow" subtitle="Derived recent events normalized from telemetry and backend signals." defaultOpen={!isCompactViewport} summary={<><Pill label="Events" value={countValueForOptionalNumber(data?.stats?.orchestrationEvents, monitoringDataLoaded)} tone={toneForSourceStatus(orchestrationEventsStatus)} truthState={truthStateForSourceStatus(orchestrationEventsStatus)} badgeLabel={badgeForSourceStatus(orchestrationEventsStatus)} /><Pill label="Low confidence" value={countValueForOptionalNumber(data?.stats?.orchestrationLowConfidence, monitoringDataLoaded)} tone={orchestrationLowConfidenceStatus === "loaded_with_data" ? "warn" : toneForSourceStatus(orchestrationLowConfidenceStatus)} truthState={truthStateForSourceStatus(orchestrationLowConfidenceStatus)} badgeLabel={orchestrationLowConfidenceStatus === "loaded_with_data" ? "REVIEW" : badgeForSourceStatus(orchestrationLowConfidenceStatus)} /><Pill label="Unique rows" value={countValueForSampleArray(recentEventFlowRows, monitoringDataLoaded)} tone={toneForSourceStatus(recentEventRowsStatus)} truthState={truthStateForSourceStatus(recentEventRowsStatus)} badgeLabel={recentEventRowsStatus === "loaded_with_data" ? "GROUPED" : badgeForSourceStatus(recentEventRowsStatus)} /><Pill label="Last event age" value={latestEventRow?.ageLabel || (monitoringDataLoaded ? "No sample" : DEBUG_MONITORING_NOT_LOADED)} truthState={latestEventRow ? "live" : monitoringDataLoaded ? "review" : "unavailable"} badgeLabel={latestEventRow?.freshnessState?.toUpperCase() || (monitoringDataLoaded ? "NO SAMPLE" : "MISSING")} /></>}>
                 <ScrollWrap>
-                    <div className="divide-y divide-white/10" data-event-flow-loaded-count={data?.stats?.orchestrationEvents ?? 0} data-event-flow-low-confidence-count={data?.stats?.orchestrationLowConfidence ?? 0} data-event-flow-grouped-count={recentEventFlowRows.length}>
+                    <div className="divide-y divide-white/10" data-event-flow-loaded-count={countValueForOptionalNumber(data?.stats?.orchestrationEvents, monitoringDataLoaded)} data-event-flow-low-confidence-count={countValueForOptionalNumber(data?.stats?.orchestrationLowConfidence, monitoringDataLoaded)} data-event-flow-grouped-count={countValueForSampleArray(recentEventFlowRows, monitoringDataLoaded)}>
                         {lowConfidenceCauses.length > 0 ? (
                             <div className="space-y-2 px-4 py-3">
                                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Top low-confidence causes</p>
@@ -643,10 +680,10 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 </ScrollWrap>
             </Section>
 
-            <Section title="Recent task activity sample" subtitle="Recent task events and longer-tail rollups from the activity sample." defaultOpen={false} summary={<><Pill label="Recent events" value={(data?.recentTaskEvents || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Rollups" value={(data?.taskRollups || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Daily points" value={(data?.dailyTaskSeries || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /></>}>
+            <Section title="Recent task activity sample" subtitle="Recent task events and longer-tail rollups from the activity sample." defaultOpen={false} summary={<><Pill label="Recent events" value={countValueForSampleArray(data?.recentTaskEvents, monitoringDataLoaded)} tone={toneForSourceStatus(recentTaskEventsStatus)} truthState={truthStateForSourceStatus(recentTaskEventsStatus)} badgeLabel={badgeForSourceStatus(recentTaskEventsStatus)} /><Pill label="Rollups" value={countValueForSampleArray(data?.taskRollups, monitoringDataLoaded)} tone={toneForSourceStatus(taskRollupsStatus)} truthState={truthStateForSourceStatus(taskRollupsStatus)} badgeLabel={badgeForSourceStatus(taskRollupsStatus)} /><Pill label="Daily points" value={countValueForSampleArray(data?.dailyTaskSeries, monitoringDataLoaded)} tone={toneForSourceStatus(dailyTaskSeriesStatus)} truthState={truthStateForSourceStatus(dailyTaskSeriesStatus)} badgeLabel={badgeForSourceStatus(dailyTaskSeriesStatus)} /></>}>
                 <div className="grid gap-4 lg:grid-cols-1">
                     <ScrollWrap>
-                        <div className="divide-y divide-white/10" data-daily-task-activity-loaded-count={(data?.recentTaskEvents || []).length}>
+                        <div className="divide-y divide-white/10" data-daily-task-activity-loaded-count={countValueForSampleArray(data?.recentTaskEvents, monitoringDataLoaded)}>
                             {(data?.recentTaskEvents || []).map((event: any) => (
                                 <div key={event.id} className="space-y-2 px-4 py-3" data-daily-task-window-id={event.dailyTaskWindowId || "unknown"} data-daily-task-reason-code={event.reasonCode || event.reason || "unknown"} data-daily-task-source={event.source || "unknown"}>
                                     <div className="flex flex-wrap items-start justify-between gap-2">
@@ -689,7 +726,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 </div>
             </Section>
 
-            <Section title="Recent receipts and dedupe sample" subtitle="Recent receipts plus dedupe counters from the current sample." defaultOpen={false} summary={<><Pill label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? 0} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Recent" value={(data?.recentReceipts || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /></>}>
+            <Section title="Recent receipts and dedupe sample" subtitle="Recent receipts plus dedupe counters from the current sample." defaultOpen={false} summary={<><Pill label="Receipts 7d" value={countValueForOptionalNumber(data?.stats?.receiptsLast7d, monitoringDataLoaded)} tone={toneForSourceStatus(receiptsLast7dStatus)} truthState={truthStateForSourceStatus(receiptsLast7dStatus)} badgeLabel={badgeForSourceStatus(receiptsLast7dStatus)} /><Pill label="Recent" value={countValueForSampleArray(data?.recentReceipts, monitoringDataLoaded)} tone={toneForSourceStatus(recentReceiptsStatus)} truthState={truthStateForSourceStatus(recentReceiptsStatus)} badgeLabel={badgeForSourceStatus(recentReceiptsStatus)} /></>}>
                 <div className="grid gap-4 lg:grid-cols-1">
                     <ScrollWrap>
                         <div className="divide-y divide-white/10">

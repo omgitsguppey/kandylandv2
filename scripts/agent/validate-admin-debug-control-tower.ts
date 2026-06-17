@@ -1519,8 +1519,10 @@ for (const forbidden of [
 
 for (const expected of [
   "Recent receipts and dedupe sample",
-  "<Pill label=\"Receipts 7d\" value={data?.stats?.receiptsLast7d ?? 0} truthState={data ? \"live\" : \"unavailable\"} badgeLabel=\"LOADED\" />",
-  "<Pill label=\"Recent\" value={(data?.recentReceipts || []).length} truthState={data ? \"live\" : \"unavailable\"} badgeLabel=\"LOADED\" />",
+  "sourceStatusForOptionalNumber(data?.stats?.receiptsLast7d, monitoringDataLoaded)",
+  "sourceStatusForSampleArray(data?.recentReceipts, monitoringDataLoaded)",
+  "badgeForSourceStatus(receiptsLast7dStatus)",
+  "badgeForSourceStatus(recentReceiptsStatus)",
   "receipt.displayLabel",
   "receipt.dedupeKeyLabel",
   "receipt.lastSeenAtUtc",

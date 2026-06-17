@@ -58,4 +58,16 @@ describe("admin debug compact layout", () => {
         expect(tracking).toContain('trackingLoaded ? p1Count > 0 ? "failed" : "live" : "unavailable"');
         expect(tracking).not.toContain('<Pill label="P1" value={p1Count} tone={p1Count > 0 ? "bad" : "good"} truthState={p1Count > 0 ? "failed" : "live"} />');
     });
+
+    it("uses source-status helpers for monitoring event, task, and receipt sample summaries", () => {
+        const monitoring = readFileSync(join(process.cwd(), "src/app/admin/debug/components/DebugTabMonitoring.tsx"), "utf8");
+
+        expect(monitoring).toContain("sourceStatusForOptionalNumber(data?.stats?.orchestrationEvents, monitoringDataLoaded)");
+        expect(monitoring).toContain("sourceStatusForSampleArray(data?.recentTaskEvents, monitoringDataLoaded)");
+        expect(monitoring).toContain("sourceStatusForOptionalNumber(data?.stats?.receiptsLast7d, monitoringDataLoaded)");
+        expect(monitoring).toContain("badgeForSourceStatus(recentReceiptsStatus)");
+        expect(monitoring).not.toContain('value={data?.stats?.orchestrationEvents ?? 0} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED"');
+        expect(monitoring).not.toContain('value={(data?.recentTaskEvents || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED"');
+        expect(monitoring).not.toContain('value={data?.stats?.receiptsLast7d ?? 0} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED"');
+    });
 });
