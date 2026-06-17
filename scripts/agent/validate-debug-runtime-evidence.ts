@@ -14,7 +14,7 @@ type SourceStatus =
 
 export type DebugRuntimeValidatorResult = {
   command: string;
-  status: "pass" | "fail" | "unavailable";
+  status: "pass" | "stale_snapshot" | "missing_expected";
   artifactPath: string;
   detail?: string;
 };
@@ -95,11 +95,21 @@ function currentArtifact(relativePath: string, head: string) {
 
 function artifactStatus(relativePath: string, command: string, head: string): DebugRuntimeValidatorResult {
   if (!existsSync(join(ROOT, relativePath))) {
-    return { command, status: "unavailable", artifactPath: relativePath, detail: "Artifact missing." };
+    return {
+      command,
+      status: "missing_expected",
+      artifactPath: relativePath,
+      detail: "Expected artifact is missing; run the owning local validator to refresh this source snapshot.",
+    };
   }
   return currentArtifact(relativePath, head)
     ? { command, status: "pass", artifactPath: relativePath, detail: "Artifact is current for the latest code version." }
-    : { command, status: "fail", artifactPath: relativePath, detail: "Artifact is not current for the latest code version." };
+    : {
+      command,
+      status: "stale_snapshot",
+      artifactPath: relativePath,
+      detail: "Artifact is a stale source snapshot; rerun the owning local validator before using it as current evidence.",
+    };
 }
 
 function countCheckedSources(inputs: BuildInputs) {
@@ -179,7 +189,12 @@ export function validateDebugRuntimeEvidenceReport(report: DebugRuntimeEvidenceR
   if (!report.doesNotClear.includes("provider_smoke")) failures.push("doesNotClear must include provider_smoke.");
   if (report.runtimeWarningStoreStatus === "empty_without_source") failures.push("debug/runtime evidence is empty without checked source backing.");
   if (!Array.isArray(report.validatorResults) || report.validatorResults.length === 0) failures.push("debug runtime evidence has no validator results.");
-  if (report.validatorResults.some((result) => result.status !== "pass")) failures.push("debug runtime evidence has non-passing validator results.");
+  if (report.passed && report.validatorResults.some((result) => result.status !== "pass")) {
+    failures.push("debug runtime evidence cannot pass with stale or missing validator snapshots.");
+  }
+  if (report.status === "source_ready_debug_runtime_evidence" && report.validatorResults.some((result) => result.status !== "pass")) {
+    failures.push("source-ready debug runtime evidence requires current validator snapshots.");
+  }
   if (report.criticalRuntimeIssueCount > 0 && report.passed) failures.push("critical runtime issues cannot pass debug runtime evidence.");
   if (report.status === "source_ready_debug_runtime_evidence" && report.summary.checkedSources === 0) failures.push("source-ready debug evidence needs checked sources.");
   return failures;

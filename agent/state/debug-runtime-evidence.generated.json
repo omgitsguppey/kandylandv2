@@ -1,35 +1,35 @@
 {
-  "generatedAtUtc": "2026-06-03T22:38:14.305Z",
-  "currentHead": "815177718fc1610590762fdae5d76b3ae390a2ae",
-  "debugPanelSourceSnapshotStatus": "checked_clean",
+  "generatedAtUtc": "2026-06-17T07:24:02.828Z",
+  "currentHead": "4625e11a355879686d31f9e27a3df030259b43ac",
+  "debugPanelSourceSnapshotStatus": "stale",
   "routeDiagnosticsStatus": "source_ready",
   "runtimeWarningStoreStatus": "source_ready",
-  "telemetryAdminDebugTruthStatus": "checked_clean",
+  "telemetryAdminDebugTruthStatus": "stale",
   "adminDebugControlTowerStatus": "source_ready",
   "precatchRuntimeIssueScanStatus": "source_ready",
   "errorDictionaryMappingStatus": "source_ready",
   "criticalRuntimeIssueCount": 0,
   "unresolvedWarningCount": 0,
-  "unknownEvidenceCount": 0,
+  "unknownEvidenceCount": 1,
   "sourceBackedRuntimeConfidence": 100,
   "validatorResults": [
     {
       "command": "npm run check:debug-panel-output-triage",
-      "status": "pass",
+      "status": "stale_snapshot",
       "artifactPath": "agent/state/debug-panel-output-triage.generated.json",
-      "detail": "Artifact is current for the latest code version."
+      "detail": "Artifact is a stale source snapshot; rerun the owning local validator before using it as current evidence."
     },
     {
       "command": "npm run check:telemetry-admin-debug-truth",
-      "status": "pass",
+      "status": "stale_snapshot",
       "artifactPath": "agent/state/telemetry-admin-debug-truth.generated.json",
-      "detail": "Artifact is current for the latest code version."
+      "detail": "Artifact is a stale source snapshot; rerun the owning local validator before using it as current evidence."
     }
   ],
   "reportKey": "debug-runtime-evidence",
-  "sourceCommit": "815177718fc1610590762fdae5d76b3ae390a2ae",
-  "status": "source_ready_debug_runtime_evidence",
-  "passed": true,
+  "sourceCommit": "4625e11a355879686d31f9e27a3df030259b43ac",
+  "status": "partial_debug_runtime_evidence",
+  "passed": false,
   "launchGateImpact": "does_not_clear_deployed_runtime_smoke",
   "formalProviderSmokeCleared": false,
   "deployedRuntimeSmokeCleared": false,
@@ -41,16 +41,16 @@
     "admin_truth_sample"
   ],
   "evidence": [
-    "debugPanelSourceSnapshotStatus=checked_clean",
+    "debugPanelSourceSnapshotStatus=stale",
     "routeDiagnosticsStatus=source_ready",
     "runtimeWarningStoreStatus=source_ready",
-    "telemetryAdminDebugTruthStatus=checked_clean",
+    "telemetryAdminDebugTruthStatus=stale",
     "adminDebugControlTowerStatus=source_ready",
     "precatchRuntimeIssueScanStatus=source_ready",
     "errorDictionaryMappingStatus=source_ready",
     "criticalRuntimeIssueCount=0",
     "unresolvedWarningCount=0",
-    "unknownEvidenceCount=0",
+    "unknownEvidenceCount=1",
     "sourceBackedRuntimeConfidence=100",
     "launchGateImpact=does_not_clear_deployed_runtime_smoke",
     "formalProviderSmokeCleared=false",
@@ -58,11 +58,11 @@
   ],
   "nextAction": "Use this as source-backed debug/runtime evidence only; attach deployed runtime smoke before clearing runtime gates.",
   "summary": {
-    "debugRuntimeEvidenceStatus": "source_ready_debug_runtime_evidence",
-    "checkedSources": 7,
+    "debugRuntimeEvidenceStatus": "partial_debug_runtime_evidence",
+    "checkedSources": 5,
     "criticalRuntimeIssueCount": 0,
     "unresolvedWarningCount": 0,
-    "unknownEvidenceCount": 0,
+    "unknownEvidenceCount": 1,
     "formalRuntimeSmokeStillRequired": true
   }
 }

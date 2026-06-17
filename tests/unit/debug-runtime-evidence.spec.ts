@@ -60,6 +60,37 @@ describe("debug runtime evidence", () => {
     ]));
   });
 
+  it("keeps stale consumed snapshots partial without treating them as proof", () => {
+    const report = buildDebugRuntimeEvidenceReport({
+      generatedAtUtc: "2026-05-20T00:00:00.000Z",
+      currentHead,
+      debugPanelSourceSnapshotStatus: "stale",
+      routeDiagnosticsStatus: "source_ready",
+      runtimeWarningStoreStatus: "checked_clean",
+      telemetryAdminDebugTruthStatus: "stale",
+      adminDebugControlTowerStatus: "source_ready",
+      precatchRuntimeIssueScanStatus: "source_ready",
+      errorDictionaryMappingStatus: "source_ready",
+      criticalRuntimeIssueCount: 0,
+      unresolvedWarningCount: 0,
+      unknownEvidenceCount: 0,
+      sourceBackedRuntimeConfidence: 45,
+      validatorResults: [
+        {
+          command: "npm run check:debug-panel-output-triage",
+          status: "stale_snapshot",
+          artifactPath: "agent/state/debug-panel-output-triage.generated.json",
+        },
+      ],
+    });
+
+    expect(report.status).toBe("partial_debug_runtime_evidence");
+    expect(report.passed).toBe(false);
+    expect(report.formalProviderSmokeCleared).toBe(false);
+    expect(report.deployedRuntimeSmokeCleared).toBe(false);
+    expect(validateDebugRuntimeEvidenceReport(report)).toEqual([]);
+  });
+
   it("is recognized by the beta score as source-backed debug evidence only", () => {
     const gates = buildPublicBetaEvidenceGates({
       scannerScore: 100,
