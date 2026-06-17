@@ -151,4 +151,41 @@ describe("buildAdminAnalyticsJourneyFunnelModel", () => {
     expect(model.algorithmRecommendation).toContain("ordered actor/session funnel");
     expect(model.algorithmRecommendation).toContain("Aggregate event counts alone remain event-volume ratios");
   });
+
+  it("keeps refresh-due event snapshots as cached truth instead of stale truth", () => {
+    const response: HistoricalAnalyticsResponse = {
+      ...responseWithFunnel({
+        authModalOpens: 100,
+        authSignIns: 20,
+        authSignUps: 12,
+        previewOpens: 80,
+        viewerOpens: 60,
+        assetSwitches: 0,
+        unlocks: 30,
+        shares: 2,
+        walletOpens: 0,
+        checkoutStarts: 10,
+        purchases: 4,
+        checkIns: 5,
+        experienceViews: 0,
+      }),
+      cacheState: "refresh_due",
+      staleButVerified: true,
+      cacheRevalidating: true,
+    };
+
+    const model = buildAdminAnalyticsJourneyFunnelModel({
+      selectedRange: "30d",
+      response,
+      funnel: response.funnel,
+      loading: false,
+      overviewTruthState: "live",
+    });
+
+    expect(model.stale).toBe(false);
+    expect(model.modeLabel).toBe("DELAYED");
+    expect(model.steps[0].truthState).toBe("cached");
+    expect(model.steps[0].state).toBe("live");
+    expect(model.supportingMetrics[0].truthState).toBe("cached");
+  });
 });

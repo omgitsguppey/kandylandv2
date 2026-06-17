@@ -129,6 +129,9 @@ function resolveTruthState(input: {
   if (input.error || input.response.cacheState === "stale") {
     return "stale";
   }
+  if (input.response.cacheState === "refresh_due" || input.response.staleButVerified) {
+    return "cached";
+  }
   if (input.nonSequential) {
     return "degraded";
   }
@@ -254,6 +257,12 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
   overviewTruthState?: AdminSurfaceState;
 }): AdminAnalyticsJourneyFunnelModel {
   const hasResponse = Boolean(input.response);
+  const cacheRefreshDue = Boolean(
+    input.response &&
+      (input.response.cacheState === "refresh_due" ||
+        input.response.staleButVerified ||
+        input.response.cacheRevalidating),
+  );
   const flags: FunnelFlags = {
     stale: Boolean(input.response && (input.error || input.response.cacheState === "stale")),
     cache: Boolean(input.response?.cacheState && input.response.cacheState !== "miss"),
@@ -393,7 +402,7 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
         ? input.loading ? "WAIT" : "NO SAMPLE"
         : !hasUsableEventSample
           ? "NO SAMPLE"
-          : flags.stale
+          : flags.stale || cacheRefreshDue
             ? "DELAYED"
             : sourceMismatchSteps.length > 0 || nonSequentialSteps.length > 0
               ? "PARTIAL"
