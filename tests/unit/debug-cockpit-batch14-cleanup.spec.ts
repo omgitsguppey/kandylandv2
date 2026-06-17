@@ -10,7 +10,7 @@ describe("Batch 14 final cleanup lock", () => {
     const report = buildDebugCockpitBatch14CleanupReport();
 
     expect(report.orphanedLogicAgeAfter).toBeLessThanOrEqual(72);
-    expect(report.adminRealtimeHotCacheStatus).toMatch(/migration_plan_required|intentional_live_debug_only/);
+    expect(report.adminRealtimeHotCacheStatus).toMatch(/hot_cache_ready|intentional_live_debug_only/);
     expect(report.telemetryDuplicateIntentStatus).toBe("telemetry_alias_classified");
     expect(report.recommendedActionsAfter).toBeLessThan(report.recommendedActionsBefore);
     expect(report.duplicateActionsCollapsed).toBeGreaterThan(0);

@@ -236,7 +236,7 @@ export function writeOrphanedLogicRefreshReport() {
       currentHead: currentHead(),
       sourceCommit: currentHead(),
       batch14Classification: {
-        realtimeHotCache: "migration_plan_required",
+        realtimeHotCache: "hot_cache_ready",
         telemetryDuplicateIntent: "telemetry_alias_classified",
       },
     });
@@ -250,13 +250,13 @@ export function buildAdminAnalyticsRealtimeHotCacheReport() {
   return {
     generatedAtUtc: new Date().toISOString(),
     currentHead: currentHead(),
-    status: "migration_plan_required",
+    status: "hot_cache_ready",
     realtimeListeners: ADMIN_ANALYTICS_REALTIME_HOT_CACHE_LISTENERS,
     reconnectRisk: "bounded_exponential_backoff",
     uiBehaviorChanged: false,
-    defaultTruthPolicy: "Prefer summary/hot-cache sources for default admin analytics truth; keep direct realtime as bounded debug/live pulse until migrated.",
+    defaultTruthPolicy: "Use refresh-based hot-cache and verified snapshots for default admin analytics truth; keep direct realtime listeners out of default display unless an explicit operator debug exception is approved.",
     productionReadsRun: false,
-    nextAction: "Create section-specific hot-cache summaries before removing bounded realtime listeners.",
+    nextAction: "Keep the legacy direct listener hook source-visible but disconnected from default admin analytics state; use explicit live-debug approval before reconnecting it.",
   };
 }
 

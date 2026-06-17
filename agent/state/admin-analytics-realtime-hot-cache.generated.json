@@ -1,55 +1,55 @@
 {
-  "generatedAtUtc": "2026-06-16T22:24:57.265Z",
-  "currentHead": "44861d95638d931548492d5071b2c7a158b4bb47",
-  "status": "migration_plan_required",
+  "generatedAtUtc": "2026-06-17T13:43:08.259Z",
+  "currentHead": "0a7026e9fd98fa7ae3dc4d53365204e9faae4e7a",
+  "status": "hot_cache_ready",
   "realtimeListeners": [
     {
       "listenerName": "eventFacts",
       "collectionPath": "analytics_event_facts",
       "limit": 80,
-      "purpose": "Admin live pulse and recent identified telemetry debug visibility.",
-      "currentSourceTruth": "current_direct_realtime",
+      "purpose": "Legacy direct listener source kept visible for admin live-pulse debug review.",
+      "currentSourceTruth": "refresh_based_hot_cache_default",
       "hotCacheTarget": "analytics_event_fact_hot_cache",
-      "migrationStatus": "migration_plan_required",
+      "migrationStatus": "hot_cache_ready",
       "costRisk": "high",
       "reconnectRisk": "bounded_exponential_backoff",
-      "fallbackPolicy": "Fall back to server snapshots and listener debug metadata when the realtime feed fails.",
+      "fallbackPolicy": "Default admin display uses the snapshot-first realtime route and verified snapshot metadata.",
       "sampleWindow": "latest 80 event facts",
       "debugVisibility": true,
       "listenerCleanup": "required",
-      "nextAction": "Plan a hot-cache/materialized summary before treating realtime event facts as the long-term default source truth."
+      "nextAction": "Keep the direct event-fact listener out of default state unless an explicit operator live-debug exception is approved."
     },
     {
       "listenerName": "guestBatches",
       "collectionPath": "analytics_guest_batches",
       "limit": 50,
-      "purpose": "Admin live pulse for recent guest batch visibility.",
-      "currentSourceTruth": "current_direct_realtime",
+      "purpose": "Legacy direct listener source kept visible for guest-batch debug review.",
+      "currentSourceTruth": "refresh_based_hot_cache_default",
       "hotCacheTarget": "analytics_guest_batch_hot_cache",
-      "migrationStatus": "migration_plan_required",
+      "migrationStatus": "hot_cache_ready",
       "costRisk": "medium",
       "reconnectRisk": "bounded_exponential_backoff",
-      "fallbackPolicy": "Fall back to admin analytics snapshots and listener debug metadata when the realtime feed fails.",
+      "fallbackPolicy": "Default admin display uses admin analytics snapshots and verified guest snapshot metadata.",
       "sampleWindow": "latest 50 guest batches",
       "debugVisibility": true,
       "listenerCleanup": "required",
-      "nextAction": "Move recurring guest batch totals toward hot-cache summaries before making this a default analytics truth source."
+      "nextAction": "Keep recurring guest-batch totals on hot-cache summaries; direct batches remain debug-only."
     },
     {
       "listenerName": "guestSessions",
       "collectionPath": "analytics_sessions",
       "limit": 50,
-      "purpose": "Admin live pulse for recent guest and anonymous session visibility.",
-      "currentSourceTruth": "current_direct_realtime",
+      "purpose": "Legacy direct listener source kept visible for session debug review.",
+      "currentSourceTruth": "refresh_based_hot_cache_default",
       "hotCacheTarget": "analytics_session_hot_cache",
-      "migrationStatus": "migration_plan_required",
+      "migrationStatus": "hot_cache_ready",
       "costRisk": "medium",
       "reconnectRisk": "bounded_exponential_backoff",
-      "fallbackPolicy": "Fall back to admin analytics snapshots and listener debug metadata when the realtime feed fails.",
+      "fallbackPolicy": "Default admin display uses admin analytics snapshots and verified session metadata.",
       "sampleWindow": "latest 50 sessions",
       "debugVisibility": true,
       "listenerCleanup": "required",
-      "nextAction": "Keep realtime sessions bounded until a materialized hot-cache source can own default session truth."
+      "nextAction": "Keep direct session reads out of default analytics truth; use snapshots for compact admin display."
     },
     {
       "listenerName": "watchSessions",
@@ -70,7 +70,7 @@
   ],
   "reconnectRisk": "bounded_exponential_backoff",
   "uiBehaviorChanged": false,
-  "defaultTruthPolicy": "Prefer summary/hot-cache sources for default admin analytics truth; keep direct realtime as bounded debug/live pulse until migrated.",
+  "defaultTruthPolicy": "Use refresh-based hot-cache and verified snapshots for default admin analytics truth; keep direct realtime listeners out of default display unless an explicit operator debug exception is approved.",
   "productionReadsRun": false,
-  "nextAction": "Create section-specific hot-cache summaries before removing bounded realtime listeners."
+  "nextAction": "Keep the legacy direct listener hook source-visible but disconnected from default admin analytics state; use explicit live-debug approval before reconnecting it."
 }

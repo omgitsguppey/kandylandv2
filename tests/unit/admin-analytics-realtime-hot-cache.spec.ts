@@ -22,7 +22,8 @@ describe("admin analytics realtime hot-cache contract", () => {
     expect(ADMIN_ANALYTICS_REALTIME_HOT_CACHE_LISTENERS.map((listener) => listener.limit)).toEqual([80, 50, 50, 50]);
     expect(ADMIN_ANALYTICS_REALTIME_HOT_CACHE_LISTENERS.every((listener) => listener.debugVisibility === true)).toBe(true);
     expect(ADMIN_ANALYTICS_REALTIME_HOT_CACHE_LISTENERS.every((listener) => listener.listenerCleanup === "required")).toBe(true);
-    expect(ADMIN_ANALYTICS_REALTIME_HOT_CACHE_LISTENERS.map((listener) => listener.migrationStatus)).toContain("migration_plan_required");
+    expect(ADMIN_ANALYTICS_REALTIME_HOT_CACHE_LISTENERS.map((listener) => listener.migrationStatus)).not.toContain("migration_plan_required");
+    expect(ADMIN_ANALYTICS_REALTIME_HOT_CACHE_LISTENERS.map((listener) => listener.migrationStatus)).toContain("hot_cache_ready");
     expect(ADMIN_ANALYTICS_REALTIME_HOT_CACHE_LISTENERS.map((listener) => listener.migrationStatus)).toContain("intentionally_live_debug_only");
     expect(validateAdminAnalyticsRealtimeHotCacheContract()).toEqual([]);
   });
@@ -30,7 +31,7 @@ describe("admin analytics realtime hot-cache contract", () => {
   it("writes a current report with source-visible reconnect and hot-cache doctrine", () => {
     const report = buildAdminAnalyticsRealtimeHotCacheReport();
 
-    expect(report.status).toBe("migration_plan_required");
+    expect(report.status).toBe("hot_cache_ready");
     expect(report.uiBehaviorChanged).toBe(false);
     expect(report.realtimeListeners).toHaveLength(4);
     expect(report.realtimeListeners.every((listener) => listener.limit > 0)).toBe(true);
