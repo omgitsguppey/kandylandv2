@@ -32,6 +32,8 @@ describe("admin debug local fixture boundary", () => {
     expect(pageSource).toContain("toLocalFixtureDetailItem");
     expect(pageSource).toContain("isLocalAdminUiTestSession ? items.map(toLocalFixtureSummaryItem) : items");
     expect(pageSource).toContain("isLocalAdminUiTestSession ? items.map(toLocalFixtureDetailItem) : items");
+    expect(pageSource).toContain('className="flex w-full flex-wrap items-center gap-2 pb-2"');
+    expect(pageSource).not.toContain("overflow-x-auto pb-2 scrollbar-hide");
     expect(pageSource).toContain("Waiting for verified");
     expect(pageSource).toContain("Local review checks layout and controls only; it does not load verified admin evidence.");
     expect(pageSource).toContain("local_fixture_source_missing");
