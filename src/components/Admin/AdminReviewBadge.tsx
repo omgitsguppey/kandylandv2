@@ -30,7 +30,7 @@ export function AdminReviewBadge({
         className,
       )}
     >
-      {getAdminReviewLabel(decision.severity)} · {decision.reasonCode}
+      {getAdminReviewLabel(decision.severity)} · {decision.label}
     </span>
   );
 }
