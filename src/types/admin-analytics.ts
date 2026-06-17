@@ -1307,7 +1307,7 @@ export type AnalyticsOverviewCard = {
 export type AudienceSnapshotState = {
   generatedAtUtc: string;
   range: string;
-  sourceState: "verified" | "mixed" | "estimated" | "partial" | "gap_detected" | "stale";
+  sourceState: "verified" | "mixed" | "estimated" | "partial" | "gap_detected" | "stale" | "missing";
   ga: {
     totalUsers: number | null;
     sessions: number | null;

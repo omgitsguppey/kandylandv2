@@ -30,7 +30,7 @@ type AudienceEstimateMetadata = {
   sourceTruth: "ga4" | "event_estimate" | "server_estimate" | "legacy" | "unknown";
   formula: string | null;
   confidencePct: number | null;
-  freshnessState: "live" | "stale" | "unknown";
+  freshnessState: "live" | "refresh_due" | "stale" | "unknown";
   lastUpdatedAtUtc: string | null;
   explanation: string;
 };
@@ -110,7 +110,7 @@ function mapFreshnessState(
 function resolveMetricTruthState(input: {
   loading: boolean;
   error?: Error;
-  freshness: "live" | "stale" | "missing" | "unknown";
+  freshness: "live" | "refresh_due" | "stale" | "missing" | "unknown";
   sourceState: AudienceSnapshotState["sourceState"];
   estimated?: boolean;
 }): AdminSurfaceState {
@@ -122,12 +122,16 @@ function resolveMetricTruthState(input: {
     return "failed";
   }
 
-  if (input.freshness === "missing") {
+  if (input.sourceState === "missing" || input.freshness === "missing") {
     return "unavailable";
   }
 
-  if (input.freshness === "stale") {
+  if (input.sourceState === "stale" || input.freshness === "stale") {
     return "stale";
+  }
+
+  if (input.freshness === "refresh_due") {
+    return "cached";
   }
 
   if (input.estimated || input.sourceState === "estimated" || input.sourceState === "gap_detected" || input.sourceState === "partial") {
@@ -144,7 +148,7 @@ function resolveBaseSourceState(input: {
   loading: boolean;
 }): AudienceSnapshotState["sourceState"] {
   if (!input.response) {
-    return "stale";
+    return "missing";
   }
 
   const missingFirstPartyDays = input.diagnostics
@@ -309,7 +313,13 @@ export function buildAdminAnalyticsAudienceSnapshotModel(input: {
   const gaFreshnessState = mapFreshnessState(sourceHealth?.availability.ga4.freshnessState);
   const firstPartyFreshnessState = mapFreshnessState(sourceHealth?.availability.historicalSnapshot.freshnessState);
   const guestEstimateFreshnessState: AudienceEstimateMetadata["freshnessState"] =
-    response?.cacheState === "stale" ? "stale" : response ? "live" : "unknown";
+    response?.cacheState === "stale"
+      ? "stale"
+      : response?.cacheState === "refresh_due" || response?.staleButVerified
+        ? "refresh_due"
+        : response
+          ? "live"
+          : "unknown";
   const guestVisitsValue = guestTraffic
     ? guestTraffic.truthLabel === "exact"
       ? guestTraffic.exactGuestViews
