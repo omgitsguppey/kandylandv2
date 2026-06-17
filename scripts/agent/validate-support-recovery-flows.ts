@@ -82,8 +82,8 @@ const packageJson = readRequired("package.json");
 const adminUsersPage = readRequired("src/app/admin/users/page.tsx");
 const adminUserPage = readRequired("src/app/admin/user/[userId]/page.tsx");
 const adminSupportQueue = readRequired("src/components/Admin/AdminSupportQueue.tsx");
-const balanceModal = readRequired("src/components/Admin/BalanceAdjustmentModal.tsx");
-const historyModal = readRequired("src/components/Admin/TransactionHistoryModal.tsx");
+const balancePanel = readRequired("src/components/Admin/BalanceAdjustmentPanel.tsx");
+const historyPanel = readRequired("src/components/Admin/TransactionHistoryPanel.tsx");
 const adminBalanceRoute = readRequired("src/app/api/admin/balance/route.ts");
 const adminUserDetailRoute = readRequired("src/app/api/admin/user/[userId]/route.ts");
 const adminUsersRoute = readRequired("src/app/api/admin/users/route.ts");
@@ -156,8 +156,8 @@ for (const key of [
 }
 
 for (const expected of [
-  "BalanceAdjustmentModal",
-  "TransactionHistoryModal",
+  "BalanceAdjustmentPanel",
+  "TransactionHistoryPanel",
   "contentUser",
   "unlockedContent",
   "handleManageContent",
@@ -206,19 +206,19 @@ for (const expected of [
 
 for (const expected of [
   "reason",
-  "Actions are permanent",
+  "Audit reason required",
   "adjustUserBalance",
 ]) {
-  requireIncludes(balanceModal, expected, "Balance adjustment modal");
+  requireIncludes(balancePanel, expected, "Balance adjustment panel");
 }
 
 for (const expected of [
   "/api/admin/user/${user.uid}",
-  "Transaction History",
+  "Transaction history",
   "deriveGumdropEconomics",
   "isCreatorSpendTransactionType",
 ]) {
-  requireIncludes(historyModal, expected, "Transaction history modal");
+  requireIncludes(historyPanel, expected, "Transaction history panel");
 }
 
 for (const expected of [
@@ -314,7 +314,8 @@ for (const expected of [
   "requireTrustedOrigin: true",
   "ownsDrop",
   "hasUnlockedDrop",
-  "You do not own this content",
+  "resolveMediaAccess",
+  "buildMediaAccessDeniedResponse",
   "private, no-store",
 ]) {
   requireIncludes(dropsContentRoute, expected, "Drop content entitlement route");

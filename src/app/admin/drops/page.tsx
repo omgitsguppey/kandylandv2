@@ -1250,32 +1250,35 @@ export default function AdminDropsPage() {
                 </section>
 
                 {notificationDraft ? (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-                        <div className="glass-panel w-full max-w-md rounded-3xl border border-white/10 p-5">
-                            <div className="mb-4 flex items-center gap-3">
+                    <section className="mt-4 rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/8 p-4 shadow-xl shadow-black/20 sm:p-5">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                            <div className="flex min-w-0 items-center gap-3">
                                 <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black">
                                     <Image src={notificationDraft.imageUrl} alt={notificationDraft.title} fill sizes="48px" className="object-cover" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-xs uppercase tracking-wider text-gray-400">Drop notification</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple">Drop notification</p>
                                     <p className="truncate text-sm font-semibold text-white">{notificationDraft.title}</p>
+                                    <p className="mt-1 text-xs text-gray-400">Send a bounded update through the existing notification path.</p>
                                 </div>
                             </div>
 
-                            <textarea
-                                value={notificationDraft.message}
-                                onChange={(event) => setNotificationDraft((current) => current ? {
-                                    ...current,
-                                    message: event.target.value.slice(0, 150),
-                                } : current)}
-                                placeholder="Write a short update for this drop..."
-                                className="h-28 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-gray-500 resize-none"
-                            />
-                            <div className="mt-2 text-right text-xs text-gray-400">
-                                {notificationDraft.message.length}/150
+                            <div className="min-w-0 flex-1">
+                                <textarea
+                                    value={notificationDraft.message}
+                                    onChange={(event) => setNotificationDraft((current) => current ? {
+                                        ...current,
+                                        message: event.target.value.slice(0, 150),
+                                    } : current)}
+                                    placeholder="Write a short update for this drop..."
+                                    className="h-24 w-full resize-none rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-gray-500"
+                                />
+                                <div className="mt-2 text-right text-xs text-gray-400">
+                                    {notificationDraft.message.length}/150
+                                </div>
                             </div>
 
-                            <div className="mt-5 flex items-center justify-end gap-2">
+                            <div className="flex shrink-0 items-center justify-end gap-2">
                                 <button
                                     type="button"
                                     onClick={() => setNotificationDraft(null)}
@@ -1293,7 +1296,7 @@ export default function AdminDropsPage() {
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </section>
                 ) : null}
 
                 <CreateDropModal

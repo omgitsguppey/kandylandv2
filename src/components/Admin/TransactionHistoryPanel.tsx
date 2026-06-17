@@ -26,7 +26,7 @@ function getAdminTransactionHistorySafeErrorMessage(error: unknown) {
     return safeError.errorKey === "unknown_error" ? "Failed to load transactions" : safeError.operatorMessage;
 }
 
-export function TransactionHistoryModal({ user, onClose }: Props) {
+export function TransactionHistoryPanel({ user, onClose }: Props) {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -50,10 +50,10 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                     message: "Admin transaction history fetch failed",
                     error,
                     detail: {
-                        component: "TransactionHistoryModal",
+                        component: "TransactionHistoryPanel",
                         userId: user.uid,
                     },
-                    consoleLabel: "[Transaction History Modal] fetch failed",
+                    consoleLabel: "[Transaction History Panel] fetch failed",
                 });
                 setTransactions([]);
                 setError(getAdminTransactionHistorySafeErrorMessage(error));
@@ -73,23 +73,22 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <div className="animate-in fade-in zoom-in-95 duration-200 flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl border border-white/10 bg-zinc-900 p-6 shadow-2xl">
-                <div className="mb-6 flex shrink-0 items-center justify-between">
+        <div className="flex max-h-[34rem] flex-col rounded-2xl border border-white/10 bg-zinc-900/85 p-4 shadow-xl md:p-5">
+            <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
                     <div>
-                        <h3 className="flex items-center gap-2 text-xl font-bold text-white">
+                        <h3 className="flex items-center gap-2 text-lg font-bold text-white">
                             <ScrollText className="h-5 w-5 text-brand-purple" />
-                            History: {user.displayName || "User"}
+                            Transaction history
                         </h3>
-                        <p className="mt-1 text-sm text-gray-400">Showing last 30 transactions</p>
+                        <p className="mt-1 text-sm text-gray-400">{user.displayName || user.email || "Selected user"} - Last 30 transactions</p>
                     </div>
                     <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-center">
                         <span className="block text-[10px] font-bold uppercase text-gray-500">Balance</span>
                         <span className="font-mono font-bold text-brand-purple">{user.gumDropsBalance || 0} GD</span>
                     </div>
-                </div>
+            </div>
 
-                <div className="custom-scrollbar -mr-2 mb-6 flex-1 space-y-3 overflow-y-auto pr-2">
+            <div className="custom-scrollbar -mr-2 flex-1 space-y-3 overflow-y-auto pr-2">
                     {loading ? (
                         <div className="flex justify-center py-12">
                             <Loader2 className="h-6 w-6 animate-spin text-brand-purple" aria-hidden="true" />
@@ -188,11 +187,10 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                             );
                         })
                     )}
-                </div>
+            </div>
 
-                <div className="flex shrink-0 justify-end border-t border-white/10 pt-4">
-                    <Button variant="ghost" onClick={onClose}>Close</Button>
-                </div>
+            <div className="mt-4 flex shrink-0 justify-end border-t border-white/10 pt-4">
+                <Button variant="ghost" onClick={onClose}>Close</Button>
             </div>
         </div>
     );

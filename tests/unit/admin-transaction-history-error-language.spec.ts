@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const source = readFileSync(join(process.cwd(), "src/components/Admin/TransactionHistoryModal.tsx"), "utf8");
+const source = readFileSync(join(process.cwd(), "src/components/Admin/TransactionHistoryPanel.tsx"), "utf8");
 
 describe("admin transaction history error language", () => {
   it("keeps visible transaction history failures on safe admin error language", () => {

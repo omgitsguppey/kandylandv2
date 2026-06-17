@@ -342,7 +342,7 @@ function scanMobileUiContract(): ProductSurfaceFinding[] {
 
   const nestedScrollFiles = [
     "src/components/Admin/AdminSupportQueue.tsx",
-    "src/components/Admin/TransactionHistoryModal.tsx",
+    "src/components/Admin/TransactionHistoryPanel.tsx",
   ];
   for (const filePath of nestedScrollFiles) {
     if (!existsSync(join(repoRoot, filePath))) continue;

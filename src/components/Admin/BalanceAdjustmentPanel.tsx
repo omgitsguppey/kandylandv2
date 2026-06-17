@@ -17,7 +17,7 @@ interface Props {
     onSuccess: (newBalance: number) => void;
 }
 
-export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
+export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
     const { user: currentUser } = useAuth();
     const [amount, setAmount] = useState<string>("");
     const [reason, setReason] = useState("");
@@ -57,11 +57,11 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
                 message: "Admin balance adjustment failed",
                 error,
                 detail: {
-                    component: "BalanceAdjustmentModal",
+                    component: "BalanceAdjustmentPanel",
                     userId: user.uid,
                     amount: val,
                 },
-                consoleLabel: "[Balance Adjustment Modal] update failed",
+                consoleLabel: "[Balance Adjustment Panel] update failed",
             });
             toast.error("An unexpected error occurred");
         } finally {
@@ -74,23 +74,26 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
     const finalBalance = currentBalance + adjustment;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                <h3 className="text-xl font-bold text-white mb-2">Adjust Balance</h3>
-                <p className="text-gray-400 mb-6">
-                    Update Gum Drops for <strong>{user.displayName || user.email}</strong>.
-                    <br />
-                    <span className="text-xs text-brand-purple flex items-center gap-1 mt-1">
-                        <AlertCircle className="w-3 h-3" />
-                        Actions are permanent and logged.
-                    </span>
-                </p>
+        <div className="rounded-2xl border border-amber-400/20 bg-amber-400/8 p-4 shadow-xl md:p-5">
+            <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                    <h3 className="text-lg font-bold text-white">Adjust balance</h3>
+                    <p className="mt-1 text-sm text-gray-400">
+                        Update GumDrops for <strong>{user.displayName || user.email}</strong>.
+                    </p>
+                    <p className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-100">
+                        <AlertCircle className="h-3 w-3" />
+                        Audit reason required. Payment proof required for money-affecting recovery.
+                    </p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={onClose} disabled={processing}>Close</Button>
+            </div>
 
-                <div className="space-y-4 mb-6">
+            <div className="space-y-4">
                     {/* Current Balance Display */}
                     <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
                         <span className="text-xs font-bold text-gray-500 uppercase">Current</span>
-                        <span className="font-mono text-xl text-white">{currentBalance} 🍬</span>
+                        <span className="font-mono text-xl text-white">{currentBalance} GD</span>
                     </div>
 
                     {/* Inputs */}
@@ -122,21 +125,19 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
                     <div className="bg-black/50 p-3 rounded-xl border border-white/10 flex justify-between items-center">
                         <span className="text-xs font-bold text-gray-500 uppercase">New Balance</span>
                         <span className={`font-mono text-xl font-bold ${adjustment > 0 ? "text-brand-purple" : adjustment < 0 ? "text-red-400" : "text-gray-400"}`}>
-                            {finalBalance} 🍬
+                            {finalBalance} GD
                         </span>
                     </div>
-                </div>
+            </div>
 
-                <div className="flex justify-end gap-3">
-                    <Button variant="ghost" onClick={onClose} disabled={processing}>Cancel</Button>
-                    <Button
-                        variant="brand"
-                        onClick={handleConfirm}
-                        disabled={processing || adjustment === 0 || !reason.trim()}
-                    >
-                        {processing ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : "Confirm Adjustment"}
-                    </Button>
-                </div>
+            <div className="mt-5 flex justify-end gap-3">
+                <Button
+                    variant="brand"
+                    onClick={handleConfirm}
+                    disabled={processing || adjustment === 0 || !reason.trim()}
+                >
+                    {processing ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : "Confirm Adjustment"}
+                </Button>
             </div>
         </div>
     );

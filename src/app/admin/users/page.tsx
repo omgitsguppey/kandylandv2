@@ -8,8 +8,8 @@ import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, 
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
-import { BalanceAdjustmentModal } from "@/components/Admin/BalanceAdjustmentModal";
-import { TransactionHistoryModal } from "@/components/Admin/TransactionHistoryModal";
+import { BalanceAdjustmentPanel } from "@/components/Admin/BalanceAdjustmentPanel";
+import { TransactionHistoryPanel } from "@/components/Admin/TransactionHistoryPanel";
 import { authFetch } from "@/lib/authFetch";
 import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import Image from "next/image";
@@ -1640,11 +1640,35 @@ export default function UserManagementPage() {
                 )
             )}
 
-            {/* Action Modals */}
+            {/* Inline action workspace */}
             {(actionType || editUsernameUser || editBalanceUser || contentUser || historyUser || securityDetailsUser) && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                <section className="rounded-[1.75rem] border border-white/10 bg-black/45 p-4 shadow-xl shadow-black/20 sm:p-5">
+                    <div className="mb-4 flex flex-col gap-2 border-b border-white/8 pb-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple">Selected action</p>
+                            <h2 className="mt-1 text-lg font-black text-white">Review and confirm in place</h2>
+                            <p className="mt-1 text-sm text-gray-400">Connected admin actions stay visible with their source state. Missing data is not treated as zero.</p>
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                                setActionType(null);
+                                setActionUser(null);
+                                setEditUsernameUser(null);
+                                setEditBalanceUser(null);
+                                setContentUser(null);
+                                setHistoryUser(null);
+                                setSecurityDetailsUser(null);
+                                setContentInput("");
+                            }}
+                        >
+                            Clear action
+                        </Button>
+                    </div>
+                    <div className="grid gap-4 xl:grid-cols-2">
                     {editUsernameUser && (
-                        <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+                        <div className="w-full rounded-2xl border border-white/10 bg-zinc-900/85 p-5 shadow-xl">
                             <h3 className="text-xl font-bold text-white mb-2">Edit Username</h3>
                             <p className="text-gray-400 mb-6">
                                 Change username for <strong>{editUsernameUser.email}</strong>
@@ -1675,7 +1699,7 @@ export default function UserManagementPage() {
                     )}
 
                     {actionType && actionUser && (
-                        <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+                        <div className="w-full rounded-2xl border border-white/10 bg-zinc-900/85 p-5 shadow-xl">
                             <h3 className="text-xl font-bold text-white mb-2">
                                 {actionType === 'ban' ? 'Ban User' : actionType === 'suspend' ? 'Suspend User' : 'Reactivate User'}
                             </h3>
@@ -1707,7 +1731,7 @@ export default function UserManagementPage() {
                         </div>
                     )}
                     {editBalanceUser && (
-                        <BalanceAdjustmentModal
+                        <BalanceAdjustmentPanel
                             user={editBalanceUser}
                             onClose={() => setEditBalanceUser(null)}
                             onSuccess={(newBalance) => {
@@ -1716,13 +1740,13 @@ export default function UserManagementPage() {
                         />
                     )}
                     {historyUser && (
-                        <TransactionHistoryModal
+                        <TransactionHistoryPanel
                             user={historyUser}
                             onClose={() => setHistoryUser(null)}
                         />
                     )}
                     {contentUser && (
-                        <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+                        <div className="w-full rounded-2xl border border-white/10 bg-zinc-900/85 p-5 shadow-xl">
                             <h3 className="text-xl font-bold text-white mb-2">Manage Content</h3>
                             <p className="text-gray-400 mb-6">Unlocked drops for <strong>{contentUser.username ? `@${contentUser.username}` : contentUser.displayName || contentUser.email}</strong>.</p>
                             <div className="mb-6">
@@ -1754,9 +1778,9 @@ export default function UserManagementPage() {
                         </div>
                     )}
                     {securityDetailsUser && (
-                        <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+                        <div className="w-full rounded-2xl border border-white/10 bg-zinc-900/85 p-5 shadow-xl">
                             <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                                <Shield className="w-5 h-5 text-red-500" /> Security Dossier
+                                <Shield className="w-5 h-5 text-red-500" /> Security details
                             </h3>
                             <p className="text-gray-400 mb-6 flex items-center gap-2">
                                 Target: <span className="text-white font-bold">{securityDetailsUser.username ? `@${securityDetailsUser.username}` : securityDetailsUser.displayName || securityDetailsUser.email}</span>
@@ -1802,7 +1826,7 @@ export default function UserManagementPage() {
                             </div>
 
                             <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-                                <Button variant="ghost" onClick={() => setSecurityDetailsUser(null)}>Close Dossier</Button>
+                                <Button variant="ghost" onClick={() => setSecurityDetailsUser(null)}>Close details</Button>
                                 {(!securityDetailsUser.status || securityDetailsUser.status === 'active') && (
                                     <Button variant="danger" onClick={() => {
                                         setSecurityDetailsUser(null);
@@ -1815,7 +1839,8 @@ export default function UserManagementPage() {
                             </div>
                         </div>
                     )}
-                </div>
+                    </div>
+                </section>
             )}
         </div>
     );
