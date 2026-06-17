@@ -27,6 +27,17 @@ write("docs/agent-truth/ci-release-discipline.md", [
   "",
   ...report.workflows.map((workflow) => `- ${workflow.file}: ${workflow.classification}, provider=${workflow.providerCallRisk}, deploy=${workflow.deploymentRisk}`),
   "",
+  "## External Check Providers",
+  "",
+  ...report.externalCheckProviders.map((provider) => [
+    `- ${provider.githubCheckName}: ${provider.releaseGateClassification}`,
+    `  - authority: ${provider.authority}`,
+    `  - can clear from source checks: ${provider.canBeClearedBySourceChecks ? "yes" : "no"}`,
+    `  - required before beta exit: ${provider.requiredBeforeBetaExit ? "yes" : "no"}`,
+    `  - source owner: ${provider.sourceValidationOwner}`,
+    `  - next: ${provider.nextExactAction}`,
+  ].join("\n")),
+  "",
 ].join("\n"));
 
 if (!validation.ok) {
