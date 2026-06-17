@@ -46,4 +46,16 @@ describe("admin user detail fixture boundary", () => {
     expect(source).not.toContain("behaviorRollup?.watchTimeMs ?? 0");
     expect(source).not.toContain("analytics?.eventCount ?? 0).toLocaleString()");
   });
+
+  it("does not collapse missing profile or commerce sources into zero-valued fixture stats", () => {
+    expect(source).toContain("const commerceSourceAvailable = Boolean(analytics || transactions.length > 0)");
+    expect(source).toContain("const hasUsableCommerceValue = commerceSourceAvailable && hasUsableAdminTruthValue");
+    expect(source).toContain("formatProfileMetricLabel(targetUser.gumDropsBalance)");
+    expect(source).toContain("formatProfileMetricLabel(targetUser.unlockedContent?.length)");
+    expect(source).toContain("formatCommerceMoneyLabel(totalSpentUsd)");
+    expect(source).toContain("formatCommerceGumDropsLabel(deliveredGumDrops)");
+    expect(source).toContain("Commerce source not loaded. Open a real admin session");
+    expect(source).not.toContain('value: `$${totalSpentUsd.toFixed(2)}`');
+    expect(source).not.toContain('value: `${deliveredGumDrops.toLocaleString()} GD`');
+  });
 });

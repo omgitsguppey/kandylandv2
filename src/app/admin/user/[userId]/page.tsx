@@ -501,20 +501,23 @@ export default function AdminUserAnalyticsPage() {
     const showBehavioralExplanationCards = recommendationDebug?.showExplanationCards === true;
     const behavioralRecommendations = Array.isArray(recommendationDebug?.drops) ? recommendationDebug.drops : [];
     const hideBehavioralRecommendations = behaviorTruthRollup?.shouldHideRecommendations === true;
+    const commerceSourceAvailable = Boolean(analytics || transactions.length > 0);
+    const hasUsableCommerceValue = commerceSourceAvailable && hasUsableAdminTruthValue(
+        analytics?.grossRevenueUsd,
+        analytics?.netRevenueUsd,
+        analytics?.adjustedProfitUsd,
+        totalSpentUsd,
+    );
     const commerceTruthState = resolveAdminTruthState({
-        hasUsableValue: hasUsableAdminTruthValue(
-            analytics?.grossRevenueUsd,
-            analytics?.netRevenueUsd,
-            analytics?.adjustedProfitUsd,
-            totalSpentUsd,
-        ),
-        sourceConfigured: Boolean(analytics?.commerceSourceLabel || transactions.length > 0 || analytics),
+        hasUsableValue: hasUsableCommerceValue,
+        sourceConfigured: commerceSourceAvailable,
         valueState: analytics?.commerceTruthLabel,
         delayed: coerceAdminTruthState(analytics?.commerceTruthLabel) === "stale",
         reviewRequired: Boolean(analytics?.commerceEmptyReason && analytics),
     });
+    const metricSourceAvailable = Boolean(analytics?.metricSourceLabel || analytics);
     const metricTruthState = resolveAdminTruthState({
-        hasUsableValue: hasUsableAdminTruthValue(
+        hasUsableValue: metricSourceAvailable && hasUsableAdminTruthValue(
             behaviorRollup?.totalActions,
             behaviorRollup?.views,
             behaviorRollup?.watchTimeMs,
@@ -522,7 +525,7 @@ export default function AdminUserAnalyticsPage() {
             analytics?.viewCount,
             analytics?.watchSecondsTotal,
         ),
-        sourceConfigured: Boolean(analytics?.metricSourceLabel || analytics),
+        sourceConfigured: metricSourceAvailable,
         valueState: analytics?.metricTruthLabel,
         reviewRequired: Boolean(analytics?.metricIntegrityFailures?.length),
     });
@@ -584,7 +587,7 @@ export default function AdminUserAnalyticsPage() {
     const commerceReviewDecision = buildAdminReviewBadge({
         truthState: commerceTruthState,
         delayedExpected: coerceAdminTruthState(analytics?.commerceTruthLabel) === "stale",
-        revenueExistsButPurchaseCountMissing: Boolean(totalSpentUsd > 0 && !(analytics?.purchaseCount || 0)),
+        revenueExistsButPurchaseCountMissing: Boolean(commerceSourceAvailable && totalSpentUsd > 0 && !(analytics?.purchaseCount || 0)),
         reviewSummary: analytics?.commerceEmptyReason || undefined,
     });
     const observedViewCount = behaviorRollup?.views ?? analytics?.viewCount;
@@ -618,6 +621,30 @@ export default function AdminUserAnalyticsPage() {
 
         return value.toLocaleString();
     }, []);
+
+    const formatProfileMetricLabel = useCallback((value: number | null | undefined) => {
+        if (isLocalAdminUserDetailFixture || typeof value !== "number" || !Number.isFinite(value)) {
+            return "No source";
+        }
+
+        return value.toLocaleString();
+    }, [isLocalAdminUserDetailFixture]);
+
+    const formatCommerceMoneyLabel = useCallback((value: number) => (
+        commerceSourceAvailable ? `$${value.toFixed(2)}` : "No source"
+    ), [commerceSourceAvailable]);
+
+    const formatCommerceGumDropsLabel = useCallback((value: number) => (
+        commerceSourceAvailable ? `${value.toLocaleString()} GD` : "No source"
+    ), [commerceSourceAvailable]);
+
+    const commerceEffectiveRateLabel = commerceSourceAvailable
+        ? `$${effectiveUsdPer100Gd.toFixed(2)} / 100 GD`
+        : "No source";
+    const commerceSummaryText = analytics?.commerceEmptyReason
+        ?? (commerceSourceAvailable
+            ? `${bonusGumDrops.toLocaleString()} bonus GD valued at the package effective rate from ${analytics?.commerceSourceLabel || "commerce rollups"}.`
+            : "Commerce source not loaded. Open a real admin session to review wallet, source-of-funds, and transaction samples.");
 
     const watchTimeLabel = useMemo(() => {
         if (!behaviorRollup) {
@@ -763,11 +790,11 @@ export default function AdminUserAnalyticsPage() {
                         <div className="grid flex-1 grid-cols-2 gap-3">
                             <div className="rounded-[1.6rem] border border-white/10 bg-black/35 px-4 py-4 text-center">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Current Balance</p>
-                                <p className="mt-2 text-2xl font-black text-brand-purple">{targetUser.gumDropsBalance}</p>
+                                <p className="mt-2 text-2xl font-black text-brand-purple">{formatProfileMetricLabel(targetUser.gumDropsBalance)}</p>
                             </div>
                             <div className="rounded-[1.6rem] border border-white/10 bg-black/35 px-4 py-4 text-center">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Total Drops</p>
-                                <p className="mt-2 text-2xl font-black text-white">{targetUser.unlockedContent?.length || 0}</p>
+                                <p className="mt-2 text-2xl font-black text-white">{formatProfileMetricLabel(targetUser.unlockedContent?.length)}</p>
                             </div>
                         </div>
                     </div>
@@ -791,12 +818,12 @@ export default function AdminUserAnalyticsPage() {
 
                     <div className="grid gap-3 sm:grid-cols-3">
                         {[
-                            { label: "Gross cash", value: `$${totalSpentUsd.toFixed(2)}`, tone: "text-brand-purple" },
-                            { label: "Adjusted profit", value: `$${adjustedProfitUsd.toFixed(2)}` },
-                            { label: "Bonus value", value: `$${bonusValueUsd.toFixed(2)}` },
-                            { label: "Delivered", value: `${deliveredGumDrops.toLocaleString()} GD` },
-                            { label: "Effective rate", value: `$${effectiveUsdPer100Gd.toFixed(2)} / 100 GD` },
-                            { label: "Avg order", value: `$${averageOrderUsd.toFixed(2)}` },
+                            { label: "Gross cash", value: formatCommerceMoneyLabel(totalSpentUsd), tone: "text-brand-purple" },
+                            { label: "Adjusted profit", value: formatCommerceMoneyLabel(adjustedProfitUsd) },
+                            { label: "Bonus value", value: formatCommerceMoneyLabel(bonusValueUsd) },
+                            { label: "Delivered", value: formatCommerceGumDropsLabel(deliveredGumDrops) },
+                            { label: "Effective rate", value: commerceEffectiveRateLabel },
+                            { label: "Avg order", value: formatCommerceMoneyLabel(averageOrderUsd) },
                             { label: "Actions", value: formatBehaviorCountLabel(behaviorRollup?.totalActions ?? analytics?.eventCount) },
                             { label: "Views", value: formatBehaviorCountLabel(behaviorRollup?.views ?? analytics?.viewCount) },
                             { label: "Engagement", value: engagementExplanation.verdict },
@@ -813,8 +840,8 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                     <div className="mt-4 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
                         <AdminReviewBadge decision={commerceReviewDecision} className="mr-1 py-0.5" />
-                        <AdminTruthBadge state={commerceTruthState} className="mr-1 py-0.5" hasUsableValue={hasUsableAdminTruthValue(analytics?.grossRevenueUsd, totalSpentUsd)} />{" "}
-                        {analytics?.commerceEmptyReason || `${bonusGumDrops.toLocaleString()} bonus GD valued at the package effective rate from ${analytics?.commerceSourceLabel || "commerce rollups"}.`}
+                        <AdminTruthBadge state={commerceTruthState} className="mr-1 py-0.5" hasUsableValue={hasUsableCommerceValue} />{" "}
+                        {commerceSummaryText}
                         {failedTxCount > 0 ? ` ${failedTxCount} failed transaction${failedTxCount === 1 ? "" : "s"} excluded from purchase yield.` : ""}
                     </div>
                     <div className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
