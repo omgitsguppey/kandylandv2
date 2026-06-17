@@ -642,7 +642,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                           label="Tracked Auth Users"
                           value={
                             returnCadenceModel.fakeZeroPrevented
-                              ? "[unavailable]"
+                              ? "Unavailable"
                               : formatCompactNumber(returnCadenceModel.trackedAuthenticatedUsers)
                           }
                           hint={returnCadenceModel.sourceTruth === "missing"
@@ -655,7 +655,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                         <MetricCard
                           label="Unique Returners"
                           value={returnCadenceModel.fakeZeroPrevented
-                            ? "[unavailable]"
+                            ? "Unavailable"
                             : formatCompactNumber(returnCadenceModel.uniqueReturners)}
                           hint={returnCadenceModel.sourceTruth === "missing"
                             ? "Return cadence source unavailable"
@@ -667,7 +667,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                         <MetricCard
                           label="Conversion"
                           value={returnCadenceModel.fakeZeroPrevented
-                            ? "[unavailable]"
+                            ? "Unavailable"
                             : formatPercent(returnCadenceModel.conversionPct)}
                           hint={returnCadenceModel.sourceTruth === "missing"
                             ? "Tracked user source unavailable"
