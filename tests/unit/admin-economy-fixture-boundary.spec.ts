@@ -25,6 +25,10 @@ describe("admin economy local fixture boundary", () => {
     expect(consoleSource).toContain("reviewing treasury, ledger, balance, provider, or reconciliation samples");
     expect(stripSource).toContain('data-admin-economy-strip-source-state={sourceState}');
     expect(stripSource).toContain('export type PlatformEconomyStripSourceState = "live" | "review" | "collecting" | "failed" | "source_missing"');
+    expect(stripSource).toContain("sourceState: PlatformEconomyStripSourceState;");
+    expect(stripSource).not.toContain('sourceState = "live"');
+    expect(stripSource).toContain('if (sourceState === "source_missing") return "Source missing"');
+    expect(stripSource).toContain("formatStripSourceStateLabel(sourceState)");
   });
 
   it("skips protected economy route reads in fixture mode", () => {

@@ -14,6 +14,14 @@ function formatUsdRate(value: number | null) {
     return value == null ? "--" : `$${value.toFixed(2)} / 100 GD`;
 }
 
+function formatStripSourceStateLabel(sourceState: PlatformEconomyStripSourceState) {
+    if (sourceState === "source_missing") return "Source missing";
+    if (sourceState === "collecting") return "Collecting";
+    if (sourceState === "failed") return "Failed";
+    if (sourceState === "review") return "Needs review";
+    return "Live";
+}
+
 const STRIP_ITEMS = [
     { key: "outstandingGd", label: "Outstanding GD", icon: Candy },
     { key: "paidGd", label: "Paid GD", icon: PiggyBank },
@@ -24,11 +32,11 @@ const STRIP_ITEMS = [
 export function PlatformEconomyStrip({
     treasury,
     warningCount,
-    sourceState = "live",
+    sourceState,
 }: {
     treasury: PlatformEconomyTreasurySummary | null;
     warningCount: number;
-    sourceState?: PlatformEconomyStripSourceState;
+    sourceState: PlatformEconomyStripSourceState;
 }) {
     const hidesValues = sourceState === "source_missing" || sourceState === "collecting" || sourceState === "failed";
 
@@ -56,7 +64,7 @@ export function PlatformEconomyStrip({
             </div>
             <div className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
                 <div className="text-[11px] uppercase tracking-[0.16em] text-gray-500">Floor state</div>
-                <div className="mt-1 text-sm font-semibold text-white">{hidesValues ? sourceState : treasury?.floorState ?? "unknown"}</div>
+                <div className="mt-1 text-sm font-semibold text-white">{hidesValues ? formatStripSourceStateLabel(sourceState) : treasury?.floorState ?? "unknown"}</div>
             </div>
             <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
                 <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-amber-200">
