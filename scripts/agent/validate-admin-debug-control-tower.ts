@@ -2220,7 +2220,7 @@ for (const expected of [
   "failureReason",
   "duplicateCount",
   "Failed due to previous reset or inactivity policy",
-  "stale recent-event snapshot",
+  "refresh due snapshot",
 ]) {
   requireIncludes(liveInteractionStreamHelper, expected, "Live interaction stream truth helper");
 }
