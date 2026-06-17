@@ -66,7 +66,9 @@ describe("admin analytics local fixture boundary", () => {
     expect(hookSource).toContain("const historicalUrl = `/api/admin/analytics/historical?period=${ADMIN_ANALYTICS_DEFAULT_RANGE}`");
     expect(hookSource).toContain("Launch history hydrating; showing verified snapshots");
     expect(hookSource).toContain("Launch history hydrating; showing 30D transaction fallback");
+    expect(hookSource).toContain("Hydrating launch history from source evidence");
     expect(hookSource).toContain("Hydrating launch history");
+    expect(hookSource).not.toContain("Waiting for first analytics snapshot");
     expect(hookSource).not.toContain('ADMIN_ANALYTICS_DEFAULT_RANGE = "30d"');
   });
 });

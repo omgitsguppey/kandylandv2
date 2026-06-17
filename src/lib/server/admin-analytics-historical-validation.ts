@@ -65,6 +65,22 @@ export interface SourceCheck {
 export interface AnalyticsSourceHealth {
   range: "7d" | "30d" | "90d" | string;
   generatedAtUtc: string;
+  launchHistoryCoverage?: {
+    rangeStartDayKey: string | null;
+    rangeEndDayKey: string | null;
+    firstRecoveredDayKey: string | null;
+    lastRecoveredDayKey: string | null;
+    expectedDayCount: number;
+    recoveredDayCount: number;
+    preLaunchIgnoredDayCount: number;
+    sourceDayCounts: {
+      ga4: number;
+      historicalSnapshot: number;
+      legacySupport: number;
+    };
+    state: "available" | "partial" | "source_missing";
+    reason: string;
+  };
   availability: {
     ga4: SourceCheck;
     historicalSnapshot: SourceCheck;
@@ -381,13 +397,21 @@ function buildAnalyticsSourceHealth(input: {
   const gaPresentDays = new Set(input.gaPresentDayKeys);
   const snapshotPresentDays = new Set(input.snapshotPresentDayKeys);
   const legacyPresentDays = new Set(input.legacyPresentDayKeys);
-  const expectedDays = input.expectedDayKeys.filter(Boolean);
-  const expectedDaySet = new Set(expectedDays);
-  const unionPresentDays = new Set<string>([
+  const rawExpectedDays = input.expectedDayKeys.filter(Boolean);
+  const rawExpectedDaySet = new Set(rawExpectedDays);
+  const observedExpectedDays = Array.from(new Set([
     ...input.gaPresentDayKeys,
     ...input.snapshotPresentDayKeys,
     ...input.legacyPresentDayKeys,
-  ].filter((dayKey) => expectedDaySet.has(dayKey)));
+  ].filter((dayKey) => rawExpectedDaySet.has(dayKey)))).sort();
+  const firstRecoveredDayKey = observedExpectedDays[0] ?? null;
+  const allRangeLaunchScoped = input.selectedRange === "all" && Boolean(firstRecoveredDayKey);
+  const expectedDays = allRangeLaunchScoped
+    ? rawExpectedDays.filter((dayKey) => dayKey >= (firstRecoveredDayKey as string))
+    : rawExpectedDays;
+  const preLaunchIgnoredDayCount = Math.max(0, rawExpectedDays.length - expectedDays.length);
+  const expectedDaySet = new Set(expectedDays);
+  const unionPresentDays = new Set<string>(observedExpectedDays.filter((dayKey) => expectedDaySet.has(dayKey)));
 
   const missingDays = expectedDays.filter((dayKey) => !unionPresentDays.has(dayKey));
   const recentGapDays = input.recentWindowDayKeys.filter((dayKey) => !unionPresentDays.has(dayKey));
@@ -460,6 +484,33 @@ function buildAnalyticsSourceHealth(input: {
         : chartReadinessState === "unavailable"
           ? "No day-bucket evidence was available for the selected range."
           : "Availability, continuity, and source agreement checks passed for the selected chart range.";
+  const lastRecoveredDayKey = observedExpectedDays[observedExpectedDays.length - 1] ?? null;
+  const launchHistoryCoverage: AnalyticsSourceHealth["launchHistoryCoverage"] = input.selectedRange === "all"
+    ? {
+        rangeStartDayKey: expectedDays[0] ?? null,
+        rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
+        firstRecoveredDayKey,
+        lastRecoveredDayKey,
+        expectedDayCount: expectedDays.length,
+        recoveredDayCount: unionPresentDays.size,
+        preLaunchIgnoredDayCount,
+        sourceDayCounts: {
+          ga4: input.gaPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
+          historicalSnapshot: input.snapshotPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
+          legacySupport: input.legacyPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
+        },
+        state: unionPresentDays.size === 0
+          ? "source_missing"
+          : missingDays.length === 0
+            ? "available"
+            : "partial",
+        reason: unionPresentDays.size === 0
+          ? "No launch-history source evidence was observed for the all-time range."
+          : allRangeLaunchScoped
+            ? `All-time continuity starts at the first recovered source day (${firstRecoveredDayKey}); pre-launch days are not counted as missing analytics.`
+            : "All-time continuity uses the configured range because no earlier launch-history source boundary was needed.",
+      }
+    : undefined;
 
   const ga4: SourceCheck = {
     status: input.gaAvailable ? "pass" : "fail",
@@ -522,6 +573,7 @@ function buildAnalyticsSourceHealth(input: {
   return {
     range: input.selectedRange,
     generatedAtUtc: toUtcString(input.generatedAtMs) ?? new Date(input.generatedAtMs).toISOString(),
+    ...(launchHistoryCoverage ? { launchHistoryCoverage } : {}),
     availability: {
       ga4,
       historicalSnapshot,

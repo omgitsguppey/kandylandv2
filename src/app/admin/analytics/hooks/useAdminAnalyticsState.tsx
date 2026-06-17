@@ -1459,8 +1459,13 @@ export function useAdminAnalyticsState() {
   const hasOverviewTransactionFallbackValue =
     overviewFallbackRevenueUsd !== null ||
     overviewFallbackPurchasesValue !== null;
+  const launchHistoryCoverage =
+    historicalOverviewResponse?.analyticsSourceHealth?.launchHistoryCoverage ??
+    historicalResponse?.analyticsSourceHealth?.launchHistoryCoverage;
+  const hasLaunchHistoryCoverage =
+    (launchHistoryCoverage?.recoveredDayCount ?? 0) > 0;
   const hasOverviewHydrationEvidence =
-    hasOverviewSnapshotFirstValue || hasOverviewTransactionFallbackValue;
+    hasOverviewSnapshotFirstValue || hasOverviewTransactionFallbackValue || hasLaunchHistoryCoverage;
   const liveRealtimeFailureDetail =
     liveRealtime.feedStatus === "failed" && effectiveLiveResponse
       ? liveRealtime.feedDetail
@@ -1516,10 +1521,16 @@ export function useAdminAnalyticsState() {
           : hasOverviewSnapshotFirstValue ? "cached"
           : hasOverviewTransactionFallbackValue ? "degraded"
           : historicalLoading ? "loading" : "failed";
+  const launchHistorySourceLabel =
+    launchHistoryCoverage?.firstRecoveredDayKey
+      ? `${launchHistoryCoverage.state === "available" ? "Launch history recovered" : "Launch history partially recovered"} since ${launchHistoryCoverage.firstRecoveredDayKey}`
+      : null;
 
   const historicalSourceLabel =
     historicalOverviewResponse && !historicalError
-      ? historicalOverviewResponse.cacheSourceLabel
+      ? launchHistorySourceLabel
+        ? launchHistorySourceLabel
+        : historicalOverviewResponse.cacheSourceLabel
         ? `${range.toUpperCase()} ${historicalOverviewResponse.cacheSourceLabel}`
         : `Server-confirmed ${range.toUpperCase()} snapshot`
       : historicalOverviewResponse && historicalError
@@ -1528,8 +1539,10 @@ export function useAdminAnalyticsState() {
           ? "Launch history hydrating; showing verified snapshots"
         : historicalLoading && hasOverviewTransactionFallbackValue
           ? "Launch history hydrating; showing 30D transaction fallback"
+        : historicalLoading && range === ADMIN_ANALYTICS_DEFAULT_RANGE
+          ? "Hydrating launch history from source evidence"
         : historicalLoading
-          ? "Waiting for first analytics snapshot"
+          ? "Hydrating analytics snapshot"
           : "No historical snapshot yet";
   const historicalOverviewSourceLabel =
     usedHistoricalOverviewFallbackSnapshot
@@ -1601,7 +1614,7 @@ export function useAdminAnalyticsState() {
   const sharedFallbackExplanation = analyticsSnapshotPending
     ? "Analytics snapshot pending; showing canonical fallback truth."
     : "Current activity snapshot missing; showing canonical fallback truth.";
-  const historicalOverviewWaitingLabel = historicalLoading ? "Waiting" : "No snapshot yet";
+  const historicalOverviewWaitingLabel = historicalLoading ? "Hydrating" : "No snapshot yet";
   const overviewUnavailableDisplay = "No snapshot yet";
 
   const revenueCard: AnalyticsOverviewCardViewModel = historicalOverviewResponse
@@ -2337,7 +2350,7 @@ export function useAdminAnalyticsState() {
     ? "Unknown"
     : formatPercent(guestEngagedRate);
   const guestBounceHint = guestQualityUnavailable
-    ? "No anonymous quality sample because consented guest semantic batches did not land in this window."
+    ? "Anonymous quality metrics are unavailable until consented guest semantic batches land."
     : `${(globalSemantics?.bounceCount ?? 0).toLocaleString()} bounced exits`;
   const guestEngagedHint = guestQualityUnavailable
     ? "Guest engagement quality waits for consented guest semantic batches."

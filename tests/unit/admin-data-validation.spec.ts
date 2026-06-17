@@ -277,6 +277,37 @@ describe("buildHistoricalValidationSummary", () => {
     expect(summary.validations.find((check) => check.checkKey === "daily_continuity_coverage")?.status).toBe("pass");
   });
 
+  it("scopes all-time continuity to the first recovered launch-history day", () => {
+    const recoveredDays = [
+      "2026-05-01",
+      "2026-05-02",
+      "2026-05-03",
+    ];
+    const summary = build({
+      selectedRange: "all",
+      gaPresentDayKeys: recoveredDays,
+      snapshotPresentDayKeys: recoveredDays,
+      legacyPresentDayKeys: recoveredDays,
+      expectedDayKeys: [
+        "2020-01-01",
+        "2020-01-02",
+        ...recoveredDays,
+      ],
+      recentWindowDayKeys: recoveredDays,
+    });
+
+    expect(summary.analyticsSourceHealth.launchHistoryCoverage).toMatchObject({
+      firstRecoveredDayKey: "2026-05-01",
+      lastRecoveredDayKey: "2026-05-03",
+      expectedDayCount: 3,
+      recoveredDayCount: 3,
+      preLaunchIgnoredDayCount: 2,
+      state: "available",
+    });
+    expect(summary.analyticsSourceHealth.continuity.missingDays).toEqual([]);
+    expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("ready");
+  });
+
   it("names partial or empty module coverage gaps with missing sources and validators", () => {
     const summary = build();
     const moduleCoverageCheck = summary.validations.find((check) => check.checkKey === "module_coverage");

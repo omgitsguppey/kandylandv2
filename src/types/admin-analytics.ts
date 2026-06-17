@@ -852,6 +852,22 @@ export interface AnalyticsSourceHealthSourceCheck {
 export interface AnalyticsSourceHealth {
   range: "7d" | "30d" | "90d" | string;
   generatedAtUtc: string;
+  launchHistoryCoverage?: {
+    rangeStartDayKey: string | null;
+    rangeEndDayKey: string | null;
+    firstRecoveredDayKey: string | null;
+    lastRecoveredDayKey: string | null;
+    expectedDayCount: number;
+    recoveredDayCount: number;
+    preLaunchIgnoredDayCount: number;
+    sourceDayCounts: {
+      ga4: number;
+      historicalSnapshot: number;
+      legacySupport: number;
+    };
+    state: "available" | "partial" | "source_missing";
+    reason: string;
+  };
   availability: {
     ga4: AnalyticsSourceHealthSourceCheck;
     historicalSnapshot: AnalyticsSourceHealthSourceCheck;

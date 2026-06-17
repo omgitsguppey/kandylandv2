@@ -97,13 +97,15 @@ for (const hookNeedle of [
 
 requireNotIncludes(stateHook, "\"Waiting\"", "Admin Analytics state hook top-card copy");
 requireNotIncludes(stateHook, "Waiting for analytics", "Admin Analytics state hook");
-requireIncludes(stateHook, "Waiting for first analytics snapshot", "Admin Analytics source label");
+requireNotIncludes(stateHook, "Waiting for first analytics snapshot", "Admin Analytics source label");
+requireIncludes(stateHook, "Hydrating launch history from source evidence", "Admin Analytics source label");
 requireIncludes(snapshotHook, "setSnapshot((current) => result.snapshot ?? current)", "Snapshot refresh preservation");
 requireIncludes(registry, "snapshot: AdminMetricSnapshot | null", "Snapshot registry state");
 requireIncludes(registry, "snapshot: input.result.snapshot", "Snapshot registry state");
 requireIncludes(refreshRoute, "\"Cache-Control\": \"private, no-store\"", "Manual refresh cache-control");
 requireIncludes(refreshRoute, "{ status: snapshot ? 200 : 500 }", "Manual refresh stale snapshot preservation");
-requireIncludes(realtimeRoute, "Promise.all", "Realtime route partial parallel behavior");
+requireIncludes(realtimeRoute, "getLatestVerifiedSnapshot", "Realtime route snapshot-first hot-cache behavior");
+requireIncludes(realtimeRoute, "analytics_aggregate_stats/realtime_summary", "Realtime route legacy fallback evidence boundary");
 requireIncludes(historicalRoute, "readThroughStaleWhileRevalidateEphemeralRouteCache", "Historical route stale-while-revalidate");
 requireIncludes(loadingBoundary, "Loading admin analytics snapshot cards", "Admin Analytics loading boundary");
 requireIncludes(packageJson, "check:global-loading-performance", "Package scripts");
