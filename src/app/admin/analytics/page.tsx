@@ -177,7 +177,7 @@ function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHiera
 
 function formatAdminAnalyticsSourceNote(note: string) {
   return note
-    .replace("No verified snapshot-first realtime payload is available yet.", "Current activity snapshot is still unavailable.")
+    .replace("No verified snapshot-first realtime payload is available yet.", "No current activity snapshot has loaded yet.")
     .replaceAll("Live updates are delayed", "Snapshot refresh delayed")
     .replaceAll("Live updates delayed", "Snapshot refresh delayed")
     .replaceAll("Realtime analytics", "Current activity")
@@ -261,7 +261,7 @@ export default function AdminAnalyticsPage() {
   const activeTabLabel = TAB_OPTIONS.find((tab) => tab.id === activeTab)?.label ?? "Analytics";
   const sourceStatusItems = useMemo(() => {
     const items = [
-      overviewSnapshotUnavailable ? "Overview snapshot unavailable" : null,
+      overviewSnapshotUnavailable ? "No overview snapshot has loaded yet" : null,
       ...visibleOverviewDegradedCopy,
       showHistoricalEmptyState ? "No events observed in this selected range" : null,
       isBackgroundSyncing ? "Background refresh running" : null,
@@ -598,7 +598,7 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <span className="sr-only" data-admin-analytics-overview-status={overviewSnapshotUnavailable ? "snapshot-unavailable" : "connected"}>
-        {overviewSnapshotUnavailable ? "Overview snapshot unavailable. Showing available confirmed metrics." : "Overview snapshot connected."}
+        {overviewSnapshotUnavailable ? "No overview snapshot has loaded yet. Showing available confirmed metrics." : "Overview snapshot connected."}
       </span>
 
       {primaryBlockingAnalyticsError && (

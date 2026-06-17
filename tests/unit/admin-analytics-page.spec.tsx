@@ -386,7 +386,7 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain(
-      "Overview snapshot unavailable. Showing available confirmed metrics.",
+      "No overview snapshot has loaded yet. Showing available confirmed metrics.",
     );
     expect(container.textContent).not.toContain("platform_pulse:30d");
     expect(container.textContent).not.toContain(
@@ -566,9 +566,9 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain("Panel status");
-    expect(container.textContent).toContain("Current activity snapshot is still unavailable.");
+    expect(container.textContent).toContain("No current activity snapshot has loaded yet.");
     const sourceNotes = container.querySelector("details[title]");
-    expect(sourceNotes?.getAttribute("title")).toContain("Current activity snapshot is still unavailable.");
+    expect(sourceNotes?.getAttribute("title")).toContain("No current activity snapshot has loaded yet.");
     expect(sourceNotes?.getAttribute("title")).not.toContain("Realtime analytics");
     expect(container.textContent).toContain("3/11 connected");
     expect(container.textContent).toContain("5 waiting");
@@ -679,7 +679,7 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Current activity snapshot is still unavailable.");
+    expect(container.textContent).toContain("No current activity snapshot has loaded yet.");
     expect(container.textContent).not.toContain("snapshot-first realtime payload");
   });
 });

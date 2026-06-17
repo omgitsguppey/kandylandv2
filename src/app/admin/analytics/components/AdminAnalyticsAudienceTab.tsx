@@ -51,6 +51,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   } = props;
   const historicalPanelTruthState = historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable");
   const returnCadenceTruthState = returnCadenceModel.truthState ?? (historicalLoading ? "loading" : "unavailable");
+  const noSnapshotLabel = "No verified snapshot yet";
+  const noSourceLabel = "No source";
+  const noSampleLabel = "No sample";
+  const noEngagementSampleLabel = "No engagement sample";
   React.useEffect(() => {
     (window as typeof window & {
       __KANDYDROPS_ADMIN_ANALYTICS_AUDIENCE_SNAPSHOT_DEBUG__?: unknown;
@@ -60,12 +64,12 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const formatAudienceValue = (
     value: number | null,
     formatter: (value: number) => string,
-    waitingLabel = "Unavailable",
+    waitingLabel = noSampleLabel,
   ) => (value === null ? waitingLabel : formatter(value));
   const audienceWaitingLabel =
     audienceSnapshotModel.refreshStatus === "running" && !audienceSnapshotModel.serverConfirmed
       ? "Waiting for audience snapshot"
-      : "Unavailable";
+      : noSnapshotLabel;
   const guestBadgeLabel = resolveAdminAnalyticsGuestEstimateBadgeLabel(
     audienceSnapshotModel.guestEstimateFormulaUsed,
   );
@@ -81,14 +85,18 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     returnCadenceModel.sourceTruth,
   );
   const returnCadenceBuckets = buildAdminAnalyticsReturnCadenceBuckets(returnCadenceModel);
+  const navigationDestinationsSourceLabel =
+    navigationDestinationsModel.sourceModeLabel === "Unavailable"
+      ? noSourceLabel
+      : navigationDestinationsModel.sourceModeLabel;
   const navigationDestinationsSummaryLine = [
     navigationDestinationsModel.fakeZeroPrevented
       ? "No verified events"
       : `${navigationDestinationsModel.totalNavigationEvents.toLocaleString()} events`,
-    navigationDestinationsModel.sourceModeLabel,
+    navigationDestinationsSourceLabel,
   ].join(" | ");
   const deviceMixSourceLabel =
-    deviceMixModel.sourceLabel === "Unknown" ? "Unavailable" : deviceMixModel.sourceLabel;
+    deviceMixModel.sourceLabel === "Unknown" ? noSourceLabel : deviceMixModel.sourceLabel;
   const deviceMixSessionsSummary =
     deviceMixModel.truthState === "unavailable" || deviceMixModel.sourceTruth === "unknown"
       ? "No verified sessions"
@@ -267,7 +275,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     <span>Guest {audienceSnapshotModel.guestVisits.label}</span>
                     <span>
                       Updated {audienceSnapshotModel.generatedAtUtc === new Date(0).toISOString()
-                        ? "Unavailable"
+                        ? noSnapshotLabel
                         : formatRelativeTime(Date.parse(audienceSnapshotModel.generatedAtUtc), nowMs)}
                     </span>
                     <span>State {audienceSourceStateLabel}</span>
@@ -375,7 +383,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     <p title={audienceSnapshotModel.guestEstimateMetadata.sourceTruth}>
                       Source: {guestEstimateSourceTruthLabel}
                     </p>
-                    <p>Formula: {audienceSnapshotModel.guestEstimateMetadata.formula ?? "Unavailable"}</p>
+                    <p>Formula: {audienceSnapshotModel.guestEstimateMetadata.formula ?? "No formula source"}</p>
                     <p>Freshness: {audienceSnapshotModel.guestEstimateMetadata.freshnessState}</p>
                   </div>
                   <div>
@@ -383,7 +391,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     <p>
                       Last seen: {audienceSnapshotModel.firstParty.lastSeenAtUtc
                         ? formatRelativeTime(Date.parse(audienceSnapshotModel.firstParty.lastSeenAtUtc), nowMs)
-                        : "Unavailable"}
+                        : noSnapshotLabel}
                     </p>
                     <p>
                       Missing days: {audienceSnapshotModel.continuity.missingDays.length === 0
@@ -524,7 +532,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   </p>
                   <p className="text-gray-500">
                     Generated: {returnCadenceModel.generatedAtUtc === new Date(0).toISOString()
-                      ? "Unavailable"
+                      ? noSnapshotLabel
                       : formatRelativeTime(Date.parse(returnCadenceModel.generatedAtUtc), nowMs)}
                   </p>
                 </div>
@@ -543,7 +551,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     >
                       {returnCadenceModel.fakeZeroPrevented ? (
                         <div className="flex h-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/25 px-3 text-center text-xs text-gray-400">
-                          Return cadence source unavailable; missing data is not shown as zero.
+                          No return cadence source yet; missing data is not shown as zero.
                         </div>
                       ) : (
                         <ResponsiveContainer width="100%" height="100%">
@@ -642,7 +650,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                           label="Tracked Auth Users"
                           value={
                             returnCadenceModel.fakeZeroPrevented
-                              ? "Unavailable"
+                              ? noSourceLabel
                               : formatCompactNumber(returnCadenceModel.trackedAuthenticatedUsers)
                           }
                           hint={returnCadenceModel.sourceTruth === "missing"
@@ -655,10 +663,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                         <MetricCard
                           label="Unique Returners"
                           value={returnCadenceModel.fakeZeroPrevented
-                            ? "Unavailable"
+                            ? noSourceLabel
                             : formatCompactNumber(returnCadenceModel.uniqueReturners)}
                           hint={returnCadenceModel.sourceTruth === "missing"
-                            ? "Return cadence source unavailable"
+                            ? "No return cadence source"
                             : "Users active on 2+ distinct days"}
                           icon={Users}
                           truthState={returnCadenceTruthState}
@@ -667,10 +675,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                         <MetricCard
                           label="Conversion"
                           value={returnCadenceModel.fakeZeroPrevented
-                            ? "Unavailable"
+                            ? noSourceLabel
                             : formatPercent(returnCadenceModel.conversionPct)}
                           hint={returnCadenceModel.sourceTruth === "missing"
-                            ? "Tracked user source unavailable"
+                            ? "No tracked user source"
                             : `${returnCadenceModel.trackedAuthenticatedUsers.toLocaleString()} tracked authenticated users`}
                           icon={Activity}
                           truthState={returnCadenceTruthState}
@@ -723,7 +731,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   <p className="text-gray-500">
                     Range: {navigationDestinationsModel.range}
                     {" | "}Last updated: {navigationDestinationsModel.generatedAtUtc === new Date(0).toISOString()
-                      ? "Unavailable"
+                      ? noSnapshotLabel
                       : formatRelativeTime(Date.parse(navigationDestinationsModel.generatedAtUtc), nowMs)}
                     {" | "}Missing sources: {navigationDestinationsModel.missingSourceCount}
                   </p>
@@ -800,7 +808,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               <td className="px-3 py-2">
                                 {item.lastSeenAtUtc
                                   ? formatRelativeTime(Date.parse(item.lastSeenAtUtc), nowMs)
-                                  : "Unavailable"}
+                                  : noSnapshotLabel}
                               </td>
                             </tr>
                           ))}
@@ -846,7 +854,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               {" | "}Freshness: {item.freshnessState}
                               {" | "}Last seen: {item.lastSeenAtUtc
                                 ? formatRelativeTime(Date.parse(item.lastSeenAtUtc), nowMs)
-                                : "Unavailable"}
+                                : noSnapshotLabel}
                             </p>
                             <p className="mb-2 text-[11px] text-gray-500">
                               Top source events: {item.topSourceEvents.join(", ")}
@@ -933,7 +941,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   </p>
                   <p className="text-gray-500">
                     Generated: {deviceMixModel.generatedAtUtc === new Date(0).toISOString()
-                      ? "Unavailable"
+                      ? noSnapshotLabel
                       : formatRelativeTime(Date.parse(deviceMixModel.generatedAtUtc), nowMs)}
                     {" | "}Engagement: {deviceMixModel.engagementDefinition}
                   </p>
@@ -1020,7 +1028,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                             <p className="font-semibold capitalize text-white">{item.deviceCategory}</p>
                             <p><span className="text-gray-500 md:hidden">Sessions: </span>{item.sessions.toLocaleString()}</p>
                             <p><span className="text-gray-500 md:hidden">Share: </span>{formatPercent(item.sessionSharePct)}</p>
-                            <p><span className="text-gray-500 md:hidden">Engaged: </span>{item.engagedSessions === null ? "Unavailable" : item.engagedSessions.toLocaleString()}</p>
+                            <p><span className="text-gray-500 md:hidden">Engaged: </span>{item.engagedSessions === null ? noEngagementSampleLabel : item.engagedSessions.toLocaleString()}</p>
                             <p className="truncate" title={item.sourceTruth}>
                               <span className="text-gray-500 md:hidden">Truth: </span>
                               {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
@@ -1064,7 +1072,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               </p>
                               <p className="text-gray-500">
                                 {item.engagementRatePct === null
-                                  ? "Engagement unavailable"
+                                  ? noEngagementSampleLabel
                                   : `${formatPercent(item.engagementRatePct)} engaged`}
                               </p>
                             </div>
@@ -1081,7 +1089,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                             <div className="rounded-xl bg-white/5 px-2 py-1.5">
                               <p className="text-[10px] uppercase tracking-[0.12em] text-gray-500">Engaged</p>
                               <p className="mt-0.5 font-semibold text-white">
-                                {item.engagedSessions === null ? "Unavailable" : item.engagedSessions.toLocaleString()}
+                                {item.engagedSessions === null ? noEngagementSampleLabel : item.engagedSessions.toLocaleString()}
                               </p>
                             </div>
                             <div className="rounded-xl bg-white/5 px-2 py-1.5">
@@ -1089,7 +1097,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               <p className="mt-0.5 font-semibold text-white">
                                 {deviceMixModel.commerceByDeviceAvailable || deviceMixModel.watchByDeviceAvailable
                                   ? "Available"
-                                  : "Unavailable"}
+                                  : "No per-device source"}
                               </p>
                             </div>
                           </div>
@@ -1117,7 +1125,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 <div className="mt-3 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
                   <p className="font-semibold text-white">Optional device metrics</p>
                   <p>
-                    Purchase rate, unwrap rate, bounce rate, average session length, and watch time by device are unavailable in this lane until a canonical per-device source exists.
+                    Purchase rate, unwrap rate, bounce rate, average session length, and watch time by device wait for a canonical per-device source.
                   </p>
                 </div>
               </SectionCard>
@@ -1164,7 +1172,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   </p>
                   <p className="text-gray-500">
                     Generated: {topPathsModel.generatedAtUtc === new Date(0).toISOString()
-                      ? "Unavailable"
+                      ? noSnapshotLabel
                       : formatRelativeTime(Date.parse(topPathsModel.generatedAtUtc), nowMs)}
                     {" | "}Percent column: Engagement
                   </p>
@@ -1297,7 +1305,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               <td className="px-3 py-2">{row.views.toLocaleString()}</td>
                               <td className="px-3 py-2">{formatPercent(row.viewSharePct)}</td>
                               <td className="px-3 py-2">{row.avgTimeDisplay}</td>
-                              <td className="px-3 py-2">{row.engagementRatePct === null ? "Unavailable" : formatPercent(row.engagementRatePct)}</td>
+                              <td className="px-3 py-2">{row.engagementRatePct === null ? noEngagementSampleLabel : formatPercent(row.engagementRatePct)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1357,7 +1365,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                           <p><span className="text-gray-500">Views:</span> {row.views.toLocaleString()}</p>
                           <p><span className="text-gray-500">Share:</span> {formatPercent(row.viewSharePct)}</p>
                           <p><span className="text-gray-500">Avg time:</span> {row.avgTimeDisplay}</p>
-                          <p><span className="text-gray-500">Engagement:</span> {row.engagementRatePct === null ? "Unavailable" : formatPercent(row.engagementRatePct)}</p>
+                          <p><span className="text-gray-500">Engagement:</span> {row.engagementRatePct === null ? noEngagementSampleLabel : formatPercent(row.engagementRatePct)}</p>
                         </div>
                         <p className="mt-2 text-[11px] text-gray-500">
                           {row.explanation}
@@ -1455,7 +1463,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   <p className="text-gray-500">
                     Internal/admin excluded: {formatRegionCount(regionsModel.internalExcludedCount)}
                     {" | "}Generated: {regionsModel.generatedAtUtc === new Date(0).toISOString()
-                      ? "Unavailable"
+                      ? noSnapshotLabel
                       : formatRelativeTime(Date.parse(regionsModel.generatedAtUtc), nowMs)}
                   </p>
                 </div>

@@ -89,6 +89,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
   const firstSnapshotLabel = "Waiting for first snapshot";
   const noSnapshotLabel = "No verified snapshot yet";
+  const noEventSampleLabel = "No event sample";
+  const noAuthSampleLabel = "No auth sample";
+  const noGuestSampleLabel = "No guest sample";
+  const noShareSampleLabel = "No share sample";
+  const noTimingSampleLabel = "No timing sample";
   const activeNowValue = livePulseModel.activeCount.value === null
     ? liveLoading ? firstSnapshotLabel : noSnapshotLabel
     : formatCompactNumber(livePulseModel.activeCount.value);
@@ -110,7 +115,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const guestMixHint =
     livePulseModel.guestSnapshotTruthState === "live"
       ? `Guest snapshot from ${livePulseModel.guestSnapshotSourceLabel}`
-      : livePulseModel.guestSnapshotReason ?? "Guest samples unavailable";
+      : livePulseModel.guestSnapshotReason ?? "No guest sample yet";
   const topSurfaceValue = livePulseModel.topSurface.value ?? (liveLoading ? firstSnapshotLabel : noSnapshotLabel);
   const lastUpdateValue = liveResponse?.generatedAtMs
     ? formatRelativeTime(liveResponse.generatedAtMs, nowMs)
@@ -120,13 +125,13 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     : livePulseModel.refreshState === "refreshing"
       ? "Refreshing"
       : livePulseModel.mode === "unavailable"
-        ? "Snapshot unavailable"
+        ? "No verified snapshot yet"
         : livePulseModel.latestVerifiedSnapshotExists
           ? "Last verified data"
           : "No verified snapshot yet";
   const livePulseCompactIssueLine =
     livePulseModel.guestSnapshotTruthState === "unavailable"
-      ? "Guest samples unavailable"
+      ? "No guest sample yet"
       : livePulseModel.mode === "delayed_snapshot"
         ? "Snapshot refresh delayed"
         : null;
@@ -156,15 +161,15 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   }, [livePulseModel]);
   const journeyFunnelBadgeLabel = journeyFunnelModel.modeLabel;
   const journeyPercentLabel = (value: number | null) =>
-    value === null ? journeyFunnelModel.hydrationState === "waiting" ? firstSnapshotLabel : "Unavailable" : formatPercent(value);
+    value === null ? journeyFunnelModel.hydrationState === "waiting" ? firstSnapshotLabel : noEventSampleLabel : formatPercent(value);
   const journeyCountLabel = (value: number | null) =>
-    value === null ? journeyFunnelModel.hydrationState === "waiting" ? firstSnapshotLabel : "Unavailable" : formatCompactNumber(value);
+    value === null ? journeyFunnelModel.hydrationState === "waiting" ? firstSnapshotLabel : noEventSampleLabel : formatCompactNumber(value);
   const eventChainHasUsableSample = journeyFunnelModel.hasUsableEventSample;
   const eventChainCanRenderDetails = journeyFunnelModel.canRenderStepDetails;
   const biggestDropoffLabel =
     journeyFunnelModel.biggestDropoffStep && journeyFunnelModel.biggestDropoffPercent !== null
       ? `${journeyFunnelModel.biggestDropoffStep} ${formatPercent(journeyFunnelModel.biggestDropoffPercent)}`
-      : "Unavailable";
+      : "No drop-off sample";
   const journeyFunnelChartRows = journeyFunnelModel.steps.map((step) => ({
     ...step,
     chartLabel:
@@ -186,11 +191,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   }, [journeyFunnelModel]);
   const authOutcomeBadgeLabel = authOutcomeModel.modeLabel;
   const authCountLabel = (value: number | null) =>
-    value === null ? "Unavailable" : formatCompactNumber(value);
+    value === null ? noAuthSampleLabel : formatCompactNumber(value);
   const authPercentLabel = (value: number | null) =>
-    value === null ? "Unavailable" : formatPercent(value);
+    value === null ? noAuthSampleLabel : formatPercent(value);
   const authFinishLabel = authOutcomeModel.avgFinish.value === null
-    ? "Unavailable"
+    ? noTimingSampleLabel
     : formatDuration(authOutcomeModel.avgFinish.value / 1000);
   const authHasUsableSample = authOutcomeModel.hasUsableAuthSample;
   const authCanRenderDetails = authOutcomeModel.canRenderMethodDetails;
@@ -199,7 +204,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       ? "Failure reason not captured"
       : failureCode;
   const authGroupValue = (group: typeof authOutcomeModel.methodGroups.emailPassword) =>
-    group.attempts === null ? "Unavailable" : `${formatCompactNumber(group.attempts)} attempts`;
+    group.attempts === null ? noAuthSampleLabel : `${formatCompactNumber(group.attempts)} attempts`;
   const authGroupHint = (group: typeof authOutcomeModel.methodGroups.emailPassword) =>
     group.attempts === null
       ? "No tracked attempts"
@@ -229,9 +234,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     debugWindow.__KANDYDROPS_ADMIN_ANALYTICS_AUTH_OUTCOME_SPLIT_DEBUG__ = authOutcomeModel;
   }, [authOutcomeModel]);
   const guestQualityCountLabel = (value: number | null) =>
-    value === null ? "Unavailable" : formatCompactNumber(value);
+    value === null ? noGuestSampleLabel : formatCompactNumber(value);
   const guestQualityRateLabel = (value: number | null) =>
-    value === null ? "Unavailable" : formatPercent(value);
+    value === null ? noGuestSampleLabel : formatPercent(value);
   const formatRelativeUtc = (value: string | null) =>
     value ? formatRelativeTime(new Date(value).getTime(), nowMs) : "none";
   const guestQualityHint = guestBounceQualityModel.guestQuality.state === "available"
@@ -244,7 +249,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
         `Next: ${guestBounceQualityModel.guestQuality.nextAction}`,
       ].join(" ");
   const signedInBounceHint = guestBounceQualityModel.signedInBounce.sampleCount === null
-    ? "Signed-in bounce sample only. Guest bounce unavailable."
+    ? "Signed-in bounce sample only. No guest bounce sample yet."
     : [
         `${guestBounceQualityModel.signedInBounce.sampleCount} signed-in views`,
         guestBounceQualityModel.signedInBounce.explanation,
@@ -284,8 +289,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const eventMixCountLabel = (value: number | null) =>
     value === null ? firstSnapshotLabel : formatCompactNumber(value);
   const eventMixShareLabel = (value: number | null) =>
-    value === null ? "Share unavailable" : formatPercent(value);
-  const eventMixMissingSurfaceLabel = "Surface context unavailable | Surface: missing";
+    value === null ? noShareSampleLabel : formatPercent(value);
+  const eventMixMissingSurfaceLabel = "Surface: missing";
   const eventMixMissingRouteLabel = "Route: missing";
   const eventMixInferenceCopy = "Categories are inferred from the event catalog; verified route and surface context is missing for this range.";
 
@@ -707,7 +712,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <div className="max-h-[8.75rem] space-y-2 overflow-hidden rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-semibold text-white">
-                      {journeyFunnelModel.hydrationState === "unavailable" ? "Event chain unavailable" : "No event sample yet"}
+                      {journeyFunnelModel.hydrationState === "unavailable" ? "No event chain source" : "No event sample yet"}
                     </p>
                     <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-300">
                       {journeyFunnelModel.modeLabel}
@@ -718,7 +723,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     Next source step: generate bounded sample activity, refresh snapshots, or inspect Debug.
                   </p>
                   <p className="text-[10px] text-gray-500" title={journeyFunnelModel.algorithmRecommendation ?? undefined}>
-                    Exact funnel unavailable until ordered actor/session transitions exist.
+                    Exact funnel waits for ordered actor/session transitions.
                   </p>
                 </div>
               ) : (
@@ -961,7 +966,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <div className="max-h-[8.75rem] space-y-2 overflow-hidden rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-semibold text-white">
-                        {authOutcomeModel.hydrationState === "unavailable" ? "Auth outcomes unavailable" : "No auth sample yet"}
+                        {authOutcomeModel.hydrationState === "unavailable" ? "No auth outcome source" : "No auth sample yet"}
                       </p>
                       <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-300">
                         {authOutcomeModel.modeLabel}
@@ -1140,7 +1145,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       <MetricCard
                         label="Avg Finish"
                         value={authFinishLabel}
-                        hint={authOutcomeModel.timingAvailable ? "Completed attempts with start/end timestamps" : "Timing unavailable"}
+                        hint={authOutcomeModel.timingAvailable ? "Completed attempts with start/end timestamps" : "No timing sample"}
                         icon={Clock3}
                         truthState={historicalMetricTruthState}
                         statusBadgeLabel={authOutcomeBadgeLabel}
@@ -1160,7 +1165,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       </div>
                       <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
                         <span className="font-semibold text-white">Most unfinished:</span>{" "}
-                        {authOutcomeModel.mostUnfinishedMethod?.visibleLabel ?? "Unavailable"}
+                        {authOutcomeModel.mostUnfinishedMethod?.visibleLabel ?? noAuthSampleLabel}
                       </div>
                     </div>
 
@@ -1173,7 +1178,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       <span className="font-semibold text-white">Timing review:</span>{" "}
                       {authOutcomeModel.timingAvailable
                         ? "Completed attempts include start and finish timestamps."
-                        : "Finish timing is unavailable until start and end timestamps hydrate."}
+                        : "Finish timing waits for start and end timestamps."}
                     </p>
 
                     {authCanRenderDetails ? (
@@ -1263,7 +1268,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                                   </div>
                                   <div className="mt-1.5 flex flex-wrap gap-2 text-[10px] text-gray-400">
                                     <span>State: {item.state}</span>
-                                    <span>Avg finish: {item.avgFinishMs ? formatDuration(item.avgFinishMs / 1000) : "Unavailable"}</span>
+                                    <span>Avg finish: {item.avgFinishMs ? formatDuration(item.avgFinishMs / 1000) : noTimingSampleLabel}</span>
                                     {item.failureBreakdown[0] ? <span>Top failure: {formatAuthFailureReason(item.failureBreakdown[0].failureCode)}</span> : null}
                                   </div>
                                 </div>
@@ -1424,7 +1429,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.display}</td>
                           <td className="px-3 py-2" title={guestBounceQualityModel.estimatedGuestViews.sourceTruth}>{guestEstimateSourceLabel}</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.freshnessState}</td>
-                          <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}</td>
+                          <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.formula ?? "No formula source"}</td>
                         </tr>
                         <tr>
                           <td className="px-3 py-2 font-semibold text-white">Guest Quality</td>
@@ -1437,7 +1442,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           <td className="px-3 py-2 font-semibold text-white">Signed-in Bounce</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.display}</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.freshnessState}</td>
-                          <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.sampleCount ?? "unavailable"}</td>
+                          <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.sampleCount ?? noGuestSampleLabel}</td>
                           <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.signedInBounce.explanation}</td>
                         </tr>
                       </tbody>
@@ -1458,7 +1463,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <MetricCard
                     label={guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}
                     value={guestBounceQualityModel.estimatedGuestViews.display}
-                    hint={`Source ${guestEstimateSourceLabel} - ${guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}`}
+                    hint={`Source ${guestEstimateSourceLabel} - ${guestBounceQualityModel.estimatedGuestViews.formula ?? "No formula source"}`}
                     icon={Users}
                     truthState={guestBounceQualityModel.estimatedGuestViews.freshnessState === "stale" ? "stale" : guestBounceQualityModel.estimatedGuestViews.freshnessState === "refresh_due" ? "cached" : guestBounceQualityModel.truthState}
                     statusBadgeLabel="EST"
@@ -1520,7 +1525,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 </span>
                 <span>
                   <span className="font-semibold text-white">Signed-in sample:</span>{" "}
-                  {guestBounceQualityModel.signedInBounce.sampleCount ?? "unavailable"}
+                  {guestBounceQualityModel.signedInBounce.sampleCount ?? noGuestSampleLabel}
                 </span>
               </div>
             </SectionCard>
@@ -1740,7 +1745,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       <span className="font-semibold text-white">Context:</span>{" "}
                       {eventMixModel.actualSurfaceContextState === "available"
                         ? "Verified route and surface context available."
-                        : "Verified route and surface context are unavailable for this range."}
+                        : "No verified route or surface context for this range."}
                       {" "}
                       {catalogMappingSentence}
                       {" "}

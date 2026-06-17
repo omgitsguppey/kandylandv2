@@ -48,7 +48,8 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).toContain("deviceMixClassifiedSummary");
     expect(source).toContain('"No verified sessions"');
     expect(source).toContain('"No classified sample"');
-    expect(source).toContain('deviceMixModel.sourceLabel === "Unknown" ? "Unavailable" : deviceMixModel.sourceLabel');
+    expect(source).toContain('deviceMixModel.sourceLabel === "Unknown" ? noSourceLabel : deviceMixModel.sourceLabel');
+    expect(source).not.toContain('deviceMixModel.sourceLabel === "Unknown" ? "Unavailable" : deviceMixModel.sourceLabel');
   });
 
   it("renders Regions as one compact mobile view mode at a time", () => {

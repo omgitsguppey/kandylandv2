@@ -89,6 +89,11 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
   const compactMetricClass = "rounded-[1rem] p-2";
   const compactMetricValueClass = "text-lg leading-6 md:text-xl";
+  const noSnapshotLabel = "No verified snapshot yet";
+  const noSourceLabel = "No source";
+  const noSampleLabel = "No sample";
+  const noRateSampleLabel = "No rate sample";
+  const noWatchSampleLabel = "No watch sample";
   const formatCommerceScopeLabel = (scope: string | null | undefined) => {
     switch (scope) {
       case "rolling_30d":
@@ -120,7 +125,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const commerceConversionLabel =
     commerceSnapshotModel.checkoutConversionValue !== null
       ? formatPercent(commerceSnapshotModel.checkoutConversionValue)
-      : "Unavailable";
+      : noRateSampleLabel;
   const commerceCardMap = new Map(
     commerceSnapshotModel.commerceSnapshotState.cards.map((card) => [card.id, card]),
   );
@@ -149,26 +154,26 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   );
   const gdSpentTooltip = [
     "Unlock spend split by source.",
-    `Paid ${formatCommerceValue(commerceSnapshotModel.paidGdSpentValue, formatCompactNumber, "Unavailable")}`,
-    `Reward ${formatCommerceValue(commerceSnapshotModel.rewardFreeGdSpentValue, formatCompactNumber, "Unavailable")}`,
-    `Unknown ${formatCommerceValue(commerceSnapshotModel.unknownSourceGdSpentValue, formatCompactNumber, "Unavailable")}`,
+    `Paid ${formatCommerceValue(commerceSnapshotModel.paidGdSpentValue, formatCompactNumber, noSourceLabel)}`,
+    `Reward ${formatCommerceValue(commerceSnapshotModel.rewardFreeGdSpentValue, formatCompactNumber, noSourceLabel)}`,
+    `Unknown ${formatCommerceValue(commerceSnapshotModel.unknownSourceGdSpentValue, formatCompactNumber, noSourceLabel)}`,
   ].join(" | ");
   const adjustedProfitTooltip = [
     "Gross revenue minus fees and promo/bonus basis.",
-    `Gross ${formatCommerceValue(commerceSnapshotModel.revenueValue, formatMoney, "Unavailable")}`,
-    `Fees ${formatCommerceValue(commerceSnapshotModel.paymentFeesUsdValue, formatMoney, "Unavailable")}`,
-    `Promo/bonus ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}`,
+    `Gross ${formatCommerceValue(commerceSnapshotModel.revenueValue, formatMoney, noSourceLabel)}`,
+    `Fees ${formatCommerceValue(commerceSnapshotModel.paymentFeesUsdValue, formatMoney, noSourceLabel)}`,
+    `Promo/bonus ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, noSourceLabel)}`,
   ].join(" | ");
   const yieldTooltip = [
     "Revenue per 100 delivered paid-source GumDrops.",
-    `Paid base ${formatCommerceValue(commerceSnapshotModel.paidBaseDeliveredGdValue, formatCompactNumber, "Unavailable")}`,
-    `Paid bonus ${formatCommerceValue(commerceSnapshotModel.paidBonusDeliveredGdValue, formatCompactNumber, "Unavailable")}`,
+    `Paid base ${formatCommerceValue(commerceSnapshotModel.paidBaseDeliveredGdValue, formatCompactNumber, noSourceLabel)}`,
+    `Paid bonus ${formatCommerceValue(commerceSnapshotModel.paidBonusDeliveredGdValue, formatCompactNumber, noSourceLabel)}`,
   ].join(" | ");
   const promoTooltip = [
     "Promo and bonus value stay separate from revenue.",
-    `Bonus GumDrops ${formatCommerceValue(commerceSnapshotModel.bonusGdGranted, formatCompactNumber, "Unavailable")}`,
-    `Discount ${formatCommerceValue(commerceSnapshotModel.promoDiscountUsdValue, formatMoney, "Unavailable")}`,
-    `Value basis ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}`,
+    `Bonus GumDrops ${formatCommerceValue(commerceSnapshotModel.bonusGdGranted, formatCompactNumber, noSourceLabel)}`,
+    `Discount ${formatCommerceValue(commerceSnapshotModel.promoDiscountUsdValue, formatMoney, noSourceLabel)}`,
+    `Value basis ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, noSourceLabel)}`,
   ].join(" | ");
   const commerceGeneratedAtLabel = commerceSnapshotModel.generatedAtUtc
     ? formatAbsoluteDateTime(Date.parse(commerceSnapshotModel.generatedAtUtc))
@@ -426,7 +431,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 />
                 <MetricCard
                   label={formatCommerceMetricLabel(promoCard?.label ?? "Promo Impact")}
-                  value={formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}
+                  value={formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, noSourceLabel)}
                   hint={formatCommerceSourceHint(promoCard?.scope, promoCard?.sourceTruth)}
                   icon={Candy}
                   truthState={commerceSnapshotModel.metrics.promoImpact.truthState}
@@ -556,7 +561,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 <td className="px-3 py-2">{row.priceUsd === null ? "N/A" : formatMoney(row.priceUsd)}</td>
                                 <td className="px-3 py-2">{row.checkoutStarts}</td>
                                 <td className="px-3 py-2">{row.completedPurchases}</td>
-                                <td className="px-3 py-2">{row.conversionRatePct === null ? "Unavailable" : `${Math.round(row.conversionRatePct)}%`}</td>
+                                <td className="px-3 py-2">{row.conversionRatePct === null ? noRateSampleLabel : `${Math.round(row.conversionRatePct)}%`}</td>
                                 <td className="px-3 py-2">{formatMoney(row.revenueUsd)}</td>
                                 <td className="px-3 py-2">{row.paidGdIssued + row.bonusGdIssued}</td>
                                 <td className="px-3 py-2">{row.performanceState}</td>
@@ -660,7 +665,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                       <div className="font-semibold text-white">
                         {contentConversionModel.overallUnlockRatePct !== null
                           ? formatPercent(contentConversionModel.overallUnlockRatePct / 100)
-                          : "Unavailable"}
+                          : noRateSampleLabel}
                       </div>
                     </div>
                     <div>
@@ -758,9 +763,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                   <td className="px-3 py-2">{row.dropCount}</td>
                                   <td className="px-3 py-2">{row.previewCount.toLocaleString()}</td>
                                   <td className="px-3 py-2">{row.unlockCount.toLocaleString()}</td>
-                                  <td className="px-3 py-2 text-brand-purple">{row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : "Unavailable"}</td>
+                                  <td className="px-3 py-2 text-brand-purple">{row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : noRateSampleLabel}</td>
                                   <td className="px-3 py-2">{(row.viewerOpenCount ?? 0).toLocaleString()}</td>
-                                  <td className="px-3 py-2">{row.watchSeconds !== null && row.watchSeconds !== undefined ? formatDuration(row.watchSeconds) : "Unavailable"}</td>
+                                  <td className="px-3 py-2">{row.watchSeconds !== null && row.watchSeconds !== undefined ? formatDuration(row.watchSeconds) : noWatchSampleLabel}</td>
                                   <td className="px-3 py-2"><AdminStatusBadge state={resolveAdminAnalyticsContentConversionRowTruthState(row.conversionState)} /></td>
                                 </tr>
                               ))}
@@ -792,13 +797,13 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 title={`Source: ${row.sourceTruth}; Freshness: ${row.freshnessState}`}
                               >
                                 <span>
-                                  Rate: {row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : "Unavailable"}
+                                  Rate: {row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : noRateSampleLabel}
                                 </span>
                                 <span>
                                   Viewer: {(row.viewerOpenCount ?? 0).toLocaleString()}
                                 </span>
                                 <span>
-                                  Watch: {row.watchSeconds !== null && row.watchSeconds !== undefined ? formatDuration(row.watchSeconds) : "Unavailable"}
+                                  Watch: {row.watchSeconds !== null && row.watchSeconds !== undefined ? formatDuration(row.watchSeconds) : noWatchSampleLabel}
                                 </span>
                               </div>
                               <p className="mt-2 text-[11px] leading-5 text-gray-400">{row.explanation}</p>
@@ -1132,7 +1137,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                     </div>
                     <div className="min-w-0">
                       <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Last transaction</div>
-                      <div className="truncate font-semibold text-white">{recentCommerceFeedModel.rows[0]?.ageLabel ?? "Unavailable"}</div>
+                      <div className="truncate font-semibold text-white">{recentCommerceFeedModel.rows[0]?.ageLabel ?? noSnapshotLabel}</div>
                     </div>
                   </div>
 
@@ -1699,7 +1704,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                     {item.label}
                                   </span>
                                   <span className="font-semibold text-brand-purple">
-                                    {item.value === null ? "[unavailable]" : item.value.toLocaleString()}
+                                    {item.value === null ? noSampleLabel : item.value.toLocaleString()}
                                   </span>
                                 </div>
                                 <div className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -1782,7 +1787,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                       {formatDuration(item.totalWatchSeconds)} verified watch
                                     </span>
                                     <span>
-                                      {item.lastSeenAtMs ? formatRelativeTime(item.lastSeenAtMs, nowMs) : "Last viewer session unavailable"}
+                                      {item.lastSeenAtMs ? formatRelativeTime(item.lastSeenAtMs, nowMs) : "No viewer session yet"}
                                     </span>
                                     <span>{formatAdminAnalyticsSourceStateLabel(item.freshnessState)}</span>
                                   </div>

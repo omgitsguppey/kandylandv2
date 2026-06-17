@@ -1579,7 +1579,7 @@ export function useAdminAnalyticsState() {
     : false;
   const checkoutStartsHint = checkoutStartsAvailable
     ? `${overviewCheckoutStarts.toLocaleString()} checkout starts`
-    : "Checkout starts unavailable";
+    : "No checkout-start sample";
   const revenueFallbackAvailable =
     overviewFallbackRevenueUsd !== null && overviewFallbackRevenueDisplay !== null;
   const purchasesFallbackAvailable =
@@ -1709,7 +1709,7 @@ export function useAdminAnalyticsState() {
         windowLabel: "30D",
         generatedAtUtc: toOverviewGeneratedAtUtc(adminOverviewResponse),
         explanation: `${sharedFallbackExplanation} Fallback source: completed purchase transactions.`,
-        hint: "Checkout starts unavailable · Fallback source: completed transactions",
+        hint: "No checkout-start sample - fallback source: completed transactions",
         warnings: ["analytics_snapshot_pending", "checkout_starts_unavailable"],
       }
       : {
@@ -2323,10 +2323,10 @@ export function useAdminAnalyticsState() {
     ? "Unknown"
     : formatPercent(guestEngagedRate);
   const guestBounceHint = guestQualityUnavailable
-    ? "Anonymous quality metrics are unavailable because consented guest semantic batches did not land in this window."
+    ? "No anonymous quality sample because consented guest semantic batches did not land in this window."
     : `${(globalSemantics?.bounceCount ?? 0).toLocaleString()} bounced exits`;
   const guestEngagedHint = guestQualityUnavailable
-    ? "Guest engagement quality is unavailable without consented guest semantic batches."
+    ? "Guest engagement quality waits for consented guest semantic batches."
     : `${(globalSemantics?.engagedViewCount ?? 0).toLocaleString()} engaged sessions`;
   const identifiedBounceRate =
     userSemantics && userSemantics.viewCount > 0

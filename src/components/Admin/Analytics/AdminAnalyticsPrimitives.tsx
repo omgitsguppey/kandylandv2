@@ -136,8 +136,8 @@ export function SectionCard({
         <section
             className={cn(
                 compact
-                    ? "glass-panel rounded-[1.2rem] border border-white/10 p-2.5 md:rounded-[1.4rem] md:p-4"
-                    : "glass-panel rounded-[1.4rem] border border-white/10 p-3 md:p-4",
+                    ? "glass-panel min-w-0 max-w-full rounded-[1.2rem] border border-white/10 p-2.5 md:rounded-[1.4rem] md:p-4"
+                    : "glass-panel min-w-0 max-w-full rounded-[1.4rem] border border-white/10 p-3 md:p-4",
                 className,
             )}
         >
