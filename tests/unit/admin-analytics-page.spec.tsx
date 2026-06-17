@@ -122,6 +122,13 @@ const mockState = vi.hoisted(() => {
       liveFeedDetail: "",
       historicalTruthState: "cached",
       historicalSourceLabel: "30D Server snapshot",
+      launchRecoverySummary: {
+        sourceLabel: "First-party",
+        confidenceLabel: "verified",
+        coverageLabel: "11/11 launch days",
+        missingRangeCount: 0,
+        sourceAgreementState: "pass",
+      },
       adminAnalyticsSourceHierarchy: {
         status: "aligned",
         nextAction: "Analytics source hierarchy is aligned.",
@@ -579,8 +586,9 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Panel status");
+    expect(container.textContent).toContain("Panel recovery");
     const sourceNotes = container.querySelector("details[title]");
+    expect(container.textContent).toContain("Source detail");
     expect(sourceNotes?.getAttribute("title")).not.toContain("No current activity snapshot has loaded yet.");
     expect(sourceNotes?.getAttribute("title")).not.toContain("Collecting activity");
     expect(sourceNotes?.getAttribute("title")).not.toContain("Realtime analytics");
@@ -646,12 +654,12 @@ describe("AdminAnalyticsPage", () => {
 
     expect(container.textContent).toContain("Operations view - 30D Server snapshot");
     expect(container.textContent).toContain("Last updated: Current snapshot");
-    expect(container.textContent).toContain("Historical: [historical]");
-    expect(container.textContent).toContain("Source: Snapshot");
-    expect(container.textContent).toContain("Quality: Cached");
+    expect(container.textContent).toContain("Coverage: 11/11 launch days");
+    expect(container.textContent).toContain("Source: First-party");
+    expect(container.textContent).toContain("Confidence: verified");
     expect(container.textContent).toContain("Current snapshot");
-    expect(container.textContent).toContain("Snapshot");
-    expect(container.textContent).toContain("Cached");
+    expect(container.textContent).toContain("First-party");
+    expect(container.textContent).toContain("verified");
     expect(container.textContent).not.toContain("Realtime feed");
     expect(container.textContent).not.toContain("view ·");
     expect(container.querySelector("[data-admin-analytics-status-summary=\"compact\"]")).toBeTruthy();
@@ -663,6 +671,13 @@ describe("AdminAnalyticsPage", () => {
       liveFeedStatus: "failed",
       historicalTruthState: "unavailable",
       historicalSourceLabel: "No historical snapshot yet",
+      launchRecoverySummary: {
+        sourceLabel: "Unknown",
+        confidenceLabel: "unknown",
+        coverageLabel: "Coverage waiting",
+        missingRangeCount: 0,
+        sourceAgreementState: "not_enough_sources",
+      },
     };
 
     await act(async () => {
@@ -670,10 +685,10 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain("Operations view - No historical snapshot yet");
-    expect(container.textContent).toContain("Source: Not connected");
-    expect(container.textContent).toContain("Quality: No source");
+    expect(container.textContent).toContain("Source: Unknown");
+    expect(container.textContent).toContain("Confidence: unknown");
     expect(container.textContent).not.toContain("Source: Unavailable");
-    expect(container.textContent).not.toContain("Quality: Unavailable");
+    expect(container.textContent).not.toContain("Confidence: Unavailable");
   });
 
   it("summarizes source agreement blockers without leaking enum labels", async () => {

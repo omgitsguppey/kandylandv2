@@ -303,6 +303,12 @@ export default function AdminAnalyticsPage() {
     showHistoricalEmptyState,
     visibleOverviewDegradedCopy,
   ]);
+  const sourceDetailItems = useMemo(() => (
+    Array.from(new Set([
+      ...sourceStatusItems,
+      liveFeedSourceStatusItem,
+    ].filter((item): item is string => Boolean(item))))
+  ), [liveFeedSourceStatusItem, sourceStatusItems]);
   const panelHydrationSummary = state.panelHydration?.summary;
   const connectedPanelCount = panelHydrationSummary?.hydrated ?? 0;
   const totalPanelCount = panelHydrationSummary?.totalPanels ?? 0;
@@ -497,32 +503,26 @@ export default function AdminAnalyticsPage() {
           <p className="min-w-0 truncate font-medium text-white">{dataStatusSummary.join(" · ")}</p>
           <p className="min-w-0 truncate text-gray-400">{sourceQualitySummary.join(" · ")}</p>
         </div>
-        {sourceStatusItems.length > 0 ? (
+        {sourceDetailItems.length > 0 ? (
           <details
-            className="mt-2 rounded-md border border-amber-400/20 bg-amber-500/10 px-2 py-1 text-xs text-amber-100"
-            title={[
-              ...sourceStatusItems,
-              liveFeedSourceStatusItem,
-            ].filter((item): item is string => Boolean(item)).join(" | ")}
+            className="mt-2 rounded-md border border-white/10 bg-black/25 px-2 py-1 text-xs text-gray-300"
+            title={sourceDetailItems.join(" | ")}
           >
-            <summary className="min-h-9 cursor-pointer pt-2 font-semibold">Source notes ({sourceStatusItems.length})</summary>
+            <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Source detail ({sourceDetailItems.length})</summary>
             <ul className="mt-1 list-disc space-y-1 pl-4">
-              {sourceStatusItems.map((item) => (
+              {sourceDetailItems.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            {liveFeedSourceStatusItem ? (
-              <p className="mt-2 text-amber-200/80">{liveFeedSourceStatusItem}</p>
-            ) : null}
           </details>
         ) : null}
         {showPanelRecovery ? (
-          <div
+          <details
             className="mt-2 rounded-md border border-white/10 bg-black/25 px-2.5 py-2 text-xs text-gray-200"
             data-admin-analytics-panel-recovery="compact"
           >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="font-semibold text-white">Panel status</p>
+            <summary className="min-h-9 cursor-pointer pt-1 font-semibold text-gray-100">
+              <span className="mr-2 text-white">Panel recovery</span>
               <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-300">
                 <span>{connectedPanelCount}/{totalPanelCount} showing data</span>
                 {panelRecoveryWaitingCount > 0 ? <span>{panelRecoveryWaitingCount} collecting</span> : null}
@@ -538,7 +538,7 @@ export default function AdminAnalyticsPage() {
                   <span>{panelRecoveryNeedsEvidenceCount} need review</span>
                 ) : null}
               </div>
-            </div>
+            </summary>
             {panelRecoveryTruthItems.length > 0 || panelRecoveryActions.length > 0 ? (
               <div className="mt-2 grid grid-cols-2 gap-1.5">
                 {panelRecoveryTruthItems.length > 0 ? (
@@ -576,7 +576,7 @@ export default function AdminAnalyticsPage() {
                 ) : null}
               </div>
             ) : null}
-          </div>
+          </details>
         ) : null}
       </div>
 

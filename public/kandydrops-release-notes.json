@@ -1,11 +1,77 @@
 {
-  "currentVersion": "1.5.79",
-  "betaReleaseCounter": 579,
+  "currentVersion": "1.5.80",
+  "betaReleaseCounter": 580,
   "channel": "beta",
-  "generatedAt": "2026-06-17T23:13:47.477Z",
-  "generatedAtUtc": "2026-06-17T23:13:47.477Z",
-  "lastCommitSha": "66b3ec000ad4eb3ca531292e2d4079a065fe973c",
+  "generatedAt": "2026-06-17T23:36:15.796Z",
+  "generatedAtUtc": "2026-06-17T23:36:15.796Z",
+  "lastCommitSha": "b4a9133d19e95e6dd8f3594c2ee4486493ce20db",
   "notes": [
+    {
+      "version": "1.5.80",
+      "previousVersion": "1.5.79",
+      "betaReleaseCounter": 580,
+      "previousBetaReleaseCounter": 579,
+      "commitSha": "b4a9133d19e95e6dd8f3594c2ee4486493ce20db",
+      "commitTitle": "fix(admin): simplify surface actions",
+      "commitCount": 2,
+      "commitShas": [
+        "9d3de6c712134dd3245e5d35e53c834b0767c82c",
+        "b4a9133d19e95e6dd8f3594c2ee4486493ce20db"
+      ],
+      "committedAt": "2026-06-17T23:35:25.000Z",
+      "generatedAt": "2026-06-17T23:36:15.796Z",
+      "committedAtUtc": "2026-06-17T23:35:25.000Z",
+      "generatedAtUtc": "2026-06-17T23:36:15.796Z",
+      "updatedAtUtc": "2026-06-17T23:36:15.796Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-surface-modal-replacement.generated.json",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/event-translation-bridge.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/person-metrics-hydration.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/admin-surface-modal-replacement.md",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/event-translation-bridge.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/person-metrics-hydration.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "scripts/release/update-public-changelog.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/types/admin-analytics.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
+        "tests/unit/admin-data-validation.spec.ts"
+      ],
+      "sourceCommit": "b4a9133d19e95e6dd8f3594c2ee4486493ce20db"
+    },
     {
       "version": "1.5.79",
       "previousVersion": "1.5.78",
@@ -2541,53 +2607,6 @@
         "tests/unit/admin-analytics-commerce-mobile.spec.ts"
       ],
       "sourceCommit": "9425b0663b79381f201d2989c17eaf07a8c48a6a"
-    },
-    {
-      "version": "1.5.55",
-      "previousVersion": "1.5.54",
-      "betaReleaseCounter": 555,
-      "previousBetaReleaseCounter": 554,
-      "commitSha": "01b03cb4c3aedf644f96f5dd7a8d54e492d33195",
-      "commitTitle": "fix(admin): add compact recent commerce feed modes",
-      "commitCount": 2,
-      "commitShas": [
-        "3391e742fbe8f3fe0d2164d899875339c3ef93a1",
-        "01b03cb4c3aedf644f96f5dd7a8d54e492d33195"
-      ],
-      "committedAt": "2026-06-04T00:54:06.000Z",
-      "generatedAt": "2026-06-04T00:54:20.096Z",
-      "committedAtUtc": "2026-06-04T00:54:06.000Z",
-      "generatedAtUtc": "2026-06-04T00:54:20.096Z",
-      "updatedAtUtc": "2026-06-04T00:54:20.096Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-commerce-mobile.spec.ts"
-      ],
-      "sourceCommit": "01b03cb4c3aedf644f96f5dd7a8d54e492d33195"
     }
   ]
 }
