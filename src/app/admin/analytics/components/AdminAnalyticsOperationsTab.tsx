@@ -67,11 +67,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       ? "Last verified data"
       : "No verified activity snapshot yet"
     : liveResponse?.liveTruthLabel === "stale"
-    ? "Snapshot refresh delayed"
-    : liveResponse?.cacheState === "fresh"
-      ? "Updated"
+      ? "Snapshot refresh delayed"
+      : liveResponse?.cacheState === "fresh"
+        ? "Updated"
       : liveResponse?.liveTruthLabel === "fallback"
-        ? "Showing last verified data"
+        ? "Verified snapshot shown"
         : "Current activity";
   const compactLiveMetricClass = "rounded-[1rem] p-2 min-h-[4.75rem]";
   const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";

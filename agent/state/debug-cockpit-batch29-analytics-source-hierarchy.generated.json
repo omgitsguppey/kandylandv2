@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch29-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-05-25T05:24:33.635Z",
-  "currentHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136",
+  "generatedAtUtc": "2026-06-17T19:05:10.458Z",
+  "currentHead": "d6467b058100facddbf73195080fccc863730118",
   "ga4AvailabilityStatusBefore": "reports_available",
   "ga4AvailabilityStatusAfter": "reports_loaded_empty",
   "chartReadinessStatusBefore": "ready",
@@ -11,12 +11,8 @@
   "validationCopyContradictionsAfter": 0,
   "passAllowedContradictionsBefore": 1,
   "passAllowedContradictionsAfter": 0,
-  "analyticsTabSourceStatus": "consumer_source_mismatch",
-  "consumerSourceMismatches": [
-    "admin_analytics_overview",
-    "admin_analytics_charts",
-    "admin_analytics_insight_cards"
-  ],
+  "analyticsTabSourceStatus": "source_agreement_failed",
+  "consumerSourceMismatches": [],
   "blockedAnalyticsConsumers": [
     "debug_data_validation",
     "admin_analytics_overview",
@@ -111,184 +107,140 @@
   ],
   "dirtyFileClassifications": [
     {
-      "filePath": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "filePath": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "filePath": "agent/state/current-beta-exit-status.generated.json",
+      "filePath": "agent/state/admin-analytics-realtime-hot-cache.generated.json",
       "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "filePath": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "filePath": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "filePath": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "filePath": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "filePath": "package.json",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "filePath": "src/app/admin/analytics/page.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "filePath": "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "filePath": "src/lib/analytics/validation-readiness-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "filePath": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "filePath": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "filePath": "src/types/admin-analytics.ts",
-      "classification": "real_source_change_needs_review"
     },
     {
       "filePath": "agent/state/admin-analytics-source-hierarchy.generated.json",
       "classification": "analytics_tab_source_truth_mismatch_required"
     },
     {
-      "filePath": "agent/state/chart-readiness-hierarchy-repair.generated.json",
-      "classification": "analytics_source_hierarchy_fix_required"
+      "filePath": "agent/state/admin-surface-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "filePath": "agent/state/data-validation-copy-consistency.generated.json",
-      "classification": "validation_copy_contradiction_required"
+      "filePath": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "filePath": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "agent/state/ga4-availability-semantics.generated.json",
-      "classification": "ga4_availability_semantics_required"
+      "filePath": "agent/state/gumdrop-ledger-math.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "filePath": "agent/state/source-agreement-failure-detail.generated.json",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "docs/agent-truth/admin-analytics-realtime-hot-cache.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "filePath": "docs/agent-truth/admin-analytics-source-hierarchy.md",
       "classification": "analytics_tab_source_truth_mismatch_required"
     },
     {
-      "filePath": "docs/agent-truth/chart-readiness-hierarchy-repair.md",
-      "classification": "analytics_source_hierarchy_fix_required"
+      "filePath": "docs/agent-truth/admin-surface-hydration.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/data-validation-copy-consistency.md",
-      "classification": "validation_copy_contradiction_required"
+      "filePath": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "filePath": "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/ga4-availability-semantics.md",
-      "classification": "ga4_availability_semantics_required"
+      "filePath": "docs/agent-truth/gumdrop-ledger-math.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/source-agreement-failure-detail.md",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "docs/doctrine/surfaces/wallet.md",
+      "classification": "protected_gumdrop_wallet_work_unrelated"
     },
     {
       "filePath": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-admin-analytics-source-hierarchy.ts",
-      "classification": "analytics_tab_source_truth_mismatch_required"
-    },
-    {
-      "filePath": "scripts/agent/validate-chart-readiness-hierarchy-repair.ts",
-      "classification": "analytics_source_hierarchy_fix_required"
-    },
-    {
-      "filePath": "scripts/agent/validate-data-validation-copy-consistency.ts",
-      "classification": "validation_copy_contradiction_required"
-    },
-    {
-      "filePath": "scripts/agent/validate-debug-cockpit-batch29-analytics-source-hierarchy.ts",
+      "filePath": "scripts/agent/validate-gumdrop-ledger-math.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-ga4-availability-semantics.ts",
-      "classification": "ga4_availability_semantics_required"
+      "filePath": "scripts/agent/validate-gumdrop-source-of-funds-truth.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-source-agreement-failure-detail.ts",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "src/app/api/creator/bookings/route.ts",
+      "classification": "creator_work_unrelated"
+    },
+    {
+      "filePath": "src/app/api/creator/requests/route.ts",
+      "classification": "creator_work_unrelated"
+    },
+    {
+      "filePath": "src/app/api/creator/subscriptions/route.ts",
+      "classification": "creator_work_unrelated"
+    },
+    {
+      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
+      "classification": "creator_work_unrelated"
     },
     {
       "filePath": "src/lib/analytics/admin-analytics-source-hierarchy.ts",
       "classification": "analytics_tab_source_truth_mismatch_required"
     },
     {
-      "filePath": "src/lib/analytics/ga4-availability-semantics.ts",
-      "classification": "ga4_availability_semantics_required"
+      "filePath": "src/lib/gumdrop-ledger.ts",
+      "classification": "protected_gumdrop_wallet_work_unrelated"
     },
     {
-      "filePath": "src/lib/analytics/source-agreement-detail.ts",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "src/lib/problem-state-copy.ts",
+      "classification": "admin_copy_state_work_unrelated"
     },
     {
-      "filePath": "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts",
-      "classification": "validator_artifact_expected"
+      "filePath": "src/lib/server/chat.ts",
+      "classification": "chat_reliability_work_unrelated"
+    },
+    {
+      "filePath": "src/lib/server/creator-experiences.ts",
+      "classification": "creator_work_unrelated"
+    },
+    {
+      "filePath": "tests/unit/admin-analytics-page.spec.tsx",
+      "classification": "test_artifact_expected"
     },
     {
       "filePath": "tests/unit/admin-analytics-source-hierarchy.spec.ts",
       "classification": "analytics_tab_source_truth_mismatch_required"
     },
     {
-      "filePath": "tests/unit/chart-readiness-hierarchy-repair.spec.ts",
-      "classification": "analytics_source_hierarchy_fix_required"
+      "filePath": "tests/unit/creator-bookings-route.spec.ts",
+      "classification": "test_artifact_expected"
     },
     {
-      "filePath": "tests/unit/data-validation-copy-consistency.spec.ts",
-      "classification": "validation_copy_contradiction_required"
+      "filePath": "tests/unit/creator-bookings-transaction-route.spec.ts",
+      "classification": "test_artifact_expected"
     },
     {
-      "filePath": "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts",
-      "classification": "validator_artifact_expected"
+      "filePath": "tests/unit/creator-requests-route.spec.ts",
+      "classification": "test_artifact_expected"
     },
     {
-      "filePath": "tests/unit/ga4-availability-semantics.spec.ts",
-      "classification": "ga4_availability_semantics_required"
+      "filePath": "tests/unit/creator-subscriptions-route.spec.ts",
+      "classification": "test_artifact_expected"
     },
     {
-      "filePath": "tests/unit/source-agreement-failure-detail.spec.ts",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "tests/unit/gumdrop-ledger.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/server-chat-send.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "openPrClassifications": [],

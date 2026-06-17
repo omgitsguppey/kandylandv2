@@ -122,9 +122,9 @@ export function coerceAdminSurfaceState(value: unknown): AdminSurfaceState {
 export function formatAdminSurfaceStateLabel(state: AdminSurfaceState): string {
   if (state === "loading") return "Waiting";
   if (state === "live") return "Live";
-  if (state === "cached") return "Showing last verified data";
+  if (state === "cached") return "Verified snapshot shown";
   if (state === "degraded") return "Needs review";
-  if (state === "fallback") return "Showing last verified data";
+  if (state === "fallback") return "Verified snapshot shown";
   if (state === "stale") return "Delayed";
   if (state === "failed") return "Needs review";
   return "Unavailable";

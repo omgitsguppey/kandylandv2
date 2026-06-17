@@ -187,6 +187,30 @@ function formatAdminAnalyticsSourceNote(note: string) {
     .replaceAll("Historical analytics", "Historical snapshot");
 }
 
+function formatAdminAnalyticsSourceStatusItem(note: string) {
+  const formatted = formatAdminAnalyticsSourceNote(note).trim();
+  const normalized = formatted.toLowerCase();
+  const debugOnlySourceDetail =
+    normalized.includes("raw firestore realtime listeners are disabled") ||
+    normalized.includes("snapshot-first realtime route") ||
+    normalized.includes("admin debug raw evidence");
+  const genericVerifiedSnapshotCopy =
+    normalized === "showing last verified data." ||
+    normalized === "showing last verified data" ||
+    normalized === "verified snapshot shown." ||
+    normalized === "verified snapshot shown" ||
+    normalized === "snapshot refresh delayed. showing last verified data.";
+  const genericDebugPrompt =
+    normalized === "open debug for source details." ||
+    normalized === "open debug for source details";
+
+  if (debugOnlySourceDetail || genericVerifiedSnapshotCopy || genericDebugPrompt) {
+    return null;
+  }
+
+  return formatted;
+}
+
 function formatPanelRecoveryAction(action: string) {
   const sourceRepairMatch = action.match(/^([^:]+): Repair [^ ]+ so (.+)$/u);
   if (sourceRepairMatch) {
@@ -234,7 +258,9 @@ export default function AdminAnalyticsPage() {
     (copy) =>
       !copy.includes("platform_pulse") &&
       !copy.includes("No verified admin metric snapshot display payload"),
-  );
+  ).map(formatAdminAnalyticsSourceStatusItem).filter((copy): copy is string => Boolean(copy));
+  const liveFeedSourceStatusItem =
+    liveFeedStatus === "snapshot" ? null : liveFeedDetail ? formatAdminAnalyticsSourceStatusItem(liveFeedDetail) : null;
   useEffect(() => {
     (window as typeof window & {
       __KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__?: unknown;
@@ -269,7 +295,8 @@ export default function AdminAnalyticsPage() {
       isBackgroundSyncing ? "Background refresh running" : null,
     ]
       .filter((item): item is string => Boolean(item))
-      .map(formatAdminAnalyticsSourceNote);
+      .map(formatAdminAnalyticsSourceStatusItem)
+      .filter((item): item is string => Boolean(item));
 
     return Array.from(new Set(items));
   }, [
@@ -476,7 +503,7 @@ export default function AdminAnalyticsPage() {
             className="mt-2 rounded-md border border-amber-400/20 bg-amber-500/10 px-2 py-1 text-xs text-amber-100"
             title={[
               ...sourceStatusItems,
-              liveFeedDetail ? formatAdminAnalyticsSourceNote(liveFeedDetail) : null,
+              liveFeedSourceStatusItem,
             ].filter((item): item is string => Boolean(item)).join(" | ")}
           >
             <summary className="min-h-9 cursor-pointer pt-2 font-semibold">Source notes ({sourceStatusItems.length})</summary>
@@ -485,8 +512,8 @@ export default function AdminAnalyticsPage() {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            {liveFeedDetail ? (
-              <p className="mt-2 text-amber-200/80">{formatAdminAnalyticsSourceNote(liveFeedDetail)}</p>
+            {liveFeedSourceStatusItem ? (
+              <p className="mt-2 text-amber-200/80">{liveFeedSourceStatusItem}</p>
             ) : null}
           </details>
         ) : null}
@@ -611,7 +638,7 @@ export default function AdminAnalyticsPage() {
         </div>
       )}
 
-      {backgroundAnalyticsIssues.length > 0 && !primaryBlockingAnalyticsError && sourceStatusItems.length === 0 ? (
+      {backgroundAnalyticsIssues.length > 0 && !primaryBlockingAnalyticsError && sourceStatusItems.length === 0 && visibleOverviewDegradedCopy.length > 0 ? (
         <div className="flex items-start gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
             <div
@@ -620,7 +647,7 @@ export default function AdminAnalyticsPage() {
             >
             <p>
               <span className="font-semibold">Needs attention:</span>{" "}
-              {visibleOverviewDegradedCopy[0] ?? "Analytics is delayed. Showing last verified data."}
+              {visibleOverviewDegradedCopy[0]}
             </p>
             {visibleOverviewDegradedCopy[1] ? <p>{visibleOverviewDegradedCopy[1]}</p> : null}
           </div>

@@ -372,10 +372,10 @@ export function resolveAdminAnalyticsDisplayState(input: {
     const graphMissingButSnapshotRendered =
       input.moduleConfig.graphSourceAvailable === false;
     const visibleMessage = refreshRunning
-      ? "Refreshing. Showing last verified data."
+      ? "Refreshing. Verified snapshot shown."
       : realtimeFailed
-        ? "Realtime delayed. Showing last verified snapshot."
-        : "Showing last verified data.";
+        ? "Realtime delayed. Verified snapshot shown."
+        : "Verified snapshot shown.";
 
     return {
       visibleValueSource: "verified_snapshot",

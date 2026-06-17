@@ -153,7 +153,7 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
         shouldRenderSnapshot: true,
         shouldRenderRealtimeUpgrade: false,
         shouldShowUnavailable: false,
-        visibleMessage: "Live updates are delayed. Showing last verified data.",
+        visibleMessage: "Live updates are delayed. Verified snapshot shown.",
         debugReason: "snapshot exists",
         refreshAvailable: true,
         fakeZeroPrevented: false,
@@ -164,7 +164,7 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     });
 
     expect(model.livePulseEnabled).toBe(true);
-    expect(model.visibleCopy).toBe("Live updates are delayed. Showing last verified data.");
+    expect(model.visibleCopy).toBe("Live updates are delayed. Verified snapshot shown.");
     expect(model.presenceSourceStatus).toBe("fallback");
     expect(model.primaryDisplaySource).toBe("verified_snapshot");
     expect(model.latestVerifiedSnapshotExists).toBe(true);

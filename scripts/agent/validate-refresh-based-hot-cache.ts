@@ -111,7 +111,7 @@ requireIncludes(snapshotStore, "displayAllowedBecause", "Admin Debug display all
 requireIncludes(snapshotStore, "blocksOnTimeExpiry: false", "No time-expiry display block");
 requireIncludes(snapshotHook, "setSnapshot((current) => result.snapshot ?? current)", "Client refresh must preserve snapshot");
 requireIncludes(refreshRoute, "{ status: snapshot ? 200 : 500 }", "Refresh failure preserves stale snapshot response");
-requireIncludes(displayState, "Realtime delayed. Showing last verified snapshot.", "Realtime failure keeps snapshot visible");
+requireIncludes(displayState, "Realtime delayed. Verified snapshot shown.", "Realtime failure keeps snapshot visible");
 requireIncludes(displayState, "No verified snapshot yet.", "No-snapshot copy");
 requireIncludes(loadingHelper, "No verified snapshot yet", "Reasoned waiting copy");
 requireIncludes(stateHook, "snapshotRevenueValue", "Top card snapshot-first revenue");

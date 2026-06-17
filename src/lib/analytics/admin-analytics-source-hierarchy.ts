@@ -25,7 +25,7 @@ export type AdminAnalyticsSourceHierarchyConsumer = {
 };
 
 export type AdminAnalyticsSourceHierarchy = {
-  status: "aligned" | "blocked" | "consumer_source_mismatch";
+  status: "aligned" | "blocked" | "consumer_source_mismatch" | "source_agreement_failed";
   sourceOrder: string[];
   consumers: AdminAnalyticsSourceHierarchyConsumer[];
   consumerSourceMismatches: AdminAnalyticsConsumerId[];
@@ -49,7 +49,11 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
     : chartBlocked
       ? `chart_readiness_${input.chartReadinessState}`
       : null;
-  const mismatch = input.debugHasData && !input.analyticsTabHasData;
+  const mismatch =
+    input.debugHasData &&
+    !input.analyticsTabHasData &&
+    analyticsSource === "local_fallback_empty_state" &&
+    chartBlocker === null;
 
   const consumers: AdminAnalyticsSourceHierarchyConsumer[] = [
     {
@@ -137,7 +141,13 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
     .map((consumer) => consumer.consumerId);
 
   return {
-    status: consumerSourceMismatches.length > 0 ? "consumer_source_mismatch" : blockedAnalyticsConsumers.length > 0 ? "blocked" : "aligned",
+    status: sourceAgreementFailed
+      ? "source_agreement_failed"
+      : consumerSourceMismatches.length > 0
+        ? "consumer_source_mismatch"
+        : blockedAnalyticsConsumers.length > 0
+          ? "blocked"
+          : "aligned",
     sourceOrder: [
       "Admin Analytics canonical snapshot / source truth",
       "Historical snapshot",

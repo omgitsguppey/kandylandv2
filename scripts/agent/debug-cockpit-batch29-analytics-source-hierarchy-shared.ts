@@ -113,6 +113,10 @@ function dirtyClassifications() {
                         : filePath.startsWith("docs/agent-truth/") ? "documentation_artifact_expected"
                           : filePath.startsWith("agent/state/") ? "current_generated_artifact_to_commit"
                             : filePath.startsWith("agent/context/") ? "unrelated_agent_context_file_to_ignore"
+                              : filePath.includes("gumdrop") || filePath.includes("wallet.md") ? "protected_gumdrop_wallet_work_unrelated"
+                                : filePath.includes("creator/") || filePath.includes("creator-") || filePath.includes("creator-experiences") ? "creator_work_unrelated"
+                                  : filePath.includes("server/chat") ? "chat_reliability_work_unrelated"
+                                    : filePath.includes("problem-state-copy") ? "admin_copy_state_work_unrelated"
                               : filePath.includes("release-notes") || filePath === "CHANGELOG.md" || filePath.includes("kandydrops-release-notes") ? "release_artifact_expected"
                                 : filePath.includes("admin-analytics-historical-validation") || filePath.includes("DebugAdvancedDataValidation") || filePath.includes("validation-readiness-contract") || filePath.includes("admin/analytics/") || filePath.includes("admin-analytics.ts") ? "real_source_change_needs_review"
                                   : "unsafe_unknown";
@@ -200,13 +204,14 @@ export function validateAdminAnalyticsSourceHierarchy() {
   const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
   const page = read("src/app/admin/analytics/page.tsx");
   expectPass(hook.includes("buildAdminAnalyticsSourceHierarchy") && page.includes("adminAnalyticsSourceHierarchy"), failures, "Analytics tab source hierarchy not mapped.");
-  expectPass(hierarchy.consumerSourceMismatches.includes("admin_analytics_charts"), failures, "Analytics tab can show empty while Debug has data with no blocker.");
+  expectPass(hierarchy.status === "source_agreement_failed", failures, "source agreement failure is not the primary Analytics source state.");
+  expectPass(hierarchy.consumerSourceMismatches.length === 0, failures, "source agreement failure is incorrectly reported as a consumer source mismatch.");
   expectPass(JSON.stringify(hierarchy).includes("source_agreement_failed"), failures, "sourceAgreement failed is not surfaced in Analytics tab.");
   expectPass(hierarchy.blockedAnalyticsConsumers.includes("admin_analytics_charts"), failures, "Analytics tab chart readiness ignores source agreement.");
   runValidation("admin-analytics-source-hierarchy", { fixtureEvidence }, failures, [
-    "Fixture-only source agreement mismatch confirms Debug and Admin Analytics use compatible status copy.",
+    "Fixture-only source agreement failure confirms Debug and Admin Analytics use compatible status copy.",
     "This report does not claim current runtime or admin truth.",
-    "Analytics tab empty states carry source agreement or consumer mismatch reasons.",
+    "Analytics tab source agreement failures stay distinct from local fallback consumer mismatches.",
   ]);
 }
 
@@ -268,7 +273,9 @@ export function validateDebugCockpitBatch29AnalyticsSourceHierarchy() {
   const dirty = dirtyClassifications();
   const openPrs = openPrClassifications();
   expectPass(report.chartReadinessStatusAfter === "source_disagreement", failures, "sourceAgreement failed can produce chartReadiness ready.");
-  expectPass(report.consumerSourceMismatches.length > 0, failures, "Analytics tab source hierarchy not mapped.");
+  expectPass(report.analyticsTabSourceStatus === "source_agreement_failed", failures, "Analytics tab source agreement failure is not mapped.");
+  expectPass(report.consumerSourceMismatches.length === 0, failures, "Source agreement failure is still reported as a consumer source mismatch.");
+  expectPass(report.blockedAnalyticsConsumers.includes("admin_analytics_charts"), failures, "Analytics tab chart blocker missing.");
   expectPass(report.ga4AvailabilityStatusAfter === "reports_loaded_empty", failures, "GA4 setup pass with samples=0 is treated as usable chart data.");
   expectPass(report.validationCopyContradictionsAfter === 0 && report.passAllowedContradictionsAfter === 0, failures, "copy or passAllowed contradictions remain.");
   expectPass(report.sourceAgreementDetails.comparedSources.length === 3, failures, "source agreement failure lacks detailed comparison.");

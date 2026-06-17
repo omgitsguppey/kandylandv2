@@ -120,7 +120,7 @@ const ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST =
 const ADMIN_ANALYTICS_METRIC_POLLING_DISABLED_MS = 0;
 const ADMIN_ANALYTICS_PREFERENCES_REFRESH_INTERVAL_MS = 0;
 const ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_DETAIL =
-  "Raw Firestore realtime listeners are disabled for compact Admin Analytics display; using the snapshot-first realtime route and Admin Debug raw evidence instead.";
+  "Current activity uses verified snapshots. Raw listener evidence stays in Admin Debug.";
 const ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_SOURCE_LABEL =
   "analytics_admin_metric_snapshots:snapshot_first_route";
 const ADMIN_ANALYTICS_RAW_REALTIME_COLLECTIONS = {
@@ -1499,7 +1499,7 @@ export function useAdminAnalyticsState() {
           ? "Snapshot refresh delayed"
           : isBackgroundSyncing
             ? "Refreshing"
-            : "Showing last verified data";
+            : "Verified snapshot shown";
 
   const historicalOverviewIssues = historicalOverviewResponse?.issues ?? [];
   const historicalEstimationReason =
@@ -2056,7 +2056,7 @@ export function useAdminAnalyticsState() {
     historicalOverviewResponse?.cacheRevalidating === true && historicalLoading;
   const visibleDegradedMainCopy =
     backgroundAnalyticsIssues.length > 0
-      ? "Snapshot refresh delayed. Showing last verified data."
+      ? ""
       : "";
   const visibleHistoricalEstimationCopy = historicalEstimationReason
     ? "Guest traffic is estimated for this range."

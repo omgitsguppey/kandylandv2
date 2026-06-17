@@ -154,9 +154,9 @@ for (const codeNeedle of [
 }
 
 includes(analyticsPage, "...sourceStatusItems", "Admin Analytics degraded title");
-includes(analyticsPage, "liveFeedDetail ? formatAdminAnalyticsSourceNote(liveFeedDetail) : null", "Admin Analytics degraded title");
+includes(analyticsPage, "liveFeedSourceStatusItem", "Admin Analytics degraded title");
 notIncludes(analyticsPage, 'title={backgroundAnalyticsIssues.join(" | ")}', "Admin Analytics degraded title");
-includes(analyticsDisplayState, "Realtime delayed. Showing last verified snapshot.", "Display state realtime failure copy");
+includes(analyticsDisplayState, "Realtime delayed. Verified snapshot shown.", "Display state realtime failure copy");
 includes(analyticsDisplayState, "No verified snapshot yet.", "Display state no-snapshot copy");
 includes(commerceSnapshot, "Promo and bonus GD are excluded from revenue.", "Commerce visible revenue rule");
 includes(debugRoute, "canonicalRevenueRule", "Admin Debug commerce evidence");
@@ -198,7 +198,7 @@ for (const oldOverviewCopy of [
   notIncludes(adminOverviewPage + adminOverviewHook, oldOverviewCopy, "Admin Overview operator copy");
 }
 includes(adminOverviewPage + adminOverviewHook, "Waiting for first overview snapshot", "Admin Overview no-snapshot copy");
-includes(adminOverviewHook, "Showing last verified data", "Admin Overview snapshot copy");
+includes(adminOverviewHook, "Verified snapshot shown", "Admin Overview snapshot copy");
 includes(adminOverviewHook, "Snapshot refresh delayed", "Admin Overview delayed copy");
 
 for (const ledgerNeedle of [

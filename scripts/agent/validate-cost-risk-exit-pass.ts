@@ -230,7 +230,7 @@ function buildSourceGuardInputFromRepo(currentHead: string): CostOwnerReviewSour
     (globalCost?.status === "clean" || globalCost?.overallScore === 100)
     && includesAll("src/app/api/admin/overview/route.ts", [/hot-cache snapshot/iu, /snapshot[\s\S]*heartbeat|heartbeat[\s\S]*snapshot/iu, /no broad fallback reads/iu])
     && includesAll("src/lib/admin/admin-hot-cache-cost-estimator.ts", [/snapshot doc/iu, /heartbeat doc/iu])
-    && includesAll("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx", [/Raw Firestore realtime listeners are disabled/iu, /snapshot-first realtime route/iu])
+    && includesAll("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx", [/Current activity uses verified snapshots/iu, /Raw listener evidence stays in Admin Debug/iu])
   );
   const route4xxSourceReady = (
     includesAll("src/lib/server/cheap-4xx-response.ts", [/cheap4xxResponse/iu, /x-kd-4xx-class/iu])

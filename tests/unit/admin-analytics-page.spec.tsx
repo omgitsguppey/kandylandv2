@@ -508,7 +508,7 @@ describe("AdminAnalyticsPage", () => {
           compactFreshnessLine: "Last verified data",
           debugReason: "snapshot fallback",
           debugSource: "last_verified_snapshot",
-          badgeLabel: "Showing last verified data",
+          badgeLabel: "Verified snapshot shown",
           showBadgeInPrimary: false,
         },
       },
@@ -611,6 +611,34 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).not.toContain("platform_pulse:30d");
   });
 
+  it("does not render generic cache or debug-only realtime policy as source warnings", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      backgroundAnalyticsIssues: [
+        "Current activity: cache fallback is showing last verified data.",
+      ],
+      visibleDegradedCopy: [
+        "Snapshot refresh delayed. Showing last verified data.",
+        "Showing last verified data.",
+        "Open Debug for source details.",
+      ],
+      liveFeedStatus: "snapshot",
+      liveFeedDetail:
+        "Raw Firestore realtime listeners are disabled for compact Admin Analytics display; using the snapshot-first realtime route and Admin Debug raw evidence instead.",
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).not.toContain("Snapshot refresh delayed. Showing last verified data.");
+    expect(container.textContent).not.toContain("Open Debug for source details.");
+    expect(container.textContent).not.toContain("Showing last verified data.");
+    expect(container.textContent).not.toContain("Raw Firestore realtime listeners are disabled");
+    expect(container.textContent).not.toContain("snapshot-first realtime route");
+    expect(container.querySelector("details[title]")).toBeNull();
+  });
+
   it("labels source strip states with readable shell copy", async () => {
     await act(async () => {
       root.render(<AdminAnalyticsPage />);
@@ -648,18 +676,14 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).not.toContain("Quality: Unavailable");
   });
 
-  it("summarizes source hierarchy mismatches without leaking enum labels", async () => {
+  it("summarizes source agreement blockers without leaking enum labels", async () => {
     mockState.analyticsState = {
       ...mockState.analyticsState,
       adminAnalyticsSourceHierarchy: {
-        status: "consumer_source_mismatch",
+        status: "source_agreement_failed",
         nextAction:
           "Show source agreement failed in Debug and Analytics tab, then repair the mismatched source lane before canonical chart promotion.",
-        consumerSourceMismatches: [
-          "admin_analytics_overview",
-          "admin_analytics_charts",
-          "admin_analytics_insight_cards",
-        ],
+        consumerSourceMismatches: [],
         blockedAnalyticsConsumers: [
           "debug_data_validation",
           "admin_analytics_overview",
@@ -675,10 +699,11 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Analytics source state: Source mismatch");
-    expect(container.textContent).toContain("3 source links need repair; 6 analytics views blocked.");
+    expect(container.textContent).toContain("Analytics source state: Source agreement failed");
+    expect(container.textContent).toContain("6 analytics views blocked by source evidence.");
     expect(container.textContent).toContain("Show source agreement failed in Debug and Analytics tab");
     expect(container.textContent).not.toContain("consumer_source_mismatch");
+    expect(container.textContent).not.toContain("source_agreement_failed");
   });
 
   it("humanizes current-activity blocking errors", async () => {

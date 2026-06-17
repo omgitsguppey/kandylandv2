@@ -33,7 +33,7 @@ export const ADMIN_ANALYTICS_REALTIME_HOT_CACHE_LISTENERS: AdminAnalyticsRealtim
     migrationStatus: "hot_cache_ready",
     costRisk: "high",
     reconnectRisk: "bounded_exponential_backoff",
-    fallbackPolicy: "Default admin display uses the snapshot-first realtime route and verified snapshot metadata.",
+    fallbackPolicy: "Default admin display uses the verified current-activity snapshot route and snapshot metadata.",
     sampleWindow: "latest 80 event facts",
     debugVisibility: true,
     listenerCleanup: "required",

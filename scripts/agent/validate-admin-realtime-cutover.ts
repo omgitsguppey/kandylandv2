@@ -60,7 +60,7 @@ for (const forbiddenRealtimeMetric of [
 }
 assert(
   overviewHook.includes("Snapshot refresh delayed")
-    && overviewHook.includes("Showing last verified data")
+    && overviewHook.includes("Verified snapshot shown")
     && overviewHook.includes("Showing hourly hot-cache snapshot"),
   "Admin overview hook must keep snapshot/cache totals visible when refresh lanes are delayed.",
 );

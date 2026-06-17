@@ -23,11 +23,11 @@ Use `src/lib/admin-copy/admin-truth-copy.ts` and `src/lib/admin-copy/admin-copy-
 
 ## Main UI Rules
 
-Allowed main UI language includes Live, Updated, Refreshing, Showing last verified data, Delayed, Estimated, Partial, Waiting for first snapshot, Needs review, Unavailable, No sample, Source mismatch, Open in Debug, and Refresh.
+Allowed main UI language includes Live, Updated, Refreshing, Verified snapshot shown, Delayed, Estimated, Partial, Waiting for first snapshot, Needs review, Unavailable, No sample, Source mismatch, Open in Debug, and Refresh.
 
 Badges must stay short: LIVE, UPDATED, REFRESHING, DELAYED, EST, PARTIAL, WAIT, REVIEW, ERROR, SNAP.
 
-Waiting is allowed only when no verified snapshot exists. Showing last verified data is the correct copy when a verified snapshot is available but live updates, refresh, or source parity is delayed.
+Waiting is allowed only when no verified snapshot exists. Verified snapshot shown is the correct copy when a verified snapshot is available but live updates, refresh, or source parity is delayed.
 
 Panel status by section must separate inventory from reviewable risk. Bug report counts, rollout counts, release-entry counts, and tracked-event inventory are INFO unless they breach a documented threshold. Show total signals separately from needs-review signals so operators can distinguish activity from system-health findings.
 
@@ -52,7 +52,7 @@ The following terms are banned from primary admin UI and may appear only in Debu
 ## Before And After
 
 - Before: "Realtime analytics observers failed closed."
-  After: "Live updates are delayed. Showing last verified data."
+  After: "Live updates are delayed. Verified snapshot shown."
 
 - Before: "Guest batch realtime lane fell back to polled data."
   After: "Guest traffic is estimated for this range."
@@ -79,7 +79,7 @@ Admin Analytics is the operator view. Admin Debug is the evidence view.
 
 - Snapshot-backed Analytics values stay visible through refresh, realtime delay, and source caveats.
 - Waiting is visible only before the first verified snapshot.
-- The main UI may say "Live updates are delayed. Showing last verified data." or "Realtime delayed. Showing last verified snapshot." but must not expose listener, route, collection, lane, or rollup jargon.
+- The main UI may say "Live updates are delayed. Verified snapshot shown." or "Realtime delayed. Verified snapshot shown." but must not expose listener, route, collection, lane, or rollup jargon.
 
 ## Admin Debug Control Tower Addendum
 

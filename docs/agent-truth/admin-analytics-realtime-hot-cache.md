@@ -1,11 +1,11 @@
 # Admin Analytics Realtime Hot Cache
 
-Generated: 2026-06-17T13:43:08.259Z
+Generated: 2026-06-17T19:19:25.909Z
 
 ```json
 {
-  "generatedAtUtc": "2026-06-17T13:43:08.259Z",
-  "currentHead": "0a7026e9fd98fa7ae3dc4d53365204e9faae4e7a",
+  "generatedAtUtc": "2026-06-17T19:19:25.909Z",
+  "currentHead": "d6467b058100facddbf73195080fccc863730118",
   "status": "hot_cache_ready",
   "realtimeListeners": [
     {
@@ -18,7 +18,7 @@ Generated: 2026-06-17T13:43:08.259Z
       "migrationStatus": "hot_cache_ready",
       "costRisk": "high",
       "reconnectRisk": "bounded_exponential_backoff",
-      "fallbackPolicy": "Default admin display uses the snapshot-first realtime route and verified snapshot metadata.",
+      "fallbackPolicy": "Default admin display uses the verified current-activity snapshot route and snapshot metadata.",
       "sampleWindow": "latest 80 event facts",
       "debugVisibility": true,
       "listenerCleanup": "required",

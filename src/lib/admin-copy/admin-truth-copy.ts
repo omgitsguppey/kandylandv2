@@ -282,14 +282,14 @@ export function summarizeAdminIssueForOperator(issue: string): string {
     return "No sample is available for this range.";
   }
   if (normalized.includes("realtime") || normalized.includes("listener") || normalized.includes("observer")) {
-    return "Live updates are delayed. Showing last verified data.";
+    return "Live updates are delayed. Verified snapshot shown.";
   }
   if (normalized.includes("stale") || normalized.includes("cache") || normalized.includes("snapshot") || normalized.includes("fallback")) {
-    return "Showing last verified data.";
+    return "Verified snapshot shown.";
   }
   if (normalized.includes("pipeline") || normalized.includes("coverage") || normalized.includes("fail")) {
     return "Tracking needs review.";
   }
 
-  return "Open Debug for source details.";
+  return "Needs review.";
 }

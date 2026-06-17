@@ -42,7 +42,7 @@ describe("admin truth copy", () => {
     });
 
     expect(copy.headline).toBe("Live updates are delayed.");
-    expect(copy.shortBody).toBe("Showing last verified data.");
+    expect(copy.shortBody).toBe("Verified snapshot shown.");
     expect(copy.technicalDetails).toContain("analytics_aggregate_stats/realtime_summary");
     expectOperatorCopyIsPlain(copy.headline, copy.shortBody);
   });
@@ -54,7 +54,7 @@ describe("admin truth copy", () => {
       staleReason: "stale validated backend cache",
     });
 
-    expect(copy.headline).toBe("Showing last verified data.");
+    expect(copy.headline).toBe("Verified snapshot shown.");
     expect(copy.shortBody).toContain("next refresh");
     expectOperatorCopyIsPlain(copy.headline, copy.shortBody);
   });
@@ -80,6 +80,11 @@ describe("admin truth copy", () => {
   it("summarizes missing samples in plain English", () => {
     expect(summarizeAdminIssueForOperator("0 canonical event samples missing for range"))
       .toBe("No sample is available for this range.");
+  });
+
+  it("uses plain review copy for unclassified admin issues", () => {
+    expect(summarizeAdminIssueForOperator("unclassified source issue"))
+      .toBe("Needs review.");
   });
 
   it("preserves developer details for Debug", () => {

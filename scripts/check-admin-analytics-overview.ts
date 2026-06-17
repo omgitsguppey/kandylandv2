@@ -120,16 +120,12 @@ for (const phrase of BANNED_VISIBLE_COPY) {
   assertNotIncludes("AdminAnalyticsPage", page.toLowerCase(), phrase);
 }
 
-const degradedCopyMatch = hook.match(/Snapshot refresh delayed\. Showing last verified data\./);
-if (!degradedCopyMatch) {
-  fail("short degraded copy is missing from the analytics state hook");
-}
-const degradedCopy = degradedCopyMatch?.[0] ?? "";
-if (degradedCopy.length > 160) {
-  fail(`visible degraded copy exceeds 160 characters: ${degradedCopy.length}`);
+assertNotIncludes("useAdminAnalyticsState", hook, "Snapshot refresh delayed. Showing last verified data.");
+if (!page.includes("formatAdminAnalyticsSourceStatusItem")) {
+  fail("Admin Analytics source-note status filtering is missing from the page");
 }
 for (const phrase of BANNED_VISIBLE_COPY) {
-  assertNotIncludes("useAdminAnalyticsState visible copy", degradedCopy.toLowerCase(), phrase);
+  assertNotIncludes("useAdminAnalyticsState visible copy", hook.toLowerCase(), phrase);
 }
 
 assertIncludes("useAdminAnalyticsState", hook, "readStoredHistoricalOverviewSnapshot");

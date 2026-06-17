@@ -269,7 +269,7 @@ const docs = [
 ].map((file) => [file, read(file)] as const);
 
 for (const [file, content] of docs) {
-  for (const term of ["Live", "Updated", "Refreshing", "Showing last verified data", "Delayed", "Estimated", "Partial", "Waiting for first snapshot", "Needs review", "Unavailable", "No sample", "Source mismatch", "Open in Debug", "Refresh"]) {
+  for (const term of ["Live", "Updated", "Refreshing", "Verified snapshot shown", "Delayed", "Estimated", "Partial", "Waiting for first snapshot", "Needs review", "Unavailable", "No sample", "Source mismatch", "Open in Debug", "Refresh"]) {
     if (!content.includes(term)) {
       fail(file, `Doc is missing allowed copy term: ${term}.`);
     }
@@ -284,7 +284,7 @@ for (const [file, content] of docs) {
 const copyTests = read("tests/unit/admin-truth-copy.spec.ts");
 for (const expected of [
   "Live updates are delayed",
-  "Showing last verified data",
+  "Verified snapshot shown",
   "Guest traffic is estimated",
   "Purchase tracking needs review",
   "No sample is available for this range",

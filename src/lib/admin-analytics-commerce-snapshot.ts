@@ -526,7 +526,7 @@ export function buildAdminAnalyticsCommerceSnapshotModel(input: {
   const visibleCopy = hasResponse
     ? [
         flags.fallback
-          ? `Commerce refresh is delayed. Showing last verified data from ${generatedAtUtc ?? "an unknown timestamp"}.`
+          ? `Commerce refresh is delayed. Verified snapshot from ${generatedAtUtc ?? "an unknown timestamp"}.`
           : `Showing verified commerce data for ${selectedRangeLabel}.`,
         "Promo and bonus GD are excluded from revenue.",
       ]
