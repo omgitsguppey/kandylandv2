@@ -189,14 +189,23 @@ export function validateAdminAnalyticsSourceHierarchy() {
     analyticsTabHasData: false,
     debugHasData: true,
   });
+  const fixtureEvidence = {
+    evidenceKind: "source_fixture",
+    scenario: "debug_has_data_analytics_empty_source_agreement_failed",
+    currentRuntimeTruth: false,
+    canClearRuntimeGate: false,
+    canClearAdminTruthGate: false,
+    hierarchy,
+  };
   const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
   const page = read("src/app/admin/analytics/page.tsx");
   expectPass(hook.includes("buildAdminAnalyticsSourceHierarchy") && page.includes("adminAnalyticsSourceHierarchy"), failures, "Analytics tab source hierarchy not mapped.");
   expectPass(hierarchy.consumerSourceMismatches.includes("admin_analytics_charts"), failures, "Analytics tab can show empty while Debug has data with no blocker.");
   expectPass(JSON.stringify(hierarchy).includes("source_agreement_failed"), failures, "sourceAgreement failed is not surfaced in Analytics tab.");
   expectPass(hierarchy.blockedAnalyticsConsumers.includes("admin_analytics_charts"), failures, "Analytics tab chart readiness ignores source agreement.");
-  runValidation("admin-analytics-source-hierarchy", { hierarchy }, failures, [
-    "Debug validation and Admin Analytics consume a compatible source hierarchy.",
+  runValidation("admin-analytics-source-hierarchy", { fixtureEvidence }, failures, [
+    "Fixture-only source agreement mismatch confirms Debug and Admin Analytics use compatible status copy.",
+    "This report does not claim current runtime or admin truth.",
     "Analytics tab empty states carry source agreement or consumer mismatch reasons.",
   ]);
 }

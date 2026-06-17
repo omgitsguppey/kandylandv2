@@ -1,11 +1,12 @@
 # admin-analytics-source-hierarchy
 
-Generated: 2026-06-16T22:29:46.290Z
+Generated: 2026-06-17T03:20:15.988Z
 
 Status: pass
 
 ## Summary
-- Debug validation and Admin Analytics consume a compatible source hierarchy.
+- Fixture-only source agreement mismatch confirms Debug and Admin Analytics use compatible status copy.
+- This report does not claim current runtime or admin truth.
 - Analytics tab empty states carry source agreement or consumer mismatch reasons.
 
 ## Validation Failures
