@@ -127,6 +127,7 @@ export function AdminStatsBar({ platformPulse, overviewIssues, truthState }: Adm
                         <div
                             key={metric.id}
                             data-admin-metric-id={metric.id}
+                            data-admin-metric-source={metric.sourceTruth}
                             data-admin-metric-freshness={metric.freshnessState}
                             data-admin-metric-scope={metric.primaryScope}
                             data-admin-metric-issue-state={metric.issueState ?? "ok"}

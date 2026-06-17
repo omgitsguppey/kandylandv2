@@ -25,6 +25,7 @@ import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { readAdminUserTruthSnapshot } from "@/lib/server/admin-user-truth-snapshot";
 
 type CachedAdminOverviewSnapshot = Partial<AdminOverviewResponse> & {
   payload?: AdminOverviewResponse;
@@ -327,15 +328,39 @@ async function GET_handler(request: NextRequest) {
     const body = snapshotDoc.exists
       ? normalizeCachedOverview({ raw: snapshotDoc.data() as CachedAdminOverviewSnapshot, heartbeat, nowMs })
       : buildMissingSnapshotResponse(nowMs, heartbeat);
+    let userTruthSnapshot = body.truthSnapshot ?? null;
+    let userTruthSnapshotIssue: string | null = null;
+    if (!userTruthSnapshot) {
+      try {
+        userTruthSnapshot = await readAdminUserTruthSnapshot({ db: adminDb, generatedAt: nowMs });
+      } catch (error) {
+        userTruthSnapshotIssue = `Admin user truth snapshot unavailable: ${getErrorMessage(error)}`;
+      }
+    }
 
     return finalize(NextResponse.json({
       ...body,
+      truthSnapshot: userTruthSnapshot ?? body.truthSnapshot,
+      issues: userTruthSnapshotIssue ? [...(body.issues ?? []), userTruthSnapshotIssue] : body.issues,
+      overviewIssues: userTruthSnapshotIssue
+        ? [
+          ...(body.overviewIssues ?? []),
+          {
+            source: "analytics_cache",
+            summary: userTruthSnapshotIssue,
+            sourceTruth: "materialized_summary",
+            freshnessState: "unknown",
+          },
+        ]
+        : body.overviewIssues,
       hotCache: {
         snapshotId: OVERVIEW_SNAPSHOT_ID,
         sourceTruth: "hot_cache",
         ttlSeconds: contract?.ttlSeconds ?? ADMIN_HOT_CACHE_TTL_SECONDS,
-        pageLoadReadModel: "snapshot_doc_plus_heartbeat_doc",
-        broadFallbackReadsRun: false,
+        pageLoadReadModel: userTruthSnapshot && !body.truthSnapshot
+          ? "snapshot_doc_plus_heartbeat_doc_plus_user_truth_fallback"
+          : "snapshot_doc_plus_heartbeat_doc",
+        broadFallbackReadsRun: Boolean(userTruthSnapshot && !body.truthSnapshot),
         platformPulseMaterializerSources: PLATFORM_PULSE_MATERIALIZER_SOURCES,
         supportBugUserChannels: SUPPORT_BUG_USER_CHANNELS,
         recentTransactionSerializationContract: RECENT_TRANSACTION_SERIALIZATION_CONTRACT_MARKERS,

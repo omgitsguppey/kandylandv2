@@ -49,7 +49,12 @@ assert(!files.overviewPage.includes("const serverUpdateLabel ="), "Admin Overvie
 assert(!files.overviewPage.includes("const truthLabel ="), "Admin Overview page must not define truth labels inline.", failures);
 
 assert(files.usersPage.includes("buildAdminUsersPageData"), "User Management page must use the shared page-data loader.", failures);
-assert(files.usersPage.includes("pageData.kpiCards") && files.usersPage.includes("pageData.subtitle"), "User Management page must render shared KPI cards and subtitle from pageData.", failures);
+assert(
+  (files.usersPage.includes("pageData.kpiCards") || files.usersPage.includes("(summary?.kpiCards ?? []).map"))
+    && files.usersPage.includes("pageData.subtitle"),
+  "User Management page must render shared KPI cards and subtitle from canonical page data or summary contract.",
+  failures,
+);
 assert(files.usersPage.includes("summary?.truthSnapshot") || files.usersPage.includes("pageData.truthSnapshot"), "User Management page must remain anchored to the canonical truth snapshot.", failures);
 
 assert(files.userPage.includes("buildAdminUserDetailPageData"), "Per-user page must use the shared page-data loader.", failures);

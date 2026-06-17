@@ -293,7 +293,7 @@ function buildAdminUsersKpiCards(input: {
   return [
     {
       id: "total_users",
-      label: "Total users",
+      label: "Users",
       primaryValue: formatCount(totalUsers),
       secondaryValue: `${formatCount(summary.activeUsers)} status-active accounts`,
       scope: "lifetime",
@@ -306,7 +306,7 @@ function buildAdminUsersKpiCards(input: {
     },
     {
       id: "returned_7d",
-      label: "Returned in last 7 days",
+      label: "Returners",
       primaryValue: formatCount(summary.returnedInLast7Days ?? summary.activeLast7Days ?? 0),
       secondaryValue: returnedShare,
       scope: "rolling_7d",
@@ -354,7 +354,7 @@ function buildAdminUsersKpiCards(input: {
     },
     {
       id: "watch_time",
-      label: "Watch time",
+      label: "Watch",
       primaryValue: watchPrimaryValue,
       secondaryValue: watchSecondaryValue,
       scope: "lifetime",
@@ -400,7 +400,7 @@ function buildAdminUsersKpiCards(input: {
     },
     {
       id: "paying_users",
-      label: "Paying users",
+      label: "Paying",
       primaryValue: formatCount(summary.payingUsers),
       secondaryValue: `avg ${formatCompactMoney(summary.averageOrderUsd)} · rate ${formatCompactMoney(summary.effectiveUsdPer100Gd)}`,
       scope: "lifetime",
@@ -419,7 +419,7 @@ function buildAdminUsersKpiCards(input: {
     },
     {
       id: "verified",
-      label: "Verified accounts",
+      label: "Verified",
       primaryValue: formatCount(summary.verifiedUsers),
       secondaryValue: "badge-ready accounts",
       scope: "lifetime",
@@ -435,7 +435,7 @@ function buildAdminUsersKpiCards(input: {
     },
     {
       id: "push_enabled",
-      label: "Push enabled",
+      label: "Push",
       primaryValue: formatCount(summary.notificationsEnabledUsers),
       secondaryValue: "browser alerts on",
       scope: "lifetime",

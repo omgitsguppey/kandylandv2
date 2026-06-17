@@ -920,7 +920,7 @@ export default function UserManagementPage() {
                         data-admin-users-truth-source={summary?.truthSnapshot?.sourceTruth ?? "unavailable"}
                         data-admin-users-truth-freshness={summary?.truthSnapshot?.sourceFreshness ?? "unavailable"}
                     >
-                        {pageData.kpiCards.map((card) => (
+                        {(summary?.kpiCards ?? []).map((card) => (
                             <div key={card.id}>
                                 {renderSummaryMetricCard(card)}
                             </div>
@@ -1001,7 +1001,7 @@ export default function UserManagementPage() {
                                         className="text-sm text-gray-400"
                                         data-admin-users-behavior-empty-state="materializer"
                                     >
-                                        {behaviorLeaderboard?.warnings[0] || "No verified behavior summary is available yet. Refresh the source snapshots or review user evidence before acting."}
+                                        {behaviorLeaderboard?.warnings[0] || "Run behavior materializer or inspect event facts."}
                                     </p>
                                 ) : leaderboardRows.map((row, index) => (
                                     <Link

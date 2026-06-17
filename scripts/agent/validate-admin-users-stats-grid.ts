@@ -4,6 +4,7 @@ import { join } from "node:path";
 const repoRoot = process.cwd();
 const usersPagePath = join(repoRoot, "src/app/admin/users/page.tsx");
 const usersPage = readFileSync(usersPagePath, "utf8");
+const usersRoute = readFileSync(join(repoRoot, "src/app/api/admin/users/route.ts"), "utf8");
 
 const failures: string[] = [];
 
@@ -33,7 +34,9 @@ const requiredCards = [
 ];
 
 for (const title of requiredCards) {
-    requireIncludes(`title: "${title}"`, `Missing compact User Management metric card: ${title}.`);
+    if (!usersPage.includes(`title: "${title}"`) && !usersPage.includes(`label: "${title}"`) && !usersRoute.includes(`label: "${title}"`)) {
+        failures.push(`Missing compact User Management metric card: ${title}.`);
+    }
 }
 
 const staleTitles = [

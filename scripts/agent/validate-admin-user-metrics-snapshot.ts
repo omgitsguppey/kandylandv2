@@ -17,6 +17,7 @@ const contract = read("src/lib/admin-user-metrics-contract.ts");
 const snapshotHelper = read("src/lib/server/admin-user-metrics-snapshot.ts");
 const usersRoute = read("src/app/api/admin/users/route.ts");
 const usersRealtimeRoute = read("src/app/api/admin/users/realtime/route.ts");
+const adminRealtimePolicy = read("src/lib/admin/admin-realtime-policy.ts");
 const overviewRoute = read("src/app/api/admin/overview/route.ts");
 const usersPage = read("src/app/admin/users/page.tsx");
 const usersRealtimeHook = read("src/hooks/useAdminUsersRealtime.ts");
@@ -67,7 +68,11 @@ assert(
   && usersRealtimeHook.includes("Realtime pulse is delayed. Showing the last verified snapshot."),
   "Admin users realtime hook must not overwrite snapshot-backed truth with ERROR when the pulse fails.",
 );
-assert(usersRealtimeRoute.includes('metricScope: "operational_pulse_only"'), "Admin users realtime route must declare its invalidate-only operational scope.");
+assert(
+  usersRealtimeRoute.includes("metricScope: ADMIN_USERS_REALTIME_POLICY.metricScope")
+    && adminRealtimePolicy.includes('metricScope: "operational_pulse_only"'),
+  "Admin users realtime route must declare its invalidate-only operational scope.",
+);
 assert(!overviewRealtimeHook.includes("buildRealtimeOnlyOverview"), "Admin overview hook must not synthesize business totals from realtime-only state.");
 assert(!overviewRealtimeHook.includes("...(realtimeData.stats || {})"), "Admin overview hook must not let realtime state overwrite canonical business totals.");
 

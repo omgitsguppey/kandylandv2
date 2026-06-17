@@ -22,9 +22,9 @@ requireIncludes(route, 'loadingLane: "selectedUser"', "Detail response must labe
 requireIncludes(route, "readAdminUsersFastSummarySnapshot", "Summary lane must use the bounded fast snapshot reader.");
 requireIncludes(route, "readAggregateCount(usersCollection)", "Summary lane must use aggregate counts instead of loading every user row.");
 requireIncludes(route, 'adminDb.collection("analytics_commerce_rollup").doc("summary").get()', "Summary lane must read the commerce hot-cache snapshot.");
-requireIncludes(route, 'adminDb.collection("users").orderBy("createdAt", "desc").get()', "List lane must read user rows directly.");
+requireIncludes(route, 'adminDb.collection("users").orderBy("createdAt", "desc").limit(ADMIN_USERS_LIST_LIMIT).get()', "List lane must read bounded user rows directly.");
 requireIncludes(route, 'adminDb.collection("analytics_users_rollup").doc(userId).get()', "Detail lane must read one selected user rollup.");
-requireIncludes(route, 'adminDb.collection("analytics_user_daily").where("uid", "==", userId).get()', "Detail lane must scope daily metrics to the selected user.");
+requireIncludes(route, 'adminDb.collection("analytics_user_daily").where("uid", "==", userId).limit(ADMIN_USERS_DAILY_ROLLUP_LIMIT).get()', "Detail lane must scope bounded daily metrics to the selected user.");
 
 requireIncludes(page, 'authFetch("/api/admin/users?mode=summary")', "User Management page must request summary separately.");
 requireIncludes(page, 'authFetch("/api/admin/users?mode=list")', "User Management page must request list separately.");

@@ -102,7 +102,13 @@ assert(behaviorContract.includes("confidence") && behaviorContract.includes("sou
 assert(behaviorContract.includes("dataAvailabilityReason"), "Per-user behavior rollup contract must carry dataAvailabilityReason.", failures);
 assert(behaviorHelper.includes("watch_time_missing_despite_views"), "Per-user behavior rollup helper must flag missing watch time despite views.", failures);
 assert(behaviorHelper.includes("privacy_limited_identified_analytics_denied"), "Per-user behavior rollup helper must classify consent-denied analytics as privacy-limited.", failures);
-assert(behaviorHelper.includes("score: Math.max(engagement.score, 24)"), "Per-user behavior rollup helper must not score consent-denied users as zero engagement solely from missing events.", failures);
+assert(
+  behaviorHelper.includes("describePrivacyAwareEngagementScore")
+    && behaviorHelper.includes("appliedPrivacyFloor")
+    && behaviorHelper.includes("verifiedSignalPresent"),
+  "Per-user behavior rollup helper must expose privacy floor truth and avoid scoring consent-denied users as zero engagement solely from missing events.",
+  failures,
+);
 assert(usersRoute.includes("buildUserBehaviorRollup"), "User Management route must build per-user behavior rollups.", failures);
 assert(userDetailRoute.includes("buildUserBehaviorRollup"), "User detail route must build per-user behavior rollups.", failures);
 assert(usersRoute.includes("identifiedAnalyticsEnabled"), "User Management route must thread privacy consent into behavior scoring.", failures);
@@ -137,7 +143,11 @@ assert(usersRoute.includes("computeBehaviorLeaderboardFallbackScore"), "Behavior
 assert(usersRoute.includes("sourceTruth"), "Behavior leaderboard rows must expose source truth.", failures);
 assert(usersRoute.includes("freshnessState"), "Behavior leaderboard rows must expose freshness state.", failures);
 assert(usersRoute.includes('label: "Purchases"'), "User Management summary must expose a dedicated Purchases KPI.", failures);
-assert(usersRoute.includes('label: "Paying users"'), "User Management summary must name the paying-users KPI explicitly.", failures);
+assert(
+  usersRoute.includes('label: "Paying"') && usersRoute.includes("Paying users are accounts with at least one tracked purchase."),
+  "User Management summary must name the paying-users KPI explicitly.",
+  failures,
+);
 assert(usersRoute.includes("status-active accounts"), "User Management total-users KPI must distinguish account status from active-now presence.", failures);
 assert(usersRoute.includes("watchTimeDiagnosticEstimate"), "User Management summary must carry watch diagnostic estimates into KPI truth.", failures);
 assert(usersRoute.includes("verified watch unavailable"), "User Management watch KPI must explain missing verified watch totals.", failures);
