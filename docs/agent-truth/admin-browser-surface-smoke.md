@@ -6,7 +6,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 
 ## Summary
 
-- Status: browser_boundary_partial
+- Status: local_fixture_browser_covered
 - Passed in source validation: false
 - Admin surfaces: 14
 - Route targets: 14
@@ -16,22 +16,22 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 - Required authenticated surface/device checks: 18
 - Evidence entries: 18
 - Authenticated checks present: 0
-- Local fixture checks present: 0
-- Account-free fixture checks covered: 0
-- Account-free fixture checks pending: 18
-- Unauthenticated boundary checks present: 18
+- Local fixture checks present: 18
+- Account-free fixture checks covered: 18
+- Account-free fixture checks pending: 0
+- Unauthenticated boundary checks present: 0
 - Unauthenticated redirect checks present: 0
 - Source contract only: 0
-- Unauthenticated boundary verified: 18
-- Account-free fixture verified: 0
-- Account-free fixture missing: 18
+- Unauthenticated boundary verified: 0
+- Account-free fixture verified: 18
+- Account-free fixture missing: 0
 - Authenticated admin verified: 0
 - Authenticated admin evidence missing: 18
 - Protected label-only surfaces: 1
 - Evidence source: local_in_app_browser
-- Evidence mode: unauthenticated_only
-- Evidence base URL: http://127.0.0.1:3210
-- Evidence captured at: 2026-06-15T18:51:58.821Z
+- Evidence mode: local_fixture_only
+- Evidence base URL: http://127.0.0.1:3000
+- Evidence captured at: 2026-06-17T07:30:21.357Z
 - Protected surfaces: admin_economy
 
 ## Surfaces
@@ -122,24 +122,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 
 ## Missing Account-Free Fixture Evidence
 
-- admin_overview:mobile
-- admin_overview:desktop
-- admin_analytics:mobile
-- admin_analytics:desktop
-- admin_drops:desktop
-- admin_users:mobile
-- admin_users:desktop
-- admin_user_detail:desktop
-- admin_roster:desktop
-- admin_debug:mobile
-- admin_debug:desktop
-- admin_ai:desktop
-- admin_support:desktop
-- admin_moderation:desktop
-- admin_content:desktop
-- admin_queue:desktop
-- admin_privacy:desktop
-- admin_economy:desktop
+- none
 
 ## Does Not Prove
 
@@ -150,7 +133,7 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 
 ## Next Exact Steps
 
-- For local account-free UI rendering checks, run NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1 and ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1 ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser; this records local_fixture_surface_verified evidence without requiring real admin test accounts.
+- Account-free local admin route rendering is covered by fixture evidence; keep it separate from real authenticated admin signoff, deployed runtime proof, and production admin truth samples.
 - Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session only when real auth/session/browser signoff is required, then rerun npm run check:admin-browser-surface-smoke with the same evidence dir.
 - For direct in-app Browser audits without Playwright, start the local dev server with NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1, open /api/admin-ui-test-session?redirect=/admin once to mint the bounded local fixture cookie, then navigate admin routes normally; this proves local route rendering only.
 - After reviewing the local fragment output, copy only intentional compact evidence into agent/evidence/admin-browser-surface-smoke/evidence.json when it should become tracked evidence.
