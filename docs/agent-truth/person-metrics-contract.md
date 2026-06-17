@@ -1,8 +1,8 @@
 # Person Metrics Contract
 
-Generated: 2026-06-16T16:52:25.602Z
+Generated: 2026-06-17T02:24:26.344Z
 Status: pass
-Current head: 5dc1121d0e42e739914ac5ca006a7f2b6f63e6a3
+Current head: 7cf1ea434bab50842a223111f99d5e10c215b49e
 
 ## Contract
 
@@ -76,9 +76,7 @@ Current head: 5dc1121d0e42e739914ac5ca006a7f2b6f63e6a3
 
 ## Changed Files
 
-- agent/state/event-translation-bridge.generated.json
-- agent/state/feature-registration-gate.generated.json
-- docs/agent-truth/event-translation-bridge.md
+- none
 
 ## Validation Failures
 

@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-16T18:46:17.389Z
+Generated: 2026-06-17T02:24:26.516Z
 Status: pass
-Current head: f31aba5c8ab9d78af0e62ede79ef647570072394
+Current head: 7cf1ea434bab50842a223111f99d5e10c215b49e
 
 ## Contract
 
@@ -53,9 +53,7 @@ Current head: f31aba5c8ab9d78af0e62ede79ef647570072394
 
 ## Dirty Files
 
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- none
 
 ## Validation Failures
 

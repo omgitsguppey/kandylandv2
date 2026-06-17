@@ -1,8 +1,8 @@
 {
   "reportKey": "feature-registration-gate",
   "registryVersion": "2026.05.feature-registration.1",
-  "generatedAtUtc": "2026-06-16T18:46:12.189Z",
-  "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
+  "generatedAtUtc": "2026-06-17T02:24:26.602Z",
+  "currentHead": "7cf1ea434bab50842a223111f99d5e10c215b49e",
   "status": "pass",
   "features": [
     {
@@ -4460,9 +4460,6 @@
     "src/app/page.tsx"
   ],
   "validationFailures": [],
-  "changedFiles": [
-    "agent/state/current-beta-exit-status.generated.json",
-    "agent/state/public-beta-score.generated.json"
-  ],
+  "changedFiles": [],
   "protectedChanges": []
 }
