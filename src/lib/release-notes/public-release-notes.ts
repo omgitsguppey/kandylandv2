@@ -1,13 +1,60 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.77",
-  "betaReleaseCounter": 577,
+  "currentVersion": "1.5.78",
+  "betaReleaseCounter": 578,
   "channel": "beta",
-  "generatedAt": "2026-06-17T20:59:10.209Z",
-  "generatedAtUtc": "2026-06-17T20:59:10.209Z",
-  "lastCommitSha": "3dd0a51b62ee8e07b843cd67e80b96b7347e3ee6",
+  "generatedAt": "2026-06-17T22:43:35.450Z",
+  "generatedAtUtc": "2026-06-17T22:43:35.450Z",
+  "lastCommitSha": "75952c946f9288778857f3dec0c77216cc4af36e",
   "notes": [
+    {
+      "version": "1.5.78",
+      "previousVersion": "1.5.77",
+      "betaReleaseCounter": 578,
+      "previousBetaReleaseCounter": 577,
+      "commitSha": "75952c946f9288778857f3dec0c77216cc4af36e",
+      "commitTitle": "fix(admin): simplify surface actions",
+      "commitCount": 1,
+      "commitShas": [
+        "75952c946f9288778857f3dec0c77216cc4af36e"
+      ],
+      "committedAt": "2026-06-17T22:43:02.000Z",
+      "generatedAt": "2026-06-17T22:43:35.448Z",
+      "committedAtUtc": "2026-06-17T22:43:02.000Z",
+      "generatedAtUtc": "2026-06-17T22:43:35.448Z",
+      "updatedAtUtc": "2026-06-17T22:43:35.448Z",
+      "category": "Fixed",
+      "title": "Improved drops and viewer reliability",
+      "summary": "Bug fixes and quality-of-life improvements for drops, previews, and viewer behavior.",
+      "userFacingTitle": "Improved drops and viewer reliability",
+      "surfaceCategory": "Drops & viewer",
+      "bullets": [
+        "Improved drop and viewer reliability so usage states stay easier to understand.",
+        "Reduced confusing stale or delayed states across previews and viewer surfaces."
+      ],
+      "audience": "users",
+      "affectedSurfaces": [
+        "admin",
+        "drops-viewer"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/admin-surface-modal-replacement.generated.json",
+        "docs/agent-truth/admin-surface-modal-replacement.md",
+        "scripts/agent/validate-product-surface-integrity.ts",
+        "scripts/agent/validate-support-recovery-flows.ts",
+        "src/app/admin/drops/page.tsx",
+        "src/app/admin/users/page.tsx",
+        "src/components/Admin/BalanceAdjustmentModal.tsx",
+        "src/components/Admin/BalanceAdjustmentPanel.tsx",
+        "src/components/Admin/TransactionHistoryModal.tsx",
+        "src/components/Admin/TransactionHistoryPanel.tsx",
+        "tests/unit/accessibility-tap-targets.spec.ts",
+        "tests/unit/admin-transaction-history-error-language.spec.ts"
+      ],
+      "sourceCommit": "75952c946f9288778857f3dec0c77216cc4af36e"
+    },
     {
       "version": "1.5.77",
       "previousVersion": "1.5.76",
@@ -2539,55 +2586,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-analytics-commerce-mobile.spec.ts"
       ],
       "sourceCommit": "03fcb3339f8258ffadcacb2d1d3069025cedc7f1"
-    },
-    {
-      "version": "1.5.53",
-      "previousVersion": "1.5.52",
-      "betaReleaseCounter": 553,
-      "previousBetaReleaseCounter": 552,
-      "commitSha": "3e4fa09f66e8fe92bddd156be9a5f87413b1e060",
-      "commitTitle": "fix(admin): add compact viewer journey analytics modes",
-      "commitCount": 2,
-      "commitShas": [
-        "1f4f8b1ad25805ee7044da3fbb4dc8c3f5790171",
-        "3e4fa09f66e8fe92bddd156be9a5f87413b1e060"
-      ],
-      "committedAt": "2026-06-04T00:25:39.000Z",
-      "generatedAt": "2026-06-04T00:25:53.611Z",
-      "committedAtUtc": "2026-06-04T00:25:39.000Z",
-      "generatedAtUtc": "2026-06-04T00:25:53.611Z",
-      "updatedAtUtc": "2026-06-04T00:25:53.611Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-commerce-mobile.spec.ts",
-        "tests/unit/admin-debug-compact-panel.spec.ts"
-      ],
-      "sourceCommit": "3e4fa09f66e8fe92bddd156be9a5f87413b1e060"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
