@@ -82,10 +82,12 @@ requireIncludes(analyticsContract, "sourceTruth?: string | null", "Analytics con
 requireIncludes(analyticsContract, "isAdminProjectionInput", "Analytics contract projection classifier");
 requireIncludes(analyticsContract, "Admin projection/view-as events are excluded from user behavior analytics.", "Analytics contract projection exclusion reason");
 
-requireIncludes(identifiedIngest, 'sourceTruth === "local_projection"', "Identified ingest local projection classification");
+requireIncludes(identifiedIngest, "normalizeIdentifiedRuntimeFact", "Identified ingest runtime fact normalizer");
+requireIncludes(identifiedIngest, "sourceTruth: ingestRuntimeFact.sourceTruth", "Identified ingest runtime fact source truth propagation");
+requireIncludes(identifiedIngest, "sourceTruth: parityFact.sourceTruth", "Identified ingest event document source truth propagation");
 requireIncludes(identifiedIngest, "performedAs", "Identified ingest performedAs propagation");
 requireIncludes(identifiedIngest, "projectionMode", "Identified ingest projection mode propagation");
-requireIncludes(identifiedIngest, "inclusion.includeInUserBehavior && (!latestActiveUserPatch", "Identified ingest active user exclusion");
+requireIncludes(identifiedIngest, "ingestRuntimeFact.includeInUserBehavior && (!latestActiveUserPatch", "Identified ingest active user exclusion");
 requireIncludes(eventFactNormalizer, '"local_projection"', "Identified metric source truth");
 requireIncludes(eventFactNormalizer, "eventName.startsWith(\"admin_projection_\")", "Identified metric projection exclusion");
 requireIncludes(behavioralNormalizer, "admin_projection_write_blocked", "Behavioral normalizer projection blocked action");
