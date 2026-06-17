@@ -602,10 +602,16 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain("Operations view - 30D Server snapshot");
+    expect(container.textContent).toContain("Last updated: Current snapshot");
+    expect(container.textContent).toContain("Historical: [historical]");
+    expect(container.textContent).toContain("Source: Snapshot");
+    expect(container.textContent).toContain("Quality: Cached");
     expect(container.textContent).toContain("Current snapshot");
     expect(container.textContent).toContain("Snapshot");
     expect(container.textContent).toContain("Cached");
+    expect(container.textContent).not.toContain("Realtime feed");
     expect(container.textContent).not.toContain("view ·");
+    expect(container.querySelector("[data-admin-analytics-status-summary=\"compact\"]")).toBeTruthy();
   });
 
   it("summarizes source hierarchy mismatches without leaking enum labels", async () => {

@@ -121,7 +121,7 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
     case "partial":
       return "Partial snapshot";
     case "realtime":
-      return "Realtime feed";
+      return "Current activity";
     case "live":
       return "Current";
     case "cached":
@@ -219,6 +219,14 @@ export default function AdminAnalyticsPage() {
   const sourceHierarchySummary = formatSourceHierarchySummary(sourceHierarchy);
   const liveFeedStatusLabel = formatAnalyticsShellStateLabel(liveFeedStatus);
   const historicalQualityLabel = formatAnalyticsShellStateLabel(historicalTruthState);
+  const dataStatusSummary = [
+    `Last updated: ${liveSnapshotLabel}`,
+    `Historical: ${historicalSnapshotLabel}`,
+  ];
+  const sourceQualitySummary = [
+    `Source: ${liveFeedStatusLabel}`,
+    `Quality: ${historicalQualityLabel}`,
+  ];
   const primaryBlockingAnalyticsError = overviewSnapshotUnavailable ? null : blockingAnalyticsError;
   const visibleOverviewDegradedCopy = (visibleDegradedCopy ?? []).filter(
     (copy) =>
@@ -454,21 +462,12 @@ export default function AdminAnalyticsPage() {
           </div>
           <AnalyticsViewModeToggle value={mobileViewMode} onChange={setMobileViewMode} />
         </div>
-        <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-gray-300">
-          {[
-            ["Current", liveSnapshotLabel],
-            ["Historical", historicalSnapshotLabel],
-            ["Source", liveFeedStatusLabel],
-            ["Quality", historicalQualityLabel],
-          ].map(([label, value]) => (
-            <span
-              key={label}
-              className="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-full border border-white/10 bg-black/25 px-2 py-1"
-            >
-              <span className="shrink-0 uppercase tracking-[0.12em] text-gray-500">{label}</span>
-              <span className="min-w-0 truncate font-semibold text-white">{value}</span>
-            </span>
-          ))}
+        <div
+          className="mt-2 grid gap-1 text-[11px] leading-4 text-gray-300 sm:grid-cols-2"
+          data-admin-analytics-status-summary="compact"
+        >
+          <p className="min-w-0 truncate font-medium text-white">{dataStatusSummary.join(" · ")}</p>
+          <p className="min-w-0 truncate text-gray-400">{sourceQualitySummary.join(" · ")}</p>
         </div>
         {sourceStatusItems.length > 0 ? (
           <details
