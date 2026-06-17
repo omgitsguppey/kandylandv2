@@ -59,7 +59,7 @@ function writeDoc(report: {
     "",
     "## Contract",
     "",
-    "- Admin Debug starts with one tracking summary panel before tab drilldowns.",
+    "- Admin Debug passes one tracking summary into the compact Now tab before source-heavy drilldowns.",
     "- The summary has one lane per tracking system: identity, consent, event envelope, behavior math, feature telemetry coverage, legacy recovery, wallet funnel, runtime/debug evidence, cost/4xx, and open P1/P2 backlog.",
     "- Each lane has a source owner, source of truth, status, severity, score impact, and drilldown target.",
     "- Raw tables and dumps remain available behind drilldowns but do not render before the summary.",
@@ -90,6 +90,7 @@ function main() {
   const summarySource = read("src/lib/debug/debug-panel-tracking-summary.ts");
   const panelSource = read("src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx");
   const pageSource = read("src/app/admin/debug/page.tsx");
+  const nowTabSource = read("src/app/admin/debug/components/DebugTabNow.tsx");
   const compactRouteSource = read("src/lib/server/admin-debug/summary.ts");
   const fullRouteSource = read("src/app/api/admin/debug/route.ts");
   const testSource = read("tests/unit/debug-tracking-simplification.spec.ts");
@@ -135,8 +136,10 @@ function main() {
     rawDetailsCollapsedByDefault: summary.rawDetailsDefaultOpen === false
       && summary.rawDetailPolicy === "drilldown_only"
       && panelSource.includes("data-admin-debug-raw-default={String(Boolean(trackingSummary?.rawDetailsDefaultOpen))}"),
-    panelRendersBeforeTabDrilldowns: pageSource.indexOf("<DebugTrackingSummaryPanel") > -1
-      && pageSource.indexOf("<DebugTrackingSummaryPanel") < pageSource.indexOf("{renderTabControls()}"),
+    panelRendersBeforeTabDrilldowns: pageSource.includes("trackingSummary={data?.trackingSummary}")
+      && !pageSource.includes("<DebugTrackingSummaryPanel trackingSummary={data?.trackingSummary} />")
+      && nowTabSource.indexOf("<DebugTrackingSummaryPanel trackingSummary={trackingSummary} />") > -1
+      && nowTabSource.indexOf("<DebugTrackingSummaryPanel trackingSummary={trackingSummary} />") < nowTabSource.indexOf("<DebugRecoveryEvidenceSummary"),
     compactRouteIncludesSummaryByDefault: compactRouteSource.includes("trackingSummary")
       && compactRouteSource.includes("buildDebugPanelTrackingSummary")
       && fullRouteSource.includes("section === \"all\"")

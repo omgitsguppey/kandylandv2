@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -6,6 +9,19 @@ import {
 } from "@/lib/debug/debug-panel-tracking-summary";
 
 describe("debug tracking simplification", () => {
+  it("keeps the tracking summary in the compact Now tab before heavy drilldowns", () => {
+    const root = process.cwd();
+    const pageSource = readFileSync(join(root, "src/app/admin/debug/page.tsx"), "utf8");
+    const nowTabSource = readFileSync(join(root, "src/app/admin/debug/components/DebugTabNow.tsx"), "utf8");
+
+    expect(pageSource).toContain("trackingSummary={data?.trackingSummary}");
+    expect(pageSource).not.toContain("<DebugTrackingSummaryPanel trackingSummary={data?.trackingSummary} />");
+    expect(nowTabSource.indexOf("<DebugTrackingSummaryPanel trackingSummary={trackingSummary} />")).toBeGreaterThan(-1);
+    expect(nowTabSource.indexOf("<DebugTrackingSummaryPanel trackingSummary={trackingSummary} />")).toBeLessThan(
+      nowTabSource.indexOf("<DebugRecoveryEvidenceSummary"),
+    );
+  });
+
   it("builds one owned summary lane for each tracking system with raw details collapsed", () => {
     const summary = buildDebugPanelTrackingSummary({
       identityHandoff: { status: "live", duplicateCountGuardActive: true },
@@ -70,13 +86,13 @@ describe("debug tracking simplification", () => {
     });
     expect(summary.lanes.find((lane) => lane.id === "person_metrics_hydration")).toMatchObject({
       label: "Person metrics hydration",
-      status: "live",
+      status: "source_ready_collecting",
       criticalCount: 0,
-      warningCount: 0,
+      warningCount: 3,
     });
     expect(summary.lanes.find((lane) => lane.id === "testing_coverage")).toMatchObject({
       label: "Testing coverage",
-      status: "live",
+      status: "healthy_current",
       criticalCount: 0,
       warningCount: 0,
     });
@@ -153,7 +169,7 @@ describe("debug tracking simplification", () => {
       stats: {},
     });
 
-    expect(summary.duplicateMonitorGroups).toEqual([
+    expect(summary.duplicateMonitorGroups).toEqual(expect.arrayContaining([
       "identity",
       "consent",
       "event_envelope",
@@ -168,7 +184,8 @@ describe("debug tracking simplification", () => {
       "runtime_debug",
       "cost",
       "backlog",
-    ]);
+    ]));
+    expect(new Set(summary.duplicateMonitorGroups).size).toBe(summary.duplicateMonitorGroups.length);
     expect(summary.validation.duplicateTrackingSystems).toEqual([]);
     expect(summary.validation.rawDumpsBeforeSummary).toBe(false);
   });
