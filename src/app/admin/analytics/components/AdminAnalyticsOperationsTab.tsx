@@ -1753,7 +1753,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       <span className="font-semibold text-white">Context:</span>{" "}
                       {eventMixModel.actualSurfaceContextState === "available"
                         ? "Verified route and surface context available."
-                        : `${eventMixSurfaceContextLabel}. Verified route and surface context are missing for this range.`}
+                        : `${eventMixSurfaceContextLabel}. Verified route and surface context are unavailable for this range.`}
                       {" "}
                       {catalogMappingSentence}
                       {" "}
