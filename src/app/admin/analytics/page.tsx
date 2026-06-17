@@ -73,7 +73,7 @@ function formatPanelRecoveryCount(count: number, singular: string, plural = `${s
 
 type PanelRecoveryTruthState =
   | "collecting"
-  | "source_ready_waiting_for_activity"
+  | "source_ready_collecting"
   | "not_observed_but_expected"
   | "source_missing"
   | "materializer_missing"
@@ -86,8 +86,8 @@ type PanelRecoveryTruthState =
 
 function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
   switch (state) {
-    case "source_ready_waiting_for_activity":
-      return "ready, waiting";
+    case "source_ready_collecting":
+      return "source ready";
     case "not_observed_but_expected":
       return "not observed yet";
     case "source_missing":
@@ -282,7 +282,7 @@ export default function AdminAnalyticsPage() {
   const panelRecoveryTruthItems: Array<{ state: PanelRecoveryTruthState; count: number }> = panelHydrationSummary
     ? ([
         { state: "collecting", count: panelHydrationSummary.collecting },
-        { state: "source_ready_waiting_for_activity", count: panelHydrationSummary.sourceReadyWaitingForActivity },
+        { state: "source_ready_collecting", count: panelHydrationSummary.sourceReadyWaitingForActivity },
         { state: "not_observed_but_expected", count: panelHydrationSummary.notObservedButExpected },
         { state: "source_missing", count: panelHydrationSummary.sourceMissing },
         { state: "materializer_missing", count: panelHydrationSummary.materializerMissing },
@@ -297,14 +297,14 @@ export default function AdminAnalyticsPage() {
   const panelRecoveryWaitingCount = panelRecoveryTruthItems
     .filter((item) =>
       item.state === "collecting" ||
-      item.state === "source_ready_waiting_for_activity" ||
+      item.state === "source_ready_collecting" ||
       item.state === "not_observed_but_expected",
     )
     .reduce((total, item) => total + item.count, 0);
   const panelRecoveryNeedsEvidenceCount = panelRecoveryTruthItems
     .filter((item) =>
       item.state !== "collecting" &&
-      item.state !== "source_ready_waiting_for_activity" &&
+      item.state !== "source_ready_collecting" &&
       item.state !== "not_observed_but_expected",
     )
     .reduce((total, item) => total + item.count, 0);

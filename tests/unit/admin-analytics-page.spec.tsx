@@ -577,7 +577,7 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).not.toContain("3 need source");
     expect(container.textContent).toContain("Status details");
     expect(container.textContent).toContain("2 collecting");
-    expect(container.textContent).toContain("1 ready, waiting");
+    expect(container.textContent).toContain("1 source ready");
     expect(container.textContent).toContain("2 not observed yet");
     expect(container.textContent).toContain("1 source missing");
     expect(container.textContent).toContain("1 materializer missing");
@@ -588,6 +588,7 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).not.toContain("Repair src/");
     expect(container.textContent).not.toContain("src/app/api");
     expect(container.querySelector("[data-panel-recovery-truth-state='source_missing']")).toBeTruthy();
+    expect(container.querySelector("[data-panel-recovery-truth-state='source_ready_collecting']")).toBeTruthy();
     expect(container.querySelector("[data-panel-recovery-truth-state='external_required']")).toBeTruthy();
     expect(container.textContent).toContain("Next actions");
     expect(container.textContent).toContain(
