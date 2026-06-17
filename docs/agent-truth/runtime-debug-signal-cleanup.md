@@ -1,7 +1,7 @@
 # Runtime Debug Signal Cleanup
 
-Generated: 2026-05-24T15:35:24.082Z
-Current head: 4214aa6fca1f18201e8f09ed9197f38316b035c9
+Generated: 2026-06-17T02:13:18.271Z
+Current head: c8530a89a4acfcba904973629ae31fa5fa5d26d8
 Status: source_ready
 
 ## Summary
@@ -9,26 +9,14 @@ Status: source_ready
 ```json
 {
   "reportKey": "runtime-debug-signal-cleanup",
-  "generatedAtUtc": "2026-05-24T15:35:24.082Z",
-  "currentHead": "4214aa6fca1f18201e8f09ed9197f38316b035c9",
+  "generatedAtUtc": "2026-06-17T02:13:18.271Z",
+  "currentHead": "c8530a89a4acfcba904973629ae31fa5fa5d26d8",
   "rawFailedCountBefore": 3,
-  "failedGroupCount": 3,
+  "failedGroupCount": 1,
   "warningGroupCount": 5,
   "rawWarningCount": 145,
   "rawWarningsDefaultVisible": false,
   "failedSignals": [
-    {
-      "signalId": "npm run check:debug-panel-output-triage",
-      "classification": "stale_artifact_refresh",
-      "source": "agent/state/debug-panel-output-triage.generated.json",
-      "nextAction": "Artifact is not current for the latest code version."
-    },
-    {
-      "signalId": "npm run check:telemetry-admin-debug-truth",
-      "classification": "stale_artifact_refresh",
-      "source": "agent/state/telemetry-admin-debug-truth.generated.json",
-      "nextAction": "Artifact is not current for the latest code version."
-    },
     {
       "signalId": "deployed_runtime_smoke",
       "classification": "formal_evidence_required",
