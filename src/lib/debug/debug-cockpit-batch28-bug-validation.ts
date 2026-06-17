@@ -28,7 +28,7 @@ export function buildDebugCockpitBatch28BugValidationReport(input: {
   const scoreAfter = [
     input.bugReportTerminalState !== "loading",
     true,
-    input.chartReadinessStatus === "ready" && sourceAgreementFailed,
+    input.chartReadinessStatus === "source_disagreement" && sourceAgreementFailed,
     validationFailed,
     input.blockedPassCount > 0,
     true,

@@ -65,6 +65,26 @@ function formatConfidence(value?: number | null) {
     return value === null || value === undefined ? "n/a" : value;
 }
 
+function cacheDisplayState(cacheState: DataValidationPanelState["cacheState"]) {
+    if (cacheState === "stale") return "refresh_due";
+    if (cacheState === "hit") return "cached";
+    return cacheState;
+}
+
+function cacheTruthState(cacheState: DataValidationPanelState["cacheState"]) {
+    if (cacheState === "unknown" || cacheState === "not_loaded") return "unavailable" as const;
+    if (cacheState === "stale") return "cached" as const;
+    return "live" as const;
+}
+
+function cacheBadgeLabel(cacheState: DataValidationPanelState["cacheState"]) {
+    if (cacheState === "unknown") return "UNKNOWN";
+    if (cacheState === "not_loaded") return "NOT LOADED";
+    if (cacheState === "stale") return "REFRESH DUE";
+    if (cacheState === "hit") return "CACHED";
+    return "INFO";
+}
+
 function truthStateForValidationRow(check: ValidationItem) {
     if (check.passAllowed === false || check.status === "fail" || check.status === "unavailable") return "blocked" as const;
     if (check.status === "warn" || check.status === "unknown") return "review" as const;
@@ -305,10 +325,10 @@ export function DebugAdvancedDataValidation() {
                     <Pill label="Range" value={panelState.range} truthState="live" badgeLabel="INFO" />
                     <Pill
                         label="Cache"
-                        value={panelState.cacheState}
+                        value={cacheDisplayState(panelState.cacheState)}
                         tone={panelState.cacheState === "stale" ? "warn" : "neutral"}
-                        truthState={panelState.cacheState === "unknown" || panelState.cacheState === "not_loaded" ? "unavailable" : "live"}
-                        badgeLabel={panelState.cacheState === "unknown" ? "UNKNOWN" : panelState.cacheState === "not_loaded" ? "NOT LOADED" : panelState.cacheState === "stale" ? "STALE" : "INFO"}
+                        truthState={cacheTruthState(panelState.cacheState)}
+                        badgeLabel={cacheBadgeLabel(panelState.cacheState)}
                     />
                     <Pill
                         label="Last validated"

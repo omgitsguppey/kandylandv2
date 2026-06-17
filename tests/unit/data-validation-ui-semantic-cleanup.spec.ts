@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { buildDataValidationUiSemantics } from "@/lib/analytics/validation-readiness-contract";
@@ -24,5 +27,17 @@ describe("data validation UI semantic cleanup", () => {
     expect(semantics.cacheMissIsFailure).toBe(false);
     expect(semantics.nextAction).toMatch(/Source agreement/i);
     expect(semantics.nextAction).not.toMatch(/^Retry/i);
+  });
+
+  it("shows stale cache mechanics as refresh due instead of live truth", () => {
+    const component = readFileSync(
+      join(process.cwd(), "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx"),
+      "utf8",
+    );
+
+    expect(component).toContain("cacheDisplayState(panelState.cacheState)");
+    expect(component).toContain("cacheTruthState(panelState.cacheState)");
+    expect(component).toContain("REFRESH DUE");
+    expect(component).not.toContain('panelState.cacheState === "stale" ? "STALE"');
   });
 });

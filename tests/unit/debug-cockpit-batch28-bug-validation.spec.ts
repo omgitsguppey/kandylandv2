@@ -8,7 +8,7 @@ describe("Debug Cockpit Batch 28 bug validation final lock", () => {
       bugReportTruthStatusBefore: "loading",
       bugReportTerminalState: "loaded_empty",
       dataValidationStatusBefore: "failed",
-      chartReadinessStatus: "ready",
+      chartReadinessStatus: "source_disagreement",
       sourceAgreementStatus: "fail",
       validationParityStatus: "fail",
       blockedPassCount: 10,
@@ -21,7 +21,7 @@ describe("Debug Cockpit Batch 28 bug validation final lock", () => {
     expect(report.bugReportTruthStatusAfter).toBe("loaded_empty");
     expect(report.bugReportRedactionStatus).toBe("summary_only_raw_bodies_redacted");
     expect(report.dataValidationStatusAfter).toBe("failed_semantic_split");
-    expect(report.chartReadinessStatus).toBe("ready");
+    expect(report.chartReadinessStatus).toBe("source_disagreement");
     expect(report.sourceAgreementStatus).toBe("fail");
     expect(report.rawRowsDefaultOpen).toBe(false);
     expect(report.scoreDimensions).toContain("chartReadinessSourceAgreementSplit");

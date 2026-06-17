@@ -185,7 +185,7 @@ export function validateAnalyticsValidationSemantics() {
     },
     validations: [{ checkKey: "source_agreement_chart_readiness", status: "fail", passAllowed: false }],
   });
-  expectPass(summary.chartReadiness.state === "ready", failures, "chart readiness pass is not separately represented.");
+  expectPass(summary.chartReadiness.state === "source_disagreement", failures, "source agreement failure is not represented in chart readiness.");
   expectPass(summary.sourceAgreement.state === "fail", failures, "source agreement fail is hidden.");
   expectPass(summary.validationParity.state === "fail", failures, "failCount > 0 lacks failed dimension.");
   expectPass(summary.blockedPass.rows.length > 0, failures, "blockedPassCount > 0 but panel says clean.");
@@ -257,7 +257,7 @@ export function validateDebugCockpitBatch28BugValidation() {
     bugReportTruthStatusBefore: "loading",
     bugReportTerminalState: "loaded_empty",
     dataValidationStatusBefore: "failed",
-    chartReadinessStatus: "ready",
+    chartReadinessStatus: "source_disagreement",
     sourceAgreementStatus: "fail",
     validationParityStatus: "fail",
     blockedPassCount: 10,
@@ -268,7 +268,7 @@ export function validateDebugCockpitBatch28BugValidation() {
   });
   expectPass(report.bugReportTerminalState !== "loading", failures, "Bug Report Truth remains infinite loading.");
   expectPass(report.bugReportRedactionStatus === "summary_only_raw_bodies_redacted", failures, "raw bug/support/user bodies visible by default.");
-  expectPass(report.chartReadinessStatus === "ready" && report.sourceAgreementStatus === "fail", failures, "Data Validation still blends chart readiness with source agreement.");
+  expectPass(report.chartReadinessStatus === "source_disagreement" && report.sourceAgreementStatus === "fail", failures, "Data Validation still blends chart readiness with source agreement.");
   expectPass(report.blockedPassCount > 0 && report.nextExactSteps.join(" ").includes("blocked pass"), failures, "blocked pass count not actionable.");
   expectPass(!report.nextExactSteps.join(" ").startsWith("Retry"), failures, "failCount > 0 only suggests retry when route loaded successfully.");
   expectPass(report.scoreDimensions.length > 0, failures, "score dimensions missing.");
