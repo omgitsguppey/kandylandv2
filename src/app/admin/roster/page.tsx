@@ -1099,7 +1099,7 @@ export default function AdminRosterPage() {
                 />
                 {creatorMutationDisabled ? (
                     <div
-                        className="mb-4 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100"
+                        className="mb-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-6 text-zinc-200"
                         data-admin-roster-fixture-boundary="true"
                         data-admin-roster-fixture-state="source_missing"
                     >
@@ -1454,7 +1454,7 @@ export default function AdminRosterPage() {
                                 ) : null}
 
                                 {selectedAccountTarget && creatorMutationDisabled ? (
-                                    <div className="rounded-2xl border border-amber-400/25 bg-amber-400/10 p-3 text-sm leading-6 text-amber-100">
+                                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-zinc-200">
                                         Account controls require real admin auth and are unavailable during local UI review.
                                     </div>
                                 ) : selectedAccountTarget ? (
@@ -1474,7 +1474,7 @@ export default function AdminRosterPage() {
                                 ) : null}
 
                                 {selectedFanExperienceTarget && creatorMutationDisabled ? (
-                                    <div className="rounded-2xl border border-amber-400/25 bg-amber-400/10 p-3 text-sm leading-6 text-amber-100">
+                                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-zinc-200">
                                         Fan-experience settings require real admin auth and are unavailable during local UI review.
                                     </div>
                                 ) : selectedFanExperienceTarget ? (
