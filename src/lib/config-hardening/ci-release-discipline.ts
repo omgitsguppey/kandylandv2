@@ -22,6 +22,9 @@ export type ExternalCheckProviderEntry = {
   releaseGateClassification: "external_evidence_required" | "not_authoritative_for_source_release";
   canBeClearedBySourceChecks: boolean;
   requiredBeforeBetaExit: boolean;
+  stuckPendingSymptom: string;
+  sourceSafeDisposition: "external_provider_blocker" | "branch_protection_cleanup";
+  providerAction: string;
   nextExactAction: string;
 };
 
@@ -93,13 +96,16 @@ function workflowFor(file: string): CiWorkflowEntry {
 const EXTERNAL_CHECK_PROVIDERS: ExternalCheckProviderEntry[] = [
   {
     provider: "firebase_app_hosting",
-    githubCheckName: "Firebase App Hosting",
+    githubCheckName: "App Hosting - Rollout (kandydrops-by-ikandy/us-central1/kandydrops)",
     authority: "deployment_rollout",
     sourceOwnedConfig: ["apphosting.yaml", "firebase.json", ".firebaserc", "backends.json"],
     sourceValidationOwner: "check:environment-deployment-truth",
     releaseGateClassification: "external_evidence_required",
     canBeClearedBySourceChecks: false,
     requiredBeforeBetaExit: true,
+    stuckPendingSymptom: "GitHub check remains in_progress with output title Build queued for multiple commits.",
+    sourceSafeDisposition: "external_provider_blocker",
+    providerAction: "Open the Firebase App Hosting backend for kandydrops in us-central1, inspect the queued rollout/build, then reauthorize Developer Connect/GitHub integration or restart the rollout from Firebase/GCP. Do not use another source commit as the retry mechanism.",
     nextExactAction: "Reauthorize or restart the Firebase App Hosting rollout in Firebase/GCP, then attach the fresh rollout check result for the current commit.",
   },
   {
@@ -111,6 +117,9 @@ const EXTERNAL_CHECK_PROVIDERS: ExternalCheckProviderEntry[] = [
     releaseGateClassification: "external_evidence_required",
     canBeClearedBySourceChecks: false,
     requiredBeforeBetaExit: true,
+    stuckPendingSymptom: "No source-owned GitHub Actions run is pending while App Hosting reports Build queued, which means Cloud Build start/trigger health is provider-side evidence.",
+    sourceSafeDisposition: "external_provider_blocker",
+    providerAction: "Inspect the App Hosting-created Cloud Build or Developer Connect trigger in Google Cloud, repair authorization/trigger delivery externally, then capture a fresh provider result.",
     nextExactAction: "Repair or reauthorize the Cloud Build GitHub trigger/connection externally; source checks only prove the YAML lane is valid.",
   },
   {
@@ -122,6 +131,9 @@ const EXTERNAL_CHECK_PROVIDERS: ExternalCheckProviderEntry[] = [
     releaseGateClassification: "not_authoritative_for_source_release",
     canBeClearedBySourceChecks: false,
     requiredBeforeBetaExit: false,
+    stuckPendingSymptom: "Graphite status is stale or pending even though stacked PR tooling is not the source release authority for main.",
+    sourceSafeDisposition: "branch_protection_cleanup",
+    providerAction: "If Graphite is no longer the merge queue authority, remove it from required branch protection checks in GitHub settings; if it is still required, repair the Graphite app externally.",
     nextExactAction: "If Graphite is still required on main, fix the Graphite app externally; otherwise remove it from required branch checks because it is not a repo source truth gate.",
   },
 ];
@@ -163,6 +175,11 @@ export function validateCiReleaseDisciplineReport(report: CiReleaseDisciplineRep
   for (const provider of report.externalCheckProviders) {
     if (provider.canBeClearedBySourceChecks) failures.push(`${provider.githubCheckName} incorrectly clears from source checks`);
     if (!provider.nextExactAction) failures.push(`${provider.githubCheckName} missing next action`);
+    if (!provider.stuckPendingSymptom) failures.push(`${provider.githubCheckName} missing stuck pending symptom`);
+    if (!provider.providerAction) failures.push(`${provider.githubCheckName} missing provider action`);
+    if (provider.sourceSafeDisposition === "external_provider_blocker" && provider.releaseGateClassification !== "external_evidence_required") {
+      failures.push(`${provider.githubCheckName} external blocker must remain external evidence required`);
+    }
     if (provider.provider === "graphite" && provider.requiredBeforeBetaExit) failures.push("Graphite cannot be a required beta-exit source gate");
   }
   return { ok: failures.length === 0, failures, warnings: report.remainingGaps };

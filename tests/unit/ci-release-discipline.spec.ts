@@ -16,10 +16,23 @@ describe("ci release discipline", () => {
     expect(report.externalCheckProviderBoundaries).toBe(true);
     expect(report.manualFallbackPushCheckRisks).toEqual([]);
     expect(report.externalCheckProviders.map((provider) => provider.githubCheckName)).toEqual(
-      expect.arrayContaining(["Firebase App Hosting", "Google Cloud Build", "Graphite App"]),
+      expect.arrayContaining(["App Hosting - Rollout (kandydrops-by-ikandy/us-central1/kandydrops)", "Google Cloud Build", "Graphite App"]),
     );
     expect(report.externalCheckProviders.every((provider) => provider.canBeClearedBySourceChecks === false)).toBe(true);
+    expect(report.externalCheckProviders.every((provider) => provider.stuckPendingSymptom.length > 0)).toBe(true);
+    expect(report.externalCheckProviders.every((provider) => provider.providerAction.length > 0)).toBe(true);
     expect(validation.ok).toBe(true);
+  });
+
+  it("records App Hosting Build queued as an external provider blocker", () => {
+    const report = buildCiReleaseDisciplineReport();
+    const appHosting = report.externalCheckProviders.find((provider) => provider.provider === "firebase_app_hosting");
+
+    expect(appHosting?.githubCheckName).toBe("App Hosting - Rollout (kandydrops-by-ikandy/us-central1/kandydrops)");
+    expect(appHosting?.stuckPendingSymptom).toContain("Build queued");
+    expect(appHosting?.sourceSafeDisposition).toBe("external_provider_blocker");
+    expect(appHosting?.providerAction).toContain("Do not use another source commit as the retry mechanism");
+    expect(appHosting?.canBeClearedBySourceChecks).toBe(false);
   });
 
   it("keeps Graphite out of source-owned beta exit gates", () => {
@@ -28,6 +41,7 @@ describe("ci release discipline", () => {
 
     expect(graphite?.releaseGateClassification).toBe("not_authoritative_for_source_release");
     expect(graphite?.requiredBeforeBetaExit).toBe(false);
+    expect(graphite?.sourceSafeDisposition).toBe("branch_protection_cleanup");
     expect(graphite?.nextExactAction).toContain("remove it from required branch checks");
   });
 
