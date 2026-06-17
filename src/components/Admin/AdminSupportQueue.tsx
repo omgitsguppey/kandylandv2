@@ -140,6 +140,9 @@ export function AdminSupportQueue() {
     const selectedThread = useMemo(() => {
         return threads.find(t => t.id === selectedThreadId) || null;
     }, [threads, selectedThreadId]);
+    const supportQueueCountLabel = isLocalAdminUiTestSession ? "--" : summary.total;
+    const supportTurnCountLabel = isLocalAdminUiTestSession ? "--" : summary.openCount;
+    const userTurnCountLabel = isLocalAdminUiTestSession ? "--" : summary.waitingOnUserCount;
 
     async function handleReply() {
         if (!selectedThreadId) return;
@@ -232,7 +235,7 @@ export function AdminSupportQueue() {
                 <section className="flex min-h-0 shrink-0 flex-col rounded-[1.2rem] border border-white/10 bg-black/35 xl:w-[420px]">
                     <div className="shrink-0 p-4 pb-0">
                         <div className="flex flex-wrap items-center justify-between gap-3">
-                            <h2 className="text-sm font-bold text-white">Queue ({summary.total})</h2>
+                            <h2 className="text-sm font-bold text-white">Queue ({supportQueueCountLabel})</h2>
                             <div className="flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-black/30 p-1">
                                 {[
                                     { id: "all", label: "All" },
@@ -261,11 +264,11 @@ export function AdminSupportQueue() {
                         <div className="mt-3 grid grid-cols-2 gap-2 pb-3">
                             <div className="rounded-xl border border-amber-400/20 bg-amber-500/5 px-3 py-2 text-center">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-400/80">Support turn</p>
-                                <p className="mt-1 text-lg font-black text-white">{summary.openCount}</p>
+                                <p className="mt-1 text-lg font-black text-white">{supportTurnCountLabel}</p>
                             </div>
                             <div className="rounded-xl border border-cyan-400/20 bg-cyan-500/5 px-3 py-2 text-center">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-400/80">User turn</p>
-                                <p className="mt-1 text-lg font-black text-white">{summary.waitingOnUserCount}</p>
+                                <p className="mt-1 text-lg font-black text-white">{userTurnCountLabel}</p>
                             </div>
                         </div>
                     </div>
@@ -291,7 +294,7 @@ export function AdminSupportQueue() {
                                                 <div className="min-w-0 flex-1">
                                                     <p className="truncate text-sm font-semibold text-white">{thread.subject || "Support thread"}</p>
                                                     <p className="mt-0.5 truncate text-[11px] text-gray-400">
-                                                        {primaryIdentity} · {formatSupportCategoryLabel(thread.category)}
+                                                        {primaryIdentity} - {formatSupportCategoryLabel(thread.category)}
                                                     </p>
                                                 </div>
                                                 <div className="flex shrink-0 flex-col items-end gap-1.5">
@@ -336,9 +339,9 @@ export function AdminSupportQueue() {
                                                 <UserRound className="h-3.5 w-3.5 text-brand-purple" />
                                                 {selectedThread.userHandle ? `@${selectedThread.userHandle}` : selectedThread.userDisplayName || selectedThread.userEmail || selectedThread.userId}
                                             </span>
-                                            <span>•</span>
+                                            <span>-</span>
                                             <span>{formatSupportCategoryLabel(selectedThread.category)}</span>
-                                            <span>•</span>
+                                            <span>-</span>
                                             <Link
                                                 href={`/admin/user/${selectedThread.userId}`}
                                                 className="text-brand-purple hover:underline"
@@ -386,7 +389,7 @@ export function AdminSupportQueue() {
                                                     <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 sm:max-w-[75%] ${isAdminMessage ? "bg-brand-purple/20 text-white" : "bg-white/10 text-gray-100"}`}>
                                                         <div className="flex items-center gap-2 text-[9px] uppercase tracking-[0.14em] text-gray-400">
                                                             <span className="font-bold">{entry.senderRole === "admin" ? "Support" : "User"}</span>
-                                                            <span>•</span>
+                                                            <span>-</span>
                                                             <span>{formatRelativeTime(entry.createdAt)}</span>
                                                         </div>
                                                         <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{entry.body}</p>

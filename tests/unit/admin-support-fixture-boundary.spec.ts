@@ -13,6 +13,12 @@ describe("admin support fixture boundary", () => {
     expect(queueSource).toContain("No verified support queue source is loaded here");
     expect(queueSource).toContain("reading threads, replying, or changing support status");
     expect(queueSource).toContain('{isLocalAdminUiTestSession ? "No source" : "Verified"}');
+    expect(queueSource).toContain('const supportQueueCountLabel = isLocalAdminUiTestSession ? "--" : summary.total');
+    expect(queueSource).toContain("Queue ({supportQueueCountLabel})");
+    expect(queueSource).toContain("{supportTurnCountLabel}");
+    expect(queueSource).toContain("{userTurnCountLabel}");
+    expect(queueSource).not.toContain(" • ");
+    expect(queueSource).not.toContain(" · ");
   });
 
   it("disables admin support route reads while fixture mode is active", () => {

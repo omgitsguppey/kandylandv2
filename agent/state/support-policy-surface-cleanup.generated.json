@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-16T01:28:11.435Z",
+  "generatedAtUtc": "2026-06-17T08:27:59.480Z",
   "reportKey": "support-policy-surface-cleanup",
   "status": "pass",
-  "currentHead": "3782e03c1f96a33b2ab0ad56f858dc90918da9e2",
+  "currentHead": "d8ec1f646de908a6d78d2d4f5177e7055ace1961",
   "supportPolicyContractVersion": "2026.05.support-policy-surface.1",
   "surfaces": [
     {
@@ -103,8 +103,10 @@
   "duplicateRoutes": [],
   "surfacesWithoutFallback": [],
   "changedFiles": [
+    "agent/state/support-policy-surface-cleanup.generated.json",
+    "docs/agent-truth/support-policy-surface-cleanup.md",
     "src/components/Admin/AdminSupportQueue.tsx",
-    "tests/unit/admin-support-queue-error-language.spec.ts"
+    "tests/unit/admin-support-fixture-boundary.spec.ts"
   ],
   "protectedChanges": [],
   "checks": {
