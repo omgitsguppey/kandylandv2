@@ -570,8 +570,8 @@ describe("AdminAnalyticsPage", () => {
     const sourceNotes = container.querySelector("details[title]");
     expect(sourceNotes?.getAttribute("title")).toContain("No current activity snapshot has loaded yet.");
     expect(sourceNotes?.getAttribute("title")).not.toContain("Realtime analytics");
-    expect(container.textContent).toContain("3/11 connected");
-    expect(container.textContent).toContain("5 waiting");
+    expect(container.textContent).toContain("3/11 showing data");
+    expect(container.textContent).toContain("5 collecting");
     expect(container.textContent).toContain("2 source gaps");
     expect(container.textContent).toContain("1 evidence gate");
     expect(container.textContent).not.toContain("3 need source");

@@ -498,8 +498,8 @@ export default function AdminAnalyticsPage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="font-semibold text-white">Panel status</p>
               <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-300">
-                <span>{connectedPanelCount}/{totalPanelCount} connected</span>
-                {panelRecoveryWaitingCount > 0 ? <span>{panelRecoveryWaitingCount} waiting</span> : null}
+                <span>{connectedPanelCount}/{totalPanelCount} showing data</span>
+                {panelRecoveryWaitingCount > 0 ? <span>{panelRecoveryWaitingCount} collecting</span> : null}
                 {panelRecoverySourceGapCount > 0 ? (
                   <span>{formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap")}</span>
                 ) : null}
