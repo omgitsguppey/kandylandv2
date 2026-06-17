@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Edit, Loader2, Package, PlusCircle, Repeat, Search, Settings2 } from "lucide-react";
+import { Edit, Loader2, Package, Repeat, Search, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { paginateOverviewItems } from "@/lib/admin-overview";
@@ -114,8 +113,6 @@ function getAdminDropsAtGlanceSafeErrorMessage(error: unknown, fallback: string)
 }
 
 export function AdminDropsAtGlancePanel() {
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [editingDropId, setEditingDropId] = useState<string | null>(null);
     const [queueingDropId, setQueueingDropId] = useState<string | null>(null);
     const [page, setPage] = useState(0);
     const [searchText, setSearchText] = useState("");
@@ -216,16 +213,6 @@ export function AdminDropsAtGlancePanel() {
     const truthState = resolveDropsTruthState({ loading, loadError, fromCache });
     const isFiltered = searchText.trim().length > 0;
 
-    const closeModal = useCallback(() => {
-        setIsCreateModalOpen(false);
-        setEditingDropId(null);
-    }, []);
-
-    const handleModalSuccess = useCallback(() => {
-        closeModal();
-        dispatchAdminOverviewSync();
-    }, [closeModal]);
-
     const handleQueueToggle = useCallback(async (dropId: string) => {
         try {
             setQueueingDropId(dropId);
@@ -269,27 +256,15 @@ export function AdminDropsAtGlancePanel() {
     }, [mutateQueueConfig]);
 
     return (
-        <>
-            <div className="space-y-2.5">
+        <div className="space-y-2.5">
                 {/* Action buttons */}
                 <div className="flex flex-wrap items-center gap-2">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setEditingDropId(null);
-                            setIsCreateModalOpen(true);
-                        }}
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-brand-purple px-3.5 text-xs font-bold text-white transition-transform hover:scale-[1.01]"
-                    >
-                        <PlusCircle className="h-3.5 w-3.5" />
-                        Create drop
-                    </button>
                     <Link
                         href="/admin/drops"
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/10 bg-black/35 px-3.5 text-xs font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-brand-purple px-3.5 text-xs font-bold text-white transition-transform hover:scale-[1.01]"
                     >
                         <Package className="h-3.5 w-3.5" />
-                        Drops manager
+                        Manage drops
                     </Link>
                     <Link
                         href="/admin/queue"
@@ -408,18 +383,14 @@ export function AdminDropsAtGlancePanel() {
 
                                         {/* Action icons */}
                                         <div className="mt-auto flex items-center gap-1.5">
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setEditingDropId(row.drop.id);
-                                                    setIsCreateModalOpen(true);
-                                                }}
+                                            <Link
+                                                href={`/admin/drops?dropId=${encodeURIComponent(row.drop.id)}`}
                                                 aria-label="Edit drop"
                                                 className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 bg-black/35 px-2 text-[10px] font-semibold text-white transition-colors hover:border-brand-purple/35 hover:text-brand-pink"
                                             >
                                                 <Edit className="h-3 w-3" />
-                                                <span className="hidden md:inline">Edit</span>
-                                            </button>
+                                                <span className="hidden md:inline">Open</span>
+                                            </Link>
                                             <button
                                                 type="button"
                                                 onClick={() => void handleQueueToggle(row.drop.id)}
@@ -464,14 +435,6 @@ export function AdminDropsAtGlancePanel() {
                         ) : null}
                     </>
                 )}
-            </div>
-
-            <CreateDropModal
-                isOpen={isCreateModalOpen}
-                onClose={closeModal}
-                dropId={editingDropId}
-                onSuccess={handleModalSuccess}
-            />
-        </>
+        </div>
     );
 }

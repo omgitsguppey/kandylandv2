@@ -201,6 +201,23 @@ export default function AdminDropsPage() {
     const deferredSearch = useDeferredValue(searchDraft.trim().toLowerCase());
 
     useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const params = new URLSearchParams(window.location.search);
+        const targetDropId = params.get("dropId")?.trim();
+        const searchValue = targetDropId || params.get("search")?.trim() || "";
+
+        if (!searchValue) return;
+
+        setSearchDraft(searchValue);
+        setStatusFilter("all");
+        setCreatorFilter("all");
+        if (targetDropId) {
+            setExpandedDropId(targetDropId);
+        }
+    }, []);
+
+    useEffect(() => {
         const validDropIds = new Set(drops.map((drop) => drop.id));
         setSelectedDropIds((current) => new Set(Array.from(current).filter((id) => validDropIds.has(id))));
     }, [drops]);
