@@ -1081,7 +1081,7 @@ export default function AdminRosterPage() {
                     subtitle="Review applications, send agreements, verify identity, and activate approved creators."
                     compact
                     actions={(
-                        <div className="flex max-w-full gap-1 overflow-x-auto rounded-full border border-white/10 bg-zinc-950/80 p-1" role="tablist" aria-label="Creator review views">
+                        <div className="flex max-w-full flex-wrap gap-1 rounded-2xl border border-white/10 bg-zinc-950/80 p-1" role="tablist" aria-label="Creator review views">
                             {ROSTER_DECISION_TABS.map((item) => (
                                 <button
                                     key={item.key}
@@ -1089,7 +1089,7 @@ export default function AdminRosterPage() {
                                     role="tab"
                                     aria-selected={tab === item.key}
                                     onClick={() => handleTabChange(item.key)}
-                                    className={`min-h-10 whitespace-nowrap rounded-full px-3 text-sm font-semibold transition-colors ${tab === item.key ? "bg-white text-black" : "text-zinc-300 hover:bg-white/10 hover:text-white"}`}
+                                    className={`min-h-10 rounded-full px-3 text-sm font-semibold transition-colors ${tab === item.key ? "bg-white text-black" : "text-zinc-300 hover:bg-white/10 hover:text-white"}`}
                                 >
                                     {item.label}
                                 </button>
@@ -1108,18 +1108,18 @@ export default function AdminRosterPage() {
                 ) : null}
                 <section className="grid gap-4 lg:grid-cols-[0.94fr_1.06fr]">
                     <div className="space-y-4">
-                        <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-                            <div className="min-w-[180px] rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
+                        <div className="grid gap-3 sm:grid-cols-3">
+                            <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Needs admin</p>
                                 <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "No source" : entriesByDecision.needs_review.length}</p>
                                 <p className="mt-1 text-xs leading-5 text-zinc-400">Creators waiting for your next action.</p>
                             </div>
-                            <div className="min-w-[180px] rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
+                            <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Waiting on creator</p>
                                 <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "No source" : entriesByDecision.waiting.length}</p>
                                 <p className="mt-1 text-xs leading-5 text-zinc-400">Agreement, ID, or intake steps still missing.</p>
                             </div>
-                            <div className="min-w-[180px] rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
+                            <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Live creators</p>
                                 <p className="mt-2 text-2xl font-black text-white">{isLocalAdminUiTestSession ? "No source" : roster?.summary.creatorCount ?? approvedLiveCreators.length}</p>
                                 <p className="mt-1 text-xs leading-5 text-zinc-400">Approved creators with active access.</p>

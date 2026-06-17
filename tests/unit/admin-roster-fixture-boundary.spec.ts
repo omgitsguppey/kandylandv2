@@ -18,6 +18,9 @@ describe("admin roster fixture boundary", () => {
     expect(source).toContain('{isLocalAdminUiTestSession ? "No source" : roster?.summary.creatorCount ?? approvedLiveCreators.length}');
     expect(source).toContain("No creator decision queue source is loaded in local UI review");
     expect(source).toContain('creatorMutationDisabled ? "Create needs admin"');
+    expect(source).toContain('className="flex max-w-full flex-wrap gap-1 rounded-2xl');
+    expect(source).toContain('className="grid gap-3 sm:grid-cols-3"');
+    expect(source).not.toContain("min-w-[180px]");
 
     expect(source).toContain("disabled={creatorMutationDisabled || creating}");
     expect(source).toContain('disabled={creatorMutationDisabled || agreementSaving === "create_template"}');
