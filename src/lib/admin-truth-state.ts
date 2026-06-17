@@ -54,9 +54,14 @@ const LEGACY_TRUTH_STATE_MAP: Record<TruthLikeState, AdminTruthState> = {
 };
 
 const ADMIN_MISSING_VALUE_LABELS = new Set([
+  "--",
   "[unavailable]",
+  "no sample",
+  "unavailable",
   "not loaded",
   "not recorded",
+  "waiting",
+  "waiting for verified source",
 ]);
 
 export function isAdminTruthState(value: unknown): value is AdminTruthState {
@@ -79,11 +84,17 @@ export function hasUsableAdminTruthValue(...values: unknown[]) {
 
     if (typeof value === "string") {
       const normalizedValue = value.trim().toLowerCase();
-      return normalizedValue.length > 0 && !ADMIN_MISSING_VALUE_LABELS.has(normalizedValue);
+      return normalizedValue.length > 0
+        && !ADMIN_MISSING_VALUE_LABELS.has(normalizedValue)
+        && !normalizedValue.startsWith("waiting for verified ");
     }
 
     return value !== null && value !== undefined;
   });
+}
+
+function stateCanExposeUsableAdminValue(state: AdminTruthState) {
+  return state !== "unavailable" && state !== "failed" && state !== "blocked";
 }
 
 export function resolveAdminTruthState(input: {
@@ -185,20 +196,22 @@ export function resolveAdminInputTruthState(input: {
   confidence?: number | null;
   confidenceThreshold?: number;
 }) {
-  const hasUsableValue = hasUsableAdminTruthValue(input.value);
+  const rawHasUsableValue = hasUsableAdminTruthValue(input.value);
+  const truthState = resolveAdminTruthState({
+    hasUsableValue: rawHasUsableValue,
+    sourceConfigured: input.sourceConfigured ?? true,
+    transportState: input.truthState,
+    valueState: input.truthState,
+    refreshInFlight: input.refreshInFlight,
+    delayed: input.delayed,
+    reviewRequired: input.reviewRequired,
+    sourceIssue: input.sourceIssue,
+    confidence: input.confidence,
+    confidenceThreshold: input.confidenceThreshold,
+  });
+  const hasUsableValue = rawHasUsableValue && stateCanExposeUsableAdminValue(truthState);
   return {
-    truthState: resolveAdminTruthState({
-      hasUsableValue,
-      sourceConfigured: input.sourceConfigured ?? true,
-      transportState: input.truthState,
-      valueState: input.truthState,
-      refreshInFlight: input.refreshInFlight,
-      delayed: input.delayed,
-      reviewRequired: input.reviewRequired,
-      sourceIssue: input.sourceIssue,
-      confidence: input.confidence,
-      confidenceThreshold: input.confidenceThreshold,
-    }),
+    truthState,
     hasUsableValue,
     pendingInitialLoad: Boolean(input.pendingInitialLoad && !hasUsableValue),
   };
@@ -236,19 +249,25 @@ export function resolveAdminVerificationTruthState(input: {
       || input.freshnessTimestamp
       || (input.countComposition && Object.keys(input.countComposition).length > 0),
   );
-  const hasUsableValue = input.status === "failed" ? hasUsableFallback : true;
   const normalizedStatus = coerceAdminTruthState(input.status) ?? "unavailable";
+  const hasStatusValue =
+    Boolean(input.canonicalSource)
+    && normalizedStatus !== "unavailable"
+    && normalizedStatus !== "failed"
+    && normalizedStatus !== "blocked";
+  const hasUsableValue = hasUsableFallback || hasStatusValue;
+  const truthState = resolveAdminTruthState({
+    hasUsableValue,
+    sourceConfigured: Boolean(input.canonicalSource),
+    transportState: normalizedStatus,
+    valueState: input.verificationState === "fallback" ? "legacy_fallback" : normalizedStatus,
+    reviewRequired: Boolean(input.degradedReason),
+    sourceIssue: input.status === "degraded" || input.status === "failed",
+  });
 
   return {
-    truthState: resolveAdminTruthState({
-      hasUsableValue,
-      sourceConfigured: Boolean(input.canonicalSource),
-      transportState: normalizedStatus,
-      valueState: input.verificationState === "fallback" ? "legacy_fallback" : normalizedStatus,
-      reviewRequired: Boolean(input.degradedReason),
-      sourceIssue: input.status === "degraded" || input.status === "failed",
-    }),
-    hasUsableValue,
+    truthState,
+    hasUsableValue: hasUsableValue && stateCanExposeUsableAdminValue(truthState),
     pendingInitialLoad: input.status === "loading" && !hasUsableValue,
   };
 }

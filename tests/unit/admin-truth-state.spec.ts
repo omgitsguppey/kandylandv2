@@ -5,6 +5,7 @@ import {
   hasUsableAdminTruthValue,
   resolveAdminInputTruthState,
   resolveAdminTruthState,
+  resolveAdminVerificationTruthState,
 } from "@/lib/admin-truth-state";
 
 describe("admin truth state", () => {
@@ -41,11 +42,33 @@ describe("admin truth state", () => {
   it("keeps natural missing-value copy from becoming live data", () => {
     expect(hasUsableAdminTruthValue("Not recorded")).toBe(false);
     expect(hasUsableAdminTruthValue("Not loaded")).toBe(false);
+    expect(hasUsableAdminTruthValue("--")).toBe(false);
+    expect(hasUsableAdminTruthValue("No sample")).toBe(false);
+    expect(hasUsableAdminTruthValue("Unavailable")).toBe(false);
+    expect(hasUsableAdminTruthValue("Waiting for verified route health from a real admin session")).toBe(false);
     expect(resolveAdminInputTruthState({
       value: "Not recorded",
     }).truthState).toBe("unavailable");
     expect(resolveAdminInputTruthState({
       value: "Not loaded",
     }).truthState).toBe("unavailable");
+  });
+
+  it("does not expose unavailable admin cards as having usable truth values", () => {
+    expect(resolveAdminInputTruthState({
+      truthState: "unavailable",
+      value: "Waiting for verified system state from a real admin session",
+    })).toMatchObject({
+      truthState: "unavailable",
+      hasUsableValue: false,
+    });
+
+    expect(resolveAdminVerificationTruthState({
+      status: "unavailable",
+      canonicalSource: "local admin UI test session",
+    })).toMatchObject({
+      truthState: "unavailable",
+      hasUsableValue: false,
+    });
   });
 });
