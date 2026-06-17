@@ -118,14 +118,15 @@ describe("buildAdminAnalyticsLiveInteractionStreamModel", () => {
       overviewTruthState: "live",
     });
 
-    expect(model.streamSourceMode).toBe("stale_snapshot");
-    expect(model.freshnessState).toBe("stale");
+    expect(model.streamSourceMode).toBe("refresh_due_snapshot");
+    expect(model.freshnessState).toBe("refresh_due");
     expect(model.truthState).toBe("cached");
     expect(model.badgeLabel).toBe("REFRESH");
     expect(model.visibleCopy).toContain("Refresh due");
     expect(model.recommendation).toContain("Refresh due");
     expect(model.warnings).toContain("Refresh due. Showing the latest verified interaction snapshot until new events arrive.");
-    expect(model.streamSourceStatusDetail).toContain("stale recent-event snapshot");
+    expect(model.streamSourceStatusDetail).toContain("refresh due snapshot");
+    expect(model.streamSourceStatusDetail).not.toContain("stale");
     expect(model.eventRows[0]).toMatchObject({
       eventType: "message",
       duplicateCount: 3,

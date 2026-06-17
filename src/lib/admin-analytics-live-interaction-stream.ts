@@ -2,10 +2,10 @@ import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { HistoricalAnalyticsResponse, RangeOption, RawEventItem } from "@/types/admin-analytics";
 
 type ActorType = "guest" | "user" | "creator" | "admin" | "system" | "unknown";
-type StreamSourceMode = "live" | "snapshot" | "stale_snapshot" | "unavailable";
+type StreamSourceMode = "live" | "snapshot" | "refresh_due_snapshot" | "expired_snapshot" | "unavailable";
 type TruthBadge = "LIVE" | "SNAP" | "REFRESH" | "WAIT" | "ERROR";
 type StreamSourceTruth = "realtime_presence" | "event_facts" | "backend_snapshot" | "mixed" | "unknown";
-type StreamFreshnessState = "live" | "recent" | "stale" | "expired" | "unknown";
+type StreamFreshnessState = "live" | "recent" | "refresh_due" | "expired" | "unknown";
 type RowEventType = "event" | "reward" | "task" | "task_failed" | "message" | "purchase" | "unlock" | "unknown";
 type RowSourceTruth = "telemetry" | "canonical" | "ledger" | "task_engine" | "message" | "snapshot" | "unknown";
 
@@ -258,7 +258,7 @@ function ageState(ageMs: number | null): StreamFreshnessState {
   if (ageMs === null || ageMs < 0) return "unknown";
   if (ageMs <= 5 * 60_000) return "live";
   if (ageMs <= 15 * 60_000) return "recent";
-  if (ageMs <= 60 * 60_000) return "stale";
+  if (ageMs <= 60 * 60_000) return "refresh_due";
   return "expired";
 }
 
@@ -270,7 +270,7 @@ function buildRecommendation(input: {
 }) {
   if (!input.hasResponse && input.loading) return "Waiting for first snapshot.";
   if (!input.hasResponse) return "Interaction snapshot unavailable for this range.";
-  if (input.freshnessState === "stale") {
+  if (input.freshnessState === "refresh_due") {
     return REFRESH_DUE_INTERACTION_COPY;
   }
   if (input.freshnessState === "expired") {
@@ -388,12 +388,16 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
       ? "live"
       : freshnessState === "recent"
         ? "snapshot"
-        : "stale_snapshot";
+        : freshnessState === "expired"
+          ? "expired_snapshot"
+          : freshnessState === "refresh_due"
+            ? "refresh_due_snapshot"
+            : "snapshot";
   const truthState: AdminSurfaceState = !hasResponse
     ? input.loading ? "loading" : "unavailable"
     : freshnessState === "expired" || input.error || input.response?.cacheState === "stale"
       ? "stale"
-      : freshnessState === "stale"
+      : freshnessState === "refresh_due"
         ? "cached"
       : input.overviewTruthState ?? "live";
   const sourceTruth: StreamSourceTruth = hasResponse ? "backend_snapshot" : "unknown";
@@ -411,7 +415,7 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
           ? "live"
           : rowFreshness === "recent"
             ? "recent"
-            : rowFreshness === "stale"
+            : rowFreshness === "refresh_due"
               ? "refresh due"
               : "expired",
       source: streamSourceMode,
@@ -448,7 +452,7 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
           ? "SNAP"
           : "REFRESH";
   const warnings: string[] = [];
-  if (streamSourceMode === "stale_snapshot") {
+  if (streamSourceMode === "refresh_due_snapshot" || streamSourceMode === "expired_snapshot") {
     warnings.push(
       freshnessState === "expired"
         ? "Interaction snapshot expired. Refresh or wait for a new verified source."
@@ -513,7 +517,7 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
       ? "First-party backend interaction snapshot; realtime is not claimed unless the source upgrades."
       : streamSourceMode === "snapshot"
         ? "First-party backend interaction snapshot; realtime is not claimed unless the source upgrades."
-        : streamSourceMode === "stale_snapshot"
+        : streamSourceMode === "refresh_due_snapshot" || streamSourceMode === "expired_snapshot"
           ? freshnessState === "expired"
             ? "Interaction snapshot expired. Refresh or wait for a new verified source."
             : REFRESH_DUE_INTERACTION_COPY
@@ -521,7 +525,7 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
             ? "Waiting for first snapshot."
             : "Interaction snapshot unavailable for this range.",
     streamSourceStatusDetail: hasResponse
-      ? `Source ${sourceTruth}. ${streamSourceMode === "stale_snapshot" ? "stale recent-event snapshot. " : ""}Last event ${lastEventAt ? new Date(lastEventAt).toISOString() : "unknown"}. Generated ${generatedAtMs ? new Date(generatedAtMs).toISOString() : "unknown"}.`
+      ? `Source ${sourceTruth}. ${streamSourceMode === "refresh_due_snapshot" ? "refresh due snapshot. " : streamSourceMode === "expired_snapshot" ? "expired snapshot. " : ""}Last event ${lastEventAt ? new Date(lastEventAt).toISOString() : "unknown"}. Generated ${generatedAtMs ? new Date(generatedAtMs).toISOString() : "unknown"}.`
       : input.loading
         ? "Interaction stream is waiting for first snapshot."
         : "Interaction stream has no validated snapshot for this range.",
