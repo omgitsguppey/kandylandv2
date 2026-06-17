@@ -127,7 +127,7 @@ for (const expected of [
 }
 
 for (const expected of [
-  "useAdminPollingSWR<AdminAiDebugSummary>(\"/api/admin/debug/assistant\", 15000",
+  "useAdminPollingSWR<AdminAiDebugSummary>(isLocalAdminUiTestSession ? null : \"/api/admin/debug/assistant\", 15000",
   "method: \"POST\"",
   "generate_live_summary",
   "response_state === \"saved\"",
