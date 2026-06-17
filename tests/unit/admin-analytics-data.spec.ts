@@ -32,11 +32,26 @@ const mockState = vi.hoisted(() => {
         empty: docs.length === 0,
     });
 
-    const createCollectionRef = (name: string) => {
-        const clauses: QueryClause[] = [];
-        const orderBys: OrderClause[] = [];
-        const limits: number[] = [];
+    const comparableValue = (value: unknown): string | number => {
+        if (typeof value === "number") return value;
+        if (typeof value === "string") return value;
+        if (
+            value &&
+            typeof value === "object" &&
+            "toMillis" in value &&
+            typeof (value as { toMillis?: unknown }).toMillis === "function"
+        ) {
+            return (value as { toMillis: () => number }).toMillis();
+        }
+        return "";
+    };
 
+    const createCollectionRef = (
+        name: string,
+        clauses: QueryClause[] = [],
+        orderBys: OrderClause[] = [],
+        limits: number[] = [],
+    ) => {
         const applyClauses = (docs: MockDoc[]) => docs.filter((doc) => {
             const raw = doc.data();
             return clauses.every((clause) => {
@@ -50,19 +65,31 @@ const mockState = vi.hoisted(() => {
                 return true;
             });
         });
+        const applyOrderAndLimit = (docs: MockDoc[]) => {
+            const ordered = [...docs];
+            for (const order of [...orderBys].reverse()) {
+                ordered.sort((left, right) => {
+                    const leftValue = comparableValue(left.data()[order.field]);
+                    const rightValue = comparableValue(right.data()[order.field]);
+                    if (leftValue < rightValue) return order.direction === "desc" ? 1 : -1;
+                    if (leftValue > rightValue) return order.direction === "desc" ? -1 : 1;
+                    return left.id.localeCompare(right.id);
+                });
+            }
+
+            const limit = limits[limits.length - 1];
+            return typeof limit === "number" ? ordered.slice(0, limit) : ordered;
+        };
 
         return {
             where(field: string, operator: string, value: unknown) {
-                clauses.push({ field, operator, value });
-                return this;
+                return createCollectionRef(name, [...clauses, { field, operator, value }], orderBys, limits);
             },
             orderBy(field: string, direction: "asc" | "desc" = "asc") {
-                orderBys.push({ field, direction });
-                return this;
+                return createCollectionRef(name, clauses, [...orderBys, { field, direction }], limits);
             },
             limit(value: number) {
-                limits.push(value);
-                return this;
+                return createCollectionRef(name, clauses, orderBys, [...limits, value]);
             },
             doc(id: string) {
                 return {
@@ -84,7 +111,7 @@ const mockState = vi.hoisted(() => {
                     limits: [...limits],
                 });
 
-                return createQuerySnapshot(applyClauses(collections.get(name) ?? [])) as FirebaseFirestore.QuerySnapshot;
+                return createQuerySnapshot(applyOrderAndLimit(applyClauses(collections.get(name) ?? []))) as FirebaseFirestore.QuerySnapshot;
             },
         };
     };
@@ -220,5 +247,82 @@ describe("fetchAdminHistoricalAnalyticsSources", () => {
         expect(pageRollupQuery?.clauses.some((clause) => clause.field === "dayKey")).toBe(false);
         expect(pageRollupQuery?.limits).toContain(2_500);
         expect(dailyRollupQuery?.limits).toContain(2_500);
+    });
+
+    it("samples all-time launch and recent edges for capped event lanes", async () => {
+        const startMs = Date.UTC(2020, 0, 1, 0, 0, 0);
+        const launchTimestamp = Date.UTC(2024, 0, 15, 0, 0, 0);
+        const recentTimestamp = Date.UTC(2026, 5, 17, 0, 0, 0);
+        mockState.collections.set("analytics_event_facts", [
+            {
+                id: "launch_fact",
+                data: () => ({
+                    eventName: "home_page_viewed",
+                    timestamp: launchTimestamp,
+                    deviceCategory: "mobile",
+                }),
+            },
+            {
+                id: "recent_fact",
+                data: () => ({
+                    eventName: "drops_page_viewed",
+                    timestamp: recentTimestamp,
+                    deviceCategory: "desktop",
+                }),
+            },
+        ]);
+        mockState.collections.set("analytics_guest_batches", [
+            {
+                id: "launch_guest",
+                data: () => ({
+                    receivedAtMs: launchTimestamp,
+                    events: [{ type: "page_view", timestamp: launchTimestamp, path: "/" }],
+                }),
+            },
+            {
+                id: "recent_guest",
+                data: () => ({
+                    receivedAtMs: recentTimestamp,
+                    events: [{ type: "page_view", timestamp: recentTimestamp, path: "/drops" }],
+                }),
+            },
+        ]);
+
+        const result = await fetchAdminHistoricalAnalyticsSources({
+            analyticsClient: {} as never,
+            propertyId: "prop_123",
+            startDate: "2020-01-01",
+            endDate: "2026-06-17",
+            startDayKey: "2020-01-01",
+            startMs,
+            period: "all",
+            timelineBucket: "day",
+        });
+
+        const eventFactQueries = mockState.queryHistory.filter((entry) => entry.name === "analytics_event_facts");
+        const guestBatchQueries = mockState.queryHistory.filter((entry) => entry.name === "analytics_guest_batches");
+
+        expect(eventFactQueries).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                orderBys: [expect.objectContaining({ field: "timestamp", direction: "asc" })],
+                limits: [250],
+            }),
+            expect.objectContaining({
+                orderBys: [expect.objectContaining({ field: "timestamp", direction: "desc" })],
+                limits: [250],
+            }),
+        ]));
+        expect(guestBatchQueries).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                orderBys: [expect.objectContaining({ field: "receivedAtMs", direction: "asc" })],
+                limits: [100],
+            }),
+            expect.objectContaining({
+                orderBys: [expect.objectContaining({ field: "receivedAtMs", direction: "desc" })],
+                limits: [100],
+            }),
+        ]));
+        expect(result.analyticsEventFactsSnapshot.docs.map((doc) => doc.id)).toEqual(["launch_fact", "recent_fact"]);
+        expect(result.guestBatchesSnapshot.docs.map((doc) => doc.id)).toEqual(["launch_guest", "recent_guest"]);
     });
 });

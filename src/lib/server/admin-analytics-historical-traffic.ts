@@ -102,6 +102,33 @@ function readSessionKey(data: Record<string, unknown>, fallback: string) {
   return fallback;
 }
 
+function trimLeadingEmptyLaunchBuckets<T extends {
+  users: number;
+  views: number;
+  sessions: number;
+  newUsers: number;
+}>(input: {
+  startDayKey: string;
+  timelineBucket: "day" | "hour";
+  rows: T[];
+}) {
+  if (input.timelineBucket !== "day" || input.startDayKey !== "2020-01-01") {
+    return input.rows;
+  }
+
+  const firstRecoveredIndex = input.rows.findIndex((row) => (
+    row.users > 0 ||
+    row.views > 0 ||
+    row.sessions > 0 ||
+    row.newUsers > 0
+  ));
+  if (firstRecoveredIndex <= 0) {
+    return input.rows;
+  }
+
+  return input.rows.slice(firstRecoveredIndex);
+}
+
 export function buildHistoricalTrafficOverview(input: {
   responseRows: AnalyticsReportRow[];
   eventRows: AnalyticsReportRow[];
@@ -385,7 +412,7 @@ export function buildHistoricalTrafficOverview(input: {
     timelineBucket,
   });
 
-  const chartData = chartKeys.map((bucketKey) => {
+  const rawChartData = chartKeys.map((bucketKey) => {
     const ga = gaChartMap.get(bucketKey);
     const isHourly = timelineBucket === "hour";
     const rollup = isHourly ? null : dayRollupMap.get(bucketKey);
@@ -422,6 +449,11 @@ export function buildHistoricalTrafficOverview(input: {
       avgSessionDuration: ga?.avgSessionDuration ?? 0,
       engagementRate: ga?.engagementRate ?? 0,
     };
+  });
+  const chartData = trimLeadingEmptyLaunchBuckets({
+    startDayKey,
+    timelineBucket,
+    rows: rawChartData,
   });
 
   const totals = {

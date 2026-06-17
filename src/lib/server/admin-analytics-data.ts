@@ -31,6 +31,53 @@ const ADMIN_ANALYTICS_DROP_ARCHIVE_LIMIT = 100;
 const ADMIN_ANALYTICS_TASK_EVENT_LIMIT = 500;
 const ADMIN_ANALYTICS_TRANSACTION_LIMIT = 500;
 
+function uniqueSnapshotDocs(
+  snapshots: Array<FirebaseFirestore.QuerySnapshot | null>,
+  limit: number,
+) {
+  const docsById = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
+  for (const snapshot of snapshots) {
+    for (const doc of snapshot?.docs ?? []) {
+      if (!docsById.has(doc.id)) {
+        docsById.set(doc.id, doc);
+      }
+      if (docsById.size >= limit) {
+        break;
+      }
+    }
+    if (docsById.size >= limit) {
+      break;
+    }
+  }
+
+  const docs = [...docsById.values()];
+  return {
+    docs,
+    size: docs.length,
+    empty: docs.length === 0,
+  } as FirebaseFirestore.QuerySnapshot;
+}
+
+async function readAllTimeLaunchAndRecentSamples(input: {
+  collection: FirebaseFirestore.CollectionReference;
+  orderField: string;
+  limit: number;
+}) {
+  const edgeLimit = Math.max(1, Math.ceil(input.limit / 2));
+  const [launchSnapshot, recentSnapshot] = await Promise.all([
+    input.collection
+      .orderBy(input.orderField, "asc")
+      .limit(edgeLimit)
+      .get(),
+    input.collection
+      .orderBy(input.orderField, "desc")
+      .limit(edgeLimit)
+      .get(),
+  ]);
+
+  return uniqueSnapshotDocs([launchSnapshot, recentSnapshot], input.limit);
+}
+
 export async function fetchAdminHistoricalAnalyticsSources(input: {
   analyticsClient: AdminAnalyticsDataClient;
   propertyId: string;
@@ -296,10 +343,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         channel: "analytics",
         label: "analytics event facts",
         issues,
-        reader: () => adminDb.collection("analytics_event_facts")
-          .orderBy("timestamp", "desc")
-          .limit(ADMIN_ANALYTICS_EVENT_FACT_LIMIT)
-          .get(),
+        reader: () => readAllTimeLaunchAndRecentSamples({
+          collection: adminDb.collection("analytics_event_facts"),
+          orderField: "timestamp",
+          limit: ADMIN_ANALYTICS_EVENT_FACT_LIMIT,
+        }),
       })
       : safeQueryWithDiagnostics({
         routeName: "admin/analytics/historical",
@@ -348,10 +396,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         channel: "analytics",
         label: "guest analytics batches",
         issues,
-        reader: () => adminDb.collection("analytics_guest_batches")
-          .orderBy("receivedAtMs", "desc")
-          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
-          .get(),
+        reader: () => readAllTimeLaunchAndRecentSamples({
+          collection: adminDb.collection("analytics_guest_batches"),
+          orderField: "receivedAtMs",
+          limit: ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT,
+        }),
       })
       : safeQueryWithDiagnostics({
         routeName: "admin/analytics/historical",
@@ -370,10 +419,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         channel: "analytics",
         label: "guest analytics sessions",
         issues,
-        reader: () => adminDb.collection("analytics_sessions")
-          .orderBy("lastReceivedAtMs", "desc")
-          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
-          .get(),
+        reader: () => readAllTimeLaunchAndRecentSamples({
+          collection: adminDb.collection("analytics_sessions"),
+          orderField: "lastReceivedAtMs",
+          limit: ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT,
+        }),
       })
       : safeQueryWithDiagnostics({
         routeName: "admin/analytics/historical",
@@ -444,10 +494,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         channel: "analytics",
         label: "watch sessions",
         issues,
-        reader: () => adminDb.collection("analytics_watch_sessions")
-          .orderBy("lastSeenAtMs", "desc")
-          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
-          .get(),
+        reader: () => readAllTimeLaunchAndRecentSamples({
+          collection: adminDb.collection("analytics_watch_sessions"),
+          orderField: "lastSeenAtMs",
+          limit: ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT,
+        }),
       })
       : safeQueryWithDiagnostics({
         routeName: "admin/analytics/historical",
@@ -466,10 +517,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         channel: "analytics",
         label: "watch assets",
         issues,
-        reader: () => adminDb.collection("analytics_watch_assets")
-          .orderBy("lastSeenAtMs", "desc")
-          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
-          .get(),
+        reader: () => readAllTimeLaunchAndRecentSamples({
+          collection: adminDb.collection("analytics_watch_assets"),
+          orderField: "lastSeenAtMs",
+          limit: ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT,
+        }),
       })
       : safeQueryWithDiagnostics({
         routeName: "admin/analytics/historical",
@@ -521,10 +573,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
             channel: "commerce",
             label: "transactions",
             issues,
-            reader: () => adminDb.collection("transactions")
-              .orderBy("timestamp", "desc")
-              .limit(ADMIN_ANALYTICS_TRANSACTION_LIMIT)
-              .get(),
+            reader: () => readAllTimeLaunchAndRecentSamples({
+              collection: adminDb.collection("transactions"),
+              orderField: "timestamp",
+              limit: ADMIN_ANALYTICS_TRANSACTION_LIMIT,
+            }),
           })
           : safeQueryWithDiagnostics({
             routeName: "admin/analytics/historical",

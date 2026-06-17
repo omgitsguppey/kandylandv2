@@ -384,6 +384,40 @@ describe("buildHistoricalTrafficOverview", () => {
       },
     ]);
   });
+
+  it("trims leading pre-launch empty all-time buckets while preserving post-launch gaps", () => {
+    const overview = buildHistoricalTrafficOverview({
+      responseRows: [],
+      eventRows: [],
+      geoRows: [],
+      geoPathRows: [],
+      deviceRows: [],
+      pageRows: [],
+      dailyRollups: [],
+      pageRollups: [
+        doc("2024-02-10__home", {
+          pagePath: "/",
+          viewCount: 6,
+        }),
+      ],
+      analyticsEventFacts: [],
+      guestBatchDocs: [],
+      guestSessionDocs: [],
+      sessionFacts: [],
+      startMs: Date.UTC(2020, 0, 1, 0, 0, 0),
+      endMs: Date.UTC(2024, 1, 11, 23, 59, 59),
+      startDayKey: "2020-01-01",
+      endDayKey: "2024-02-11",
+      timelineBucket: "day",
+      authenticatedPageViewEventNames: new Set(["home_page_viewed"]),
+    });
+
+    expect(overview.chartData[0]?.rawDate).toBe("20240210");
+    expect(overview.chartData.map((point) => point.rawDate)).not.toContain("20200101");
+    expect(overview.chartData.at(-1)?.rawDate).toBe("20240211");
+    expect(overview.chartData.at(-1)?.views).toBe(0);
+    expect(overview.totals.views).toBe(6);
+  });
 });
 
 describe("admin analytics historical route snapshot authority", () => {
