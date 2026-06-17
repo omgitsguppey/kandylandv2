@@ -11,6 +11,10 @@ import {
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import type { AdminTaskPipelineModel, AdminTaskPipelineMetric } from "@/lib/admin-task-pipeline";
 
+const NO_RATE_SAMPLE_LABEL = "No rate sample";
+const NO_TIMING_SAMPLE_LABEL = "No timing sample";
+const NO_SNAPSHOT_SAMPLE_LABEL = "No verified snapshot yet";
+
 export function AdminDailyTaskPipelineModule(props: {
     renderSectionRangeControl: (sectionKey: string) => ReactNode;
     model: AdminTaskPipelineModel;
@@ -28,8 +32,8 @@ export function AdminDailyTaskPipelineModule(props: {
     }, [props.model]);
 
     const formatCount = (value: number | null) => value === null ? "Waiting" : value.toLocaleString();
-    const formatRate = (value: number | null) => value === null ? "Unavailable" : props.formatPercent(value);
-    const formatSpeed = (value: number | null) => value === null ? "Unavailable" : props.formatDuration(value);
+    const formatRate = (value: number | null) => value === null ? NO_RATE_SAMPLE_LABEL : props.formatPercent(value);
+    const formatSpeed = (value: number | null) => value === null ? NO_TIMING_SAMPLE_LABEL : props.formatDuration(value);
     const lifecycleProgressWidth = (metric: AdminTaskPipelineMetric) => {
         const peak = Math.max(1, props.model.peakCount);
         return `${Math.max(4, Math.min(100, ((metric.value ?? 0) / peak) * 100))}%`;
@@ -49,7 +53,7 @@ export function AdminDailyTaskPipelineModule(props: {
     const changePage = (direction: -1 | 1) => {
         setLeaderboardPage((current) => Math.min(pageCount - 1, Math.max(0, current + direction)));
     };
-    const generatedLabel = props.model.generatedAtUtc ? new Date(props.model.generatedAtUtc).toLocaleString() : "Unavailable";
+    const generatedLabel = props.model.generatedAtUtc ? new Date(props.model.generatedAtUtc).toLocaleString() : NO_SNAPSHOT_SAMPLE_LABEL;
     const staleSnapshotCopy = props.model.snapshotState === "stale"
         ? `Showing the last verified task pipeline snapshot from ${generatedLabel}; refresh is due.`
         : props.model.visibleCopy;
@@ -333,7 +337,7 @@ function TaskLeaderboardPanel(props: {
                             <div className="hidden text-right text-[9px] leading-4 text-gray-500 sm:block">
                                 <p>{task.sourceMode}</p>
                                 <p>{task.rewardVerified ? "reward verified" : "reward unverified"}</p>
-                                <p>{task.timingCoveragePercent === null ? "timing unavailable" : `${props.formatPercent(task.timingCoveragePercent)} timed`}</p>
+                                <p>{task.timingCoveragePercent === null ? "No timing sample" : `${props.formatPercent(task.timingCoveragePercent)} timed`}</p>
                             </div>
                         </div>
                     ))}

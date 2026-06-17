@@ -31,4 +31,11 @@ describe("Admin onboarding analytics mobile consolidation", () => {
     expect(source).toContain('return "UNAVAILABLE"');
     expect(source).not.toContain(': "LIVE";');
   });
+
+  it("labels missing onboarding timing samples without bare unavailable copy", () => {
+    expect(source).toContain("No timing sample");
+    expect(source).toContain("No slow-step sample");
+    expect(source).not.toContain('"Unavailable"');
+    expect(source).not.toContain("Timing unavailable");
+  });
 });

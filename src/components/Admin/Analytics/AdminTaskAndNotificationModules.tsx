@@ -13,6 +13,8 @@ import type { AdminNotificationFunnelModel, NotificationFunnelStep } from "@/lib
 import type { AdminTaskPipelineModel } from "@/lib/admin-task-pipeline";
 
 const NO_PERMISSION_SAMPLE_LABEL = "No permission sample";
+const NO_NOTIFICATION_SAMPLE_LABEL = "No notification sample";
+const NO_SNAPSHOT_SAMPLE_LABEL = "No verified snapshot yet";
 const DEBUG_NOTIFICATION_RECORDS_LABEL = "Debug notification records";
 const TASK_REMINDER_TELEMETRY_LABEL = "task reminder telemetry";
 
@@ -35,7 +37,7 @@ export function AdminTaskAndNotificationModules(props: {
     const secondaryMetrics = props.notificationFunnelModel.metrics.slice(6);
     const generatedAtLabel = props.notificationFunnelModel.generatedAtUtc
         ? new Date(props.notificationFunnelModel.generatedAtUtc).toLocaleString()
-        : "Unavailable";
+        : NO_SNAPSHOT_SAMPLE_LABEL;
     const peakNotificationCount = Math.max(
         1,
         ...props.notificationFunnelModel.metrics.map((metric) => metric.count ?? 0),
@@ -165,7 +167,7 @@ export function AdminTaskAndNotificationModules(props: {
                                             />
                                         </div>
                                         <span className="text-right font-semibold text-white">
-                                            {metric.displayValue || (metric.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : "Unavailable")}
+                                            {metric.displayValue || (metric.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : NO_NOTIFICATION_SAMPLE_LABEL)}
                                         </span>
                                     </div>
                                 ))}
@@ -211,7 +213,7 @@ export function AdminTaskAndNotificationModules(props: {
                                                     <p className="truncate font-semibold text-white">{metric.label}</p>
                                                     <p className="truncate text-[11px] text-gray-500">{metric.explanation}</p>
                                                 </td>
-                                                <td className="px-3 py-2">{metric.displayValue || (metric.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : "Unavailable")}</td>
+                                                <td className="px-3 py-2">{metric.displayValue || (metric.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : NO_NOTIFICATION_SAMPLE_LABEL)}</td>
                                                 <td className="px-3 py-2">{metric.sourceLabel || (metric.key === "sent" ? DEBUG_NOTIFICATION_RECORDS_LABEL : metric.sourceLabel)}</td>
                                                 <td className="px-3 py-2">{metric.status} / {metric.freshnessState}</td>
                                                 <td className="px-3 py-2">{metric.denominator ?? props.notificationFunnelModel.denominatorMode}</td>
@@ -244,7 +246,7 @@ function NotificationStepCard(props: { step: NotificationFunnelStep; compact?: b
                 {props.step.label}
             </p>
             <p className={props.compact ? "mt-1 text-sm font-bold text-white" : "mt-1 text-lg font-black leading-none text-white"}>
-                {props.step.displayValue || (props.step.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : "Unavailable")}
+                {props.step.displayValue || (props.step.key === "enabled" ? NO_PERMISSION_SAMPLE_LABEL : NO_NOTIFICATION_SAMPLE_LABEL)}
             </p>
             <p className="mt-1 truncate text-[10px] font-semibold text-gray-500">
                 {props.step.sourceLabel || (props.step.key === "sent" ? DEBUG_NOTIFICATION_RECORDS_LABEL : props.step.sourceLabel)}

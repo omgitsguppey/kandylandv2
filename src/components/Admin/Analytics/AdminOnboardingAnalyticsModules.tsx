@@ -28,6 +28,9 @@ type OnboardingStepItem = {
     dropOffCount: number;
 };
 
+const NO_TIMING_SAMPLE_LABEL = "No timing sample";
+const NO_SLOW_STEP_SAMPLE_LABEL = "No slow-step sample";
+
 function OnboardingDiscrepancyCallout({
     model,
 }: {
@@ -95,7 +98,7 @@ export function AdminOnboardingAnalyticsModules(props: {
     const percentLabel = (value: number | null) =>
         value === null ? "Waiting" : props.formatPercent(value);
     const durationLabel = (seconds: number | null) =>
-        seconds === null ? "Unavailable" : props.formatDuration(seconds);
+        seconds === null ? NO_TIMING_SAMPLE_LABEL : props.formatDuration(seconds);
     const maxBucket = Math.max(1, ...model.durationBucketCounts.map((bucket) => bucket.count));
 
     useEffect(() => {
@@ -191,7 +194,7 @@ export function AdminOnboardingAnalyticsModules(props: {
                             <MetricCard
                                 label="Avg Time"
                                 value={durationLabel(model.avgCompletionTime.value)}
-                                hint={model.timingMissing ? "Timing unavailable" : "Mean completion time"}
+                                hint={model.timingMissing ? NO_TIMING_SAMPLE_LABEL : "Mean completion time"}
                                 icon={Clock3}
                                 truthState={model.truthState}
                                 statusBadgeLabel={velocityBadgeLabel}
@@ -211,7 +214,7 @@ export function AdminOnboardingAnalyticsModules(props: {
                                 <span className="font-semibold text-white">Slowest:</span>{" "}
                                 {model.slowestStep
                                     ? `${model.slowestStep.stepTitle}, ${durationLabel(model.slowestStepAvgSeconds)}`
-                                    : "Unavailable"}
+                                    : NO_SLOW_STEP_SAMPLE_LABEL}
                             </span>
                             <span>
                                 <span className="font-semibold text-white">Drop-off:</span>{" "}

@@ -22,4 +22,11 @@ describe("Admin notification funnel mobile consolidation", () => {
     expect(source).toContain('notificationFunnelViewMode === "table"');
     expect(source).toContain('notificationFunnelViewMode === "cards"');
   });
+
+  it("labels missing notification samples without bare unavailable copy", () => {
+    expect(source).toContain("No permission sample");
+    expect(source).toContain("No notification sample");
+    expect(source).toContain("No verified snapshot yet");
+    expect(source).not.toContain('"Unavailable"');
+  });
 });

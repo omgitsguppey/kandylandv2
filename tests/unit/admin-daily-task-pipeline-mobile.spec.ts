@@ -27,4 +27,12 @@ describe("Admin daily task pipeline mobile consolidation", () => {
     expect(source).toContain("refresh is due");
     expect(source).not.toContain("stale validated task pipeline snapshot");
   });
+
+  it("uses source-aware missing labels instead of bare unavailable copy", () => {
+    expect(source).toContain("No rate sample");
+    expect(source).toContain("No timing sample");
+    expect(source).toContain("No verified snapshot yet");
+    expect(source).not.toContain('"Unavailable"');
+    expect(source).not.toContain("timing unavailable");
+  });
 });
