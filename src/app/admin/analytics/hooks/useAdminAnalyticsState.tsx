@@ -1553,10 +1553,22 @@ export function useAdminAnalyticsState() {
   const overviewCommerce = historicalOverviewResponse?.commerce ?? commerce;
   const overviewFunnel = historicalOverviewResponse?.funnel ?? funnel;
   const overviewCheckoutStarts = overviewFunnel.checkoutStarts;
-  const totalDeviceUsers = overviewDevices.reduce((sum, item) => sum + item.users, 0);
+  const classifiedDeviceUsers = overviewDevices.reduce((sum, item) => {
+    const device = item.device.toLowerCase();
+    return device === "mobile" || device === "desktop" || device === "tablet"
+      ? sum + item.users
+      : sum;
+  }, 0);
+  const unknownDeviceUsers = overviewDevices.reduce((sum, item) => {
+    const device = item.device.toLowerCase();
+    return device === "mobile" || device === "desktop" || device === "tablet"
+      ? sum
+      : sum + item.users;
+  }, 0);
+  const totalDeviceUsers = classifiedDeviceUsers + unknownDeviceUsers;
   const mobileUsers =
     overviewDevices.find((item) => item.device.toLowerCase() === "mobile")?.users ?? 0;
-  const mobileShare = totalDeviceUsers > 0 ? mobileUsers / totalDeviceUsers : 0;
+  const mobileShare = classifiedDeviceUsers > 0 ? mobileUsers / classifiedDeviceUsers : 0;
 
   const historicalSnapshotSurfaceState =
     resolveAdminSnapshotSurfaceState(commerceSnapshotModule.snapshot) ??
@@ -1586,17 +1598,17 @@ export function useAdminAnalyticsState() {
     !usedHistoricalOverviewFallbackSnapshot &&
     (historicalLoading || !historicalError);
   const mobileSampleCount = historicalOverviewResponse
-    ? totalDeviceUsers
+    ? classifiedDeviceUsers
     : snapshotClassifiedUsersValue ?? 0;
   const mobileUnknownDeviceUsers = historicalOverviewResponse
-    ? 0
+    ? unknownDeviceUsers
     : snapshotUnknownDeviceUsersValue ?? 0;
   const resolvedMobileUsers = historicalOverviewResponse
     ? mobileUsers
     : snapshotMobileUsersValue ?? 0;
   const hasMobileSample =
     historicalOverviewResponse
-      ? totalDeviceUsers > 0
+      ? classifiedDeviceUsers > 0
       : (snapshotClassifiedUsersValue ?? 0) > 0 || snapshotMobileShareValue !== null;
   const resolvedMobileShare = historicalOverviewResponse
     ? mobileShare

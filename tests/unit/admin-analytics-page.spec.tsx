@@ -1,8 +1,15 @@
 // @vitest-environment happy-dom
 
+import { readFileSync } from "fs";
+import { join } from "path";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const ANALYTICS_STATE_SOURCE = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
+  "utf-8",
+);
 
 const mockState = vi.hoisted(() => {
   const icon = () => null;
@@ -287,6 +294,13 @@ describe("AdminAnalyticsPage", () => {
       root.unmount();
     });
     container.remove();
+  });
+
+  it("does not count unclassified device rows as mobile-share proof", () => {
+    expect(ANALYTICS_STATE_SOURCE).toContain("classifiedDeviceUsers");
+    expect(ANALYTICS_STATE_SOURCE).toContain("unknownDeviceUsers");
+    expect(ANALYTICS_STATE_SOURCE).toContain("classifiedDeviceUsers > 0");
+    expect(ANALYTICS_STATE_SOURCE).not.toContain("? totalDeviceUsers > 0");
   });
 
   it("calls the clear-all handler from admin analytics state", async () => {
