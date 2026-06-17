@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 import { buildAdminAnalyticsEventMixModel } from "@/lib/admin-analytics-event-mix";
 import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
+
+const OPERATIONS_TAB_SOURCE = readFileSync(
+  join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
+  "utf-8",
+);
 
 function response(): HistoricalAnalyticsResponse {
   return {
@@ -129,5 +136,10 @@ describe("buildAdminAnalyticsEventMixModel", () => {
     expect(model.badgeLabel).toBe("DELAYED");
     expect(model.eventRows[0]?.truthState).toBe("cached");
     expect(model.eventMixSourceMode).toBe("backend_snapshot");
+  });
+
+  it("keeps unavailable surface context explicit in the admin Event Mix UI", () => {
+    expect(OPERATIONS_TAB_SOURCE).toContain("eventMixSurfaceContextLabel");
+    expect(OPERATIONS_TAB_SOURCE).toContain("Surface context unavailable");
   });
 });

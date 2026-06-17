@@ -143,6 +143,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     eventMixModel.eventsMissingSurfaceContext === null
       ? ""
       : `${eventMixModel.eventsMissingSurfaceContext} top events need surface context.`;
+  const eventMixSurfaceContextLabel =
+    eventMixModel.actualSurfaceContextState === "available"
+      ? "Surface context verified"
+      : eventMixModel.actualSurfaceContextState === "partial"
+        ? "Surface context partial"
+        : eventMixModel.actualSurfaceContextState === "unknown"
+          ? "Surface context checking"
+          : "Surface context unavailable";
   const guestEstimateSourceLabel = formatAdminAnalyticsSourceTruthLabel(
     guestBounceQualityModel.estimatedGuestViews.sourceTruth,
   );
@@ -1572,7 +1580,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     </span>
                       <span>
                         <span className="font-semibold text-white">Verified surface context:</span>{" "}
-                        {eventMixModel.actualSurfaceContextState}
+                        {eventMixSurfaceContextLabel}
                       </span>
                     </div>
 
@@ -1745,7 +1753,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       <span className="font-semibold text-white">Context:</span>{" "}
                       {eventMixModel.actualSurfaceContextState === "available"
                         ? "Verified route and surface context available."
-                        : "No verified route or surface context for this range."}
+                        : `${eventMixSurfaceContextLabel}. Verified route and surface context are missing for this range.`}
                       {" "}
                       {catalogMappingSentence}
                       {" "}
