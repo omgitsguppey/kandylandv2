@@ -63,7 +63,7 @@ export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
                                         {!data?.modelHealth ? (
                                             <div className="rounded-[1rem] border border-dashed border-white/10 bg-black/25 p-3 text-sm text-gray-400">
                                                 <AdminStatusBadge state={sectionTruthState} className="mr-2" />
-                                                Model health snapshot unavailable.
+                                                No model health source loaded yet.
                                             </div>
                                         ) : data.modelHealth.map((entry) => (
                                             <button
@@ -80,7 +80,7 @@ export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
                                                     <div className="min-w-0">
                                                         <div className="text-sm font-semibold text-white">{entry.label}</div>
                                                         <div className="mt-1 break-words text-[11px] text-gray-400">
-                                                            {entry.maxReferenceInputs} refs • {formatAdminAiUsd(entry.pricePerGenerationUsd)}
+                                                            {entry.maxReferenceInputs} refs - {formatAdminAiUsd(entry.pricePerGenerationUsd)}
                                                         </div>
                                                     </div>
                                                     <AdminStatusBadge state={entry.preflightStatus === "pass" ? "live" : entry.preflightStatus === "fail" ? "failed" : "degraded"} />
@@ -134,7 +134,7 @@ export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
                                         {!data?.preflightChecks ? (
                                             <div className="rounded-[1rem] border border-dashed border-white/10 bg-black/25 p-3 text-sm text-gray-400">
                                                 <AdminStatusBadge state={sectionTruthState} className="mr-2" />
-                                                Preflight checks unavailable.
+                                                No preflight source loaded yet.
                                             </div>
                                         ) : data.preflightChecks.map((check) => (
                                             <div key={check.key} className={cn("rounded-[1rem] border px-3 py-3", preflightTone(check.status))}>

@@ -6,6 +6,8 @@ import { describe, expect, it } from "vitest";
 const pageSource = readFileSync(join(process.cwd(), "src/app/admin/ai/page.tsx"), "utf8");
 const hookSource = readFileSync(join(process.cwd(), "src/app/admin/ai/hooks/useAdminAiState.tsx"), "utf8");
 const descriptionSource = readFileSync(join(process.cwd(), "src/components/Admin/AdminAiDescriptionOperations.tsx"), "utf8");
+const runtimeSource = readFileSync(join(process.cwd(), "src/app/admin/ai/components/AdminAiRuntimestripSection.tsx"), "utf8");
+const recentSource = readFileSync(join(process.cwd(), "src/app/admin/ai/components/AdminAiRecentgenerationsSection.tsx"), "utf8");
 
 describe("admin AI local fixture boundary", () => {
   it("labels Cover Ops as no-source instead of live admin AI evidence in local fixture mode", () => {
@@ -16,6 +18,10 @@ describe("admin AI local fixture boundary", () => {
     expect(pageSource).toContain('className="flex flex-wrap gap-1"');
     expect(pageSource).not.toContain("min-w-max");
     expect(pageSource).toContain("disabled={state.isLocalAdminUiTestSession}");
+    expect(runtimeSource).toContain("No model health source loaded yet.");
+    expect(runtimeSource).toContain("No preflight source loaded yet.");
+    expect(recentSource).toContain('title="No generation job source"');
+    expect(`${runtimeSource}\n${recentSource}`).not.toContain(" • ");
   });
 
   it("skips admin AI cover reads and writes for local fixture sessions", () => {

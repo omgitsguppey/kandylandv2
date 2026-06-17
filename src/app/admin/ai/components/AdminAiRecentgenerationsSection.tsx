@@ -34,7 +34,7 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
         >
             {!recentJobs ? (
                 <EmptyState
-                    title="Generation jobs unavailable"
+                    title="No generation job source"
                     detail={error ? "The generation job source failed to load." : "Waiting for a verified generation job snapshot."}
                 />
             ) : recentJobs.length === 0 ? (
@@ -60,7 +60,7 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                         <div className="min-w-0">
                                             <div className="truncate text-sm font-semibold text-white">{job.title}</div>
                                             <div className="mt-1 break-words text-xs text-gray-400">
-                                                {formatCompactTimestamp(job.requestedAtMs)} • {job.model}
+                                                {formatCompactTimestamp(job.requestedAtMs)} - {job.model}
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
@@ -89,7 +89,7 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                                 <MetricCard
                                                     label="Queued refs"
                                                     value={formatAdminAiNullableNumber(job.usedReferenceCount ?? job.referenceImageCount)}
-                                                    meta={`Pool ${formatAdminAiNullableNumber(job.referenceRequestCount)} • Max ${formatAdminAiNullableNumber(job.maxReferenceCount)}${(job.droppedReferenceCount || 0) > 0 ? ` • Dropped ${formatAdminAiNullableNumber(job.droppedReferenceCount)}` : ""}`}
+                                                    meta={`Pool ${formatAdminAiNullableNumber(job.referenceRequestCount)} - Max ${formatAdminAiNullableNumber(job.maxReferenceCount)}${(job.droppedReferenceCount || 0) > 0 ? ` - Dropped ${formatAdminAiNullableNumber(job.droppedReferenceCount)}` : ""}`}
                                                     truthState={jobTruthState}
                                                 />
                                                 <MetricCard
