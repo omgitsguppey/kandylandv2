@@ -87,6 +87,7 @@ const debugPrimitives = readRequired("src/app/admin/debug/components/DebugPrimit
 const debugRuntimeEvidenceGroups = readRequired("src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx");
 const debugPage = readRequired("src/app/admin/debug/page.tsx");
 const controlTower = readRequired("src/app/admin/debug/components/DebugControlTower.tsx");
+const debugOperatorCockpit = readRequired("src/app/admin/debug/components/DebugOperatorCockpit.tsx");
 const controlTowerBusinessTruth = readRequired("src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx");
 const controlTowerCards = readRequired("src/app/admin/debug/components/DebugControlTowerCards.tsx");
 const adminPanelSystemLogs = readRequired("src/lib/server/admin-panel-system-logs.ts");
@@ -230,6 +231,22 @@ requireNotIncludes(controlTower, "model?.overallScore ?? \"--\"", "Admin Debug C
 requireNotIncludes(controlTower, "model?.canonicalPublicBetaScore ?? \"--\"", "Admin Debug Control Tower primary view must not render the raw beta score as the hero value");
 requireNotIncludes(controlTower, "model.reportAggregateScore", "Admin Debug Control Tower primary view must keep report aggregate scores collapsed/out of the main view");
 requireNotIncludes(controlTower, "reportAggregateScore ?? \"clean\"", "Admin Debug Control Tower report aggregate must not be labeled clean/ready");
+for (const expected of [
+  "data-debug-operator-summary-source-states",
+  "Needs action {needsActionCount}",
+  "Refresh due {refreshDueCount}",
+  "Ready {readyCount}",
+]) {
+  requireIncludes(debugOperatorCockpit, expected, "Admin Debug operator cockpit must summarize source-derived states");
+}
+for (const forbidden of [
+  "Sections {cockpit.summary.sectionCount}",
+  "AI critic {cockpit.summary.aiCriticFindings}",
+  "Playbooks {cockpit.summary.recoveryPlaybooks}",
+  "Score impact:",
+]) {
+  requireNotIncludes(debugOperatorCockpit, forbidden, "Admin Debug operator cockpit must not show generic proof/work stats");
+}
 for (const expected of [
   "\"browser_security_boundary\"",
   "technicalSummary?:",

@@ -23,6 +23,15 @@ function stateTone(state: string) {
     return "border-white/10 bg-white/5 text-gray-200";
 }
 
+function stateLabel(state: string) {
+    if (state === "failed") return "Needs fix";
+    if (state === "degraded") return "Review";
+    if (state === "stale") return "Refresh";
+    if (state === "live") return "Ready";
+    if (state === "unavailable") return "Unavailable";
+    return "Unknown";
+}
+
 function asRecord(item: unknown): Record<string, unknown> {
     return item && typeof item === "object" && !Array.isArray(item) ? item as Record<string, unknown> : {};
 }
@@ -63,15 +72,12 @@ function CockpitSectionCard({ section }: { section: DebugOperatorCockpitSection 
                             <p className="mt-1 text-xs leading-5 text-gray-300">{section.operatorSummary}</p>
                         </div>
                         <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em]", stateTone(section.state))}>
-                            {section.state}
+                            {stateLabel(section.state)}
                         </span>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
                         <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
                             Owner: {section.owner}
-                        </span>
-                        <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
-                            Score impact: {section.scoreImpactEstimate}
                         </span>
                     </div>
                     <p className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-xs font-semibold text-white">
@@ -103,6 +109,18 @@ export function DebugOperatorCockpit({ cockpit }: { cockpit?: DebugOperatorCockp
         );
     }
 
+    const sourceStateCounts = cockpit.defaultSections.reduce<Record<string, number>>((counts, section) => ({
+        ...counts,
+        [section.state]: (counts[section.state] ?? 0) + 1,
+    }), {});
+    const needsActionCount =
+        (sourceStateCounts.failed ?? 0) +
+        (sourceStateCounts.degraded ?? 0) +
+        (sourceStateCounts.unknown ?? 0) +
+        (sourceStateCounts.unavailable ?? 0);
+    const refreshDueCount = sourceStateCounts.stale ?? 0;
+    const readyCount = sourceStateCounts.live ?? 0;
+
     return (
         <section
             className="rounded-[1.2rem] border border-brand-purple/20 bg-brand-purple/[0.06] p-3"
@@ -114,17 +132,17 @@ export function DebugOperatorCockpit({ cockpit }: { cockpit?: DebugOperatorCockp
                 <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-purple">Operator Cockpit</p>
                     <h3 className="text-lg font-black text-white">What to fix next</h3>
-                    <p className="mt-1 text-xs leading-5 text-gray-300">Sorted by score impact, owner, and required evidence path.</p>
+                    <p className="mt-1 text-xs leading-5 text-gray-300">Grouped by source state, owner, and next action.</p>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2" data-debug-operator-summary-source-states="true">
                     <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
-                        Sections {cockpit.summary.sectionCount}
+                        Needs action {needsActionCount}
                     </span>
                     <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
-                        AI critic {cockpit.summary.aiCriticFindings}
+                        Refresh due {refreshDueCount}
                     </span>
                     <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
-                        Playbooks {cockpit.summary.recoveryPlaybooks}
+                        Ready {readyCount}
                     </span>
                 </div>
             </div>

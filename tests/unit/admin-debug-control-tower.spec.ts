@@ -129,6 +129,7 @@ describe("admin debug control tower model", () => {
     it("wires the compact UI to canonical beta score fields instead of aggregate score", () => {
         const root = process.cwd();
         const component = readFileSync(join(root, "src/app/admin/debug/components/DebugControlTower.tsx"), "utf8");
+        const operatorCockpit = readFileSync(join(root, "src/app/admin/debug/components/DebugOperatorCockpit.tsx"), "utf8");
 
         expect(component).toContain("canonicalPublicBetaScore");
         expect(component).toContain("canonicalPublicBetaReadinessReason");
@@ -144,6 +145,14 @@ describe("admin debug control tower model", () => {
         expect(component).not.toContain("Source reports</p>");
         expect(component).not.toContain("model.reportAggregateScore");
         expect(component).not.toContain("model?.overallScore ?? \"--\"");
+        expect(operatorCockpit).toContain("data-debug-operator-summary-source-states");
+        expect(operatorCockpit).toContain("Needs action {needsActionCount}");
+        expect(operatorCockpit).toContain("Refresh due {refreshDueCount}");
+        expect(operatorCockpit).toContain("Ready {readyCount}");
+        expect(operatorCockpit).not.toContain("Sections {cockpit.summary.sectionCount}");
+        expect(operatorCockpit).not.toContain("AI critic {cockpit.summary.aiCriticFindings}");
+        expect(operatorCockpit).not.toContain("Playbooks {cockpit.summary.recoveryPlaybooks}");
+        expect(operatorCockpit).not.toContain("Score impact:");
     });
 
     it("keeps the route runtime admin summary compact while preserving chat drilldown", () => {
