@@ -75,11 +75,11 @@ describe("ManageQueuePage", () => {
     };
   });
 
-  it("shows a source_missing local review state instead of a raw auth failure for the fixture", async () => {
+  it("shows a no-source local review state instead of a raw auth failure for the fixture", async () => {
     render(<ManageQueuePage />);
 
     expect(await screen.findByText("Local UI review only.")).toBeInTheDocument();
-    expect(screen.getByText(/Queue data is source_missing in local review/i)).toBeInTheDocument();
+    expect(screen.getByText(/No verified queue source is loaded in local review/i)).toBeInTheDocument();
     expect(screen.queryByText("Queue data could not be loaded.")).not.toBeInTheDocument();
     expect(screen.queryByText("Retry Queue Load")).not.toBeInTheDocument();
     expect(mockState.authFetch).not.toHaveBeenCalled();

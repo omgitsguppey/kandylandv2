@@ -58,13 +58,13 @@ describe("ContentManagerPage", () => {
     };
   });
 
-  it("labels storage truth as source_missing and disables mutations for the local admin UI fixture", async () => {
+  it("labels storage truth as no-source and disables mutations for the local admin UI fixture", async () => {
     render(<ContentManagerPage />);
 
-    expect(await screen.findByText(/Source missing/i)).toBeInTheDocument();
+    expect(await screen.findByText(/No source loaded/i)).toBeInTheDocument();
     expect(screen.getByText(/No storage sample is loaded for this local review/i)).toBeInTheDocument();
     expect(screen.getByText(/Storage samples, uploads, and deletes need a verified admin session/i)).toHaveAttribute("data-admin-content-source-state", "source_missing");
-    expect(screen.getByRole("button", { name: /Upload unavailable/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Upload needs admin/i })).toBeDisabled();
     expect(screen.getByLabelText("Upload content file")).toBeDisabled();
     expect(mockState.authFetch).not.toHaveBeenCalled();
   });
@@ -82,7 +82,7 @@ describe("ContentManagerPage", () => {
     render(<ContentManagerPage />);
 
     await waitFor(() => expect(mockState.authFetch).toHaveBeenCalledWith("/api/admin/content", { cache: "no-store" }));
-    expect(screen.queryByText(/Source missing/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No source loaded/i)).not.toBeInTheDocument();
     expect(await screen.findByText(/No drop assets found/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Upload file/i })).toBeEnabled();
   });

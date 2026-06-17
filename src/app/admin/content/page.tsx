@@ -238,7 +238,7 @@ export default function ContentManagerPage() {
                         />
                         <Button variant="brand" size="sm" disabled={uploading || isLocalAdminUiTestSession}>
                             {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                            {isLocalAdminUiTestSession ? "Upload unavailable" : "Upload file"}
+                            {isLocalAdminUiTestSession ? "Upload needs admin" : "Upload file"}
                         </Button>
                     </div>
                     </>
@@ -251,7 +251,7 @@ export default function ContentManagerPage() {
                     data-admin-content-fixture-boundary="true"
                     data-admin-content-source-state="source_missing"
                 >
-                    <span className="font-semibold text-amber-50">Source missing.</span> Storage samples, uploads, and deletes need a verified admin session.
+                    <span className="font-semibold text-amber-50">No source loaded.</span> Storage samples, uploads, and deletes need a verified admin session.
                 </div>
             ) : null}
 

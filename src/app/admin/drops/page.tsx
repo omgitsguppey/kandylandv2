@@ -803,7 +803,7 @@ export default function AdminDropsPage() {
                                 <div className="flex h-4 w-4 items-center justify-center rounded-full bg-white/20">
                                     <PlusCircle className="h-3 w-3" />
                                 </div>
-                                {isLocalAdminUiTestSession ? "Create unavailable" : "Create Drop"}
+                                {isLocalAdminUiTestSession ? "Create needs admin" : "Create Drop"}
                             </button>
                         </>
                     )}
@@ -815,7 +815,7 @@ export default function AdminDropsPage() {
                         data-admin-drops-fixture-boundary="true"
                         data-admin-drops-fixture-state="source_missing"
                     >
-                        Local UI review only. This shows the drop tools layout without loading live records. Drop feed, creator options, queue state, creation, review, notifications, duplication, edits, and deletes stay source_missing until a real admin session loads verified records.
+                        Local UI review only. This shows the drop tools layout without loading live records. Drop feed, creator options, queue state, creation, review, notifications, duplication, edits, and deletes need a real admin session before they show verified records.
                     </div>
                 ) : null}
 

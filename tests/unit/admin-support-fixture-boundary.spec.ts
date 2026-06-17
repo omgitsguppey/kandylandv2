@@ -7,12 +7,12 @@ const queueSource = readFileSync(join(process.cwd(), "src/components/Admin/Admin
 const hookSource = readFileSync(join(process.cwd(), "src/hooks/useAdminSupportRealtime.ts"), "utf8");
 
 describe("admin support fixture boundary", () => {
-  it("labels local admin UI fixture support evidence as source_missing, not API verified", () => {
+  it("labels local admin UI fixture support evidence as no-source, not API verified", () => {
     expect(queueSource).toContain("isAdminUiTestSessionUser(user)");
     expect(queueSource).toContain('data-admin-support-fixture-boundary="true"');
-    expect(queueSource).toContain("Support queue data is source_missing here");
+    expect(queueSource).toContain("No verified support queue source is loaded here");
     expect(queueSource).toContain("reading threads, replying, or changing support status");
-    expect(queueSource).toContain('{isLocalAdminUiTestSession ? "source_missing" : "Verified"}');
+    expect(queueSource).toContain('{isLocalAdminUiTestSession ? "No source" : "Verified"}');
   });
 
   it("disables admin support route reads while fixture mode is active", () => {

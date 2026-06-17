@@ -11,7 +11,7 @@ describe("admin drops local fixture boundary", () => {
     expect(source).toContain('data-admin-drops-fixture-boundary="true"');
     expect(source).toContain('data-admin-drops-fixture-state="source_missing"');
     expect(source).toContain("This shows the drop tools layout without loading live records");
-    expect(source).toContain("Drop feed, creator options, queue state, creation, review, notifications, duplication, edits, and deletes stay source_missing");
+    expect(source).toContain("Drop feed, creator options, queue state, creation, review, notifications, duplication, edits, and deletes need a real admin session");
     expect(source).toContain("useAdminDropsFeed({ enabled: !isLocalAdminUiTestSession })");
     expect(source).toContain("const ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS = 0");
     expect(source).toContain('useAdminPollingSWR<AdminDropQueueConfig>(isLocalAdminUiTestSession ? null : "/api/admin/queue", ADMIN_DROP_QUEUE_SNAPSHOT_REFRESH_INTERVAL_MS)');
@@ -19,6 +19,6 @@ describe("admin drops local fixture boundary", () => {
     expect(source).toContain("if (isLocalAdminUiTestSession) {\n            return;\n        }");
     expect(source).toContain('disabled={isLocalAdminUiTestSession}');
     expect(source).toContain('disabled={isLocalAdminUiTestSession || reviewingDropId === drop.id}');
-    expect(source).toContain('isLocalAdminUiTestSession ? "Create unavailable" : "Create Drop"');
+    expect(source).toContain('isLocalAdminUiTestSession ? "Create needs admin" : "Create Drop"');
   });
 });
