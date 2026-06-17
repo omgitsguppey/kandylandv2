@@ -126,6 +126,8 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
       return "Current";
     case "cached":
       return "Cached";
+    case "loading":
+      return "Hydrating";
     case "stale":
       return "Refresh due";
     case "consumer_source_mismatch":

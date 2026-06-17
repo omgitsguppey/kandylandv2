@@ -15,6 +15,10 @@ const helpersSource = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/AnalyticsHelpers.tsx"),
   "utf8",
 );
+const preferencesSource = readFileSync(
+  join(process.cwd(), "src/lib/admin-analytics-preferences.ts"),
+  "utf8",
+);
 
 describe("admin analytics local fixture boundary", () => {
   it("labels local admin UI fixture analytics evidence as source_missing", () => {
@@ -55,5 +59,14 @@ describe("admin analytics local fixture boundary", () => {
     expect(hookSource).toContain("liveError instanceof Error");
     expect(hookSource).not.toContain('error: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null');
     expect(hookSource).not.toContain('realtimeError: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null');
+  });
+
+  it("defaults admin analytics hydration to launch history without enabling raw polling", () => {
+    expect(preferencesSource).toContain('ADMIN_ANALYTICS_DEFAULT_RANGE = "all"');
+    expect(hookSource).toContain("const historicalUrl = `/api/admin/analytics/historical?period=${ADMIN_ANALYTICS_DEFAULT_RANGE}`");
+    expect(hookSource).toContain("Launch history hydrating; showing verified snapshots");
+    expect(hookSource).toContain("Launch history hydrating; showing 30D transaction fallback");
+    expect(hookSource).toContain("Hydrating launch history");
+    expect(hookSource).not.toContain('ADMIN_ANALYTICS_DEFAULT_RANGE = "30d"');
   });
 });

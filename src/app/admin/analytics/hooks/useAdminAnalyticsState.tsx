@@ -1456,6 +1456,11 @@ export function useAdminAnalyticsState() {
     snapshotPurchasesValue !== null ||
     snapshotMobileShareValue !== null ||
     snapshotLiveActiveValue !== null;
+  const hasOverviewTransactionFallbackValue =
+    overviewFallbackRevenueUsd !== null ||
+    overviewFallbackPurchasesValue !== null;
+  const hasOverviewHydrationEvidence =
+    hasOverviewSnapshotFirstValue || hasOverviewTransactionFallbackValue;
   const liveRealtimeFailureDetail =
     liveRealtime.feedStatus === "failed" && effectiveLiveResponse
       ? liveRealtime.feedDetail
@@ -1468,16 +1473,17 @@ export function useAdminAnalyticsState() {
     (!effectiveLiveResponse &&
       !historicalOverviewResponse &&
       !hasOverviewSnapshotFirstValue &&
+      !hasOverviewTransactionFallbackValue &&
       liveRuntimeError) ||
-    (!historicalOverviewResponse && !hasOverviewSnapshotFirstValue && (historicalError as Error | undefined)) ||
+    (!historicalOverviewResponse && !hasOverviewHydrationEvidence && (historicalError as Error | undefined)) ||
     null;
   const isPrimingAnalytics =
     !effectiveLiveResponse &&
     !historicalOverviewResponse &&
-    !hasOverviewSnapshotFirstValue &&
+    !hasOverviewHydrationEvidence &&
     (liveLoading || historicalLoading);
   const isBackgroundSyncing =
-    historicalLoading && Boolean(effectiveLiveResponse || historicalOverviewResponse || hasOverviewSnapshotFirstValue);
+    historicalLoading && Boolean(effectiveLiveResponse || historicalOverviewResponse || hasOverviewHydrationEvidence);
   const analyticsWarmState = isPrimingAnalytics
     ? "Refreshing"
     : liveRealtime.feedStatus === "realtime"
@@ -1506,7 +1512,10 @@ export function useAdminAnalyticsState() {
           ? "degraded"
           : historicalOverviewResponse?.cacheState === "fresh"
             ? "cached"
-          : historicalOverviewResponse ? "live" : historicalLoading ? "loading" : "failed";
+          : historicalOverviewResponse ? "live"
+          : hasOverviewSnapshotFirstValue ? "cached"
+          : hasOverviewTransactionFallbackValue ? "degraded"
+          : historicalLoading ? "loading" : "failed";
 
   const historicalSourceLabel =
     historicalOverviewResponse && !historicalError
@@ -1515,6 +1524,10 @@ export function useAdminAnalyticsState() {
         : `Server-confirmed ${range.toUpperCase()} snapshot`
       : historicalOverviewResponse && historicalError
         ? `Previous ${range.toUpperCase()} snapshot (revalidation failed)`
+        : historicalLoading && hasOverviewSnapshotFirstValue
+          ? "Launch history hydrating; showing verified snapshots"
+        : historicalLoading && hasOverviewTransactionFallbackValue
+          ? "Launch history hydrating; showing 30D transaction fallback"
         : historicalLoading
           ? "Waiting for first analytics snapshot"
           : "No historical snapshot yet";
@@ -1552,6 +1565,7 @@ export function useAdminAnalyticsState() {
     : historicalTruthState === "failed" ? "failed"
     : historicalSnapshotSurfaceState
       ? historicalSnapshotSurfaceState
+    : hasOverviewTransactionFallbackValue ? "degraded"
     : historicalLoading ? "loading"
     : "unavailable";
   const analyticsSnapshotPending =
@@ -1965,7 +1979,7 @@ export function useAdminAnalyticsState() {
         : revenueCard.sourceTruth,
       compactFreshnessLine:
         revenueFallbackAvailable && !historicalOverviewResponse
-          ? "From confirmed transactions - updated 30d"
+          ? "30D confirmed transactions while launch history hydrates"
           : revenueCard.primaryValue === null
             ? "No verified snapshot yet."
             : formatOverviewGeneratedAtLine(revenueCard.generatedAtUtc, nowMs, historicalOverviewSourceLabel),
@@ -1988,7 +2002,7 @@ export function useAdminAnalyticsState() {
         : purchasesCard.sourceTruth,
       compactFreshnessLine:
         purchasesFallbackAvailable && !historicalOverviewResponse
-          ? "Confirmed purchases - fallback"
+          ? "30D confirmed purchases while launch history hydrates"
           : purchasesCard.primaryValue === null
             ? "No verified snapshot yet."
             : formatOverviewGeneratedAtLine(purchasesCard.generatedAtUtc, nowMs, historicalOverviewSourceLabel),
@@ -2380,13 +2394,17 @@ export function useAdminAnalyticsState() {
   const liveSnapshotLabel = effectiveLiveResponse?.generatedAtMs
     ? formatRelativeTime(effectiveLiveResponse.generatedAtMs, nowMs)
     : liveLoading
-      ? "Fetching..."
+      ? "Hydrating activity"
       : "Awaiting snapshot";
   const historicalSnapshotLabel = historicalResponse?.generatedAtMs
     ? formatRelativeTime(historicalResponse.generatedAtMs, nowMs)
-    : historicalLoading
-      ? "Fetching..."
-      : "Awaiting snapshot";
+    : hasOverviewSnapshotFirstValue
+      ? "Verified snapshot ready"
+      : hasOverviewTransactionFallbackValue
+        ? "30D fallback ready"
+        : historicalLoading
+          ? "Hydrating launch history"
+          : "Awaiting launch snapshot";
   const livePulseData =
     livePulseRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse

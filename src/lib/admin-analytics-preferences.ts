@@ -1,4 +1,4 @@
-export const ADMIN_ANALYTICS_DEFAULT_RANGE = "30d" as const;
+export const ADMIN_ANALYTICS_DEFAULT_RANGE = "all" as const;
 
 export const ADMIN_ANALYTICS_RANGE_OPTIONS = ["24h", "7d", "30d", "all"] as const;
 
