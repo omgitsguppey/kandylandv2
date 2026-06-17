@@ -107,6 +107,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     : audienceSnapshotModel.continuity.gapSeverity === "review"
       ? "Continuity needs review"
       : "Continuity verified";
+  const estimatedGuestDays = audienceSnapshotModel.recovery.mode === "estimated_guest_bridge"
+    ? audienceSnapshotModel.recovery.recoveredDays.length
+    : 0;
   const formatAudienceSeriesLabel = (label: string) =>
     label.replaceAll("GA4", "Site").replaceAll("GA ", "Site ");
   const [topPathsSearch, setTopPathsSearch] = React.useState("");
@@ -254,61 +257,44 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   {audienceSnapshotModel.visibleCopy.map((line) => (
                     <p key={line}>{line}</p>
                   ))}
-                  <p className="mt-1 text-gray-500">
-                    Identified first-party:{" "}
-                    {audienceSnapshotModel.identifiedViews.value === null
-                      ? audienceWaitingLabel
-                      : `${audienceSnapshotModel.identifiedViews.value.toLocaleString()} views`}
-                    {" | "}Guest: {audienceSnapshotModel.guestVisits.label}
+                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-gray-400">
+                    <span>
+                      First-party{" "}
+                      {audienceSnapshotModel.identifiedViews.value === null
+                        ? audienceWaitingLabel
+                        : `${audienceSnapshotModel.identifiedViews.value.toLocaleString()} views`}
+                    </span>
+                    <span>Guest {audienceSnapshotModel.guestVisits.label}</span>
+                    <span>
+                      Updated {audienceSnapshotModel.generatedAtUtc === new Date(0).toISOString()
+                        ? "Unavailable"
+                        : formatRelativeTime(Date.parse(audienceSnapshotModel.generatedAtUtc), nowMs)}
+                    </span>
+                    <span>State {audienceSourceStateLabel}</span>
+                  </div>
+                  <p className="mt-2 text-gray-500">
+                    Decision source: {verifiedSnapshotLabel}. Vendor analytics are supporting evidence, not product truth.
                   </p>
                   <p className="text-gray-500">
-                    Last updated: {audienceSnapshotModel.generatedAtUtc === new Date(0).toISOString()
-                      ? "Unavailable"
-                      : formatRelativeTime(Date.parse(audienceSnapshotModel.generatedAtUtc), nowMs)}
-                    {" | "}Source: {audienceSourceStateLabel}
+                    Source mix: GA4 site users; views are mixed site analytics and first-party snapshots.
                   </p>
-                  <p className="text-gray-500">
-                    Decision source: {verifiedSnapshotLabel}. Site analytics are supporting evidence, not product truth.
-                  </p>
-                  <p className="text-gray-500">
-                    Users source: GA4 site users | Views source: mixed GA + first-party
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-6">
-                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Expected days</p>
-                    <p className="mt-1 text-sm font-semibold text-white">{audienceSnapshotModel.continuity.expectedDays}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Present days</p>
-                    <p className="mt-1 text-sm font-semibold text-white">{audienceSnapshotModel.continuity.presentDays}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Missing days</p>
-                    <p className="mt-1 text-sm font-semibold text-white">{audienceSnapshotModel.continuity.missingDays.length}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Recovered by GA</p>
-                    <p className="mt-1 text-sm font-semibold text-white">{audienceSnapshotModel.recovery.recoveredDays.length}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Estimated guest days</p>
-                    <p className="mt-1 text-sm font-semibold text-white">
-                      {audienceSnapshotModel.recovery.mode === "estimated_guest_bridge"
-                        ? audienceSnapshotModel.recovery.recoveredDays.length
-                        : 0}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Unrecovered days</p>
-                    <p className="mt-1 text-sm font-semibold text-white">{audienceSnapshotModel.recovery.unrecoveredDays.length}</p>
-                  </div>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                  <p className="font-semibold text-white">{continuityLabel}</p>
-                  <p>{audienceSnapshotModel.continuitySummary}</p>
+                  <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p className="font-semibold text-white">{continuityLabel}</p>
+                      <p>{audienceSnapshotModel.continuitySummary}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 sm:grid-cols-3">
+                      <span>Expected {audienceSnapshotModel.continuity.expectedDays}</span>
+                      <span>Present {audienceSnapshotModel.continuity.presentDays}</span>
+                      <span>Missing {audienceSnapshotModel.continuity.missingDays.length}</span>
+                      <span>Recovered {audienceSnapshotModel.recovery.recoveredDays.length}</span>
+                      <span>Estimated guest {estimatedGuestDays}</span>
+                      <span>Unrecovered {audienceSnapshotModel.recovery.unrecoveredDays.length}</span>
+                    </div>
+                  </div>
                   <p className="text-gray-500">
                     Traffic estimate: {vendorEvidenceLabel}. First-party views stay separate and must come from verified snapshots.
                   </p>
@@ -380,35 +366,38 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 />
               </div>
 
-              <div className="mt-3 grid gap-2.5 lg:grid-cols-3">
-                <details className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300" data-product-surface-integrity-debug-detail>
-                  <summary className="cursor-pointer list-none font-semibold text-white">Guest estimate source detail</summary>
-                  <p>Label: {vendorEvidenceLabel}</p>
-                  <p title={audienceSnapshotModel.guestEstimateMetadata.sourceTruth}>
-                    Source: {guestEstimateSourceTruthLabel}
-                  </p>
-                  <p>Formula: {audienceSnapshotModel.guestEstimateMetadata.formula ?? "Unavailable"}</p>
-                  <p>Freshness: {audienceSnapshotModel.guestEstimateMetadata.freshnessState}</p>
-                </details>
-                <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                  <p className="font-semibold text-white">First-party continuity</p>
-                  <p>
-                    Last seen: {audienceSnapshotModel.firstParty.lastSeenAtUtc
-                      ? formatRelativeTime(Date.parse(audienceSnapshotModel.firstParty.lastSeenAtUtc), nowMs)
-                      : "Unavailable"}
-                  </p>
-                  <p>
-                    Missing days: {audienceSnapshotModel.continuity.missingDays.length === 0
-                      ? "None"
-                      : audienceSnapshotModel.continuity.missingDays.join(", ")}
-                  </p>
+              <details className="mt-3 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300" data-product-surface-integrity-debug-detail>
+                <summary className="cursor-pointer list-none font-semibold text-white">Source details</summary>
+                <div className="mt-2 grid gap-2.5 lg:grid-cols-3">
+                  <div>
+                    <p className="font-semibold text-white">Guest estimate</p>
+                    <p>Label: {vendorEvidenceLabel}</p>
+                    <p title={audienceSnapshotModel.guestEstimateMetadata.sourceTruth}>
+                      Source: {guestEstimateSourceTruthLabel}
+                    </p>
+                    <p>Formula: {audienceSnapshotModel.guestEstimateMetadata.formula ?? "Unavailable"}</p>
+                    <p>Freshness: {audienceSnapshotModel.guestEstimateMetadata.freshnessState}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white">First-party continuity</p>
+                    <p>
+                      Last seen: {audienceSnapshotModel.firstParty.lastSeenAtUtc
+                        ? formatRelativeTime(Date.parse(audienceSnapshotModel.firstParty.lastSeenAtUtc), nowMs)
+                        : "Unavailable"}
+                    </p>
+                    <p>
+                      Missing days: {audienceSnapshotModel.continuity.missingDays.length === 0
+                        ? "None"
+                        : audienceSnapshotModel.continuity.missingDays.join(", ")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white">Recovery</p>
+                    <p>{audienceSnapshotModel.recovery.explanation}</p>
+                    <p>Estimated share: {audienceSnapshotModel.recovery.estimatedSharePct}%</p>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                  <p className="font-semibold text-white">Recovery</p>
-                  <p>{audienceSnapshotModel.recovery.explanation}</p>
-                  <p>Estimated share: {audienceSnapshotModel.recovery.estimatedSharePct}%</p>
-                </div>
-              </div>
+              </details>
 
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
                 {audienceSnapshotModel.chartSeries.map((series) => (
@@ -423,7 +412,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
               </div>
 
               <p className="mt-2 text-[11px] text-gray-500">
-                Chart source: GA users plus GA views. Estimates do not become verified product traffic.
+                Chart source: Site users plus site views. Estimates do not become verified product traffic.
               </p>
 
               <div className={`mt-2.5 ${audienceSnapshotModel.chartHeightClass} w-full`}>
