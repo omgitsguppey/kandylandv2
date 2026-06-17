@@ -9,7 +9,13 @@ import { AdminAiDescriptionOperations } from "@/components/Admin/AdminAiDescript
 import { Button } from "@/components/ui/Button";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
-import { MetricCard } from "./AiHelpers";
+import {
+    ADMIN_AI_NO_SOURCE_VALUE,
+    ADMIN_AI_NO_VERIFIED_RUNS_VALUE,
+    MetricCard,
+    formatAdminAiSnapshotNumber,
+    formatAdminAiSnapshotPercent,
+} from "./AiHelpers";
 import { useAdminAiState } from "./hooks/useAdminAiState";
 import { AdminAiRuntimestripSection } from "./components/AdminAiRuntimestripSection";
 import { AdminAiReferencelibrarySection } from "./components/AdminAiReferencelibrarySection";
@@ -34,6 +40,7 @@ export default function AIAdminPage() {
     const { libraryInputRef, primaryInputRef, ...state } = fullState;
     const [activeTab, setActiveTab] = useState<AdminAiTaskTab>("generate");
     const dashboardTruthState = state.data ? "live" : state.error ? "failed" : state.isLoading ? "loading" : "unavailable";
+    const hasDashboardSnapshot = Boolean(state.data);
     const safeLoadErrorMessage = state.error
         ? sanitizeErrorForUser(state.error, "admin_truth", "admin_truth_unavailable").operatorMessage
         : null;
@@ -100,7 +107,7 @@ export default function AIAdminPage() {
                         <div className="flex flex-wrap items-center gap-2">
                             <AdminStatusBadge state="unavailable" />
                             <span className="font-bold text-white">Local UI review only.</span>
-                            <span>Cover Ops data is source_missing in local review. Use a real admin session before reading runtime evidence, uploading references, changing settings, or reviewing generations.</span>
+                            <span>No verified Cover Ops source is loaded in this local review. Use a real admin session before reading runtime evidence, uploading references, changing settings, or reviewing generations.</span>
                         </div>
                     </div>
                 ) : null}
@@ -138,29 +145,29 @@ export default function AIAdminPage() {
                 <section className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                     <MetricCard
                         label="Runtime"
-                        value={state.data?.runtime.status === "ready" ? "Ready" : state.data?.runtime.status || "Loading"}
-                        meta={state.latestDiagnostic?.summary || state.data?.runtime.note || "Waiting for runtime snapshot"}
+                        value={state.data?.runtime.status === "ready" ? "Ready" : state.data?.runtime.status || (state.isLoading ? "Loading" : ADMIN_AI_NO_SOURCE_VALUE)}
+                        meta={state.latestDiagnostic?.summary || state.data?.runtime.note || (state.isLoading ? "Waiting for runtime snapshot" : "No runtime source loaded")}
                         tone={state.data?.runtime.status === "ready" ? "good" : "warn"}
                         truthState={state.data ? (state.data.runtime.status === "ready" ? "live" : "degraded") : dashboardTruthState}
                     />
                     <MetricCard
                         label="Current Policy"
-                        value={`v${state.data?.promptPolicy.version || 1}`}
-                        meta={`${state.currentVersionAcceptanceRate}% accept rate`}
-                        tone={state.currentVersionAcceptanceRate >= 50 ? "good" : "neutral"}
+                        value={state.data ? `v${state.data.promptPolicy.version}` : ADMIN_AI_NO_SOURCE_VALUE}
+                        meta={state.data ? (state.currentVersionJobs.length > 0 ? `${formatAdminAiSnapshotPercent(state.currentVersionAcceptanceRate, true)} accept rate` : ADMIN_AI_NO_VERIFIED_RUNS_VALUE) : "No policy source loaded"}
+                        tone={state.data && state.currentVersionAcceptanceRate >= 50 ? "good" : "neutral"}
                         truthState={dashboardTruthState}
                     />
                     <MetricCard
                         label="Reference Pool"
-                        value={state.data?.visualSignals.totalReusableReferenceCount || 0}
-                        meta={`${state.referencePreview.length}/${state.referenceCap} selected`}
+                        value={formatAdminAiSnapshotNumber(state.data?.visualSignals.totalReusableReferenceCount, hasDashboardSnapshot)}
+                        meta={state.data ? `${state.referencePreview.length}/${state.referenceCap} selected` : "No reference snapshot loaded"}
                         tone={state.referencePreview.length > 0 ? "good" : "warn"}
                         truthState={dashboardTruthState}
                     />
                     <MetricCard
                         label="Review Gallery"
-                        value={state.data?.reviewGallery.length || 0}
-                        meta={state.data?.aggregate.generationCount ? `${Math.round(((state.data.aggregate.failedGenerationCount + state.data.reviewGallery.length) / Math.max(1, state.data.aggregate.generationCount)) * 100)}% not accepted` : "No history"}
+                        value={formatAdminAiSnapshotNumber(state.data?.reviewGallery.length, hasDashboardSnapshot)}
+                        meta={state.data?.aggregate.generationCount ? `${Math.round(((state.data.aggregate.failedGenerationCount + state.data.reviewGallery.length) / Math.max(1, state.data.aggregate.generationCount)) * 100)}% not accepted` : state.data ? "No generation history" : "No gallery source loaded"}
                         truthState={dashboardTruthState}
                     />
                 </section>

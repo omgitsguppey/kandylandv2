@@ -92,6 +92,8 @@ const MODULE_DEFAULTS = {
 } as const;
 
 const ADMIN_AI_DESCRIPTION_SNAPSHOT_REFRESH_INTERVAL_MS = 0;
+const ADMIN_AI_DESCRIPTION_NO_SOURCE_VALUE = "No source";
+const ADMIN_AI_DESCRIPTION_NO_VERIFIED_RUNS_VALUE = "No verified runs";
 
 type ModuleKey = keyof typeof MODULE_DEFAULTS;
 type GalleryFilter = "all" | "accepted" | "liked" | "neutral" | "disliked" | "failed";
@@ -106,6 +108,27 @@ function formatTimestamp(value?: number | null) {
         hour: "numeric",
         minute: "2-digit",
     });
+}
+
+function formatSnapshotNumber(value: number | null | undefined, hasSnapshot: boolean) {
+    if (!hasSnapshot) {
+        return ADMIN_AI_DESCRIPTION_NO_SOURCE_VALUE;
+    }
+    return typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "Not recorded";
+}
+
+function formatSnapshotPercent(value: number | null | undefined, hasSnapshot: boolean) {
+    if (!hasSnapshot) {
+        return ADMIN_AI_DESCRIPTION_NO_SOURCE_VALUE;
+    }
+    return typeof value === "number" && Number.isFinite(value) ? `${value}%` : ADMIN_AI_DESCRIPTION_NO_VERIFIED_RUNS_VALUE;
+}
+
+function formatSnapshotUsd(value: number | null | undefined, hasSnapshot: boolean) {
+    if (!hasSnapshot) {
+        return ADMIN_AI_DESCRIPTION_NO_SOURCE_VALUE;
+    }
+    return typeof value === "number" && Number.isFinite(value) ? formatAdminAiUsd(value) : "Not recorded";
 }
 
 function runtimeTone(status?: AdminAiDropDescriptionRuntimeStatus) {
@@ -245,10 +268,11 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
         () => data?.recentJobs.find((job) => typeof job.resolvedModel === "string" && job.resolvedModel.trim().length > 0)?.resolvedModel || data?.runtime.resolvedModel || null,
         [data?.recentJobs, data?.runtime.resolvedModel],
     );
+    const hasDashboardSnapshot = Boolean(data);
     const acceptanceRate = useMemo(() => {
         const total = data?.aggregate.generationCount || 0;
         if (total <= 0) {
-            return 0;
+            return null;
         }
         return Math.round(((data?.aggregate.acceptedCount || 0) / total) * 100);
     }, [data?.aggregate.acceptedCount, data?.aggregate.generationCount]);
@@ -258,7 +282,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
     );
     const currentPolicyAcceptanceRate = useMemo(() => {
         if (currentPolicyJobs.length === 0) {
-            return 0;
+            return null;
         }
         return Math.round((currentPolicyJobs.filter((job) => job.accepted).length / currentPolicyJobs.length) * 100);
     }, [currentPolicyJobs]);
@@ -276,6 +300,31 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
             return true;
         });
     }, [data?.reviewGallery, galleryFilter]);
+    const configuredAliasValue = data?.settings.model || ADMIN_AI_DESCRIPTION_NO_SOURCE_VALUE;
+    const configuredAliasMeta = data?.settings.priceBasis || "No price basis";
+    const runtimeVersionValue = latestResolvedModel || "Not exposed";
+    const runtimeVersionMeta = data?.runtime.note || "No runtime note";
+    const acceptanceRateValue = formatSnapshotPercent(acceptanceRate, hasDashboardSnapshot);
+    const acceptanceRateMeta = data
+        ? `${formatSnapshotNumber(data.aggregate.acceptedCount, true)} accepted`
+        : "No acceptance source loaded";
+    const averageLatencyValue = data?.aggregate.averageLatencyMs
+        ? `${data.aggregate.averageLatencyMs} ms`
+        : "Not recorded";
+    const averageLatencyMeta = `Last success ${formatTimestamp(data?.aggregate.lastSuccessAtMs)}`;
+    const promptPolicyValue = data ? `v${data.promptPolicy.version}` : ADMIN_AI_DESCRIPTION_NO_SOURCE_VALUE;
+    const promptPolicyMeta = data && currentPolicyAcceptanceRate !== null
+        ? `${currentPolicyAcceptanceRate}% accepted on this version`
+        : data
+            ? ADMIN_AI_DESCRIPTION_NO_VERIFIED_RUNS_VALUE
+            : "No policy source loaded";
+    const estimatedCostValue = formatSnapshotUsd(
+        data?.aggregate.totalEstimatedCostUsd,
+        hasDashboardSnapshot,
+    );
+    const estimatedCostMeta = data
+        ? `${formatSnapshotUsd(data.settings.inputUsdPerMillion / 1_000_000, true)}/input token est.`
+        : "No cost source loaded";
 
     const persistModuleState = (key: ModuleKey, nextOpen: boolean) => {
         setModuleOpenState((current) => ({ ...current, [key]: nextOpen }));
@@ -422,7 +471,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                     className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100"
                     data-admin-ai-description-fixture-boundary="true"
                 >
-                    <span className="font-semibold text-white">Local UI review only.</span> Description operations are source_missing until a real admin session loads verified AI evidence.
+                    <span className="font-semibold text-white">Local UI review only.</span> Description operations have no verified source until a real admin session loads AI evidence.
                 </div>
             ) : null}
             <div className={cn("overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/70 px-3 py-3 backdrop-blur", compact ? "" : "sticky top-[calc(env(safe-area-inset-top)+0.75rem)] z-10")}>
@@ -433,7 +482,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                             Description operations
                         </div>
                         <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-gray-400">
-                            <span>{data?.settings.model || "gemini-2.5-flash-lite"}</span>
+                            <span>{data?.settings.model || ADMIN_AI_DESCRIPTION_NO_SOURCE_VALUE}</span>
                             <span>|</span>
                             <span>{latestResolvedModel || "Version not reported"}</span>
                             <span>|</span>
@@ -446,7 +495,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                             {data?.runtime.status === "ready" ? "Ready" : data?.runtime.status === "disabled" ? "Off" : "Needs review"}
                         </span>
                         <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-gray-200">
-                            {formatAdminAiUsd(data?.aggregate.totalEstimatedCostUsd || 0)} total
+                            {formatSnapshotUsd(data?.aggregate.totalEstimatedCostUsd, hasDashboardSnapshot)} total
                         </span>
                         <Button
                             variant="outline"
@@ -483,12 +532,12 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                         )}
                     >
                         <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-                            <MetricCard label="Configured alias" value={data?.settings.model || "gemini-2.5-flash-lite"} meta={data?.settings.priceBasis || "No price basis"} />
-                            <MetricCard label="Runtime version" value={latestResolvedModel || "Not exposed"} meta={data?.runtime.note || "No runtime note"} tone={data?.runtime.status === "ready" ? "good" : "warn"} />
-                            <MetricCard label="Acceptance rate" value={`${acceptanceRate}%`} meta={`${data?.aggregate.acceptedCount || 0} accepted`} />
-                            <MetricCard label="Average latency" value={data?.aggregate.averageLatencyMs ? `${data.aggregate.averageLatencyMs} ms` : "Not recorded"} meta={`Last success ${formatTimestamp(data?.aggregate.lastSuccessAtMs)}`} />
-                            <MetricCard label="Prompt policy" value={`v${data?.promptPolicy.version || 1}`} meta={`${currentPolicyAcceptanceRate}% accepted on this version`} />
-                            <MetricCard label="Estimated cost" value={formatAdminAiUsd(data?.aggregate.totalEstimatedCostUsd || 0)} meta={`${formatAdminAiUsd(((data?.settings.inputUsdPerMillion || 0) / 1_000_000))}/input token est.`} />
+                            <MetricCard label="Configured alias" value={configuredAliasValue} meta={configuredAliasMeta} />
+                            <MetricCard label="Runtime version" value={runtimeVersionValue} meta={runtimeVersionMeta} tone={data?.runtime.status === "ready" ? "good" : "warn"} />
+                            <MetricCard label="Acceptance rate" value={acceptanceRateValue} meta={acceptanceRateMeta} />
+                            <MetricCard label="Average latency" value={averageLatencyValue} meta={averageLatencyMeta} />
+                            <MetricCard label="Prompt policy" value={promptPolicyValue} meta={promptPolicyMeta} />
+                            <MetricCard label="Estimated cost" value={estimatedCostValue} meta={estimatedCostMeta} />
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2">
                             <Button

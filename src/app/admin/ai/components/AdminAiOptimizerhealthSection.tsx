@@ -2,7 +2,15 @@ import React from 'react';
 import { ChevronRight, WandSparkles } from "lucide-react";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
 import { cn } from "@/lib/utils";
-import { Badge, MetricCard, formatCompactTimestamp } from "../AiHelpers";
+import {
+    ADMIN_AI_NO_SOURCE_VALUE,
+    ADMIN_AI_NO_VERIFIED_RUNS_VALUE,
+    Badge,
+    MetricCard,
+    formatAdminAiSnapshotNumber,
+    formatAdminAiSnapshotPercent,
+    formatCompactTimestamp,
+} from "../AiHelpers";
 import type { AdminAiState } from '../hooks/useAdminAiState';
 
 
@@ -49,9 +57,9 @@ export function AdminAiOptimizerhealthSection({ state }: { state: AdminAiState }
                             )}
                         >
                             <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-                                <MetricCard label="Optimizer status" value={data?.promptPolicy.optimizerStatus || "idle"} meta={data?.promptPolicy.optimizerNote || "No optimizer note"} tone={data?.promptPolicy.optimizerStatus === "ready" ? "good" : "warn"} />
-                                <MetricCard label="Reuse win rate" value={`${referenceReuseRate}%`} meta="Positive retained output reuse" />
-                                <MetricCard label="Current version jobs" value={currentVersionJobs.length} meta={`${currentVersionAcceptanceRate}% accepted`} />
+                                <MetricCard label="Optimizer status" value={data?.promptPolicy.optimizerStatus || ADMIN_AI_NO_SOURCE_VALUE} meta={data?.promptPolicy.optimizerNote || "No optimizer source loaded"} tone={data?.promptPolicy.optimizerStatus === "ready" ? "good" : "warn"} />
+                                <MetricCard label="Reuse win rate" value={formatAdminAiSnapshotPercent(referenceReuseRate, Boolean(data))} meta={data ? "Positive retained output reuse" : "No reuse source loaded"} />
+                                <MetricCard label="Current version jobs" value={formatAdminAiSnapshotNumber(currentVersionJobs.length, Boolean(data))} meta={data && currentVersionJobs.length > 0 ? `${currentVersionAcceptanceRate}% accepted` : data ? ADMIN_AI_NO_VERIFIED_RUNS_VALUE : "No job source loaded"} />
                                 <MetricCard label="Last run" value={formatCompactTimestamp(data?.promptPolicy.lastOptimizerRunAtMs)} meta={data?.settings.optimizerModel || "gemini-3.1-flash-lite-preview"} />
                             </div>
 

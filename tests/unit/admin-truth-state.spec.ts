@@ -44,6 +44,7 @@ describe("admin truth state", () => {
     expect(hasUsableAdminTruthValue("Not loaded")).toBe(false);
     expect(hasUsableAdminTruthValue("--")).toBe(false);
     expect(hasUsableAdminTruthValue("No sample")).toBe(false);
+    expect(hasUsableAdminTruthValue("No source")).toBe(false);
     expect(hasUsableAdminTruthValue("Unavailable")).toBe(false);
     expect(hasUsableAdminTruthValue("Waiting for verified route health from a real admin session")).toBe(false);
     expect(resolveAdminInputTruthState({

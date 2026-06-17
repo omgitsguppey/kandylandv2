@@ -14,6 +14,9 @@ import {
     type AdminAiDropCoverRuntimeStatus,
 } from "@/lib/ai-drop-covers";
 
+export const ADMIN_AI_NO_SOURCE_VALUE = "No source";
+export const ADMIN_AI_NO_VERIFIED_RUNS_VALUE = "No verified runs";
+
 export function formatTimestamp(timestamp?: number | null) {
     if (!timestamp) return "Not recorded";
     return new Date(timestamp).toLocaleString();
@@ -82,6 +85,16 @@ export function resolveAdminAiDataState(input: {
 
 export function formatAdminAiNullableNumber(value: number | null | undefined) {
     return typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "Not recorded";
+}
+
+export function formatAdminAiSnapshotNumber(value: number | null | undefined, hasSnapshot: boolean) {
+    if (!hasSnapshot) return ADMIN_AI_NO_SOURCE_VALUE;
+    return formatAdminAiNullableNumber(value);
+}
+
+export function formatAdminAiSnapshotPercent(value: number | null | undefined, hasSnapshot: boolean) {
+    if (!hasSnapshot) return ADMIN_AI_NO_SOURCE_VALUE;
+    return typeof value === "number" && Number.isFinite(value) ? `${value}%` : ADMIN_AI_NO_VERIFIED_RUNS_VALUE;
 }
 
 export function parseMultilineInput(value: string) {

@@ -60,6 +60,7 @@ const ADMIN_MISSING_VALUE_LABELS = new Set([
   "unavailable",
   "not loaded",
   "not recorded",
+  "no source",
   "waiting",
   "waiting for verified source",
 ]);
