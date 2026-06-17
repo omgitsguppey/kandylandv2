@@ -687,6 +687,19 @@ function normalizeProfileFreshness(updatedAtMs: number, nowMs: number) {
   return nowMs - updatedAtMs <= STALE_AFTER_MS ? "live" : "stale"
 }
 
+function confidenceLabelForScore(normalizedScore: number) {
+  const score = Math.round(clamp01(normalizedScore) * 100)
+  return score >= 90
+    ? "verified"
+    : score >= 75
+      ? "strong"
+      : score >= 50
+        ? "usable"
+        : score >= 30
+          ? "low"
+          : "insufficient"
+}
+
 function computeBehavioralTruthConfidence(input: {
   agreeingSources: number
   availableSources: number
@@ -716,15 +729,7 @@ function computeBehavioralTruthConfidence(input: {
     issuePenalty,
   )
   const score = Math.round(normalizedScore * 100)
-  const label = score >= 90
-    ? "verified"
-    : score >= 75
-      ? "strong"
-      : score >= 50
-        ? "usable"
-        : score >= 30
-          ? "low"
-          : "insufficient"
+  const label = confidenceLabelForScore(normalizedScore)
 
   return {
     score,
@@ -1960,7 +1965,7 @@ function buildUserProfileDoc(input: {
     (0.07 * clamp01(input.aggregate.checkoutStartCount / 8))
   ))
   const insufficientSignal = confidenceScore < 0.35 || signalEvidenceCount < 2
-  const confidenceLabel = confidenceResult.label
+  const confidenceLabel = confidenceLabelForScore(confidenceScore)
   const recommendationState = !consentAvailability
     ? "deterministic-fallback"
     : insufficientSignal

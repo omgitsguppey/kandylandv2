@@ -72,8 +72,11 @@ assert(snapshotContract.includes("confidenceLabel"), "Admin user metrics snapsho
 assert(snapshotContract.includes("issues"), "Admin user metrics snapshot contract must carry issues.", failures);
 assert(snapshotHelper.includes("buildBehavioralTruthSummary"), "Admin user metrics snapshot helper must use behavioral truth summary.", failures);
 assert(
-  overviewRoute.includes("readAdminUserMetricsSnapshot") || overviewRoute.includes("readAdminUserTruthSnapshot"),
-  "Admin overview must keep using the canonical user metrics snapshot reader.",
+  overviewRoute.includes("ADMIN_USERS_SNAPSHOT_ID")
+    && overviewRoute.includes("readCachedUserTruthSnapshot")
+    && !overviewRoute.includes("readAdminUserMetricsSnapshot")
+    && !overviewRoute.includes("readAdminUserTruthSnapshot"),
+  "Admin overview must keep reading the canonical user metrics/truth snapshot from the hot-cache document.",
   failures,
 );
 assert(usersRoute.includes("buildAdminUserMetricsSnapshot"), "Admin users route must use the canonical user metrics snapshot builder.", failures);
@@ -105,9 +108,11 @@ assert(rollupHelper.includes('"legacy_page_duration"'), "Behavior rollup helper 
 assert(behaviorRuntime.includes('const STALE_AFTER_MS = 24 * 60 * 60 * 1000'), "Behavioral intelligence runtime must use 24h recommendation freshness.", failures);
 assert(behaviorRuntime.includes("computeBehavioralTruthConfidence"), "Behavioral intelligence runtime must mirror the canonical confidence helper.", failures);
 assert(behaviorRuntime.includes("(0.35 * sourceAgreement)"), "Behavioral intelligence runtime must keep the canonical source-agreement weight.", failures);
-assert(behaviorRuntime.includes('const confidenceLabel = confidenceResult.label'), "Behavioral intelligence runtime must use the canonical confidence label mapping.", failures);
+assert(behaviorRuntime.includes("confidenceLabelForScore(confidenceScore)"), "Behavioral intelligence runtime must use the canonical confidence label mapping after privacy caps.", failures);
 assert(behaviorRuntime.includes("privacy_limited_identified_analytics_denied"), "Behavioral intelligence runtime must emit privacy-limited issue codes for consent-denied users.", failures);
-assert(behaviorRuntime.includes("Math.min(confidenceResult.normalizedScore, 0.34)"), "Behavioral intelligence runtime must cap recommendation confidence when identified analytics is denied.", failures);
+assert(behaviorRuntime.includes("PRIVACY_LIMITED_RECOMMENDATION_CONFIDENCE_CAP = 0.34"), "Behavioral intelligence runtime must declare the privacy-limited recommendation confidence cap.", failures);
+assert(behaviorRuntime.includes("Math.min(confidenceResult.normalizedScore, PRIVACY_LIMITED_RECOMMENDATION_CONFIDENCE_CAP)"), "Behavioral intelligence runtime must cap recommendation confidence when identified analytics is denied.", failures);
+assert(behaviorRuntime.includes("const confidenceLabel = confidenceLabelForScore(confidenceScore)"), "Behavioral intelligence runtime must label the capped recommendation confidence score.", failures);
 
 assert(userDetailPage.includes("Insufficient signal"), "User detail must keep the compact insufficient-signal state.", failures);
 assert(userDetailPage.includes("fallback recommendation"), "User detail must clearly label fallback recommendations.", failures);
