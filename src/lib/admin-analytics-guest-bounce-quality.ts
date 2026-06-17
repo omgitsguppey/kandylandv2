@@ -28,7 +28,7 @@ export type AdminAnalyticsGuestBounceQualityModel = {
   selectedRange: RangeOption;
   moduleTruthState: "verified" | "estimated" | "no_sample" | "stale" | "waiting" | "error";
   truthState: AdminSurfaceState;
-  badgeLabel: "LIVE" | "EST" | "STALE" | "WAIT" | "ERROR" | "NO SAMPLE";
+  badgeLabel: "SAMPLE" | "EST" | "STALE" | "WAIT" | "ERROR" | "NO SAMPLE";
   generatedAtUtc: string | null;
   overallState: "verified" | "estimated" | "no_sample" | "stale" | "unavailable";
   visibleCopy: string;
@@ -185,7 +185,7 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     truthState = input.overviewTruthState ?? "live";
     overallState = "verified";
     moduleTruthState = "verified";
-    badgeLabel = "LIVE";
+    badgeLabel = "SAMPLE";
   } else if (diagnostics.state === "available" || input.guestTraffic?.truthLabel === "estimated") {
     truthState = "degraded";
     overallState = "estimated";

@@ -1477,7 +1477,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     hint={guestQualityHint}
                     icon={AlertTriangle}
                     truthState={guestBounceQualityModel.guestQuality.state === "available" ? guestBounceQualityModel.truthState : "degraded"}
-                    statusBadgeLabel={guestBounceQualityModel.guestQuality.state === "available" ? "LIVE" : "NO SAMPLE"}
+                    statusBadgeLabel={guestBounceQualityModel.guestQuality.state === "available" ? "SAMPLE" : "NO SAMPLE"}
                     className="rounded-[1rem] p-2"
                     valueClassName="truncate text-base leading-6 md:text-lg"
                   />
@@ -1489,7 +1489,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     hint={signedInBounceHint}
                     icon={Activity}
                     truthState={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "stale" : guestBounceQualityModel.signedInBounce.value === null ? "degraded" : "live"}
-                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "DELAYED" : guestBounceQualityModel.signedInBounce.value === null ? "PARTIAL" : "LIVE"}
+                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "DELAYED" : guestBounceQualityModel.signedInBounce.value === null ? "PARTIAL" : "SAMPLE"}
                     className="rounded-[1rem] p-2"
                     valueClassName="truncate text-base leading-6 md:text-lg"
                   />

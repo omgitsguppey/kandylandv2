@@ -38,6 +38,9 @@ describe("Admin analytics operations mobile consolidation", () => {
     expect(source).toContain('guestQualityViewMode === "chart"');
     expect(source).toContain('guestQualityViewMode === "table"');
     expect(source).toContain('guestQualityViewMode === "cards"');
+    expect(source).toContain('guestBounceQualityModel.guestQuality.state === "available" ? "SAMPLE" : "NO SAMPLE"');
+    expect(source).toContain('guestBounceQualityModel.signedInBounce.value === null ? "PARTIAL" : "SAMPLE"');
+    expect(source).not.toContain('guestBounceQualityModel.guestQuality.state === "available" ? "LIVE" : "NO SAMPLE"');
   });
 
   it("renders Auth Outcomes as one compact mobile view mode at a time", () => {
