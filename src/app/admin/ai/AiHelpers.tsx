@@ -81,7 +81,7 @@ export function resolveAdminAiDataState(input: {
 }
 
 export function formatAdminAiNullableNumber(value: number | null | undefined) {
-    return typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "[unavailable]";
+    return typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "Not recorded";
 }
 
 export function parseMultilineInput(value: string) {

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { coerceAdminTruthState, resolveAdminInputTruthState, resolveAdminTruthState } from "@/lib/admin-truth-state";
+import {
+  coerceAdminTruthState,
+  hasUsableAdminTruthValue,
+  resolveAdminInputTruthState,
+  resolveAdminTruthState,
+} from "@/lib/admin-truth-state";
 
 describe("admin truth state", () => {
   it("does not promote unavailable source labels to live just because display text exists", () => {
@@ -31,5 +36,12 @@ describe("admin truth state", () => {
       transportState: "fallback",
       valueState: "fallback",
     })).toBe("cached");
+  });
+
+  it("keeps natural missing-value copy from becoming live data", () => {
+    expect(hasUsableAdminTruthValue("Not recorded")).toBe(false);
+    expect(resolveAdminInputTruthState({
+      value: "Not recorded",
+    }).truthState).toBe("unavailable");
   });
 });

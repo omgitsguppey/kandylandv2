@@ -175,7 +175,7 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                             <MetricCard label="House refs" value={formatAdminAiNullableNumber(data?.visualSignals.houseReferenceCount)} truthState={sectionTruthState} />
                                             <MetricCard label="Retained positive" value={formatAdminAiNullableNumber(data?.visualSignals.acceptedRetainedCount)} truthState={sectionTruthState} />
                                             <MetricCard label="Catalog fallback" value={formatAdminAiNullableNumber(data?.referenceAssets.catalogDropCovers.length)} truthState={sectionTruthState} />
-                                            <MetricCard label="Reuse rate" value={data ? `${referenceReuseRate}%` : "[unavailable]"} truthState={sectionTruthState} />
+                                            <MetricCard label="Reuse rate" value={data ? `${referenceReuseRate}%` : "Not recorded"} truthState={sectionTruthState} />
                                         </div>
                                     </div>
                                     <details className="min-w-0 rounded-xl border border-white/10 bg-black/20 overflow-hidden group">

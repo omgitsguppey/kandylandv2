@@ -94,7 +94,7 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                                 />
                                                 <MetricCard
                                                     label="Risk"
-                                                    value={job.overAnchoringRisk || "[unavailable]"}
+                                                    value={job.overAnchoringRisk || "Not recorded"}
                                                     meta={job.referenceTruncated ? "Reference cap applied" : "Within cap"}
                                                     truthState={job.overAnchoringRisk ? jobTruthState : "unavailable"}
                                                 />
@@ -108,7 +108,7 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
 
                                             <div>
                                                 <div className="mb-0.5 font-semibold text-white">Prompt provenance</div>
-                                                <pre className="whitespace-pre-wrap break-words font-sans text-gray-400">{job.workingPrompt || "[unavailable]"}</pre>
+                                                <pre className="whitespace-pre-wrap break-words font-sans text-gray-400">{job.workingPrompt || "Not recorded"}</pre>
                                             </div>
                                             {job.optimizerAdjustedPrompt ? (
                                                 <div>

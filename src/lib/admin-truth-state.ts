@@ -53,6 +53,11 @@ const LEGACY_TRUTH_STATE_MAP: Record<TruthLikeState, AdminTruthState> = {
   error: "failed",
 };
 
+const ADMIN_MISSING_VALUE_LABELS = new Set([
+  "[unavailable]",
+  "not recorded",
+]);
+
 export function isAdminTruthState(value: unknown): value is AdminTruthState {
   return typeof value === "string" && (ADMIN_TRUTH_STATES as readonly string[]).includes(value);
 }
@@ -72,7 +77,8 @@ export function hasUsableAdminTruthValue(...values: unknown[]) {
     }
 
     if (typeof value === "string") {
-      return value.trim().length > 0 && value !== "[unavailable]";
+      const normalizedValue = value.trim().toLowerCase();
+      return normalizedValue.length > 0 && !ADMIN_MISSING_VALUE_LABELS.has(normalizedValue);
     }
 
     return value !== null && value !== undefined;
