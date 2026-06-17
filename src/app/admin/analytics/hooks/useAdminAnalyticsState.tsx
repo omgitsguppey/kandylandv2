@@ -1718,7 +1718,7 @@ export function useAdminAnalyticsState() {
         : null,
       explanation: checkoutStartsAvailable
         ? "Purchase completions from the historical analytics snapshot."
-        : "Purchase completions are available, but checkout starts do not have a verified telemetry sample in this window.",
+        : "Purchase completions are available. Checkout starts unavailable for this window.",
       hint: `${checkoutStartsHint} · ${historicalOverviewSourceLabel}`,
       warnings: checkoutStartsAvailable ? historicalOverviewIssues : [...historicalOverviewIssues, "checkout_starts_unavailable"],
     }
@@ -1735,8 +1735,8 @@ export function useAdminAnalyticsState() {
         freshnessState: mapOverviewFreshnessState(overviewPurchasesMetric?.freshnessState),
         windowLabel: "30D",
         generatedAtUtc: toOverviewGeneratedAtUtc(adminOverviewResponse),
-        explanation: `${sharedFallbackExplanation} Fallback source: completed purchase transactions.`,
-        hint: "No checkout-start sample - fallback source: completed transactions",
+        explanation: `${sharedFallbackExplanation} Fallback source: completed transactions.`,
+        hint: "Checkout starts unavailable - Fallback source: completed transactions",
         warnings: ["analytics_snapshot_pending", "checkout_starts_unavailable"],
       }
       : {
