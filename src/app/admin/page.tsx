@@ -33,8 +33,8 @@ export default function AdminDashboardPage() {
     const truthVariant = isLocalAdminUiTestSession ? "unavailable" : coerceAdminSurfaceState(pageData.truthState) ?? "unavailable";
     const sourceMissingPanel = (
         <div className={fixtureFallbackClassName}>
-            <AdminStatusBadge state="unavailable" className="mb-2" label="Source missing" />
-            <div>Verified admin records are not loaded in local UI review.</div>
+            <AdminStatusBadge state="unavailable" className="mb-2" label="No source" />
+            <div>No verified overview source is loaded in local UI review.</div>
         </div>
     );
 
@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
                 compact
                 actions={(
                     <div className="flex items-center gap-2">
-                        <AdminStatusBadge state={truthVariant} label={isLocalAdminUiTestSession ? "Source missing" : undefined} />
+                        <AdminStatusBadge state={truthVariant} label={isLocalAdminUiTestSession ? "No source" : undefined} />
                         <span className="text-[11px] font-semibold text-gray-400">{isLocalAdminUiTestSession ? "Local fixture only" : pageData.truthLabel}</span>
                     </div>
                 )}

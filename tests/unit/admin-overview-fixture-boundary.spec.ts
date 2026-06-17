@@ -12,8 +12,11 @@ describe("admin overview fixture boundary", () => {
     expect(pageSource).toContain("isAdminUiTestSessionUser(user)");
     expect(pageSource).toContain('data-admin-overview-fixture-boundary="true"');
     expect(pageSource).toContain('data-admin-overview-fixture-state="source_missing"');
+    expect(pageSource).toContain('label="No source"');
+    expect(pageSource).toContain("No verified overview source is loaded in local UI review.");
     expect(pageSource).toContain("Overview layout is inspectable");
     expect(pageSource).toContain("platform pulse, drop queue, revenue, transactions, and admin activity require a real admin session");
+    expect(pageSource).not.toContain('label="Source missing"');
     expect(pageSource).not.toContain("Overview truth is source_missing");
     expect(pageSource).not.toContain("remain source_missing");
   });
