@@ -21,13 +21,13 @@ describe("admin economy local fixture boundary", () => {
     expect(consoleSource).toContain("isAdminUiTestSessionUser(user)");
     expect(consoleSource).toContain('data-admin-economy-fixture-boundary="true"');
     expect(consoleSource).toContain('data-admin-economy-fixture-state="source_missing"');
-    expect(consoleSource).toContain("Economy evidence is source_missing here");
+    expect(consoleSource).toContain("No verified economy source is loaded here");
     expect(consoleSource).toContain("reviewing treasury, ledger, balance, provider, or reconciliation samples");
     expect(stripSource).toContain('data-admin-economy-strip-source-state={sourceState}');
     expect(stripSource).toContain('export type PlatformEconomyStripSourceState = "live" | "review" | "collecting" | "failed" | "source_missing"');
     expect(stripSource).toContain("sourceState: PlatformEconomyStripSourceState;");
     expect(stripSource).not.toContain('sourceState = "live"');
-    expect(stripSource).toContain('if (sourceState === "source_missing") return "Source missing"');
+    expect(stripSource).toContain('if (sourceState === "source_missing") return "No source"');
     expect(stripSource).toContain("formatStripSourceStateLabel(sourceState)");
   });
 
@@ -40,8 +40,8 @@ describe("admin economy local fixture boundary", () => {
     expect(consoleSource).toContain("setState(createSourceMissingState())");
     expect(consoleSource).toContain("getTreasuryStripSourceState(state.treasury, isLocalAdminUiTestSession)");
     expect(consoleSource).toContain("sourceState={treasuryStripSourceState}");
-    expect(consoleSource).toContain("Treasury evidence is source_missing in local review");
-    expect(consoleSource).toContain("Economy warnings are source_missing in local review.");
+    expect(consoleSource).toContain("No verified treasury source is loaded in local review");
+    expect(consoleSource).toContain("No verified economy warning source is loaded in local review.");
   });
 
   it("keeps treasury source warnings visible without broken encoded copy", () => {

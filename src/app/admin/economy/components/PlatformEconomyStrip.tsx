@@ -15,7 +15,7 @@ function formatUsdRate(value: number | null) {
 }
 
 function formatStripSourceStateLabel(sourceState: PlatformEconomyStripSourceState) {
-    if (sourceState === "source_missing") return "Source missing";
+    if (sourceState === "source_missing") return "No source";
     if (sourceState === "collecting") return "Collecting";
     if (sourceState === "failed") return "Failed";
     if (sourceState === "review") return "Needs review";
