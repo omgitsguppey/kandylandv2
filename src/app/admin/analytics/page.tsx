@@ -135,14 +135,14 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
     case "not_enough_sources":
       return "More source evidence needed";
     case "failed":
-      return "Unavailable";
+      return "Not connected";
     case "unavailable":
     case "missing":
     case "unknown":
     case "":
     case null:
     case undefined:
-      return "Unknown";
+      return "No source";
     default:
       return value.replaceAll("_", " ");
   }

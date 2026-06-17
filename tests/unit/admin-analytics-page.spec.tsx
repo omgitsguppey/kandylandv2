@@ -615,6 +615,25 @@ describe("AdminAnalyticsPage", () => {
     expect(container.querySelector("[data-admin-analytics-status-summary=\"compact\"]")).toBeTruthy();
   });
 
+  it("does not show missing analytics source states as bare unavailable summary copy", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      liveFeedStatus: "failed",
+      historicalTruthState: "unavailable",
+      historicalSourceLabel: "No historical snapshot yet",
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).toContain("Operations view - No historical snapshot yet");
+    expect(container.textContent).toContain("Source: Not connected");
+    expect(container.textContent).toContain("Quality: No source");
+    expect(container.textContent).not.toContain("Source: Unavailable");
+    expect(container.textContent).not.toContain("Quality: Unavailable");
+  });
+
   it("summarizes source hierarchy mismatches without leaking enum labels", async () => {
     mockState.analyticsState = {
       ...mockState.analyticsState,
