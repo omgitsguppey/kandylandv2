@@ -46,4 +46,14 @@ describe("admin analytics local fixture boundary", () => {
     expect(hookSource).toContain("viewerUserFilter,\n    isLocalAdminUiTestSession");
     expect(hookSource.match(/isLocalAdminUiTestSession/g)?.length ?? 0).toBeGreaterThan(20);
   });
+
+  it("does not classify missing fixture realtime snapshots as broken runtime errors", () => {
+    expect(hookSource).toContain('liveRealtime.feedStatus === "failed" && effectiveLiveResponse');
+    expect(hookSource).toContain("const liveRealtimeFailureDetail");
+    expect(hookSource).toContain("error: liveRealtimeFailureDetail");
+    expect(hookSource).toContain("realtimeError: liveRealtimeFailureDetail");
+    expect(hookSource).toContain("liveError instanceof Error");
+    expect(hookSource).not.toContain('error: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null');
+    expect(hookSource).not.toContain('realtimeError: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null');
+  });
 });

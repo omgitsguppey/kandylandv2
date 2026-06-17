@@ -1456,14 +1456,19 @@ export function useAdminAnalyticsState() {
     snapshotPurchasesValue !== null ||
     snapshotMobileShareValue !== null ||
     snapshotLiveActiveValue !== null;
+  const liveRealtimeFailureDetail =
+    liveRealtime.feedStatus === "failed" && effectiveLiveResponse
+      ? liveRealtime.feedDetail
+      : null;
+  const liveRuntimeErrorMessage =
+    liveError instanceof Error ? liveError.message : liveRealtimeFailureDetail;
+  const liveRuntimeError =
+    liveRuntimeErrorMessage ? new Error(liveRuntimeErrorMessage) : null;
   const blockingAnalyticsError =
     (!effectiveLiveResponse &&
       !historicalOverviewResponse &&
       !hasOverviewSnapshotFirstValue &&
-      ((liveError as Error | undefined) ||
-        (liveRealtime.feedStatus === "failed"
-          ? new Error(liveRealtime.feedDetail)
-          : undefined))) ||
+      liveRuntimeError) ||
     (!historicalOverviewResponse && !hasOverviewSnapshotFirstValue && (historicalError as Error | undefined)) ||
     null;
   const isPrimingAnalytics =
@@ -1801,7 +1806,7 @@ export function useAdminAnalyticsState() {
           : liveRealtime.feedStatus === "partial"
             ? "mixed"
             : "unavailable",
-      error: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null,
+      error: liveRealtimeFailureDetail,
       graphAvailable: liveSeries.some((point) => point.users > 0 || point.views > 0),
     },
     refreshState: {
@@ -1810,7 +1815,7 @@ export function useAdminAnalyticsState() {
         : livePulseSnapshotModule.refreshStatus,
     },
     errorState: {
-      realtimeError: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null,
+      realtimeError: liveRealtimeFailureDetail,
       snapshotError: livePulseSnapshotModule.error,
       refreshError: liveError instanceof Error ? liveError.message : null,
     },
@@ -1828,7 +1833,7 @@ export function useAdminAnalyticsState() {
   const liveActiveWaitingState = resolveAdminAnalyticsWaitingCopy({
     hasVerifiedValue: snapshotLiveActiveValue !== null,
     loading: liveLoading || livePulseSnapshotModule.isLoading,
-    error: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : livePulseSnapshotModule.error,
+    error: liveRealtimeFailureDetail ?? livePulseSnapshotModule.error,
   });
   const liveActiveDisplay =
     livePulseDisplayState.fakeZeroPrevented && livePulseDisplayState.shouldShowUnavailable
@@ -3306,7 +3311,7 @@ export function useAdminAnalyticsState() {
             hasData: liveRealtime.feedStatus === "snapshot" || liveRealtime.feedStatus === "partial",
             sourceLoaded: Boolean(effectiveLiveResponse),
             lastSeenAt: liveUpdatedAtMs ? new Date(liveUpdatedAtMs).toISOString() : null,
-            error: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null,
+            error: liveRuntimeErrorMessage,
           },
         ],
       });
@@ -3325,6 +3330,9 @@ export function useAdminAnalyticsState() {
       liveRealtime.activeUsers,
       liveRealtime.feedStatus,
       liveRealtime.feedDetail,
+      liveRealtimeFailureDetail,
+      liveRuntimeErrorMessage,
+      liveError,
       effectiveLiveResponse,
       liveUpdatedAtMs,
       historicalOnboardingModel.starts,
