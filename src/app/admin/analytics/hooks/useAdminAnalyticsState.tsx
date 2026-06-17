@@ -1587,8 +1587,8 @@ export function useAdminAnalyticsState() {
   const sharedFallbackExplanation = analyticsSnapshotPending
     ? "Analytics snapshot pending; showing canonical fallback truth."
     : "Current activity snapshot missing; showing canonical fallback truth.";
-  const historicalOverviewWaitingLabel = historicalLoading ? "Waiting" : "Unavailable";
-  const overviewUnavailableDisplay = historicalOverviewWaitingLabel === "Waiting" ? "No snapshot yet" : historicalOverviewWaitingLabel;
+  const historicalOverviewWaitingLabel = historicalLoading ? "Waiting" : "No snapshot yet";
+  const overviewUnavailableDisplay = "No snapshot yet";
 
   const revenueCard: AnalyticsOverviewCardViewModel = historicalOverviewResponse
     ? {
@@ -1899,10 +1899,9 @@ export function useAdminAnalyticsState() {
       label: "Active Users",
       displayValue:
         liveActivePrimaryValue === null
-          ? liveActiveWaitingState.reason === "first_snapshot_pending" &&
-            liveActiveDisplay === liveActiveWaitingState.label
-            ? "No snapshot yet"
-            : "Unavailable"
+          ? liveActiveWaitingState.reason === "source_unavailable"
+            ? "No source"
+            : "No snapshot yet"
           : liveActiveDisplay,
       primaryValue: liveActivePrimaryValue,
       truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
@@ -1923,11 +1922,13 @@ export function useAdminAnalyticsState() {
       debugSource: livePulseDisplayState.visibleValueSource,
       compactFreshnessLine:
         liveActivePrimaryValue === null
-          ? "Unavailable"
+          ? liveActiveWaitingState.reason === "source_unavailable"
+            ? "No verified activity source yet."
+            : "No verified snapshot yet."
           : effectiveLiveResponse?.generatedAtMs
             ? `Updated ${formatRelativeTime(effectiveLiveResponse.generatedAtMs, nowMs)}`
             : "Last verified data",
-      unavailableLine: "Unavailable",
+      unavailableLine: "No verified activity source yet.",
       loading: liveLoading && liveActivePrimaryValue === null,
       badgeLabel: liveActiveTruthState ? ANALYTICS_OVERVIEW_BADGE_LABELS[liveActiveTruthState] : undefined,
     }),

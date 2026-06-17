@@ -419,7 +419,7 @@ describe("AdminAnalyticsPage", () => {
         ...currentState.analyticsOverviewCards,
         revenue: {
           ...currentState.analyticsOverviewCards.revenue,
-          displayValue: "Unavailable",
+          displayValue: "No snapshot yet",
           hint: "No verified snapshot yet.",
           truthState: "unavailable",
           statusBadgeLabel: "UNAVAILABLE",
@@ -437,7 +437,7 @@ describe("AdminAnalyticsPage", () => {
         revenue: {
           id: "revenue",
           label: "Revenue",
-          displayValue: "Unavailable",
+          displayValue: "No snapshot yet",
           primaryValue: null,
           displayState: "unavailable",
           exactness: "unavailable",
@@ -467,7 +467,7 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Revenue:Unavailable");
+    expect(container.textContent).toContain("Revenue:No snapshot yet");
     expect(container.textContent).toContain("Purchases:No snapshot yet");
     expect(container.textContent).not.toContain("Waiting for first snapshot");
     expect(
