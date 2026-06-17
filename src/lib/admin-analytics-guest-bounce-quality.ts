@@ -8,7 +8,7 @@ export type AdminAnalyticsGuestQualityRate = {
   value: number | null;
   display: string;
   sampleCount: number | null;
-  freshnessState: "live" | "stale" | "unknown";
+  freshnessState: "live" | "refresh_due" | "stale" | "unknown";
   explanation: string;
   fakeZeroPrevented: boolean;
   unavailableReason: string | null;
@@ -28,7 +28,7 @@ export type AdminAnalyticsGuestBounceQualityModel = {
   selectedRange: RangeOption;
   moduleTruthState: "verified" | "estimated" | "no_sample" | "stale" | "waiting" | "error";
   truthState: AdminSurfaceState;
-  badgeLabel: "SAMPLE" | "EST" | "STALE" | "WAIT" | "ERROR" | "NO SAMPLE";
+  badgeLabel: "SAMPLE" | "EST" | "DELAYED" | "STALE" | "WAIT" | "ERROR" | "NO SAMPLE";
   generatedAtUtc: string | null;
   overallState: "verified" | "estimated" | "no_sample" | "stale" | "unavailable";
   visibleCopy: string;
@@ -40,7 +40,7 @@ export type AdminAnalyticsGuestBounceQualityModel = {
     formula: string | null;
     formulaState: GuestQualityDiagnostics["estimatedFormulaState"];
     confidencePct: number | null;
-    freshnessState: "live" | "stale" | "unknown";
+    freshnessState: "live" | "refresh_due" | "stale" | "unknown";
     lastUpdatedAtUtc: string | null;
     explanation: string;
   };
@@ -92,10 +92,15 @@ function formatPercent(value: number) {
 
 function deriveFreshnessState(input: {
   stale: boolean;
+  refreshDue: boolean;
   lastUpdatedAtUtc: string | null;
-}): "live" | "stale" | "unknown" {
+}): "live" | "refresh_due" | "stale" | "unknown" {
   if (!input.lastUpdatedAtUtc) {
     return "unknown";
+  }
+
+  if (input.refreshDue) {
+    return "refresh_due";
   }
 
   return input.stale ? "stale" : "live";
@@ -134,6 +139,12 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
 }): AdminAnalyticsGuestBounceQualityModel {
   const hasResponse = Boolean(input.response);
   const stale = Boolean(input.response && (input.error || input.response.cacheState === "stale"));
+  const cacheRefreshDue = Boolean(
+    input.response &&
+      (input.response.cacheState === "refresh_due" ||
+        input.response.staleButVerified ||
+        input.response.cacheRevalidating),
+  );
   const diagnostics = input.response?.guestQualityDiagnostics ?? buildDefaultDiagnostics({
     guestTraffic: input.guestTraffic,
   });
@@ -149,6 +160,7 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
   const guestViewsValue = Math.max(0, rawGuestViewsValue);
   const estimatedFreshness = deriveFreshnessState({
     stale,
+    refreshDue: cacheRefreshDue,
     lastUpdatedAtUtc: diagnostics.estimatedLastUpdatedAtUtc ?? generatedAtUtc,
   });
   const signedInBounceValue = userSemantic?.viewCount
@@ -163,6 +175,7 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     : null;
   const signedInBounceFreshness = deriveFreshnessState({
     stale,
+    refreshDue: cacheRefreshDue,
     lastUpdatedAtUtc: generatedAtUtc,
   });
 
@@ -182,10 +195,10 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     moduleTruthState = "stale";
     badgeLabel = "STALE";
   } else if (diagnostics.state === "available" && input.guestTraffic?.truthLabel !== "estimated") {
-    truthState = input.overviewTruthState ?? "live";
+    truthState = cacheRefreshDue ? "cached" : input.overviewTruthState ?? "live";
     overallState = "verified";
     moduleTruthState = "verified";
-    badgeLabel = "SAMPLE";
+    badgeLabel = cacheRefreshDue ? "DELAYED" : "SAMPLE";
   } else if (diagnostics.state === "available" || input.guestTraffic?.truthLabel === "estimated") {
     truthState = "degraded";
     overallState = "estimated";
@@ -215,7 +228,7 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     summaryFacts: [
       `Guest traffic: ${input.guestTraffic?.truthLabel === "estimated" ? "estimated" : input.guestTraffic?.truthLabel === "exact" ? "tracked" : "unknown"}`,
       `Guest quality: ${diagnostics.state === "available" ? "sample available" : diagnostics.state === "no_sample" ? "no consented sample" : diagnostics.state.replaceAll("_", " ")}`,
-      `Signed-in bounce: ${signedInBounceValue === null ? "sample unavailable" : signedInBounceFreshness === "stale" ? "stale sample" : "available"}`,
+      `Signed-in bounce: ${signedInBounceValue === null ? "sample unavailable" : signedInBounceFreshness === "stale" ? "stale sample" : signedInBounceFreshness === "refresh_due" ? "refresh due sample" : "available"}`,
     ],
     estimatedGuestViews: {
       value: guestViewsValue,

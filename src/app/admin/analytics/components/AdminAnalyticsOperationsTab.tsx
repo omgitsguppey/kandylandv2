@@ -1460,7 +1460,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     value={guestBounceQualityModel.estimatedGuestViews.display}
                     hint={`Source ${guestEstimateSourceLabel} - ${guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}`}
                     icon={Users}
-                    truthState={guestBounceQualityModel.estimatedGuestViews.freshnessState === "stale" ? "stale" : guestBounceQualityModel.truthState}
+                    truthState={guestBounceQualityModel.estimatedGuestViews.freshnessState === "stale" ? "stale" : guestBounceQualityModel.estimatedGuestViews.freshnessState === "refresh_due" ? "cached" : guestBounceQualityModel.truthState}
                     statusBadgeLabel="EST"
                     className="rounded-[1rem] p-2"
                     valueClassName="text-lg leading-6 md:text-xl"
@@ -1488,8 +1488,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     value={guestBounceQualityModel.signedInBounce.display}
                     hint={signedInBounceHint}
                     icon={Activity}
-                    truthState={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "stale" : guestBounceQualityModel.signedInBounce.value === null ? "degraded" : "live"}
-                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "DELAYED" : guestBounceQualityModel.signedInBounce.value === null ? "PARTIAL" : "SAMPLE"}
+                    truthState={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "stale" : guestBounceQualityModel.signedInBounce.freshnessState === "refresh_due" ? "cached" : guestBounceQualityModel.signedInBounce.value === null ? "degraded" : "live"}
+                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.freshnessState === "stale" || guestBounceQualityModel.signedInBounce.freshnessState === "refresh_due" ? "DELAYED" : guestBounceQualityModel.signedInBounce.value === null ? "PARTIAL" : "SAMPLE"}
                     className="rounded-[1rem] p-2"
                     valueClassName="truncate text-base leading-6 md:text-lg"
                   />
