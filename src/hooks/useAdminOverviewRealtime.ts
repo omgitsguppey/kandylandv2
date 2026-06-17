@@ -36,18 +36,18 @@ export function resolveTruthChipLabel(
   const anyLoaded = state.dropsLoaded || state.summaryLoaded || state.transactionsLoaded || state.adminActivityLoaded;
   const anyFromCache = state.dropsFromCache || state.summaryFromCache || state.transactionsFromCache || state.adminActivityFromCache;
 
-  if (failedCount > 0) return "Live updates delayed";
+  if (failedCount > 0) return "Snapshot refresh delayed";
   if (hasServerData && anyFromCache) return "Showing last verified data";
   if (hasServerData) return "Showing hourly hot-cache snapshot";
-  if (anyLoaded) return "Connecting operational pulse";
+  if (anyLoaded) return "Connecting snapshot refresh";
   return "Waiting for first overview snapshot";
 }
 
 export function resolveTruthChipVariant(label: string): AdminSurfaceState {
-  if (label === "Showing hourly hot-cache snapshot") return "live";
-  if (label === "Showing last verified data") return "stale";
-  if (label === "Connecting operational pulse") return "degraded";
-  if (label === "Live updates delayed") return "fallback";
+  if (label === "Showing hourly hot-cache snapshot") return "cached";
+  if (label === "Showing last verified data") return "cached";
+  if (label === "Connecting snapshot refresh") return "degraded";
+  if (label === "Snapshot refresh delayed") return "fallback";
   return "unavailable";
 }
 
@@ -85,6 +85,9 @@ export function useAdminOverviewRealtime(options: { enabled?: boolean } = {}) {
 
     return {
       ...serverData,
+      stats: serverData.stats,
+      deltas: serverData.deltas,
+      topDrops: serverData.topDrops,
       truthNotes: {
         ...serverData.truthNotes,
         overview: serverData.truthNotes.overview || "Showing hourly hot-cache snapshot",

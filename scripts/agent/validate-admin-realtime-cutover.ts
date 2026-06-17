@@ -28,8 +28,8 @@ for (const required of [
   "ADMIN_ANALYTICS_REALTIME_POLICY",
   'purpose: "operational_pulse_only"',
   'businessTruthSource: "refresh_based_hot_cache"',
-  "snapshotRefreshCadenceMs: 60_000",
-  "heartbeatIntervalMs: 25_000",
+  "snapshotRefreshCadenceMs: ADMIN_HEARTBEAT_INTERVAL_MS",
+  "heartbeatIntervalMs: ADMIN_HEARTBEAT_INTERVAL_MS",
   "costRisk:",
   "explicitCostJustification",
 ]) {
@@ -59,9 +59,10 @@ for (const forbiddenRealtimeMetric of [
   );
 }
 assert(
-  overviewHook.includes("Operational transaction pulse is delayed. Showing verified snapshot totals.")
-    && overviewHook.includes("Operational commerce pulse is delayed. Showing verified snapshot totals."),
-  "Admin overview hook must keep snapshot totals visible when operational realtime lanes fail.",
+  overviewHook.includes("Snapshot refresh delayed")
+    && overviewHook.includes("Showing last verified data")
+    && overviewHook.includes("Showing hourly hot-cache snapshot"),
+  "Admin overview hook must keep snapshot/cache totals visible when refresh lanes are delayed.",
 );
 assert(
   overviewHook.includes("metricScope: ADMIN_OVERVIEW_REALTIME_POLICY.metricScope")
@@ -99,7 +100,7 @@ assert(
 );
 assert(
   adminPage.includes("buildAdminOverviewPageData")
-    && adminPage.includes("useAdminOverview()"),
+    && (adminPage.includes("useAdminOverview()") || adminPage.includes("useAdminOverview({")),
   "Admin overview page must keep using canonical page data instead of inline realtime totals.",
 );
 assert(

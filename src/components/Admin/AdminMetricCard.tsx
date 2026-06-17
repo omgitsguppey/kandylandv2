@@ -26,6 +26,7 @@ export function AdminMetricCard({
   className,
   valueClassName,
   badgeClassName,
+  showTruthBadge = true,
   auxiliaryBadges,
   icon,
 }: {
@@ -39,6 +40,7 @@ export function AdminMetricCard({
   className?: string;
   valueClassName?: string;
   badgeClassName?: string;
+  showTruthBadge?: boolean;
   auxiliaryBadges?: ReactNode;
   icon?: ReactNode;
 }) {
@@ -55,12 +57,14 @@ export function AdminMetricCard({
         </p>
         <div className="flex shrink-0 items-center gap-1">
           {auxiliaryBadges}
-          <AdminTruthBadge
-            state={truthState}
-            className={cn("py-0.5", badgeClassName)}
-            pendingInitialLoad={pendingInitialLoad}
-            hasUsableValue={hasUsableValue}
-          />
+          {showTruthBadge ? (
+            <AdminTruthBadge
+              state={truthState}
+              className={cn("py-0.5", badgeClassName)}
+              pendingInitialLoad={pendingInitialLoad}
+              hasUsableValue={hasUsableValue}
+            />
+          ) : null}
         </div>
       </div>
       <div className={cn("mt-1.5 break-words text-xl font-black text-white md:text-2xl", valueClassName)}>{value}</div>

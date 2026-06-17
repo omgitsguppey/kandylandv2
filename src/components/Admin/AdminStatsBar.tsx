@@ -3,6 +3,7 @@
 import { ArrowDownRight, ArrowRight, ArrowUpRight, DollarSign, ShoppingBag, Users, Zap } from "lucide-react";
 
 import type { AdminOverviewIssueDetail, AdminOverviewResponse, PlatformPulseMetric } from "@/lib/admin-overview";
+import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { buildAdminReviewBadge } from "@/lib/behavioral/review-badge-rules";
@@ -60,6 +61,11 @@ function formatPrimaryValue(value: PlatformPulseMetric["primaryValue"]) {
     return value;
 }
 
+function hasMetricValue(value: PlatformPulseMetric["primaryValue"]) {
+    if (typeof value === "number") return Number.isFinite(value);
+    return value.trim().length > 0;
+}
+
 function buildIssueSummary(issues: AdminOverviewIssueDetail[] | undefined) {
     if (!issues || issues.length === 0) {
         return [];
@@ -114,9 +120,10 @@ export function AdminStatsBar({ platformPulse, overviewIssues, truthState }: Adm
                 {metrics.map((metric) => {
                     const Icon = getMetricIcon(metric.id);
                     const shouldRenderIssue = metricNeedsIssueBadge(metric);
+                    const metricTruthState = resolveIssueTruthState(metric);
                     const reviewDecision = shouldRenderIssue
                         ? buildAdminReviewBadge({
-                            truthState: resolveIssueTruthState(metric),
+                            truthState: metricTruthState,
                             missingRequiredData: metric.issueState === "unavailable",
                             sourceDisagreement: metric.warnings.length > 0 || metric.issueState === "review",
                             staleCriticalSource: metric.freshnessState === "stale" || metric.issueState === "stale",
@@ -132,23 +139,28 @@ export function AdminStatsBar({ platformPulse, overviewIssues, truthState }: Adm
                             data-admin-metric-freshness={metric.freshnessState}
                             data-admin-metric-scope={metric.primaryScope}
                             data-admin-metric-issue-state={metric.issueState ?? "ok"}
-                            className="min-w-0 rounded-xl border border-white/8 bg-black/35 p-2.5"
+                            className="min-w-0"
                         >
-                            <div className="flex min-w-0 items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-gray-400">
-                                <Icon className="h-3.5 w-3.5 shrink-0 text-brand-purple" />
-                                <span className="min-w-0 whitespace-normal leading-tight">{metric.label}</span>
-                            </div>
-                            <div className={cn("mt-1.5 truncate text-lg font-black leading-none text-white md:text-[1.45rem]", metric.id === "revenue" ? "font-mono" : "")}>
-                                {formatPrimaryValue(metric.primaryValue)}
-                            </div>
-                            <div className="mt-1">
-                                <DeltaBadge metric={metric} />
-                            </div>
-                            {reviewDecision ? (
-                                <div className="mt-1.5 min-w-0">
-                                    <AdminReviewBadge decision={reviewDecision} className="max-w-full truncate py-0.5" />
-                                </div>
-                            ) : null}
+                            <AdminMetricCard
+                                label={metric.label}
+                                value={formatPrimaryValue(metric.primaryValue)}
+                                meta={(
+                                    <div className="space-y-1">
+                                        <DeltaBadge metric={metric} />
+                                        {reviewDecision ? (
+                                            <div className="min-w-0">
+                                                <AdminReviewBadge decision={reviewDecision} className="max-w-full truncate py-0.5" />
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                )}
+                                truthState={metricTruthState}
+                                hasUsableValue={hasMetricValue(metric.primaryValue)}
+                                showTruthBadge={shouldRenderIssue}
+                                icon={<Icon className="h-3.5 w-3.5 shrink-0 text-brand-purple" />}
+                                className="rounded-xl border-white/8 bg-black/35 p-2.5"
+                                valueClassName={cn("truncate text-lg leading-none md:text-[1.45rem]", metric.id === "revenue" ? "font-mono" : "")}
+                            />
                         </div>
                     );
                 })}

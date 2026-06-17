@@ -18,7 +18,7 @@ export type AdminRealtimePolicy = {
 };
 
 export const ADMIN_REALTIME_FIRST_CLASS_POLICIES = {
-  businessTruthSource: "hot_cache" as const,
+  businessTruthSource: "refresh_based_hot_cache" as const,
   missingSnapshotFailureState: "failed" as const,
   usableSnapshotFailureState: "degraded" as const,
 };
@@ -28,7 +28,7 @@ export const ADMIN_OVERVIEW_REALTIME_POLICY: AdminRealtimePolicy = {
   owner: "admin_overview",
   purpose: "operational_pulse_only",
   metricScope: "operational_pulse_only",
-  businessTruthSource: "hot_cache",
+  businessTruthSource: "refresh_based_hot_cache",
   snapshotRefreshCadenceMs: ADMIN_HEARTBEAT_INTERVAL_MS,
   reconnectBackoffMaxMs: 10_000,
   costRisk: "low",
@@ -41,7 +41,7 @@ export const ADMIN_USERS_REALTIME_POLICY: AdminRealtimePolicy = {
   owner: "admin_users",
   purpose: "operational_pulse_only",
   metricScope: "operational_pulse_only",
-  businessTruthSource: "hot_cache",
+  businessTruthSource: "refresh_based_hot_cache",
   snapshotRefreshCadenceMs: ADMIN_HEARTBEAT_INTERVAL_MS,
   heartbeatIntervalMs: ADMIN_HEARTBEAT_INTERVAL_MS,
   reconnectBackoffMaxMs: 15_000,
@@ -55,7 +55,7 @@ export const ADMIN_ANALYTICS_REALTIME_POLICY: AdminRealtimePolicy = {
   owner: "admin_analytics",
   purpose: "operational_pulse_only",
   metricScope: "operational_pulse_only",
-  businessTruthSource: "hot_cache",
+  businessTruthSource: "refresh_based_hot_cache",
   snapshotRefreshCadenceMs: ADMIN_HEARTBEAT_INTERVAL_MS,
   costRisk: "low",
   explicitCostJustification:

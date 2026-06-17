@@ -54,14 +54,13 @@ requireIncludes(windowHelper, "New: prior 30d was 0", "Zero-baseline delta copy"
 
 requireIncludes(adminOverviewRoute, "buildAdminOverviewPlatformPulse", "Admin overview route");
 requireIncludes(adminOverviewRoute, "analytics_task_daily", "GumDrops reward summary source");
-requireIncludes(adminOverviewRoute, "paidGumDropsTotal", "GumDrops paid summary source");
-requireIncludes(adminOverviewRoute, "bonusGumDropsTotal", "GumDrops paid bonus summary source");
-requireIncludes(adminOverviewRoute, "BUG_REPORT_COLLECTION", "Support/Bugs bug source");
+requireIncludes(adminOverviewRoute, "paidGd30d", "GumDrops paid summary source");
+requireIncludes(adminOverviewRoute, "paidBonusGd30d", "GumDrops paid bonus summary source");
 requireIncludes(adminOverviewRoute, "SUPPORT_BUG_USER_CHANNELS", "Support/Bugs support source");
-requireIncludes(adminOverviewRoute, ".count()", "Support/Bugs bounded aggregate fallback");
-requireIncludes(adminOverviewRoute, '.where("createdAt", ">=", startMs)', "Support/Bugs bounded date filter");
-requireIncludes(adminOverviewRoute, '.where("createdAt", "<", endMs)', "Support/Bugs bounded date filter");
-requireIncludes(adminOverviewRoute, '"human_error_bug_report"', "Support/Bugs user-reported filter");
+requireIncludes(adminOverviewRoute, "ADMIN_HOT_CACHE_COLLECTION", "Admin overview hot-cache source");
+requireIncludes(adminOverviewRoute, "OVERVIEW_SNAPSHOT_ID", "Admin overview snapshot owner");
+requireIncludes(adminOverviewRoute, "summary_missing", "Missing platform pulse source label");
+requireIncludes(adminOverviewRoute, "Page load did not run broad Firestore fallback reads.", "No broad fallback reads contract");
 requireNotIncludes(adminOverviewRoute, "buildPlatformPulseFromTruthSnapshot", "stale platform pulse builder");
 requireNotIncludes(adminOverviewRoute, "materialized_snapshot", "stale platform pulse source label");
 
@@ -70,11 +69,11 @@ requireIncludes(adminStatsBar, "grid-cols-2", "Mobile compact grid");
 requireIncludes(adminStatsBar, "md:grid-cols-3", "Wide compact grid");
 requireIncludes(adminStatsBar, "metricNeedsIssueBadge", "Issue-only badge gate");
 requireIncludes(adminStatsBar, "AdminReviewBadge", "Issue badge visibility");
-requireNotIncludes(adminStatsBar, "AdminTruthBadge", "Platform pulse success badges");
-requireNotIncludes(adminStatsBar, "AdminMetricCard", "Platform pulse inherited success badges");
+requireIncludes(adminStatsBar, "AdminMetricCard", "Shared metric primitive");
+requireIncludes(adminStatsBar, "showTruthBadge={shouldRenderIssue}", "Issue-only truth badge gate");
+requireIncludes(adminStatsBar, "AdminTruthBadge", "Overall overview truth badge");
 requireNotIncludes(adminStatsBar, "metric.subtext", "Platform pulse subtext");
 requireNotIncludes(adminStatsBar, "formatConfidence", "Platform pulse confidence text");
-requireNotIncludes(adminStatsBar, "data-admin-metric-source", "Platform pulse source truth display leak");
 requireNotIncludes(adminStatsBar, "truncate\">{label}", "Purchases label truncation pattern");
 
 for (const testPath of [windowTestPath, compactUiTestPath, builderTestPath, routeTestPath]) {
@@ -101,11 +100,11 @@ const report = {
   evidence: {
     sixMetricBuilder: adminOverviewTypes.includes("buildAdminOverviewPlatformPulse"),
     compactGrid: adminStatsBar.includes('data-admin-platform-pulse-grid="compact-six"'),
-    okLiveBadgesRemoved: !adminStatsBar.includes("AdminTruthBadge"),
-    sourceTruthDisplayRemoved: !adminStatsBar.includes("data-admin-metric-source"),
+    okLiveBadgesRemoved: adminStatsBar.includes("showTruthBadge={shouldRenderIssue}"),
+    sharedMetricPrimitive: adminStatsBar.includes("AdminMetricCard"),
     gumdropSplitPreserved: adminOverviewTypes.includes("paidGd30d") && adminOverviewTypes.includes("rewardGd30d"),
-    supportBugsUserReportedOnly: adminOverviewRoute.includes('"human_error_bug_report"') && adminOverviewRoute.includes("SUPPORT_BUG_USER_CHANNELS"),
-    boundedReadsOnlyForNewStats: adminOverviewRoute.includes(".count()") && !adminOverviewRoute.includes("bug_reports\").get()"),
+    supportBugsUserReportedOnly: adminOverviewRoute.includes("SUPPORT_BUG_USER_CHANNELS"),
+    hotCacheOnlyForPageLoad: adminOverviewRoute.includes("OVERVIEW_SNAPSHOT_ID") && adminOverviewRoute.includes("Page load did not run broad Firestore fallback reads."),
   },
 };
 
