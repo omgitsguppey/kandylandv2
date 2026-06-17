@@ -582,7 +582,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 ) : (
                   <div className="flex h-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/25 px-3 text-center text-xs text-gray-400">
                     {livePulseModel.backendSnapshotStatus === "available"
-                      ? "Graph waiting for a realtime upgrade."
+                      ? "Graph needs verified snapshot rows."
                       : liveLoading ? "Graph awaiting first snapshot." : "No verified graph data yet."}
                   </div>
                 )}
@@ -618,7 +618,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     ) : (
                       <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
-                        Surface detail has no verified realtime upgrade yet.
+                        Surface detail needs verified snapshot rows.
                       </div>
                     )}
                   </div>
@@ -628,7 +628,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     ) : (
                       <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
-                        Surface detail has no verified realtime upgrade yet.
+                        Surface detail needs verified snapshot rows.
                       </div>
                     )}
                   </div>

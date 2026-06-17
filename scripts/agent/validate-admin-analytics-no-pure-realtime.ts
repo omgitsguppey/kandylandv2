@@ -128,8 +128,8 @@ for (const fixturePollingNeedle of [
 }
 
 for (const livePulseNeedle of [
-  "Graph waiting for a realtime upgrade.",
-  "Surface detail has no verified realtime upgrade yet.",
+  "Graph needs verified snapshot rows.",
+  "Surface detail needs verified snapshot rows.",
   "Showing last verified snapshot.",
 ]) {
   requireIncludes(operationsTab + livePulseModel + displayStateHelper, livePulseNeedle, "Live Pulse snapshot-first visible state");
@@ -181,6 +181,7 @@ for (const bannedVisibleCopy of [
   "Graph waiting for live data.",
   "Graph source unavailable",
   "Surface detail waiting for live data.",
+  "realtime upgrade",
   "Realtime surfaces are waiting for presence rows.",
   'title="Live Pulse"',
   'title="Live Interaction Stream"',

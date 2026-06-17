@@ -55,8 +55,8 @@ assertNotIncludes("AdminAnalyticsOperationsTab", component, "function formatJour
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_LIVE_PULSE_DEBUG__");
 assertIncludes("AdminAnalyticsOperationsTab", component, "compactChartHeightClass");
 assertIncludes("AdminAnalyticsOperationsTab", component, "Graph awaiting first snapshot.");
-assertIncludes("AdminAnalyticsOperationsTab", component, "Graph waiting for a realtime upgrade.");
-assertIncludes("AdminAnalyticsOperationsTab", component, "Surface detail has no verified realtime upgrade yet.");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Graph needs verified snapshot rows.");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Surface detail needs verified snapshot rows.");
 assertIncludes("AdminAnalyticsOperationsTab", component, "displayLabel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "topWarningDetail");
 assertIncludes("AdminAnalyticsOperationsTab", component, "guestEstimateState");
@@ -84,6 +84,7 @@ assertNotIncludes("Live Pulse section", livePulseSection, "Waiting for pulse dat
 assertNotIncludes("Live Pulse section", livePulseSection, "Graph waiting for live data.");
 assertNotIncludes("Live Pulse section", livePulseSection, "Graph source unavailable");
 assertNotIncludes("Live Pulse section", livePulseSection, "Surface detail waiting for live data.");
+assertNotIncludes("Live Pulse section", livePulseSection, "realtime upgrade");
 assertNotIncludes("Live Pulse section", livePulseSection, "Realtime surfaces are waiting for presence rows.");
 assertNotIncludes("Live Pulse section", livePulseSection, 'title="Live Pulse"');
 assertNotIncludes("Live Pulse section", livePulseSection, "Realtime surfaces");
