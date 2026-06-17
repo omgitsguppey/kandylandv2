@@ -249,7 +249,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
         `Next: ${guestBounceQualityModel.guestQuality.nextAction}`,
       ].join(" ");
   const signedInBounceHint = guestBounceQualityModel.signedInBounce.sampleCount === null
-    ? "Signed-in bounce sample only. No guest bounce sample yet."
+    ? "Signed-in bounce sample only. Guest bounce unavailable."
     : [
         `${guestBounceQualityModel.signedInBounce.sampleCount} signed-in views`,
         guestBounceQualityModel.signedInBounce.explanation,
@@ -1429,7 +1429,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.display}</td>
                           <td className="px-3 py-2" title={guestBounceQualityModel.estimatedGuestViews.sourceTruth}>{guestEstimateSourceLabel}</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.freshnessState}</td>
-                          <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.formula ?? "No formula source"}</td>
+                          <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}</td>
                         </tr>
                         <tr>
                           <td className="px-3 py-2 font-semibold text-white">Guest Quality</td>
@@ -1463,7 +1463,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <MetricCard
                     label={guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}
                     value={guestBounceQualityModel.estimatedGuestViews.display}
-                    hint={`Source ${guestEstimateSourceLabel} - ${guestBounceQualityModel.estimatedGuestViews.formula ?? "No formula source"}`}
+                    hint={`Source ${guestEstimateSourceLabel} - ${guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}`}
                     icon={Users}
                     truthState={guestBounceQualityModel.estimatedGuestViews.freshnessState === "stale" ? "stale" : guestBounceQualityModel.estimatedGuestViews.freshnessState === "refresh_due" ? "cached" : guestBounceQualityModel.truthState}
                     statusBadgeLabel="EST"

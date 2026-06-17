@@ -248,7 +248,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     : "Unknown";
   const viewerLastSessionLabel = viewerDrilldownCaptureHealth.lastSeenAtMs
     ? formatRelativeTime(viewerDrilldownCaptureHealth.lastSeenAtMs, nowMs)
-    : "No viewer session timestamp";
+    : "Last viewer session unavailable";
   const viewerDrilldownContract = buildAdminAnalyticsViewerDrilldownContract({
     nowMs,
     formatDuration,

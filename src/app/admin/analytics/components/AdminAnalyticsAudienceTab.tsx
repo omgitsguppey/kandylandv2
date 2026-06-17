@@ -1125,7 +1125,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 <div className="mt-3 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
                   <p className="font-semibold text-white">Optional device metrics</p>
                   <p>
-                    Purchase rate, unwrap rate, bounce rate, average session length, and watch time by device wait for a canonical per-device source.
+                    Purchase rate, unwrap rate, bounce rate, average session length, and watch time by device are unavailable until a canonical per-device source is connected.
                   </p>
                 </div>
               </SectionCard>
