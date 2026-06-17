@@ -2,6 +2,8 @@
 
 import { Pill, Section } from "./DebugPrimitives";
 
+const DEBUG_TRACKING_NOT_LOADED = "Not loaded";
+
 type TrackingLane = {
     id: string;
     label: string;
@@ -101,8 +103,15 @@ function labelForSeverity(severity?: string) {
     return "Info";
 }
 
+function valueWhenTrackingLoaded(isLoaded: boolean, value: unknown): string | number {
+    if (!isLoaded) return DEBUG_TRACKING_NOT_LOADED;
+    if (typeof value === "number" || typeof value === "string") return value;
+    return 0;
+}
+
 export function DebugTrackingSummaryPanel({ trackingSummary }: { trackingSummary: TrackingSummary | null | undefined }) {
     const lanes = Array.isArray(trackingSummary?.lanes) ? trackingSummary.lanes : [];
+    const trackingLoaded = lanes.length > 0;
     const p1Count = lanes.filter((lane) => lane.severity === "p1").length;
     const p2Count = lanes.filter((lane) => lane.severity === "p2").length;
     const duplicateCount = trackingSummary?.validation?.duplicateTrackingSystems?.length ?? 0;
@@ -117,9 +126,9 @@ export function DebugTrackingSummaryPanel({ trackingSummary }: { trackingSummary
             summary={(
                 <>
                     <Pill label="Lanes" value={lanes.length} tone={lanes.length ? "good" : "bad"} truthState={lanes.length ? "live" : "unavailable"} />
-                    <Pill label="P1" value={p1Count} tone={p1Count > 0 ? "bad" : "good"} truthState={p1Count > 0 ? "failed" : "live"} />
-                    <Pill label="P2" value={p2Count} tone={p2Count > 0 ? "warn" : "good"} truthState={p2Count > 0 ? "degraded" : "live"} />
-                    <Pill label="Duplicates" value={duplicateCount} tone={duplicateCount > 0 ? "bad" : "good"} truthState={duplicateCount > 0 ? "failed" : "live"} />
+                    <Pill label="P1" value={valueWhenTrackingLoaded(trackingLoaded, p1Count)} tone={p1Count > 0 ? "bad" : trackingLoaded ? "good" : "neutral"} truthState={trackingLoaded ? p1Count > 0 ? "failed" : "live" : "unavailable"} />
+                    <Pill label="P2" value={valueWhenTrackingLoaded(trackingLoaded, p2Count)} tone={p2Count > 0 ? "warn" : trackingLoaded ? "good" : "neutral"} truthState={trackingLoaded ? p2Count > 0 ? "degraded" : "live" : "unavailable"} />
+                    <Pill label="Duplicates" value={valueWhenTrackingLoaded(trackingLoaded, duplicateCount)} tone={duplicateCount > 0 ? "bad" : trackingLoaded ? "good" : "neutral"} truthState={trackingLoaded ? duplicateCount > 0 ? "failed" : "live" : "unavailable"} />
                     <Pill label="Raw details" value="Drilldown only" tone="neutral" truthState="cached" />
                 </>
             )}

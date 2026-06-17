@@ -43,4 +43,19 @@ describe("admin debug compact layout", () => {
         expect(source).not.toContain('label: "Score penalties"');
         expect(source).not.toContain("Score penalties");
     });
+
+    it("prevents empty tracking and telemetry lane summaries from rendering as healthy zero counts", () => {
+        const telemetry = readFileSync(join(process.cwd(), "src/app/admin/debug/components/DebugTelemetryHealthSummary.tsx"), "utf8");
+        const tracking = readFileSync(join(process.cwd(), "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx"), "utf8");
+
+        expect(telemetry).toContain('const DEBUG_TELEMETRY_NOT_LOADED = "Not loaded";');
+        expect(telemetry).toContain("valueWhenTelemetryLoaded(telemetryLoaded, summary.live ?? 0)");
+        expect(telemetry).toContain('telemetryLoaded ? "live" : "unavailable"');
+        expect(telemetry).not.toContain('<Pill label="Live" value={summary.live ?? 0} tone="good" truthState="live" />');
+
+        expect(tracking).toContain('const DEBUG_TRACKING_NOT_LOADED = "Not loaded";');
+        expect(tracking).toContain("valueWhenTrackingLoaded(trackingLoaded, p1Count)");
+        expect(tracking).toContain('trackingLoaded ? p1Count > 0 ? "failed" : "live" : "unavailable"');
+        expect(tracking).not.toContain('<Pill label="P1" value={p1Count} tone={p1Count > 0 ? "bad" : "good"} truthState={p1Count > 0 ? "failed" : "live"} />');
+    });
 });

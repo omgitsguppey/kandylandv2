@@ -2506,6 +2506,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugTabMonitoring\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugMonitoringRoutes\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugRuntimeEvidenceGroups\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/Debug(?:TelemetryHealthSummary|TrackingSummaryPanel)\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPrimitives\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabActions\.tsx$/u,

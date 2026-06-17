@@ -2,6 +2,8 @@
 
 import { Pill, Section } from "./DebugPrimitives";
 
+const DEBUG_TELEMETRY_NOT_LOADED = "Not loaded";
+
 type AdminTelemetryHealthStatus =
     | "live"
     | "degraded"
@@ -59,13 +61,20 @@ function labelForTelemetryHealthStatus(status?: string) {
     }
 }
 
+function valueWhenTelemetryLoaded(isLoaded: boolean, value: unknown): string | number {
+    if (!isLoaded) return DEBUG_TELEMETRY_NOT_LOADED;
+    if (typeof value === "number" || typeof value === "string") return value;
+    return 0;
+}
+
 export function DebugTelemetryHealthSummary({ telemetryHealth }: { telemetryHealth: any }) {
     const lanes = Array.isArray(telemetryHealth?.lanes) ? telemetryHealth.lanes as TelemetryHealthLane[] : [];
+    const telemetryLoaded = lanes.length > 0;
     const summary = telemetryHealth?.summary || {};
     const degradedCount = Number(summary.degraded || 0) + Number(summary.runtimeUnproven || 0);
     const unavailableCount = Number(summary.unavailable || 0) + Number(summary.configMissing || 0);
-    const summaryTone = unavailableCount > 0 ? "bad" : degradedCount > 0 ? "warn" : "good";
-    const summaryTruthState = unavailableCount > 0 ? "degraded" : degradedCount > 0 ? "degraded" : "live";
+    const summaryTone = !telemetryLoaded ? "neutral" : unavailableCount > 0 ? "bad" : degradedCount > 0 ? "warn" : "good";
+    const summaryTruthState = !telemetryLoaded ? "unavailable" : unavailableCount > 0 ? "degraded" : degradedCount > 0 ? "degraded" : "live";
 
     return (
         <Section
@@ -75,9 +84,9 @@ export function DebugTelemetryHealthSummary({ telemetryHealth }: { telemetryHeal
             summary={(
                 <>
                     <Pill label="Lanes" value={lanes.length} tone={lanes.length ? "good" : "bad"} truthState={lanes.length ? "live" : "unavailable"} />
-                    <Pill label="Live" value={summary.live ?? 0} tone="good" truthState="live" />
-                    <Pill label="Needs review" value={degradedCount} tone={degradedCount > 0 ? "warn" : "good"} truthState={summaryTruthState} />
-                    <Pill label="Unavailable" value={unavailableCount} tone={unavailableCount > 0 ? "bad" : "good"} truthState={unavailableCount > 0 ? "unavailable" : "live"} />
+                    <Pill label="Live" value={valueWhenTelemetryLoaded(telemetryLoaded, summary.live ?? 0)} tone={telemetryLoaded ? "good" : "neutral"} truthState={telemetryLoaded ? "live" : "unavailable"} />
+                    <Pill label="Needs review" value={valueWhenTelemetryLoaded(telemetryLoaded, degradedCount)} tone={degradedCount > 0 ? "warn" : telemetryLoaded ? "good" : "neutral"} truthState={summaryTruthState} />
+                    <Pill label="Unavailable" value={valueWhenTelemetryLoaded(telemetryLoaded, unavailableCount)} tone={unavailableCount > 0 ? "bad" : telemetryLoaded ? "good" : "neutral"} truthState={telemetryLoaded ? unavailableCount > 0 ? "unavailable" : "live" : "unavailable"} />
                     <Pill label="Raw details" value="Drilldown only" tone="neutral" truthState="cached" />
                 </>
             )}
