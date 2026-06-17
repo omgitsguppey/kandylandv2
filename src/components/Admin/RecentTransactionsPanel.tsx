@@ -33,6 +33,7 @@ const USER_FETCH_CHUNK_SIZE = 10;
 
 type RecentTransactionsPanelProps = {
     transactions: AdminOverviewResponse["recentTransactions"];
+    realtimeMode?: "snapshot" | "listener";
 };
 
 type DisplayTransaction = AdminOverviewTransactionRecord;
@@ -40,7 +41,7 @@ type DisplayTransaction = AdminOverviewTransactionRecord;
 type RecentTransactionsDebugMeta = {
     transactionSource: string;
     identitySource: string;
-    listenerStatus: "active" | "errored" | "waiting";
+    listenerStatus: "active" | "errored" | "waiting" | "disabled";
     snapshotSource: "server" | "cache" | "none";
     lastServerFeedMs: number;
     lastClientSnapshotMs: number;
@@ -109,6 +110,7 @@ function toDisplayTransaction(
 function resolveDisplayName(
     transaction: DisplayTransaction,
     identityMap: Map<string, string>,
+    allowPendingLookup = true,
 ): { label: string; resolved: boolean; source: string } {
     // 1. Identity map (batch-fetched from users collection)
     const mapped = identityMap.get(transaction.userId);
@@ -132,6 +134,10 @@ function resolveDisplayName(
     // 4. Identity map returned "Unknown" — user doc exists but has no name
     if (mapped === "Unknown") {
         return { label: "Unknown user", resolved: true, source: "users_collection_unnamed" };
+    }
+
+    if (!allowPendingLookup) {
+        return { label: "Unknown user", resolved: true, source: "snapshot_missing_identity" };
     }
 
     // 5. Still pending — identity map hasn't loaded yet
@@ -159,7 +165,8 @@ function formatAmountDelta(transaction: DisplayTransaction): { primary: string; 
    Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export function RecentTransactionsPanel({ transactions: fallbackTransactions }: RecentTransactionsPanelProps) {
+export function RecentTransactionsPanel({ transactions: fallbackTransactions, realtimeMode = "snapshot" }: RecentTransactionsPanelProps) {
+    const enableRealtime = realtimeMode === "listener";
     const nowMs = useNow({ intervalMs: 60_000 });
     const mountMs = useRef(performance.now());
     const firstRenderMs = useRef(0);
@@ -189,12 +196,13 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
 
     /* ── Determine truth state ──────────────────────────────────────────── */
     const truthState: AdminSurfaceState = useMemo(() => {
+        if (!enableRealtime) return "cached";
         if (liveFeedError) return "fallback";
         if (!isLiveFeedActive) return "loading";
         if (snapshotFromCache) return "cached";
         if (identityLookupFailures > 0) return "degraded";
         return "live";
-    }, [isLiveFeedActive, liveFeedError, snapshotFromCache, identityLookupFailures]);
+    }, [enableRealtime, isLiveFeedActive, liveFeedError, snapshotFromCache, identityLookupFailures]);
 
     /* ── Pagination ─────────────────────────────────────────────────────── */
     const paginated = useMemo(
@@ -273,6 +281,7 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
 
     /* ── Live Firestore listener ────────────────────────────────────────── */
     useEffect(() => {
+        if (!enableRealtime) return;
         let cancelled = false;
         const recentTxQuery = query(
             collection(db, "transactions"),
@@ -323,17 +332,18 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
             cancelled = true;
             control.cleanup();
         };
-    }, [fallbackById]);
+    }, [enableRealtime, fallbackById]);
 
     /* ── Trigger identity resolution when transactions change ───────────── */
     useEffect(() => {
+        if (!enableRealtime) return;
         const userIds = transactions
             .map((t) => t.userId)
             .filter((id) => id && id.trim().length > 0);
         if (userIds.length > 0) {
             resolveUserIdentities(userIds);
         }
-    }, [transactions, resolveUserIdentities]);
+    }, [enableRealtime, transactions, resolveUserIdentities]);
 
     /* ── Build debug metadata ───────────────────────────────────────────── */
     const debugMeta: RecentTransactionsDebugMeta = useMemo(() => {
@@ -343,7 +353,7 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
         let embeddedCount = 0;
 
         transactions.forEach((t) => {
-            const { resolved, source } = resolveDisplayName(t, identityMap);
+            const { resolved, source } = resolveDisplayName(t, identityMap, enableRealtime);
             if (!t.userId || t.userId.trim().length === 0) missingActorCount++;
             else if (resolved) {
                 resolvedCount++;
@@ -354,9 +364,9 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
         });
 
         return {
-            transactionSource: "firestore/transactions",
-            identitySource: "firestore/users",
-            listenerStatus: liveFeedError ? "errored" : isLiveFeedActive ? "active" : "waiting",
+            transactionSource: enableRealtime ? "firestore/transactions" : "overview_snapshot",
+            identitySource: enableRealtime ? "firestore/users" : "overview_snapshot",
+            listenerStatus: !enableRealtime ? "disabled" : liveFeedError ? "errored" : isLiveFeedActive ? "active" : "waiting",
             snapshotSource: isLiveFeedActive ? (snapshotFromCache ? "cache" : "server") : "none",
             lastServerFeedMs,
             lastClientSnapshotMs,
@@ -375,7 +385,7 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
             identityResolutionCompleteMs: Math.round(identityCompleteMs.current),
         };
     }, [
-        transactions, identityMap, liveFeedError, isLiveFeedActive,
+        enableRealtime, transactions, identityMap, liveFeedError, isLiveFeedActive,
         snapshotFromCache, lastServerFeedMs, lastClientSnapshotMs,
         page, identityLookupLatencyMs, identityLookupFailures,
     ]);
@@ -409,7 +419,7 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
                                 ? formatDistance(timestamp, nowMs, { addSuffix: true })
                                 : "Unknown time";
 
-                            const { label: displayName, resolved: nameResolved } = resolveDisplayName(transaction, identityMap);
+                            const { label: displayName, resolved: nameResolved } = resolveDisplayName(transaction, identityMap, enableRealtime);
                             const badge = getTransactionBadgeLabel(transaction);
                             const badgeColor = BADGE_COLORS[transaction.type] ?? "border-white/10 bg-white/5 text-gray-300";
                             const { primary, secondary, color } = formatAmountDelta(transaction);
