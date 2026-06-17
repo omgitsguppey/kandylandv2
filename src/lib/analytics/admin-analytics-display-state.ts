@@ -161,7 +161,7 @@ export function formatAdminAnalyticsEvidenceSourceLabel(
     case "intraday":
       return "Verified snapshot";
     case "stale_cache":
-      return "Stale verified snapshot, refresh due";
+      return "Verified snapshot, refresh due";
     case "estimated":
     case "vendor_evidence":
       return "Estimated from vendor analytics";
@@ -172,7 +172,7 @@ export function formatAdminAnalyticsEvidenceSourceLabel(
     case "fallback":
     case "mixed":
     case "realtime_upgrade":
-      return "Fallback evidence";
+      return "Current activity source";
     case "debug_only":
       return "Debug-only recovery evidence";
     case "recovery_review_only":
@@ -403,8 +403,8 @@ export function resolveAdminAnalyticsDisplayState(input: {
       shouldRenderSnapshot: false,
       shouldRenderRealtimeUpgrade: true,
       shouldShowUnavailable: false,
-      visibleMessage: "Showing live data.",
-      debugReason: "No verified snapshot exists; valid realtime data is available.",
+      visibleMessage: "Showing current activity source.",
+      debugReason: "No verified snapshot exists; current activity source is available.",
       refreshAvailable: input.moduleConfig.refreshAvailable !== false,
       fakeZeroPrevented,
       realtimeBlocksFirstRender: false,

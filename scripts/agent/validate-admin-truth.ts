@@ -72,7 +72,8 @@ requireNotIncludes(adminDebugRoute, "productionAllowedNow: true", "Admin Debug r
 
 for (const expected of [
   "Verified snapshot",
-  "Stale verified snapshot",
+  "Verified snapshot, refresh due",
+  "Current activity source",
   "Estimated from vendor analytics",
   "Debug-only recovery evidence",
   "Needs review before promotion",

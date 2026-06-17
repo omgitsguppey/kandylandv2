@@ -85,7 +85,7 @@ for (const needle of [
 for (const bannedPrimaryCopy of [
   "raw logs stay Debug-only",
   "raw logs stay",
-  "Verified snapshot or Stale verified snapshot drives display",
+  "Verified snapshot or refresh-due verified snapshot drives display",
 ]) {
   requireNotIncludes(operationsTab, bannedPrimaryCopy, "Live Pulse primary copy");
 }

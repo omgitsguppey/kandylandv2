@@ -6119,7 +6119,7 @@ export async function GET(request: NextRequest) {
                     rawCollectionRule: "Raw analytics collections remain Debug evidence/materializer input only and are not compact historical display fallback.",
                     vendorBoundaryRule: "GA4, PostHog, and BigQuery remain labeled vendor evidence and cannot override first-party snapshots.",
                     missingSnapshotRule: "Missing verified snapshots return unavailable instead of rebuilding compact display truth from raw logs.",
-                    staleSnapshotRule: "Stale verified snapshots stay labeled stale_cache and are not called live.",
+                    staleSnapshotRule: "Refresh-due verified snapshots stay labeled stale_cache and are not called live.",
                     recoveryMetadataRule: "Recovery lanes carry source, fallback, confidence, and missing-sample reasons in Debug before Admin Analytics surfacing.",
                     sourceLabels: ["verified_cache", "stale_cache", "fallback", "debug_only", "unavailable", "estimated", "vendor_evidence"],
                     compactRawDisplayFallbackRemoved: true,
