@@ -266,4 +266,57 @@ describe("buildAdminAnalyticsAuthOutcomeModel", () => {
     expect(model.trackingCapability.failureReasonsAvailable).toBe(false);
     expect(model.trackingCapability.missingPieces).toContain("No safe failureCode captured for failed email/password attempts");
   });
+
+  it("keeps refresh-due canonical auth snapshots as cached truth instead of live truth", () => {
+    const cachedResponse: HistoricalAnalyticsResponse = {
+      ...response({
+        generatedAtUtc: "2026-05-06T12:00:00.000Z",
+        range: "7d",
+        sourceMode: "canonical_attempt_chain",
+        attempts: 8,
+        successes: 6,
+        failures: 1,
+        unfinished: 1,
+        successRatePct: 75,
+        avgFinishMs: 2100,
+        timingState: "available",
+        lastAuthEventAtUtc: "2026-05-06T11:58:00.000Z",
+        methods: [
+          {
+            method: "google_sign_in",
+            attempts: 8,
+            successes: 6,
+            failures: 1,
+            unfinished: 1,
+            successRatePct: 75,
+            avgFinishMs: 2100,
+            failureBreakdown: [{
+              failureCode: "auth/popup-closed-by-user",
+              count: 1,
+              explanation: "Normalized safe auth failure code auth/popup-closed-by-user.",
+            }],
+            state: "review",
+          },
+        ],
+        lifecycleOutcomes: [],
+      }),
+      cacheState: "refresh_due",
+      staleButVerified: true,
+      cacheRevalidating: true,
+    };
+
+    const model = buildAdminAnalyticsAuthOutcomeModel({
+      selectedRange: "7d",
+      response: cachedResponse,
+      authBreakdown: [],
+      loading: false,
+      overviewTruthState: "live",
+    });
+
+    expect(model.stale).toBe(false);
+    expect(model.modeLabel).toBe("CACHED");
+    expect(model.currentSource).toBe("first_party_telemetry");
+    expect(model.methodBreakdown[0]?.truthState).toBe("cached");
+    expect(model.attempts.value).toBe(8);
+  });
 });

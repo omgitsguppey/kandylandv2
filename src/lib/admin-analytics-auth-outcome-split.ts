@@ -74,7 +74,7 @@ export type AdminAnalyticsAuthOutcomeModel = {
   duplicateRefreshPrevented: boolean;
   badgeOverflowProtectionEnabled: true;
   sampleTooSmall: boolean;
-  modeLabel: "LIVE" | "STALE" | "PARTIAL" | "WAIT" | "NO SAMPLE" | "UNAVAILABLE" | "ERROR";
+  modeLabel: "LIVE" | "CACHED" | "STALE" | "PARTIAL" | "WAIT" | "NO SAMPLE" | "UNAVAILABLE" | "ERROR";
   hydrationState: AuthOutcomeHydrationState;
   hasCanonicalAuthAttemptSample: boolean;
   hasLegacyAuthSample: boolean;
@@ -301,6 +301,12 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
 }): AdminAnalyticsAuthOutcomeModel {
   const hasResponse = Boolean(input.response);
   const stale = Boolean(input.response && (input.error || input.response.cacheState === "stale"));
+  const cacheRefreshDue = Boolean(
+    input.response &&
+      (input.response.cacheState === "refresh_due" ||
+        input.response.staleButVerified ||
+        input.response.cacheRevalidating),
+  );
   const hasLegacyInputSample = hasLegacyBreakdownSample(input.authBreakdown);
   const summary = input.response?.authOutcomeSummary ?? buildLegacySummary({
     authBreakdown: input.authBreakdown,
@@ -356,7 +362,7 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
         : hasLegacyAuthSample
           ? "degraded"
           : hasCanonicalAuthAttemptSample
-            ? input.overviewTruthState ?? "live"
+            ? cacheRefreshDue ? "cached" : input.overviewTruthState ?? "live"
             : "unavailable";
   const methodBreakdown = hasUsableAuthSample
     ? buildMethodRows(summary.methods, source, truthState, fakeZeroPrevented)
@@ -469,7 +475,7 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
         : stale
           ? "STALE"
           : hasCanonicalAuthAttemptSample
-            ? "LIVE"
+            ? cacheRefreshDue ? "CACHED" : "LIVE"
             : hasLegacyAuthSample
               ? "PARTIAL"
               : "NO SAMPLE",
