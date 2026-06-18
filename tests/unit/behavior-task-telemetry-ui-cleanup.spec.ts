@@ -6,6 +6,7 @@ const behaviorUi = fs.readFileSync("src/app/admin/debug/components/DebugAdvanced
 const driftUi = fs.readFileSync("src/app/admin/debug/components/DebugAdvancedDrift.tsx", "utf8");
 const telemetryUi = fs.readFileSync("src/app/admin/debug/components/DebugAdvancedTelemetry.tsx", "utf8");
 const experimentsUi = fs.readFileSync("src/app/admin/debug/components/DebugAdvancedExperiments.tsx", "utf8");
+const debugPrimitives = fs.readFileSync("src/app/admin/debug/components/DebugPrimitives.tsx", "utf8");
 
 describe("behavior task telemetry UI cleanup", () => {
   it("surfaces source status instead of plain loaded zero shells", () => {
@@ -35,5 +36,11 @@ describe("behavior task telemetry UI cleanup", () => {
     expect(behaviorUi).toContain("<details");
     expect(truthUi).toContain("<details");
     expect(telemetryUi).toContain("Raw trigger details");
+  });
+
+  it("maps terse debug badge labels to readable copy", () => {
+    expect(debugPrimitives).toContain('ERROR: "Needs fix"');
+    expect(debugPrimitives).toContain('LOADED: "Loaded"');
+    expect(debugPrimitives).toContain('UNKNOWN: "Unknown"');
   });
 });

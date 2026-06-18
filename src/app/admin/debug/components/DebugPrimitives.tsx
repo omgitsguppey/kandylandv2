@@ -50,9 +50,17 @@ function formatDebugPillBadgeLabel(label?: string) {
     const sentenceCaseOverrides: Record<string, string> = {
         ACTIONABLE: "Action needed",
         CONFIG: "Configured",
+        ERROR: "Needs fix",
+        FAILED: "Failed",
+        INFO: "Info",
+        LIVE: "Live",
+        LOADED: "Loaded",
+        MISSING: "Missing",
         "NO SAMPLE": "No sample",
         "PROVEN ZERO": "Proven zero",
+        REVIEW: "Review",
         "STALE SAMPLE": "Stale sample",
+        UNKNOWN: "Unknown",
     };
     if (sentenceCaseOverrides[normalized]) return sentenceCaseOverrides[normalized];
     if (!/^[A-Z0-9 _-]+$/u.test(normalized)) return normalized;
