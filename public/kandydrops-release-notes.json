@@ -1,11 +1,83 @@
 {
-  "currentVersion": "1.6.2",
-  "betaReleaseCounter": 602,
+  "currentVersion": "1.6.3",
+  "betaReleaseCounter": 603,
   "channel": "beta",
-  "generatedAt": "2026-06-18T16:55:16.637Z",
-  "generatedAtUtc": "2026-06-18T16:55:16.637Z",
-  "lastCommitSha": "bcc001481d5d0bfb644f3402fde2826c3b7c4131",
+  "generatedAt": "2026-06-18T18:50:41.642Z",
+  "generatedAtUtc": "2026-06-18T18:50:41.642Z",
+  "lastCommitSha": "d1371d0b5aa991193fed4ef341bce26e2c62eed3",
   "notes": [
+    {
+      "version": "1.6.3",
+      "previousVersion": "1.6.2",
+      "betaReleaseCounter": 603,
+      "previousBetaReleaseCounter": 602,
+      "commitSha": "d1371d0b5aa991193fed4ef341bce26e2c62eed3",
+      "commitTitle": "fix(analytics): clarify source agreement promotion state",
+      "commitCount": 11,
+      "commitShas": [
+        "f9d08ce8e84da383105b2a795a7b5766bbec8ca0",
+        "468f66abe4da5e7ebae9ee19ad3fa95e2e38bf8d",
+        "8c664d581ce64ccf3022958ce9bf2f7b275012d0",
+        "257906747a1b14dec6eda849aa864ff49ca2ffe8",
+        "50ce2e6693f0e0824574eaabbcfb2effbe81ecf1",
+        "3690ab2fad3504ace7d2bf27bfb538a4ada291d4",
+        "0d535d67a2b94ee176406bb0993421c82371bfc0",
+        "07442f52388f7bc827c8df6f6705943637dd84f8",
+        "8d9b35ab1f42605fc9271971e82a79b62a63e30a",
+        "ef6ff6c89c7be37c4410bb0ac9ada65580acd32f",
+        "d1371d0b5aa991193fed4ef341bce26e2c62eed3"
+      ],
+      "committedAt": "2026-06-18T18:49:23.000Z",
+      "generatedAt": "2026-06-18T18:50:41.640Z",
+      "committedAtUtc": "2026-06-18T18:49:23.000Z",
+      "generatedAtUtc": "2026-06-18T18:50:41.640Z",
+      "updatedAtUtc": "2026-06-18T18:50:41.640Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 11 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/event-translation-bridge.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/person-metrics-hydration.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/source-agreement-failure-detail.generated.json",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/event-translation-bridge.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/person-metrics-hydration.md",
+        "docs/agent-truth/source-agreement-failure-detail.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/rebuild-analytics-truth.ts",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/components/DebugControlTowerCards.tsx",
+        "src/lib/admin-debug-control-tower.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
+        "tests/unit/admin-debug-control-tower-component.spec.tsx",
+        "tests/unit/admin-debug-control-tower.spec.ts"
+      ],
+      "sourceCommit": "d1371d0b5aa991193fed4ef341bce26e2c62eed3"
+    },
     {
       "version": "1.6.2",
       "previousVersion": "1.6.1",
@@ -1412,53 +1484,6 @@
         "tests/unit/admin-data-validation.spec.ts"
       ],
       "sourceCommit": "66b3ec000ad4eb3ca531292e2d4079a065fe973c"
-    },
-    {
-      "version": "1.5.78",
-      "previousVersion": "1.5.77",
-      "betaReleaseCounter": 578,
-      "previousBetaReleaseCounter": 577,
-      "commitSha": "75952c946f9288778857f3dec0c77216cc4af36e",
-      "commitTitle": "fix(admin): simplify surface actions",
-      "commitCount": 1,
-      "commitShas": [
-        "75952c946f9288778857f3dec0c77216cc4af36e"
-      ],
-      "committedAt": "2026-06-17T22:43:02.000Z",
-      "generatedAt": "2026-06-17T22:43:35.448Z",
-      "committedAtUtc": "2026-06-17T22:43:02.000Z",
-      "generatedAtUtc": "2026-06-17T22:43:35.448Z",
-      "updatedAtUtc": "2026-06-17T22:43:35.448Z",
-      "category": "Fixed",
-      "title": "Improved drops and viewer reliability",
-      "summary": "Bug fixes and quality-of-life improvements for drops, previews, and viewer behavior.",
-      "userFacingTitle": "Improved drops and viewer reliability",
-      "surfaceCategory": "Drops & viewer",
-      "bullets": [
-        "Improved drop and viewer reliability so usage states stay easier to understand.",
-        "Reduced confusing stale or delayed states across previews and viewer surfaces."
-      ],
-      "audience": "users",
-      "affectedSurfaces": [
-        "admin",
-        "drops-viewer"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/admin-surface-modal-replacement.generated.json",
-        "docs/agent-truth/admin-surface-modal-replacement.md",
-        "scripts/agent/validate-product-surface-integrity.ts",
-        "scripts/agent/validate-support-recovery-flows.ts",
-        "src/app/admin/drops/page.tsx",
-        "src/app/admin/users/page.tsx",
-        "src/components/Admin/BalanceAdjustmentModal.tsx",
-        "src/components/Admin/BalanceAdjustmentPanel.tsx",
-        "src/components/Admin/TransactionHistoryModal.tsx",
-        "src/components/Admin/TransactionHistoryPanel.tsx",
-        "tests/unit/accessibility-tap-targets.spec.ts",
-        "tests/unit/admin-transaction-history-error-language.spec.ts"
-      ],
-      "sourceCommit": "75952c946f9288778857f3dec0c77216cc4af36e"
     }
   ]
 }
