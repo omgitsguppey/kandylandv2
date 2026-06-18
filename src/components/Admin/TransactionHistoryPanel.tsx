@@ -23,7 +23,7 @@ interface Props {
 
 function getAdminTransactionHistorySafeErrorMessage(error: unknown) {
     const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
-    return safeError.errorKey === "unknown_error" ? "Failed to load transactions" : safeError.operatorMessage;
+    return safeError.errorKey === "unknown_error" ? "Transaction history could not be loaded." : safeError.operatorMessage;
 }
 
 export function TransactionHistoryPanel({ user, onClose }: Props) {
@@ -157,13 +157,13 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
                                             );
                                             return (
                                                 <p className="mt-1 text-[11px] text-gray-500">
-                                                    {`$${economics.grossRevenueUsd.toFixed(2)} cash · ${economics.bonusGumDrops.toLocaleString()} bonus GD · $${economics.adjustedProfitUsd.toFixed(2)} adjusted`}
+                                                    {`$${economics.grossRevenueUsd.toFixed(2)} cash - ${economics.bonusGumDrops.toLocaleString()} bonus GD - $${economics.adjustedProfitUsd.toFixed(2)} adjusted`}
                                                 </p>
                                             );
                                         })() : null}
                                         {isCreatorSpend ? (
                                             <p className="mt-1 text-[11px] text-gray-500">
-                                                {`Purchased spent: ${tx.purchasedAmountSpent ?? 0} GD · Reward spent: ${tx.rewardAmountSpent ?? 0} GD · Creator share: ${tx.creatorRevenueShareGd ?? 0} GD`}
+                                                {`Purchased spent: ${tx.purchasedAmountSpent ?? 0} GD - Reward spent: ${tx.rewardAmountSpent ?? 0} GD - Creator share: ${tx.creatorRevenueShareGd ?? 0} GD`}
                                             </p>
                                         ) : null}
                                     </div>

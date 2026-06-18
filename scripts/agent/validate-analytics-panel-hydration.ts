@@ -229,7 +229,11 @@ function classifyDirtyFile(path: string) {
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "agent/state/admin-surface-modal-replacement.generated.json") return "admin_surface_modal_replacement_artifact_expected";
   if (normalized === "docs/agent-truth/admin-surface-modal-replacement.md") return "admin_surface_modal_replacement_artifact_expected";
+  if (normalized === "src/app/admin/debug/components/DebugControlTower.tsx") return "admin_debug_truth_display_source_expected";
+  if (normalized === "src/app/admin/debug/components/DebugControlTowerCards.tsx") return "admin_debug_truth_display_source_expected";
+  if (normalized === "src/components/Admin/BalanceAdjustmentPanel.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/components/Admin/CreateDropModal.tsx") return "admin_surface_modal_replacement_source_expected";
+  if (normalized === "src/components/Admin/TransactionHistoryPanel.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/components/Admin/AiDropCoverGeneratorPanel.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/lib/telemetry-catalog.ts") return "admin_surface_modal_replacement_source_expected";
@@ -245,6 +249,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "agent/evidence/admin-truth-sample/README.md") return "admin_truth_sample_launch_coverage_evidence_expected";
   if (normalized === "agent/evidence/admin-truth-sample/evidence.template.json") return "admin_truth_sample_launch_coverage_evidence_expected";
   if (normalized === "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/admin-debug-control-tower-component.spec.tsx") return "test_artifact_expected";
   if (normalized === "agent/state/source-agreement-failure-detail.generated.json") return "source_agreement_failure_artifact_expected";
   if (normalized === "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json") return "source_agreement_failure_artifact_expected";
   if (normalized === "docs/agent-truth/source-agreement-failure-detail.md") return "documentation_artifact_expected";

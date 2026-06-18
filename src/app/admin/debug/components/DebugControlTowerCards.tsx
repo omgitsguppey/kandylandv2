@@ -69,7 +69,59 @@ export function toBadgeState(state: AdminDebugTruthState): AdminSurfaceState {
     if (state === "missing" || state === "unknown") return "unavailable";
     return "unavailable";
 }
-
+export function resolveReportDisplay(report: AdminDebugReportCard): {
+    badgeState: AdminSurfaceState;
+    badgeLabel?: string;
+    statusLabel: string;
+    findingLabel: string;
+    sourceDetail: string;
+} {
+    const hasFindings = report.findingCount > 0 || report.topFindings.length > 0 || report.criticalCount > 0;
+    const sourceNeedsRefresh = report.freshness === "stale_24h" || report.freshness === "stale_72h" || report.sourceDrift === "stale";
+    const proofBoundaryOnly = !hasFindings
+        && report.id === "public-beta-score"
+        && ["fail", "beta-risk", "warning", "review"].includes(report.status.toLowerCase());
+    if (report.freshness === "missing" || report.truthState === "missing") {
+        return {
+            badgeState: "unavailable",
+            statusLabel: "Source missing",
+            findingLabel: hasFindings ? `${report.findingCount} finding${report.findingCount === 1 ? "" : "s"}` : "No source",
+            sourceDetail: "Required generated state is missing and cannot clear this lane.",
+        };
+    }
+    if (report.freshness === "failed") {
+        return {
+            badgeState: "failed",
+            statusLabel: "Source failed",
+            findingLabel: hasFindings ? `${report.findingCount} finding${report.findingCount === 1 ? "" : "s"}` : "Source failed",
+            sourceDetail: "Generated state could not be parsed and cannot clear this lane.",
+        };
+    }
+    if (proofBoundaryOnly) {
+        return {
+            badgeState: "degraded",
+            badgeLabel: "REVIEW",
+            statusLabel: "External proof required",
+            findingLabel: "Proof gate",
+            sourceDetail: "Source validators are not enough for provider, runtime, or admin truth proof.",
+        };
+    }
+    if (sourceNeedsRefresh) {
+        return {
+            badgeState: "cached",
+            badgeLabel: "SNAP",
+            statusLabel: "Refresh due",
+            findingLabel: hasFindings ? `${report.findingCount} finding${report.findingCount === 1 ? "" : "s"}` : "No findings",
+            sourceDetail: "Generated state is older than its freshness window or current-head metadata.",
+        };
+    }
+    return {
+        badgeState: toBadgeState(report.truthState),
+        statusLabel: report.status,
+        findingLabel: `${report.findingCount} finding${report.findingCount === 1 ? "" : "s"}`,
+        sourceDetail: `Source score ${report.score ?? "unavailable"}; freshness ${report.freshness}; truth ${report.truthState}.`,
+    };
+}
 export function formatRelative(value?: number | null) {
     if (!value) return "Not generated";
     const deltaMs = Math.max(0, Date.now() - value);
@@ -140,6 +192,8 @@ export function FindingCard({ finding, compact = false }: { finding: AdminDebugF
 }
 
 export function ReportCard({ report }: { report: AdminDebugReportCard }) {
+    const display = resolveReportDisplay(report);
+
     return (
         <article
             className="rounded-xl border border-white/10 bg-white/[0.035] p-3"
@@ -152,17 +206,17 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
                     <h3 className="text-sm font-bold text-white">{report.label}</h3>
                     <p className="mt-1 text-[11px] leading-4 text-gray-400">{report.command}</p>
                 </div>
-                <AdminStatusBadge state={toBadgeState(report.truthState)} className="shrink-0 py-0 text-[8px]" />
+                <AdminStatusBadge state={display.badgeState} label={display.badgeLabel} title={display.sourceDetail} className="shrink-0 py-0 text-[8px]" />
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
                 <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
-                    {report.status}
+                    {display.statusLabel}
                 </span>
                 <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
                     {report.ageHours === null ? "No timestamp" : `${report.ageHours}h old`}
                 </span>
                 <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
-                    {report.findingCount} finding{report.findingCount === 1 ? "" : "s"}
+                    {display.findingLabel}
                 </span>
                 {report.criticalCount > 0 ? (
                     <span className="rounded-md border border-red-400/30 bg-red-500/10 px-2.5 py-1 text-[11px] font-bold text-red-100">
@@ -172,7 +226,7 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
             </div>
             <details className="mt-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-gray-300">
                 <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Source detail</summary>
-                <p className="mt-1">Source score {report.score ?? "unavailable"}; freshness {report.freshness}; truth {report.truthState}.</p>
+                <p className="mt-1">{display.sourceDetail}</p>
             </details>
             {report.topFindings.length > 0 ? (
                 <details className="mt-3 rounded-xl border border-white/10 bg-black/25 p-2 text-xs text-gray-300">

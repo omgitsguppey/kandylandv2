@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth";
 import { DebugOperatorCockpit } from "./DebugOperatorCockpit";
 import { DebugGumdropRecoverySummary, DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
-import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, formatRelative, toBadgeState } from "./DebugControlTowerCards";
+import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, formatRelative, resolveReportDisplay } from "./DebugControlTowerCards";
 
 export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession = false }: {
     businessSnapshot?: AdminUserTruthSnapshot | null;
@@ -112,6 +112,16 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
         .filter((report) => report.truthState !== "live" || report.criticalCount > 0 || report.findingCount > 0)
         .slice(0, 5);
     const visibleNextActions = model?.nextActions.slice(0, 3) ?? [];
+    const publicBetaNeedsFormalProof = canonicalBetaCapDetails.some((detail) => /proof|provider|runtime|admin truth|manual|unknown evidence|stale evidence/i.test(detail));
+    const failedReportWithFindings = blockerReports.some((report) => report.truthState === "failed" && (report.criticalCount > 0 || report.findingCount > 0 || report.topFindings.length > 0));
+    const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale"
+        ? "stale"
+        : publicBetaNeedsFormalProof
+            ? "review"
+            : failedReportWithFindings
+                ? "failed"
+                : "live";
+    const publicBetaBadgeLabel = publicBetaNeedsFormalProof ? "Proof required" : undefined;
 
     return (
         <section
@@ -154,7 +164,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                         data-debug-visible-summary="single-triage-strip"
                         data-debug-report-source="agent/state/public-beta-score.generated.json"
                     >
-                        {canonicalBetaCapDetails.length || blockerReports.length} items to clear, {model.liveIssues.length} current issues, and {visibleReports} evidence rows. {model.canonicalPublicBetaReadinessReason}
+                        {canonicalBetaCapDetails.length || blockerReports.length} proof or refresh item{(canonicalBetaCapDetails.length || blockerReports.length) === 1 ? "" : "s"}, {model.liveIssues.length} current issues, and {visibleReports} evidence rows. {model.canonicalPublicBetaReadinessReason}
                     </p>
                 ) : null}
             </div>
@@ -199,7 +209,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                                         {model.canonicalPublicBetaStatus} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"} | source {model.canonicalPublicBetaSourceDrift}
                                     </p>
                                 </div>
-                                <AdminTruthBadge state={model.canonicalPublicBetaTruthState === "stale" ? "stale" : canonicalBetaCapDetails.length || blockerReports.length ? "failed" : "live"} />
+                                <AdminTruthBadge state={publicBetaBadgeState} label={publicBetaBadgeLabel} />
                             </div>
                             {canonicalBetaCapDetails.length > 0 ? (
                                 <ul className="mt-2 space-y-1 text-xs text-gray-300">
@@ -212,19 +222,23 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                             ) : null}
                             {blockerReports.length > 0 ? (
                                 <div className="mt-2 grid gap-1">
-                                    {blockerReports.map((report) => (
-                                        <div
-                                            key={`blocker-${report.id}`}
-                                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-white/10 bg-white/[0.035] px-2 py-1.5 text-xs"
-                                            data-debug-report-source={report.filePath}
-                                            data-debug-report-freshness={report.freshness}
-                                            data-debug-truth-state={report.truthState}
-                                        >
-                                            <span className="font-semibold text-white">{report.label}</span>
-                                            <span className="text-gray-400">{report.findingCount} finding{report.findingCount === 1 ? "" : "s"}</span>
-                                            <AdminStatusBadge state={toBadgeState(report.truthState)} className="py-0 text-[8px]" />
-                                        </div>
-                                    ))}
+                                    {blockerReports.map((report) => {
+                                        const display = resolveReportDisplay(report);
+
+                                        return (
+                                            <div
+                                                key={`blocker-${report.id}`}
+                                                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-white/10 bg-white/[0.035] px-2 py-1.5 text-xs"
+                                                data-debug-report-source={report.filePath}
+                                                data-debug-report-freshness={report.freshness}
+                                                data-debug-truth-state={report.truthState}
+                                            >
+                                                <span className="font-semibold text-white">{report.label}</span>
+                                                <span className="text-gray-400">{display.findingLabel}</span>
+                                                <AdminStatusBadge state={display.badgeState} label={display.badgeLabel} title={display.sourceDetail} className="py-0 text-[8px]" />
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             ) : null}
                         </section>

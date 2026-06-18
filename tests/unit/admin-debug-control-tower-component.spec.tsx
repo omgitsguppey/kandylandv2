@@ -236,6 +236,51 @@ describe("DebugControlTower", () => {
         expect(container.textContent).not.toContain("secret support body");
     });
 
+    it("labels zero-finding public beta proof gates as proof required instead of app errors", async () => {
+        const originalPayload = JSON.parse(JSON.stringify(mockState.payload));
+        const proofReport = {
+            ...mockState.payload.sections.beta_readiness[0],
+            score: 69,
+            status: "fail",
+            truthState: "failed",
+            findingCount: 0,
+            criticalCount: 0,
+            majorCount: 0,
+            topFindings: [],
+        };
+
+        try {
+            const payload = mockState.payload as any;
+            payload.canonicalPublicBetaCapDetails = [
+                "Stale evidence: Runtime/provider smoke - Formal provider smoke evidence is missing.",
+                "Stale evidence: Admin truth/sample evidence - Attach a redacted production admin truth sample.",
+            ];
+            payload.canonicalPublicBetaReadinessReason = "Formal provider and admin truth proof remain required.";
+            payload.canonicalPublicBetaTruthState = "live";
+            payload.reports = [proofReport];
+            payload.sections.beta_readiness = [proofReport];
+
+            await act(async () => {
+                root.render(<DebugControlTower />);
+            });
+
+            await act(async () => {
+                await Promise.resolve();
+            });
+
+            const publicBetaCards = Array.from(container.querySelectorAll("[data-debug-report-source='agent/state/public-beta-score.generated.json']"));
+            const publicBetaText = publicBetaCards.map((entry) => entry.textContent ?? "").join(" ");
+
+            expect(publicBetaText).toContain("External proof required");
+            expect(publicBetaText).toContain("Proof gate");
+            expect(container.textContent).toContain("Proof required");
+            expect(publicBetaText).not.toContain("0 findings");
+            expect(publicBetaText).not.toContain("ERROR");
+        } finally {
+            Object.assign(mockState.payload, originalPayload);
+        }
+    });
+
     it("renders browser security boundary current issues as review/info copy instead of backend failure copy", async () => {
         mockState.payload.liveIssues = [{
             id: "browser-boundary",

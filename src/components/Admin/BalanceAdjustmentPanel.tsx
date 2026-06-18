@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Loader2, AlertCircle } from "lucide-react";
 import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 
 import { toast } from "sonner";
 
@@ -44,14 +45,15 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
 
             if (result.success) {
                 const newBalance = result.newBalance ?? ((user.gumDropsBalance || 0) + val);
-                toast.success(`Balance updated. New Balance: ${newBalance}`);
+                toast.success(`Balance updated. New balance: ${newBalance} GD`);
                 dispatchAdminOverviewSync();
                 onSuccess(newBalance);
                 onClose();
             } else {
-                toast.error(result.error || "Failed to update balance");
+                toast.error("Balance update was not completed. Check the audit reason and try again.");
             }
         } catch (error) {
+            const safeError = sanitizeErrorForUser(error, "admin_truth", "admin_truth_unavailable");
             reportClientIssue({
                 channel: "payments",
                 message: "Admin balance adjustment failed",
@@ -63,7 +65,7 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
                 },
                 consoleLabel: "[Balance Adjustment Panel] update failed",
             });
-            toast.error("An unexpected error occurred");
+            toast.error(safeError.errorKey === "unknown_error" ? "Balance update was not completed." : safeError.operatorMessage);
         } finally {
             setProcessing(false);
         }
@@ -120,7 +122,7 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
                     </div>
 
                     <div className="bg-black/50 p-3 rounded-xl border border-white/10 flex justify-between items-center">
-                        <span className="text-xs font-bold text-gray-500 uppercase">New Balance</span>
+                        <span className="text-xs font-bold text-gray-500 uppercase">New balance</span>
                         <span className={`font-mono text-xl font-bold ${adjustment > 0 ? "text-brand-purple" : adjustment < 0 ? "text-red-400" : "text-gray-400"}`}>
                             {finalBalance} GD
                         </span>
