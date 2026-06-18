@@ -58,7 +58,7 @@ describe("resolveReportDisplay", () => {
     }));
 
     expect(display.statusLabel).toBe("Waiting for evidence");
-    expect(display.findingLabel).toBe("No active findings");
+    expect(display.findingLabel).toBe("Evidence pending");
     expect(display.badgeLabel).toBe("Review");
   });
 
