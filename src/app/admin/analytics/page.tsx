@@ -11,11 +11,6 @@ import {
   Smartphone,
 } from "lucide-react";
 
-
-
-
-
-
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import {
@@ -26,7 +21,6 @@ import {
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import type { AdminAnalyticsSourceHierarchy } from "@/lib/analytics/admin-analytics-source-hierarchy";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-
 
 import {
   RANGE_OPTIONS,
@@ -243,6 +237,20 @@ export default function AdminAnalyticsPage() {
   };
   const sourceHierarchyStatusLabel = formatAnalyticsShellStateLabel(sourceHierarchy.status);
   const sourceHierarchySummary = formatSourceHierarchySummary(sourceHierarchy);
+  const sourceHierarchyDetailItems = useMemo(() => (
+    sourceHierarchy.status !== "aligned"
+      ? [
+          `Source agreement: ${sourceHierarchyStatusLabel}`,
+          sourceHierarchySummary,
+          sourceHierarchy.nextAction,
+        ].filter((item): item is string => Boolean(item))
+      : []
+  ), [
+    sourceHierarchy.nextAction,
+    sourceHierarchy.status,
+    sourceHierarchyStatusLabel,
+    sourceHierarchySummary,
+  ]);
   const dataStatusSummary = [
     `Last updated: ${liveSnapshotLabel}`,
     `Coverage: ${state.launchRecoverySummary.coverageLabel}`,
@@ -305,10 +313,11 @@ export default function AdminAnalyticsPage() {
   ]);
   const sourceDetailItems = useMemo(() => (
     Array.from(new Set([
+      ...sourceHierarchyDetailItems,
       ...sourceStatusItems,
       liveFeedSourceStatusItem,
     ].filter((item): item is string => Boolean(item))))
-  ), [liveFeedSourceStatusItem, sourceStatusItems]);
+  ), [liveFeedSourceStatusItem, sourceHierarchyDetailItems, sourceStatusItems]);
   const panelHydrationSummary = state.panelHydration?.summary;
   const connectedPanelCount = panelHydrationSummary?.hydrated ?? 0;
   const totalPanelCount = panelHydrationSummary?.totalPanels ?? 0;
@@ -414,22 +423,6 @@ export default function AdminAnalyticsPage() {
         </div>
       ) : null}
 
-      {sourceHierarchy.status !== "aligned" ? (
-        <div
-          className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
-          data-admin-analytics-source-hierarchy={sourceHierarchy.status}
-        >
-          <div className="flex items-start gap-2">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-            <div className="space-y-1">
-              <p className="font-semibold">Analytics source state: {sourceHierarchyStatusLabel}</p>
-              {sourceHierarchySummary ? <p>{sourceHierarchySummary}</p> : null}
-              <p>{sourceHierarchy.nextAction}</p>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4" data-mobile-organization="summary-first" data-admin-analytics-summary="primary">
         <MetricCard
           label="Active Users"
@@ -499,6 +492,7 @@ export default function AdminAnalyticsPage() {
         <div
           className="mt-2 grid gap-1 text-[11px] leading-4 text-gray-300 sm:grid-cols-2"
           data-admin-analytics-status-summary="compact"
+          data-admin-analytics-source-hierarchy={sourceHierarchy.status}
         >
           <p className="min-w-0 truncate font-medium text-white">{dataStatusSummary.join(" · ")}</p>
           <p className="min-w-0 truncate text-gray-400">{sourceQualitySummary.join(" · ")}</p>

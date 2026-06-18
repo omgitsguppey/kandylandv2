@@ -1,13 +1,52 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.82",
-  "betaReleaseCounter": 582,
+  "currentVersion": "1.5.83",
+  "betaReleaseCounter": 583,
   "channel": "beta",
-  "generatedAt": "2026-06-18T00:10:42.877Z",
-  "generatedAtUtc": "2026-06-18T00:10:42.877Z",
-  "lastCommitSha": "ed52d56375c448742f08808d67668a04cf8d577a",
+  "generatedAt": "2026-06-18T00:20:36.968Z",
+  "generatedAtUtc": "2026-06-18T00:20:36.968Z",
+  "lastCommitSha": "29341a2449f0d25faf3caa2ed8173e33bb86415f",
   "notes": [
+    {
+      "version": "1.5.83",
+      "previousVersion": "1.5.82",
+      "betaReleaseCounter": 583,
+      "previousBetaReleaseCounter": 582,
+      "commitSha": "29341a2449f0d25faf3caa2ed8173e33bb86415f",
+      "commitTitle": "fix(admin): simplify surface actions",
+      "commitCount": 1,
+      "commitShas": [
+        "29341a2449f0d25faf3caa2ed8173e33bb86415f"
+      ],
+      "committedAt": "2026-06-18T00:20:04.000Z",
+      "generatedAt": "2026-06-18T00:20:36.966Z",
+      "committedAtUtc": "2026-06-18T00:20:04.000Z",
+      "generatedAtUtc": "2026-06-18T00:20:36.966Z",
+      "updatedAtUtc": "2026-06-18T00:20:36.966Z",
+      "category": "Fixed",
+      "title": "Clearer Admin Analytics source status",
+      "summary": "Improved Admin Analytics so source agreement, launch history recovery, and missing evidence states are easier to understand.",
+      "userFacingTitle": "Clearer Admin Analytics source status",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Clarified when analytics history is recovered from first-party sources.",
+        "Kept GA4 and legacy analytics labeled as evidence instead of product truth.",
+        "Improved Admin Analytics source labels so missing data is not shown as zero."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/admin-surface-modal-replacement.generated.json",
+        "docs/agent-truth/admin-surface-modal-replacement.md",
+        "src/app/admin/analytics/page.tsx",
+        "tests/unit/admin-analytics-page.spec.tsx"
+      ],
+      "sourceCommit": "29341a2449f0d25faf3caa2ed8173e33bb86415f"
+    },
     {
       "version": "1.5.82",
       "previousVersion": "1.5.81",
@@ -2567,52 +2606,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-analytics-operations-mobile.spec.ts"
       ],
       "sourceCommit": "75d9c9f51c1aec46091a814946f5f03fb8e8ad80"
-    },
-    {
-      "version": "1.5.58",
-      "previousVersion": "1.5.57",
-      "betaReleaseCounter": 558,
-      "previousBetaReleaseCounter": 557,
-      "commitSha": "7198b17c92e356b11afa0cd1dfc67bb789e7d958",
-      "commitTitle": "fix(admin): add compact guest quality modes",
-      "commitCount": 2,
-      "commitShas": [
-        "4ef960a8e75738286aff8b722e94b483f900fda6",
-        "7198b17c92e356b11afa0cd1dfc67bb789e7d958"
-      ],
-      "committedAt": "2026-06-04T01:30:02.000Z",
-      "generatedAt": "2026-06-04T01:30:16.926Z",
-      "committedAtUtc": "2026-06-04T01:30:02.000Z",
-      "generatedAtUtc": "2026-06-04T01:30:16.926Z",
-      "updatedAtUtc": "2026-06-04T01:30:16.926Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-operations-mobile.spec.ts"
-      ],
-      "sourceCommit": "7198b17c92e356b11afa0cd1dfc67bb789e7d958"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

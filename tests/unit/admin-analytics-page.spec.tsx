@@ -714,11 +714,12 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Analytics source state: Source agreement failed");
+    expect(container.textContent).toContain("Source agreement: Source agreement failed");
     expect(container.textContent).toContain("6 analytics views blocked by source evidence.");
     expect(container.textContent).toContain("Show source agreement failed in Debug and Analytics tab");
     expect(container.textContent).not.toContain("consumer_source_mismatch");
     expect(container.textContent).not.toContain("source_agreement_failed");
+    expect(container.querySelector("[data-admin-analytics-status-summary='compact']")?.getAttribute("data-admin-analytics-source-hierarchy")).toBe("source_agreement_failed");
   });
 
   it("humanizes current-activity blocking errors", async () => {
