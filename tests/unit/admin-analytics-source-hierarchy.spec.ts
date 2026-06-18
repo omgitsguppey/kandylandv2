@@ -21,7 +21,9 @@ describe("admin analytics source hierarchy", () => {
       emptyStateAllowed: true,
       blockerReason: "source_agreement_failed",
     });
-    expect(JSON.stringify(hierarchy)).toContain("source agreement failed");
+    expect(JSON.stringify(hierarchy)).not.toContain("source agreement failed");
+    expect(JSON.stringify(hierarchy)).toContain("source_agreement_failed");
+    expect(hierarchy.nextAction).toContain("Review source details in Debug");
   });
 
   it("keeps consumer source mismatch for an Analytics-only local fallback with no source blocker", () => {

@@ -120,6 +120,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "agent/state/live-evidence-gate-replacement.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/live-evidence-gate-replacement.md") return "documentation_artifact_expected";
   if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/admin-analytics-source-hierarchy.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/api/admin/analytics/historical/route.ts") return "real_source_change_needs_review";
@@ -192,6 +193,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === LAUNCH_RECOVERY_REPORT_PATH) return "launch_analytics_recovery_artifact_expected";
   if (normalized === LAUNCH_RECOVERY_DOC_PATH) return "launch_analytics_recovery_artifact_expected";
   if (normalized === "tests/unit/admin-analytics-page.spec.tsx") return "test_artifact_expected";
+  if (normalized === "tests/unit/admin-analytics-source-hierarchy.spec.ts") return "test_artifact_expected";
   if (/^src\/lib\/agent-score\/(algorithmic-evidence-policy|core|evidence-quality|formal-evidence-bridge|regression-risk-refresh-plan)\.ts$/u.test(normalized)) {
     return "beta_studio_consolidation_source_expected";
   }

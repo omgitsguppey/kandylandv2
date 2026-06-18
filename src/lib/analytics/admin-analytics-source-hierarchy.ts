@@ -65,7 +65,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       fallbackAllowed: false,
       emptyStateAllowed: false,
       blockerReason: sourceAgreementFailed ? "source_agreement_failed" : null,
-      nextAction: sourceAgreementFailed ? "Inspect source agreement failure details in Debug." : "No action required.",
+      nextAction: sourceAgreementFailed ? "Review source agreement details in Debug before promoting charts." : "No action required.",
     },
     {
       consumerId: "admin_analytics_overview",
@@ -77,7 +77,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       emptyStateAllowed: true,
       blockerReason: chartBlocker ?? (mismatch ? "consumer_source_mismatch" : null),
       nextAction: chartBlocker
-        ? "Show the Analytics tab source blocker instead of generic empty charts."
+        ? "Show source mismatch details instead of generic empty charts."
         : mismatch
           ? "Connect the Analytics tab to the same canonical source health summary as Debug."
           : "No action required.",
@@ -92,7 +92,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       emptyStateAllowed: true,
       blockerReason: chartBlocker ?? (mismatch ? "consumer_source_mismatch" : null),
       nextAction: chartBlocker
-        ? "Surface source agreement failed or chart readiness blocked on the chart surface."
+        ? "Keep charts held until source agreement and chart readiness are clear."
         : mismatch
           ? "Wire chart empty state to the Debug source hierarchy reason."
           : "No action required.",
@@ -106,7 +106,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       fallbackAllowed: true,
       emptyStateAllowed: true,
       blockerReason: sourceAgreementFailed ? "source_agreement_failed" : mismatch ? "consumer_source_mismatch" : null,
-      nextAction: sourceAgreementFailed ? "Label insight cards as source agreement failed instead of clean." : "No action required.",
+      nextAction: sourceAgreementFailed ? "Label insight cards as source mismatch instead of clean." : "No action required.",
     },
     {
       consumerId: "admin_analytics_source_health",
@@ -160,7 +160,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
     consumerSourceMismatches,
     blockedAnalyticsConsumers,
     nextAction: sourceAgreementFailed
-      ? "Review source agreement in Debug and restore first-party/materialized coverage before promoting charts."
+      ? "Review source details in Debug and restore first-party/materialized coverage before promoting charts."
       : mismatch
         ? "Align the Analytics tab with the Debug source hierarchy and keep fallback empty states reasoned."
         : "No action required.",

@@ -721,7 +721,7 @@ describe("AdminAnalyticsPage", () => {
       adminAnalyticsSourceHierarchy: {
         status: "source_agreement_failed",
         nextAction:
-          "Review source agreement in Debug and restore first-party/materialized coverage before promoting charts.",
+          "Review source details in Debug and restore first-party/materialized coverage before promoting charts.",
         consumerSourceMismatches: [],
         blockedAnalyticsConsumers: [
           "debug_data_validation",
@@ -738,9 +738,9 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Analytics source state: Source agreement failed");
-    expect(container.textContent).toContain("6 analytics views stay unpromoted until sources agree.");
-    expect(container.textContent).toContain("Review source agreement in Debug");
+    expect(container.textContent).toContain("Source state: Source mismatch");
+    expect(container.textContent).toContain("6 analytics views waiting for source agreement.");
+    expect(container.textContent).toContain("Review source details in Debug");
     expect(container.textContent).not.toContain("consumer_source_mismatch");
     expect(container.textContent).not.toContain("source_agreement_failed");
     expect(container.querySelector("[data-admin-analytics-status-summary='compact']")?.getAttribute("data-admin-analytics-source-hierarchy")).toBe("source_agreement_failed");
