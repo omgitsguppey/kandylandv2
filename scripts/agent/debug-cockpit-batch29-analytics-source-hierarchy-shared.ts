@@ -3,7 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { buildAdminAnalyticsSourceHierarchy } from "../../src/lib/analytics/admin-analytics-source-hierarchy";
-import { buildLaunchAnalyticsSourceAgreementFailureDetail } from "../../src/lib/analytics/source-agreement-detail";
+import {
+  buildLaunchAnalyticsSourceAgreementFailureDetail,
+  buildSourceAgreementFailureDetailFromLaunchHistoryCoverage,
+  type LaunchHistoryCoverageForSourceAgreement,
+} from "../../src/lib/analytics/source-agreement-detail";
 import { resolveGa4AvailabilitySemantics } from "../../src/lib/analytics/ga4-availability-semantics";
 import { buildDebugCockpitBatch29AnalyticsSourceHierarchyReport } from "../../src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy";
 
@@ -11,6 +15,15 @@ type Report = Record<string, unknown>;
 
 function read(filePath: string) {
   return fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
+}
+
+function readJson(filePath: string): unknown {
+  if (!fs.existsSync(filePath)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(filePath, "utf8")) as unknown;
+  } catch {
+    return null;
+  }
 }
 
 function writeJson(filePath: string, value: unknown) {
@@ -33,6 +46,103 @@ function command(args: string[], fallback = "") {
   } catch {
     return fallback;
   }
+}
+
+const LAUNCH_HISTORY_COVERAGE_EXPORT_PATHS = [
+  process.env.LAUNCH_ANALYTICS_COVERAGE_EXPORT,
+  "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+  "agent/evidence/launch-analytics/launch-history-coverage.export.json",
+].filter((value): value is string => Boolean(value && value.trim()));
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function asSourceCount(value: unknown): 0 | 1 {
+  return typeof value === "number" && value > 0 ? 1 : 0;
+}
+
+function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistoryCoverageForSourceAgreement | null {
+  const root = asRecord(raw);
+  const candidate = asRecord(root.launchHistoryCoverage ?? asRecord(root.analyticsSourceHealth).launchHistoryCoverage ?? root);
+  const daysRaw = Array.isArray(candidate.days) ? candidate.days : [];
+  const days: LaunchHistoryCoverageForSourceAgreement["days"] = [];
+
+  for (const entry of daysRaw) {
+    const row = asRecord(entry);
+    const dayKey = typeof row.dayKey === "string" ? row.dayKey.trim() : "";
+    if (!dayKey) continue;
+
+    const sourceCounts = asRecord(row.sourceCounts);
+    days.push({
+      dayKey,
+      expected: row.expected !== false,
+      sourceCounts: {
+        first_party: asSourceCount(sourceCounts.first_party),
+        ga4: asSourceCount(sourceCounts.ga4),
+        historicalSnapshot: asSourceCount(sourceCounts.historicalSnapshot),
+        legacySupport: asSourceCount(sourceCounts.legacySupport),
+      },
+    });
+  }
+
+  if (days.length === 0) return null;
+
+  const expectedDayCount = typeof candidate.expectedDayCount === "number"
+    ? candidate.expectedDayCount
+    : days.filter((day) => day.expected).length;
+  const recoveredDayCount = typeof candidate.recoveredDayCount === "number"
+    ? candidate.recoveredDayCount
+    : days.filter((day) => Object.values(day.sourceCounts).some((count) => count > 0)).length;
+  const state = candidate.state === "source_missing" || candidate.state === "partial" || candidate.state === "available"
+    ? candidate.state
+    : recoveredDayCount === 0
+      ? "source_missing"
+      : recoveredDayCount < expectedDayCount
+        ? "partial"
+        : "available";
+
+  return {
+    expectedDayCount,
+    recoveredDayCount,
+    state,
+    days,
+  };
+}
+
+function loadLaunchHistoryCoverageExport() {
+  for (const filePath of LAUNCH_HISTORY_COVERAGE_EXPORT_PATHS) {
+    const coverage = normalizeLaunchHistoryCoverageExport(readJson(filePath));
+    if (coverage) return { filePath, coverage };
+  }
+  return null;
+}
+
+function buildLaunchSourceAgreementDetail() {
+  const localExport = loadLaunchHistoryCoverageExport();
+  if (localExport) {
+    return {
+      inputMode: "local_export",
+      inputPath: localExport.filePath,
+      detail: buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
+        proofMode: "local_export",
+        launchHistoryCoverage: localExport.coverage,
+        comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
+        tolerance: { reviewDeltaPct: 10, failDeltaPct: 25 },
+        blockedConsumers: ["admin_analytics_charts", "debug_data_validation"],
+      }),
+    };
+  }
+
+  return {
+    inputMode: "fixture_only_local_window",
+    inputPath: null,
+    detail: buildLaunchAnalyticsSourceAgreementFailureDetail({
+      comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
+      tolerance: { reviewDeltaPct: 10, failDeltaPct: 25 },
+      blockedConsumers: ["admin_analytics_charts", "debug_data_validation"],
+    }),
+  };
 }
 
 function runValidation(reportKey: string, report: Report, failures: string[], summary: string[]) {
@@ -232,23 +342,24 @@ export function validateDataValidationCopyConsistency() {
 
 export function validateSourceAgreementFailureDetail() {
   const failures: string[] = [];
-  const detail = buildLaunchAnalyticsSourceAgreementFailureDetail({
-    comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
-    tolerance: { reviewDeltaPct: 10, failDeltaPct: 25 },
-    blockedConsumers: ["admin_analytics_charts", "debug_data_validation"],
-  });
+  const { detail, inputMode, inputPath } = buildLaunchSourceAgreementDetail();
   expectPass(detail.comparedSources.includes("first_party") && detail.comparedSources.length === 4, failures, "source agreement failed but first-party compared source is missing.");
-  expectPass(detail.sourceAgreementStatus === "failed", failures, "source agreement detail lacks explicit failed state.");
-  expectPass(detail.rangeStartDayKey === "2026-05-01" && detail.rangeEndDayKey === "2026-05-03", failures, "source agreement detail lacks launch evidence range.");
-  expectPass(detail.expectedRangeSource === "union_of_local_source_days", failures, "source agreement detail does not identify local evidence range source.");
-  expectPass(detail.coverageWindowKind === "fixture_only_local_window" && detail.allLaunchRangeProven === false, failures, "source agreement detail can be mistaken for all-launch proof.");
-  expectPass(detail.disagreementCount > 0 && detail.maxDeltaPct > 25, failures, "maxDeltaPct/disagreementCount missing.");
+  expectPass(["failed", "review", "pass", "not_enough_sources"].includes(detail.sourceAgreementStatus), failures, "source agreement detail lacks explicit status.");
+  expectPass(Boolean(detail.rangeStartDayKey && detail.rangeEndDayKey), failures, "source agreement detail lacks launch evidence range.");
+  expectPass(["union_of_local_source_days", "caller_supplied_expected_days"].includes(detail.expectedRangeSource), failures, "source agreement detail does not identify local evidence range source.");
+  expectPass(detail.allLaunchRangeProven === false || (detail.coverageWindowKind === "admin_truth_sample" && detail.sourceAgreementStatus === "pass"), failures, "source agreement detail can be mistaken for all-launch proof.");
+  if (inputMode === "fixture_only_local_window") {
+    expectPass(detail.sourceAgreementStatus === "failed", failures, "fixture source agreement detail must remain failed until first-party coverage is recovered.");
+    expectPass(detail.rangeStartDayKey === "2026-05-01" && detail.rangeEndDayKey === "2026-05-03", failures, "fixture source agreement detail lacks launch evidence range.");
+    expectPass(detail.coverageWindowKind === "fixture_only_local_window", failures, "fixture source agreement detail can be mistaken for all-launch proof.");
+    expectPass(detail.disagreementCount > 0 && detail.maxDeltaPct > 25, failures, "fixture maxDeltaPct/disagreementCount missing.");
+  }
   expectPass(detail.disagreements.some((entry) =>
     entry.dayKey === "2026-05-02"
     && entry.primarySourceState === "first_party_missing"
     && entry.secondSourceState === "ga4_present"
     && entry.classifications.includes("missing_materializer"),
-  ), failures, "per-day GA4/first-party source disagreement missing.");
+  ) || inputMode === "local_export", failures, "per-day GA4/first-party source disagreement missing.");
   expectPass(detail.disagreements.every((entry) =>
     entry.primarySourceState === "first_party_present"
     || (entry.recoveryLane && entry.blockingOwner && entry.proofRequired.length > 0 && entry.productTruthEligible === false),
@@ -257,8 +368,11 @@ export function validateSourceAgreementFailureDetail() {
   expectPass(detail.blockedConsumers.includes("admin_analytics_charts"), failures, "blocked consumers missing.");
   expectPass(detail.sourceTruthPolicy.firstPartyPrimary && detail.sourceTruthPolicy.ga4SecondSourceOnly && detail.sourceTruthPolicy.missingIsNotZero, failures, "source truth policy missing.");
   expectPass(!/^retry$/iu.test(detail.nextAction), failures, "next action generic retry only.");
-  runValidation("source-agreement-failure-detail", { detail }, failures, [
+  runValidation("source-agreement-failure-detail", { inputMode, inputPath, detail }, failures, [
     "Source agreement failures include compared sources, coverage deltas, per-day disagreement details, tolerance, blocked consumers, and next actions.",
+    inputPath
+      ? `Using local launch coverage export: ${inputPath}.`
+      : "No local launch coverage export found; using fixture-only local window until an approved export is attached.",
     "The detail helper uses existing evidence only and does not call GA4.",
   ]);
 }
