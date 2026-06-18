@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-18T07:30:04.240Z
+Generated: 2026-06-18T07:44:18.166Z
 Status: pass
-Current head: bc1494afa9743bcb4c674271c4b6c0fbd8bca42b
+Current head: 1341f6d52f5e848c3d81bc39039e3f8333bb66e7
 
 ## Contract
 
@@ -53,23 +53,23 @@ Current head: bc1494afa9743bcb4c674271c4b6c0fbd8bca42b
 
 ## Dirty Files
 
-- agent/evidence/admin-truth-sample/README.md: admin_truth_sample_launch_coverage_evidence_expected
-- agent/evidence/admin-truth-sample/evidence.template.json: admin_truth_sample_launch_coverage_evidence_expected
+- agent/state/admin-truth-sample-evidence.generated.json: current_generated_artifact_to_commit
 - agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/evidence-capture-status.generated.json: current_generated_artifact_to_commit
 - agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/evidence-capture-status.md: documentation_artifact_expected
 - docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
-- scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts: validator_artifact_expected
+- scripts/agent/validate-admin-truth-sample-evidence.ts: validator_artifact_expected
 - scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
+- scripts/agent/validate-evidence-capture-status.ts: validator_artifact_expected
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- tests/unit/source-agreement-failure-detail.spec.ts: test_artifact_expected
+- tests/unit/evidence-artifact-schemas.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

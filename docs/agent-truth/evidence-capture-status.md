@@ -2,16 +2,16 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-06-16T20:04:02.607Z
+Generated: 2026-06-18T07:44:18.572Z
 
-Latest code version: `02e033fc1e53e3500ba0a61ff253f07a5ff0e08a`
+Latest code version: `1341f6d52f5e848c3d81bc39039e3f8333bb66e7`
 
 ## Summary
 
 - Manual screenshot evidence: `missing`.
 - Provider smoke evidence: `missing`.
 - Runtime smoke evidence: `complete`.
-- Admin truth sample evidence: `complete`.
+- Admin truth sample evidence: `stale`.
 - Templates created: 4.
 - Complete artifacts: 2.
 - Strict mode ready: yes.
@@ -31,12 +31,13 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 - `agent/evidence/manual-screenshot-qa` - missing; template `agent/evidence/manual-screenshot-qa/evidence.template.json`.
 - `agent/evidence/provider-smoke` - missing; template `agent/evidence/provider-smoke/evidence.template.json`.
 - `agent/evidence/runtime-smoke` - complete; template `agent/evidence/runtime-smoke/evidence.template.json`.
-- `agent/evidence/admin-truth-sample` - complete; template `agent/evidence/admin-truth-sample/evidence.template.json`.
+- `agent/evidence/admin-truth-sample` - stale; template `agent/evidence/admin-truth-sample/evidence.template.json`.
 
 ## Missing Evidence
 
 - manual screenshot evidence is missing.
 - provider smoke evidence is missing.
+- admin truth sample evidence is stale.
 
 ## Source-Ready Evidence
 
@@ -51,8 +52,9 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 - manual screenshot evidence is missing.
 - provider smoke evidence is missing.
+- admin truth sample evidence is stale.
 - provider smoke remains formal-missing until a formal provider/app artifact is attached.
-- live runtime evidence does not clear provider, billing, manual visual, or exact-user proof lanes.
+- live runtime evidence does not clear provider, admin, billing, manual visual, or exact-user proof lanes.
 
 ## Refresh Plan
 

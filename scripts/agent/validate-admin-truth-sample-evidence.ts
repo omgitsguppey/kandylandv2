@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-type EvidenceStatus = "missing" | "incomplete" | "complete";
+type EvidenceStatus = "missing" | "incomplete" | "complete" | "stale";
 
 type ValidationOptions = {
   requireComplete?: boolean;
@@ -19,6 +19,8 @@ type LaneEvaluation = {
   evidenceFiles: string[];
   completeArtifacts: string[];
   passingArtifacts: string[];
+  staleArtifacts: string[];
+  staleReasons: string[];
   failures: string[];
 };
 
@@ -34,6 +36,7 @@ const __dirname = dirname(__filename);
 const repoRoot = join(__dirname, "..", "..");
 const evidenceFolder = "agent/evidence/admin-truth-sample";
 const templatePath = `${evidenceFolder}/evidence.template.json`;
+const MAX_ADMIN_TRUTH_SAMPLE_AGE_HOURS = 24;
 const secretPatterns = [
   /access_token/i,
   /refresh_token/i,
@@ -70,6 +73,51 @@ function pathExists(relativePath: string, options: ValidationOptions) {
 function containsRawSecret(value: unknown) {
   const source = JSON.stringify(value);
   return secretPatterns.some((pattern) => pattern.test(source));
+}
+
+function currentHead() {
+  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+}
+
+function hoursBetween(leftUtc: string, rightUtc: string) {
+  const left = Date.parse(leftUtc);
+  const right = Date.parse(rightUtc);
+  if (Number.isNaN(left) || Number.isNaN(right)) return Number.POSITIVE_INFINITY;
+  return Math.max(0, (right - left) / (60 * 60 * 1000));
+}
+
+export function adminTruthSampleEvidenceStaleReasons(
+  document: unknown,
+  options: {
+    currentHead?: string;
+    nowUtc?: string;
+    maxAgeHours?: number;
+  } = {},
+) {
+  const doc = record(document);
+  if (doc.status !== "complete") return [];
+
+  const reasons: string[] = [];
+  const expectedHead = options.currentHead ?? currentHead();
+  const artifactHead = typeof doc.currentHead === "string" && doc.currentHead.trim()
+    ? doc.currentHead.trim()
+    : typeof doc.sourceCommit === "string" && doc.sourceCommit.trim()
+      ? doc.sourceCommit.trim()
+      : "";
+  if (!artifactHead) {
+    reasons.push("admin truth complete evidence must include currentHead or sourceCommit to clear the current-code gate.");
+  } else if (artifactHead !== expectedHead) {
+    reasons.push(`admin truth evidence currentHead ${artifactHead} does not match ${expectedHead}.`);
+  }
+
+  const nowUtc = options.nowUtc ?? new Date().toISOString();
+  const maxAgeHours = options.maxAgeHours ?? MAX_ADMIN_TRUTH_SAMPLE_AGE_HOURS;
+  const sourceFreshnessUtc = typeof doc.sourceFreshnessUtc === "string" ? doc.sourceFreshnessUtc : "";
+  if (!sourceFreshnessUtc || hoursBetween(sourceFreshnessUtc, nowUtc) > maxAgeHours) {
+    reasons.push(`admin truth sourceFreshnessUtc is older than ${maxAgeHours}h or missing.`);
+  }
+
+  return reasons;
 }
 
 export function validateAdminTruthSampleEvidenceDocument(
@@ -141,6 +189,10 @@ export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
   const failures: string[] = [];
   const completeArtifacts: string[] = [];
   const passingArtifacts: string[] = [];
+  const staleArtifacts: string[] = [];
+  const staleReasons: string[] = [];
+  const head = currentHead();
+  const nowUtc = new Date().toISOString();
 
   for (const file of files) {
     try {
@@ -150,7 +202,16 @@ export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
         completeArtifacts.push(file);
         const checks = array(record(document).checks).map(record);
         if (checks.length > 0 && checks.every((check) => check.status === "pass")) {
-          passingArtifacts.push(file);
+          const documentStaleReasons = adminTruthSampleEvidenceStaleReasons(document, {
+            currentHead: head,
+            nowUtc,
+          });
+          if (documentStaleReasons.length > 0) {
+            staleArtifacts.push(file);
+            staleReasons.push(...documentStaleReasons.map((reason) => `${file}: ${reason}`));
+          } else {
+            passingArtifacts.push(file);
+          }
         }
       } else if (containsRawSecret(document)) {
         failures.push(...validationFailures);
@@ -160,11 +221,13 @@ export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
     }
   }
 
-  const status: EvidenceStatus = completeArtifacts.length > 0
+  const status: EvidenceStatus = passingArtifacts.length > 0
     ? "complete"
-    : files.length > 0
-      ? "incomplete"
-      : "missing";
+    : staleArtifacts.length > 0
+      ? "stale"
+      : files.length > 0
+        ? "incomplete"
+        : "missing";
 
   return {
     lane: "adminTruthSampleEvidence",
@@ -175,47 +238,61 @@ export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
     evidenceFiles: files,
     completeArtifacts,
     passingArtifacts,
+    staleArtifacts,
+    staleReasons,
     failures,
   };
-}
-
-function currentHead() {
-  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
 }
 
 function writeGeneratedState(result: LaneEvaluation) {
   const head = currentHead();
   const generatedAtUtc = new Date().toISOString();
   const passed = result.passingArtifacts.length > 0;
+  const status = passed
+    ? "formal_admin_truth_sample_passed"
+    : result.status === "stale"
+      ? "stale_admin_truth_sample_evidence"
+      : result.status === "incomplete"
+        ? "failed"
+        : "missing_or_unknown";
   const report = {
     generatedAtUtc,
     reportKey: "admin-truth-sample-evidence",
     currentHead: head,
     sourceCommit: head,
-    overallStatus: passed ? "formal_admin_truth_sample_passed" : result.status === "incomplete" ? "failed" : "missing_or_unknown",
-    status: passed ? "formal_admin_truth_sample_passed" : result.status === "incomplete" ? "failed" : "missing_or_unknown",
+    overallStatus: status,
+    status,
     freshAdminTruthSampleAttached: passed,
-    productionSampleAttached: passed,
+    productionSampleAttached: result.completeArtifacts.length > 0,
     formalAdminTruthSamplePassed: passed,
     sampleCount: result.passingArtifacts.length,
+    completeSampleCount: result.completeArtifacts.length,
+    staleSampleCount: result.staleArtifacts.length,
     passed,
     evidenceFiles: result.evidenceFiles,
     completeArtifacts: result.completeArtifacts,
     passingArtifacts: result.passingArtifacts,
+    staleArtifacts: result.staleArtifacts,
+    staleReasons: result.staleReasons,
     readinessImpact: {
       adminTruthSampleGatePassed: passed,
-      phaseOneStatusCap: passed ? "Ready" : "Unknown evidence",
+      phaseOneStatusCap: passed ? "Ready" : result.status === "stale" ? "Stale evidence" : "Unknown evidence",
       recommendedAction: passed
         ? "Keep redacted first-party admin truth JSON sample fresh."
+        : result.status === "stale"
+          ? "Refresh the redacted admin truth JSON sample from the current code version before clearing the formal gate."
         : "Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.",
     },
     adminTruthCommandEvidence: [
       `adminTruthSample.status=${result.status}`,
       `adminTruthSample.completeArtifacts=${result.completeArtifacts.length}`,
       `adminTruthSample.passingArtifacts=${result.passingArtifacts.length}`,
-      `productionSampleAttached=${passed}`,
+      `adminTruthSample.staleArtifacts=${result.staleArtifacts.length}`,
+      `productionSampleAttached=${result.completeArtifacts.length > 0}`,
       `formalAdminTruthSamplePassed=${passed}`,
       ...result.passingArtifacts.map((artifact) => `adminTruthSample.passingArtifact=${artifact}`),
+      ...result.staleArtifacts.map((artifact) => `adminTruthSample.staleArtifact=${artifact}`),
+      ...result.staleReasons.map((reason) => `adminTruthSample.staleReason=${reason}`),
     ],
   };
   mkdirSync(join(repoRoot, "agent/state"), { recursive: true });
@@ -228,8 +305,8 @@ function main() {
   const failures = [...result.failures];
   writeGeneratedState(result);
 
-  if (strict && result.status !== "complete") {
-    failures.push("admin truth sample evidence is missing or incomplete in strict mode.");
+  if (strict && result.passingArtifacts.length === 0) {
+    failures.push("admin truth sample evidence is missing, stale, or incomplete in strict mode.");
   }
 
   if (failures.length > 0) {

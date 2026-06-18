@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-06-16T20:04:02.607Z",
+  "generatedAtUtc": "2026-06-18T07:44:18.572Z",
   "reportKey": "evidence-capture-status",
-  "currentHead": "02e033fc1e53e3500ba0a61ff253f07a5ff0e08a",
+  "currentHead": "1341f6d52f5e848c3d81bc39039e3f8333bb66e7",
   "summary": {
     "manualScreenshotEvidence": "missing",
     "providerSmokeEvidence": "missing",
     "runtimeSmokeEvidence": "complete",
-    "adminTruthSampleEvidence": "complete",
+    "adminTruthSampleEvidence": "stale",
     "templatesCreated": 4,
     "completeArtifacts": 2,
     "strictModeReady": true,
@@ -49,7 +49,7 @@
       "lane": "adminTruthSampleEvidence",
       "folder": "agent/evidence/admin-truth-sample",
       "templatePath": "agent/evidence/admin-truth-sample/evidence.template.json",
-      "status": "complete"
+      "status": "stale"
     }
   ],
   "sourceReadyEvidence": [
@@ -62,16 +62,17 @@
   "formalMissingEvidence": [
     "manual screenshot evidence is missing.",
     "provider smoke evidence is missing.",
+    "admin truth sample evidence is stale.",
     "provider smoke remains formal-missing until a formal provider/app artifact is attached.",
-    "live runtime evidence does not clear provider, billing, manual visual, or exact-user proof lanes."
+    "live runtime evidence does not clear provider, admin, billing, manual visual, or exact-user proof lanes."
   ],
   "missingEvidence": [
     "manual screenshot evidence is missing.",
-    "provider smoke evidence is missing."
+    "provider smoke evidence is missing.",
+    "admin truth sample evidence is stale."
   ],
   "completeEvidence": [
-    "runtime smoke evidence is complete.",
-    "admin truth sample evidence is complete."
+    "runtime smoke evidence is complete."
   ],
   "nextExactSteps": [
     "Copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated JSON artifact and attach screenshots under agent/evidence/manual-screenshot-qa/screenshots/.",
@@ -102,7 +103,7 @@
       "label": "Evidence capture status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-16T20:04:02.607Z",
+      "generatedAtUtc": "2026-06-18T07:44:18.572Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
@@ -117,8 +118,8 @@
       "label": "Current beta exit status",
       "status": "stale_source_version",
       "needsRefresh": true,
-      "generatedAtUtc": "2026-06-16T19:51:31.488Z",
-      "ageHours": 0.20864416666666666,
+      "generatedAtUtc": "2026-06-18T07:33:58.498Z",
+      "ageHours": 0.17224277777777777,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -132,8 +133,8 @@
       "label": "Public beta score",
       "status": "stale_source_version",
       "needsRefresh": true,
-      "generatedAtUtc": "2026-06-16T19:33:15.258Z",
-      "ageHours": 0.5131525,
+      "generatedAtUtc": "2026-06-18T07:34:12.110Z",
+      "ageHours": 0.16846166666666668,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -148,7 +149,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:37.034Z",
-      "ageHours": 329.4071036111111,
+      "ageHours": 365.078205,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -163,7 +164,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:58:51.998Z",
-      "ageHours": 329.0862802777778,
+      "ageHours": 364.7573816666667,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -178,7 +179,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:46.945Z",
-      "ageHours": 2.8043505555555557,
+      "ageHours": 38.475451944444444,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -193,7 +194,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:19.659Z",
-      "ageHours": 2.81193,
+      "ageHours": 38.48303138888889,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -208,7 +209,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:24.640Z",
-      "ageHours": 329.41054638888886,
+      "ageHours": 365.0816477777778,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -223,7 +224,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:32.199Z",
-      "ageHours": 329.4084466666667,
+      "ageHours": 365.07954805555556,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -238,7 +239,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:40.411Z",
-      "ageHours": 2.8061655555555554,
+      "ageHours": 38.477266944444445,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,

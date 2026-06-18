@@ -177,8 +177,11 @@ function classifyDirtyFile(path: string) {
   if (normalized === "tests/unit/current-beta-exit-status.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/overnight-beta-readiness-lock.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/admin-truth-sample-evidence.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/evidence-capture-status.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/current-beta-exit-status.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/overnight-beta-readiness-lock.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/evidence-capture-status.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/live-evidence-gate-replacement.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/live-evidence-gate-replacement.md") return "documentation_artifact_expected";
   if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";
@@ -195,6 +198,9 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/release-readiness/automated-truth-reconciliation.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "analytics_panel_hydration_artifact_expected";
+  if (normalized === "scripts/agent/validate-admin-truth-sample-evidence.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-evidence-capture-status.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/evidence-artifact-schemas.spec.ts") return "test_artifact_expected";
   if (normalized === "scripts/agent/validate-admin-debug-control-tower.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-debug-signal-actionability.ts") return "analytics_admin_reorg_validator_expected";
   if (normalized === "scripts/agent/validate-debug-signal-grouping.ts") return "analytics_admin_reorg_validator_expected";

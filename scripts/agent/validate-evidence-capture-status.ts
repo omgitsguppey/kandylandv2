@@ -15,7 +15,7 @@ import {
   type RefreshArtifactInput,
 } from "../../src/lib/agent-score/refresh-safeguards";
 
-type EvidenceStatus = "missing" | "incomplete" | "complete";
+type EvidenceStatus = "missing" | "incomplete" | "complete" | "stale";
 
 type EvidenceLaneStatuses = {
   manualScreenshotEvidence: EvidenceStatus;

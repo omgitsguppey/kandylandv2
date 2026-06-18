@@ -12,7 +12,10 @@ import {
   REQUIRED_RUNTIME_SMOKE_CHECKS,
   validateRuntimeSmokeEvidenceDocument,
 } from "../../scripts/agent/validate-runtime-smoke-evidence";
-import { validateAdminTruthSampleEvidenceDocument } from "../../scripts/agent/validate-admin-truth-sample-evidence";
+import {
+  adminTruthSampleEvidenceStaleReasons,
+  validateAdminTruthSampleEvidenceDocument,
+} from "../../scripts/agent/validate-admin-truth-sample-evidence";
 
 const basePath = "agent/evidence/manual-screenshot-qa/screenshots/home__mobile__2026-05-17.png";
 
@@ -142,5 +145,62 @@ describe("evidence artifact schemas", () => {
     expect(failures).toContain("admin truth complete evidence must include sourceFreshnessUtc.");
     expect(failures).toContain("admin truth complete evidence must include at least one redaction entry.");
     expect(failures).toContain("admin truth complete evidence artifactPath must exist.");
+  });
+
+  it("marks old admin truth samples stale instead of current formal proof", () => {
+    const reasons = adminTruthSampleEvidenceStaleReasons(
+      {
+        status: "complete",
+        capturedAtUtc: "2026-05-17T05:30:00.000Z",
+        currentHead: "old-head",
+        surface: "admin_truth_sample",
+        artifactPath: "agent/evidence/admin-truth-sample/sample.redacted.json",
+        sourceFreshnessUtc: "2026-05-17T05:30:00.000Z",
+        redactions: ["none"],
+        checks: [
+          { id: "source-freshness", status: "pass", notes: "" },
+          { id: "sample-count", status: "pass", notes: "" },
+          { id: "source-state-label", status: "pass", notes: "" },
+          { id: "redacted-artifact-attached", status: "pass", notes: "" },
+        ],
+      },
+      {
+        currentHead: "new-head",
+        nowUtc: "2026-05-19T06:00:00.000Z",
+        maxAgeHours: 24,
+      },
+    );
+
+    expect(reasons).toEqual(expect.arrayContaining([
+      "admin truth evidence currentHead old-head does not match new-head.",
+      "admin truth sourceFreshnessUtc is older than 24h or missing.",
+    ]));
+  });
+
+  it("allows current fresh admin truth samples to clear freshness checks", () => {
+    const reasons = adminTruthSampleEvidenceStaleReasons(
+      {
+        status: "complete",
+        capturedAtUtc: "2026-05-19T05:30:00.000Z",
+        currentHead: "same-head",
+        surface: "admin_truth_sample",
+        artifactPath: "agent/evidence/admin-truth-sample/sample.redacted.json",
+        sourceFreshnessUtc: "2026-05-19T05:30:00.000Z",
+        redactions: ["none"],
+        checks: [
+          { id: "source-freshness", status: "pass", notes: "" },
+          { id: "sample-count", status: "pass", notes: "" },
+          { id: "source-state-label", status: "pass", notes: "" },
+          { id: "redacted-artifact-attached", status: "pass", notes: "" },
+        ],
+      },
+      {
+        currentHead: "same-head",
+        nowUtc: "2026-05-19T06:00:00.000Z",
+        maxAgeHours: 24,
+      },
+    );
+
+    expect(reasons).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-18T07:30:04.240Z",
-  "currentHead": "bc1494afa9743bcb4c674271c4b6c0fbd8bca42b",
+  "generatedAtUtc": "2026-06-18T07:44:18.166Z",
+  "currentHead": "1341f6d52f5e848c3d81bc39039e3f8333bb66e7",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5433,12 +5433,8 @@
   "gaps": [],
   "dirtyFiles": [
     {
-      "path": "agent/evidence/admin-truth-sample/README.md",
-      "classification": "admin_truth_sample_launch_coverage_evidence_expected"
-    },
-    {
-      "path": "agent/evidence/admin-truth-sample/evidence.template.json",
-      "classification": "admin_truth_sample_launch_coverage_evidence_expected"
+      "path": "agent/state/admin-truth-sample-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/analytics-panel-hydration.generated.json",
@@ -5446,6 +5442,10 @@
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -5457,15 +5457,15 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/source-agreement-failure-detail.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "docs/agent-truth/analytics-panel-hydration.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -5477,15 +5477,15 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/source-agreement-failure-detail.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+      "path": "scripts/agent/validate-admin-truth-sample-evidence.ts",
       "classification": "validator_artifact_expected"
     },
     {
       "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-evidence-capture-status.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -5497,7 +5497,7 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/source-agreement-failure-detail.spec.ts",
+      "path": "tests/unit/evidence-artifact-schemas.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

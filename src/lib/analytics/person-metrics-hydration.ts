@@ -620,6 +620,12 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === "AGENTS.md" || normalized === "REPO_MEMORY_LEDGER.md" || normalized === "agent/index/known-pitfalls.json") return "real_source_change_needs_review";
+  if (normalized === "agent/state/admin-truth-sample-evidence.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/evidence-capture-status.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/evidence-capture-status.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-admin-truth-sample-evidence.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-evidence-capture-status.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/evidence-artifact-schemas.spec.ts") return "test_artifact_expected";
   if (/^src\/lib\/identity-truth\/.+\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (/^src\/lib\/agent-governance\/.+\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/app/api/auth/navigation-session/route.ts") return "real_source_change_needs_review";
