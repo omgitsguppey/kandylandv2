@@ -30,3 +30,8 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+
+## 2025-02-20 - [XSS] Chat Media Attachment XSS Prevention
+**Vulnerability:** Arbitrary protocol `javascript:` could be injected in chat message asset URLs via `<a href={message.assetUrl}>`.
+**Learning:** The existing URL sanitizer `getSafeUrl` in `src/components/PromoCard.tsx` enforces strict origin policies and couldn't be used to sanitize arbitrary user-provided external links without breaking relative internal ones.
+**Prevention:** Created a reusable `getSafeExternalUrl` in `src/lib/utils/url-sanitize.ts` which just verifies `http/https` protocols and strips control characters, avoiding XSS while allowing valid external user content. Supported relative paths securely by testing against a dummy base origin.

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { getSafeExternalUrl } from "@/lib/utils/url-sanitize";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { createAutoHealingObserver, createCompactInteractionRecoveryGuard } from "@/lib/self-healing";
@@ -3920,7 +3921,7 @@ export function ChatExperience() {
                                                                             <video src={message.assetUrl} controls className="h-auto w-auto max-w-full object-contain" style={CHAT_MEDIA_PREVIEW_STYLE} data-chat-media-kind="video" />
                                                                         ) : (
                                                                             <a
-                                                                                href={message.assetUrl}
+                                                                                href={getSafeExternalUrl(message.assetUrl) || "#"}
                                                                                 target="_blank"
                                                                                 rel="noreferrer"
                                                                                 className="block px-4 py-3 text-sm font-medium text-white underline"

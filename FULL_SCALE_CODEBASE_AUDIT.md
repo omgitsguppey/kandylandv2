@@ -13887,3 +13887,11 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## 2025-02-20 PRE: Fix XSS Vulnerability in Chat attachments
+- Scope: `src/components/Chat/ChatExperience.tsx` and new utility `src/lib/utils/url-sanitize.ts`
+- Action: Create a utility to strip malicious protocols (like `javascript:`) and validate `http/https`, and use it for rendering external asset URLs in chat.
+
+## 2025-02-20 POST: Fix XSS Vulnerability in Chat attachments
+- Findings: Chat component allowed rendering `javascript:` and other potentially dangerous schemes via user-provided attachments.
+- Action: Implemented strict `getSafeExternalUrl` in `src/lib/utils/url-sanitize.ts` ensuring external URLs are restricted to `http:` and `https:`. Added this logic around the rendered attachment link. Test suite passed execution.
