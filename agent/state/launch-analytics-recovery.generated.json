@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T09:39:32.467Z",
-  "currentHead": "742254f45d7ab778d8a8c4c1d1f52a26989e847b",
+  "generatedAtUtc": "2026-06-18T09:44:19.838Z",
+  "currentHead": "08f0396c951322599c1b2a196dfcc5349b6a98e6",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -236,7 +236,7 @@
   "evidenceProvenance": {
     "launchCoverageInput": "agent/state/source-agreement-failure-detail.generated.json",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "742254f45d7ab778d8a8c4c1d1f52a26989e847b",
+    "sourceAgreementInputHead": "08f0396c951322599c1b2a196dfcc5349b6a98e6",
     "sourceAgreementInputMode": "fixture_only_local_window",
     "sourceAgreementInputPath": null,
     "usableLaunchCoverageInputFound": false,
@@ -369,7 +369,7 @@
     "state": "available",
     "reason": "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.",
     "staleInputEvidence": false,
-    "sourceAgreementEvidenceHead": "742254f45d7ab778d8a8c4c1d1f52a26989e847b"
+    "sourceAgreementEvidenceHead": "08f0396c951322599c1b2a196dfcc5349b6a98e6"
   },
   "sourceAgreement": {
     "comparedSources": [
