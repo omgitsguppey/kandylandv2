@@ -1,15 +1,15 @@
 # Admin Surface Modal Replacement
 
 Status: source_review_pass
-Generated: 2026-06-18T12:56:45.183Z
-Current head: b5847dd700e599156a7bdf7dfbbcf93bc10d8de6
+Generated: 2026-06-18T13:54:36.334Z
+Current head: 2d59e1c0a3947ab095f88c152443d086025bfbec
 Evidence boundary: complete source snapshot, local free, no runtime/provider/admin truth gate cleared.
 
 This pass reviewed admin modal-style actions and normalized Admin Analytics state labels. It is source evidence only. It does not clear runtime, provider, PayPal, wallet, GumDrop treasury, production database, or admin truth sample gates.
 
 ## Decisions
 
-- Admin Users: the selected-action workspace, `BalanceAdjustmentPanel`, `TransactionHistoryPanel`, content access, and security details already render inline. This pass removed modal-like shadow/chrome, shortened dev-facing copy, kept payment-proof language on balance changes, and preserved bounded transaction history.
+- Admin Users: the selected-action workspace, `BalanceAdjustmentPanel`, `TransactionHistoryPanel`, content access, and security details already render inline. This pass removed modal-like shadow/chrome, shortened dev-facing copy, kept payment-proof language on balance changes, preserved bounded transaction history, and normalized protected inline panel error/separator copy without changing balance or transaction math.
 - Admin Drops: `CreateDropModal` is still a legacy component name, but admin drops now renders the inline Drop action panel directly with `presentation="inline"`. The extra route wrapper was removed; the panel owner carries the visible header and source marker. Creator/imported modal presentation remains untouched.
 - Admin Analytics: all-caps operational chips were replaced with plain state labels: Current, Cached, Refresh due, Sample, No sample, Collecting, No source, Review, Failed, and Estimate.
 - Admin Analytics: source recovery details and panel hydration states now share one compact expandable list instead of nested source-detail and panel-status cards.

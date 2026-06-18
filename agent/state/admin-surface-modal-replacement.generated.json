@@ -1,9 +1,9 @@
 {
   "reportKey": "admin-surface-modal-replacement",
   "status": "source_review_pass",
-  "generatedAtUtc": "2026-06-18T12:56:45.183Z",
-  "sourceCommit": "b5847dd700e599156a7bdf7dfbbcf93bc10d8de6",
-  "currentHead": "b5847dd700e599156a7bdf7dfbbcf93bc10d8de6",
+  "generatedAtUtc": "2026-06-18T13:54:36.334Z",
+  "sourceCommit": "2d59e1c0a3947ab095f88c152443d086025bfbec",
+  "currentHead": "2d59e1c0a3947ab095f88c152443d086025bfbec",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "sourceFileDiscovery": "git",
@@ -62,6 +62,7 @@
     "adminAnalyticsLabelContractsNormalized": true,
     "adminAnalyticsFirstPartyCoverageConnected": true,
     "adminAnalyticsSourceDrilldownCompacted": true,
+    "protectedInlinePanelCopyNormalized": true,
     "navigationTouched": false,
     "paymentOrGumDropRuntimeTouched": false
   },
@@ -71,7 +72,7 @@
       "candidates": ["selected action workspace", "BalanceAdjustmentPanel", "TransactionHistoryPanel", "content access panel", "security details panel"],
       "sourceOwner": "src/app/admin/users/page.tsx plus existing admin user routes/actions",
       "decision": "compact_inline",
-      "reason": "The remaining admin user actions render inside the selected-action workspace, not modal overlays. This pass removed modal-like shadow/chrome, shortened dev-facing copy, kept payment-proof language on balance changes, and preserved transaction history as a bounded last-30-record panel."
+      "reason": "The remaining admin user actions render inside the selected-action workspace, not modal overlays. This pass removed modal-like shadow/chrome, shortened dev-facing copy, kept payment-proof language on balance changes, preserved transaction history as a bounded last-30-record panel, and normalized protected inline panel error/separator copy without changing balance or transaction math."
     },
     {
       "surface": "Admin Drops",
