@@ -481,6 +481,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     historical_snapshot: expectedDays.filter((dayKey) => !historicalSnapshotDays.has(dayKey)),
     legacy_support: expectedDays.filter((dayKey) => !legacySupportDays.has(dayKey)),
   };
+  const firstPartyMissingDays = computedMissingDaysBySource.first_party;
   const sourceMissingDays = expectedDays.filter((dayKey) =>
     !firstPartyDays.has(dayKey) &&
     !ga4Days.has(dayKey) &&
@@ -489,6 +490,11 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   );
   const recoveredDays = dayCoverage.filter((day) => day.recovered);
   const duplicateDays = dayCoverage.filter((day) => day.duplicateSourceCount > 0).map((day) => day.dayKey);
+  const firstPartyCoverageState = expectedDays.length === 0 || firstPartyDays.size === 0
+    ? "source_missing"
+    : firstPartyMissingDays.length > 0
+      ? "partial"
+      : "available";
   const launchCoverageState = recoveredDays.length === 0
     ? "source_missing"
     : sourceMissingDays.length === 0
@@ -682,6 +688,13 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       limitation: "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof.",
     },
     launchHistoryCoverage: {
+      rangeProof: {
+        expectedRangeSource: typeof sourceAgreementDetail.expectedRangeSource === "string"
+          ? sourceAgreementDetail.expectedRangeSource
+          : "union_of_local_source_days",
+        allLaunchRangeProven: false,
+        reason: "The local source-agreement fixture proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.",
+      },
       rangeStartDayKey: expectedDays[0] ?? null,
       rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
       firstRecoveredDayKey: recoveredDays[0]?.dayKey ?? null,
@@ -690,6 +703,15 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       recoveredDayCount: recoveredDays.length,
       preLaunchIgnoredDayCount: 0,
       sourceDayCounts,
+      firstPartyCoverage: {
+        state: firstPartyCoverageState,
+        coveredDayCount: firstPartyDays.size,
+        missingRanges: collapseDayRanges(firstPartyMissingDays),
+        canPromoteProductTruth: firstPartyCoverageState === "available" && !staleEvidence && sourceAgreementState === "pass",
+        reason: firstPartyCoverageState === "available"
+          ? "First-party evidence exists for every expected local evidence day."
+          : "First-party product truth is missing for at least one local evidence day; GA4/fallback evidence cannot replace it.",
+      },
       days: dayCoverage,
       missingRanges: collapseDayRanges(sourceMissingDays),
       missingRangesBySource: Object.fromEntries(
@@ -794,6 +816,15 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (report.launchHistoryCoverage.expectedDayCount > 0 && (!report.launchHistoryCoverage.rangeStartDayKey || !report.launchHistoryCoverage.rangeEndDayKey)) {
     failures.push("launch recovery expected days require rangeStartDayKey and rangeEndDayKey.");
   }
+  if (!report.launchHistoryCoverage.rangeProof || report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== false) {
+    failures.push("launch recovery must state that local generated evidence does not prove the full all-launch range.");
+  }
+  if (!report.launchHistoryCoverage.firstPartyCoverage || !["available", "partial", "source_missing"].includes(report.launchHistoryCoverage.firstPartyCoverage.state)) {
+    failures.push("launch recovery must expose firstPartyCoverage state.");
+  }
+  if (report.launchHistoryCoverage.firstPartyCoverage.state !== "available" && report.launchHistoryCoverage.firstPartyCoverage.canPromoteProductTruth) {
+    failures.push("first-party product truth cannot be promoted when firstPartyCoverage is not available.");
+  }
   if (report.launchHistoryCoverage.recoveredDayCount > 0 && (!report.launchHistoryCoverage.firstRecoveredDayKey || !report.launchHistoryCoverage.lastRecoveredDayKey)) {
     failures.push("launch recovery recovered days require firstRecoveredDayKey and lastRecoveredDayKey.");
   }
@@ -851,11 +882,15 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     "## Launch Coverage",
     "",
     `- Range: ${report.launchHistoryCoverage.rangeStartDayKey ?? "unknown"} to ${report.launchHistoryCoverage.rangeEndDayKey ?? "unknown"}`,
+    `- Range proof: ${report.launchHistoryCoverage.rangeProof.allLaunchRangeProven ? "all launch range proven" : report.launchHistoryCoverage.rangeProof.expectedRangeSource}`,
+    `- Range proof reason: ${report.launchHistoryCoverage.rangeProof.reason}`,
     `- Recovered days: ${report.launchHistoryCoverage.recoveredDayCount}/${report.launchHistoryCoverage.expectedDayCount}`,
     `- First recovered day: ${report.launchHistoryCoverage.firstRecoveredDayKey ?? "unknown"}`,
     `- Last recovered day: ${report.launchHistoryCoverage.lastRecoveredDayKey ?? "unknown"}`,
     `- Coverage state: ${report.launchHistoryCoverage.state}`,
     `- Coverage reason: ${report.launchHistoryCoverage.reason}`,
+    `- First-party product truth state: ${report.launchHistoryCoverage.firstPartyCoverage.state}`,
+    `- First-party missing ranges: ${report.launchHistoryCoverage.firstPartyCoverage.missingRanges.join(", ") || "none"}`,
     `- First-party days: ${report.launchHistoryCoverage.sourceDayCounts.first_party}`,
     `- GA4 days: ${report.launchHistoryCoverage.sourceDayCounts.ga4}`,
     `- Historical snapshot days: ${report.launchHistoryCoverage.sourceDayCounts.historicalSnapshot}`,

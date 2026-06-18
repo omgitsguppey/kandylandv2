@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T03:35:58.934Z",
-  "currentHead": "ffdb9e7caec4c9e5a0223d0708788756ef98b118",
+  "generatedAtUtc": "2026-06-18T03:44:04.552Z",
+  "currentHead": "f7a59c4b735f9c81a849e3fd56ef82e8b0895ef5",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,12 +416,22 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 1,
+    "total": 3,
     "byClassification": {
+      "source_agreement_failure_artifact_expected": 1,
+      "documentation_artifact_expected": 1,
       "analytics_panel_hydration_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
+      {
+        "path": "agent/state/source-agreement-failure-detail.generated.json",
+        "classification": "source_agreement_failure_artifact_expected"
+      },
+      {
+        "path": "docs/agent-truth/source-agreement-failure-detail.md",
+        "classification": "documentation_artifact_expected"
+      },
       {
         "path": "scripts/agent/validate-analytics-panel-hydration.ts",
         "classification": "analytics_panel_hydration_artifact_expected"

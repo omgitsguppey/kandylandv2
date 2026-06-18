@@ -1,8 +1,8 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T03:35:58.934Z
-Current head: ffdb9e7caec4c9e5a0223d0708788756ef98b118
-Status: stale_evidence_review
+Generated: 2026-06-18T03:44:04.552Z
+Current head: f7a59c4b735f9c81a849e3fd56ef82e8b0895ef5
+Status: source_agreement_failed
 
 ## Source Order
 
@@ -44,17 +44,21 @@ Status: stale_evidence_review
 ## Launch Coverage
 
 - Range: 2026-05-01 to 2026-05-03
+- Range proof: union_of_local_source_days
+- Range proof reason: The local source-agreement fixture proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.
 - Recovered days: 3/3
 - First recovered day: 2026-05-01
 - Last recovered day: 2026-05-03
 - Coverage state: available
 - Coverage reason: Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.
+- First-party product truth state: partial
+- First-party missing ranges: 2026-05-02..2026-05-03
 - First-party days: 1
 - GA4 days: 3
 - Historical snapshot days: 1
 - Legacy support days: 1
 - Missing ranges: none
-- Stale input evidence: yes
+- Stale input evidence: no
 
 ## Source Agreement
 
@@ -62,7 +66,7 @@ Status: stale_evidence_review
 - Compared sources: first_party, ga4, historical_snapshot, legacy_support
 - Disagreements: 3
 - Max delta: 67
-- Classifications: stale_generated_evidence, date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
+- Classifications: date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
 - Per-day disagreement details: 3
   - 2026-05-01: present first_party, ga4, historical_snapshot; missing legacy_support; Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.
   - 2026-05-02: present ga4; missing first_party, historical_snapshot, legacy_support; GA4 observed the day, but first-party product facts are missing or not materialized.

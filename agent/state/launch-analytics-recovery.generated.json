@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T03:35:58.934Z",
-  "currentHead": "ffdb9e7caec4c9e5a0223d0708788756ef98b118",
+  "generatedAtUtc": "2026-06-18T03:44:04.552Z",
+  "currentHead": "f7a59c4b735f9c81a849e3fd56ef82e8b0895ef5",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -10,7 +10,7 @@
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
-  "status": "stale_evidence_review",
+  "status": "source_agreement_failed",
   "sourceMap": {
     "primaryTruth": "first_party",
     "secondSource": "ga4",
@@ -236,12 +236,17 @@
   "evidenceProvenance": {
     "launchCoverageInput": "agent/state/source-agreement-failure-detail.generated.json",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "71ef2329819020d636348414c7bfe0b2b48eb7db",
+    "sourceAgreementInputHead": "f7a59c4b735f9c81a849e3fd56ef82e8b0895ef5",
     "ga4ReadMode": "generated/local evidence only; no provider call performed",
     "firstPartyReadMode": "source-agreement day-bucket evidence only; no production read performed",
     "limitation": "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof."
   },
   "launchHistoryCoverage": {
+    "rangeProof": {
+      "expectedRangeSource": "union_of_local_source_days",
+      "allLaunchRangeProven": false,
+      "reason": "The local source-agreement fixture proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export."
+    },
     "rangeStartDayKey": "2026-05-01",
     "rangeEndDayKey": "2026-05-03",
     "firstRecoveredDayKey": "2026-05-01",
@@ -255,6 +260,15 @@
       "ga4": 3,
       "historicalSnapshot": 1,
       "legacySupport": 1
+    },
+    "firstPartyCoverage": {
+      "state": "partial",
+      "coveredDayCount": 1,
+      "missingRanges": [
+        "2026-05-02..2026-05-03"
+      ],
+      "canPromoteProductTruth": false,
+      "reason": "First-party product truth is missing for at least one local evidence day; GA4/fallback evidence cannot replace it."
     },
     "days": [
       {
@@ -344,8 +358,8 @@
     ],
     "state": "available",
     "reason": "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.",
-    "staleInputEvidence": true,
-    "sourceAgreementEvidenceHead": "71ef2329819020d636348414c7bfe0b2b48eb7db"
+    "staleInputEvidence": false,
+    "sourceAgreementEvidenceHead": "f7a59c4b735f9c81a849e3fd56ef82e8b0895ef5"
   },
   "sourceAgreement": {
     "comparedSources": [
@@ -363,7 +377,6 @@
     "maxDeltaPct": 67,
     "state": "failed",
     "classifications": [
-      "stale_generated_evidence",
       "date_range_mismatch",
       "duplicate_event",
       "external_source_gap",
