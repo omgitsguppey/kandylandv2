@@ -7,6 +7,7 @@ import {
   type Ga4AvailabilityStatus,
 } from "@/lib/analytics/ga4-availability-semantics";
 import {
+  buildLaunchAnalyticsSourceAgreementFailureDetail,
   buildSourceAgreementFailureDetail,
   type SourceAgreementFailureDetail,
 } from "@/lib/analytics/source-agreement-detail";
@@ -74,15 +75,16 @@ export function buildDebugCockpitBatch29AnalyticsSourceHierarchyReport(input: {
     analyticsTabHasData: input.analyticsTabHasData ?? false,
     debugHasData: input.debugHasData ?? true,
   });
-  const fallbackSources = input.failedSources ?? ["ga4", "historical_snapshot", "legacy_support"];
-  const sourceAgreementDetails = buildSourceAgreementFailureDetail({
-    comparedSources: input.comparedSources ?? fallbackSources.map((source, index) => ({
-      source,
-      days: index === 0 ? ["2026-05-01", "2026-05-02", "2026-05-03"] : [`2026-05-0${index}`],
-    })),
-    expectedDays: input.expectedDays,
-    blockedConsumers: input.blockedAnalyticsConsumers ?? hierarchy.blockedAnalyticsConsumers,
-  });
+  const sourceAgreementDetails = input.comparedSources
+    ? buildSourceAgreementFailureDetail({
+        comparedSources: input.comparedSources,
+        expectedDays: input.expectedDays,
+        blockedConsumers: input.blockedAnalyticsConsumers ?? hierarchy.blockedAnalyticsConsumers,
+      })
+    : buildLaunchAnalyticsSourceAgreementFailureDetail({
+        expectedDays: input.expectedDays,
+        blockedConsumers: input.blockedAnalyticsConsumers ?? hierarchy.blockedAnalyticsConsumers,
+      });
   const validationCopyContradictionsAfter = input.validationCopyContradictionsAfter ?? (chartReadinessStatusAfter === "source_disagreement" ? 0 : input.validationCopyContradictionsBefore ?? 0);
   const passAllowedContradictionsAfter = input.passAllowedContradictionsAfter ?? (chartReadinessStatusAfter === "source_disagreement" ? 0 : input.passAllowedContradictionsBefore ?? 0);
   const scoreBefore = 42;

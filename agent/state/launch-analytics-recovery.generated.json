@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T02:29:22.510Z",
-  "currentHead": "6292d032500510e80d06b8e3c04cceb028449466",
+  "generatedAtUtc": "2026-06-18T03:01:31.332Z",
+  "currentHead": "da619ef1400bca495a942f7969885a899cd3755d",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -10,7 +10,7 @@
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
-  "status": "stale_evidence_review",
+  "status": "source_agreement_failed",
   "sourceMap": {
     "primaryTruth": "first_party",
     "secondSource": "ga4",
@@ -62,7 +62,7 @@
   "evidenceProvenance": {
     "launchCoverageInput": "agent/state/source-agreement-failure-detail.generated.json",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "d7421546263b8b6710b6b6e2ac65d0986fdb37c2",
+    "sourceAgreementInputHead": "da619ef1400bca495a942f7969885a899cd3755d",
     "ga4ReadMode": "generated/local evidence only; no provider call performed",
     "firstPartyReadMode": "source-agreement day-bucket evidence only; no production read performed",
     "limitation": "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof."
@@ -149,8 +149,8 @@
       "2026-05-01",
       "2026-05-03"
     ],
-    "staleInputEvidence": true,
-    "sourceAgreementEvidenceHead": "d7421546263b8b6710b6b6e2ac65d0986fdb37c2"
+    "staleInputEvidence": false,
+    "sourceAgreementEvidenceHead": "da619ef1400bca495a942f7969885a899cd3755d"
   },
   "sourceAgreement": {
     "comparedSources": [
@@ -168,7 +168,6 @@
     "maxDeltaPct": 67,
     "state": "failed",
     "classifications": [
-      "stale_generated_evidence",
       "date_range_mismatch",
       "duplicate_event",
       "external_source_gap",

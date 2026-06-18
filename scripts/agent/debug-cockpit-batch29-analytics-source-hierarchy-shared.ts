@@ -3,8 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { buildAdminAnalyticsSourceHierarchy } from "../../src/lib/analytics/admin-analytics-source-hierarchy";
+import { buildLaunchAnalyticsSourceAgreementFailureDetail } from "../../src/lib/analytics/source-agreement-detail";
 import { resolveGa4AvailabilitySemantics } from "../../src/lib/analytics/ga4-availability-semantics";
-import { buildSourceAgreementFailureDetail } from "../../src/lib/analytics/source-agreement-detail";
 import { buildDebugCockpitBatch29AnalyticsSourceHierarchyReport } from "../../src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy";
 
 type Report = Record<string, unknown>;
@@ -119,6 +119,7 @@ function dirtyClassifications() {
                                     : filePath.includes("problem-state-copy") ? "admin_copy_state_work_unrelated"
                               : filePath.includes("release-notes") || filePath === "CHANGELOG.md" || filePath.includes("kandydrops-release-notes") ? "release_artifact_expected"
                                 : filePath.includes("admin-analytics-historical-validation") || filePath.includes("DebugAdvancedDataValidation") || filePath.includes("validation-readiness-contract") || filePath.includes("admin/analytics/") || filePath.includes("admin-analytics.ts") ? "real_source_change_needs_review"
+                                  : filePath.includes("event-translation-bridge") || filePath.includes("person-metrics-hydration") ? "analytics_validator_support_expected"
                                   : "unsafe_unknown";
       return { filePath, classification };
     });
@@ -231,14 +232,7 @@ export function validateDataValidationCopyConsistency() {
 
 export function validateSourceAgreementFailureDetail() {
   const failures: string[] = [];
-  const detail = buildSourceAgreementFailureDetail({
-    comparedSources: ["first_party", "ga4", "historical_snapshot", "legacy_support"],
-    coverageBySource: {
-      first_party: ["2026-05-01"],
-      ga4: ["2026-05-01", "2026-05-02", "2026-05-03"],
-      historical_snapshot: ["2026-05-01"],
-      legacy_support: ["2026-05-03"],
-    },
+  const detail = buildLaunchAnalyticsSourceAgreementFailureDetail({
     comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
     tolerance: { reviewDeltaPct: 10, failDeltaPct: 25 },
     blockedConsumers: ["admin_analytics_charts", "debug_data_validation"],
@@ -264,11 +258,6 @@ export function validateDebugCockpitBatch29AnalyticsSourceHierarchy() {
     ga4DayBucketCount: 0,
     chartReadinessStatusBefore: "ready",
     sourceAgreementStatus: "failed",
-    comparedSources: [
-      { source: "ga4", days: ["2026-05-01", "2026-05-02", "2026-05-03"] },
-      { source: "historical_snapshot", days: ["2026-05-01"] },
-      { source: "legacy_support", days: ["2026-05-03"] },
-    ],
     analyticsTabHasData: false,
     debugHasData: true,
   });
@@ -280,7 +269,7 @@ export function validateDebugCockpitBatch29AnalyticsSourceHierarchy() {
   expectPass(report.blockedAnalyticsConsumers.includes("admin_analytics_charts"), failures, "Analytics tab chart blocker missing.");
   expectPass(report.ga4AvailabilityStatusAfter === "reports_loaded_empty", failures, "GA4 setup pass with samples=0 is treated as usable chart data.");
   expectPass(report.validationCopyContradictionsAfter === 0 && report.passAllowedContradictionsAfter === 0, failures, "copy or passAllowed contradictions remain.");
-  expectPass(report.sourceAgreementDetails.comparedSources.length === 3, failures, "source agreement failure lacks detailed comparison.");
+  expectPass(report.sourceAgreementDetails.comparedSources.includes("first_party") && report.sourceAgreementDetails.comparedSources.length === 4, failures, "source agreement failure lacks first-party primary comparison.");
   expectPass(report.scoreDimensions.length >= 5, failures, "score dimensions missing.");
   expectPass(dirty.every((entry) => entry.classification !== "unsafe_unknown"), failures, "dirty files unclassified.");
   expectPass(openPrs.every((entry) => entry.classification), failures, "open PRs unclassified.");

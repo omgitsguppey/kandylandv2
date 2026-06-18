@@ -24,7 +24,7 @@ describe("debug cockpit batch 29 analytics source hierarchy", () => {
     expect(report.ga4AvailabilityStatusAfter).toBe("reports_loaded_empty");
     expect(report.validationCopyContradictionsAfter).toBe(0);
     expect(report.passAllowedContradictionsAfter).toBe(0);
-    expect(report.sourceAgreementDetails.comparedSources).toEqual(["ga4", "historical_snapshot", "legacy_support"]);
+    expect(report.sourceAgreementDetails.comparedSources).toEqual(["first_party", "ga4", "historical_snapshot", "legacy_support"]);
     expect(report.scoreAfter).toBeGreaterThan(report.scoreBefore);
     expect(report.scoreDimensions).toContain("chartReadinessHierarchy");
   });

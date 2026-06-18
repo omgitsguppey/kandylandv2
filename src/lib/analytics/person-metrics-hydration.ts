@@ -966,13 +966,17 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/analytics-panel-hydration.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/launch-analytics-recovery.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/source-agreement-failure-detail.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/source-agreement-failure-detail.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md") return "documentation_artifact_expected";
   if (normalized === "functions/src/analytics-truth-cli.ts" || normalized === "functions/src/analytics-truth-runtime.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/rebuild-analytics-truth.ts" || normalized === "scripts/rebuild-behavioral-intelligence.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/source-agreement-detail.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts") return "validator_artifact_expected";
   if (normalized === "scripts/analytics/validate-canonical-import-export.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/source-agreement-failure-detail.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts") return "test_artifact_expected";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "test_artifact_expected";
   if (

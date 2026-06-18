@@ -1,17 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { buildSourceAgreementFailureDetail } from "@/lib/analytics/source-agreement-detail";
+import { buildLaunchAnalyticsSourceAgreementFailureDetail } from "@/lib/analytics/source-agreement-detail";
 
 describe("source agreement failure detail", () => {
   it("reports compared sources, disagreement size, tolerance, blocked consumers, and exact next actions", () => {
-    const detail = buildSourceAgreementFailureDetail({
-      comparedSources: ["first_party", "ga4", "historical_snapshot", "legacy_support"],
-      coverageBySource: {
-        first_party: ["2026-05-01"],
-        ga4: ["2026-05-01", "2026-05-02", "2026-05-03"],
-        historical_snapshot: ["2026-05-01"],
-        legacy_support: ["2026-05-03"],
-      },
+    const detail = buildLaunchAnalyticsSourceAgreementFailureDetail({
       comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
       tolerance: { reviewDeltaPct: 10, failDeltaPct: 25 },
       blockedConsumers: ["admin_analytics_charts", "debug_data_validation"],

@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch29-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-18T02:09:07.566Z",
-  "currentHead": "9bc587e3d122a0e82a0ae7174ab247b517fc1a85",
+  "generatedAtUtc": "2026-06-18T03:01:14.046Z",
+  "currentHead": "da619ef1400bca495a942f7969885a899cd3755d",
   "ga4AvailabilityStatusBefore": "reports_available",
   "ga4AvailabilityStatusAfter": "reports_loaded_empty",
   "chartReadinessStatusBefore": "ready",
@@ -23,6 +23,7 @@
   ],
   "sourceAgreementDetails": {
     "comparedSources": [
+      "first_party",
       "ga4",
       "historical_snapshot",
       "legacy_support"
@@ -31,6 +32,13 @@
     "disagreementCount": 3,
     "maxDeltaPct": 67,
     "perSourceCoverage": [
+      {
+        "source": "first_party",
+        "dayCount": 1,
+        "days": [
+          "2026-05-01"
+        ]
+      },
       {
         "source": "ga4",
         "dayCount": 3,
@@ -56,6 +64,10 @@
       }
     ],
     "missingDaysBySource": {
+      "first_party": [
+        "2026-05-02",
+        "2026-05-03"
+      ],
       "ga4": [],
       "historical_snapshot": [
         "2026-05-02",
@@ -67,6 +79,7 @@
       ]
     },
     "extraDaysBySource": {
+      "first_party": [],
       "ga4": [],
       "historical_snapshot": [],
       "legacy_support": []
@@ -112,6 +125,10 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "filePath": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
       "filePath": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
@@ -130,6 +147,10 @@
     {
       "filePath": "docs/agent-truth/analytics-panel-hydration.md",
       "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
+      "classification": "validator_artifact_expected"
     },
     {
       "filePath": "docs/agent-truth/event-translation-bridge.md",
@@ -156,8 +177,24 @@
       "classification": "validator_artifact_expected"
     },
     {
+      "filePath": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "analytics_validator_support_expected"
+    },
+    {
+      "filePath": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "analytics_validator_support_expected"
+    },
+    {
       "filePath": "src/lib/analytics/source-agreement-detail.ts",
       "classification": "source_agreement_failure_classification_required"
+    },
+    {
+      "filePath": "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts",
+      "classification": "validator_artifact_expected"
     },
     {
       "filePath": "tests/unit/source-agreement-failure-detail.spec.ts",

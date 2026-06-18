@@ -20,6 +20,20 @@ export type SourceAgreementFailureDetail = {
   nextAction: string;
 };
 
+export const LAUNCH_ANALYTICS_SOURCE_AGREEMENT_COVERAGE: Record<string, string[]> = {
+  first_party: ["2026-05-01"],
+  ga4: ["2026-05-01", "2026-05-02", "2026-05-03"],
+  historical_snapshot: ["2026-05-01"],
+  legacy_support: ["2026-05-03"],
+};
+
+export const LAUNCH_ANALYTICS_SOURCE_AGREEMENT_SOURCES = [
+  "first_party",
+  "ga4",
+  "historical_snapshot",
+  "legacy_support",
+] as const;
+
 export function buildSourceAgreementFailureDetail(input: {
   comparedSources: SourceAgreementCoverageInput[] | string[];
   coverageBySource?: Record<string, string[]>;
@@ -106,4 +120,20 @@ export function buildSourceAgreementFailureDetail(input: {
     ],
     nextAction: "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.",
   };
+}
+
+export function buildLaunchAnalyticsSourceAgreementFailureDetail(input: {
+  expectedDays?: string[];
+  comparedMetrics?: string[];
+  tolerance?: { reviewDeltaPct?: number; failDeltaPct?: number };
+  blockedConsumers?: string[];
+} = {}) {
+  return buildSourceAgreementFailureDetail({
+    comparedSources: [...LAUNCH_ANALYTICS_SOURCE_AGREEMENT_SOURCES],
+    coverageBySource: LAUNCH_ANALYTICS_SOURCE_AGREEMENT_COVERAGE,
+    comparedMetrics: input.comparedMetrics,
+    expectedDays: input.expectedDays,
+    tolerance: input.tolerance,
+    blockedConsumers: input.blockedConsumers,
+  });
 }
