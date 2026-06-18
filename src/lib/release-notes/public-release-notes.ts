@@ -1,13 +1,82 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.97",
-  "betaReleaseCounter": 597,
+  "currentVersion": "1.5.98",
+  "betaReleaseCounter": 598,
   "channel": "beta",
-  "generatedAt": "2026-06-18T14:13:23.854Z",
-  "generatedAtUtc": "2026-06-18T14:13:23.854Z",
-  "lastCommitSha": "4378b15dd43fd41430deb989ec9a9854b9b6f71f",
+  "generatedAt": "2026-06-18T15:09:26.755Z",
+  "generatedAtUtc": "2026-06-18T15:09:26.755Z",
+  "lastCommitSha": "249216111a5757af71cca4a64c17599625526b81",
   "notes": [
+    {
+      "version": "1.5.98",
+      "previousVersion": "1.5.97",
+      "betaReleaseCounter": 598,
+      "previousBetaReleaseCounter": 597,
+      "commitSha": "249216111a5757af71cca4a64c17599625526b81",
+      "commitTitle": "fix(admin): clarify analytics source blockers",
+      "commitCount": 6,
+      "commitShas": [
+        "d9ab7f4855cab20ff888751d85f8ec616d8785cc",
+        "ba822abce140a896b0b9ddeb2cd988410380ba03",
+        "cd48ba4f9aa0591cbde774c7057c2ea2badb66ac",
+        "4e2a47a10b19311e1feb406410473919ef3585b3",
+        "8155e9b5051e2734d6b44fbd5432b3e8cc2ff5df",
+        "249216111a5757af71cca4a64c17599625526b81"
+      ],
+      "committedAt": "2026-06-18T15:08:26.000Z",
+      "generatedAt": "2026-06-18T15:09:26.753Z",
+      "committedAtUtc": "2026-06-18T15:08:26.000Z",
+      "generatedAtUtc": "2026-06-18T15:09:26.753Z",
+      "updatedAtUtc": "2026-06-18T15:09:26.753Z",
+      "category": "Fixed",
+      "title": "Clearer Admin Analytics source status",
+      "summary": "Improved Admin Analytics so source agreement, launch history recovery, and missing evidence states are easier to understand.",
+      "userFacingTitle": "Clearer Admin Analytics source status",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Clarified when analytics history is recovered from first-party sources.",
+        "Kept GA4 and legacy analytics labeled as evidence instead of product truth.",
+        "Improved Admin Analytics source labels so missing data is not shown as zero."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 6 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/chart-readiness-hierarchy-repair.generated.json",
+        "agent/state/codebase-hardening.generated.json",
+        "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
+        "agent/state/device-ui-dry-audit.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/self-healing-refresh-queue.generated.json",
+        "agent/state/source-agreement-failure-detail.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "docs/agent-truth/chart-readiness-hierarchy-repair.md",
+        "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
+        "docs/agent-truth/self-healing-refresh-queue.md",
+        "docs/agent-truth/source-agreement-failure-detail.md",
+        "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+        "src/app/admin/debug/components/DebugControlTowerCards.tsx",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/analytics/admin-analytics-source-hierarchy.ts",
+        "src/lib/debug/debug-cockpit-batch28-bug-validation.ts",
+        "src/lib/server/api-cost-contract.ts",
+        "src/lib/server/route-cache-contract.ts",
+        "src/lib/server/security-hardening-contract.ts",
+        "tests/unit/admin-analytics-historical-traffic.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
+        "tests/unit/admin-debug-control-tower-component.spec.tsx",
+        "tests/unit/data-validation-ui-semantic-cleanup.spec.ts"
+      ],
+      "sourceCommit": "249216111a5757af71cca4a64c17599625526b81"
+    },
     {
       "version": "1.5.97",
       "previousVersion": "1.5.96",
@@ -1858,53 +1927,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts"
       ],
       "sourceCommit": "59ed9c52c096664fe493f1b8f41d7db3897b5cdf"
-    },
-    {
-      "version": "1.5.73",
-      "previousVersion": "1.5.72",
-      "betaReleaseCounter": 573,
-      "previousBetaReleaseCounter": 572,
-      "commitSha": "422fc7f96fcc7087120ea5a3d4af68b71e55fe89",
-      "commitTitle": "fix(deploy): restore deployment readiness",
-      "commitCount": 4,
-      "commitShas": [
-        "3736d072dfdd1f28d6fef673f083c25e12f827d1",
-        "d68e940eca0f9c778e3de811d03a5d4b3c79807d",
-        "85ad19f1ed7339fd3584504f0330b96d5330f607",
-        "422fc7f96fcc7087120ea5a3d4af68b71e55fe89"
-      ],
-      "committedAt": "2026-06-17T00:30:15.000Z",
-      "generatedAt": "2026-06-17T00:30:57.646Z",
-      "committedAtUtc": "2026-06-17T00:30:15.000Z",
-      "generatedAtUtc": "2026-06-17T00:30:57.646Z",
-      "updatedAtUtc": "2026-06-17T00:30:57.646Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 4 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "sourceCommit": "422fc7f96fcc7087120ea5a3d4af68b71e55fe89"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
