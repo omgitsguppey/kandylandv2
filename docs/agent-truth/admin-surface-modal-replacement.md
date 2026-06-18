@@ -2,7 +2,7 @@
 
 Source snapshot only. This lane tracks admin modal replacement and first-viewport admin status simplification. It does not prove production admin action success, provider/payment proof, browser visual QA, or creator modal removal.
 
-Current refresh: reviewed against `b3159135ac06079c624bae42c91acd8297ac14c6`. Admin Analytics source agreement blockers use plain visible copy (`needs a connected source`) while preserving the canonical source-state enum for validators and Debug.
+Current refresh: reviewed against `87c45861396dab9629bad0ad54bcee01a7117889`. Admin Analytics source agreement blockers use plain visible copy (`needs a connected source`) while preserving the canonical source-state enum for validators and Debug.
 
 ## Already Replaced
 
@@ -17,7 +17,7 @@ Current refresh: reviewed against `b3159135ac06079c624bae42c91acd8297ac14c6`. Ad
 
 ## Current Pass
 
-This pass kept the remaining Admin Analytics source recovery drilldown connected to the existing panel hydration source, but removed the chip-heavy summary row and replaced it with one compact plain line. Details remain available in the inline disclosure, and the canonical source-state attributes remain intact for validators and Debug.
+This pass kept the remaining Admin Analytics source drilldown connected to the existing panel hydration source, simplified the visible label to `Source status`, replaced the broken separator artifact with plain hyphens, and kept panel details inside the inline disclosure. The canonical source-state attributes remain intact for validators and Debug.
 
 `src/components/Admin/CreateDropModal.tsx` remains the canonical drop form owner. `/admin/drops` still uses `presentation="inline"` for create, edit, and duplicate actions, so the action stays connected to the existing admin drop route and form contract without forcing the operator into a full-screen overlay.
 
@@ -29,7 +29,7 @@ Payment runtime, GumDrop math, top nav, and bottom nav were not touched.
 | --- | --- | --- | --- |
 | `/admin/drops` | `src/hooks/useAdminDropsFeed.ts` | `src/app/api/admin/drops/route.ts`, `src/lib/admin-drop-form.ts` | Replace admin overlay with inline connected panel |
 | `/admin/roster` | `src/app/admin/roster/page.tsx` | `src/app/api/admin/creator-agreements`, creator agreement helpers | Replace shared preview state with local inline disclosure |
-| `/admin/analytics` | `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` | `agent/state/analytics-panel-hydration.generated.json`, source hierarchy helpers | Keep one connected source recovery disclosure with plain summary text |
+| `/admin/analytics` | `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` | `agent/state/analytics-panel-hydration.generated.json`, source hierarchy helpers | Keep one connected source status disclosure with plain summary text |
 
 ## Remaining Debt
 

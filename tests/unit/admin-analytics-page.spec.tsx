@@ -586,7 +586,7 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Source and recovery");
+    expect(container.textContent).toContain("Source status");
     expect(container.querySelector("[data-admin-analytics-source-recovery='compact']")).toBeTruthy();
     const sourceNotes = container.querySelector("details[title]");
     expect(container.textContent).toContain("Source detail");
@@ -611,6 +611,7 @@ describe("AdminAnalyticsPage", () => {
     expect(container.querySelector("[data-panel-recovery-truth-state='source_missing']")).toBeTruthy();
     expect(container.querySelector("[data-panel-recovery-truth-state='source_ready_collecting']")).toBeTruthy();
     expect(container.querySelector("[data-panel-recovery-truth-state='external_required']")).toBeTruthy();
+    expect(container.textContent).toContain("Panel status");
     expect(container.textContent).toContain("Next actions");
     expect(container.textContent).toContain(
       "Traffic overview: Reconnect the source so Traffic overview can hydrate.",
@@ -661,6 +662,7 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).toContain("verified");
     expect(container.textContent).not.toContain("Realtime feed");
     expect(container.textContent).not.toContain("view ·");
+    expect(container.textContent).not.toContain("Â·");
     expect(container.querySelector("[data-admin-analytics-status-summary=\"compact\"]")).toBeTruthy();
   });
 

@@ -373,7 +373,7 @@ export default function AdminAnalyticsPage() {
     panelRecoverySourceGapCount > 0 ? formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap") : null,
     panelRecoveryEvidenceGateCount > 0 ? `${panelRecoveryEvidenceGateCount} external proof required` : null,
     panelRecoveryReviewCount > 0 ? `${panelRecoveryReviewCount} needs review` : null,
-  ].filter((item): item is string => Boolean(item)).join(" / ");
+  ].filter((item): item is string => Boolean(item)).join(" - ");
 
   if (needsSetup) {
     return (
@@ -498,8 +498,8 @@ export default function AdminAnalyticsPage() {
           data-admin-analytics-status-summary="compact"
           data-admin-analytics-source-hierarchy={sourceHierarchy.status}
         >
-          <p className="min-w-0 truncate font-medium text-white">{dataStatusSummary.join(" · ")}</p>
-          <p className="min-w-0 truncate text-gray-400">{sourceQualitySummary.join(" · ")}</p>
+          <p className="min-w-0 truncate font-medium text-white">{dataStatusSummary.join(" - ")}</p>
+          <p className="min-w-0 truncate text-gray-400">{sourceQualitySummary.join(" - ")}</p>
         </div>
         {sourceDetailItems.length > 0 || showPanelRecovery ? (
           <details
@@ -508,7 +508,7 @@ export default function AdminAnalyticsPage() {
             title={sourceDetailItems.length > 0 ? sourceDetailItems.join(" | ") : undefined}
           >
             <summary className="min-h-9 cursor-pointer pt-1 font-semibold text-gray-100">
-              <span className="text-white">Source and recovery</span>
+              <span className="text-white">Source status</span>
               <p className="mt-1 text-[11px] font-medium leading-4 text-gray-300">{sourceRecoverySummary}</p>
             </summary>
             <div className="mt-2 grid gap-2 text-[11px] text-gray-300 md:grid-cols-2">
@@ -524,7 +524,7 @@ export default function AdminAnalyticsPage() {
               ) : null}
               {showPanelRecovery ? (
                 <section className="rounded-md border border-white/10 bg-black/20 px-2 py-1.5">
-                  <p className="font-semibold text-gray-100">Panel recovery</p>
+                  <p className="font-semibold text-gray-100">Panel status</p>
                   {panelRecoveryTruthItems.length > 0 ? (
                     <ul className="mt-1 grid gap-1 pl-0 sm:grid-cols-2">
                       {panelRecoveryTruthItems.map((item) => {
@@ -559,10 +559,6 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <div className="z-20 space-y-2 rounded-[1.1rem] border border-white/10 bg-black/65 p-2 backdrop-blur-xl md:sticky md:top-24 md:space-y-2.5 md:rounded-[1.4rem] md:p-2.5" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
-        
-
-        
-
         <div className="flex flex-wrap gap-1.5">
           {TAB_OPTIONS.map((tab) => {
             const Icon = tab.icon;
@@ -677,7 +673,7 @@ export default function AdminAnalyticsPage() {
         {state.activeTab === "commerce" ? <AdminAnalyticsCommerceTab {...state} /> : null}
 
         <details className="rounded-[1.1rem] border border-white/10 bg-black/35 p-3" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
-          <summary className="cursor-pointer text-sm font-bold text-white">Task and notification drilldowns</summary>
+          <summary className="cursor-pointer text-sm font-bold text-white">Tasks and notifications</summary>
           <div className="mt-3">
             <AdminTaskAndNotificationModules
               renderSectionRangeControl={state.renderSectionRangeControl}

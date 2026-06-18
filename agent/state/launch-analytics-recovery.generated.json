@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T08:09:54.631Z",
-  "currentHead": "889367e7f7863e2684264003cbb4a133c63891ef",
+  "generatedAtUtc": "2026-06-18T08:20:57.389Z",
+  "currentHead": "87c45861396dab9629bad0ad54bcee01a7117889",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -10,7 +10,7 @@
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
-  "status": "source_agreement_failed",
+  "status": "stale_evidence_review",
   "sourceMap": {
     "primaryTruth": "first_party",
     "secondSource": "ga4",
@@ -368,7 +368,7 @@
     ],
     "state": "available",
     "reason": "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.",
-    "staleInputEvidence": false,
+    "staleInputEvidence": true,
     "sourceAgreementEvidenceHead": "889367e7f7863e2684264003cbb4a133c63891ef"
   },
   "sourceAgreement": {
@@ -387,6 +387,7 @@
     "maxDeltaPct": 67,
     "state": "failed",
     "classifications": [
+      "stale_generated_evidence",
       "date_range_mismatch",
       "duplicate_event",
       "external_source_gap",
