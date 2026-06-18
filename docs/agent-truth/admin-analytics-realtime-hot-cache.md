@@ -1,11 +1,11 @@
 # Admin Analytics Realtime Hot Cache
 
-Generated: 2026-06-18T16:46:48.731Z
+Generated: 2026-06-18T17:12:20.253Z
 
 ```json
 {
-  "generatedAtUtc": "2026-06-18T16:46:48.731Z",
-  "currentHead": "42124e6c8ba63c12090c276934c302f1443b5766",
+  "generatedAtUtc": "2026-06-18T17:12:20.253Z",
+  "currentHead": "5a3693233bbbad68cafa31e25f68ac6538bc0ded",
   "status": "hot_cache_ready",
   "realtimeListeners": [
     {

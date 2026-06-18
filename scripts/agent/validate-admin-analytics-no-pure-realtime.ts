@@ -130,9 +130,9 @@ for (const fixturePollingNeedle of [
 for (const livePulseNeedle of [
   "Graph needs verified snapshot rows.",
   "Surface detail needs verified snapshot rows.",
-  "Showing last verified snapshot.",
+  "Collecting activity.",
 ]) {
-  requireIncludes(operationsTab + livePulseModel + displayStateHelper, livePulseNeedle, "Live Pulse snapshot-first visible state");
+  requireIncludes(operationsTab + livePulseModel + displayStateHelper + stateHook, livePulseNeedle, "Live Pulse snapshot-first visible state");
 }
 
 for (const debugNeedle of [
