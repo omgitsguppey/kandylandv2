@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-18T16:34:13.339Z
+Generated: 2026-06-18T16:57:59.577Z
 Status: pass
-Current head: 441b70798155c33f807465cfe1f4aa1b1ccf084d
+Current head: bcc001481d5d0bfb644f3402fde2826c3b7c4131
 
 ## Contract
 
@@ -53,20 +53,22 @@ Current head: 441b70798155c33f807465cfe1f4aa1b1ccf084d
 
 ## Dirty Files
 
+- CHANGELOG.md: release_artifact_expected
 - agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- agent/state/self-healing-refresh-queue.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
 - docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- docs/agent-truth/self-healing-refresh-queue.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
+- public/kandydrops-release-notes.json: release_artifact_expected
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 
 ## Validation Failures
 

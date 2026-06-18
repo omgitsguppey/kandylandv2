@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-18T16:34:13.339Z",
-  "currentHead": "441b70798155c33f807465cfe1f4aa1b1ccf084d",
+  "generatedAtUtc": "2026-06-18T16:57:59.577Z",
+  "currentHead": "bcc001481d5d0bfb644f3402fde2826c3b7c4131",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5433,6 +5433,10 @@
   "gaps": [],
   "dirtyFiles": [
     {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
       "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
@@ -5457,10 +5461,6 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/self-healing-refresh-queue.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
@@ -5481,12 +5481,20 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/self-healing-refresh-queue.md",
+      "path": "docs/agent-truth/source-agreement-failure-detail.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/source-agreement-failure-detail.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
     }
   ],
   "validationFailures": [],
