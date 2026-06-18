@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-18T04:48:39.183Z
+Generated: 2026-06-18T06:25:59.114Z
 Status: pass
-Current head: 8bbfcc0a2aa9588717557f524ef670489d4ce719
+Current head: a324cd8d20ac0729db15e85527a1d49f87b4cbb0
 
 ## Contract
 
@@ -72,15 +72,7 @@ Current head: 8bbfcc0a2aa9588717557f524ef670489d4ce719
 
 ## Dirty Files
 
-- agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/analytics-source-agreement-cleanup.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/ga4-recovery-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/launch-analytics-recovery.generated.json: current_generated_artifact_to_commit
 - agent/state/source-agreement-failure-detail.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
-- docs/agent-truth/analytics-source-agreement-cleanup.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/ga4-recovery-truth.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: documentation_artifact_expected
 
 ## Active Old Logic

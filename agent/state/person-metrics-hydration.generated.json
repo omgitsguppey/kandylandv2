@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-06-18T04:48:39.183Z",
+  "generatedAtUtc": "2026-06-18T06:25:59.114Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4973,43 +4973,11 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "8bbfcc0a2aa9588717557f524ef670489d4ce719",
+  "currentHead": "a324cd8d20ac0729db15e85527a1d49f87b4cbb0",
   "dirtyFiles": [
-    {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/analytics-source-agreement-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/ga4-recovery-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
     {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
       "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/analytics-source-agreement-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/ga4-recovery-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/launch-analytics-recovery.md",
-      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
