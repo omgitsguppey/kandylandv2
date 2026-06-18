@@ -4,6 +4,10 @@ import {
   buildLaunchAnalyticsSourceAgreementFailureDetail,
   buildSourceAgreementFailureDetailFromLaunchHistoryCoverage,
 } from "@/lib/analytics/source-agreement-detail";
+import {
+  normalizeLaunchHistoryCoverageExport,
+  proofModeForLaunchCoverageExport,
+} from "../../scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared";
 
 describe("source agreement failure detail", () => {
   it("reports compared sources, disagreement size, tolerance, blocked consumers, and exact next actions", () => {
@@ -124,5 +128,45 @@ describe("source agreement failure detail", () => {
     expect(detail.sourceAgreementStatus).toBe("pass");
     expect(detail.allLaunchRangeProven).toBe(true);
     expect(detail.disagreementCount).toBe(0);
+  });
+
+  it("recognizes completed admin truth sample coverage without flattening source counts", () => {
+    const raw = {
+      status: "complete",
+      surface: "admin_truth_sample",
+      launchHistoryCoverage: {
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
+        days: [
+          {
+            dayKey: "2026-05-04",
+            expected: true,
+            sourceCounts: {
+              first_party: 12,
+              ga4: 18,
+              historicalSnapshot: 3,
+              legacySupport: 0,
+            },
+            internalAdminExcludedCount: 2,
+          },
+        ],
+      },
+    };
+
+    const coverage = normalizeLaunchHistoryCoverageExport(raw);
+
+    expect(proofModeForLaunchCoverageExport("agent/evidence/admin-truth-sample/launch.redacted.json", raw)).toBe("admin_truth_sample");
+    expect(proofModeForLaunchCoverageExport("agent/evidence/admin-truth-sample/evidence.template.json", {
+      ...raw,
+      status: "template_not_evidence",
+    })).toBe("local_export");
+    expect(coverage?.days[0]?.sourceCounts).toEqual({
+      first_party: 12,
+      ga4: 18,
+      historicalSnapshot: 3,
+      legacySupport: 0,
+    });
+    expect(coverage?.days[0]?.internalAdminExcludedCount).toBe(2);
   });
 });

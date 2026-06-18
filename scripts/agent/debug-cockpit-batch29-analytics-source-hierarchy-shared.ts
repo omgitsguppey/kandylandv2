@@ -53,6 +53,7 @@ const LAUNCH_HISTORY_COVERAGE_EXPORT_PATHS = [
   "agent/evidence/launch-analytics/launch-history-coverage.local.json",
   "agent/evidence/launch-analytics/launch-history-coverage.export.json",
 ].filter((value): value is string => Boolean(value && value.trim()));
+const ADMIN_TRUTH_SAMPLE_EVIDENCE_FOLDER = "agent/evidence/admin-truth-sample";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -62,7 +63,7 @@ function asSourceCount(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : 0;
 }
 
-function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistoryCoverageForSourceAgreement | null {
+export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistoryCoverageForSourceAgreement | null {
   const root = asRecord(raw);
   const candidate = asRecord(root.launchHistoryCoverage ?? asRecord(root.analyticsSourceHealth).launchHistoryCoverage ?? root);
   const daysRaw = Array.isArray(candidate.days) ? candidate.days : [];
@@ -113,10 +114,45 @@ function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistoryCovera
   };
 }
 
+function listAdminTruthSampleEvidencePaths() {
+  const folder = path.join(process.cwd(), ADMIN_TRUTH_SAMPLE_EVIDENCE_FOLDER);
+  if (!fs.existsSync(folder)) return [];
+  return fs.readdirSync(folder)
+    .filter((entry) => entry.endsWith(".json") && entry !== "evidence.template.json")
+    .map((entry) => `${ADMIN_TRUTH_SAMPLE_EVIDENCE_FOLDER}/${entry}`)
+    .sort();
+}
+
+function launchHistoryCoverageExportPaths() {
+  return [
+    ...LAUNCH_HISTORY_COVERAGE_EXPORT_PATHS,
+    ...listAdminTruthSampleEvidencePaths(),
+  ];
+}
+
+export function proofModeForLaunchCoverageExport(
+  filePath: string,
+  raw: unknown,
+): "admin_truth_sample" | "local_export" {
+  const root = asRecord(raw);
+  const isCompletedAdminTruthSample =
+    filePath.replace(/\\/gu, "/").startsWith(`${ADMIN_TRUTH_SAMPLE_EVIDENCE_FOLDER}/`)
+    && root.status === "complete"
+    && root.surface === "admin_truth_sample";
+  return isCompletedAdminTruthSample ? "admin_truth_sample" : "local_export";
+}
+
 function loadLaunchHistoryCoverageExport() {
-  for (const filePath of LAUNCH_HISTORY_COVERAGE_EXPORT_PATHS) {
-    const coverage = normalizeLaunchHistoryCoverageExport(readJson(filePath));
-    if (coverage) return { filePath, coverage };
+  for (const filePath of launchHistoryCoverageExportPaths()) {
+    const raw = readJson(filePath);
+    const coverage = normalizeLaunchHistoryCoverageExport(raw);
+    if (coverage) {
+      return {
+        filePath,
+        coverage,
+        proofMode: proofModeForLaunchCoverageExport(filePath, raw),
+      };
+    }
   }
   return null;
 }
@@ -128,7 +164,7 @@ function buildLaunchSourceAgreementDetail() {
       inputMode: "local_export",
       inputPath: localExport.filePath,
       detail: buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
-        proofMode: "local_export",
+        proofMode: localExport.proofMode,
         launchHistoryCoverage: localExport.coverage,
         comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
         tolerance: { reviewDeltaPct: 10, failDeltaPct: 25 },
@@ -375,7 +411,7 @@ export function validateSourceAgreementFailureDetail() {
     "Source agreement failures include compared sources, coverage deltas, per-day disagreement details, tolerance, blocked consumers, and next actions.",
     inputPath
       ? `Using local launch coverage export: ${inputPath}.`
-      : "No local launch coverage export found; using fixture-only local window until an approved export is attached.",
+      : "No local launch coverage export or launch-history admin truth sample found; using fixture-only local window until approved evidence is attached.",
     "The detail helper uses existing evidence only and does not call GA4.",
   ]);
 }
