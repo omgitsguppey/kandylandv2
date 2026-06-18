@@ -330,7 +330,7 @@ describe("buildHistoricalValidationSummary", () => {
       expect.objectContaining({
         dayKey: "2026-05-01",
         recovered: true,
-        confidence: "verified",
+        confidence: "mixed",
         sourceCounts: expect.objectContaining({ first_party: 1, ga4: 1 }),
       }),
       expect.objectContaining({

@@ -190,21 +190,24 @@ function buildLaunchHistoryDayCoverage(input: {
     const hasFirstParty = input.firstPartyPresentDays.has(dayKey);
     const hasHistoricalSnapshot = input.snapshotPresentDays.has(dayKey);
     const hasLegacy = input.legacyPresentDays.has(dayKey);
+    const hasFallback = hasHistoricalSnapshot || hasLegacy;
     const sourceCount = Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy);
     const recovered = sourceCount > 0;
-    const confidence: "verified" | "mixed" | "partial" | "fallback" | "unknown" = hasFirstParty && hasGa4
+    const confidence: "verified" | "mixed" | "partial" | "fallback" | "unknown" = hasFirstParty && hasGa4 && !hasFallback
       ? "verified"
-      : hasFirstParty && (hasHistoricalSnapshot || hasLegacy)
+      : hasFirstParty && hasFallback
         ? "mixed"
         : hasFirstParty
           ? "partial"
-          : hasGa4 || hasHistoricalSnapshot || hasLegacy
+          : hasGa4 || hasFallback
             ? "fallback"
             : "unknown";
     const reason = !recovered
       ? "No launch-history source bucket was found for this day."
-      : hasFirstParty && hasGa4
+      : hasFirstParty && hasGa4 && !hasFallback
         ? "First-party event-fact/day-bucket evidence and GA4 second-source evidence both cover this day."
+      : hasFirstParty && hasGa4 && hasFallback
+        ? "First-party and GA4 evidence cover this day, with fallback evidence also present; keep the fallback lane as corroborating evidence until dedupe review is complete."
       : hasFirstParty
           ? "First-party event-fact/day-bucket evidence covers this day; second-source agreement is incomplete."
         : hasHistoricalSnapshot

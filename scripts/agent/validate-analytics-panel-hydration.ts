@@ -425,15 +425,16 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     const hasGa4 = ga4Days.has(dayKey);
     const hasHistoricalSnapshot = historicalSnapshotDays.has(dayKey);
     const hasLegacy = legacySupportDays.has(dayKey);
+    const hasFallback = hasHistoricalSnapshot || hasLegacy;
     const sourceCount = Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy);
     const recovered = sourceCount > 0;
-    const confidence = hasFirstParty && hasGa4
+    const confidence = hasFirstParty && hasGa4 && !hasFallback
       ? "verified"
-      : hasFirstParty && (hasHistoricalSnapshot || hasLegacy)
+      : hasFirstParty && hasFallback
         ? "mixed"
         : hasFirstParty
           ? "partial"
-          : hasGa4 || hasHistoricalSnapshot || hasLegacy
+          : hasGa4 || hasFallback
             ? "fallback"
             : "unknown";
     return {
@@ -451,7 +452,9 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       confidence,
       reason: recovered
         ? hasFirstParty
-          ? "First-party event-fact/day-bucket evidence is present for this day; GA4 remains comparison evidence only."
+          ? hasFallback
+            ? "First-party event-fact/day-bucket evidence is present with fallback evidence; keep GA4/fallback corroborating until dedupe review is complete."
+            : "First-party event-fact/day-bucket evidence is present for this day; GA4 remains comparison evidence only."
           : hasHistoricalSnapshot
             ? "Historical snapshot evidence is present without a first-party event-fact bucket; it can explain gaps but cannot replace product truth."
             : "Only external or legacy evidence is present for this day; it cannot overwrite first-party product truth."
