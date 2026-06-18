@@ -93,7 +93,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
   const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
   const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
-  const firstSnapshotLabel = "Waiting for first snapshot";
+  const firstSnapshotLabel = "Collecting activity";
   const noSnapshotLabel = "No verified snapshot yet";
   const noEventSampleLabel = "No event sample";
   const noAuthSampleLabel = "No auth sample";

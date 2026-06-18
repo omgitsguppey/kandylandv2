@@ -81,7 +81,7 @@ export function resolveAdminAnalyticsWaitingCopy(input: {
 
   if (input.loading) {
     return {
-      label: "Waiting for first snapshot",
+      label: "Collecting activity",
       reason: "first_snapshot_pending",
       allowed: true,
     };

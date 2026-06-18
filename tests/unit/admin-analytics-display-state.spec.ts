@@ -172,7 +172,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
       hasVerifiedValue: false,
       loading: true,
     })).toMatchObject({
-      label: "Waiting for first snapshot",
+      label: "Collecting activity",
       reason: "first_snapshot_pending",
       allowed: true,
     });
