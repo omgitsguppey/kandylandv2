@@ -118,6 +118,18 @@ export const API_COST_CONTRACTS: ApiCostContract[] = [
     notes: "Admin support inbox reads/replies across nested support messages and must preserve admin auth and user privacy.",
   },
   {
+    routePattern: "/api/admin-ui-test-session",
+    methods: ["GET"],
+    costClass: "free_read",
+    ratePolicy: "none; disabled unless local admin UI fixture flag is enabled",
+    cachePolicy: "no_store",
+    authRequired: "none",
+    trustedOriginRequired: false,
+    budgetGuardRequired: false,
+    maxExpectedCallsPerUserPerMinute: 6,
+    notes: "Local admin UI test bootstrap only. It sets an ephemeral fixture cookie when explicitly enabled and must not touch Firestore, providers, billing, or production admin truth.",
+  },
+  {
     routePattern: "/api/admin/content",
     methods: [...ALL_API_METHODS],
     costClass: "storage_egress",

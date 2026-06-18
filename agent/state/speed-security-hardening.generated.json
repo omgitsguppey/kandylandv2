@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-11T22:43:45.587Z",
+  "generatedAt": "2026-06-18T14:56:59.374Z",
   "overallScore": 52,
   "overallStatus": "beta-risk",
   "domainScores": {
@@ -58,7 +58,7 @@
       "force_cache": 0,
       "swr": 3,
       "hot_cache": 4,
-      "no_store": 98,
+      "no_store": 99,
       "must_not_cache": 23,
       "unknown": 0
     },
@@ -891,6 +891,20 @@
         "surface": "admin",
         "userSpecific": true,
         "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
+      },
+      {
+        "routePath": "/api/admin-ui-test-session",
+        "filePath": "src/app/api/admin-ui-test-session/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "contractPattern": "/api/admin-ui-test-session",
+        "cacheMode": "no_store",
+        "surface": "admin",
+        "userSpecific": false,
+        "sensitive": false,
         "sourceNoStoreEvidence": false,
         "sourceForceDynamicEvidence": false
       },
@@ -1945,7 +1959,7 @@
   },
   "routeSecurityClassification": {
     "totals": {
-      "routes": 130,
+      "routes": 131,
       "mutations": 93,
       "trustedOriginRequired": 93,
       "trustedOriginPresent": 106,
@@ -3620,6 +3634,33 @@
           "unauthorized",
           "forbidden",
           "invalid_admin_request"
+        ]
+      },
+      {
+        "routePath": "/api/admin-ui-test-session",
+        "filePath": "src/app/api/admin-ui-test-session/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "contractPattern": "/api/admin-ui-test-session",
+        "authRequired": "none",
+        "rateLimitPolicy": "none",
+        "costRisk": "low",
+        "csrfRisk": "low",
+        "mutation": false,
+        "sensitiveWrites": false,
+        "trustedOriginRequired": false,
+        "trustedOriginPresent": false,
+        "trustedOriginChecked": true,
+        "guardPresent": false,
+        "rateLimitPresent": false,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": false,
+        "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "disabled",
+          "invalid_redirect"
         ]
       },
       {
@@ -8562,5 +8603,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 83 findings across 130 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 83 findings across 131 API routes."
 }

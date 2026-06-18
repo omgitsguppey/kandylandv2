@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-11T22:35:06.191Z",
+  "generatedAt": "2026-06-18T14:56:59.762Z",
   "overallScore": 93,
   "status": "beta-risk",
   "domainScores": {
@@ -81,7 +81,7 @@
       "domain": "apiRateLimitAndCloudCost",
       "severity": "major",
       "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 313,
+      "line": 315,
       "title": "Firestore collection reads may be unbounded",
       "evidence": [
         "Found 1 .get() call(s) without nearby limit/pagination evidence."
@@ -92,7 +92,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
       "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_m7atyk",
+      "id": "hardening_3axnse",
       "blockedBroadCommands": [
         "npm run check",
         "npm run check:ui:audits",
@@ -280,7 +280,7 @@
       "domain": "apiRateLimitAndCloudCost",
       "severity": "major",
       "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 313,
+      "line": 315,
       "title": "Firestore collection reads may be unbounded",
       "evidence": [
         "Found 1 .get() call(s) without nearby limit/pagination evidence."
@@ -291,7 +291,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
       "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_m7atyk",
+      "id": "hardening_3axnse",
       "blockedBroadCommands": [
         "npm run check",
         "npm run check:ui:audits",
@@ -558,7 +558,7 @@
     "static": 1,
     "swr": 4,
     "hot_cache": 4,
-    "no_store": 121,
+    "no_store": 122,
     "unknown": 0,
     "routes": [
       {
@@ -1106,6 +1106,15 @@
         ],
         "cachePolicy": "no_store",
         "costClass": "firestore_read"
+      },
+      {
+        "routePath": "/api/admin-ui-test-session",
+        "filePath": "src/app/api/admin-ui-test-session/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "free_read"
       },
       {
         "routePath": "/api/analytics/identity-link",

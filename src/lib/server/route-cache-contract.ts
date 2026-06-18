@@ -184,6 +184,15 @@ export const ROUTE_CACHE_CONTRACTS: RouteCacheContract[] = [
     sensitive: true,
   },
   {
+    routePattern: "/api/admin-ui-test-session",
+    surface: "admin",
+    cacheMode: "no_store",
+    reason: "Local admin UI test bootstrap sets only an ephemeral fixture cookie when explicitly enabled and never reads paid-service data.",
+    dataSources: ["none"],
+    userSpecific: false,
+    sensitive: false,
+  },
+  {
     routePattern: "/api/analytics/**",
     surface: "analytics",
     cacheMode: "must_not_cache",
