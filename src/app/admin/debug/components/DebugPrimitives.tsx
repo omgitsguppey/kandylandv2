@@ -44,6 +44,21 @@ export function badgeForSourceStatus(status?: string) {
     return "UNKNOWN";
 }
 
+function formatDebugPillBadgeLabel(label?: string) {
+    if (!label) return undefined;
+    const normalized = label.trim();
+    const sentenceCaseOverrides: Record<string, string> = {
+        ACTIONABLE: "Action needed",
+        CONFIG: "Configured",
+        "NO SAMPLE": "No sample",
+        "PROVEN ZERO": "Proven zero",
+        "STALE SAMPLE": "Stale sample",
+    };
+    if (sentenceCaseOverrides[normalized]) return sentenceCaseOverrides[normalized];
+    if (!/^[A-Z0-9 _-]+$/u.test(normalized)) return normalized;
+    return normalized.replaceAll("_", " ").replaceAll("-", " ").toLowerCase().replace(/^\w/u, (letter) => letter.toUpperCase());
+}
+
 /* ─── Pill ─── */
 export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }: { label: string; value: string | number; tone?: PillTone; truthState?: AdminTruthState | AdminSurfaceState | "loading"; badgeLabel?: string }) {
     const toneClassName = tone === "good"
@@ -64,8 +79,8 @@ export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }:
         <div className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs", toneClassName)}>
             <AdminTruthBadge
                 state={resolvedTruth.truthState}
-                label={badgeLabel}
-                className="py-0 text-[8px]"
+                label={formatDebugPillBadgeLabel(badgeLabel)}
+                className="py-0 text-[8px] normal-case tracking-normal"
                 pendingInitialLoad={resolvedTruth.pendingInitialLoad}
                 hasUsableValue={resolvedTruth.hasUsableValue}
             />

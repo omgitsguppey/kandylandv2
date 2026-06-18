@@ -70,4 +70,15 @@ describe("admin debug compact layout", () => {
         expect(monitoring).not.toContain('value={(data?.recentTaskEvents || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED"');
         expect(monitoring).not.toContain('value={data?.stats?.receiptsLast7d ?? 0} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED"');
     });
+
+    it("normalizes debug pill badge labels to compact plain language", () => {
+        const primitives = readFileSync(join(process.cwd(), "src/app/admin/debug/components/DebugPrimitives.tsx"), "utf8");
+
+        expect(primitives).toContain("function formatDebugPillBadgeLabel");
+        expect(primitives).toContain('replaceAll("_", " ").replaceAll("-", " ").toLowerCase()');
+        expect(primitives).toContain('"NO SAMPLE": "No sample"');
+        expect(primitives).toContain('"PROVEN ZERO": "Proven zero"');
+        expect(primitives).toContain('className="py-0 text-[8px] normal-case tracking-normal"');
+        expect(primitives).toContain("label={formatDebugPillBadgeLabel(badgeLabel)}");
+    });
 });
