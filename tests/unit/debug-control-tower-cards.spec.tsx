@@ -50,6 +50,19 @@ describe("resolveReportDisplay", () => {
     expect(display.badgeLabel).toBe("Review");
   });
 
+  it("shows counted public beta evidence gates instead of zero findings", () => {
+    const display = resolveReportDisplay(report({
+      id: "public-beta-score",
+      status: "error",
+      truthState: "failed",
+      evidenceGateCount: 4,
+    }));
+
+    expect(display.statusLabel).toBe("External proof required");
+    expect(display.findingLabel).toBe("4 evidence gates");
+    expect(display.badgeLabel).toBe("Review");
+  });
+
   it("shows zero-finding delayed reports as waiting evidence instead of delayed errors", () => {
     const display = resolveReportDisplay(report({
       id: "self-healing-refresh-queue",

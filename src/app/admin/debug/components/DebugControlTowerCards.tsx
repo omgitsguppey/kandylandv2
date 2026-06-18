@@ -42,14 +42,23 @@ function isRefreshOnlyFinding(finding: AdminDebugFindingCard) {
     return /source commit|current repo head|older than 72 hours|freshness|generated report|report metadata/u.test(`${finding.title} ${finding.humanReadableWarning} ${finding.evidence.join(" ")}`.toLowerCase());
 }
 
+function isEvidenceGateFinding(finding: AdminDebugFindingCard) {
+    return /source-only behavior evidence|runtime and provider proof required|admin truth sample required|report refresh required|evidence gate/u.test(finding.title.toLowerCase());
+}
+
 export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
-    const sourceFindingCount = report.findingCount > 0 ? report.findingCount : report.topFindings.filter((finding) => !isRefreshOnlyFinding(finding)).length;
+    const evidenceGateCount = report.evidenceGateCount ?? 0;
+    const sourceFindingCount = report.findingCount > 0
+        ? report.findingCount
+        : report.topFindings.filter((finding) => !isRefreshOnlyFinding(finding) && !isEvidenceGateFinding(finding)).length;
     const hasFindings = sourceFindingCount > 0 || report.criticalCount > 0;
     const normalizedStatus = report.status.toLowerCase();
     const zeroFindingEvidencePending = !hasFindings && ["delayed", "queued", "waiting"].includes(normalizedStatus);
     const zeroFindingEvidenceGate = !hasFindings && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(normalizedStatus);
     const findingLabel = hasFindings
         ? `${sourceFindingCount} source finding${sourceFindingCount === 1 ? "" : "s"}`
+        : evidenceGateCount > 0
+            ? `${evidenceGateCount} evidence gate${evidenceGateCount === 1 ? "" : "s"}`
         : zeroFindingEvidencePending
             ? "Evidence pending"
             : zeroFindingEvidenceGate
@@ -74,7 +83,7 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
         return { badgeState: "failed", statusLabel: "Source failed", findingLabel: hasFindings ? findingLabel : "Source failed", sourceDetail: "Generated state could not be parsed and cannot clear this lane." };
     }
     if (proofBoundaryOnly) {
-        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "External proof required", findingLabel: "Proof gate", sourceDetail: "Source validators are not enough for provider, runtime, or admin truth proof." };
+        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "External proof required", findingLabel: evidenceGateCount > 0 ? findingLabel : "Proof gate", sourceDetail: "Source validators are not enough for provider, runtime, or admin truth proof." };
     }
     if (sourceNeedsRefresh) {
         return { badgeState: "stale", badgeLabel: "Refresh due", statusLabel: "Refresh due", findingLabel, sourceDetail: "Generated state is older than its freshness window or current-head metadata." };

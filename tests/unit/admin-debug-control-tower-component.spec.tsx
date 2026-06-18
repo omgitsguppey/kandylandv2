@@ -328,6 +328,7 @@ describe("DebugControlTower", () => {
             status: "ERROR",
             truthState: "failed",
             findingCount: 0,
+            evidenceGateCount: 4,
             criticalCount: 0,
             majorCount: 0,
             topFindings: [],
@@ -359,7 +360,7 @@ describe("DebugControlTower", () => {
             const publicBetaText = publicBetaCards.map((entry) => entry.textContent ?? "").join(" ");
 
             expect(publicBetaText).toContain("External proof required");
-            expect(publicBetaText).toContain("Proof gate");
+            expect(publicBetaText).toContain("4 evidence gates");
             expect(container.textContent).toContain("Source-only evidence - Implemented behavior checks passed");
             expect(container.textContent).toContain("External proof required - Operator-confirmed payment is product context only");
             expect(container.textContent).toContain("Admin sample required");

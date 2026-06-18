@@ -99,6 +99,40 @@ describe("admin debug control tower model", () => {
         expect(model.overallScore).toBe(25);
     });
 
+    it("turns public beta cap details into evidence gates instead of zero-finding errors", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAt: "2026-05-04T00:00:00.000Z",
+            overallScore: 77.4,
+            overallStatus: "ERROR",
+            readinessStatus: "External proof required",
+            readinessStatusReason: "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed.",
+            evidenceCapDetails: [
+                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
+                "Stale evidence: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing.",
+                "Stale evidence: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+                "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
+            ],
+            sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            currentHead: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
+        const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
+
+        expect(publicBeta?.findingCount).toBe(0);
+        expect(publicBeta?.evidenceGateCount).toBe(4);
+        expect(publicBeta?.topFindings.map((finding) => finding.title)).toEqual(expect.arrayContaining([
+            "Source-only behavior evidence",
+            "Runtime and provider proof required",
+            "Admin truth sample required",
+            "Report refresh required",
+        ]));
+        expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Unknown evidence:");
+        expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Stale evidence:");
+    });
+
     it("marks generated report source commit drift as stale instead of live", () => {
         const root = createTempRoot();
         writeReport(root, "public-beta-score.generated.json", {

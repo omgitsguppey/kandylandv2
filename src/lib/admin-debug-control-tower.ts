@@ -42,6 +42,7 @@ export type AdminDebugReportCard = {
     updatedAtMs: number | null;
     ageHours: number | null;
     findingCount: number;
+    evidenceGateCount?: number;
     criticalCount: number;
     majorCount: number;
     required: boolean;
@@ -533,6 +534,117 @@ function normalizeFinding(
     };
 }
 
+function stripEvidenceGatePrefix(detail: string) {
+    return detail
+        .replace(/^(unknown evidence|stale evidence|runtime unverified|external proof required|needs review):\s*/iu, "")
+        .trim();
+}
+
+function normalizePublicBetaEvidenceGateFinding(
+    definition: ReportDefinition,
+    relativePath: string,
+    detail: string,
+    index: number,
+): AdminDebugFindingCard {
+    const normalized = stripEvidenceGatePrefix(detail);
+    const lower = normalized.toLowerCase();
+
+    if (lower.includes("targeted behavior tests")) {
+        return {
+            id: `public-beta-source-only-${index}`,
+            reportId: definition.id,
+            section: definition.section,
+            severity: "moderate",
+            title: "Source-only behavior evidence",
+            domain: "beta_readiness",
+            filePath: relativePath,
+            humanReadableWarning: "Implemented behavior checks passed, but runtime, provider, screenshot, and admin truth proof still need formal evidence.",
+            suggestedValidator: definition.command,
+            evidence: [detail.slice(0, 220)],
+            truthState: "unknown",
+        };
+    }
+
+    if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke")) {
+        const operatorContext = /operator-confirmed|operator confirmed|paypal/iu.test(normalized)
+            ? " Operator-confirmed payment is product context only and does not clear formal provider proof."
+            : "";
+        return {
+            id: `public-beta-runtime-provider-proof-${index}`,
+            reportId: definition.id,
+            section: definition.section,
+            severity: "major",
+            title: "Runtime and provider proof required",
+            domain: "beta_readiness",
+            filePath: relativePath,
+            humanReadableWarning: `Attach formal provider smoke and refresh deployed runtime smoke evidence.${operatorContext}`,
+            suggestedValidator: definition.command,
+            evidence: [detail.slice(0, 220)],
+            truthState: "unknown",
+        };
+    }
+
+    if (lower.includes("admin truth") || lower.includes("truth sample") || lower.includes("sample evidence")) {
+        return {
+            id: `public-beta-admin-truth-sample-${index}`,
+            reportId: definition.id,
+            section: definition.section,
+            severity: "major",
+            title: "Admin truth sample required",
+            domain: "beta_readiness",
+            filePath: relativePath,
+            humanReadableWarning: "Attach a fresh redacted production admin truth sample before clearing this formal evidence gate.",
+            suggestedValidator: definition.command,
+            evidence: [detail.slice(0, 220)],
+            truthState: "unknown",
+        };
+    }
+
+    if (lower.includes("report freshness") || lower.includes("pr integrity") || lower.includes("freshness window") || lower.includes("current-head") || lower.includes("current head")) {
+        const count = normalized.match(/\b\d+\b/u)?.[0];
+        return {
+            id: `public-beta-report-refresh-${index}`,
+            reportId: definition.id,
+            section: definition.section,
+            severity: "major",
+            title: "Report refresh required",
+            domain: "beta_readiness",
+            filePath: relativePath,
+            humanReadableWarning: count
+                ? `${count} required generated reports are outside the freshness window.`
+                : "Required generated reports are outside the freshness window.",
+            suggestedValidator: definition.command,
+            evidence: [detail.slice(0, 220)],
+            truthState: "stale",
+        };
+    }
+
+    return {
+        id: `public-beta-evidence-gate-${index}`,
+        reportId: definition.id,
+        section: definition.section,
+        severity: "moderate",
+        title: "Evidence gate needs review",
+        domain: "beta_readiness",
+        filePath: relativePath,
+        humanReadableWarning: normalized || "Public beta evidence gate needs review.",
+        suggestedValidator: definition.command,
+        evidence: [detail.slice(0, 220)],
+        truthState: "unknown",
+    };
+}
+
+function publicBetaEvidenceGateFindings(
+    definition: ReportDefinition,
+    relativePath: string,
+    raw: Record<string, unknown>,
+) {
+    if (definition.id !== "public-beta-score") return [];
+    return toStringArray(raw.evidenceCapDetails)
+        .slice(0, 5)
+        .map((detail, index) => normalizePublicBetaEvidenceGateFinding(definition, relativePath, detail, index));
+}
+
 function readGeneratedReport(rootDir: string | null | undefined, definition: ReportDefinition, nowMs: number, repoCurrentHead: string | null): AdminDebugReportCard {
     const relativePath = path.join("agent", "state", definition.fileName).replaceAll("\\", "/");
     const fullPath = resolveAgentStatePath(rootDir, definition.fileName);
@@ -552,6 +664,7 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
             updatedAtMs: null,
             ageHours: null,
             findingCount: 0,
+            evidenceGateCount: 0,
             criticalCount: definition.required ? 1 : 0,
             majorCount: 0,
             required: definition.required === true,
@@ -598,6 +711,7 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
         const normalizedFindings = allFindings
             .map((finding, index) => normalizeFinding(definition.id, definition.section, definition.command, index, finding))
             .sort((left, right) => SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity]);
+        const evidenceGateFindings = publicBetaEvidenceGateFindings(definition, relativePath, raw);
         const criticalCount = Math.max(
             Number(raw.criticalCount) || 0,
             normalizedFindings.filter((finding) => finding.severity === "critical").length,
@@ -641,13 +755,17 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
             updatedAtMs,
             ageHours: Number(ageHours.toFixed(1)),
             findingCount: Math.max(Number(raw.findingCount) || 0, Number(raw.dedupedFindingCount) || 0, normalizedFindings.length),
+            evidenceGateCount: evidenceGateFindings.length,
             criticalCount,
-            majorCount: majorCount + staleFinding.length + sourceDriftFinding.length,
+            majorCount: majorCount
+                + staleFinding.length
+                + sourceDriftFinding.length
+                + evidenceGateFindings.filter((finding) => finding.severity === "major").length,
             required: definition.required === true,
             sourceCommit: commitState.sourceCommit,
             currentHead: commitState.currentHead,
             sourceDrift: commitState.sourceDrift,
-            topFindings: [...staleFinding, ...sourceDriftFinding, ...normalizedFindings].slice(0, 5),
+            topFindings: [...staleFinding, ...sourceDriftFinding, ...evidenceGateFindings, ...normalizedFindings].slice(0, 5),
         };
     } catch (error) {
         return {
@@ -664,6 +782,7 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
             updatedAtMs: null,
             ageHours: null,
             findingCount: 1,
+            evidenceGateCount: 0,
             criticalCount: definition.required ? 1 : 0,
             majorCount: definition.required ? 0 : 1,
             required: definition.required === true,
