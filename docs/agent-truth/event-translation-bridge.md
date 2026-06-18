@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-18T14:11:21.745Z
+Generated: 2026-06-18T14:26:45.652Z
 Status: pass
-Current head: 4378b15dd43fd41430deb989ec9a9854b9b6f71f
+Current head: 91d221100df3a9af4694d55f48cae0e89763fe72
 
 ## Contract
 
