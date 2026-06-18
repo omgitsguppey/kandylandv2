@@ -225,6 +225,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "agent/state/admin-surface-modal-replacement.generated.json") return "admin_surface_modal_replacement_artifact_expected";
   if (normalized === "docs/agent-truth/admin-surface-modal-replacement.md") return "admin_surface_modal_replacement_artifact_expected";
+  if (normalized === "src/components/Admin/CreateDropModal.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/components/Admin/AiDropCoverGeneratorPanel.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/lib/telemetry-catalog.ts") return "admin_surface_modal_replacement_source_expected";

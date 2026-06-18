@@ -283,6 +283,9 @@ function buildDropSaveErrorMessage(result: DropSaveApiResult, fallback: string) 
 export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess, mode = "admin", presentation, creatorIdOverride = null, onSubmitFailure }: CreateDropModalProps) {
     const isEditMode = !!dropId;
     const resolvedPresentation = presentation ?? (mode === "admin" ? "inline" : "modal");
+    const isInlineAdminPanel = mode === "admin" && resolvedPresentation === "inline";
+    const diagnosticSurface = isInlineAdminPanel ? "admin_drop_action_panel" : "create_drop_modal";
+    const diagnosticConsolePrefix = isInlineAdminPanel ? "[Admin Drop Action Panel]" : "[Create Drop Modal]";
     const [fetching, setFetching] = useState(isEditMode);
     const [contentAssets, setContentAssets] = useState<UploadedAsset[]>([]);
     const [coverAssets, setCoverAssets] = useState<UploadedAsset[]>([]);
@@ -424,10 +427,10 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     message: "Admin drop creator options fetch failed",
                     error,
                     detail: {
-                        adminView: "create_drop_modal",
+                        adminView: diagnosticSurface,
                         mode,
                     },
-                    consoleLabel: "[Create Drop Modal] load creator options failed",
+                    consoleLabel: `${diagnosticConsolePrefix} load creator options failed`,
                 });
             }
         }
@@ -436,7 +439,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         return () => {
             cancelled = true;
         };
-    }, [isOpen, mode, setValue]);
+    }, [diagnosticConsolePrefix, diagnosticSurface, isOpen, mode, setValue]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -495,12 +498,12 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     message: "Drop editor fetch failed",
                     error: err,
                     detail: {
-                        adminView: "create_drop_modal",
+                        adminView: diagnosticSurface,
                         mode,
                         dropId: dropId || duplicateFromId,
                         isDuplicate: Boolean(duplicateFromId),
                     },
-                    consoleLabel: "[Create Drop Modal] fetch drop failed",
+                    consoleLabel: `${diagnosticConsolePrefix} fetch drop failed`,
                 });
             } finally {
                 setFetching(false);
@@ -508,7 +511,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         }
 
         fetchDrop();
-    }, [creatorIdOverride, duplicateFromId, dropId, isOpen, mode, onClose, reset]);
+    }, [creatorIdOverride, diagnosticConsolePrefix, diagnosticSurface, duplicateFromId, dropId, isOpen, mode, onClose, reset]);
 
     useEffect(() => {
         if (dropType === "content" && openSection === "actions") {
@@ -619,11 +622,11 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     message: "Drop duplicate filename check failed",
                     error,
                     detail: {
-                        adminView: "create_drop_modal",
+                        adminView: diagnosticSurface,
                         mode,
                         dropId: dropId || undefined,
                     },
-                    consoleLabel: "[Create Drop Modal] duplicate filename check failed",
+                    consoleLabel: `${diagnosticConsolePrefix} duplicate filename check failed`,
                 });
             } finally {
                 setCheckingDuplicateNames(false);
@@ -633,7 +636,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         return () => {
             window.clearTimeout(timeoutId);
         };
-    }, [contentAssets, coverFileName, dropId, isOpen, mode]);
+    }, [contentAssets, coverFileName, diagnosticConsolePrefix, diagnosticSurface, dropId, isOpen, mode]);
 
     const toggleTag = useCallback((tag: string) => {
         const newTags = currentTags.includes(tag)
@@ -663,7 +666,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             if (hasActiveUploads) {
                 trackEvent("asset_batch_submit_blocked_uploads_in_progress", {
                     folder: "drops",
-                    source_component: "create_drop_modal",
+                    source_component: diagnosticSurface,
                     mode,
                 });
                 const message = "Uploads are still finishing. Wait for all files to upload before saving this drop.";
@@ -758,11 +761,11 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                         message: "AI drop cover history link failed after drop save",
                         error: linkError,
                         detail: {
-                            adminView: "create_drop_modal",
+                            adminView: diagnosticSurface,
                             selectedAiCoverJobId,
                             persistedDropId,
                         },
-                        consoleLabel: "[Create Drop Modal] AI cover link failed",
+                        consoleLabel: `${diagnosticConsolePrefix} AI cover link failed`,
                     });
                 }
             }
@@ -788,11 +791,11 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                         message: "AI drop description history link failed after drop save",
                         error: linkError,
                         detail: {
-                            adminView: "create_drop_modal",
+                            adminView: diagnosticSurface,
                             selectedAiDescriptionJobId,
                             persistedDropId,
                         },
-                        consoleLabel: "[Create Drop Modal] AI description link failed",
+                        consoleLabel: `${diagnosticConsolePrefix} AI description link failed`,
                     });
                 }
             }
@@ -808,13 +811,13 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 message: "Drop save failed",
                 error,
                 detail: {
-                    adminView: "create_drop_modal",
+                    adminView: diagnosticSurface,
                     mode,
                     dropId: dropId || undefined,
                     isEditMode,
                     dropType: data.type,
                 },
-                consoleLabel: "[Create Drop Modal] save drop failed",
+                consoleLabel: `${diagnosticConsolePrefix} save drop failed`,
             });
             trackCreatorSubmitFailure(message);
             toast.error(message);

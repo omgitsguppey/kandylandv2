@@ -128,7 +128,7 @@ export function AiDropDescriptionGeneratorPanel({
                 message: "AI drop description status fetch failed",
                 error,
                 detail: {
-                    adminView: "create_drop_modal",
+                    adminView: "admin_drop_action_panel",
                     dropId: dropId || undefined,
                     draftSessionId: draftSessionId || undefined,
                 },
@@ -186,7 +186,7 @@ export function AiDropDescriptionGeneratorPanel({
                 message: "AI drop description generation failed",
                 error,
                 detail: {
-                    adminView: "create_drop_modal",
+                    adminView: "admin_drop_action_panel",
                     title: title.trim(),
                     dropId: dropId || undefined,
                     draftSessionId: draftSessionId || undefined,
@@ -235,7 +235,7 @@ export function AiDropDescriptionGeneratorPanel({
                 message: "AI drop description feedback failed",
                 error,
                 detail: {
-                    adminView: "create_drop_modal",
+                    adminView: "admin_drop_action_panel",
                     action,
                     jobId,
                 },
@@ -251,7 +251,7 @@ export function AiDropDescriptionGeneratorPanel({
         const nowMs = Date.now();
         setClearedBeforeMs(nowMs);
         trackEvent("admin_ai_description_history_cleared", {
-            source: "create_drop_modal",
+            source: "admin_drop_action_panel",
             drop_id: dropId || "",
             draft_session_id: draftSessionId || "",
         });

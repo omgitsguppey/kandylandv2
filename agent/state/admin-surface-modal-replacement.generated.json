@@ -1,9 +1,9 @@
 {
   "reportKey": "admin-surface-modal-replacement",
   "status": "source_review_pass",
-  "generatedAtUtc": "2026-06-18T10:54:17.299Z",
-  "sourceCommit": "8ff529ee74d16ded23eec82357ebeb00e866c4d0",
-  "currentHead": "8ff529ee74d16ded23eec82357ebeb00e866c4d0",
+  "generatedAtUtc": "2026-06-18T11:06:36.002Z",
+  "sourceCommit": "dbb8b712b77473f9f9f50561ba7e8cc8e88c9a4d",
+  "currentHead": "dbb8b712b77473f9f9f50561ba7e8cc8e88c9a4d",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "sourceFileDiscovery": "git",
@@ -31,7 +31,7 @@
   "owner": "admin surface modal replacement source review",
   "safetyClass": "source_safe",
   "costClass": "local_free",
-  "rollback": "Revert the Admin drop inline chrome/admin AI modal-language patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
+  "rollback": "Revert the Admin drop inline diagnostic source-context patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
   "cleanupPolicy": "preserve_tracked_snapshot",
   "cleanupCommand": null,
   "sourceTruthRole": "generated_snapshot",
@@ -56,7 +56,7 @@
     "adminModalCandidatesInventoried": 5,
     "modalShellsRemoved": 0,
     "inlineModalChromeRemoved": 1,
-    "staleModalLanguageRemoved": 3,
+    "staleModalLanguageRemoved": 13,
     "inlinePanelsConfirmed": 3,
     "legacyModalNamesDeferred": 1,
     "adminAnalyticsLabelContractsNormalized": true,
@@ -106,7 +106,14 @@
       "candidates": ["AI cover history clear", "AI description history clear", "telemetry catalog labels"],
       "sourceOwner": "src/components/Admin/AiDropCoverGeneratorPanel.tsx, src/components/Admin/AiDropDescriptionGeneratorPanel.tsx, and src/lib/telemetry-catalog.ts",
       "decision": "remove_stale_modal_language",
-      "reason": "History-clear actions remain connected to the same telemetry events, but admin-facing success copy and catalog labels no longer describe inline draft helpers as modal-only actions."
+      "reason": "History-clear actions remain connected to the same telemetry events, but admin-facing success copy, catalog labels, debug issue detail, and source_context metadata now identify the inline admin drop action panel instead of a modal-only surface."
+    },
+    {
+      "surface": "Admin Drops / AI Draft Helpers",
+      "candidates": ["adminView diagnostic metadata", "history-clear telemetry source fields", "drop form console labels"],
+      "sourceOwner": "src/components/Admin/CreateDropModal.tsx plus the existing AI cover/description subpanels",
+      "decision": "normalize_inline_admin_source_context",
+      "reason": "The shared drop form still keeps creator modal behavior, but admin inline presentation now reports admin_drop_action_panel for diagnostics and history-clear telemetry so Admin Debug does not inherit stale modal source labels."
     }
   ],
   "retainedStates": [

@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T10:56:29.597Z",
-  "currentHead": "8ff529ee74d16ded23eec82357ebeb00e866c4d0",
+  "generatedAtUtc": "2026-06-18T11:13:26.828Z",
+  "currentHead": "dbb8b712b77473f9f9f50561ba7e8cc8e88c9a4d",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,11 +416,14 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 13,
+    "total": 20,
     "byClassification": {
+      "release_artifact_expected": 4,
+      "current_generated_artifact_to_commit": 2,
       "admin_surface_modal_replacement_artifact_expected": 2,
       "analytics_panel_hydration_artifact_expected": 3,
       "launch_analytics_recovery_artifact_expected": 2,
+      "stale_generated_artifact_to_regenerate": 1,
       "source_agreement_failure_artifact_expected": 1,
       "documentation_artifact_expected": 1,
       "validator_artifact_expected": 1,
@@ -428,6 +431,14 @@
     },
     "unsafeUnknown": [],
     "sample": [
+      {
+        "path": "CHANGELOG.md",
+        "classification": "release_artifact_expected"
+      },
+      {
+        "path": "agent/context/optimized-task-context.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
       {
         "path": "agent/state/admin-surface-modal-replacement.generated.json",
         "classification": "admin_surface_modal_replacement_artifact_expected"
@@ -437,28 +448,20 @@
         "classification": "analytics_panel_hydration_artifact_expected"
       },
       {
+        "path": "agent/state/current-beta-exit-status.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
         "path": "agent/state/launch-analytics-recovery.generated.json",
         "classification": "launch_analytics_recovery_artifact_expected"
       },
       {
+        "path": "agent/state/public-beta-score.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/admin-surface-modal-replacement.md",
-        "classification": "admin_surface_modal_replacement_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/analytics-panel-hydration.md",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/launch-analytics-recovery.md",
-        "classification": "launch_analytics_recovery_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/source-agreement-failure-detail.md",
-        "classification": "documentation_artifact_expected"
       }
     ],
     "sampleTruncated": true

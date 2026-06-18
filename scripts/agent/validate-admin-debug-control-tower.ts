@@ -2593,6 +2593,7 @@ try {
     /^src\/lib\/server\/creator-onboarding\.ts$/u,
     /^src\/lib\/server\/creator-onboarding-diagnostics\.ts$/u,
     /^src\/lib\/server\/creator-review-queue\.ts$/u,
+    /^src\/components\/Admin\/CreateDropModal\.tsx$/u,
     /^src\/app\/api\/admin\/moderation\/threads\/route\.ts$/u,
     /^src\/app\/api\/admin\/moderation\/threads\/\[threadId\]\/route\.ts$/u,
     /^src\/app\/api\/admin\/moderation\/security-alerts\/route\.ts$/u,

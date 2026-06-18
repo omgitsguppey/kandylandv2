@@ -201,7 +201,7 @@ export function AiDropCoverGeneratorPanel({
                 message: "AI drop cover status fetch failed",
                 error,
                 detail: {
-                    adminView: "create_drop_modal",
+                    adminView: "admin_drop_action_panel",
                     dropId: dropId || undefined,
                     draftSessionId: draftSessionId || undefined,
                 },
@@ -305,7 +305,7 @@ export function AiDropCoverGeneratorPanel({
                 message: "AI drop cover generation failed",
                 error,
                 detail: {
-                    adminView: "create_drop_modal",
+                    adminView: "admin_drop_action_panel",
                     title: title.trim(),
                     requestedModel: selectedModel,
                     previousJobId: previousJobId || undefined,
@@ -370,7 +370,7 @@ export function AiDropCoverGeneratorPanel({
                 message: "AI drop cover feedback failed",
                 error,
                 detail: {
-                    adminView: "create_drop_modal",
+                    adminView: "admin_drop_action_panel",
                     action,
                     jobId,
                 },
@@ -386,7 +386,7 @@ export function AiDropCoverGeneratorPanel({
         const nowMs = Date.now();
         setClearedBeforeMs(nowMs);
         trackEvent("admin_ai_cover_history_cleared", {
-            source: "create_drop_modal",
+            source: "admin_drop_action_panel",
             drop_id: dropId || "",
             draft_session_id: draftSessionId || "",
         });
