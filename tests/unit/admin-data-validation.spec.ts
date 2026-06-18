@@ -348,6 +348,12 @@ describe("buildHistoricalValidationSummary", () => {
     ]);
     expect(coverage?.days[1]?.reason).toContain("external evidence only");
     expect(summary.analyticsSourceHealth.sourceAgreement.state).toBe("failed");
+    expect(summary.analyticsSourceHealth.sourceAgreement.classifications).toEqual(expect.arrayContaining([
+      "date_range_mismatch",
+      "external_source_gap",
+      "missing_materializer",
+      "duplicate_event",
+    ]));
   });
 
   it("names partial or empty module coverage gaps with missing sources and validators", () => {

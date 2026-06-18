@@ -51,6 +51,17 @@ export interface HistoricalValidationSummary {
 
 type DataValidationStatus = "pass" | "warn" | "fail" | "unavailable" | "stale" | "unknown";
 type DataValidationCacheState = "hit" | "miss" | "stale" | "unknown" | "not_loaded";
+type AnalyticsSourceAgreementClassification =
+  | "identity_mismatch"
+  | "event_translation_mismatch"
+  | "date_range_mismatch"
+  | "internal_traffic_mismatch"
+  | "route_normalization_mismatch"
+  | "duplicate_event"
+  | "missing_materializer"
+  | "external_source_gap"
+  | "stale_generated_evidence"
+  | "not_enough_sources";
 
 export interface SourceCheck {
   status: "pass" | "review" | "fail" | "unknown";
@@ -124,6 +135,7 @@ export interface AnalyticsSourceHealth {
     disagreementCount: number;
     maxDeltaPct: number | null;
     state: "pass" | "review" | "failed" | "not_enough_sources";
+    classifications: AnalyticsSourceAgreementClassification[];
     reason: string;
     nextAction: string;
   };
@@ -219,6 +231,48 @@ function buildLaunchHistoryDayCoverage(input: {
       nextAction,
     };
   });
+}
+
+function classifySourceAgreementDisagreements(input: {
+  expectedDays: string[];
+  gaPresentDays: Set<string>;
+  snapshotPresentDays: Set<string>;
+  legacyPresentDays: Set<string>;
+  activeSourceCount: number;
+  disagreementCount: number;
+  maxDeltaPct: number | null;
+}): NonNullable<AnalyticsSourceHealth["sourceAgreement"]["classifications"]> {
+  const classifications = new Set<NonNullable<AnalyticsSourceHealth["sourceAgreement"]["classifications"]>[number]>();
+
+  if (input.activeSourceCount < 2) {
+    classifications.add("not_enough_sources");
+    return [...classifications];
+  }
+
+  if (input.disagreementCount > 0 || (input.maxDeltaPct ?? 0) > 10) {
+    classifications.add("date_range_mismatch");
+  }
+
+  for (const dayKey of input.expectedDays) {
+    const hasGa4 = input.gaPresentDays.has(dayKey);
+    const hasFirstParty = input.snapshotPresentDays.has(dayKey);
+    const hasLegacy = input.legacyPresentDays.has(dayKey);
+
+    if (hasGa4 && !hasFirstParty) {
+      classifications.add("external_source_gap");
+      classifications.add("missing_materializer");
+    }
+
+    if (hasLegacy && !hasFirstParty) {
+      classifications.add("missing_materializer");
+    }
+
+    if (Number(hasGa4) + Number(hasFirstParty) + Number(hasLegacy) > 1) {
+      classifications.add("duplicate_event");
+    }
+  }
+
+  return [...classifications];
 }
 
 export interface DataValidationPanelState {
@@ -570,6 +624,15 @@ function buildAnalyticsSourceHealth(input: {
         : disagreementCount > 0 || (maxDeltaPct ?? 0) > 10
           ? "review"
           : "pass";
+  const sourceAgreementClassifications = classifySourceAgreementDisagreements({
+    expectedDays,
+    gaPresentDays,
+    snapshotPresentDays,
+    legacyPresentDays,
+    activeSourceCount: activeCoverage.length,
+    disagreementCount,
+    maxDeltaPct,
+  });
   const chartReadinessState: AnalyticsSourceHealth["chartReadiness"]["state"] =
     expectedDays.length === 0
       ? "unavailable"
@@ -721,6 +784,7 @@ function buildAnalyticsSourceHealth(input: {
       disagreementCount,
       maxDeltaPct,
       state: sourceAgreementState,
+      classifications: sourceAgreementClassifications,
       reason: sourceAgreementState === "failed"
         ? "GA4, historical snapshot, and legacy support do not agree for the selected range."
         : sourceAgreementState === "review"

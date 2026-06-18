@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-17T23:07:20.725Z",
-  "currentHead": "152fd438123eff5ca3025fa080b53cbf4d88dfa5",
+  "generatedAtUtc": "2026-06-18T00:06:33.529Z",
+  "currentHead": "8ae88b8741a5f2cdfcbefa9287164b073952db8f",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,21 +416,17 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 17,
+    "total": 12,
     "byClassification": {
-      "current_generated_artifact_to_commit": 3,
       "analytics_panel_hydration_artifact_expected": 3,
+      "current_generated_artifact_to_commit": 2,
       "launch_analytics_recovery_artifact_expected": 2,
       "documentation_artifact_expected": 2,
-      "real_source_change_needs_review": 6,
+      "real_source_change_needs_review": 2,
       "test_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
-      {
-        "path": "agent/context/optimized-task-context.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
       {
         "path": "agent/state/analytics-panel-hydration.generated.json",
         "classification": "analytics_panel_hydration_artifact_expected"
@@ -458,6 +454,10 @@
       {
         "path": "docs/agent-truth/launch-analytics-recovery.md",
         "classification": "launch_analytics_recovery_artifact_expected"
+      },
+      {
+        "path": "docs/agent-truth/person-metrics-hydration.md",
+        "classification": "documentation_artifact_expected"
       }
     ],
     "sampleTruncated": true

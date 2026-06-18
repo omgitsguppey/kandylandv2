@@ -46,6 +46,70 @@ function asNumber(value: unknown, fallback = 0) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+type SourceAgreementClassification =
+  | "identity_mismatch"
+  | "event_translation_mismatch"
+  | "date_range_mismatch"
+  | "internal_traffic_mismatch"
+  | "route_normalization_mismatch"
+  | "duplicate_event"
+  | "missing_materializer"
+  | "external_source_gap"
+  | "stale_generated_evidence"
+  | "not_enough_sources";
+
+function classifySourceAgreementDisagreements(input: {
+  expectedDays: string[];
+  ga4Days: Set<string>;
+  firstPartyDays: Set<string>;
+  legacySupportDays: Set<string>;
+  staleEvidence: boolean;
+  disagreementCount: number;
+  maxDeltaPct: number | null;
+}) {
+  const classifications = new Set<SourceAgreementClassification>();
+
+  if (input.staleEvidence) {
+    classifications.add("stale_generated_evidence");
+  }
+
+  const activeSourceCount = [
+    input.ga4Days.size,
+    input.firstPartyDays.size,
+    input.legacySupportDays.size,
+  ].filter((count) => count > 0).length;
+
+  if (activeSourceCount < 2 || input.expectedDays.length === 0) {
+    classifications.add("not_enough_sources");
+    return [...classifications];
+  }
+
+  if (input.disagreementCount > 0 || (input.maxDeltaPct ?? 0) > 10) {
+    classifications.add("date_range_mismatch");
+  }
+
+  for (const dayKey of input.expectedDays) {
+    const hasGa4 = input.ga4Days.has(dayKey);
+    const hasFirstParty = input.firstPartyDays.has(dayKey);
+    const hasLegacy = input.legacySupportDays.has(dayKey);
+
+    if (hasGa4 && !hasFirstParty) {
+      classifications.add("external_source_gap");
+      classifications.add("missing_materializer");
+    }
+
+    if (hasLegacy && !hasFirstParty) {
+      classifications.add("missing_materializer");
+    }
+
+    if (Number(hasGa4) + Number(hasFirstParty) + Number(hasLegacy) > 1) {
+      classifications.add("duplicate_event");
+    }
+  }
+
+  return [...classifications];
+}
+
 function changedFiles() {
   const files = new Set<string>();
   for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
@@ -364,6 +428,17 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       : staleEvidence
         ? "stale_evidence_review"
         : "review";
+  const disagreementCount = asNumber(sourceAgreementDetail.disagreementCount, 0);
+  const maxDeltaPct = typeof sourceAgreementDetail.maxDeltaPct === "number" ? sourceAgreementDetail.maxDeltaPct : null;
+  const sourceAgreementClassifications = classifySourceAgreementDisagreements({
+    expectedDays,
+    ga4Days,
+    firstPartyDays: historicalSnapshotDays,
+    legacySupportDays,
+    staleEvidence,
+    disagreementCount,
+    maxDeltaPct,
+  });
 
   return {
     reportKey: "launch-analytics-recovery",
@@ -401,14 +476,10 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       comparedSources: asStringArray(sourceAgreementDetail.comparedSources),
       comparedMetrics: asStringArray(sourceAgreementDetail.comparedMetrics),
       tolerance: "10% day coverage delta triggers review; 25% day coverage delta or repeated disagreement fails.",
-      disagreementCount: asNumber(sourceAgreementDetail.disagreementCount, 0),
-      maxDeltaPct: typeof sourceAgreementDetail.maxDeltaPct === "number" ? sourceAgreementDetail.maxDeltaPct : null,
+      disagreementCount,
+      maxDeltaPct,
       state: sourceAgreementState,
-      classifications: staleEvidence
-        ? ["stale_generated_evidence"]
-        : expectedDays.length < 2
-          ? ["not_enough_sources"]
-          : ["date_range_mismatch"],
+      classifications: sourceAgreementClassifications,
       nextAction: typeof sourceAgreementDetail.nextAction === "string"
         ? sourceAgreementDetail.nextAction
         : "Run the all-time historical analytics source path and keep GA4 as second-source evidence.",
@@ -460,6 +531,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Compared sources: ${report.sourceAgreement.comparedSources.join(", ") || "none"}`,
     `- Disagreements: ${report.sourceAgreement.disagreementCount}`,
     `- Max delta: ${report.sourceAgreement.maxDeltaPct ?? "unknown"}`,
+    `- Classifications: ${report.sourceAgreement.classifications.join(", ") || "none"}`,
     `- Next action: ${report.sourceAgreement.nextAction}`,
     "",
     "## Admin Panel Connection",

@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-17T23:07:20.725Z",
-  "currentHead": "152fd438123eff5ca3025fa080b53cbf4d88dfa5",
+  "generatedAtUtc": "2026-06-18T00:06:33.529Z",
+  "currentHead": "8ae88b8741a5f2cdfcbefa9287164b073952db8f",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -137,7 +137,11 @@
     "maxDeltaPct": 67,
     "state": "failed",
     "classifications": [
-      "stale_generated_evidence"
+      "stale_generated_evidence",
+      "date_range_mismatch",
+      "duplicate_event",
+      "external_source_gap",
+      "missing_materializer"
     ],
     "nextAction": "Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity."
   },

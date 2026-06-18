@@ -911,6 +911,18 @@ export interface AnalyticsSourceHealth {
     disagreementCount: number;
     maxDeltaPct: number | null;
     state: "pass" | "review" | "failed" | "not_enough_sources";
+    classifications?: Array<
+      | "identity_mismatch"
+      | "event_translation_mismatch"
+      | "date_range_mismatch"
+      | "internal_traffic_mismatch"
+      | "route_normalization_mismatch"
+      | "duplicate_event"
+      | "missing_materializer"
+      | "external_source_gap"
+      | "stale_generated_evidence"
+      | "not_enough_sources"
+    >;
     reason?: string;
     nextAction?: string;
   };
