@@ -78,9 +78,9 @@ type PanelRecoveryTruthState =
 function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
   switch (state) {
     case "source_ready_collecting":
-      return "source ready";
+      return "collecting activity";
     case "not_observed_but_expected":
-      return "not observed yet";
+      return "no recent activity";
     case "source_missing":
       return "source missing";
     case "materializer_missing":
@@ -88,15 +88,12 @@ function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
     case "bridge_missing":
       return "bridge missing";
     case "runtime_evidence_required":
-      return "runtime source needed";
     case "admin_truth_source_required":
-      return "admin source needed";
     case "provider_gated":
-      return "provider evidence required";
     case "external_required":
-      return "external evidence required";
+      return "external proof required";
     case "broken":
-      return "broken";
+      return "not configured";
     case "collecting":
     default:
       return "collecting";
@@ -367,9 +364,16 @@ export default function AdminAnalyticsPage() {
     )
     .reduce((total, item) => total + item.count, 0);
   const panelRecoveryActions = panelHydrationSummary?.topNextActions ?? [];
-  const showPanelRecovery =
-    Boolean(panelHydrationSummary) &&
-    (panelRecoveryTruthItems.length > 0 || connectedPanelCount < totalPanelCount);
+  const showPanelRecovery = Boolean(panelHydrationSummary) && (panelRecoveryTruthItems.length > 0 || connectedPanelCount < totalPanelCount);
+  const panelRecoveryReviewCount = panelRecoveryNeedsEvidenceCount > 0 && panelRecoverySourceGapCount === 0 && panelRecoveryEvidenceGateCount === 0 ? panelRecoveryNeedsEvidenceCount : 0;
+  const sourceRecoverySummary = [
+    sourceDetailItems.length > 0 ? formatSourceHierarchyCount(sourceDetailItems.length, "source detail") : null,
+    showPanelRecovery ? `${connectedPanelCount}/${totalPanelCount} connected` : null,
+    panelRecoveryWaitingCount > 0 ? `${panelRecoveryWaitingCount} collecting` : null,
+    panelRecoverySourceGapCount > 0 ? formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap") : null,
+    panelRecoveryEvidenceGateCount > 0 ? `${panelRecoveryEvidenceGateCount} external proof required` : null,
+    panelRecoveryReviewCount > 0 ? `${panelRecoveryReviewCount} needs review` : null,
+  ].filter((item): item is string => Boolean(item)).join(" / ");
 
   if (needsSetup) {
     return (
@@ -504,27 +508,8 @@ export default function AdminAnalyticsPage() {
             title={sourceDetailItems.length > 0 ? sourceDetailItems.join(" | ") : undefined}
           >
             <summary className="min-h-9 cursor-pointer pt-1 font-semibold text-gray-100">
-              <span className="mr-2 text-white">Source and recovery</span>
-              <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-300">
-                {sourceDetailItems.length > 0 ? <span>{formatSourceHierarchyCount(sourceDetailItems.length, "source note")}</span> : null}
-                {showPanelRecovery ? (
-                  <>
-                    <span>{connectedPanelCount}/{totalPanelCount} showing data</span>
-                    {panelRecoveryWaitingCount > 0 ? <span>{panelRecoveryWaitingCount} collecting</span> : null}
-                    {panelRecoverySourceGapCount > 0 ? (
-                      <span>{formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap")}</span>
-                    ) : null}
-                    {panelRecoveryEvidenceGateCount > 0 ? (
-                      <span>{formatPanelRecoveryCount(panelRecoveryEvidenceGateCount, "evidence gate")}</span>
-                    ) : null}
-                    {panelRecoveryNeedsEvidenceCount > 0 &&
-                    panelRecoverySourceGapCount === 0 &&
-                    panelRecoveryEvidenceGateCount === 0 ? (
-                      <span>{panelRecoveryNeedsEvidenceCount} need review</span>
-                    ) : null}
-                  </>
-                ) : null}
-              </div>
+              <span className="text-white">Source and recovery</span>
+              <p className="mt-1 text-[11px] font-medium leading-4 text-gray-300">{sourceRecoverySummary}</p>
             </summary>
             <div className="mt-2 grid gap-2 text-[11px] text-gray-300 md:grid-cols-2">
               {sourceDetailItems.length > 0 ? (
