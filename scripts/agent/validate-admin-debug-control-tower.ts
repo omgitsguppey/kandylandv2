@@ -1770,7 +1770,7 @@ for (const expected of [
   "Estimated/recovered views",
   "Final reporting views",
   "Recovery share",
-  "Raw identity and source details",
+  "Identity and source notes",
   "Creator:",
   "Drop ID:",
   "data-drop-recovery-drop-id",

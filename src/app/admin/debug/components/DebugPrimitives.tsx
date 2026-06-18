@@ -131,7 +131,7 @@ export function StatCard({
                         <p><span className="text-gray-500">Why it matters:</span> {copy.whyItMatters}</p>
                         <p><span className="text-gray-500">What to check next:</span> {copy.recommendedNextCheck}</p>
                         <p><span className="text-gray-500">Technical evidence:</span> {copy.technicalEvidence}</p>
-                        <p><span className="text-gray-500">Source details:</span> {copy.sourceDetails}</p>
+                        <p><span className="text-gray-500">Source notes:</span> {copy.sourceDetails}</p>
                     </div>
                 </details>
             ) : null}

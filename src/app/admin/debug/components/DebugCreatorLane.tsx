@@ -166,7 +166,7 @@ export function DebugCreatorLane({ data }: { data: any }) {
                                 <p className="text-xs text-gray-400">Recommended fix: {issue.recommendedFix}</p>
                                 <p className="text-xs text-gray-400">Can self-heal: {issue.canSelfHeal ? "Yes" : "No"}</p>
                                 <details className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
-                                    <summary className="cursor-pointer text-gray-200">Source details</summary>
+                                    <summary className="cursor-pointer text-gray-200">Source notes</summary>
                                     <pre className="mt-2 whitespace-pre-wrap break-words">{JSON.stringify({
                                         sourceSnapshots: issue.sourceSnapshots,
                                         mismatches: issue.mismatches,
