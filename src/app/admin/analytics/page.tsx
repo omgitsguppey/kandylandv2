@@ -121,7 +121,7 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
     case "consumer_source_mismatch":
       return "Source mismatch";
     case "source_agreement_failed":
-      return "Source agreement needs review";
+      return "Source agreement failed";
     case "not_enough_sources":
       return "More source evidence needed";
     case "failed":
@@ -148,8 +148,8 @@ function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHiera
 
   if (sourceHierarchy.status === "source_agreement_failed") {
     return blockedCount > 0
-      ? `${formatSourceHierarchyCount(blockedCount, "analytics view")} in review mode.`
-      : "Source agreement needs review.";
+      ? `${formatSourceHierarchyCount(blockedCount, "analytics view")} blocked by source evidence.`
+      : "Analytics source state is blocked.";
   }
 
   if (mismatchCount > 0 && blockedCount > 0) {
@@ -245,7 +245,7 @@ export default function AdminAnalyticsPage() {
   const sourceHierarchyDetailItems = useMemo(() => (
     sourceHierarchy.status !== "aligned"
       ? [
-          `Source agreement: ${sourceHierarchyStatusLabel}`,
+          `Analytics source state: ${sourceHierarchyStatusLabel}`,
           sourceHierarchySummary,
           sourceHierarchy.nextAction,
         ].filter((item): item is string => Boolean(item))

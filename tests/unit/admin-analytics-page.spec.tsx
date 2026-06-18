@@ -738,8 +738,8 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Source agreement: Source agreement needs review");
-    expect(container.textContent).toContain("6 analytics views in review mode.");
+    expect(container.textContent).toContain("Analytics source state: Source agreement failed");
+    expect(container.textContent).toContain("6 analytics views blocked by source evidence.");
     expect(container.textContent).toContain("Review source agreement in Debug");
     expect(container.textContent).not.toContain("consumer_source_mismatch");
     expect(container.textContent).not.toContain("source_agreement_failed");
