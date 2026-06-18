@@ -35,6 +35,17 @@ type UiSurfaceCoverageEntry = {
 
 const ADMIN_BROWSER_SMOKE_OWNER = "tests/ui-audits/admin-browser-surface-smoke.spec.ts" as const;
 const GUEST_RUNTIME_SMOKE_OWNER = "tests/ui-audits/runtime.spec.ts" as const;
+const GENERIC_RELATED_TEST_TOKENS = new Set([
+  "admin",
+  "app",
+  "component",
+  "components",
+  "dashboard",
+  "index",
+  "page",
+  "src",
+  "tsx",
+]);
 
 function readSource(repoPath: string) {
   return readFileSync(toAbsoluteRepoPath(repoPath), "utf8");
@@ -197,6 +208,7 @@ function runtimeCanaryFor(repoPath: string, source: string) {
 
 function relatedTestsFor(repoPath: string, testFiles: string[]) {
   const manual = compact([
+    repoPath === "src/app/dashboard/page.tsx" ? "tests/unit/dashboard-viewer-page.spec.tsx" : null,
     repoPath.includes("creators/[username]") ? "tests/unit/creator-experiences-panel.spec.tsx" : null,
     repoPath.includes("CreatorWorkspacePanel") ? "tests/unit/creator-workspace-panel.spec.tsx" : null,
     repoPath.includes("CreatorExperiencesPanel") ? "tests/unit/creator-experiences-panel.spec.tsx" : null,
@@ -206,7 +218,7 @@ function relatedTestsFor(repoPath: string, testFiles: string[]) {
     normalized
       .replace(/page\.tsx$|\.tsx$/g, "")
       .split(/[/_-]+/)
-      .filter((token) => token.length > 2 && token !== "username"),
+      .filter((token) => token.length > 2 && token !== "username" && !GENERIC_RELATED_TEST_TOKENS.has(token)),
   );
 
   return unique([...manual, ...testFiles.filter((testPath) => tokens.some((token) => testPath.toLowerCase().includes(token)))]);
