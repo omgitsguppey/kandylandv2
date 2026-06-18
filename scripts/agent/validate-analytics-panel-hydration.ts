@@ -147,7 +147,7 @@ function classifySourceAgreementDisagreements(input: {
       classifications.add("missing_materializer");
     }
 
-    if (Number(hasGa4) + Number(hasFirstParty) + Number(hasHistoricalSnapshot) + Number(hasLegacy) > 1) {
+    if (!hasFirstParty && Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy) > 1) {
       classifications.add("duplicate_event");
     }
   }

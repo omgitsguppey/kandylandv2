@@ -104,6 +104,31 @@ describe("source agreement failure detail", () => {
     expect(detail.sourceTruthPolicy.ga4SecondSourceOnly).toBe(true);
   });
 
+  it("does not count missing fallback lanes as disagreement when first-party and GA4 agree", () => {
+    const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
+      proofMode: "local_export",
+      launchHistoryCoverage: {
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 12, ga4: 12, historicalSnapshot: 1, legacySupport: 0 },
+          },
+        ],
+      },
+    });
+
+    expect(detail.sourceAgreementStatus).toBe("pass");
+    expect(detail.disagreementCount).toBe(0);
+    expect(detail.maxDeltaPct).toBe(0);
+    expect(detail.disagreements).toEqual([]);
+    expect(detail.missingDaysBySource.legacy_support).toEqual(["2026-05-01"]);
+    expect(detail.sourceTruthPolicy.fallbackEvidenceOnly).toBe(true);
+  });
+
   it("does not let a short admin truth sample prove all-launch range without explicit range proof", () => {
     const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
       proofMode: "admin_truth_sample",

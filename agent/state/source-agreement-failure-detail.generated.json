@@ -1,7 +1,7 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-06-18T20:49:39.462Z",
-  "currentHead": "841f64edd9730d6feacf3112c0f1d21b673c327b",
+  "generatedAtUtc": "2026-06-18T21:01:00.188Z",
+  "currentHead": "4141d08a41bc1b4fba6b888bed42b03de494d83d",
   "inputMode": "fixture_only_local_window",
   "inputPath": null,
   "launchCoverageEvidence": {
@@ -56,35 +56,9 @@
     "expectedRangeSource": "union_of_local_source_days",
     "coverageWindowKind": "fixture_only_local_window",
     "allLaunchRangeProven": false,
-    "disagreementCount": 3,
+    "disagreementCount": 2,
     "maxDeltaPct": 67,
     "disagreements": [
-      {
-        "dayKey": "2026-05-01",
-        "sourcesPresent": [
-          "first_party",
-          "ga4",
-          "historical_snapshot"
-        ],
-        "sourcesMissing": [
-          "legacy_support"
-        ],
-        "primarySourceState": "first_party_present",
-        "secondSourceState": "ga4_present",
-        "fallbackState": "fallback_present",
-        "classifications": [
-          "date_range_mismatch",
-          "duplicate_event"
-        ],
-        "likelyRootCause": "Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.",
-        "nextAction": "Keep first-party as primary and use secondary/fallback evidence only for corroboration.",
-        "recoveryLane": "source_overlap_review",
-        "blockingOwner": "source agreement overlap review",
-        "proofRequired": [
-          "fallback_archive_label_and_dedupe_review"
-        ],
-        "productTruthEligible": true
-      },
       {
         "dayKey": "2026-05-02",
         "sourcesPresent": [

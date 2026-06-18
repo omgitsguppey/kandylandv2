@@ -305,12 +305,23 @@ function classifySourceAgreementDisagreements(input: {
       classifications.add("missing_materializer");
     }
 
-    if (Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy) > 1) {
+    if (!hasFirstParty && Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy) > 1) {
       classifications.add("duplicate_event");
     }
   }
 
   return [...classifications];
+}
+
+function hasBlockingSourceCoverageMismatch(input: {
+  hasGa4: boolean;
+  hasFirstParty: boolean;
+  hasHistoricalSnapshot: boolean;
+  hasLegacy: boolean;
+}) {
+  const hasAnySource = input.hasGa4 || input.hasFirstParty || input.hasHistoricalSnapshot || input.hasLegacy;
+  if (!hasAnySource) return false;
+  return !input.hasFirstParty || !input.hasGa4;
 }
 
 export interface DataValidationPanelState {
@@ -652,13 +663,17 @@ function buildAnalyticsSourceHealth(input: {
     { key: "legacy_support", days: legacyPresentDays.size },
   ];
   const activeCoverage = coverageBySource.filter((entry) => entry.days > 0);
-  const disagreementCount = expectedDays.filter((dayKey) => {
-    const coverageValues = [firstPartyPresentDays.has(dayKey), gaPresentDays.has(dayKey), snapshotPresentDays.has(dayKey), legacyPresentDays.has(dayKey)];
-    return coverageValues.some(Boolean) && !coverageValues.every(Boolean);
-  }).length;
-  const maxCoverage = activeCoverage.length > 0 ? Math.max(...activeCoverage.map((entry) => entry.days)) : 0;
-  const minCoverage = activeCoverage.length > 0 ? Math.min(...activeCoverage.map((entry) => entry.days)) : 0;
-  const maxDeltaPct = activeCoverage.length > 1 && maxCoverage > 0
+  const disagreementCount = expectedDays.filter((dayKey) => hasBlockingSourceCoverageMismatch({
+    hasFirstParty: firstPartyPresentDays.has(dayKey),
+    hasGa4: gaPresentDays.has(dayKey),
+    hasHistoricalSnapshot: snapshotPresentDays.has(dayKey),
+    hasLegacy: legacyPresentDays.has(dayKey),
+  })).length;
+  const primarySecondSourceCoverage = activeCoverage.filter((entry) => entry.key === "first_party" || entry.key === "ga4");
+  const deltaCoverage = primarySecondSourceCoverage.length >= 2 ? primarySecondSourceCoverage : activeCoverage;
+  const maxCoverage = deltaCoverage.length > 0 ? Math.max(...deltaCoverage.map((entry) => entry.days)) : 0;
+  const minCoverage = deltaCoverage.length > 0 ? Math.min(...deltaCoverage.map((entry) => entry.days)) : 0;
+  const maxDeltaPct = deltaCoverage.length > 1 && maxCoverage > 0
     ? Math.round(((maxCoverage - minCoverage) / maxCoverage) * 100)
     : null;
   const sourceAgreementState: AnalyticsSourceHealth["sourceAgreement"]["state"] =

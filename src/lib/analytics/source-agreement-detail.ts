@@ -104,6 +104,11 @@ function classifyDayDisagreement(input: {
   const hasFirstParty = sourceSet.has("first_party");
   const hasGa4 = sourceSet.has("ga4");
   const hasFallback = sourceSet.has("historical_snapshot") || sourceSet.has("legacy_support");
+  const hasOnlyMissingFallback = hasFirstParty && hasGa4 && input.sourcesMissing.every((source) =>
+    source === "historical_snapshot" || source === "legacy_support"
+  );
+  if (hasOnlyMissingFallback) return null;
+
   const classifications = new Set<SourceAgreementFailureClassification>();
   classifications.add("date_range_mismatch");
 
@@ -117,7 +122,7 @@ function classifyDayDisagreement(input: {
   if (hasFallback && !hasFirstParty) {
     classifications.add("missing_materializer");
   }
-  if (input.sourcesPresent.length > 1) {
+  if (!hasFirstParty && input.sourcesPresent.length > 1) {
     classifications.add("duplicate_event");
   }
   if (missingSet.has("first_party") && !hasGa4 && hasFallback) {
@@ -176,6 +181,17 @@ function classifyDayDisagreement(input: {
     proofRequired,
     productTruthEligible: hasFirstParty,
   };
+}
+
+function isBlockingCoverageMismatch(input: {
+  sourcesPresent: string[];
+  sourcesMissing: string[];
+}) {
+  if (input.sourcesPresent.length === 0 || input.sourcesMissing.length === 0) return false;
+  const sourceSet = new Set(input.sourcesPresent);
+  const hasFirstParty = sourceSet.has("first_party");
+  const hasGa4 = sourceSet.has("ga4");
+  return !hasFirstParty || !hasGa4;
 }
 
 export const LAUNCH_ANALYTICS_SOURCE_AGREEMENT_COVERAGE: Record<string, string[]> = {
@@ -283,14 +299,23 @@ export function buildSourceAgreementFailureDetail(input: {
   });
   const sourceDaySets = new Map(perSourceCoverage.map((entry) => [entry.source, new Set(entry.days)]));
   const allDays = [...new Set([...expectedDays, ...perSourceCoverage.flatMap((entry) => entry.days)])].sort();
-  const disagreementCount = allDays.filter((day) => {
-    const coverage = comparedSources.map((entry) => sourceDaySets.get(entry.source)?.has(day) ?? false);
-    return coverage.some(Boolean) && !coverage.every(Boolean);
-  }).length;
+  const disagreementCount = allDays.filter((day) => isBlockingCoverageMismatch({
+    sourcesPresent: comparedSources
+      .map((entry) => entry.source)
+      .filter((source) => sourceDaySets.get(source)?.has(day)),
+    sourcesMissing: comparedSources
+      .map((entry) => entry.source)
+      .filter((source) => !sourceDaySets.get(source)?.has(day)),
+  })).length;
   const activeCounts = perSourceCoverage.filter((entry) => entry.dayCount > 0).map((entry) => entry.dayCount);
-  const maxCoverage = activeCounts.length > 0 ? Math.max(...activeCounts) : 0;
-  const minCoverage = activeCounts.length > 0 ? Math.min(...activeCounts) : 0;
-  const maxDeltaPct = activeCounts.length > 1 && maxCoverage > 0
+  const primarySecondSourceCounts = perSourceCoverage
+    .filter((entry) => entry.source === "first_party" || entry.source === "ga4")
+    .filter((entry) => entry.dayCount > 0)
+    .map((entry) => entry.dayCount);
+  const deltaCounts = primarySecondSourceCounts.length >= 2 ? primarySecondSourceCounts : activeCounts;
+  const maxCoverage = deltaCounts.length > 0 ? Math.max(...deltaCounts) : 0;
+  const minCoverage = deltaCounts.length > 0 ? Math.min(...deltaCounts) : 0;
+  const maxDeltaPct = deltaCounts.length > 1 && maxCoverage > 0
     ? Math.round(((maxCoverage - minCoverage) / maxCoverage) * 100)
     : 0;
   const reviewDeltaPct = input.tolerance?.reviewDeltaPct ?? input.reviewDeltaPct ?? 10;
