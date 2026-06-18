@@ -87,6 +87,10 @@ vi.mock("@/components/Admin/AiDropDescriptionGeneratorPanel", () => ({
   AiDropDescriptionGeneratorPanel: () => null,
 }));
 
+vi.mock("@/lib/firebase-data", () => ({
+  db: {},
+}));
+
 vi.mock("@/lib/authFetch", () => ({
   authFetch: vi.fn(async () => ({
     ok: true,

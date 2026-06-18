@@ -257,6 +257,7 @@ export interface CreateDropModalProps {
     duplicateFromId?: string | null;
     onSuccess: () => void;
     mode?: "admin" | "creator";
+    presentation?: "modal" | "inline";
     creatorIdOverride?: string | null;
     onSubmitFailure?: (message: string) => void;
 }
@@ -279,7 +280,7 @@ function buildDropSaveErrorMessage(result: DropSaveApiResult, fallback: string) 
     return recoveryAction ? `${base} ${recoveryAction}` : base;
 }
 
-export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess, mode = "admin", creatorIdOverride = null, onSubmitFailure }: CreateDropModalProps) {
+export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess, mode = "admin", presentation = "modal", creatorIdOverride = null, onSubmitFailure }: CreateDropModalProps) {
     const isEditMode = !!dropId;
     const [fetching, setFetching] = useState(isEditMode);
     const [contentAssets, setContentAssets] = useState<UploadedAsset[]>([]);
@@ -837,18 +838,20 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
     if (!isOpen) return null;
 
-    return (
-        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
-                <div className="fixed inset-0 z-50 flex items-end justify-center p-2 md:items-center md:p-4">
+    const titleLabel = isEditMode ? (mode === "creator" ? "Edit submission" : "Edit Drop") : (mode === "creator" ? "Submit drop for review" : "Create Drop");
+    const panelContent = (
                     <Dialog.Content
-                        className="relative flex max-h-[calc(100svh-0.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#0a0a0a] shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50 md:max-h-[92vh] md:rounded-3xl"
+                        className={cn(
+                            "relative flex w-full flex-col overflow-hidden border border-white/10 bg-[#0a0a0a] shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50",
+                            presentation === "inline"
+                                ? "rounded-[1.5rem] shadow-black/20"
+                                : "max-h-[calc(100svh-0.5rem)] max-w-3xl rounded-[2rem] md:max-h-[92vh] md:rounded-3xl",
+                        )}
                         aria-describedby={undefined}
                     >
                         <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-md md:px-6 md:pb-5 md:pt-5">
                             <Dialog.Title className="shrink-0 text-xl font-bold text-white">
-                                {isEditMode ? (mode === "creator" ? "Edit submission" : "Edit Drop") : (mode === "creator" ? "Submit drop for review" : "Create Drop")}
+                                {titleLabel}
                             </Dialog.Title>
                             <Dialog.Close asChild>
                                 <button
@@ -1158,8 +1161,18 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                             </div>
                         </div>
                     </Dialog.Content>
-                </div>
-            </Dialog.Portal>
+    );
+
+    return (
+        <Dialog.Root open={isOpen} modal={presentation !== "inline"} onOpenChange={(open) => !open && onClose()}>
+            {presentation === "inline" ? panelContent : (
+                <Dialog.Portal>
+                    <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
+                    <div className="fixed inset-0 z-50 flex items-end justify-center p-2 md:items-center md:p-4">
+                        {panelContent}
+                    </div>
+                </Dialog.Portal>
+            )}
         </Dialog.Root>
     );
 }

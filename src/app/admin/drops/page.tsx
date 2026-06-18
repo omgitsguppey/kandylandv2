@@ -180,7 +180,7 @@ export default function AdminDropsPage() {
     const [selectedDropIds, setSelectedDropIds] = useState<Set<string>>(new Set());
     const [notificationDraft, setNotificationDraft] = useState<DropNotificationDraft | null>(null);
     const [sendingNotification, setSendingNotification] = useState(false);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isCreatePanelOpen, setIsCreatePanelOpen] = useState(false);
     const [editingDropId, setEditingDropId] = useState<string | null>(null);
     const [duplicatingDropId, setDuplicatingDropId] = useState<string | null>(null);
     const [reviewingDropId, setReviewingDropId] = useState<string | null>(null);
@@ -773,18 +773,18 @@ export default function AdminDropsPage() {
         setNotificationDraft(null);
     }, [isLocalAdminUiTestSession, notificationDraft, sendingNotification]);
 
-    const openCreateModal = useCallback(() => {
+    const openCreatePanel = useCallback(() => {
         if (isLocalAdminUiTestSession) {
             return;
         }
 
         setEditingDropId(null);
         setDuplicatingDropId(null);
-        setIsCreateModalOpen(true);
+        setIsCreatePanelOpen(true);
     }, [isLocalAdminUiTestSession]);
 
-    const closeCreateModal = useCallback(() => {
-        setIsCreateModalOpen(false);
+    const closeCreatePanel = useCallback(() => {
+        setIsCreatePanelOpen(false);
         setEditingDropId(null);
         setDuplicatingDropId(null);
     }, []);
@@ -816,7 +816,7 @@ export default function AdminDropsPage() {
                             </Link>
                             <button
                                 type="button"
-                                onClick={openCreateModal}
+                                onClick={openCreatePanel}
                                 disabled={isLocalAdminUiTestSession}
                                 className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-purple px-5 py-2 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-colors whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50"
                             >
@@ -1038,7 +1038,7 @@ export default function AdminDropsPage() {
                                                 onClick={() => {
                                                     setEditingDropId(null);
                                                     setDuplicatingDropId(drop.id);
-                                                    setIsCreateModalOpen(true);
+                                                    setIsCreatePanelOpen(true);
                                                 }}
                                                 icon={Copy}
                                                 disabled={isLocalAdminUiTestSession}
@@ -1048,7 +1048,7 @@ export default function AdminDropsPage() {
                                                 onClick={() => {
                                                     setDuplicatingDropId(null);
                                                     setEditingDropId(drop.id);
-                                                    setIsCreateModalOpen(true);
+                                                    setIsCreatePanelOpen(true);
                                                 }}
                                                 icon={Edit}
                                                 disabled={isLocalAdminUiTestSession}
@@ -1231,7 +1231,7 @@ export default function AdminDropsPage() {
                                                         onClick={() => {
                                                             setEditingDropId(null);
                                                             setDuplicatingDropId(drop.id);
-                                                            setIsCreateModalOpen(true);
+                                                            setIsCreatePanelOpen(true);
                                                         }}
                                                         icon={Copy}
                                                         disabled={isLocalAdminUiTestSession}
@@ -1241,7 +1241,7 @@ export default function AdminDropsPage() {
                                                         onClick={() => {
                                                             setDuplicatingDropId(null);
                                                             setEditingDropId(drop.id);
-                                                            setIsCreateModalOpen(true);
+                                                            setIsCreatePanelOpen(true);
                                                         }}
                                                         icon={Edit}
                                                         disabled={isLocalAdminUiTestSession}
@@ -1316,13 +1316,25 @@ export default function AdminDropsPage() {
                     </section>
                 ) : null}
 
-                <CreateDropModal
-                    isOpen={isCreateModalOpen}
-                    onClose={closeCreateModal}
-                    dropId={editingDropId}
-                    duplicateFromId={duplicatingDropId}
-                    onSuccess={closeCreateModal}
-                />
+                {isCreatePanelOpen ? (
+                    <section className="mt-4 rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-3 shadow-xl shadow-brand-purple/10 md:p-4" data-admin-drop-create-panel="inline">
+                        <div className="mb-3 flex flex-col gap-1 px-1 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-purple">Drop action</p>
+                                <h2 className="text-lg font-black text-white">{editingDropId ? "Edit Drop" : duplicatingDropId ? "Duplicate Drop" : "Create Drop"}</h2>
+                            </div>
+                            <p className="max-w-xl text-xs text-gray-300">Connected to the existing admin drop route. Source missing and validation errors stay inside the form.</p>
+                        </div>
+                        <CreateDropModal
+                            isOpen={isCreatePanelOpen}
+                            onClose={closeCreatePanel}
+                            dropId={editingDropId}
+                            duplicateFromId={duplicatingDropId}
+                            onSuccess={closeCreatePanel}
+                            presentation="inline"
+                        />
+                    </section>
+                ) : null}
             </div>
         </>
     );
