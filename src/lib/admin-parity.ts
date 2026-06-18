@@ -125,7 +125,7 @@ export function formatAdminSurfaceStateLabel(state: AdminSurfaceState): string {
   if (state === "cached") return "Verified snapshot shown";
   if (state === "degraded") return "Needs review";
   if (state === "fallback") return "Verified snapshot shown";
-  if (state === "stale") return "Delayed";
+  if (state === "stale") return "Refresh due";
   if (state === "failed") return "Needs review";
   return "Unavailable";
 }

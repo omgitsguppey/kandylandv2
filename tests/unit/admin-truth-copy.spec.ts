@@ -10,6 +10,7 @@ import {
   getAdminStatusBadgeLabel,
   summarizeAdminIssueForOperator,
 } from "@/lib/admin/copy/admin-truth-copy";
+import { formatAdminSurfaceStateLabel } from "@/lib/admin-parity";
 
 const BANNED_MAIN_COPY = [
   "failed closed",
@@ -34,15 +35,16 @@ function expectOperatorCopyIsPlain(...values: string[]) {
 }
 
 describe("admin truth copy", () => {
-  it("translates realtime failures into operator copy", () => {
+  it("translates refresh delays into verified snapshot operator copy", () => {
     const copy = buildOperatorStatusCopy({
       moduleKey: "admin_analytics",
       technicalState: "realtime_listener_failed",
       sourceName: "analytics_aggregate_stats/realtime_summary",
     });
 
-    expect(copy.headline).toBe("Live updates are delayed.");
-    expect(copy.shortBody).toBe("Verified snapshot shown.");
+    expect(copy.headline).toBe("Verified snapshot shown.");
+    expect(copy.shortBody).toBe("Refresh again if you need the newest value.");
+    expect(copy.badgeLabel).toBe("SNAP");
     expect(copy.technicalDetails).toContain("analytics_aggregate_stats/realtime_summary");
     expectOperatorCopyIsPlain(copy.headline, copy.shortBody);
   });
@@ -118,11 +120,16 @@ describe("admin truth copy", () => {
       getAdminStatusBadgeLabel({ sourceMode: "estimated" }),
       getAdminStatusBadgeLabel("fallback"),
       getAdminStatusBadgeLabel("stale"),
+      getAdminStatusBadgeLabel("failed"),
     ];
 
     for (const label of labels) {
       expect(ADMIN_OPERATOR_BADGE_LABELS).toContain(label);
     }
+
+    expect(getAdminStatusBadgeLabel("stale")).toBe("SNAP");
+    expect(getAdminStatusBadgeLabel("failed")).toBe("REVIEW");
+    expect(formatAdminSurfaceStateLabel("stale")).toBe("Refresh due");
   });
 
   it("shortens long technical reasons for operator copy", () => {

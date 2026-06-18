@@ -73,9 +73,9 @@ export const ADMIN_COPY_REGISTRY: Record<AdminCopyPatternKey, AdminCopyPattern> 
     key: "analytics_delayed",
     operatorState: "usable_with_note",
     severity: "warning",
-    headline: "Live updates are delayed.",
-    shortBody: "Verified snapshot shown.",
-    badgeLabel: "DELAYED",
+    headline: "Verified snapshot shown.",
+    shortBody: "Refresh again if you need the newest value.",
+    badgeLabel: "SNAP",
     actionLabel: "Open in Debug",
     operatorImpact: "Current values remain usable, but live movement may arrive late.",
     recommendedAction: "Open Debug if the delay persists after the next refresh.",
@@ -381,9 +381,9 @@ export const ADMIN_SURFACE_STATE_BADGE_LABELS: Record<AdminSurfaceState, AdminOp
   cached: "SNAP",
   degraded: "REVIEW",
   fallback: "SNAP",
-  stale: "DELAYED",
+  stale: "SNAP",
   unavailable: "WAIT",
-  failed: "ERROR",
+  failed: "REVIEW",
 };
 
 export const ADMIN_SURFACE_STATE_OPERATOR_COPY: Record<AdminSurfaceState, Pick<AdminCopyPattern, "headline" | "shortBody" | "operatorImpact" | "recommendedAction">> = {

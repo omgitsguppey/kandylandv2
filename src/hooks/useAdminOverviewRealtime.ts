@@ -36,7 +36,7 @@ export function resolveTruthChipLabel(
   const anyLoaded = state.dropsLoaded || state.summaryLoaded || state.transactionsLoaded || state.adminActivityLoaded;
   const anyFromCache = state.dropsFromCache || state.summaryFromCache || state.transactionsFromCache || state.adminActivityFromCache;
 
-  if (failedCount > 0) return "Snapshot refresh delayed";
+  if (failedCount > 0) return "Refresh due";
   if (hasServerData && anyFromCache) return "Verified snapshot shown";
   if (hasServerData) return "Showing hourly hot-cache snapshot";
   if (anyLoaded) return "Connecting snapshot refresh";
@@ -47,7 +47,7 @@ export function resolveTruthChipVariant(label: string): AdminSurfaceState {
   if (label === "Showing hourly hot-cache snapshot") return "cached";
   if (label === "Verified snapshot shown") return "cached";
   if (label === "Connecting snapshot refresh") return "degraded";
-  if (label === "Snapshot refresh delayed") return "fallback";
+  if (label === "Refresh due") return "fallback";
   return "unavailable";
 }
 

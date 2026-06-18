@@ -283,7 +283,7 @@ for (const [file, content] of docs) {
 
 const copyTests = read("tests/unit/admin-truth-copy.spec.ts");
 for (const expected of [
-  "Live updates are delayed",
+  "Refresh again if you need the newest value",
   "Verified snapshot shown",
   "Guest traffic is estimated",
   "Purchase tracking needs review",
