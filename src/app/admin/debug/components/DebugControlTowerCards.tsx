@@ -22,12 +22,12 @@ export const FILTERS: Array<{ id: FilterId; label: string }> = [
 ];
 
 export const SECTION_COPY: Record<AdminDebugControlTowerSection, { title: string; subtitle: string; icon: LucideIcon }> = {
-    beta_readiness: { title: "Beta Readiness", subtitle: "Public beta score, speed/security, hardening, device, cost, content, telemetry, stale state, and critical counts.", icon: ShieldCheck },
-    live_issues: { title: "Current Issues", subtitle: "Pre-catcher and debug evidence summaries. Raw support/user bodies stay redacted and collapsed.", icon: Radar },
-    device_ui: { title: "Device + UI", subtitle: "Device dry audit, layout score, chat shell, wallet density, image loading, and preview/content protection.", icon: LayoutGrid },
-    money_cost: { title: "Money + Cost", subtitle: "GumDrops economy truth, PayPal-adjacent health, Google cost, Cloud Run, SQL/Data Connect, BigQuery, Storage, and rate-limit risk.", icon: DollarSign },
-    telemetry_behavior: { title: "Telemetry + Behavior", subtitle: "Telemetry parity, watch-time truth, analytics ingest, event catalog drift, and behavior scoring confidence.", icon: Signal },
-    support_creator: { title: "Support + Creator Monetization", subtitle: "Support admin access, route failures, booking typed errors, Fan Pass paid-GD truth, and Creator Lane parity.", icon: LifeBuoy },
+    beta_readiness: { title: "Beta Readiness", subtitle: "Release evidence, blockers, and refresh work that affects beta signoff.", icon: ShieldCheck },
+    live_issues: { title: "Current Issues", subtitle: "Grouped runtime evidence with raw details kept behind drilldown.", icon: Radar },
+    device_ui: { title: "Device + UI", subtitle: "Device layout, image loading, and protected preview checks.", icon: LayoutGrid },
+    money_cost: { title: "Money + Cost", subtitle: "Treasury labels, cost guardrails, and source proof boundaries.", icon: DollarSign },
+    telemetry_behavior: { title: "Telemetry + Behavior", subtitle: "Event, identity, watch-time, and behavior source agreement.", icon: Signal },
+    support_creator: { title: "Support + Creator Monetization", subtitle: "Support access, creator status, and paid-GD surface checks.", icon: LifeBuoy },
 };
 
 export function toBadgeState(state: AdminDebugTruthState): AdminSurfaceState {
