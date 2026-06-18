@@ -18,7 +18,7 @@ export const FILTERS: Array<{ id: FilterId; label: string }> = [
     { id: "telemetry", label: "Telemetry" },
     { id: "support", label: "Support" },
     { id: "creator", label: "Creator" },
-    { id: "stale", label: "Stale" },
+    { id: "stale", label: "Refresh due" },
 ];
 
 export const SECTION_COPY: Record<AdminDebugControlTowerSection, { title: string; subtitle: string; icon: LucideIcon }> = {

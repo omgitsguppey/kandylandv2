@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveReportDisplay } from "@/app/admin/debug/components/DebugControlTowerCards";
+import { FILTERS, resolveReportDisplay } from "@/app/admin/debug/components/DebugControlTowerCards";
 import type { AdminDebugReportCard } from "@/lib/admin-debug-control-tower";
 
 function report(overrides: Partial<AdminDebugReportCard>): AdminDebugReportCard {
@@ -30,6 +30,10 @@ function report(overrides: Partial<AdminDebugReportCard>): AdminDebugReportCard 
 }
 
 describe("resolveReportDisplay", () => {
+  it("labels the stale report filter as refresh due for operators", () => {
+    expect(FILTERS.find((filter) => filter.id === "stale")?.label).toBe("Refresh due");
+  });
+
   it("shows zero-finding live reports as current source, not raw status", () => {
     const display = resolveReportDisplay(report({ status: "clean" }));
 
