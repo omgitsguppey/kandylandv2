@@ -1,8 +1,8 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T08:32:10.009Z
-Current head: 2e9b7990d25ab93302a1814ef28f667d56e37a75
-Status: source_agreement_failed
+Generated: 2026-06-18T08:52:57.665Z
+Current head: 22d7a538c2a79c053ee8e92a2b3e6e00bf4eb3a2
+Status: stale_evidence_review
 
 ## Source Order
 
@@ -62,7 +62,7 @@ Status: source_agreement_failed
 - Historical snapshot days: 1
 - Legacy support days: 1
 - Missing ranges: none
-- Stale input evidence: no
+- Stale input evidence: yes
 
 ## Source Agreement
 
@@ -70,7 +70,7 @@ Status: source_agreement_failed
 - Compared sources: first_party, ga4, historical_snapshot, legacy_support
 - Disagreements: 3
 - Max delta: 67
-- Classifications: date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
+- Classifications: stale_generated_evidence, date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
 - Per-day disagreement details: 3
   - 2026-05-01: present first_party, ga4, historical_snapshot; missing legacy_support; lane source_overlap_review; owner source agreement overlap review; Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.
   - 2026-05-02: present ga4; missing first_party, historical_snapshot, legacy_support; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.

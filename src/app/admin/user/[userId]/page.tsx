@@ -1221,7 +1221,7 @@ export default function AdminUserAnalyticsPage() {
                                         <div className="min-w-0">
                                             <p className="line-clamp-2 text-sm font-semibold text-white">{signal.summary}</p>
                                             <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-gray-500">
-                                                {signal.kind === "thread" ? "Support thread" : "Bug report"} â€¢ {signal.status.replaceAll("_", " ")}
+                                                {signal.kind === "thread" ? "Support thread" : "Bug report"} - {signal.status.replaceAll("_", " ")}
                                             </p>
                                         </div>
                                         <span className="shrink-0 text-[11px] text-gray-500">{formatRelativeTimestamp(signal.timestamp)}</span>

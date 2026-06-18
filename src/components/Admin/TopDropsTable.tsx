@@ -167,7 +167,6 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
 
     return (
         <div className="space-y-2">
-            {/* ── Header + Search ──────────────────────────────────── */}
             <div className="flex items-center justify-between gap-2">
                 <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
                     Top drops in this range
@@ -186,15 +185,12 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
                     />
                 </div>
             </div>
-
-            {/* ── Table ────────────────────────────────────────────── */}
             {filtered.length === 0 ? (
                 <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-5 text-center">
                     <p className="text-[11px] font-semibold text-gray-400">No drops match this search.</p>
                 </div>
             ) : (
                 <div className="overflow-x-auto rounded-xl border border-white/8 bg-black/30">
-                    {/* Column headers */}
                     <div className="grid grid-cols-[1.5rem,28px,minmax(0,1fr),auto,auto,auto,auto] items-center gap-x-2 border-b border-white/6 px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">
                         <span>#</span>
                         <span />
@@ -204,7 +200,6 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
                         <span className="hidden text-right sm:block">Clicks</span>
                         <span className="text-right">Price</span>
                     </div>
-                    {/* Rows */}
                     {pageSlice.map((drop, idx) => {
                         const rank = startIdx + idx + 1;
                         const statusKey = drop.approvalStatus === "pending_review" ? "pending_review" : drop.status;
@@ -216,9 +211,7 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
                                 key={drop.id}
                                 className="grid grid-cols-[1.5rem,28px,minmax(0,1fr),auto,auto,auto,auto] items-center gap-x-2 border-b border-white/4 px-2.5 py-1.5 last:border-b-0 transition-colors hover:bg-white/[0.03]"
                             >
-                                {/* Rank */}
                                 <span className="text-[10px] font-black text-gray-500">{rank}</span>
-                                {/* Thumbnail */}
                                 <div className="h-7 w-7 flex-shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/40">
                                     {drop.imageUrl ? (
                                         <img
@@ -228,29 +221,24 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
                                             loading="lazy"
                                         />
                                     ) : (
-                                        <div className="flex h-full w-full items-center justify-center text-[8px] text-gray-600">—</div>
+                                        <div className="flex h-full w-full items-center justify-center text-[8px] text-gray-600">No image</div>
                                     )}
                                 </div>
-                                {/* Title */}
                                 <MarqueeText
                                     as="p"
                                     title={drop.title}
                                     className="text-[11px] font-semibold text-white"
                                     ariaLabel={drop.title}
                                 />
-                                {/* Status */}
                                 <span className={`rounded-full border px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] ${pillStyle}`}>
                                     {statusLabel}
                                 </span>
-                                {/* Unwraps */}
                                 <span className="text-right text-[11px] font-semibold tabular-nums text-gray-300">
                                     {(drop.totalUnlocks || 0).toLocaleString()}
                                 </span>
-                                {/* Clicks */}
                                 <span className="hidden text-right text-[11px] font-semibold tabular-nums text-gray-400 sm:block">
                                     {(drop.totalClicks || 0).toLocaleString()}
                                 </span>
-                                {/* Price */}
                                 <span className="text-right text-[11px] font-bold tabular-nums text-brand-purple">
                                     {drop.unlockCost} GD
                                 </span>
@@ -259,12 +247,10 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
                     })}
                 </div>
             )}
-
-            {/* ── Pagination ──────────────────────────────────────── */}
             {filtered.length > PAGE_SIZE && (
                 <div className="flex items-center justify-between pt-0.5">
                     <p className="text-[10px] text-gray-500">
-                        Showing {startIdx + 1}–{endIdx} of {filtered.length}
+                        Showing {startIdx + 1}-{endIdx} of {filtered.length}
                     </p>
                     <div className="flex items-center gap-1">
                         <button

@@ -147,7 +147,6 @@ export function AdminActivityLogPanel({
     /* ── Render ──────────────────────────────────────────────────────────── */
     return (
         <div className="space-y-2" data-debug-admin-activity={JSON.stringify(debugMeta)}>
-            {/* ── Truth chip + freshness ──────────────────────────────── */}
             <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
                 <AdminStatusBadge state={truthState} />
                 {freshnessLabel && (
@@ -156,8 +155,6 @@ export function AdminActivityLogPanel({
                     </span>
                 )}
             </div>
-
-            {/* ── Feed rows ──────────────────────────────────────────── */}
             {activity.length === 0 ? (
                 <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-6 text-center">
                     <p className="text-[11px] font-semibold text-gray-400">
@@ -180,12 +177,9 @@ export function AdminActivityLogPanel({
                                     key={item.id}
                                     className="flex items-center gap-2 px-3 py-2 min-h-[36px]"
                                 >
-                                    {/* Source badge */}
                                     <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] ${sourceBadgeStyle}`}>
                                         {sourceLabel}
                                     </span>
-
-                                    {/* Label + actor · target */}
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-baseline gap-1.5 text-[12px]">
                                             <span className="truncate font-medium text-white">
@@ -208,8 +202,6 @@ export function AdminActivityLogPanel({
                                             </div>
                                         )}
                                     </div>
-
-                                    {/* Time */}
                                     <span className="hidden shrink-0 text-[10px] text-gray-500 sm:block">
                                         {relativeLabel}
                                     </span>
@@ -217,12 +209,10 @@ export function AdminActivityLogPanel({
                             );
                         })}
                     </div>
-
-                    {/* ── Pagination ──────────────────────────────────── */}
                     {paginated.totalPages > 1 && (
                         <div className="flex items-center justify-between px-1 text-[11px] text-gray-400">
                             <span>
-                                Showing {paginated.startIndex + 1}–{paginated.endIndex} of {activity.length}
+                                Showing {paginated.startIndex + 1}-{paginated.endIndex} of {activity.length}
                             </span>
                             <div className="flex items-center gap-1">
                                 <button

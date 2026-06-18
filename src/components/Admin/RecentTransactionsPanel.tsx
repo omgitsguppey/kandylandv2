@@ -393,7 +393,6 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, re
     /* ── Render ──────────────────────────────────────────────────────────── */
     return (
         <div className="space-y-2">
-            {/* ── Truth chip ──────────────────────────────────────────── */}
             <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
                 <AdminStatusBadge state={truthState} />
                 {debugMeta.resolvedUserCount > 0 && (
@@ -402,8 +401,6 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, re
                     </span>
                 )}
             </div>
-
-            {/* ── Feed rows ───────────────────────────────────────────── */}
             {transactions.length === 0 ? (
                 <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-6 text-center">
                     <p className="text-[11px] font-semibold text-gray-400">No recent transactions available.</p>
@@ -429,12 +426,9 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, re
                                     key={transaction.id}
                                     className="flex items-center gap-2 px-3 py-2 min-h-[36px]"
                                 >
-                                    {/* Type badge */}
                                     <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] ${badgeColor}`}>
                                         {badge}
                                     </span>
-
-                                    {/* Description + username */}
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-baseline gap-1.5 text-[12px]">
                                             <span className="truncate font-medium text-white">
@@ -449,13 +443,9 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, re
                                             )}
                                         </div>
                                     </div>
-
-                                    {/* Time */}
                                     <span className="hidden shrink-0 text-[10px] text-gray-500 sm:block">
                                         {relativeLabel}
                                     </span>
-
-                                    {/* Amount */}
                                     <div className="shrink-0 text-right">
                                         <span className={`text-[12px] font-semibold tabular-nums ${color}`}>
                                             {primary}
@@ -470,12 +460,10 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, re
                             );
                         })}
                     </div>
-
-                    {/* ── Pagination ──────────────────────────────────────── */}
                     {paginated.totalPages > 1 && (
                         <div className="flex items-center justify-between px-1 text-[11px] text-gray-400">
                             <span>
-                                Showing {paginated.startIndex + 1}–{paginated.endIndex} of {transactions.length}
+                                Showing {paginated.startIndex + 1}-{paginated.endIndex} of {transactions.length}
                             </span>
                             <div className="flex items-center gap-1">
                                 <button
