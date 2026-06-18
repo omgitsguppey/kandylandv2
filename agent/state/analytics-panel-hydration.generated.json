@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T21:52:48.997Z",
-  "currentHead": "7738734fbb8b9b8e3acb4ae8fe58fb93cf8ce37a",
+  "generatedAtUtc": "2026-06-18T21:59:05.249Z",
+  "currentHead": "f52f194c2631581df7221a7932b58957e4eb5db7",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,12 +416,10 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 4,
+    "total": 2,
     "byClassification": {
       "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 1,
-      "real_source_change_needs_review": 1,
-      "test_artifact_expected": 1
+      "documentation_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
@@ -432,14 +430,6 @@
       {
         "path": "docs/agent-truth/source-agreement-failure-detail.md",
         "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "src/lib/server/admin-analytics-historical-validation.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "tests/unit/admin-data-validation.spec.ts",
-        "classification": "test_artifact_expected"
       }
     ],
     "sampleTruncated": false
