@@ -180,7 +180,7 @@ export function getAdminStatusBadgeLabel(input: AdminTruthCopyInput | AdminSurfa
   }
 
   const candidate = ADMIN_COPY_REGISTRY[patternForInput(input)].badgeLabel;
-  return ADMIN_OPERATOR_BADGE_LABELS.includes(candidate) ? candidate : "REVIEW";
+  return ADMIN_OPERATOR_BADGE_LABELS.includes(candidate) ? candidate : "Review";
 }
 
 export function getAdminActionLabel(input: AdminTruthCopyInput): string {

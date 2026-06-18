@@ -25,7 +25,7 @@ Use `src/lib/admin-copy/admin-truth-copy.ts` and `src/lib/admin-copy/admin-copy-
 
 Allowed main UI language includes Live, Updated, Refreshing, Last verified data, Estimated, Partial, Waiting for first snapshot, Needs review, Unavailable, No sample, Source mismatch, Open in Debug, and Refresh.
 
-Badges must stay short: LIVE, UPDATED, REFRESHING, DELAYED, EST, PARTIAL, WAIT, REVIEW, ERROR, SNAP.
+Badges must stay short and plain: Current, Updated, Refreshing, Delayed, Estimate, Partial, Collecting, Review, Error, Cached.
 
 Waiting is allowed only when no verified snapshot exists. Last verified data is the correct copy when a verified snapshot is available while refresh, source parity, or current activity catches up.
 

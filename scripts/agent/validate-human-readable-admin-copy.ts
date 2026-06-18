@@ -98,7 +98,7 @@ for (const expected of [
   }
 }
 
-for (const badge of ["LIVE", "UPDATED", "REFRESHING", "DELAYED", "EST", "PARTIAL", "WAIT", "REVIEW", "ERROR", "SNAP"]) {
+for (const badge of ["Current", "Updated", "Refreshing", "Delayed", "Estimate", "Partial", "Collecting", "Review", "Error", "Cached"]) {
   if (!registry.includes(`"${badge}"`)) {
     fail("src/lib/admin/copy/admin-copy-registry.ts", `Approved badge label is not registered: ${badge}.`);
   }

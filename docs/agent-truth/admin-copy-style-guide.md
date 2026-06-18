@@ -18,7 +18,7 @@ Admin copy has two audiences. Primary admin UI is for operators; Debug is for de
 - Open in Debug
 - Refresh
 
-Short badges must use only: LIVE, UPDATED, REFRESHING, DELAYED, EST, PARTIAL, WAIT, REVIEW, ERROR, SNAP.
+Short badges must use only plain labels: Current, Updated, Refreshing, Delayed, Estimate, Partial, Collecting, Review, Error, Cached.
 
 ## Debug-Only Terms
 

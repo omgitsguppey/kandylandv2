@@ -44,7 +44,7 @@ describe("admin truth copy", () => {
 
     expect(copy.headline).toBe("Last verified data.");
     expect(copy.shortBody).toBe("Refresh again if you need the newest value.");
-    expect(copy.badgeLabel).toBe("SNAP");
+    expect(copy.badgeLabel).toBe("Cached");
     expect(copy.technicalDetails).toContain("analytics_aggregate_stats/realtime_summary");
     expectOperatorCopyIsPlain(copy.headline, copy.shortBody);
   });
@@ -68,7 +68,7 @@ describe("admin truth copy", () => {
     });
 
     expect(copy.headline).toBe("Guest traffic is estimated.");
-    expect(copy.badgeLabel).toBe("EST");
+    expect(copy.badgeLabel).toBe("Estimate");
     expectOperatorCopyIsPlain(copy.headline);
   });
 
@@ -127,8 +127,8 @@ describe("admin truth copy", () => {
       expect(ADMIN_OPERATOR_BADGE_LABELS).toContain(label);
     }
 
-    expect(getAdminStatusBadgeLabel("stale")).toBe("SNAP");
-    expect(getAdminStatusBadgeLabel("failed")).toBe("REVIEW");
+    expect(getAdminStatusBadgeLabel("stale")).toBe("Cached");
+    expect(getAdminStatusBadgeLabel("failed")).toBe("Review");
     expect(formatAdminSurfaceStateLabel("stale")).toBe("Refresh due");
   });
 
