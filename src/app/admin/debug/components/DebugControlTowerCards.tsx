@@ -77,6 +77,7 @@ function isRefreshOnlyFinding(finding: AdminDebugFindingCard) {
 export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
     const sourceFindingCount = report.findingCount > 0 ? report.findingCount : report.topFindings.filter((finding) => !isRefreshOnlyFinding(finding)).length;
     const hasFindings = sourceFindingCount > 0 || report.criticalCount > 0;
+    const findingLabel = hasFindings ? `${sourceFindingCount} source finding${sourceFindingCount === 1 ? "" : "s"}` : "No active findings";
     const sourceNeedsRefresh = report.freshness === "stale_24h" || report.freshness === "stale_72h" || report.sourceDrift === "stale";
     const proofBoundaryOnly = !hasFindings
         && report.id === "public-beta-score"
@@ -85,7 +86,7 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
         return {
             badgeState: "unavailable",
             statusLabel: "Source missing",
-            findingLabel: hasFindings ? `${report.findingCount} finding${report.findingCount === 1 ? "" : "s"}` : "No source",
+            findingLabel: hasFindings ? findingLabel : "No source",
             sourceDetail: "Required generated state is missing and cannot clear this lane.",
         };
     }
@@ -93,7 +94,7 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
         return {
             badgeState: "failed",
             statusLabel: "Source failed",
-            findingLabel: hasFindings ? `${report.findingCount} finding${report.findingCount === 1 ? "" : "s"}` : "Source failed",
+            findingLabel: hasFindings ? findingLabel : "Source failed",
             sourceDetail: "Generated state could not be parsed and cannot clear this lane.",
         };
     }
@@ -108,17 +109,17 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     }
     if (sourceNeedsRefresh) {
         return {
-            badgeState: "cached",
-            badgeLabel: "SNAP",
+            badgeState: "stale",
+            badgeLabel: "REFRESH",
             statusLabel: "Refresh due",
-            findingLabel: hasFindings ? `${sourceFindingCount} finding${sourceFindingCount === 1 ? "" : "s"}` : "Report refresh",
+            findingLabel,
             sourceDetail: "Generated state is older than its freshness window or current-head metadata.",
         };
     }
     return {
         badgeState: toBadgeState(report.truthState),
         statusLabel: report.status,
-        findingLabel: `${report.findingCount} finding${report.findingCount === 1 ? "" : "s"}`,
+        findingLabel,
         sourceDetail: `Source score ${report.score ?? "unavailable"}; freshness ${report.freshness}; truth ${report.truthState}.`,
     };
 }

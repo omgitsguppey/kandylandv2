@@ -285,6 +285,58 @@ describe("DebugControlTower", () => {
         }
     });
 
+    it("labels stale zero-finding report rows as refresh due instead of delayed errors", async () => {
+        const originalPayload = JSON.parse(JSON.stringify(mockState.payload));
+        const staleDeviceReport = {
+            ...mockState.payload.sections.device_ui[0],
+            truthState: "stale",
+            freshness: "stale_72h",
+            status: "clean",
+            findingCount: 0,
+            criticalCount: 0,
+            majorCount: 1,
+            topFindings: [{
+                id: "device-ui-stale-72h",
+                reportId: "device-ui-dry-audit",
+                section: "device_ui",
+                severity: "major",
+                title: "Device UI report is older than 72 hours",
+                domain: "device_ui",
+                filePath: "agent/state/device-ui-dry-audit.generated.json",
+                humanReadableWarning: "Beta-critical generated state is stale and needs to be regenerated before signoff.",
+                suggestedValidator: "npm run check:device-ui",
+                evidence: ["Age 160h"],
+                truthState: "stale",
+            }],
+        };
+
+        try {
+            const payload = mockState.payload as any;
+            payload.reports = [staleDeviceReport];
+            payload.sections.device_ui = [staleDeviceReport];
+
+            await act(async () => {
+                root.render(<DebugControlTower />);
+            });
+
+            await act(async () => {
+                await Promise.resolve();
+            });
+
+            const deviceCards = Array.from(container.querySelectorAll("[data-debug-report-source='agent/state/device-ui-dry-audit.generated.json']"));
+            const deviceText = deviceCards.map((entry) => entry.textContent ?? "").join(" ");
+
+            expect(deviceText).toContain("Refresh due");
+            expect(deviceText).toContain("No active findings");
+            expect(deviceText).toContain("REFRESH");
+            expect(deviceText).not.toContain("0 findings");
+            expect(deviceText).not.toContain("DELAYED");
+            expect(deviceText).not.toContain("ERROR");
+        } finally {
+            Object.assign(mockState.payload, originalPayload);
+        }
+    });
+
     it("renders browser security boundary current issues as review/info copy instead of backend failure copy", async () => {
         mockState.payload.liveIssues = [{
             id: "browser-boundary",
