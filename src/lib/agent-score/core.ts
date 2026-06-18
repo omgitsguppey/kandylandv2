@@ -38,6 +38,8 @@ export type PublicBetaStatus = "clean" | "pass" | "warning" | "beta-risk" | "fai
 export type PublicBetaReadinessStatus =
   | "Ready"
   | "Ready with smoke required"
+  | "Source validation only"
+  | "External proof required"
   | "Needs review"
   | "Blocked"
   | "Unknown evidence"
@@ -388,13 +390,15 @@ export function resolvePublicBetaStatus(score: number, hasCritical = false): Pub
 
 const READINESS_STATUS_RANK: Record<PublicBetaReadinessStatus, number> = {
   Ready: 0,
-  "Ready with smoke required": 1,
-  "Runtime unverified": 2,
-  "Visual QA required": 3,
-  "Unknown evidence": 4,
-  "Needs review": 5,
-  "Stale evidence": 6,
-  Blocked: 7,
+  "Source validation only": 1,
+  "Ready with smoke required": 2,
+  "Runtime unverified": 3,
+  "Visual QA required": 4,
+  "Unknown evidence": 5,
+  "Needs review": 6,
+  "Stale evidence": 7,
+  "External proof required": 8,
+  Blocked: 9,
 };
 
 function mostSevereReadinessStatus(statuses: PublicBetaReadinessStatus[]) {
@@ -404,16 +408,19 @@ function mostSevereReadinessStatus(statuses: PublicBetaReadinessStatus[]) {
 
 function readinessStatusToLegacyStatus(status: PublicBetaReadinessStatus, score: number, hasCritical: boolean): PublicBetaStatus {
   if (status === "Blocked" || hasCritical) return "fail";
-  if (status === "Stale evidence" || status === "Needs review") return "beta-risk";
+  if (status === "External proof required" || status === "Stale evidence" || status === "Needs review") return "beta-risk";
   if (status === "Unknown evidence" || status === "Visual QA required" || status === "Runtime unverified") return "warning";
-  if (status === "Ready with smoke required") return score >= PUBLIC_BETA_STATUS_THRESHOLDS.pass ? "pass" : "warning";
+  if (status === "Source validation only" || status === "Ready with smoke required") return score >= PUBLIC_BETA_STATUS_THRESHOLDS.pass ? "pass" : "warning";
   return resolvePublicBetaStatus(score, hasCritical);
 }
 
 function capForReadinessStatus(status: PublicBetaReadinessStatus) {
   switch (status) {
     case "Ready with smoke required":
+    case "Source validation only":
       return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.readyWithSmokeRequired;
+    case "External proof required":
+      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.staleEvidence;
     case "Runtime unverified":
       return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.runtimeUnverified;
     case "Visual QA required":
@@ -729,7 +736,9 @@ export function buildPublicBetaEvidenceGates(input: {
     ? "Ready"
     : targetedQuality.freshness === "stale" || targetedQuality.freshness === "head_mismatch"
       ? "Stale evidence"
-      : targetedQuality.quality === "failed" || targetedQuality.quality === "formal_partial"
+      : targetedQuality.quality === "source_ready" || targetedQuality.quality === "formal_partial"
+        ? "Source validation only"
+        : targetedQuality.quality === "failed"
         ? "Needs review"
         : "Unknown evidence";
 
@@ -755,11 +764,15 @@ export function buildPublicBetaEvidenceGates(input: {
   const providerSmokeStatus = String(evidenceArtifactStatus(evidence.providerSmokeEvidence));
   const runtimeSmokeStatus = String(evidenceArtifactStatus(evidence.runtimeSmokeEvidence, "runtime_unverified"));
   const runtimeProviderSmokePassed = providerSmokePassed && runtimeSmokePassed;
+  const providerNeedsFormalProof = /missing_formal_evidence|operator_reported_not_formal_provider_smoke|tracked_not_passing|missing_or_unknown/iu.test(providerSmokeStatus);
+  const runtimeNeedsFormalProof = /runtime_unverified|missing_formal_evidence|tracked_not_passing|missing_or_unknown/iu.test(runtimeSmokeStatus);
   let runtimeProviderSmokeStatus: PublicBetaReadinessStatus = "Ready with smoke required";
   if (runtimeProviderSmokePassed) {
     runtimeProviderSmokeStatus = "Ready";
   } else if (providerQuality.quality === "failed" || runtimeQuality.quality === "failed") {
     runtimeProviderSmokeStatus = "Needs review";
+  } else if (providerNeedsFormalProof || runtimeNeedsFormalProof) {
+    runtimeProviderSmokeStatus = "External proof required";
   } else if (
     providerQuality.freshness === "stale"
     || runtimeQuality.freshness === "stale"
@@ -948,6 +961,7 @@ export function buildPublicBetaEvidenceGates(input: {
 
   const adminTruthSamplePassed = evidenceArtifactPassed(evidence.adminTruthSampleEvidence);
   const adminTruthSampleStatus = String(evidenceArtifactStatus(evidence.adminTruthSampleEvidence, "missing_or_unknown"));
+  const adminTruthNeedsFormalProof = /missing_formal_evidence|missing_or_unknown|tracked_not_passing|admin_truth_sample_required/iu.test(adminTruthSampleStatus);
   const adminTruthSampleDetail = evidenceArtifactDetail(
     evidence.adminTruthSampleEvidence,
     adminTruthSamplePassed
@@ -989,10 +1003,12 @@ export function buildPublicBetaEvidenceGates(input: {
     adminTruthSampleStatusLabel = "Ready";
   } else if (adminBaseQuality.quality === "failed") {
     adminTruthSampleStatusLabel = "Needs review";
+  } else if (adminTruthNeedsFormalProof) {
+    adminTruthSampleStatusLabel = "External proof required";
+  } else if (adminBaseQuality.quality === "source_ready" || adminBridgeCredit > 0 || adminSourceConfidence > 0) {
+    adminTruthSampleStatusLabel = "External proof required";
   } else if (adminBaseQuality.freshness === "stale" || adminBaseQuality.freshness === "head_mismatch") {
     adminTruthSampleStatusLabel = "Stale evidence";
-  } else if (adminBaseQuality.quality === "source_ready" || adminBridgeCredit > 0 || adminSourceConfidence > 0) {
-    adminTruthSampleStatusLabel = "Ready with smoke required";
   }
 
   const sourceSafetyQuality = {

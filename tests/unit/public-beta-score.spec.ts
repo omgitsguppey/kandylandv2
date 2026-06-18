@@ -287,7 +287,7 @@ describe("public beta scoring math", () => {
         expect(report.launchClearance.formalGates.manualVisualEvidence.cleared).toBe(false);
     });
 
-    it("caps missing provider smoke as smoke required", () => {
+    it("classifies missing provider smoke as external proof required", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
@@ -296,7 +296,7 @@ describe("public beta scoring math", () => {
             },
         });
 
-        expect(report.readinessStatus).toBe("Ready with smoke required");
+        expect(report.readinessStatus).toBe("External proof required");
         expect(report.overallScore).toBeLessThan(100);
     });
 
@@ -333,7 +333,7 @@ describe("public beta scoring math", () => {
         });
 
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
-        expect(smokeGate?.status).toBe("Runtime unverified");
+        expect(smokeGate?.status).toBe("External proof required");
         expect(smokeGate?.score).toBe(0);
         expect(smokeGate?.evidence.join("\n")).toContain("runtimeArtifactStatus=runtime_unverified");
     });
@@ -366,8 +366,8 @@ describe("public beta scoring math", () => {
 
         expect(report.evidenceGates).toEqual(expect.arrayContaining([
             expect.objectContaining({ id: "targetedBehaviorTests", status: "Unknown evidence", score: 0 }),
-            expect.objectContaining({ id: "runtimeProviderSmoke", status: "Runtime unverified", score: 0 }),
-            expect.objectContaining({ id: "adminTruthSamples", status: "Unknown evidence", score: 0 }),
+            expect.objectContaining({ id: "runtimeProviderSmoke", status: "External proof required", score: 0 }),
+            expect.objectContaining({ id: "adminTruthSamples", status: "External proof required", score: 0 }),
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
@@ -439,7 +439,7 @@ describe("public beta scoring math", () => {
         });
 
         const adminGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
-        expect(adminGate?.status).toBe("Unknown evidence");
+        expect(adminGate?.status).toBe("External proof required");
         expect(adminGate?.score).toBe(0);
         expect(adminGate?.evidence.join("\n")).toContain("adminTruthSampleArtifactStatus=missing_or_unknown");
     });
@@ -533,7 +533,7 @@ describe("public beta scoring math", () => {
         });
 
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
-        expect(smokeGate?.status).toBe("Ready with smoke required");
+        expect(smokeGate?.status).toBe("External proof required");
         expect(smokeGate?.score).toBe(0);
         expect(smokeGate?.evidence.join("\n")).toContain("providerArtifactStatus=missing_formal_evidence");
     });

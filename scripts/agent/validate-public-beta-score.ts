@@ -59,6 +59,8 @@ function validateEvidenceGate(gate: PublicBetaEvidenceGate, index: number) {
   if (![
     "Ready",
     "Ready with smoke required",
+    "Source validation only",
+    "External proof required",
     "Needs review",
     "Blocked",
     "Unknown evidence",
@@ -202,6 +204,8 @@ if (report) {
   if (![
     "Ready",
     "Ready with smoke required",
+    "Source validation only",
+    "External proof required",
     "Needs review",
     "Blocked",
     "Unknown evidence",
