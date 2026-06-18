@@ -586,7 +586,8 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Panel recovery");
+    expect(container.textContent).toContain("Source and recovery");
+    expect(container.querySelector("[data-admin-analytics-source-recovery='compact']")).toBeTruthy();
     const sourceNotes = container.querySelector("details[title]");
     expect(container.textContent).toContain("Source detail");
     expect(sourceNotes?.getAttribute("title")).not.toContain("No current activity snapshot has loaded yet.");
@@ -597,7 +598,6 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).toContain("2 source gaps");
     expect(container.textContent).toContain("1 evidence gate");
     expect(container.textContent).not.toContain("3 need source");
-    expect(container.textContent).toContain("Status details");
     expect(container.textContent).toContain("2 collecting");
     expect(container.textContent).toContain("1 source ready");
     expect(container.textContent).toContain("2 not observed yet");

@@ -497,49 +497,50 @@ export default function AdminAnalyticsPage() {
           <p className="min-w-0 truncate font-medium text-white">{dataStatusSummary.join(" · ")}</p>
           <p className="min-w-0 truncate text-gray-400">{sourceQualitySummary.join(" · ")}</p>
         </div>
-        {sourceDetailItems.length > 0 ? (
-          <details
-            className="mt-2 rounded-md border border-white/10 bg-black/25 px-2 py-1 text-xs text-gray-300"
-            title={sourceDetailItems.join(" | ")}
-          >
-            <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Source detail ({sourceDetailItems.length})</summary>
-            <ul className="mt-1 list-disc space-y-1 pl-4">
-              {sourceDetailItems.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </details>
-        ) : null}
-        {showPanelRecovery ? (
+        {sourceDetailItems.length > 0 || showPanelRecovery ? (
           <details
             className="mt-2 rounded-md border border-white/10 bg-black/25 px-2.5 py-2 text-xs text-gray-200"
-            data-admin-analytics-panel-recovery="compact"
+            data-admin-analytics-source-recovery="compact"
+            title={sourceDetailItems.length > 0 ? sourceDetailItems.join(" | ") : undefined}
           >
             <summary className="min-h-9 cursor-pointer pt-1 font-semibold text-gray-100">
-              <span className="mr-2 text-white">Panel recovery</span>
+              <span className="mr-2 text-white">Source and recovery</span>
               <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-300">
-                <span>{connectedPanelCount}/{totalPanelCount} showing data</span>
-                {panelRecoveryWaitingCount > 0 ? <span>{panelRecoveryWaitingCount} collecting</span> : null}
-                {panelRecoverySourceGapCount > 0 ? (
-                  <span>{formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap")}</span>
-                ) : null}
-                {panelRecoveryEvidenceGateCount > 0 ? (
-                  <span>{formatPanelRecoveryCount(panelRecoveryEvidenceGateCount, "evidence gate")}</span>
-                ) : null}
-                {panelRecoveryNeedsEvidenceCount > 0 &&
-                panelRecoverySourceGapCount === 0 &&
-                panelRecoveryEvidenceGateCount === 0 ? (
-                  <span>{panelRecoveryNeedsEvidenceCount} need review</span>
+                {sourceDetailItems.length > 0 ? <span>{formatSourceHierarchyCount(sourceDetailItems.length, "source note")}</span> : null}
+                {showPanelRecovery ? (
+                  <>
+                    <span>{connectedPanelCount}/{totalPanelCount} showing data</span>
+                    {panelRecoveryWaitingCount > 0 ? <span>{panelRecoveryWaitingCount} collecting</span> : null}
+                    {panelRecoverySourceGapCount > 0 ? (
+                      <span>{formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap")}</span>
+                    ) : null}
+                    {panelRecoveryEvidenceGateCount > 0 ? (
+                      <span>{formatPanelRecoveryCount(panelRecoveryEvidenceGateCount, "evidence gate")}</span>
+                    ) : null}
+                    {panelRecoveryNeedsEvidenceCount > 0 &&
+                    panelRecoverySourceGapCount === 0 &&
+                    panelRecoveryEvidenceGateCount === 0 ? (
+                      <span>{panelRecoveryNeedsEvidenceCount} need review</span>
+                    ) : null}
+                  </>
                 ) : null}
               </div>
             </summary>
-            {panelRecoveryTruthItems.length > 0 || panelRecoveryActions.length > 0 ? (
-              <div className="mt-2 grid grid-cols-2 gap-1.5">
-                {panelRecoveryTruthItems.length > 0 ? (
-                  <details className="text-[11px] text-gray-300">
-                    <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">
-                      Status details
-                    </summary>
+            <div className="mt-2 grid gap-2 text-[11px] text-gray-300 md:grid-cols-2">
+              {sourceDetailItems.length > 0 ? (
+                <section className="rounded-md border border-white/10 bg-black/20 px-2 py-1.5">
+                  <p className="font-semibold text-gray-100">Source detail</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-4">
+                    {sourceDetailItems.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {showPanelRecovery ? (
+                <section className="rounded-md border border-white/10 bg-black/20 px-2 py-1.5">
+                  <p className="font-semibold text-gray-100">Panel recovery</p>
+                  {panelRecoveryTruthItems.length > 0 ? (
                     <ul className="mt-1 grid gap-1 pl-0 sm:grid-cols-2">
                       {panelRecoveryTruthItems.map((item) => {
                         const label = formatPanelRecoveryTruthState(item.state);
@@ -554,22 +555,20 @@ export default function AdminAnalyticsPage() {
                         );
                       })}
                     </ul>
-                  </details>
-                ) : null}
-                {panelRecoveryActions.length > 0 ? (
-                  <details className="text-[11px] text-gray-300">
-                    <summary className="min-h-8 cursor-pointer pt-1 font-semibold text-gray-100">
-                      Next actions
-                    </summary>
-                    <ul className="mt-1 list-disc space-y-1 pl-4">
+                  ) : null}
+                  {panelRecoveryActions.length > 0 ? (
+                    <div className="mt-2">
+                      <p className="font-semibold text-gray-100">Next actions</p>
+                      <ul className="mt-1 list-disc space-y-1 pl-4">
                       {panelRecoveryActions.slice(0, 3).map((action) => (
                         <li key={action} title={action}>{formatPanelRecoveryAction(action)}</li>
                       ))}
-                    </ul>
-                  </details>
-                ) : null}
-              </div>
-            ) : null}
+                      </ul>
+                    </div>
+                  ) : null}
+                </section>
+              ) : null}
+            </div>
           </details>
         ) : null}
       </div>

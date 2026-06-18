@@ -2,7 +2,7 @@
 
 Source snapshot only. This lane tracks admin modal replacement and first-viewport admin status simplification. It does not prove production admin action success, provider/payment proof, browser visual QA, or creator modal removal.
 
-Current refresh: reviewed against `05f05c4d3941ab1999608032c4bd72e5da6064b2`. Admin Analytics source agreement blockers use plain visible copy (`needs a connected source`) while preserving the canonical source-state enum for validators and Debug.
+Current refresh: reviewed against `e9cee44920ab32891340e541ab6347201151b72b`. Admin Analytics source agreement blockers use plain visible copy (`needs a connected source`) while preserving the canonical source-state enum for validators and Debug.
 
 ## Already Replaced
 
@@ -10,7 +10,7 @@ Current refresh: reviewed against `05f05c4d3941ab1999608032c4bd72e5da6064b2`. Ad
 - Balance and transaction history admin user modals became connected panels.
 - `/admin/drops` notification draft became an inline panel beside the drops table.
 - `/admin` Drops at a glance routes to the dedicated Drops Manager instead of owning a second create/edit modal lifecycle.
-- `/admin/analytics` source details and panel recovery sit behind compact neutral drawers instead of separate warning-heavy panels.
+- `/admin/analytics` source detail and panel recovery now share one compact neutral drawer instead of separate warning-heavy panels.
 - `/admin/analytics` source agreement blockers stay connected through the compact Data status source drilldown instead of a standalone first-viewport warning panel.
 - `/admin/debug` panel status keeps the same source rows and data attributes, but repeated header badges and per-signal chips are collapsed into one summary plus plain text detail.
 
