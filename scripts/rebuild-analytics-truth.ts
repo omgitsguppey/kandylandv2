@@ -6,11 +6,24 @@ import {
   CANONICAL_FACT_IMPORT_TARGETS,
   FORBIDDEN_RUNTIME_MUTATION_SURFACES,
 } from "../src/lib/analytics/import-export-truth-policy"
+import {
+  classifyGeneratedArtifactFromGit,
+  isGeneratedArtifactCurrent,
+} from "../src/lib/agent-score/generated-artifact-version-policy"
 
 const ANALYTICS_TRUTH_REBUILD_MAX_ROWS = 12000
 const ANALYTICS_TRUTH_REBUILD_MAX_RUNTIME_MS = 10 * 60 * 1000
 const ANALYTICS_TRUTH_REBUILD_MAX_RETRIES = 0
 const LAUNCH_RECOVERY_REPORT_PATH = "agent/state/launch-analytics-recovery.generated.json"
+const LAUNCH_RECOVERY_OWNED_SOURCE_PATHS = [
+  "scripts/agent/validate-analytics-panel-hydration.ts",
+  "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+  "src/lib/analytics/source-agreement-detail.ts",
+  "src/lib/server/admin-analytics-historical-validation.ts",
+  "src/lib/admin-analytics/panel-hydration-resolver.ts",
+  "src/app/api/admin/analytics/historical/route.ts",
+  "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+]
 
 function hasFlag(flag: string) {
   return process.argv.slice(2).includes(flag)
@@ -120,6 +133,13 @@ function readLaunchCoverageInputCandidates(evidenceProvenance: Record<string, un
   }
 }
 
+function launchRecoveryEvidenceFreshness(status: string) {
+  if (status === "current_head") return "current"
+  if (status === "same_commit_snapshot") return "same_commit_snapshot"
+  if (status === "current_by_impact") return "current_by_impact"
+  return "stale_generated_snapshot"
+}
+
 function readLaunchRecoveryDryRunSummary() {
   const artifactPath = path.resolve(process.cwd(), LAUNCH_RECOVERY_REPORT_PATH)
   if (!existsSync(artifactPath)) {
@@ -142,7 +162,13 @@ function readLaunchRecoveryDryRunSummary() {
     const report = asRecord(JSON.parse(readFileSync(artifactPath, "utf8")))
     const artifactHead = readString(report.currentHead, "unknown")
     const currentCodeHead = readCurrentHead()
-    const artifactCurrent = artifactHead !== "unknown" && currentCodeHead !== "unknown" && artifactHead === currentCodeHead
+    const artifactVersion = classifyGeneratedArtifactFromGit({
+      cwd: process.cwd(),
+      artifactPath: LAUNCH_RECOVERY_REPORT_PATH,
+      artifactHead: artifactHead === "unknown" ? undefined : artifactHead,
+      ownedSourcePaths: LAUNCH_RECOVERY_OWNED_SOURCE_PATHS,
+    })
+    const artifactCurrent = isGeneratedArtifactCurrent(artifactVersion)
     const evidenceProvenance = asRecord(report.evidenceProvenance)
     const rangeProof = asRecord(asRecord(report.launchHistoryCoverage).rangeProof)
     const firstPartyCoverage = asRecord(asRecord(report.launchHistoryCoverage).firstPartyCoverage)
@@ -156,10 +182,12 @@ function readLaunchRecoveryDryRunSummary() {
       currentHead: artifactHead,
       currentCodeHead,
       artifactCurrent,
-      evidenceFreshness: artifactCurrent ? "current" : "stale_generated_snapshot",
+      artifactVersionStatus: artifactVersion.status,
+      artifactVersionReason: artifactVersion.reason,
+      evidenceFreshness: launchRecoveryEvidenceFreshness(artifactVersion.status),
       staleArtifactReason: artifactCurrent
         ? null
-        : `Launch recovery artifact currentHead=${artifactHead}; current code head=${currentCodeHead}.`,
+        : artifactVersion.reason,
       refreshCommand: "npm run check:analytics-panel-hydration",
       evidenceClass: readString(report.evidenceClass, "generated_snapshot"),
       canClearSourceGate: readBoolean(report.canClearSourceGate, false),
