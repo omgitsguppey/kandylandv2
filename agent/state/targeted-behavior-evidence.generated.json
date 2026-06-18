@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-06-11T22:58:29.689Z",
+  "generatedAtUtc": "2026-06-18T14:22:41.223Z",
   "reportKey": "targeted-behavior-evidence",
   "status": "passed",
   "overallStatus": "passed",
   "passed": true,
-  "sourceCommit": "1719f615428f19eb14c00742a73b2fe966670c53",
-  "latestCodeVersion": "1719f615428f19eb14c00742a73b2fe966670c53",
-  "currentHead": "1719f615428f19eb14c00742a73b2fe966670c53",
+  "sourceCommit": "05ae4a970bdede92e4a77931e9cc187e33f5064b",
+  "latestCodeVersion": "05ae4a970bdede92e4a77931e9cc187e33f5064b",
+  "currentHead": "05ae4a970bdede92e4a77931e9cc187e33f5064b",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
@@ -181,7 +181,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84"
+      "currentHead": "7cf1ea434bab50842a223111f99d5e10c215b49e"
     },
     {
       "id": "activity-verification-engine",
@@ -197,7 +197,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84"
+      "currentHead": "5bd37e429242d5c9ebb2cfb75d84061c49af7991"
     },
     {
       "id": "event-translation-bridge",
@@ -213,7 +213,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d"
+      "currentHead": "4378b15dd43fd41430deb989ec9a9854b9b6f71f"
     },
     {
       "id": "person-metrics-hydration",
@@ -229,7 +229,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d"
+      "currentHead": "4378b15dd43fd41430deb989ec9a9854b9b6f71f"
     },
     {
       "id": "surface-state-parity",

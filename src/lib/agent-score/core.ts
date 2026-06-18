@@ -725,6 +725,13 @@ export function buildPublicBetaEvidenceGates(input: {
   const targetedBehaviorEvidence = evidence.targetedBehaviorEvidence
     ? evidenceArtifactEvidence(evidence.targetedBehaviorEvidence)
     : ["targetedBehaviorArtifactStatus=missing_formal_evidence"];
+  const targetedBehaviorStatus: PublicBetaReadinessStatus = targetedBehaviorPassed
+    ? "Ready"
+    : targetedQuality.freshness === "stale" || targetedQuality.freshness === "head_mismatch"
+      ? "Stale evidence"
+      : targetedQuality.quality === "failed" || targetedQuality.quality === "formal_partial"
+        ? "Needs review"
+        : "Unknown evidence";
 
   const providerQuality = resolveEvidenceQuality({
     artifact: evidence.providerSmokeEvidence,
@@ -1090,7 +1097,7 @@ export function buildPublicBetaEvidenceGates(input: {
       id: "targetedBehaviorTests",
       label: "Targeted behavior tests",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.targetedBehaviorTests,
-      status: targetedBehaviorPassed ? "Ready" : "Unknown evidence",
+      status: targetedBehaviorStatus,
       detail: targetedBehaviorDetail,
       evidence: targetedBehaviorEvidence,
       recommendedAction: "Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",

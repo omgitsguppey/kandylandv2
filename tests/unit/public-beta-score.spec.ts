@@ -471,6 +471,26 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.evidence.join("\n")).toContain("artifactStatus=missing_formal_evidence");
     });
 
+    it("classifies stale targeted behavior source evidence as stale instead of unknown", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                targetedBehaviorEvidence: {
+                    ...freshEvidence.targetedBehaviorEvidence,
+                    generatedAtUtc: staleGeneratedAtUtc,
+                },
+            },
+        });
+
+        const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
+        expect(targetedGate?.status).toBe("Stale evidence");
+        expect(targetedGate?.evidenceQuality).toBe("stale");
+        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Stale evidence: Targeted behavior tests"),
+        ]));
+    });
+
     it("exposes all active cap details", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
