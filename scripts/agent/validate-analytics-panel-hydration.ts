@@ -451,10 +451,10 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   const staleEvidence = sourceAgreementHead !== null && sourceAgreementHead !== input.currentHead;
   const status = expectedDays.length === 0
     ? "source_evidence_missing"
-    : sourceAgreementState === "failed" || sourceAgreementState === "fail"
-      ? "source_agreement_failed"
-      : staleEvidence
-        ? "stale_evidence_review"
+    : staleEvidence
+      ? "stale_evidence_review"
+      : sourceAgreementState === "failed" || sourceAgreementState === "fail"
+        ? "source_agreement_failed"
         : "review";
   const disagreementCount = asNumber(sourceAgreementDetail.disagreementCount, 0);
   const maxDeltaPct = typeof sourceAgreementDetail.maxDeltaPct === "number" ? sourceAgreementDetail.maxDeltaPct : null;

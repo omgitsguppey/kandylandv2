@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T02:00:35.054Z",
-  "currentHead": "6c5220106826bcded6cf2a3b68fbb31881250941",
+  "generatedAtUtc": "2026-06-18T02:05:25.346Z",
+  "currentHead": "9bc587e3d122a0e82a0ae7174ab247b517fc1a85",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -126,8 +126,8 @@
       "2026-05-01",
       "2026-05-03"
     ],
-    "staleInputEvidence": true,
-    "sourceAgreementEvidenceHead": "d4184ef0ca51c45eb662489ab064016adbcf3d25"
+    "staleInputEvidence": false,
+    "sourceAgreementEvidenceHead": "9bc587e3d122a0e82a0ae7174ab247b517fc1a85"
   },
   "sourceAgreement": {
     "comparedSources": [
@@ -145,7 +145,6 @@
     "maxDeltaPct": 67,
     "state": "failed",
     "classifications": [
-      "stale_generated_evidence",
       "date_range_mismatch",
       "duplicate_event",
       "external_source_gap",

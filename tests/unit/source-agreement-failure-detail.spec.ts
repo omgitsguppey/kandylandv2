@@ -18,6 +18,7 @@ describe("source agreement failure detail", () => {
     });
 
     expect(detail.comparedSources).toEqual(["first_party", "ga4", "historical_snapshot", "legacy_support"]);
+    expect(detail.sourceAgreementStatus).toBe("failed");
     expect(detail.missingDaysBySource.first_party).toEqual(["2026-05-02", "2026-05-03"]);
     expect(detail.disagreementCount).toBeGreaterThan(0);
     expect(detail.maxDeltaPct).toBeGreaterThan(25);

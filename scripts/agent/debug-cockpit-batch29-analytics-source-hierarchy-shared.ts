@@ -244,6 +244,7 @@ export function validateSourceAgreementFailureDetail() {
     blockedConsumers: ["admin_analytics_charts", "debug_data_validation"],
   });
   expectPass(detail.comparedSources.includes("first_party") && detail.comparedSources.length === 4, failures, "source agreement failed but first-party compared source is missing.");
+  expectPass(detail.sourceAgreementStatus === "failed", failures, "source agreement detail lacks explicit failed state.");
   expectPass(detail.disagreementCount > 0 && detail.maxDeltaPct > 25, failures, "maxDeltaPct/disagreementCount missing.");
   expectPass(detail.toleranceThresholds.failDeltaPct === 25, failures, "tolerance thresholds missing.");
   expectPass(detail.blockedConsumers.includes("admin_analytics_charts"), failures, "blocked consumers missing.");

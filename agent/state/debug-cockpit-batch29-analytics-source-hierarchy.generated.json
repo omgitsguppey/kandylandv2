@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch29-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-17T19:05:10.458Z",
-  "currentHead": "d6467b058100facddbf73195080fccc863730118",
+  "generatedAtUtc": "2026-06-18T02:09:07.566Z",
+  "currentHead": "9bc587e3d122a0e82a0ae7174ab247b517fc1a85",
   "ga4AvailabilityStatusBefore": "reports_available",
   "ga4AvailabilityStatusAfter": "reports_loaded_empty",
   "chartReadinessStatusBefore": "ready",
@@ -27,6 +27,7 @@
       "historical_snapshot",
       "legacy_support"
     ],
+    "sourceAgreementStatus": "failed",
     "disagreementCount": 3,
     "maxDeltaPct": 67,
     "perSourceCoverage": [
@@ -86,7 +87,7 @@
       "admin_analytics_source_health",
       "public_beta_score_evidence"
     ],
-    "nextAction": "Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity."
+    "nextAction": "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity."
   },
   "scoreBefore": 42,
   "scoreAfter": 85,
@@ -103,144 +104,64 @@
   "nextExactSteps": [
     "GA4 reports loaded from admin analytics historical validation route, but no sample rows or day buckets were present. Keep this as setup availability only until data samples load.",
     "Show source agreement failed in Debug and Analytics tab, then repair the mismatched source lane before canonical chart promotion.",
-    "Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity."
+    "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity."
   ],
   "dirtyFileClassifications": [
-    {
-      "filePath": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "filePath": "agent/state/admin-analytics-realtime-hot-cache.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "filePath": "agent/state/admin-analytics-source-hierarchy.generated.json",
-      "classification": "analytics_tab_source_truth_mismatch_required"
-    },
-    {
-      "filePath": "agent/state/admin-surface-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
     {
       "filePath": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "filePath": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "agent/state/gumdrop-ledger-math.generated.json",
+      "filePath": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "filePath": "docs/agent-truth/admin-analytics-realtime-hot-cache.md",
-      "classification": "documentation_artifact_expected"
+      "filePath": "agent/state/launch-analytics-recovery.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "filePath": "docs/agent-truth/admin-analytics-source-hierarchy.md",
-      "classification": "analytics_tab_source_truth_mismatch_required"
+      "filePath": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "filePath": "docs/agent-truth/admin-surface-hydration.md",
-      "classification": "documentation_artifact_expected"
+      "filePath": "agent/state/source-agreement-failure-detail.generated.json",
+      "classification": "source_agreement_failure_classification_required"
     },
     {
       "filePath": "docs/agent-truth/analytics-panel-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "docs/agent-truth/gumdrop-ledger-math.md",
+      "filePath": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/doctrine/surfaces/wallet.md",
-      "classification": "protected_gumdrop_wallet_work_unrelated"
+      "filePath": "docs/agent-truth/launch-analytics-recovery.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/source-agreement-failure-detail.md",
+      "classification": "source_agreement_failure_classification_required"
     },
     {
       "filePath": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-gumdrop-ledger-math.ts",
+      "filePath": "scripts/agent/validate-analytics-panel-hydration.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-gumdrop-source-of-funds-truth.ts",
-      "classification": "validator_artifact_expected"
+      "filePath": "src/lib/analytics/source-agreement-detail.ts",
+      "classification": "source_agreement_failure_classification_required"
     },
     {
-      "filePath": "src/app/api/creator/bookings/route.ts",
-      "classification": "creator_work_unrelated"
-    },
-    {
-      "filePath": "src/app/api/creator/requests/route.ts",
-      "classification": "creator_work_unrelated"
-    },
-    {
-      "filePath": "src/app/api/creator/subscriptions/route.ts",
-      "classification": "creator_work_unrelated"
-    },
-    {
-      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "classification": "creator_work_unrelated"
-    },
-    {
-      "filePath": "src/lib/analytics/admin-analytics-source-hierarchy.ts",
-      "classification": "analytics_tab_source_truth_mismatch_required"
-    },
-    {
-      "filePath": "src/lib/gumdrop-ledger.ts",
-      "classification": "protected_gumdrop_wallet_work_unrelated"
-    },
-    {
-      "filePath": "src/lib/problem-state-copy.ts",
-      "classification": "admin_copy_state_work_unrelated"
-    },
-    {
-      "filePath": "src/lib/server/chat.ts",
-      "classification": "chat_reliability_work_unrelated"
-    },
-    {
-      "filePath": "src/lib/server/creator-experiences.ts",
-      "classification": "creator_work_unrelated"
-    },
-    {
-      "filePath": "tests/unit/admin-analytics-page.spec.tsx",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/admin-analytics-source-hierarchy.spec.ts",
-      "classification": "analytics_tab_source_truth_mismatch_required"
-    },
-    {
-      "filePath": "tests/unit/creator-bookings-route.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/creator-bookings-transaction-route.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/creator-requests-route.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/creator-subscriptions-route.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/gumdrop-ledger.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/server-chat-send.spec.ts",
-      "classification": "test_artifact_expected"
+      "filePath": "tests/unit/source-agreement-failure-detail.spec.ts",
+      "classification": "source_agreement_failure_classification_required"
     }
   ],
   "openPrClassifications": [],

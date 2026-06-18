@@ -5,6 +5,7 @@ export type SourceAgreementCoverageInput = {
 
 export type SourceAgreementFailureDetail = {
   comparedSources: string[];
+  sourceAgreementStatus: "pass" | "review" | "failed" | "not_enough_sources";
   disagreementCount: number;
   maxDeltaPct: number;
   perSourceCoverage: Array<{ source: string; dayCount: number; days: string[] }>;
@@ -61,6 +62,16 @@ export function buildSourceAgreementFailureDetail(input: {
   const maxDeltaPct = activeCounts.length > 1 && maxCoverage > 0
     ? Math.round(((maxCoverage - minCoverage) / maxCoverage) * 100)
     : 0;
+  const reviewDeltaPct = input.tolerance?.reviewDeltaPct ?? input.reviewDeltaPct ?? 10;
+  const failDeltaPct = input.tolerance?.failDeltaPct ?? input.failDeltaPct ?? 25;
+  const sourceAgreementStatus =
+    activeCounts.length < 2 || expectedDays.length === 0
+      ? "not_enough_sources"
+      : disagreementCount > 1 || maxDeltaPct > failDeltaPct
+        ? "failed"
+        : disagreementCount > 0 || maxDeltaPct > reviewDeltaPct
+          ? "review"
+          : "pass";
   const missingDaysBySource = Object.fromEntries(
     perSourceCoverage.map((entry) => [
       entry.source,
@@ -76,6 +87,7 @@ export function buildSourceAgreementFailureDetail(input: {
 
   return {
     comparedSources: comparedSources.map((entry) => entry.source),
+    sourceAgreementStatus,
     disagreementCount,
     maxDeltaPct,
     perSourceCoverage,
@@ -83,8 +95,8 @@ export function buildSourceAgreementFailureDetail(input: {
     extraDaysBySource,
     comparedMetrics: input.comparedMetrics ?? ["day_bucket_presence", "coverage_delta_pct"],
     toleranceThresholds: {
-      reviewDeltaPct: input.tolerance?.reviewDeltaPct ?? input.reviewDeltaPct ?? 10,
-      failDeltaPct: input.tolerance?.failDeltaPct ?? input.failDeltaPct ?? 25,
+      reviewDeltaPct,
+      failDeltaPct,
     },
     blockedConsumers: input.blockedConsumers ?? [
       "admin_analytics_overview",

@@ -1,7 +1,7 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-06-18T01:37:30.420Z",
-  "currentHead": "d4184ef0ca51c45eb662489ab064016adbcf3d25",
+  "generatedAtUtc": "2026-06-18T02:09:07.304Z",
+  "currentHead": "9bc587e3d122a0e82a0ae7174ab247b517fc1a85",
   "detail": {
     "comparedSources": [
       "first_party",
@@ -9,6 +9,7 @@
       "historical_snapshot",
       "legacy_support"
     ],
+    "sourceAgreementStatus": "failed",
     "disagreementCount": 3,
     "maxDeltaPct": 67,
     "perSourceCoverage": [

@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T02:00:35.054Z
-Current head: 6c5220106826bcded6cf2a3b68fbb31881250941
+Generated: 2026-06-18T02:05:25.346Z
+Current head: 9bc587e3d122a0e82a0ae7174ab247b517fc1a85
 Status: source_agreement_failed
 
 ## Source Order
@@ -17,7 +17,7 @@ Status: source_agreement_failed
 - GA4 days: 3
 - Historical snapshot days: 1
 - Legacy support days: 1
-- Stale input evidence: yes
+- Stale input evidence: no
 
 ## Source Agreement
 
@@ -25,7 +25,7 @@ Status: source_agreement_failed
 - Compared sources: first_party, ga4, historical_snapshot, legacy_support
 - Disagreements: 3
 - Max delta: 67
-- Classifications: stale_generated_evidence, date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
+- Classifications: date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
 - Next action: Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.
 
 ## Admin Panel Connection
