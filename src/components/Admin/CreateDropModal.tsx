@@ -849,26 +849,15 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     );
     const panelBody = (
                     <>
-                        <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-md md:px-6 md:pb-5 md:pt-5">
-                            {resolvedPresentation === "inline" ? (
-                                <h2 id={titleId} className="shrink-0 text-xl font-bold text-white">
-                                    {titleLabel}
-                                </h2>
-                            ) : (
+                        {resolvedPresentation === "inline" ? (
+                            <h2 id={titleId} className="sr-only">
+                                {titleLabel}
+                            </h2>
+                        ) : (
+                            <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-md md:px-6 md:pb-5 md:pt-5">
                                 <Dialog.Title className="shrink-0 text-xl font-bold text-white">
                                     {titleLabel}
                                 </Dialog.Title>
-                            )}
-                            {resolvedPresentation === "inline" ? (
-                                <button
-                                    type="button"
-                                    onClick={onClose}
-                                    aria-label="Close drop form"
-                                    className="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            ) : (
                                 <Dialog.Close asChild>
                                     <button
                                         type="button"
@@ -879,8 +868,8 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         <X className="w-5 h-5" />
                                     </button>
                                 </Dialog.Close>
-                            )}
-                        </header>
+                            </header>
+                        )}
 
                         <div className="custom-scrollbar flex-1 overflow-y-auto px-3 pb-24 pt-3 md:px-5 md:pb-6 md:pt-5">
                             {fetching ? (

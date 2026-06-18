@@ -1,9 +1,9 @@
 {
   "reportKey": "admin-surface-modal-replacement",
   "status": "source_review_pass",
-  "generatedAtUtc": "2026-06-18T10:23:16.797Z",
-  "sourceCommit": "404d9037c67fdad6398e002b31985b2c31c62b12",
-  "currentHead": "404d9037c67fdad6398e002b31985b2c31c62b12",
+  "generatedAtUtc": "2026-06-18T10:40:40.850Z",
+  "sourceCommit": "bb49edbfd1d42aea14ea259da20bf14ea437643d",
+  "currentHead": "bb49edbfd1d42aea14ea259da20bf14ea437643d",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "sourceFileDiscovery": "git",
@@ -31,7 +31,7 @@
   "owner": "admin surface modal replacement source review",
   "safetyClass": "source_safe",
   "costClass": "local_free",
-  "rollback": "Revert the Admin Analytics compact source-status patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
+  "rollback": "Revert the Admin drop inline chrome patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
   "cleanupPolicy": "preserve_tracked_snapshot",
   "cleanupCommand": null,
   "sourceTruthRole": "generated_snapshot",
@@ -55,6 +55,7 @@
   "summary": {
     "adminModalCandidatesInventoried": 4,
     "modalShellsRemoved": 0,
+    "inlineModalChromeRemoved": 1,
     "inlinePanelsConfirmed": 3,
     "legacyModalNamesDeferred": 1,
     "adminAnalyticsLabelContractsNormalized": true,
@@ -76,7 +77,7 @@
       "candidates": ["CreateDropModal"],
       "sourceOwner": "src/app/admin/drops/page.tsx and src/components/Admin/CreateDropModal.tsx",
       "decision": "keep_inline_component_rename_deferred",
-      "reason": "The admin page already opens this as an inline Drop action panel with presentation=\"inline\". Renaming or splitting the legacy component would affect creator imports and should be a separate low-risk consolidation."
+      "reason": "The admin page opens this as an inline Drop action panel with presentation=\"inline\". The duplicate visible modal title bar was removed from inline presentation while the shared modal presentation remains for creator/imported use. Renaming or splitting the legacy component would affect creator imports and should be a separate low-risk consolidation."
     },
     {
       "surface": "Admin Analytics",

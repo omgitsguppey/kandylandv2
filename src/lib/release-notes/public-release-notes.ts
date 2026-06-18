@@ -1,13 +1,68 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.90",
-  "betaReleaseCounter": 590,
+  "currentVersion": "1.5.91",
+  "betaReleaseCounter": 591,
   "channel": "beta",
-  "generatedAt": "2026-06-18T10:27:15.178Z",
-  "generatedAtUtc": "2026-06-18T10:27:15.178Z",
-  "lastCommitSha": "404d9037c67fdad6398e002b31985b2c31c62b12",
+  "generatedAt": "2026-06-18T10:45:47.560Z",
+  "generatedAtUtc": "2026-06-18T10:45:47.560Z",
+  "lastCommitSha": "edcc1b76f3c3f12aded0051b5cd9f4d3743bad93",
   "notes": [
+    {
+      "version": "1.5.91",
+      "previousVersion": "1.5.90",
+      "betaReleaseCounter": 591,
+      "previousBetaReleaseCounter": 590,
+      "commitSha": "edcc1b76f3c3f12aded0051b5cd9f4d3743bad93",
+      "commitTitle": "fix(admin): simplify surface actions",
+      "commitCount": 2,
+      "commitShas": [
+        "3e4bb6df95eb7268be35a461862114b1a8f1e562",
+        "edcc1b76f3c3f12aded0051b5cd9f4d3743bad93"
+      ],
+      "committedAt": "2026-06-18T10:45:02.000Z",
+      "generatedAt": "2026-06-18T10:45:47.559Z",
+      "committedAtUtc": "2026-06-18T10:45:02.000Z",
+      "generatedAtUtc": "2026-06-18T10:45:47.559Z",
+      "updatedAtUtc": "2026-06-18T10:45:47.559Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-surface-modal-replacement.generated.json",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/source-agreement-failure-detail.generated.json",
+        "docs/agent-truth/admin-surface-modal-replacement.md",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/source-agreement-failure-detail.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/page.tsx",
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-page.spec.tsx"
+      ],
+      "sourceCommit": "edcc1b76f3c3f12aded0051b5cd9f4d3743bad93"
+    },
     {
       "version": "1.5.90",
       "previousVersion": "1.5.89",
@@ -2634,47 +2689,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/client-error-reporting.spec.ts"
       ],
       "sourceCommit": "64cf12401365add96a6f816934628a0910225904"
-    },
-    {
-      "version": "1.5.66",
-      "previousVersion": "1.5.65",
-      "betaReleaseCounter": 566,
-      "previousBetaReleaseCounter": 565,
-      "commitSha": "8e51e7fc72f16770874031ac6b8350e003fd9c7d",
-      "commitTitle": "fix(admin): add compact onboarding analytics modes",
-      "commitCount": 1,
-      "commitShas": [
-        "8e51e7fc72f16770874031ac6b8350e003fd9c7d"
-      ],
-      "committedAt": "2026-06-04T02:53:59.000Z",
-      "generatedAt": "2026-06-04T03:30:15.598Z",
-      "committedAtUtc": "2026-06-04T02:53:59.000Z",
-      "generatedAtUtc": "2026-06-04T03:30:15.598Z",
-      "updatedAtUtc": "2026-06-04T03:30:15.598Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-onboarding-analytics-mobile.spec.ts"
-      ],
-      "sourceCommit": "8e51e7fc72f16770874031ac6b8350e003fd9c7d"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

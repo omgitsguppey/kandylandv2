@@ -1,8 +1,8 @@
 # Admin Surface Modal Replacement
 
 Status: source_review_pass
-Generated: 2026-06-18T10:23:16.797Z
-Current head: 404d9037c67fdad6398e002b31985b2c31c62b12
+Generated: 2026-06-18T10:40:40.850Z
+Current head: bb49edbfd1d42aea14ea259da20bf14ea437643d
 Evidence boundary: complete source snapshot, local free, no runtime/provider/admin truth gate cleared.
 
 This pass reviewed admin modal-style actions and normalized Admin Analytics state labels. It is source evidence only. It does not clear runtime, provider, PayPal, wallet, GumDrop treasury, production database, or admin truth sample gates.
@@ -10,7 +10,7 @@ This pass reviewed admin modal-style actions and normalized Admin Analytics stat
 ## Decisions
 
 - Admin Users: `BalanceAdjustmentPanel` and `TransactionHistoryPanel` already render inside the inline selected-action workspace. They were kept as connected inline panels.
-- Admin Drops: `CreateDropModal` is still a legacy component name, but admin drops already renders it through an inline Drop action section with `presentation="inline"`. A file/component rename is deferred because creator imports share it.
+- Admin Drops: `CreateDropModal` is still a legacy component name, but admin drops renders it through an inline Drop action section with `presentation="inline"`. The duplicate visible modal title bar was removed from inline presentation, while the shared modal presentation remains for creator/imported use. A file/component rename is deferred because creator imports share it.
 - Admin Analytics: all-caps operational chips were replaced with plain state labels: Current, Cached, Refresh due, Sample, No sample, Collecting, No source, Review, Failed, and Estimate.
 - Admin Analytics: source recovery details and panel hydration states now share one compact expandable list instead of nested source-detail and panel-status cards.
 - Admin Analytics: `launchHistoryCoverage` now includes `firstPartyCoverage`, and the compact Data status strip surfaces first-party launch gaps. Mixed GA4/fallback coverage can no longer look fully product-truth-ready.
