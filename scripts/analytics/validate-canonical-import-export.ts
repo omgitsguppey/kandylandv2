@@ -51,6 +51,9 @@ requireIncludes(rebuildAnalyticsTruth, "executeFunctions: false", "Analytics tru
 requireIncludes(rebuildAnalyticsTruth, "readSkipped: true", "Analytics truth rebuild");
 requireIncludes(rebuildAnalyticsTruth, 'canonicalFactImportTargets: [...CANONICAL_FACT_IMPORT_TARGETS]', "Analytics truth rebuild");
 requireIncludes(rebuildAnalyticsTruth, 'forbiddenRuntimeMutationSurfaces: [...FORBIDDEN_RUNTIME_MUTATION_SURFACES]', "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "artifactCurrent", "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "stale_generated_snapshot", "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "npm run check:analytics-panel-hydration", "Analytics truth rebuild");
 
 requireIncludes(rebuildBehavioral, 'runFunctionsCommand("rebuild:analytics-truth")', "Behavioral rebuild");
 requireIncludes(rebuildBehavioral, 'KD_ANALYTICS_IMPORT_SCHEMA_VALIDATION_REQUIRED: "true"', "Behavioral rebuild");

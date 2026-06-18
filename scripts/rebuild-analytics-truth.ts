@@ -1,4 +1,4 @@
-import {spawn} from "node:child_process"
+import {execFileSync, spawn} from "node:child_process"
 import {existsSync, readFileSync} from "node:fs"
 import path from "node:path"
 
@@ -83,6 +83,14 @@ function readBoolean(value: unknown, fallback = false) {
   return typeof value === "boolean" ? value : fallback
 }
 
+function readCurrentHead() {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], {cwd: process.cwd(), encoding: "utf8"}).trim()
+  } catch {
+    return "unknown"
+  }
+}
+
 function readLaunchCoverageInputCandidates(evidenceProvenance: Record<string, unknown>) {
   const statuses = Array.isArray(evidenceProvenance.candidateLaunchCoverageInputStatuses)
     ? evidenceProvenance.candidateLaunchCoverageInputStatuses
@@ -132,6 +140,9 @@ function readLaunchRecoveryDryRunSummary() {
 
   try {
     const report = asRecord(JSON.parse(readFileSync(artifactPath, "utf8")))
+    const artifactHead = readString(report.currentHead, "unknown")
+    const currentCodeHead = readCurrentHead()
+    const artifactCurrent = artifactHead !== "unknown" && currentCodeHead !== "unknown" && artifactHead === currentCodeHead
     const evidenceProvenance = asRecord(report.evidenceProvenance)
     const rangeProof = asRecord(asRecord(report.launchHistoryCoverage).rangeProof)
     const firstPartyCoverage = asRecord(asRecord(report.launchHistoryCoverage).firstPartyCoverage)
@@ -142,7 +153,14 @@ function readLaunchRecoveryDryRunSummary() {
     return {
       artifactPath: LAUNCH_RECOVERY_REPORT_PATH,
       status: readString(report.status, "unknown"),
-      currentHead: readString(report.currentHead, "unknown"),
+      currentHead: artifactHead,
+      currentCodeHead,
+      artifactCurrent,
+      evidenceFreshness: artifactCurrent ? "current" : "stale_generated_snapshot",
+      staleArtifactReason: artifactCurrent
+        ? null
+        : `Launch recovery artifact currentHead=${artifactHead}; current code head=${currentCodeHead}.`,
+      refreshCommand: "npm run check:analytics-panel-hydration",
       evidenceClass: readString(report.evidenceClass, "generated_snapshot"),
       canClearSourceGate: readBoolean(report.canClearSourceGate, false),
       canClearRuntimeGate: readBoolean(report.canClearRuntimeGate, false),
@@ -171,7 +189,7 @@ function readLaunchRecoveryDryRunSummary() {
       nextAction: readString(
         report.nextAction,
         readString(sourceAgreement.nextAction, "Review launch analytics recovery evidence before importing analytics truth."),
-      ),
+      ) + (artifactCurrent ? "" : " Refresh launch recovery evidence with npm run check:analytics-panel-hydration before treating this dry-run summary as current."),
     }
   } catch (error) {
     return {
