@@ -15,13 +15,7 @@ import { cn } from "@/lib/utils";
 import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth";
 import { DebugOperatorCockpit } from "./DebugOperatorCockpit";
 import { DebugGumdropRecoverySummary, DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
-import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, formatRelative, resolveReportDisplay } from "./DebugControlTowerCards";
-
-function formatPublicBetaCapDetailForAdmin(detail?: string) {
-    const normalized = String(detail ?? "").trim(), count = normalized.match(/\b\d+\b/u)?.[0];
-    if (!normalized) return "Readiness unavailable.";
-    return /targeted behavior tests/iu.test(normalized) ? "Source checks passed: targeted behavior validators passed. They do not replace screenshot, provider, runtime, or admin truth proof." : /runtime\/provider smoke|provider smoke|runtime smoke/iu.test(normalized) ? "Provider and runtime proof needed: attach fresh redacted provider smoke evidence and keep deployed runtime smoke current." : /admin truth|sample evidence|truth sample/iu.test(normalized) ? "Admin truth sample needed: attach a fresh redacted production admin truth sample." : /report freshness|pr integrity|freshness window|current-head|current head/iu.test(normalized) ? count ? `Report refresh needed: ${count} required generated reports are older than the freshness window.` : "Report refresh needed: required generated reports are older than the freshness window." : normalized.replace(/^Unknown evidence:\s*/iu, "Evidence needs classification: ").replace(/^Stale evidence:\s*/iu, "Refresh or proof needed: ").replace(/^Runtime unverified:\s*/iu, "Runtime proof needed: ");
-}
+import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, formatPublicBetaCapDetailForAdmin, formatPublicBetaReadinessStatusForAdmin, formatRelative, resolveReportDisplay } from "./DebugControlTowerCards";
 
 export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession = false }: { businessSnapshot?: AdminUserTruthSnapshot | null; isLocalAdminUiTestSession?: boolean }) {
     const [model, setModel] = useState<AdminDebugControlTowerModel | null>(null);
@@ -120,6 +114,11 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
     const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale" ? "stale" : publicBetaNeedsFormalProof ? "review" : failedReportWithFindings ? "failed" : "live";
     const publicBetaBadgeLabel = publicBetaNeedsFormalProof ? "Proof required" : undefined;
     const publicBetaReadinessReason = model ? formatPublicBetaCapDetailForAdmin(model.canonicalPublicBetaReadinessReason) : "";
+    const publicBetaReadinessStatusLabel = model ? formatPublicBetaReadinessStatusForAdmin({
+        status: model.canonicalPublicBetaReadinessStatus,
+        reason: model.canonicalPublicBetaReadinessReason,
+        capDetails: canonicalBetaCapDetails,
+    }) : "Readiness unavailable";
 
     return (
         <section
@@ -152,7 +151,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                     </div>
                     <div className="shrink-0 text-left sm:text-right">
                         <AdminTruthBadge state={controlTowerBadgeState} className="mb-1" />
-                        <p className="text-[11px] font-semibold text-gray-300">{isLocalAdminUiTestSession ? "Waiting for verified source" : model?.canonicalPublicBetaReadinessStatus ?? "Readiness unavailable"}</p>
+                        <p className="text-[11px] font-semibold text-gray-300">{isLocalAdminUiTestSession ? "Waiting for verified source" : publicBetaReadinessStatusLabel}</p>
                         <p className="text-[11px] text-gray-400">{isLocalAdminUiTestSession ? "Local UI fixture" : loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
                     </div>
                 </div>

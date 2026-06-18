@@ -3,15 +3,7 @@
 import { ChevronDown, DollarSign, LayoutGrid, LifeBuoy, Radar, ShieldCheck, Signal, type LucideIcon } from "lucide-react";
 
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
-import type {
-    AdminDebugControlTowerSection,
-    AdminDebugFindingCard,
-    AdminDebugLiveIssueCard,
-    AdminDebugReportCard,
-    AdminDebugSeverity,
-    AdminDebugTruthState,
-    AdminDebugNextAction,
-} from "@/lib/admin-debug-control-tower";
+import type { AdminDebugControlTowerSection, AdminDebugFindingCard, AdminDebugLiveIssueCard, AdminDebugReportCard, AdminDebugSeverity, AdminDebugTruthState, AdminDebugNextAction } from "@/lib/admin-debug-control-tower";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 
@@ -30,36 +22,12 @@ export const FILTERS: Array<{ id: FilterId; label: string }> = [
 ];
 
 export const SECTION_COPY: Record<AdminDebugControlTowerSection, { title: string; subtitle: string; icon: LucideIcon }> = {
-    beta_readiness: {
-        title: "Beta Readiness",
-        subtitle: "Public beta score, speed/security, hardening, device, cost, content, telemetry, stale state, and critical counts.",
-        icon: ShieldCheck,
-    },
-    live_issues: {
-        title: "Current Issues",
-        subtitle: "Pre-catcher and debug evidence summaries. Raw support/user bodies stay redacted and collapsed.",
-        icon: Radar,
-    },
-    device_ui: {
-        title: "Device + UI",
-        subtitle: "Device dry audit, layout score, chat shell, wallet density, image loading, and preview/content protection.",
-        icon: LayoutGrid,
-    },
-    money_cost: {
-        title: "Money + Cost",
-        subtitle: "GumDrops economy truth, PayPal-adjacent health, Google cost, Cloud Run, SQL/Data Connect, BigQuery, Storage, and rate-limit risk.",
-        icon: DollarSign,
-    },
-    telemetry_behavior: {
-        title: "Telemetry + Behavior",
-        subtitle: "Telemetry parity, watch-time truth, analytics ingest, event catalog drift, and behavior scoring confidence.",
-        icon: Signal,
-    },
-    support_creator: {
-        title: "Support + Creator Monetization",
-        subtitle: "Support admin access, route failures, booking typed errors, Fan Pass paid-GD truth, and Creator Lane parity.",
-        icon: LifeBuoy,
-    },
+    beta_readiness: { title: "Beta Readiness", subtitle: "Public beta score, speed/security, hardening, device, cost, content, telemetry, stale state, and critical counts.", icon: ShieldCheck },
+    live_issues: { title: "Current Issues", subtitle: "Pre-catcher and debug evidence summaries. Raw support/user bodies stay redacted and collapsed.", icon: Radar },
+    device_ui: { title: "Device + UI", subtitle: "Device dry audit, layout score, chat shell, wallet density, image loading, and preview/content protection.", icon: LayoutGrid },
+    money_cost: { title: "Money + Cost", subtitle: "GumDrops economy truth, PayPal-adjacent health, Google cost, Cloud Run, SQL/Data Connect, BigQuery, Storage, and rate-limit risk.", icon: DollarSign },
+    telemetry_behavior: { title: "Telemetry + Behavior", subtitle: "Telemetry parity, watch-time truth, analytics ingest, event catalog drift, and behavior scoring confidence.", icon: Signal },
+    support_creator: { title: "Support + Creator Monetization", subtitle: "Support admin access, route failures, booking typed errors, Fan Pass paid-GD truth, and Creator Lane parity.", icon: LifeBuoy },
 };
 
 export function toBadgeState(state: AdminDebugTruthState): AdminSurfaceState {
@@ -74,6 +42,30 @@ function isRefreshOnlyFinding(finding: AdminDebugFindingCard) {
     return /source commit|current repo head|older than 72 hours|freshness|generated report|report metadata/u.test(`${finding.title} ${finding.humanReadableWarning} ${finding.evidence.join(" ")}`.toLowerCase());
 }
 
+export function formatPublicBetaCapDetailForAdmin(detail?: string) {
+    const normalized = String(detail ?? "").trim();
+    const count = normalized.match(/\b\d+\b/u)?.[0];
+    if (!normalized) return "Readiness unavailable.";
+    if (/targeted behavior tests/iu.test(normalized)) return "Source checks passed: targeted behavior validators passed. They do not replace screenshot, provider, runtime, or admin truth proof.";
+    if (/runtime\/provider smoke|provider smoke|runtime smoke/iu.test(normalized)) return "Provider and runtime proof needed: attach fresh redacted provider smoke evidence and keep deployed runtime smoke current.";
+    if (/admin truth|sample evidence|truth sample/iu.test(normalized)) return "Admin truth sample needed: attach a fresh redacted production admin truth sample.";
+    if (/report freshness|pr integrity|freshness window|current-head|current head/iu.test(normalized)) return count ? `Report refresh needed: ${count} required generated reports are older than the freshness window.` : "Report refresh needed: required generated reports are older than the freshness window.";
+    return normalized.replace(/^Unknown evidence:\s*/iu, "Evidence needs classification: ").replace(/^Stale evidence:\s*/iu, "Refresh or proof needed: ").replace(/^Runtime unverified:\s*/iu, "Runtime proof needed: ");
+}
+
+export function formatPublicBetaReadinessStatusForAdmin(input: { status?: string | null; reason?: string | null; capDetails?: string[] }) {
+    const status = String(input.status ?? "").trim();
+    const combined = [status, input.reason, ...(input.capDetails ?? [])].filter(Boolean).join(" ");
+    if (!status) return "Readiness unavailable";
+    if (/ready/iu.test(status)) return "Ready";
+    if (/runtime\/provider smoke|provider smoke|runtime smoke|admin truth|sample evidence|truth sample|manual screenshot|external proof|proof required/iu.test(combined)) return "External proof required";
+    if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older/iu.test(combined)) return "Report refresh needed";
+    if (/targeted behavior tests|source checks/iu.test(combined)) return "Source checks only";
+    if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";
+    if (/stale evidence/iu.test(combined)) return "Refresh or proof needed";
+    return status.replaceAll("_", " ").replace(/\b\w/gu, (char) => char.toUpperCase());
+}
+
 export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
     const sourceFindingCount = report.findingCount > 0 ? report.findingCount : report.topFindings.filter((finding) => !isRefreshOnlyFinding(finding)).length;
     const hasFindings = sourceFindingCount > 0 || report.criticalCount > 0;
@@ -83,6 +75,13 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
         && report.id === "public-beta-score"
         && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(report.status.toLowerCase());
     const normalizedStatus = report.status.toLowerCase();
+    const reportStatusLabel = (() => {
+        if (["clean", "pass", "passed", "ready", "ok"].includes(normalizedStatus)) return "Source current";
+        if (["delayed", "queued", "waiting"].includes(normalizedStatus)) return hasFindings ? "Review delayed" : "Waiting for evidence";
+        if (["fail", "failed", "error"].includes(normalizedStatus)) return hasFindings ? "Needs review" : "Source failed";
+        if (["beta-risk", "warning", "review"].includes(normalizedStatus)) return "Needs review";
+        return report.status.replaceAll("_", " ").replace(/\b\w/gu, (char) => char.toUpperCase());
+    })();
     const sourceDetail = `Source score ${report.score ?? "unavailable"}; freshness ${report.freshness}; truth ${report.truthState}.`;
     if (report.freshness === "missing" || report.truthState === "missing") {
         return { badgeState: "unavailable", statusLabel: "Source missing", findingLabel: hasFindings ? findingLabel : "No source", sourceDetail: "Required generated state is missing and cannot clear this lane." };
@@ -105,7 +104,7 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     if (!hasFindings && ["fail", "failed", "error"].includes(normalizedStatus)) {
         return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Needs review", findingLabel, sourceDetail: `Generated state reported ${report.status}, but no active source finding was attached. Check ${report.command}.` };
     }
-    return { badgeState: toBadgeState(report.truthState), statusLabel: report.status, findingLabel, sourceDetail };
+    return { badgeState: toBadgeState(report.truthState), statusLabel: reportStatusLabel, findingLabel, sourceDetail };
 }
 export function formatRelative(value?: number | null) {
     if (!value) return "Not generated";

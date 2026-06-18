@@ -275,6 +275,7 @@ describe("DebugControlTower", () => {
 
             expect(publicBetaText).toContain("External proof required");
             expect(publicBetaText).toContain("Proof gate");
+            expect(container.textContent).toContain("External proof required");
             expect(container.textContent).toContain("Proof required");
             expect(container.textContent).toContain("Provider and runtime proof needed");
             expect(container.textContent).toContain("Admin truth sample needed");
@@ -307,6 +308,7 @@ describe("DebugControlTower", () => {
             });
 
             expect(container.textContent).toContain("Source checks passed: targeted behavior validators passed.");
+            expect(container.textContent).toContain("Report refresh needed");
             expect(container.textContent).toContain("Report refresh needed: 6 required generated reports are older than the freshness window.");
             expect(container.textContent).not.toContain("Unknown evidence: Targeted behavior tests");
             expect(container.textContent).not.toContain("Stale evidence: Report freshness and PR integrity");
@@ -359,10 +361,60 @@ describe("DebugControlTower", () => {
 
             expect(deviceText).toContain("Refresh due");
             expect(deviceText).toContain("No active findings");
-            expect(deviceText).toContain("REFRESH");
             expect(deviceText).not.toContain("0 findings");
             expect(deviceText).not.toContain("DELAYED");
             expect(deviceText).not.toContain("ERROR");
+        } finally {
+            Object.assign(mockState.payload, originalPayload);
+        }
+    });
+
+    it("formats delayed reports with findings as review delayed instead of raw delayed status", async () => {
+        const originalPayload = JSON.parse(JSON.stringify(mockState.payload));
+        const delayedReport = {
+            ...mockState.payload.sections.beta_readiness[0],
+            id: "speed-security-hardening",
+            label: "Speed + Security",
+            filePath: "agent/state/speed-security-hardening.generated.json",
+            command: "npm run check:speed-security",
+            status: "DELAYED",
+            truthState: "stale",
+            findingCount: 164,
+            majorCount: 14,
+            topFindings: [{
+                id: "speed-security-source-gap",
+                reportId: "speed-security-hardening",
+                section: "beta_readiness",
+                severity: "major",
+                title: "Speed/security source gaps need review",
+                domain: "speed_security",
+                filePath: "agent/state/speed-security-hardening.generated.json",
+                humanReadableWarning: "Source guardrails found reviewable speed/security work.",
+                suggestedValidator: "npm run check:speed-security",
+                evidence: ["redacted source evidence only"],
+                truthState: "stale",
+            }],
+        };
+
+        try {
+            const payload = mockState.payload as any;
+            payload.reports = [delayedReport];
+            payload.sections.beta_readiness = [delayedReport];
+
+            await act(async () => {
+                root.render(<DebugControlTower />);
+            });
+
+            await act(async () => {
+                await Promise.resolve();
+            });
+
+            const speedCards = Array.from(container.querySelectorAll("[data-debug-report-source='agent/state/speed-security-hardening.generated.json']"));
+            const speedText = speedCards.map((entry) => entry.textContent ?? "").join(" ");
+
+            expect(speedText).toContain("Review delayed");
+            expect(speedText).toContain("164 source findings");
+            expect(speedText).not.toContain("DELAYED");
         } finally {
             Object.assign(mockState.payload, originalPayload);
         }
