@@ -148,8 +148,8 @@ function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHiera
 
   if (sourceHierarchy.status === "source_agreement_failed") {
     return blockedCount > 0
-      ? `${formatSourceHierarchyCount(blockedCount, "analytics view")} blocked by source evidence.`
-      : "Analytics source state is blocked.";
+      ? `${formatSourceHierarchyCount(blockedCount, "analytics view")} stay unpromoted until sources agree.`
+      : "Analytics source agreement needs review.";
   }
 
   if (mismatchCount > 0 && blockedCount > 0) {
