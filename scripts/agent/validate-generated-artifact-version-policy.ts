@@ -77,6 +77,30 @@ export function validateGeneratedArtifactVersionPolicySources(sources: PolicySou
     "beta artifact validators must import the central generated artifact version policy.",
     failures,
   );
+  requireIncludes(
+    sources.publicBetaValidator,
+    "PUBLIC_BETA_SCORE_OWNED_INPUT_PATHS",
+    "public beta score validator must declare owned source inputs for current_by_impact artifact status.",
+    failures,
+  );
+  requireIncludes(
+    sources.publicBetaValidator,
+    "ownedSourcePaths: [...PUBLIC_BETA_SCORE_OWNED_INPUT_PATHS]",
+    "public beta score validator must pass owned source inputs to the central generated artifact policy.",
+    failures,
+  );
+  requireIncludes(
+    sources.currentBetaValidator,
+    "currentBetaExitOwnedInputPaths",
+    "current beta exit validator must declare owned source inputs for current_by_impact artifact status.",
+    failures,
+  );
+  requireIncludes(
+    sources.currentBetaValidator,
+    "ownedSourcePaths: [...currentBetaExitOwnedInputPaths]",
+    "current beta exit validator must pass owned source inputs to the central generated artifact policy.",
+    failures,
+  );
 
   if (/function\s+changedInHead\b/u.test(validators)) {
     failures.push("generated artifact validators must not define local changedInHead helpers.");

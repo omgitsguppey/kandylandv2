@@ -165,6 +165,17 @@ const manualVisualEvidenceRelativePath = "agent/state/ui-visual-smoke-minimal.ge
 const providerSmokeEvidenceRelativePath = "agent/state/provider-smoke-evidence.generated.json";
 const runtimeSmokeEvidenceRelativePath = "agent/state/runtime-smoke-evidence.generated.json";
 const adminTruthSampleEvidenceRelativePath = "agent/state/admin-truth-sample-evidence.generated.json";
+const currentBetaExitOwnedInputPaths = [
+  "scripts/agent/validate-current-beta-exit-status.ts",
+  "src/lib/agent-score",
+  "agent/state/public-beta-score.generated.json",
+  evidenceCaptureStatusRelativePath,
+  operatorRevenueSmokeRelativePath,
+  manualVisualEvidenceRelativePath,
+  providerSmokeEvidenceRelativePath,
+  runtimeSmokeEvidenceRelativePath,
+  adminTruthSampleEvidenceRelativePath,
+] as const;
 
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
@@ -543,6 +554,7 @@ export function validateCurrentBetaExitStatusReport(
     parentHead: versionContext.parentHead,
     changedFilesInHead: versionContext.changedFilesInHead,
     changedFilesSinceArtifactHead: versionContext.changedFilesSinceArtifactHead,
+    ownedSourcePaths: [...currentBetaExitOwnedInputPaths],
   });
   if (!isGeneratedArtifactCurrent(version)) {
     failures.push(`report currentHead must match git HEAD (${head}) or an accepted generated artifact version.`);
@@ -802,6 +814,7 @@ function main() {
       parentHead: versionContext.parentHead,
       changedFilesInHead: versionContext.changedFilesInHead,
       changedFilesSinceArtifactHead: versionContext.changedFilesSinceArtifactHead,
+      ownedSourcePaths: [...currentBetaExitOwnedInputPaths],
     });
     if (forceRefresh || !isGeneratedArtifactCurrent(version)) {
       report = refreshReportFromCurrentArtifacts(report, head);

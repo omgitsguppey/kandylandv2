@@ -15,8 +15,16 @@ describe("generated artifact version policy validator", () => {
       '"same_commit_snapshot"',
       "statusIsCurrent",
     ].join("\n"),
-    publicBetaValidator: "import { classifyGeneratedArtifactFromGit } from '../../src/lib/agent-score/generated-artifact-version-policy';",
-    currentBetaValidator: "import { classifyGeneratedArtifactVersion } from '../../src/lib/agent-score/generated-artifact-version-policy';",
+    publicBetaValidator: [
+      "import { classifyGeneratedArtifactFromGit } from '../../src/lib/agent-score/generated-artifact-version-policy';",
+      "const PUBLIC_BETA_SCORE_OWNED_INPUT_PATHS = [] as const;",
+      "classifyGeneratedArtifactFromGit({ ownedSourcePaths: [...PUBLIC_BETA_SCORE_OWNED_INPUT_PATHS] });",
+    ].join("\n"),
+    currentBetaValidator: [
+      "import { classifyGeneratedArtifactVersion } from '../../src/lib/agent-score/generated-artifact-version-policy';",
+      "const currentBetaExitOwnedInputPaths = [] as const;",
+      "classifyGeneratedArtifactVersion({ ownedSourcePaths: [...currentBetaExitOwnedInputPaths] });",
+    ].join("\n"),
     overnightValidator: "import { classifyGeneratedArtifactFromGit } from '../../src/lib/agent-score/generated-artifact-version-policy';",
   };
 
@@ -36,5 +44,17 @@ describe("generated artifact version policy validator", () => {
       ...baseSources,
       refreshSafeguards: "import { classifyGeneratedArtifactVersion } from './generated-artifact-version-policy';",
     })).toContain("refresh safeguards must treat same_commit_snapshot as a current artifact status.");
+  });
+
+  it("fails when beta validators omit owned input boundaries", () => {
+    expect(validateGeneratedArtifactVersionPolicySources({
+      ...baseSources,
+      publicBetaValidator: "import { classifyGeneratedArtifactFromGit } from '../../src/lib/agent-score/generated-artifact-version-policy';",
+    })).toContain("public beta score validator must declare owned source inputs for current_by_impact artifact status.");
+
+    expect(validateGeneratedArtifactVersionPolicySources({
+      ...baseSources,
+      currentBetaValidator: "import { classifyGeneratedArtifactVersion } from '../../src/lib/agent-score/generated-artifact-version-policy';",
+    })).toContain("current beta exit validator must declare owned source inputs for current_by_impact artifact status.");
   });
 });

@@ -9,6 +9,40 @@ import { PUBLIC_BETA_SCORE_REPORT_PATH } from "../../src/lib/agent-score/reporti
 
 const root = process.cwd();
 const failures: string[] = [];
+const PUBLIC_BETA_SCORE_OWNED_INPUT_PATHS = [
+  "scripts/agent/score-public-beta-readiness.ts",
+  "scripts/agent/validate-public-beta-score.ts",
+  "src/lib/agent-score",
+  "agent/state/evidence-capture-status.generated.json",
+  "agent/state/creator-experience-simplification.generated.json",
+  "agent/state/user-creator-ui-parity.generated.json",
+  "agent/state/targeted-behavior-evidence.generated.json",
+  "agent/state/final-parity-telemetry-lock.generated.json",
+  "agent/state/media-discovery-score-lock.generated.json",
+  "agent/state/creator-monetization-readiness-lock.generated.json",
+  "agent/state/provider-smoke-evidence.generated.json",
+  "agent/state/operator-revenue-smoke.generated.json",
+  "agent/state/runtime-smoke-evidence.generated.json",
+  "agent/state/source-backed-runtime-confidence.generated.json",
+  "agent/state/runtime-smoke-substitute-matrix.generated.json",
+  "agent/state/live-evidence-gate-replacement.generated.json",
+  "agent/state/real-usage-confidence.generated.json",
+  "agent/state/real-usage-confidence-calibration.generated.json",
+  "agent/state/behavior-math-verification.generated.json",
+  "agent/state/debug-runtime-evidence.generated.json",
+  "agent/state/debug-signal-grouping.generated.json",
+  "agent/state/event-translation-bridge.generated.json",
+  "agent/state/person-metrics-hydration.generated.json",
+  "agent/state/telemetry-trigger-test-matrix.generated.json",
+  "agent/state/user-management-refactor.generated.json",
+  "agent/state/admin-truth-sample-evidence.generated.json",
+  "agent/state/admin-truth-source-sample.generated.json",
+  "agent/state/regression-risk-high-blast-refresh.generated.json",
+  "agent/state/ui-visual-smoke-minimal.generated.json",
+  "agent/state/manual-smoke-evidence.generated.json",
+  "agent/state/visual-smoke-evidence.generated.json",
+  "agent/state/screenshot-evidence.generated.json",
+] as const;
 
 function readRequired(relativePath: string) {
   const fullPath = join(root, relativePath);
@@ -126,6 +160,7 @@ if (report) {
     cwd: root,
     artifactPath: PUBLIC_BETA_SCORE_REPORT_PATH,
     artifactHead: report.currentHead,
+    ownedSourcePaths: [...PUBLIC_BETA_SCORE_OWNED_INPUT_PATHS],
   });
   if (!isGeneratedArtifactCurrent(version)) {
     failures.push(`public beta score currentHead must match git HEAD (${headSha}) or an accepted generated artifact version.`);
