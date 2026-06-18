@@ -1521,9 +1521,20 @@ export function useAdminAnalyticsState() {
           : hasOverviewSnapshotFirstValue ? "cached"
           : hasOverviewTransactionFallbackValue ? "degraded"
           : historicalLoading ? "loading" : "failed";
+  const launchRangeProof = launchHistoryCoverage?.rangeProof;
+  const launchCoverageWindowLabel = launchRangeProof?.allLaunchRangeProven
+    ? "launch days"
+    : launchRangeProof?.coverageWindowKind === "fixture_only_local_window" ||
+      launchRangeProof?.coverageWindowKind === "local_source_window"
+      ? "local evidence days"
+      : launchRangeProof
+        ? "evidence days"
+        : "launch days";
   const launchHistorySourceLabel =
     launchHistoryCoverage?.firstRecoveredDayKey
-      ? `${launchHistoryCoverage.state === "available" ? "Launch history recovered" : "Launch history partially recovered"} since ${launchHistoryCoverage.firstRecoveredDayKey}`
+      ? launchRangeProof?.allLaunchRangeProven
+        ? `${launchHistoryCoverage.state === "available" ? "Launch history recovered" : "Launch history partially recovered"} since ${launchHistoryCoverage.firstRecoveredDayKey}`
+        : `Launch evidence window since ${launchHistoryCoverage.firstRecoveredDayKey}`
       : null;
   const launchSourceCounts = launchHistoryCoverage?.sourceDayCounts;
   const launchFirstPartyCoverage = launchHistoryCoverage?.firstPartyCoverage;
@@ -1560,7 +1571,7 @@ export function useAdminAnalyticsState() {
     sourceLabel: launchRecoverySourceLabel,
     confidenceLabel: launchRecoveryConfidenceLabel,
     coverageLabel: launchHistoryCoverage
-      ? `${launchHistoryCoverage.recoveredDayCount}/${launchHistoryCoverage.expectedDayCount} launch days${launchFirstPartyCoverageLabel}`
+      ? `${launchHistoryCoverage.recoveredDayCount}/${launchHistoryCoverage.expectedDayCount} ${launchCoverageWindowLabel}${launchFirstPartyCoverageLabel}`
       : "Coverage waiting",
     missingRangeCount: launchFirstPartyCoverage?.missingRanges.length ?? launchHistoryCoverage?.missingRanges.length ?? 0,
     sourceAgreementState,

@@ -77,6 +77,24 @@ export interface AnalyticsSourceHealth {
   range: "7d" | "30d" | "90d" | string;
   generatedAtUtc: string;
   launchHistoryCoverage?: {
+    rangeProof: {
+      expectedRangeSource:
+        | "all_range_historical_route"
+        | "all_range_historical_export"
+        | "admin_truth_sample"
+        | "fixture_only_local_window"
+        | "local_source_window"
+        | "unknown";
+      coverageWindowKind:
+        | "all_range_historical_route"
+        | "all_range_historical_export"
+        | "admin_truth_sample"
+        | "fixture_only_local_window"
+        | "local_source_window"
+        | "unknown";
+      allLaunchRangeProven: boolean;
+      reason: string;
+    };
     rangeStartDayKey: string | null;
     rangeEndDayKey: string | null;
     firstRecoveredDayKey: string | null;
@@ -702,6 +720,22 @@ function buildAnalyticsSourceHealth(input: {
     .map((day) => day.dayKey);
   const launchHistoryCoverage: AnalyticsSourceHealth["launchHistoryCoverage"] = input.selectedRange === "all"
     ? {
+        rangeProof: {
+          expectedRangeSource: "all_range_historical_route",
+          coverageWindowKind: "all_range_historical_route",
+          allLaunchRangeProven:
+            unionPresentDays.size > 0 &&
+            missingDays.length === 0 &&
+            firstPartyCoverageState === "available" &&
+            sourceAgreementState === "pass",
+          reason:
+            unionPresentDays.size > 0 &&
+            missingDays.length === 0 &&
+            firstPartyCoverageState === "available" &&
+            sourceAgreementState === "pass"
+              ? "All-time historical route coverage is bounded by recovered first-party days and source agreement passed."
+              : "All-time historical route coverage is not product-truth complete until first-party coverage is available and source agreement passes.",
+        },
         rangeStartDayKey: expectedDays[0] ?? null,
         rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
         firstRecoveredDayKey,

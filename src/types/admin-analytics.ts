@@ -853,6 +853,24 @@ export interface AnalyticsSourceHealth {
   range: "7d" | "30d" | "90d" | string;
   generatedAtUtc: string;
   launchHistoryCoverage?: {
+    rangeProof: {
+      expectedRangeSource:
+        | "all_range_historical_route"
+        | "all_range_historical_export"
+        | "admin_truth_sample"
+        | "fixture_only_local_window"
+        | "local_source_window"
+        | "unknown";
+      coverageWindowKind:
+        | "all_range_historical_route"
+        | "all_range_historical_export"
+        | "admin_truth_sample"
+        | "fixture_only_local_window"
+        | "local_source_window"
+        | "unknown";
+      allLaunchRangeProven: boolean;
+      reason: string;
+    };
     rangeStartDayKey: string | null;
     rangeEndDayKey: string | null;
     firstRecoveredDayKey: string | null;

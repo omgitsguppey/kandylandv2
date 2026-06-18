@@ -673,7 +673,7 @@ describe("AdminAnalyticsPage", () => {
       launchRecoverySummary: {
         sourceLabel: "Mixed",
         confidenceLabel: "review",
-        coverageLabel: "3/3 launch days - first-party 1/3",
+        coverageLabel: "3/3 local evidence days - first-party 1/3",
         missingRangeCount: 1,
         sourceAgreementState: "failed",
       },
@@ -683,7 +683,7 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Coverage: 3/3 launch days - first-party 1/3");
+    expect(container.textContent).toContain("Coverage: 3/3 local evidence days - first-party 1/3");
     expect(container.textContent).toContain("Source: Mixed");
     expect(container.textContent).toContain("Confidence: review");
     expect(container.textContent).toContain("1 range(s) still need recovery");

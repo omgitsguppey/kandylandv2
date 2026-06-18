@@ -1000,6 +1000,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (/^src\/lib\/admin-analytics\/panel-hydration-(contract|registry|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";
+  if (normalized === "tests/unit/admin-analytics-page.spec.tsx") return "test_artifact_expected";
   if (normalized === "src/lib/release-readiness/live-panel-evidence-resolver.ts") return "real_source_change_needs_review";
   if (/^src\/lib\/release-readiness\/(live-evidence-gate-contract|live-evidence-resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";

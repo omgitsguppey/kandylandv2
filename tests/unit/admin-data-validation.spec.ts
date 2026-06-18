@@ -297,6 +297,11 @@ describe("buildHistoricalValidationSummary", () => {
     });
 
     expect(summary.analyticsSourceHealth.launchHistoryCoverage).toMatchObject({
+      rangeProof: {
+        expectedRangeSource: "all_range_historical_route",
+        coverageWindowKind: "all_range_historical_route",
+        allLaunchRangeProven: true,
+      },
       firstRecoveredDayKey: "2026-05-01",
       lastRecoveredDayKey: "2026-05-03",
       expectedDayCount: 3,
@@ -325,6 +330,10 @@ describe("buildHistoricalValidationSummary", () => {
       ga4: 3,
       historicalSnapshot: 2,
       legacySupport: 1,
+    });
+    expect(coverage?.rangeProof).toMatchObject({
+      expectedRangeSource: "all_range_historical_route",
+      allLaunchRangeProven: false,
     });
     expect(coverage?.firstPartyCoverage).toMatchObject({
       state: "partial",
