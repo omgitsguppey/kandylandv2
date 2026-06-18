@@ -181,4 +181,33 @@ describe("source agreement failure detail", () => {
       "agent/evidence/launch-analytics/launch-history-coverage.export.json",
     ]));
   });
+
+  it("rejects template or malformed launch coverage rows as non-evidence", () => {
+    expect(normalizeLaunchHistoryCoverageExport({
+      status: "template_not_evidence",
+      launchHistoryCoverage: {
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
+        days: [{
+          dayKey: "2026-05-01",
+          expected: true,
+          sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 0, legacySupport: 0 },
+        }],
+      },
+    })).toBeNull();
+
+    expect(normalizeLaunchHistoryCoverageExport({
+      launchHistoryCoverage: {
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
+        days: [{
+          dayKey: "YYYY-MM-DD",
+          expected: true,
+          sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 0, legacySupport: 0 },
+        }],
+      },
+    })).toBeNull();
+  });
 });

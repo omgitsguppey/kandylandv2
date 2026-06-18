@@ -63,8 +63,15 @@ function asSourceCount(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : 0;
 }
 
+function isDayKey(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(value)) return false;
+  const timestamp = Date.parse(`${value}T00:00:00.000Z`);
+  return Number.isFinite(timestamp) && new Date(timestamp).toISOString().startsWith(value);
+}
+
 export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistoryCoverageForSourceAgreement | null {
   const root = asRecord(raw);
+  if (root.status === "template_not_evidence") return null;
   const candidate = asRecord(root.launchHistoryCoverage ?? asRecord(root.analyticsSourceHealth).launchHistoryCoverage ?? root);
   const daysRaw = Array.isArray(candidate.days) ? candidate.days : [];
   const days: LaunchHistoryCoverageForSourceAgreement["days"] = [];
@@ -72,7 +79,7 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
   for (const entry of daysRaw) {
     const row = asRecord(entry);
     const dayKey = typeof row.dayKey === "string" ? row.dayKey.trim() : "";
-    if (!dayKey) continue;
+    if (!isDayKey(dayKey)) continue;
 
     const sourceCounts = asRecord(row.sourceCounts);
     days.push({
