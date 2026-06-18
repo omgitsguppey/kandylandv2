@@ -191,9 +191,6 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
                     {display.statusLabel}
                 </span>
                 <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
-                    {report.ageHours === null ? "No timestamp" : `${report.ageHours}h old`}
-                </span>
-                <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
                     {display.findingLabel}
                 </span>
                 {report.criticalCount > 0 ? (
@@ -203,7 +200,7 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
                 ) : null}
             </div>
             <details className="mt-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-gray-300">
-                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Source detail</summary>
+                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Why this state</summary>
                 <p className="mt-1">{display.sourceDetail} Refresh command: {report.command}</p>
             </details>
             {report.topFindings.length > 0 ? (
