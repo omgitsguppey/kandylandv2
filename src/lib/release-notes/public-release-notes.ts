@@ -1,13 +1,81 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.87",
-  "betaReleaseCounter": 587,
+  "currentVersion": "1.5.88",
+  "betaReleaseCounter": 588,
   "channel": "beta",
-  "generatedAt": "2026-06-18T04:21:01.562Z",
-  "generatedAtUtc": "2026-06-18T04:21:01.562Z",
-  "lastCommitSha": "05f05c4d3941ab1999608032c4bd72e5da6064b2",
+  "generatedAt": "2026-06-18T05:45:25.380Z",
+  "generatedAtUtc": "2026-06-18T05:45:25.380Z",
+  "lastCommitSha": "e03a49c5ce8a670671c5b440496f8cb7bd07893f",
   "notes": [
+    {
+      "version": "1.5.88",
+      "previousVersion": "1.5.87",
+      "betaReleaseCounter": 588,
+      "previousBetaReleaseCounter": 587,
+      "commitSha": "e03a49c5ce8a670671c5b440496f8cb7bd07893f",
+      "commitTitle": "fix(admin): simplify surface actions",
+      "commitCount": 2,
+      "commitShas": [
+        "d2cbf3d54f31d5c7c8b6cd3a2ba9475f3c35f9d8",
+        "e03a49c5ce8a670671c5b440496f8cb7bd07893f"
+      ],
+      "committedAt": "2026-06-18T05:31:53.000Z",
+      "generatedAt": "2026-06-18T05:45:25.379Z",
+      "committedAtUtc": "2026-06-18T05:31:53.000Z",
+      "generatedAtUtc": "2026-06-18T05:45:25.379Z",
+      "updatedAtUtc": "2026-06-18T05:45:25.379Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-surface-modal-replacement.generated.json",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/event-translation-bridge.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/person-metrics-hydration.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/admin-surface-modal-replacement.md",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/event-translation-bridge.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/person-metrics-hydration.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "scripts/agent/validate-creator-monetization-readiness-lock.ts",
+        "scripts/agent/validate-debug-signal-actionability.ts",
+        "scripts/agent/validate-debug-signal-grouping.ts",
+        "scripts/agent/validate-final-parity-telemetry-lock.ts",
+        "scripts/agent/validate-media-discovery-score-lock.ts",
+        "scripts/agent/validate-score-80-refresh-pass.ts",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/components/DebugPanelStatusBySection.tsx",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-page.spec.tsx"
+      ],
+      "sourceCommit": "e03a49c5ce8a670671c5b440496f8cb7bd07893f"
+    },
     {
       "version": "1.5.87",
       "previousVersion": "1.5.86",
@@ -2557,54 +2625,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-notification-funnel-mobile.spec.ts"
       ],
       "sourceCommit": "c9f69caefc3f08132e0666d12681561a0f99d961"
-    },
-    {
-      "version": "1.5.63",
-      "previousVersion": "1.5.62",
-      "betaReleaseCounter": 563,
-      "previousBetaReleaseCounter": 562,
-      "commitSha": "9dae7044f1fc6b9f2cd0415242fbd1dc1cb0ae55",
-      "commitTitle": "fix(admin): add compact task pipeline modes",
-      "commitCount": 2,
-      "commitShas": [
-        "486e53f74c6483055f8603688a2d6e5dc7534a00",
-        "9dae7044f1fc6b9f2cd0415242fbd1dc1cb0ae55"
-      ],
-      "committedAt": "2026-06-04T02:30:06.000Z",
-      "generatedAt": "2026-06-04T02:30:22.298Z",
-      "committedAtUtc": "2026-06-04T02:30:06.000Z",
-      "generatedAtUtc": "2026-06-04T02:30:22.298Z",
-      "updatedAtUtc": "2026-06-04T02:30:22.298Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-operations-mobile.spec.ts",
-        "tests/unit/admin-daily-task-pipeline-mobile.spec.ts"
-      ],
-      "sourceCommit": "9dae7044f1fc6b9f2cd0415242fbd1dc1cb0ae55"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

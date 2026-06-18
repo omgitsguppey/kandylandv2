@@ -2,7 +2,7 @@
 
 Source snapshot only. This lane tracks admin modal replacement and first-viewport admin status simplification. It does not prove production admin action success, provider/payment proof, browser visual QA, or creator modal removal.
 
-Current refresh: reviewed against `e9cee44920ab32891340e541ab6347201151b72b`. Admin Analytics source agreement blockers use plain visible copy (`needs a connected source`) while preserving the canonical source-state enum for validators and Debug.
+Current refresh: reviewed against `e03a49c5ce8a670671c5b440496f8cb7bd07893f`. Admin Analytics source agreement blockers use plain visible copy (`needs a connected source`) while preserving the canonical source-state enum for validators and Debug.
 
 ## Already Replaced
 
@@ -13,6 +13,7 @@ Current refresh: reviewed against `e9cee44920ab32891340e541ab6347201151b72b`. Ad
 - `/admin/analytics` source detail and panel recovery now share one compact neutral drawer instead of separate warning-heavy panels.
 - `/admin/analytics` source agreement blockers stay connected through the compact Data status source drilldown instead of a standalone first-viewport warning panel.
 - `/admin/debug` panel status keeps the same source rows and data attributes, but repeated header badges and per-signal chips are collapsed into one summary plus plain text detail.
+- `/admin/debug` Control Tower keeps launch blockers, current issues, source rows, and the readiness reason in the same model-backed summary, but no longer renders those values as four separate chips.
 
 ## Current Pass
 

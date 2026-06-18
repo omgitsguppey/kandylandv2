@@ -149,18 +149,13 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                     </div>
                 </div>
                 {model ? (
-                    <div
-                        className="mt-3 flex flex-wrap gap-1.5 border-t border-white/10 pt-3 text-[11px] text-gray-300"
+                    <p
+                        className="mt-3 border-t border-white/10 pt-3 text-[11px] leading-5 text-gray-300"
                         data-debug-visible-summary="single-triage-strip"
                         data-debug-report-source="agent/state/public-beta-score.generated.json"
                     >
-                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">Launch blockers {canonicalBetaCapDetails.length || blockerReports.length}</span>
-                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">Current issues {model.liveIssues.length}</span>
-                        <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">Source rows {visibleReports}</span>
-                        <span className="min-w-0 rounded-md border border-white/10 bg-black/25 px-2.5 py-1">
-                            <span className="line-clamp-1">{model.canonicalPublicBetaReadinessReason}</span>
-                        </span>
-                    </div>
+                        {canonicalBetaCapDetails.length || blockerReports.length} launch blockers, {model.liveIssues.length} current issues, and {visibleReports} source rows. {model.canonicalPublicBetaReadinessReason}
+                    </p>
                 ) : null}
             </div>
 
