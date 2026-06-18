@@ -431,11 +431,26 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   const historicalSnapshotDays = daysBySource.get("historical_snapshot") ?? new Set<string>();
   const legacySupportDays = daysBySource.get("legacy_support") ?? new Set<string>();
   const expectedDays = [...new Set([...firstPartyDays, ...ga4Days, ...historicalSnapshotDays, ...legacySupportDays])].sort();
+  const perDaySourceCounts = asRecord(sourceAgreementDetail.perDaySourceCounts);
+  const internalAdminExcludedCountByDay = asRecord(sourceAgreementDetail.internalAdminExcludedCountByDay);
+  const sourceCountForDay = (
+    dayKey: string,
+    sourceKey: "first_party" | "ga4" | "historicalSnapshot" | "legacySupport",
+    present: boolean,
+  ) => {
+    const counts = asRecord(perDaySourceCounts[dayKey]);
+    const count = asNumber(counts[sourceKey], present ? 1 : 0);
+    return count > 0 ? count : 0;
+  };
   const dayCoverage = expectedDays.map((dayKey) => {
-    const hasFirstParty = firstPartyDays.has(dayKey);
-    const hasGa4 = ga4Days.has(dayKey);
-    const hasHistoricalSnapshot = historicalSnapshotDays.has(dayKey);
-    const hasLegacy = legacySupportDays.has(dayKey);
+    const firstPartyCount = sourceCountForDay(dayKey, "first_party", firstPartyDays.has(dayKey));
+    const ga4Count = sourceCountForDay(dayKey, "ga4", ga4Days.has(dayKey));
+    const historicalSnapshotCount = sourceCountForDay(dayKey, "historicalSnapshot", historicalSnapshotDays.has(dayKey));
+    const legacySupportCount = sourceCountForDay(dayKey, "legacySupport", legacySupportDays.has(dayKey));
+    const hasFirstParty = firstPartyCount > 0;
+    const hasGa4 = ga4Count > 0;
+    const hasHistoricalSnapshot = historicalSnapshotCount > 0;
+    const hasLegacy = legacySupportCount > 0;
     const hasFallback = hasHistoricalSnapshot || hasLegacy;
     const sourceCount = Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy);
     const recovered = sourceCount > 0;
@@ -453,12 +468,14 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       expected: true,
       recovered,
       sourceCounts: {
-        first_party: hasFirstParty ? 1 : 0,
-        ga4: hasGa4 ? 1 : 0,
-        historicalSnapshot: hasHistoricalSnapshot ? 1 : 0,
-        legacySupport: hasLegacy ? 1 : 0,
+        first_party: firstPartyCount,
+        ga4: ga4Count,
+        historicalSnapshot: historicalSnapshotCount,
+        legacySupport: legacySupportCount,
       },
-      internalAdminExcludedCount: null,
+      internalAdminExcludedCount: typeof internalAdminExcludedCountByDay[dayKey] === "number"
+        ? asNumber(internalAdminExcludedCountByDay[dayKey], 0)
+        : null,
       duplicateSourceCount: Math.max(0, sourceCount - 1),
       confidence,
       reason: recovered

@@ -56,6 +56,13 @@ export type SourceAgreementFailureDetail = {
   maxDeltaPct: number;
   disagreements: SourceAgreementDisagreementDetail[];
   perSourceCoverage: Array<{ source: string; dayCount: number; days: string[] }>;
+  perDaySourceCounts?: Record<string, {
+    first_party: number;
+    ga4: number;
+    historicalSnapshot: number;
+    legacySupport: number;
+  }>;
+  internalAdminExcludedCountByDay?: Record<string, number>;
   missingDaysBySource: Record<string, string[]>;
   extraDaysBySource: Record<string, string[]>;
   comparedMetrics: string[];
@@ -182,11 +189,12 @@ export type LaunchHistoryCoverageForSourceAgreement = {
     dayKey: string;
     expected: boolean;
     sourceCounts: {
-      first_party: 0 | 1 | number;
-      ga4: 0 | 1 | number;
-      historicalSnapshot: 0 | 1 | number;
-      legacySupport: 0 | 1 | number;
+      first_party: number;
+      ga4: number;
+      historicalSnapshot: number;
+      legacySupport: number;
     };
+    internalAdminExcludedCount?: number | null;
   }>;
 };
 
@@ -369,9 +377,29 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
       ? "admin_truth_sample"
       : "all_range_historical_export",
   });
+  const perDaySourceCounts = Object.fromEntries(
+    input.launchHistoryCoverage.days
+      .filter((day) => day.expected)
+      .map((day) => [
+        day.dayKey,
+        {
+          first_party: Math.max(0, Number(day.sourceCounts.first_party) || 0),
+          ga4: Math.max(0, Number(day.sourceCounts.ga4) || 0),
+          historicalSnapshot: Math.max(0, Number(day.sourceCounts.historicalSnapshot) || 0),
+          legacySupport: Math.max(0, Number(day.sourceCounts.legacySupport) || 0),
+        },
+      ]),
+  );
+  const internalAdminExcludedCountByDay = Object.fromEntries(
+    input.launchHistoryCoverage.days
+      .filter((day) => day.expected && typeof day.internalAdminExcludedCount === "number")
+      .map((day) => [day.dayKey, Math.max(0, day.internalAdminExcludedCount ?? 0)]),
+  );
 
   return {
     ...detail,
+    perDaySourceCounts,
+    internalAdminExcludedCountByDay,
     allLaunchRangeProven: input.proofMode === "admin_truth_sample"
       && input.launchHistoryCoverage.state === "available"
       && input.launchHistoryCoverage.expectedDayCount === input.launchHistoryCoverage.recoveredDayCount

@@ -58,8 +58,8 @@ function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
-function asSourceCount(value: unknown): 0 | 1 {
-  return typeof value === "number" && value > 0 ? 1 : 0;
+function asSourceCount(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : 0;
 }
 
 function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistoryCoverageForSourceAgreement | null {
@@ -83,6 +83,9 @@ function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistoryCovera
         historicalSnapshot: asSourceCount(sourceCounts.historicalSnapshot),
         legacySupport: asSourceCount(sourceCounts.legacySupport),
       },
+      internalAdminExcludedCount: typeof row.internalAdminExcludedCount === "number"
+        ? Math.max(0, row.internalAdminExcludedCount)
+        : null,
     });
   }
 

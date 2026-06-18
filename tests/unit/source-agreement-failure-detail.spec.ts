@@ -61,7 +61,8 @@ describe("source agreement failure detail", () => {
           {
             dayKey: "2026-05-01",
             expected: true,
-            sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 1, legacySupport: 0 },
+            sourceCounts: { first_party: 42, ga4: 65, historicalSnapshot: 1, legacySupport: 0 },
+            internalAdminExcludedCount: 4,
           },
           {
             dayKey: "2026-05-02",
@@ -79,6 +80,13 @@ describe("source agreement failure detail", () => {
 
     expect(detail.coverageWindowKind).toBe("all_range_historical_export");
     expect(detail.allLaunchRangeProven).toBe(false);
+    expect(detail.perDaySourceCounts?.["2026-05-01"]).toEqual({
+      first_party: 42,
+      ga4: 65,
+      historicalSnapshot: 1,
+      legacySupport: 0,
+    });
+    expect(detail.internalAdminExcludedCountByDay?.["2026-05-01"]).toBe(4);
     expect(detail.missingDaysBySource.first_party).toEqual(["2026-05-02", "2026-05-03"]);
     expect(detail.disagreements).toEqual(expect.arrayContaining([
       expect.objectContaining({

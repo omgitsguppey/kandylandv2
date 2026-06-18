@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-18T06:57:14.161Z
+Generated: 2026-06-18T07:07:01.768Z
 Status: pass
-Current head: 12391873198f9457193476fd262075283ffa11aa
+Current head: 6cd20ca9ab677996e9a22af28a97e4c1177e55c0
 
 ## Contract
 
@@ -78,6 +78,10 @@ Current head: 12391873198f9457193476fd262075283ffa11aa
 - docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
 - docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: documentation_artifact_expected
+- scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts: validator_artifact_expected
+- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
+- src/lib/analytics/source-agreement-detail.ts: real_source_change_needs_review
+- tests/unit/source-agreement-failure-detail.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 
