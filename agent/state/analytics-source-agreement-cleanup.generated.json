@@ -1,26 +1,21 @@
 {
   "reportKey": "analytics-source-agreement-cleanup",
-  "generatedAtUtc": "2026-05-25T04:50:59.097Z",
-  "currentHead": "5c7d0dbd153160989cd96bca6702a87b5d00eeb9",
-  "status": {
-    "chartStatus": "chart_ready",
-    "agreementStatus": "source_agreement_failed",
-    "failedSources": [
-      "ga4",
-      "historical_snapshot",
-      "legacy_support"
-    ],
-    "comparedSources": [
-      "ga4",
-      "historical_snapshot",
-      "legacy_support"
-    ],
-    "comparedMetrics": [
-      "daily_bucket_presence"
-    ],
-    "tolerance": "10% review / 25% fail",
-    "confidence": 25,
-    "nextAction": "Review source agreement failures across ga4, historical_snapshot, legacy_support; chart availability does not clear parity failure."
-  },
-  "validationFailures": []
+  "generatedAtUtc": "2026-06-18T04:47:43.972Z",
+  "currentHead": "8bbfcc0a2aa9588717557f524ef670489d4ce719",
+  "status": "pass",
+  "validationFailures": [],
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Run npm run check:analytics-source-agreement-cleanup after touching this debug/source validation lane.",
+    "Use redacted runtime/admin evidence separately before clearing runtime or admin truth gates."
+  ],
+  "doesNotProve": [
+    "Does not prove live bug-report volume.",
+    "Does not prove provider/runtime behavior.",
+    "Does not prove current admin truth samples."
+  ]
 }

@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T04:43:41.061Z",
-  "currentHead": "d2cbf3d54f31d5c7c8b6cd3a2ba9475f3c35f9d8",
+  "generatedAtUtc": "2026-06-18T04:48:39.027Z",
+  "currentHead": "8bbfcc0a2aa9588717557f524ef670489d4ce719",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -10,7 +10,7 @@
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
-  "status": "stale_evidence_review",
+  "status": "source_agreement_failed",
   "sourceMap": {
     "primaryTruth": "first_party",
     "secondSource": "ga4",
@@ -236,7 +236,7 @@
   "evidenceProvenance": {
     "launchCoverageInput": "agent/state/source-agreement-failure-detail.generated.json",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "f7a59c4b735f9c81a849e3fd56ef82e8b0895ef5",
+    "sourceAgreementInputHead": "8bbfcc0a2aa9588717557f524ef670489d4ce719",
     "ga4ReadMode": "generated/local evidence only; no provider call performed",
     "firstPartyReadMode": "source-agreement day-bucket evidence only; no production read performed",
     "limitation": "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof."
@@ -358,8 +358,8 @@
     ],
     "state": "available",
     "reason": "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.",
-    "staleInputEvidence": true,
-    "sourceAgreementEvidenceHead": "f7a59c4b735f9c81a849e3fd56ef82e8b0895ef5"
+    "staleInputEvidence": false,
+    "sourceAgreementEvidenceHead": "8bbfcc0a2aa9588717557f524ef670489d4ce719"
   },
   "sourceAgreement": {
     "comparedSources": [
@@ -377,7 +377,6 @@
     "maxDeltaPct": 67,
     "state": "failed",
     "classifications": [
-      "stale_generated_evidence",
       "date_range_mismatch",
       "duplicate_event",
       "external_source_gap",
