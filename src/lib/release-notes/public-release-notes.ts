@@ -1,13 +1,75 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.6.5",
-  "betaReleaseCounter": 605,
+  "currentVersion": "1.6.6",
+  "betaReleaseCounter": 606,
   "channel": "beta",
-  "generatedAt": "2026-06-18T19:51:06.429Z",
-  "generatedAtUtc": "2026-06-18T19:51:06.429Z",
-  "lastCommitSha": "c6f16de59ed558d294b0fc29db68c2faaa81100b",
+  "generatedAt": "2026-06-18T20:10:32.729Z",
+  "generatedAtUtc": "2026-06-18T20:10:32.729Z",
+  "lastCommitSha": "68353aa55738e57ca8c431032a7f5a6fb2275664",
   "notes": [
+    {
+      "version": "1.6.6",
+      "previousVersion": "1.6.5",
+      "betaReleaseCounter": 606,
+      "previousBetaReleaseCounter": 605,
+      "commitSha": "68353aa55738e57ca8c431032a7f5a6fb2275664",
+      "commitTitle": "fix(admin): clarify beta evidence gates",
+      "commitCount": 2,
+      "commitShas": [
+        "0e3350373715373f9d9bc34988d2a5452a1cec0c",
+        "68353aa55738e57ca8c431032a7f5a6fb2275664"
+      ],
+      "committedAt": "2026-06-18T20:09:33.000Z",
+      "generatedAt": "2026-06-18T20:10:32.728Z",
+      "committedAtUtc": "2026-06-18T20:09:33.000Z",
+      "generatedAtUtc": "2026-06-18T20:10:32.728Z",
+      "updatedAtUtc": "2026-06-18T20:10:32.728Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/evidence/admin-truth-sample/README.md",
+        "agent/evidence/admin-truth-sample/evidence.template.json",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/source-agreement-failure-detail.generated.json",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/source-agreement-failure-detail.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "src/app/admin/debug/components/DebugControlTower.tsx",
+        "src/app/admin/debug/components/DebugControlTowerCards.tsx",
+        "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts",
+        "src/lib/analytics/source-agreement-detail.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-debug-control-tower-component.spec.tsx",
+        "tests/unit/analytics-panel-hydration.spec.ts",
+        "tests/unit/source-agreement-failure-detail.spec.ts"
+      ],
+      "sourceCommit": "68353aa55738e57ca8c431032a7f5a6fb2275664"
+    },
     {
       "version": "1.6.5",
       "previousVersion": "1.6.4",
@@ -1419,59 +1481,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-data-validation.spec.ts"
       ],
       "sourceCommit": "ed52d56375c448742f08808d67668a04cf8d577a"
-    },
-    {
-      "version": "1.5.81",
-      "previousVersion": "1.5.80",
-      "betaReleaseCounter": 581,
-      "previousBetaReleaseCounter": 580,
-      "commitSha": "baad3fda8c2c3daee290eaaf1fea4206df5ad84f",
-      "commitTitle": "fix(admin): simplify surface actions",
-      "commitCount": 2,
-      "commitShas": [
-        "df13950384a448a1868c1f295b4811fcae9f57da",
-        "baad3fda8c2c3daee290eaaf1fea4206df5ad84f"
-      ],
-      "committedAt": "2026-06-17T23:52:49.000Z",
-      "generatedAt": "2026-06-17T23:53:31.573Z",
-      "committedAtUtc": "2026-06-17T23:52:49.000Z",
-      "generatedAtUtc": "2026-06-17T23:53:31.573Z",
-      "updatedAtUtc": "2026-06-17T23:53:31.573Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "drops-viewer",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/admin-surface-modal-replacement.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/admin-surface-modal-replacement.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/admin/drops/page.tsx",
-        "src/components/Admin/AdminDropsAtGlancePanel.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-page.spec.tsx"
-      ],
-      "sourceCommit": "baad3fda8c2c3daee290eaaf1fea4206df5ad84f"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

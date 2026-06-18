@@ -277,7 +277,7 @@ describe("DebugControlTower", () => {
             expect(publicBetaText).toContain("Proof gate");
             expect(container.textContent).toContain("External proof required");
             expect(container.textContent).toContain("Proof required");
-            expect(container.textContent).toContain("External proof required: attach formal provider smoke");
+            expect(container.textContent).toContain("External proof required - Attach formal provider smoke");
             expect(container.textContent).toContain("Admin sample required");
             expect(publicBetaText).not.toContain("0 findings");
             expect(publicBetaText).not.toContain("ERROR");
@@ -307,10 +307,10 @@ describe("DebugControlTower", () => {
                 await Promise.resolve();
             });
 
-            expect(container.textContent).toContain("Source checks only: targeted behavior validators passed");
+            expect(container.textContent).toContain("Source-only evidence: Implemented behavior checks passed");
             expect(container.textContent).toContain("Refresh due");
             expect(container.textContent).toContain("Refresh due");
-            expect(container.textContent).toContain("Refresh due: 6 required generated reports are older than the freshness window.");
+            expect(container.textContent).toContain("Refresh due - 6 required generated reports are outside the freshness window.");
             expect(container.textContent).not.toContain("Unknown evidence: Targeted behavior tests");
             expect(container.textContent).not.toContain("Stale evidence: Report freshness and PR integrity");
             expect(container.textContent).not.toContain("manual proof");
@@ -360,10 +360,10 @@ describe("DebugControlTower", () => {
 
             expect(publicBetaText).toContain("External proof required");
             expect(publicBetaText).toContain("Proof gate");
-            expect(container.textContent).toContain("Source checks only: targeted behavior validators passed");
-            expect(container.textContent).toContain("External proof required: operator-confirmed payment is product context only");
+            expect(container.textContent).toContain("Source-only evidence - Implemented behavior checks passed");
+            expect(container.textContent).toContain("External proof required - Operator-confirmed payment is product context only");
             expect(container.textContent).toContain("Admin sample required");
-            expect(container.textContent).toContain("Refresh due: 6 required generated reports are older than the freshness window.");
+            expect(container.textContent).toContain("Refresh due - 6 required generated reports are outside the freshness window.");
             expect(publicBetaText).not.toContain("0 findings");
             expect(publicBetaText).not.toContain("ERROR");
             expect(container.textContent).not.toContain("Unknown evidence: Targeted behavior tests");

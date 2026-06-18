@@ -42,32 +42,6 @@ function isRefreshOnlyFinding(finding: AdminDebugFindingCard) {
     return /source commit|current repo head|older than 72 hours|freshness|generated report|report metadata/u.test(`${finding.title} ${finding.humanReadableWarning} ${finding.evidence.join(" ")}`.toLowerCase());
 }
 
-export function formatPublicBetaCapDetailForAdmin(detail?: string) {
-    const normalized = String(detail ?? "").trim();
-    const count = normalized.match(/\b\d+\b/u)?.[0];
-    if (!normalized) return "Readiness unavailable.";
-    if (/targeted behavior tests/iu.test(normalized)) return "Source checks only: targeted behavior validators passed, but manual, provider, runtime, and admin truth proof remain separate.";
-    if (/runtime\/provider smoke|provider smoke|runtime smoke/iu.test(normalized)) return /operator-confirmed|operator confirmed|paypal/iu.test(normalized)
-        ? "External proof required: operator-confirmed payment is product context only; attach formal provider smoke and keep deployed runtime smoke current."
-        : "External proof required: attach formal provider smoke and keep deployed runtime smoke current.";
-    if (/admin truth|sample evidence|truth sample/iu.test(normalized)) return "Admin sample required: attach a fresh redacted production admin truth sample.";
-    if (/report freshness|pr integrity|freshness window|current-head|current head/iu.test(normalized)) return count ? `Refresh due: ${count} required generated reports are older than the freshness window.` : "Refresh due: required generated reports are older than the freshness window.";
-    return normalized.replace(/^Unknown evidence:\s*/iu, "Needs classification: ").replace(/^Stale evidence:\s*/iu, "Refresh or proof needed: ").replace(/^Runtime unverified:\s*/iu, "Runtime proof needed: ");
-}
-
-export function formatPublicBetaReadinessStatusForAdmin(input: { status?: string | null; reason?: string | null; capDetails?: string[] }) {
-    const status = String(input.status ?? "").trim();
-    const combined = [status, input.reason, ...(input.capDetails ?? [])].filter(Boolean).join(" ");
-    if (!status) return "Readiness unavailable";
-    if (/ready/iu.test(status)) return "Ready";
-    if (/runtime\/provider smoke|provider smoke|runtime smoke|admin truth|sample evidence|truth sample|manual screenshot|external proof|proof required/iu.test(combined)) return "External proof required";
-    if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older/iu.test(combined)) return "Report refresh needed";
-    if (/targeted behavior tests|source checks/iu.test(combined)) return "Source checks only";
-    if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";
-    if (/stale evidence/iu.test(combined)) return "Refresh or proof needed";
-    return status.replaceAll("_", " ").replace(/\b\w/gu, (char) => char.toUpperCase());
-}
-
 export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
     const sourceFindingCount = report.findingCount > 0 ? report.findingCount : report.topFindings.filter((finding) => !isRefreshOnlyFinding(finding)).length;
     const hasFindings = sourceFindingCount > 0 || report.criticalCount > 0;

@@ -15,7 +15,8 @@ import { cn } from "@/lib/utils";
 import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth";
 import { DebugOperatorCockpit } from "./DebugOperatorCockpit";
 import { DebugGumdropRecoverySummary, DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
-import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, formatPublicBetaCapDetailForAdmin, formatPublicBetaReadinessStatusForAdmin, formatRelative, resolveReportDisplay } from "./DebugControlTowerCards";
+import { formatPublicBetaCapDetailForAdmin, formatPublicBetaReadinessStatusForAdmin, resolvePublicBetaCapDetailForAdmin, summarizePublicBetaCapDisplays } from "./DebugControlTowerEvidenceCopy";
+import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, formatRelative, resolveReportDisplay } from "./DebugControlTowerCards";
 
 export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession = false }: { businessSnapshot?: AdminUserTruthSnapshot | null; isLocalAdminUiTestSession?: boolean }) {
     const [model, setModel] = useState<AdminDebugControlTowerModel | null>(null);
@@ -55,10 +56,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                     severity: "warn",
                     message: "Admin debug Control Tower load failed",
                     error: issue,
-                    detail: {
-                        route: "/api/admin/debug/control-tower",
-                        component: "DebugControlTower",
-                    },
+                    detail: { route: "/api/admin/debug/control-tower", component: "DebugControlTower" },
                     consoleLabel: "[Admin Debug] Control Tower load failed",
                 });
             } finally {
@@ -70,15 +68,11 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
 
         void loadControlTower();
 
-        return () => {
-            cancelled = true;
-        };
+        return () => { cancelled = true; };
     }, [isLocalAdminUiTestSession]);
 
     const filteredSections = useMemo(() => {
-        if (!model) {
-            return null;
-        }
+        if (!model) return null;
         return Object.entries(model.sections).map(([sectionId, reports]) => ({
             sectionId: sectionId as AdminDebugControlTowerSection,
             reports: reports.filter((report) => (
@@ -103,15 +97,17 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
         ? "unavailable"
         : controlTruthState;
     const canonicalBetaCapDetails = Array.isArray(model?.canonicalPublicBetaCapDetails) ? model.canonicalPublicBetaCapDetails : [];
+    const canonicalBetaCapDisplays = canonicalBetaCapDetails.map(resolvePublicBetaCapDetailForAdmin);
+    const canonicalBetaCapSummary = summarizePublicBetaCapDisplays(canonicalBetaCapDisplays);
     const runtimeEvidenceGroups = Array.isArray(model?.runtimeEvidenceGroups) ? model.runtimeEvidenceGroups : [];
     const visibleReports = filteredSections?.reduce((count, section) => count + section.reports.length, 0) ?? 0;
     const blockerReports = (model?.reports ?? [])
         .filter((report) => report.truthState !== "live" || report.criticalCount > 0 || report.findingCount > 0)
         .slice(0, 5);
     const visibleNextActions = model?.nextActions.slice(0, 3) ?? [];
-    const publicBetaNeedsFormalProof = canonicalBetaCapDetails.some((detail) => !/targeted behavior tests|source checks/i.test(detail) && /proof|provider|runtime|admin truth|manual screenshot|truth sample/i.test(detail));
-    const publicBetaNeedsRefresh = !publicBetaNeedsFormalProof && canonicalBetaCapDetails.some((detail) => /report freshness|freshness window|current-head|current head|generated reports? are older/i.test(detail));
-    const publicBetaNeedsReview = !publicBetaNeedsFormalProof && !publicBetaNeedsRefresh && canonicalBetaCapDetails.length > 0;
+    const publicBetaNeedsFormalProof = canonicalBetaCapSummary.needsFormalProof;
+    const publicBetaNeedsRefresh = canonicalBetaCapSummary.needsRefresh;
+    const publicBetaNeedsReview = canonicalBetaCapSummary.needsReview;
     const failedReportWithFindings = blockerReports.some((report) => report.truthState === "failed" && (report.criticalCount > 0 || report.findingCount > 0 || report.topFindings.length > 0));
     const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale" || publicBetaNeedsRefresh ? "stale" : (publicBetaNeedsFormalProof || publicBetaNeedsReview) ? "review" : failedReportWithFindings ? "failed" : "live";
     const publicBetaBadgeLabel = publicBetaNeedsFormalProof ? "Proof required" : publicBetaNeedsRefresh ? "Refresh due" : publicBetaNeedsReview ? "Review" : undefined;
@@ -163,7 +159,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                         data-debug-visible-summary="single-triage-strip"
                         data-debug-report-source="agent/state/public-beta-score.generated.json"
                     >
-                        {canonicalBetaCapDetails.length || blockerReports.length} proof or refresh item{(canonicalBetaCapDetails.length || blockerReports.length) === 1 ? "" : "s"}, {model.liveIssues.length} current issues, and {visibleReports} evidence rows. {publicBetaReadinessReason}
+                        {canonicalBetaCapSummary.summary || `${blockerReports.length} report item${blockerReports.length === 1 ? "" : "s"}`}, {model.liveIssues.length} current issues, and {visibleReports} evidence rows. {publicBetaReadinessReason}
                     </p>
                 ) : null}
             </div>
@@ -210,11 +206,16 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                                 </div>
                                 <AdminTruthBadge state={publicBetaBadgeState} label={publicBetaBadgeLabel} />
                             </div>
-                            {canonicalBetaCapDetails.length > 0 ? (
+                            {canonicalBetaCapDisplays.length > 0 ? (
                                 <ul className="mt-2 space-y-1 text-xs text-gray-300">
-                                    {canonicalBetaCapDetails.map((capDetail, index) => (
-                                        <li key={`canonical-beta-cap-${index}`} className="rounded-md border border-white/10 bg-black/20 px-2 py-1">
-                                            {formatPublicBetaCapDetailForAdmin(capDetail)}
+                                    {canonicalBetaCapDisplays.map((capDetail, index) => (
+                                        <li
+                                            key={`canonical-beta-cap-${index}`}
+                                            className="rounded-md border border-white/10 bg-black/20 px-2 py-1"
+                                            data-public-beta-evidence-state={capDetail.state}
+                                        >
+                                            <span className="font-semibold text-white">{capDetail.label}</span>
+                                            <span className="text-gray-400"> - {capDetail.detail}</span>
                                         </li>
                                     ))}
                                 </ul>
