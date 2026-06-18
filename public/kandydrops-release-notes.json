@@ -1,11 +1,69 @@
 {
-  "currentVersion": "1.5.95",
-  "betaReleaseCounter": 595,
+  "currentVersion": "1.5.96",
+  "betaReleaseCounter": 596,
   "channel": "beta",
-  "generatedAt": "2026-06-18T12:03:59.931Z",
-  "generatedAtUtc": "2026-06-18T12:03:59.931Z",
-  "lastCommitSha": "c8830566965c5a5ef99e53d2d738aceb665b0fa8",
+  "generatedAt": "2026-06-18T12:18:13.803Z",
+  "generatedAtUtc": "2026-06-18T12:18:13.803Z",
+  "lastCommitSha": "1a55854756b23ac23e7b9317a235f30897420c37",
   "notes": [
+    {
+      "version": "1.5.96",
+      "previousVersion": "1.5.95",
+      "betaReleaseCounter": 596,
+      "previousBetaReleaseCounter": 595,
+      "commitSha": "1a55854756b23ac23e7b9317a235f30897420c37",
+      "commitTitle": "fix(admin): simplify surface actions",
+      "commitCount": 2,
+      "commitShas": [
+        "7e09078d10eaa2a706ccde0f9ba7f1226c0fc114",
+        "1a55854756b23ac23e7b9317a235f30897420c37"
+      ],
+      "committedAt": "2026-06-18T12:17:36.000Z",
+      "generatedAt": "2026-06-18T12:18:13.802Z",
+      "committedAtUtc": "2026-06-18T12:17:36.000Z",
+      "generatedAtUtc": "2026-06-18T12:18:13.802Z",
+      "updatedAtUtc": "2026-06-18T12:18:13.802Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "drops-viewer",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-surface-modal-replacement.generated.json",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/source-agreement-failure-detail.generated.json",
+        "docs/agent-truth/admin-surface-modal-replacement.md",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/source-agreement-failure-detail.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/drops/page.tsx",
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/lib/analytics/source-agreement-detail.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-drops-fixture-boundary.spec.ts",
+        "tests/unit/source-agreement-failure-detail.spec.ts"
+      ],
+      "sourceCommit": "1a55854756b23ac23e7b9317a235f30897420c37"
+    },
     {
       "version": "1.5.95",
       "previousVersion": "1.5.94",
@@ -1821,44 +1879,6 @@
         "src/lib/release-notes/release-version-contract.ts"
       ],
       "sourceCommit": "18439dd00b6083b28aa877d210349ea7cdc1d6c6"
-    },
-    {
-      "version": "1.5.71",
-      "previousVersion": "1.5.70",
-      "betaReleaseCounter": 571,
-      "previousBetaReleaseCounter": 570,
-      "commitSha": "5f0bd1e264dc0081bbb49f8d536585f975e2dd78",
-      "commitTitle": "fix(deploy): classify deployment health evidence",
-      "commitCount": 1,
-      "commitShas": [
-        "5f0bd1e264dc0081bbb49f8d536585f975e2dd78"
-      ],
-      "committedAt": "2026-06-16T18:56:25.000Z",
-      "generatedAt": "2026-06-16T18:57:09.852Z",
-      "committedAtUtc": "2026-06-16T18:56:25.000Z",
-      "generatedAtUtc": "2026-06-16T18:57:09.852Z",
-      "updatedAtUtc": "2026-06-16T18:57:09.852Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and general improvements.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved internal beta reliability.",
-        "Updated the latest Beta build with behind-the-scenes fixes."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/deployment-health.generated.json",
-        "agent/state/generated-report-authority.generated.json",
-        "scripts/verify-deployment.ts",
-        "tests/unit/verify-deployment.spec.ts"
-      ],
-      "sourceCommit": "5f0bd1e264dc0081bbb49f8d536585f975e2dd78"
     }
   ]
 }

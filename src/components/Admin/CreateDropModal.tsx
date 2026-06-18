@@ -847,15 +847,21 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const panelClassName = cn(
         "relative flex w-full flex-col overflow-hidden border border-white/10 bg-[#0a0a0a] shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50",
         resolvedPresentation === "inline"
-            ? "rounded-[1.5rem] shadow-black/20"
+            ? "mt-4 rounded-[1.5rem] shadow-black/20"
             : "max-h-[calc(100svh-0.5rem)] max-w-3xl rounded-[2rem] md:max-h-[92vh] md:rounded-3xl",
     );
     const panelBody = (
                     <>
                         {resolvedPresentation === "inline" ? (
-                            <h2 id={titleId} className="sr-only">
-                                {titleLabel}
-                            </h2>
+                            <header className="shrink-0 border-b border-white/10 bg-black/35 px-4 py-3 md:px-5">
+                                <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-purple">Drop action</p>
+                                <h2 id={titleId} className="mt-1 text-lg font-black text-white">
+                                    {titleLabel}
+                                </h2>
+                                <p className="mt-1 text-xs text-gray-300">
+                                    Create, edit, or duplicate Drops. Validation stays inside this form.
+                                </p>
+                            </header>
                         ) : (
                             <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-md md:px-6 md:pb-5 md:pt-5">
                                 <Dialog.Title className="shrink-0 text-xl font-bold text-white">
@@ -1179,6 +1185,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             <section
                 className={panelClassName}
                 aria-labelledby={titleId}
+                data-admin-drop-create-panel="inline"
                 data-admin-drop-form-presentation="inline"
             >
                 {panelBody}

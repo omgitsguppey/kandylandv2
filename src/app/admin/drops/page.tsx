@@ -1317,23 +1317,14 @@ export default function AdminDropsPage() {
                 ) : null}
 
                 {isCreatePanelOpen ? (
-                    <section className="mt-4 rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-3 shadow-xl shadow-brand-purple/10 md:p-4" data-admin-drop-create-panel="inline">
-                        <div className="mb-3 flex flex-col gap-1 px-1 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-purple">Drop action</p>
-                                <h2 className="text-lg font-black text-white">{editingDropId ? "Edit Drop" : duplicatingDropId ? "Duplicate Drop" : "Create Drop"}</h2>
-                            </div>
-                            <p className="max-w-xl text-xs text-gray-300">Connected to the existing admin drop route. Source missing and validation errors stay inside the form.</p>
-                        </div>
-                        <CreateDropModal
-                            isOpen={isCreatePanelOpen}
-                            onClose={closeCreatePanel}
-                            dropId={editingDropId}
-                            duplicateFromId={duplicatingDropId}
-                            onSuccess={closeCreatePanel}
-                            presentation="inline"
-                        />
-                    </section>
+                    <CreateDropModal
+                        isOpen={isCreatePanelOpen}
+                        onClose={closeCreatePanel}
+                        dropId={editingDropId}
+                        duplicateFromId={duplicatingDropId}
+                        onSuccess={closeCreatePanel}
+                        presentation="inline"
+                    />
                 ) : null}
             </div>
         </>

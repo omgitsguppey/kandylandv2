@@ -1,9 +1,9 @@
 {
   "reportKey": "admin-surface-modal-replacement",
   "status": "source_review_pass",
-  "generatedAtUtc": "2026-06-18T11:06:36.002Z",
-  "sourceCommit": "dbb8b712b77473f9f9f50561ba7e8cc8e88c9a4d",
-  "currentHead": "dbb8b712b77473f9f9f50561ba7e8cc8e88c9a4d",
+  "generatedAtUtc": "2026-06-18T12:12:34.254Z",
+  "sourceCommit": "04a1ecccdd8c4647537ceaacac02b7a0a484647e",
+  "currentHead": "04a1ecccdd8c4647537ceaacac02b7a0a484647e",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "sourceFileDiscovery": "git",
@@ -55,7 +55,7 @@
   "summary": {
     "adminModalCandidatesInventoried": 5,
     "modalShellsRemoved": 0,
-    "inlineModalChromeRemoved": 1,
+    "inlineModalChromeRemoved": 2,
     "staleModalLanguageRemoved": 13,
     "inlinePanelsConfirmed": 3,
     "legacyModalNamesDeferred": 1,
@@ -77,8 +77,8 @@
       "surface": "Admin Drops",
       "candidates": ["CreateDropModal"],
       "sourceOwner": "src/app/admin/drops/page.tsx and src/components/Admin/CreateDropModal.tsx",
-      "decision": "keep_inline_component_rename_deferred",
-      "reason": "The admin page opens this as an inline Drop action panel with presentation=\"inline\". The duplicate visible modal title bar was removed from inline presentation while the shared modal presentation remains for creator/imported use. Renaming or splitting the legacy component would affect creator imports and should be a separate low-risk consolidation."
+      "decision": "replace_route_wrapper_with_inline_owner",
+      "reason": "The admin page now renders the inline Drop action panel directly with presentation=\"inline\". The panel owner carries the visible header, source marker, and validation state while creator/imported modal presentation stays untouched. Renaming or splitting the legacy component would affect creator imports and should be a separate low-risk consolidation."
     },
     {
       "surface": "Admin Analytics",

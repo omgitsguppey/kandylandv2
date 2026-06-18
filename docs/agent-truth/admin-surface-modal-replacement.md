@@ -1,8 +1,8 @@
 # Admin Surface Modal Replacement
 
 Status: source_review_pass
-Generated: 2026-06-18T11:06:36.002Z
-Current head: dbb8b712b77473f9f9f50561ba7e8cc8e88c9a4d
+Generated: 2026-06-18T12:12:34.254Z
+Current head: 04a1ecccdd8c4647537ceaacac02b7a0a484647e
 Evidence boundary: complete source snapshot, local free, no runtime/provider/admin truth gate cleared.
 
 This pass reviewed admin modal-style actions and normalized Admin Analytics state labels. It is source evidence only. It does not clear runtime, provider, PayPal, wallet, GumDrop treasury, production database, or admin truth sample gates.
@@ -10,7 +10,7 @@ This pass reviewed admin modal-style actions and normalized Admin Analytics stat
 ## Decisions
 
 - Admin Users: `BalanceAdjustmentPanel` and `TransactionHistoryPanel` already render inside the inline selected-action workspace. They were kept as connected inline panels.
-- Admin Drops: `CreateDropModal` is still a legacy component name, but admin drops renders it through an inline Drop action section with `presentation="inline"`. The duplicate visible modal title bar was removed from inline presentation, while the shared modal presentation remains for creator/imported use. A file/component rename is deferred because creator imports share it.
+- Admin Drops: `CreateDropModal` is still a legacy component name, but admin drops now renders the inline Drop action panel directly with `presentation="inline"`. The extra route wrapper was removed; the panel owner carries the visible header and source marker. Creator/imported modal presentation remains untouched.
 - Admin Analytics: all-caps operational chips were replaced with plain state labels: Current, Cached, Refresh due, Sample, No sample, Collecting, No source, Review, Failed, and Estimate.
 - Admin Analytics: source recovery details and panel hydration states now share one compact expandable list instead of nested source-detail and panel-status cards.
 - Admin Analytics: `launchHistoryCoverage` now includes `firstPartyCoverage`, and the compact Data status strip surfaces first-party launch gaps. Mixed GA4/fallback coverage can no longer look fully product-truth-ready.
