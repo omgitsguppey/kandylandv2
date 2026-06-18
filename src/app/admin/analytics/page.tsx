@@ -377,7 +377,6 @@ export default function AdminAnalyticsPage() {
   const showPanelRecovery = Boolean(panelHydrationSummary) && (panelRecoveryTruthItems.length > 0 || connectedPanelCount < totalPanelCount);
   const panelRecoveryReviewCount = panelRecoveryNeedsEvidenceCount > 0 && panelRecoverySourceGapCount === 0 && panelRecoveryEvidenceGateCount === 0 ? panelRecoveryNeedsEvidenceCount : 0;
   const sourceRecoverySummary = [
-    sourceDetailItems.length > 0 ? formatSourceHierarchyCount(sourceDetailItems.length, "source detail") : null,
     showPanelRecovery ? `${connectedPanelCount}/${totalPanelCount} connected` : null,
     panelRecoveryWaitingCount > 0 ? `${panelRecoveryWaitingCount} collecting` : null,
     panelRecoverySourceGapCount > 0 ? formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap") : null,

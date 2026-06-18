@@ -594,6 +594,7 @@ describe("AdminAnalyticsPage", () => {
     expect(sourceNotes?.getAttribute("title")).not.toContain("Collecting activity");
     expect(sourceNotes?.getAttribute("title")).not.toContain("Realtime analytics");
     expect(container.textContent).toContain("3/11 connected");
+    expect(container.textContent).not.toContain("3 source details");
     expect(container.textContent).toContain("5 collecting");
     expect(container.textContent).toContain("2 source gaps");
     expect(container.textContent).toContain("1 external proof required");
