@@ -2,6 +2,8 @@
 
 Source snapshot only. This lane tracks admin modal replacement and first-viewport admin status simplification. It does not prove production admin action success, provider/payment proof, browser visual QA, or creator modal removal.
 
+Current refresh: reviewed against `bf55ffb8709a6bb4567d6f6192128f8bc6e0f111`. Admin Analytics source agreement blockers now use plain visible copy (`needs a connected source`) while preserving the canonical source-state enum for validators and Debug.
+
 ## Already Replaced
 
 - `/admin/users` action overlay cluster became an inline action workspace.

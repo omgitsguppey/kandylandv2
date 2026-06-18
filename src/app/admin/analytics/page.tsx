@@ -124,7 +124,7 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
     case "consumer_source_mismatch":
       return "Source mismatch";
     case "source_agreement_failed":
-      return "Source agreement failed";
+      return "Needs connected source";
     case "not_enough_sources":
       return "More source evidence needed";
     case "failed":
@@ -162,7 +162,7 @@ function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHiera
   }
 
   if (blockedCount > 0) {
-    return `${formatSourceHierarchyCount(blockedCount, "analytics view")} blocked by source evidence.`;
+    return `${formatSourceHierarchyCount(blockedCount, "analytics view")} need a connected source.`;
   }
 
   return null;

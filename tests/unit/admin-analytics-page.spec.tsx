@@ -714,8 +714,8 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Source agreement: Source agreement failed");
-    expect(container.textContent).toContain("6 analytics views blocked by source evidence.");
+    expect(container.textContent).toContain("Source agreement: Needs connected source");
+    expect(container.textContent).toContain("6 analytics views need a connected source.");
     expect(container.textContent).toContain("Show source agreement failed in Debug and Analytics tab");
     expect(container.textContent).not.toContain("consumer_source_mismatch");
     expect(container.textContent).not.toContain("source_agreement_failed");
