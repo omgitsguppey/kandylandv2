@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T21:59:05.249Z
-Current head: f52f194c2631581df7221a7932b58957e4eb5db7
+Generated: 2026-06-18T22:07:06.078Z
+Current head: ee3777283e819918ec7984126f9616062dcf8425
 Status: source_agreement_failed
 
 ## Source Order
@@ -79,7 +79,7 @@ Status: source_agreement_failed
 - Compared sources: first_party, ga4, historical_snapshot, legacy_support
 - Disagreements: 2
 - Max delta: 67
-- Classifications: date_range_mismatch, external_source_gap, missing_materializer, duplicate_event
+- Classifications: date_range_mismatch, external_source_gap, missing_materializer
 - Per-day disagreement details: 2
   - 2026-05-02: present ga4; missing first_party, historical_snapshot, legacy_support; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
   - 2026-05-03: present ga4, legacy_support; missing first_party, historical_snapshot; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.

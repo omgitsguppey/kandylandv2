@@ -122,9 +122,8 @@ function classifyDayDisagreement(input: {
   if (hasFallback && !hasFirstParty) {
     classifications.add("missing_materializer");
   }
-  if (!hasFirstParty && input.sourcesPresent.length > 1) {
-    classifications.add("duplicate_event");
-  }
+  // GA4 plus legacy/fallback overlap can corroborate that a day had activity,
+  // but without first-party facts it is not proof of a duplicated product event.
   if (missingSet.has("first_party") && !hasGa4 && hasFallback) {
     classifications.add("event_translation_mismatch");
   }

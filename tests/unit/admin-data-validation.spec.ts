@@ -371,8 +371,8 @@ describe("buildHistoricalValidationSummary", () => {
       "date_range_mismatch",
       "external_source_gap",
       "missing_materializer",
-      "duplicate_event",
     ]));
+    expect(summary.analyticsSourceHealth.sourceAgreement.classifications).not.toContain("duplicate_event");
   });
 
   it("names partial or empty module coverage gaps with missing sources and validators", () => {

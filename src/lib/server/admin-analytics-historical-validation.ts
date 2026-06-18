@@ -305,9 +305,8 @@ function classifySourceAgreementDisagreements(input: {
       classifications.add("missing_materializer");
     }
 
-    if (!hasFirstParty && Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy) > 1) {
-      classifications.add("duplicate_event");
-    }
+    // GA4 plus legacy/fallback overlap is corroborating evidence only until
+    // first-party facts exist; do not label it as a duplicated product event.
   }
 
   return [...classifications];

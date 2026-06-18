@@ -246,6 +246,37 @@ describe("source agreement failure detail", () => {
     expect(detail.sourceTruthPolicy.ga4SecondSourceOnly).toBe(true);
   });
 
+  it("does not call GA4 plus legacy overlap a duplicate product event without first-party facts", () => {
+    const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
+      proofMode: "local_export",
+      launchHistoryCoverage: {
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
+        days: [
+          {
+            dayKey: "2026-05-03",
+            expected: true,
+            sourceCounts: { first_party: 0, ga4: 1, historicalSnapshot: 0, legacySupport: 1 },
+          },
+        ],
+      },
+    });
+
+    expect(detail.sourceAgreementStatus).toBe("review");
+    expect(detail.disagreements).toEqual([
+      expect.objectContaining({
+        dayKey: "2026-05-03",
+        primarySourceState: "first_party_missing",
+        secondSourceState: "ga4_present",
+        fallbackState: "fallback_present",
+        classifications: expect.arrayContaining(["external_source_gap", "missing_materializer"]),
+        productTruthEligible: false,
+      }),
+    ]);
+    expect(detail.disagreements[0]?.classifications).not.toContain("duplicate_event");
+  });
+
   it("does not prove all-launch coverage when declared counts do not match supplied day rows", () => {
     const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
       proofMode: "admin_truth_sample",
