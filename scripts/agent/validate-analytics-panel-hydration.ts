@@ -7,6 +7,7 @@ import {
   validateAnalyticsPanelHydrationReport,
 } from "@/lib/admin-analytics/panel-hydration-resolver";
 import { buildLivePanelEvidenceReport } from "@/lib/release-readiness/live-panel-evidence-resolver";
+import { validateSourceAgreementFailureDetail } from "./debug-cockpit-batch29-analytics-source-hierarchy-shared";
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/analytics-panel-hydration.generated.json";
@@ -992,6 +993,8 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
 }
 
 function main() {
+  validateSourceAgreementFailureDetail();
+
   const generatedAtUtc = new Date().toISOString();
   const currentHead = run("git", ["rev-parse", "HEAD"]) || "unknown";
   const dirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));

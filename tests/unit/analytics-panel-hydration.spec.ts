@@ -199,4 +199,13 @@ describe("analytics panel hydration", () => {
     expect(livePanelEvidence.decisions.length).toBe(report.totalPanels);
     expect(livePanelEvidence.liveEvidencePanelIds).toContain("traffic_overview");
   });
+
+  it("refreshes source agreement before launch recovery consumes it", () => {
+    const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
+    const refreshIndex = source.indexOf("validateSourceAgreementFailureDetail();");
+    const panelIndex = source.indexOf("buildAnalyticsPanelHydrationReport({");
+
+    expect(refreshIndex).toBeGreaterThanOrEqual(0);
+    expect(panelIndex).toBeGreaterThan(refreshIndex);
+  });
 });
