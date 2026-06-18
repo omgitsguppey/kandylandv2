@@ -194,6 +194,7 @@ export function FindingCard({ finding, compact = false }: { finding: AdminDebugF
 
 export function ReportCard({ report }: { report: AdminDebugReportCard }) {
     const display = resolveReportDisplay(report);
+    const updatedLabel = report.updatedAtMs ? `Last updated ${formatRelative(report.updatedAtMs)}` : report.ageHours === null ? "Not generated" : `Last updated ${report.ageHours}h ago`;
 
     return (
         <article
@@ -205,7 +206,7 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                     <h3 className="text-sm font-bold text-white">{report.label}</h3>
-                    <p className="mt-1 text-[11px] leading-4 text-gray-400">{report.command}</p>
+                    <p className="mt-1 text-[11px] leading-4 text-gray-400">{updatedLabel}</p>
                 </div>
                 <AdminStatusBadge state={display.badgeState} label={display.badgeLabel} title={display.sourceDetail} className="shrink-0 py-0 text-[8px]" />
             </div>
@@ -227,7 +228,7 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
             </div>
             <details className="mt-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-gray-300">
                 <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Source detail</summary>
-                <p className="mt-1">{display.sourceDetail}</p>
+                <p className="mt-1">{display.sourceDetail} Refresh command: {report.command}</p>
             </details>
             {report.topFindings.length > 0 ? (
                 <details className="mt-3 rounded-xl border border-white/10 bg-black/25 p-2 text-xs text-gray-300">

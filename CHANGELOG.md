@@ -4,6 +4,11 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.6.1 - 2026-06-18
+- Cleaner Admin Debug evidence cards
+- Proof gates now show action-focused evidence states instead of raw generated-report wording.
+- Report cards now show last-updated status first, with refresh commands kept inside source detail.
+
 ## 1.6.0 - 2026-06-18
 - Cleaner Admin Debug evidence states
 - Data Validation now uses one issue total in the header while keeping detailed source evidence inside the panel.
@@ -138,12 +143,6 @@ Showing the last 25 public updates in pages of 5.
 - Reduced confusing stale or delayed states across previews and viewer surfaces.
 
 ## 1.5.77 - 2026-06-17
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
-
-## 1.5.76 - 2026-06-17
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
 - Improved guest analytics and admin truth checks behind the scenes.

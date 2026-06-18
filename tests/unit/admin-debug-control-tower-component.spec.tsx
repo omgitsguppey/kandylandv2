@@ -230,6 +230,8 @@ describe("DebugControlTower", () => {
         expect(container.textContent).toContain("Public Beta");
         expect(container.textContent).toContain("Money + Cost");
         expect(container.textContent).toContain("Support message detail route returned forbidden.");
+        expect(container.textContent).toContain("Last updated");
+        expect(container.textContent).toContain("Refresh command: npm run check:google-cost");
         expect(container.textContent).toContain("Next actions");
         expect(container.textContent).toContain("admin truth source required");
         expect(container.textContent).not.toContain("Device + UI");
