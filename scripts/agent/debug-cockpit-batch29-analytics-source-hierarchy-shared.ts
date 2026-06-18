@@ -241,6 +241,7 @@ export function validateSourceAgreementFailureDetail() {
   expectPass(detail.sourceAgreementStatus === "failed", failures, "source agreement detail lacks explicit failed state.");
   expectPass(detail.rangeStartDayKey === "2026-05-01" && detail.rangeEndDayKey === "2026-05-03", failures, "source agreement detail lacks launch evidence range.");
   expectPass(detail.expectedRangeSource === "union_of_local_source_days", failures, "source agreement detail does not identify local evidence range source.");
+  expectPass(detail.coverageWindowKind === "fixture_only_local_window" && detail.allLaunchRangeProven === false, failures, "source agreement detail can be mistaken for all-launch proof.");
   expectPass(detail.disagreementCount > 0 && detail.maxDeltaPct > 25, failures, "maxDeltaPct/disagreementCount missing.");
   expectPass(detail.disagreements.some((entry) =>
     entry.dayKey === "2026-05-02"
@@ -248,8 +249,13 @@ export function validateSourceAgreementFailureDetail() {
     && entry.secondSourceState === "ga4_present"
     && entry.classifications.includes("missing_materializer"),
   ), failures, "per-day GA4/first-party source disagreement missing.");
+  expectPass(detail.disagreements.every((entry) =>
+    entry.primarySourceState === "first_party_present"
+    || (entry.recoveryLane && entry.blockingOwner && entry.proofRequired.length > 0 && entry.productTruthEligible === false),
+  ), failures, "first-party-missing disagreements lack owner/proof/product-truth boundary.");
   expectPass(detail.toleranceThresholds.failDeltaPct === 25, failures, "tolerance thresholds missing.");
   expectPass(detail.blockedConsumers.includes("admin_analytics_charts"), failures, "blocked consumers missing.");
+  expectPass(detail.sourceTruthPolicy.firstPartyPrimary && detail.sourceTruthPolicy.ga4SecondSourceOnly && detail.sourceTruthPolicy.missingIsNotZero, failures, "source truth policy missing.");
   expectPass(!/^retry$/iu.test(detail.nextAction), failures, "next action generic retry only.");
   runValidation("source-agreement-failure-detail", { detail }, failures, [
     "Source agreement failures include compared sources, coverage deltas, per-day disagreement details, tolerance, blocked consumers, and next actions.",

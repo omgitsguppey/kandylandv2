@@ -16,6 +16,8 @@ describe("source agreement failure detail", () => {
     expect(detail.rangeEndDayKey).toBe("2026-05-03");
     expect(detail.expectedDayCount).toBe(3);
     expect(detail.expectedRangeSource).toBe("union_of_local_source_days");
+    expect(detail.coverageWindowKind).toBe("fixture_only_local_window");
+    expect(detail.allLaunchRangeProven).toBe(false);
     expect(detail.missingDaysBySource.first_party).toEqual(["2026-05-02", "2026-05-03"]);
     expect(detail.disagreements).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -24,6 +26,10 @@ describe("source agreement failure detail", () => {
         primarySourceState: "first_party_missing",
         secondSourceState: "ga4_present",
         classifications: expect.arrayContaining(["external_source_gap", "missing_materializer"]),
+        recoveryLane: "first_party_materialization",
+        blockingOwner: "analytics_event_facts materialization",
+        proofRequired: expect.arrayContaining(["first_party_day_bucket_or_analytics_event_facts_sample"]),
+        productTruthEligible: false,
       }),
     ]));
     expect(detail.disagreementCount).toBeGreaterThan(0);
@@ -32,5 +38,12 @@ describe("source agreement failure detail", () => {
     expect(detail.blockedConsumers).toContain("admin_analytics_charts");
     expect(detail.nextAction).not.toMatch(/^retry$/iu);
     expect(detail.nextAction).toMatch(/first-party/i);
+    expect(detail.nextExactSteps.join(" ")).toMatch(/all-range historical analytics route|approved local export path/i);
+    expect(detail.sourceTruthPolicy).toMatchObject({
+      firstPartyPrimary: true,
+      ga4SecondSourceOnly: true,
+      fallbackEvidenceOnly: true,
+      missingIsNotZero: true,
+    });
   });
 });

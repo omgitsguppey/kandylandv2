@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T04:48:39.027Z",
-  "currentHead": "8bbfcc0a2aa9588717557f524ef670489d4ce719",
+  "generatedAtUtc": "2026-06-18T04:59:10.272Z",
+  "currentHead": "04d6d998375f26a108095fa76602739de3c81229",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -236,7 +236,7 @@
   "evidenceProvenance": {
     "launchCoverageInput": "agent/state/source-agreement-failure-detail.generated.json",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "8bbfcc0a2aa9588717557f524ef670489d4ce719",
+    "sourceAgreementInputHead": "04d6d998375f26a108095fa76602739de3c81229",
     "ga4ReadMode": "generated/local evidence only; no provider call performed",
     "firstPartyReadMode": "source-agreement day-bucket evidence only; no production read performed",
     "limitation": "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof."
@@ -244,8 +244,9 @@
   "launchHistoryCoverage": {
     "rangeProof": {
       "expectedRangeSource": "union_of_local_source_days",
+      "coverageWindowKind": "fixture_only_local_window",
       "allLaunchRangeProven": false,
-      "reason": "The local source-agreement fixture proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export."
+      "reason": "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export."
     },
     "rangeStartDayKey": "2026-05-01",
     "rangeEndDayKey": "2026-05-03",
@@ -359,7 +360,7 @@
     "state": "available",
     "reason": "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.",
     "staleInputEvidence": false,
-    "sourceAgreementEvidenceHead": "8bbfcc0a2aa9588717557f524ef670489d4ce719"
+    "sourceAgreementEvidenceHead": "04d6d998375f26a108095fa76602739de3c81229"
   },
   "sourceAgreement": {
     "comparedSources": [
@@ -401,7 +402,13 @@
           "duplicate_event"
         ],
         "likelyRootCause": "Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.",
-        "nextAction": "Keep first-party as primary and use secondary/fallback evidence only for corroboration."
+        "nextAction": "Keep first-party as primary and use secondary/fallback evidence only for corroboration.",
+        "recoveryLane": "source_overlap_review",
+        "blockingOwner": "source agreement overlap review",
+        "proofRequired": [
+          "fallback_archive_label_and_dedupe_review"
+        ],
+        "productTruthEligible": true
       },
       {
         "dayKey": "2026-05-02",
@@ -422,7 +429,14 @@
           "missing_materializer"
         ],
         "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
-        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics.",
+        "recoveryLane": "first_party_materialization",
+        "blockingOwner": "analytics_event_facts materialization",
+        "proofRequired": [
+          "first_party_day_bucket_or_analytics_event_facts_sample",
+          "identity_materializer_parity_check"
+        ],
+        "productTruthEligible": false
       },
       {
         "dayKey": "2026-05-03",
@@ -444,10 +458,30 @@
           "duplicate_event"
         ],
         "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
-        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics.",
+        "recoveryLane": "first_party_materialization",
+        "blockingOwner": "analytics_event_facts materialization",
+        "proofRequired": [
+          "first_party_day_bucket_or_analytics_event_facts_sample",
+          "identity_materializer_parity_check",
+          "fallback_archive_label_and_dedupe_review"
+        ],
+        "productTruthEligible": false
       }
     ],
     "disagreementsTruncated": false,
+    "nextExactSteps": [
+      "Run the existing all-range historical analytics route or approved local export path to produce first-party day buckets.",
+      "Compare GA4 only as second-source evidence for sessions, views, devices, regions, top paths, and acquisition-style checks.",
+      "Keep fallback historical and legacy support rows archive/evidence-only until first-party materialization or dedupe proves the day.",
+      "Promote admin charts only after sourceAgreementStatus is pass and first-party product truth covers the bounded window."
+    ],
+    "sourceTruthPolicy": {
+      "firstPartyPrimary": true,
+      "ga4SecondSourceOnly": true,
+      "fallbackEvidenceOnly": true,
+      "missingIsNotZero": true
+    },
     "nextAction": "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity."
   },
   "adminPanelConnection": {

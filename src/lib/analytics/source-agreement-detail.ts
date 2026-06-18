@@ -15,6 +15,13 @@ export type SourceAgreementFailureClassification =
   | "stale_generated_evidence"
   | "not_enough_sources";
 
+export type SourceAgreementRecoveryLane =
+  | "first_party_materialization"
+  | "ga4_export_verification"
+  | "legacy_support_review"
+  | "source_overlap_review"
+  | "source_agreement_review";
+
 export type SourceAgreementDisagreementDetail = {
   dayKey: string;
   sourcesPresent: string[];
@@ -25,6 +32,10 @@ export type SourceAgreementDisagreementDetail = {
   classifications: SourceAgreementFailureClassification[];
   likelyRootCause: string;
   nextAction: string;
+  recoveryLane: SourceAgreementRecoveryLane;
+  blockingOwner: string;
+  proofRequired: string[];
+  productTruthEligible: boolean;
 };
 
 export type SourceAgreementFailureDetail = {
@@ -34,6 +45,8 @@ export type SourceAgreementFailureDetail = {
   rangeEndDayKey: string | null;
   expectedDayCount: number;
   expectedRangeSource: "caller_supplied_expected_days" | "union_of_local_source_days";
+  coverageWindowKind: "caller_supplied_expected_days" | "fixture_only_local_window" | "local_source_window";
+  allLaunchRangeProven: boolean;
   disagreementCount: number;
   maxDeltaPct: number;
   disagreements: SourceAgreementDisagreementDetail[];
@@ -47,6 +60,13 @@ export type SourceAgreementFailureDetail = {
   };
   blockedConsumers: string[];
   nextAction: string;
+  nextExactSteps: string[];
+  sourceTruthPolicy: {
+    firstPartyPrimary: true;
+    ga4SecondSourceOnly: true;
+    fallbackEvidenceOnly: true;
+    missingIsNotZero: true;
+  };
 };
 
 function classifyDayDisagreement(input: {
@@ -96,6 +116,27 @@ function classifyDayDisagreement(input: {
     : !hasGa4
       ? "Refresh or attach GA4/export evidence as second-source comparison; do not downgrade first-party product truth."
       : "Keep first-party as primary and use secondary/fallback evidence only for corroboration.";
+  const recoveryLane: SourceAgreementRecoveryLane = !hasFirstParty
+    ? hasGa4
+      ? "first_party_materialization"
+      : "legacy_support_review"
+    : !hasGa4
+      ? "ga4_export_verification"
+      : input.sourcesPresent.length > 1
+        ? "source_overlap_review"
+        : "source_agreement_review";
+  const blockingOwner = !hasFirstParty
+    ? "analytics_event_facts materialization"
+    : !hasGa4
+      ? "GA4/export evidence lane"
+      : hasFallback
+        ? "source agreement overlap review"
+        : "source agreement comparison";
+  const proofRequired = [
+    ...(!hasFirstParty ? ["first_party_day_bucket_or_analytics_event_facts_sample", "identity_materializer_parity_check"] : []),
+    ...(!hasGa4 ? ["approved_ga4_export_or_config_evidence"] : []),
+    ...(hasFallback ? ["fallback_archive_label_and_dedupe_review"] : []),
+  ];
 
   return {
     dayKey: input.dayKey,
@@ -107,6 +148,10 @@ function classifyDayDisagreement(input: {
     classifications: [...classifications],
     likelyRootCause,
     nextAction,
+    recoveryLane,
+    blockingOwner,
+    proofRequired,
+    productTruthEligible: hasFirstParty,
   };
 }
 
@@ -133,6 +178,7 @@ export function buildSourceAgreementFailureDetail(input: {
   reviewDeltaPct?: number;
   failDeltaPct?: number;
   blockedConsumers?: string[];
+  coverageWindowKind?: SourceAgreementFailureDetail["coverageWindowKind"];
 }): SourceAgreementFailureDetail {
   const comparedSources: SourceAgreementCoverageInput[] = input.comparedSources.map((entry) => {
     if (typeof entry !== "string") return entry;
@@ -144,6 +190,8 @@ export function buildSourceAgreementFailureDetail(input: {
   const expectedRangeSource = input.expectedDays
     ? "caller_supplied_expected_days"
     : "union_of_local_source_days";
+  const coverageWindowKind = input.coverageWindowKind
+    ?? (input.expectedDays ? "caller_supplied_expected_days" : "local_source_window");
   const expectedDays = [...new Set((input.expectedDays ?? [
     ...Object.values(input.coverageBySource ?? {}).flat(),
     ...comparedSources.flatMap((entry) => entry.days),
@@ -210,6 +258,8 @@ export function buildSourceAgreementFailureDetail(input: {
     rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
     expectedDayCount: expectedDays.length,
     expectedRangeSource,
+    coverageWindowKind,
+    allLaunchRangeProven: false,
     disagreementCount,
     maxDeltaPct,
     disagreements,
@@ -228,6 +278,18 @@ export function buildSourceAgreementFailureDetail(input: {
       "public_beta_score_evidence",
     ],
     nextAction: "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.",
+    nextExactSteps: [
+      "Run the existing all-range historical analytics route or approved local export path to produce first-party day buckets.",
+      "Compare GA4 only as second-source evidence for sessions, views, devices, regions, top paths, and acquisition-style checks.",
+      "Keep fallback historical and legacy support rows archive/evidence-only until first-party materialization or dedupe proves the day.",
+      "Promote admin charts only after sourceAgreementStatus is pass and first-party product truth covers the bounded window.",
+    ],
+    sourceTruthPolicy: {
+      firstPartyPrimary: true,
+      ga4SecondSourceOnly: true,
+      fallbackEvidenceOnly: true,
+      missingIsNotZero: true,
+    },
   };
 }
 
@@ -244,5 +306,6 @@ export function buildLaunchAnalyticsSourceAgreementFailureDetail(input: {
     expectedDays: input.expectedDays,
     tolerance: input.tolerance,
     blockedConsumers: input.blockedConsumers,
+    coverageWindowKind: input.expectedDays ? "caller_supplied_expected_days" : "fixture_only_local_window",
   });
 }

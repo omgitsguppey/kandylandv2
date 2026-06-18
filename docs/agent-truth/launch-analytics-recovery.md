@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T04:48:39.027Z
-Current head: 8bbfcc0a2aa9588717557f524ef670489d4ce719
+Generated: 2026-06-18T04:59:10.272Z
+Current head: 04d6d998375f26a108095fa76602739de3c81229
 Status: source_agreement_failed
 
 ## Source Order
@@ -45,7 +45,8 @@ Status: source_agreement_failed
 
 - Range: 2026-05-01 to 2026-05-03
 - Range proof: union_of_local_source_days
-- Range proof reason: The local source-agreement fixture proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.
+- Coverage window: fixture_only_local_window
+- Range proof reason: The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.
 - Recovered days: 3/3
 - First recovered day: 2026-05-01
 - Last recovered day: 2026-05-03
@@ -68,9 +69,10 @@ Status: source_agreement_failed
 - Max delta: 67
 - Classifications: date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
 - Per-day disagreement details: 3
-  - 2026-05-01: present first_party, ga4, historical_snapshot; missing legacy_support; Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.
-  - 2026-05-02: present ga4; missing first_party, historical_snapshot, legacy_support; GA4 observed the day, but first-party product facts are missing or not materialized.
-  - 2026-05-03: present ga4, legacy_support; missing first_party, historical_snapshot; GA4 observed the day, but first-party product facts are missing or not materialized.
+  - 2026-05-01: present first_party, ga4, historical_snapshot; missing legacy_support; lane source_overlap_review; owner source agreement overlap review; Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.
+  - 2026-05-02: present ga4; missing first_party, historical_snapshot, legacy_support; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
+  - 2026-05-03: present ga4, legacy_support; missing first_party, historical_snapshot; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
+- Exact next steps: Run the existing all-range historical analytics route or approved local export path to produce first-party day buckets. | Compare GA4 only as second-source evidence for sessions, views, devices, regions, top paths, and acquisition-style checks. | Keep fallback historical and legacy support rows archive/evidence-only until first-party materialization or dedupe proves the day. | Promote admin charts only after sourceAgreementStatus is pass and first-party product truth covers the bounded window.
 - Next action: Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.
 
 ## Admin Panel Connection

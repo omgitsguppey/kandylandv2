@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T04:48:39.027Z",
-  "currentHead": "8bbfcc0a2aa9588717557f524ef670489d4ce719",
+  "generatedAtUtc": "2026-06-18T04:59:10.272Z",
+  "currentHead": "04d6d998375f26a108095fa76602739de3c81229",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,50 +416,42 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 10,
+    "total": 6,
     "byClassification": {
-      "analytics_panel_hydration_artifact_expected": 2,
-      "stale_generated_artifact_to_regenerate": 4,
-      "launch_analytics_recovery_artifact_expected": 2,
       "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 1
+      "documentation_artifact_expected": 1,
+      "source_agreement_failure_classification_required": 2,
+      "analytics_panel_hydration_artifact_expected": 1,
+      "test_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
-      {
-        "path": "agent/state/analytics-panel-hydration.generated.json",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "agent/state/analytics-source-agreement-cleanup.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/ga4-recovery-truth.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/launch-analytics-recovery.generated.json",
-        "classification": "launch_analytics_recovery_artifact_expected"
-      },
       {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
       },
       {
-        "path": "docs/agent-truth/analytics-panel-hydration.md",
+        "path": "docs/agent-truth/source-agreement-failure-detail.md",
+        "classification": "documentation_artifact_expected"
+      },
+      {
+        "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+        "classification": "source_agreement_failure_classification_required"
+      },
+      {
+        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
         "classification": "analytics_panel_hydration_artifact_expected"
       },
       {
-        "path": "docs/agent-truth/analytics-source-agreement-cleanup.md",
-        "classification": "stale_generated_artifact_to_regenerate"
+        "path": "src/lib/analytics/source-agreement-detail.ts",
+        "classification": "source_agreement_failure_classification_required"
       },
       {
-        "path": "docs/agent-truth/ga4-recovery-truth.md",
-        "classification": "stale_generated_artifact_to_regenerate"
+        "path": "tests/unit/source-agreement-failure-detail.spec.ts",
+        "classification": "test_artifact_expected"
       }
     ],
-    "sampleTruncated": true
+    "sampleTruncated": false
   },
   "nextExactSteps": [
     "Connect safe lastSeen/materialized summaries for source-missing panels.",

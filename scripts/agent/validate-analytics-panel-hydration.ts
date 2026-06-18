@@ -685,8 +685,13 @@ function buildLaunchAnalyticsRecoveryReport(input: {
         expectedRangeSource: typeof sourceAgreementDetail.expectedRangeSource === "string"
           ? sourceAgreementDetail.expectedRangeSource
           : "union_of_local_source_days",
+        coverageWindowKind: typeof sourceAgreementDetail.coverageWindowKind === "string"
+          ? sourceAgreementDetail.coverageWindowKind
+          : "local_source_window",
         allLaunchRangeProven: false,
-        reason: "The local source-agreement fixture proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.",
+        reason: typeof sourceAgreementDetail.coverageWindowKind === "string" && sourceAgreementDetail.coverageWindowKind.includes("fixture")
+          ? "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export."
+          : "The local source-agreement evidence proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.",
       },
       rangeStartDayKey: expectedDays[0] ?? null,
       rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
@@ -729,6 +734,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       classifications: sourceAgreementClassifications,
       disagreements: sourceAgreementDisagreements.slice(0, 25),
       disagreementsTruncated: sourceAgreementDisagreements.length > 25,
+      nextExactSteps: asStringArray(sourceAgreementDetail.nextExactSteps),
+      sourceTruthPolicy: asRecord(sourceAgreementDetail.sourceTruthPolicy),
       nextAction: typeof sourceAgreementDetail.nextAction === "string"
         ? sourceAgreementDetail.nextAction
         : "Run the all-time historical analytics source path and keep GA4 as second-source evidence.",
@@ -812,6 +819,9 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (!report.launchHistoryCoverage.rangeProof || report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== false) {
     failures.push("launch recovery must state that local generated evidence does not prove the full all-launch range.");
   }
+  if (!report.launchHistoryCoverage.rangeProof.coverageWindowKind) {
+    failures.push("launch recovery must label whether source agreement coverage is fixture/local/export evidence.");
+  }
   if (!report.launchHistoryCoverage.firstPartyCoverage || !["available", "partial", "source_missing"].includes(report.launchHistoryCoverage.firstPartyCoverage.state)) {
     failures.push("launch recovery must expose firstPartyCoverage state.");
   }
@@ -836,6 +846,12 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   }
   if (report.sourceAgreement.disagreements.some((entry) => typeof entry.dayKey !== "string" || !Array.isArray(entry.classifications))) {
     failures.push("source agreement disagreement details must include dayKey and classifications.");
+  }
+  if (report.sourceAgreement.disagreements.some((entry) =>
+    entry.primarySourceState === "first_party_missing"
+    && (!entry.recoveryLane || !entry.blockingOwner || !Array.isArray(entry.proofRequired) || entry.productTruthEligible !== false)
+  )) {
+    failures.push("first-party-missing source disagreements must name recovery lane, owner, required proof, and block product truth.");
   }
   return failures;
 }
@@ -876,6 +892,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     "",
     `- Range: ${report.launchHistoryCoverage.rangeStartDayKey ?? "unknown"} to ${report.launchHistoryCoverage.rangeEndDayKey ?? "unknown"}`,
     `- Range proof: ${report.launchHistoryCoverage.rangeProof.allLaunchRangeProven ? "all launch range proven" : report.launchHistoryCoverage.rangeProof.expectedRangeSource}`,
+    `- Coverage window: ${report.launchHistoryCoverage.rangeProof.coverageWindowKind}`,
     `- Range proof reason: ${report.launchHistoryCoverage.rangeProof.reason}`,
     `- Recovered days: ${report.launchHistoryCoverage.recoveredDayCount}/${report.launchHistoryCoverage.expectedDayCount}`,
     `- First recovered day: ${report.launchHistoryCoverage.firstRecoveredDayKey ?? "unknown"}`,
@@ -900,8 +917,9 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Classifications: ${report.sourceAgreement.classifications.join(", ") || "none"}`,
     `- Per-day disagreement details: ${report.sourceAgreement.disagreements.length}${report.sourceAgreement.disagreementsTruncated ? " (truncated)" : ""}`,
     ...report.sourceAgreement.disagreements.slice(0, 6).map((entry) =>
-      `  - ${String(entry.dayKey)}: present ${asStringArray(entry.sourcesPresent).join(", ") || "none"}; missing ${asStringArray(entry.sourcesMissing).join(", ") || "none"}; ${String(entry.likelyRootCause ?? "review source mismatch")}`,
+      `  - ${String(entry.dayKey)}: present ${asStringArray(entry.sourcesPresent).join(", ") || "none"}; missing ${asStringArray(entry.sourcesMissing).join(", ") || "none"}; lane ${String(entry.recoveryLane ?? "review")}; owner ${String(entry.blockingOwner ?? "source agreement")}; ${String(entry.likelyRootCause ?? "review source mismatch")}`,
     ),
+    `- Exact next steps: ${asStringArray(report.sourceAgreement.nextExactSteps).join(" | ") || "see next action"}`,
     `- Next action: ${report.sourceAgreement.nextAction}`,
     "",
     "## Admin Panel Connection",

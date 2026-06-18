@@ -1,7 +1,7 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-06-18T04:46:36.158Z",
-  "currentHead": "8bbfcc0a2aa9588717557f524ef670489d4ce719",
+  "generatedAtUtc": "2026-06-18T04:59:09.806Z",
+  "currentHead": "04d6d998375f26a108095fa76602739de3c81229",
   "detail": {
     "comparedSources": [
       "first_party",
@@ -14,6 +14,8 @@
     "rangeEndDayKey": "2026-05-03",
     "expectedDayCount": 3,
     "expectedRangeSource": "union_of_local_source_days",
+    "coverageWindowKind": "fixture_only_local_window",
+    "allLaunchRangeProven": false,
     "disagreementCount": 3,
     "maxDeltaPct": 67,
     "disagreements": [
@@ -35,7 +37,13 @@
           "duplicate_event"
         ],
         "likelyRootCause": "Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.",
-        "nextAction": "Keep first-party as primary and use secondary/fallback evidence only for corroboration."
+        "nextAction": "Keep first-party as primary and use secondary/fallback evidence only for corroboration.",
+        "recoveryLane": "source_overlap_review",
+        "blockingOwner": "source agreement overlap review",
+        "proofRequired": [
+          "fallback_archive_label_and_dedupe_review"
+        ],
+        "productTruthEligible": true
       },
       {
         "dayKey": "2026-05-02",
@@ -56,7 +64,14 @@
           "missing_materializer"
         ],
         "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
-        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics.",
+        "recoveryLane": "first_party_materialization",
+        "blockingOwner": "analytics_event_facts materialization",
+        "proofRequired": [
+          "first_party_day_bucket_or_analytics_event_facts_sample",
+          "identity_materializer_parity_check"
+        ],
+        "productTruthEligible": false
       },
       {
         "dayKey": "2026-05-03",
@@ -78,7 +93,15 @@
           "duplicate_event"
         ],
         "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
-        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics.",
+        "recoveryLane": "first_party_materialization",
+        "blockingOwner": "analytics_event_facts materialization",
+        "proofRequired": [
+          "first_party_day_bucket_or_analytics_event_facts_sample",
+          "identity_materializer_parity_check",
+          "fallback_archive_label_and_dedupe_review"
+        ],
+        "productTruthEligible": false
       }
     ],
     "perSourceCoverage": [
@@ -146,7 +169,19 @@
       "admin_analytics_charts",
       "debug_data_validation"
     ],
-    "nextAction": "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity."
+    "nextAction": "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.",
+    "nextExactSteps": [
+      "Run the existing all-range historical analytics route or approved local export path to produce first-party day buckets.",
+      "Compare GA4 only as second-source evidence for sessions, views, devices, regions, top paths, and acquisition-style checks.",
+      "Keep fallback historical and legacy support rows archive/evidence-only until first-party materialization or dedupe proves the day.",
+      "Promote admin charts only after sourceAgreementStatus is pass and first-party product truth covers the bounded window."
+    ],
+    "sourceTruthPolicy": {
+      "firstPartyPrimary": true,
+      "ga4SecondSourceOnly": true,
+      "fallbackEvidenceOnly": true,
+      "missingIsNotZero": true
+    }
   },
   "validationFailures": []
 }
