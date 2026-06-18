@@ -59,7 +59,7 @@ for (const forbiddenRealtimeMetric of [
   );
 }
 assert(
-  overviewHook.includes("Snapshot refresh delayed")
+  overviewHook.includes("Refresh due")
     && overviewHook.includes("Verified snapshot shown")
     && overviewHook.includes("Showing hourly hot-cache snapshot"),
   "Admin overview hook must keep snapshot/cache totals visible when refresh lanes are delayed.",
@@ -75,8 +75,8 @@ assert(
   "Admin users realtime hook must reject non-operational realtime payload scopes.",
 );
 assert(
-  usersHook.includes("Realtime pulse failed. Showing the last verified snapshot.")
-    && usersHook.includes("Realtime pulse is delayed. Showing the last verified snapshot."),
+  usersHook.includes("Snapshot refresh failed. Showing the last verified snapshot.")
+    && usersHook.includes("Refresh due. Showing the last verified snapshot."),
   "Admin users realtime hook must preserve the last verified snapshot during realtime failures.",
 );
 

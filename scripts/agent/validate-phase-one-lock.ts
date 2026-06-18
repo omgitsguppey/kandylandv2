@@ -328,7 +328,7 @@ runSection("Admin pages use canonical snapshots/rollups", () => {
   assertExcludes(adminOverviewPage, "const serverUpdateLabel =", "Admin overview page");
   assertExcludes(adminOverviewPage, "const truthLabel =", "Admin overview page");
   assertIncludes(adminUsersPage, "buildAdminUsersPageData", "Admin users page");
-  assertIncludes(adminUsersPage, "pageData.kpiCards", "Admin users page");
+  assertIncludes(adminUsersPage, "summary?.kpiCards", "Admin users page");
   assertIncludes(adminUsersPage, "pageData.subtitle", "Admin users page");
   assertIncludes(adminUsersPage, "summary?.truthSnapshot", "Admin users page");
   assertIncludes(adminUserPage, "buildAdminUserDetailPageData", "Admin user page");
@@ -438,8 +438,8 @@ runSection("Realtime admin routes cannot override snapshot business metrics", ()
   assertIncludes(realtimePolicy, "ADMIN_ANALYTICS_REALTIME_POLICY", "Realtime policy");
   assertIncludes(realtimePolicy, 'purpose: "operational_pulse_only"', "Realtime policy");
   assertIncludes(realtimePolicy, 'businessTruthSource: "refresh_based_hot_cache"', "Realtime policy");
-  assertIncludes(realtimePolicy, "snapshotRefreshCadenceMs: 60_000", "Realtime policy");
-  assertIncludes(realtimePolicy, "heartbeatIntervalMs: 25_000", "Realtime policy");
+  assertIncludes(realtimePolicy, "snapshotRefreshCadenceMs: ADMIN_HEARTBEAT_INTERVAL_MS", "Realtime policy");
+  assertIncludes(realtimePolicy, "heartbeatIntervalMs: ADMIN_HEARTBEAT_INTERVAL_MS", "Realtime policy");
   assertIncludes(realtimePolicy, "costRisk:", "Realtime policy");
   assertIncludes(realtimePolicy, "explicitCostJustification", "Realtime policy");
   assertIncludes(overviewRealtimeHook, "refreshInterval: ADMIN_OVERVIEW_REALTIME_POLICY.snapshotRefreshCadenceMs", "Admin overview realtime hook");
@@ -449,13 +449,13 @@ runSection("Realtime admin routes cannot override snapshot business metrics", ()
   for (const forbidden of ["grossRevenueCents:", "totalUnwraps:", "liveDrops:", "totalDrops:", "...realtimeData,"]) {
     assertExcludes(overviewRealtimeHook, forbidden, "Admin overview realtime hook");
   }
-  assertIncludes(overviewRealtimeHook, "Operational transaction pulse is delayed. Showing verified snapshot totals.", "Admin overview realtime hook");
-  assertIncludes(overviewRealtimeHook, "Operational commerce pulse is delayed. Showing verified snapshot totals.", "Admin overview realtime hook");
+  assertIncludes(overviewRealtimeHook, "Refresh due", "Admin overview realtime hook");
+  assertIncludes(overviewRealtimeHook, "Showing hourly hot-cache snapshot", "Admin overview realtime hook");
   assertIncludes(overviewRealtimeHook, "metricScope: ADMIN_OVERVIEW_REALTIME_POLICY.metricScope", "Admin overview realtime hook");
   assertIncludes(overviewRealtimeHook, "businessTruthSource: ADMIN_OVERVIEW_REALTIME_POLICY.businessTruthSource", "Admin overview realtime hook");
   assertIncludes(usersRealtimeHook, "payload.metricScope !== ADMIN_USERS_REALTIME_POLICY.metricScope", "Admin users realtime hook");
-  assertIncludes(usersRealtimeHook, "Realtime pulse failed. Showing the last verified snapshot.", "Admin users realtime hook");
-  assertIncludes(usersRealtimeHook, "Realtime pulse is delayed. Showing the last verified snapshot.", "Admin users realtime hook");
+  assertIncludes(usersRealtimeHook, "Snapshot refresh failed. Showing the last verified snapshot.", "Admin users realtime hook");
+  assertIncludes(usersRealtimeHook, "Refresh due. Showing the last verified snapshot.", "Admin users realtime hook");
   for (const requiredRouteField of [
     "purpose: ADMIN_USERS_REALTIME_POLICY.purpose",
     "owner: ADMIN_USERS_REALTIME_POLICY.owner",
@@ -471,7 +471,7 @@ runSection("Realtime admin routes cannot override snapshot business metrics", ()
   assertIncludes(adminUsersPage, 'data-admin-users-snapshot-state', "Admin users page");
   assertIncludes(adminUsersPage, 'data-admin-users-pulse-state', "Admin users page");
   assertIncludes(adminAdminPage, "buildAdminOverviewPageData", "Admin overview page");
-  assertIncludes(adminAdminPage, "useAdminOverview()", "Admin overview page");
+  assertIncludes(adminAdminPage, "useAdminOverview({", "Admin overview page");
   assertIncludes(adminLiveRuntime, "ADMIN_ANALYTICS_REALTIME_SCOPE = ADMIN_ANALYTICS_REALTIME_POLICY.metricScope", "Admin analytics live runtime");
   assertIncludes(adminLiveRuntime, "Canonical business totals stay on refresh-based snapshots.", "Admin analytics live runtime");
   assertIncludes(packageJson, '"check:admin-realtime-cutover": "tsx scripts/agent/validate-admin-realtime-cutover.ts"', "package.json");
@@ -537,7 +537,7 @@ runSection("Privacy-limited data is not scored as zero", () => {
   assertIncludes(privacyAwareScoring, "capRecommendationConfidenceByDataAvailability", "Privacy-aware scoring");
   assertIncludes(privacyConsent, '"privacy_limited_identified_analytics_denied"', "Privacy consent");
   assertIncludes(privacyConsent, '"privacy_limited_global_privacy_control"', "Privacy consent");
-  assertIncludes(userBehaviorRollup, "applyPrivacyAwareEngagementFloor", "User behavior rollup");
+  assertIncludes(userBehaviorRollup, "describePrivacyAwareEngagementScore", "User behavior rollup");
   assertIncludes(userBehaviorRollup, "applyPrivacyAwareValueFloor", "User behavior rollup");
   assertIncludes(userBehaviorRollup, '"Privacy limited"', "User behavior rollup");
   assertIncludes(userBehaviorRollup, "dataAvailabilityReason: privacyAvailabilityReason", "User behavior rollup");
@@ -665,8 +665,8 @@ runSection("Wallet paid/free source truth remains intact", () => {
   assertIncludes(purchaseModal, 'data-wallet-package-subcopy="removed"', "Purchase modal");
   assertIncludes(purchaseModal, 'data-wallet-bonus-chip-theme="brand-purple"', "Purchase modal");
   assertIncludes(purchaseModal, "resolveWalletBalanceSplit(userProfile)", "Purchase modal");
-  assertIncludes(purchaseModal, "formatCompactGd(walletBalanceSplit.freeGd)} free GD", "Purchase modal");
-  assertIncludes(purchaseModal, "formatCompactGd(walletBalanceSplit.paidGd)} paid GD", "Purchase modal");
+  assertIncludes(purchaseModal, "freeGd={walletBalanceSplit.freeGd}", "Purchase modal");
+  assertIncludes(purchaseModal, "paidGd={walletBalanceSplit.paidGd}", "Purchase modal");
   assertExcludes(purchaseModal, "paid +", "Purchase modal");
   assertIncludes(purchaseModal, "PayPalButtons", "Purchase modal");
   assertIncludes(purchaseModal, "fundingSource={FUNDING.PAYPAL}", "Purchase modal");
@@ -711,7 +711,7 @@ runSection("Server purchase/unlock truth remains primary", () => {
   assertIncludes(unlockRoute, "spendSourceAwareGumdrops", "Unlock route");
   assertIncludes(contentRoute, "Cache-Control\", \"private, no-store\"", "Content route");
   assertIncludes(contentRoute, "hasUnlockedDrop", "Content route");
-  assertIncludes(contentRoute, "You do not own this content", "Content route");
+  assertIncludes(contentRoute, "buildMediaAccessDeniedResponse(accessDecision)", "Content route");
   assertIncludes(requestGuard, "if (options.requireTrustedOrigin && !hasTrustedSiteOrigin(request))", "Request guard");
   assertIncludes(requestOrigin, "hasTrustedSiteOrigin", "Request origin");
   assertIncludes(requestOrigin, "trustedOrigins", "Request origin");

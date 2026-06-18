@@ -67,8 +67,8 @@ assert(usersPage.includes("snapshotRefreshState"), "Admin users page must keep a
 assert(usersPage.includes("data-admin-users-snapshot-state") && usersPage.includes("data-admin-users-pulse-state"), "Admin users page must expose snapshot and pulse state separately.");
 assert(usersRealtimeHook.includes("Showing last verified snapshot"), "Admin users realtime hook must preserve the last verified snapshot during pulse reconnects.");
 assert(
-  usersRealtimeHook.includes("Realtime pulse failed. Showing the last verified snapshot.")
-  && usersRealtimeHook.includes("Realtime pulse is delayed. Showing the last verified snapshot."),
+  usersRealtimeHook.includes("Snapshot refresh failed. Showing the last verified snapshot.")
+  && usersRealtimeHook.includes("Refresh due. Showing the last verified snapshot."),
   "Admin users realtime hook must not overwrite snapshot-backed truth with ERROR when the pulse fails.",
 );
 assert(

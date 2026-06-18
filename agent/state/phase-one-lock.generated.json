@@ -1,7 +1,7 @@
 {
   "reportKey": "phase-one-lock",
-  "generatedAt": "2026-05-08T03:20:26.683Z",
-  "sourceCommit": "2e54dfa75999e5ca82299120ee948e2acd3a73e9",
+  "generatedAt": "2026-06-18T16:11:56.423Z",
+  "sourceCommit": "ad088da8cd553999a99e78c1cbeab9941ba9bb57",
   "freshness": "fresh",
   "status": "pass",
   "summary": {
@@ -10,17 +10,19 @@
     "failedSectionCount": 0,
     "criticalBlockerCount": 0,
     "warningCount": 0,
-    "changedFileCount": 4,
+    "changedFileCount": 6,
     "requiredTargetedCheckCount": 15,
     "forbiddenBroadCheckCount": 6
   },
   "criticalBlockers": [],
   "warnings": [],
   "changedFilesSinceLastPhaseLock": [
-    "agent/context/optimized-task-context.generated.json",
     "agent/state/phase-one-lock.generated.json",
-    "docs/agent-truth/phase-one-lock.md",
-    "scripts/agent/validate-phase-one-lock.ts"
+    "scripts/agent/validate-admin-analytics-finalization.ts",
+    "scripts/agent/validate-admin-realtime-cutover.ts",
+    "scripts/agent/validate-admin-user-metrics-snapshot.ts",
+    "scripts/agent/validate-phase-one-lock.ts",
+    "src/hooks/useAdminUsersRealtime.ts"
   ],
   "requiredTargetedChecks": [
     "npm run check:runtime-facts-cutover",

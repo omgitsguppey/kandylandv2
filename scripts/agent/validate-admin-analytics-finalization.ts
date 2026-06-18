@@ -199,7 +199,7 @@ for (const oldOverviewCopy of [
 }
 includes(adminOverviewPage + adminOverviewHook, "Waiting for first overview snapshot", "Admin Overview no-snapshot copy");
 includes(adminOverviewHook, "Verified snapshot shown", "Admin Overview snapshot copy");
-includes(adminOverviewHook, "Snapshot refresh delayed", "Admin Overview delayed copy");
+includes(adminOverviewHook, "Refresh due", "Admin Overview delayed copy");
 
 for (const ledgerNeedle of [
   "Admin Analytics launch finalization",

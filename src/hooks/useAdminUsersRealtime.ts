@@ -34,7 +34,7 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
   );
   const [pulseLabel, setPulseLabel] = useState(
     hasSnapshotValue
-      ? "Showing last verified snapshot while refresh pulse connects."
+      ? "Showing last verified snapshot while refresh connects."
       : "Waiting for first verified snapshot.",
   );
   const [lastPulseAt, setLastPulseAt] = useState<number | null>(null);
@@ -55,7 +55,7 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
     });
     setPulseLabel((current) => {
       if (hasSnapshotValue && current === "Waiting for first verified snapshot.") {
-        return "Showing last verified snapshot while refresh pulse connects.";
+        return "Showing last verified snapshot while refresh connects.";
       }
       return current;
     });
@@ -80,7 +80,7 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
       });
       setPulseLabel(
         hasSnapshotRef.current
-          ? "Showing last verified snapshot while refresh pulse reconnects."
+          ? "Showing last verified snapshot while refresh reconnects."
           : "Waiting for first verified snapshot.",
       );
 
@@ -94,7 +94,7 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
         }
 
         setPulseState("live");
-        setPulseLabel("Operational pulse connected. Snapshot totals refresh in the background.");
+        setPulseLabel("Snapshot refresh connected. Totals update in the background.");
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
@@ -105,8 +105,8 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
             setPulseState(hasSnapshotRef.current ? "fallback" : "degraded");
             setPulseLabel(
               hasSnapshotRef.current
-                ? "Showing last verified snapshot while the refresh pulse reconnects."
-                : "Realtime pulse disconnected before the first verified snapshot loaded.",
+                ? "Showing last verified snapshot while refresh reconnects."
+                : "Snapshot refresh disconnected before the first verified snapshot loaded.",
             );
             if (!cancelled) {
               reconnectTimer = setTimeout(() => {
@@ -134,8 +134,8 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
                 setPulseState(resolveAdminRealtimeFailureState(hasSnapshotRef.current));
                 setPulseLabel(
                   hasSnapshotRef.current
-                    ? "Realtime pulse reported an invalid scope. Showing the last verified snapshot."
-                    : "Realtime pulse reported an invalid scope before a verified snapshot was available.",
+                    ? "Snapshot refresh source reported an invalid scope. Showing the last verified snapshot."
+                    : "Snapshot refresh source reported an invalid scope before a verified snapshot was available.",
                 );
                 return;
               }
@@ -150,16 +150,16 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
                 setPulseState(resolveAdminRealtimeFailureState(hasSnapshotRef.current));
                 setPulseLabel(
                   hasSnapshotRef.current
-                    ? "Realtime pulse is delayed. Showing the last verified snapshot."
-                    : "Realtime pulse failed before a verified snapshot was available.",
+                    ? "Refresh due. Showing the last verified snapshot."
+                    : "Snapshot refresh failed before a verified snapshot was available.",
                 );
               }
             } catch {
               setPulseState(resolveAdminRealtimeFailureState(hasSnapshotRef.current));
               setPulseLabel(
                 hasSnapshotRef.current
-                  ? "Realtime pulse data was malformed. Showing the last verified snapshot."
-                  : "Realtime pulse data was malformed before a verified snapshot loaded.",
+                  ? "Snapshot refresh data was malformed. Showing the last verified snapshot."
+                  : "Snapshot refresh data was malformed before a verified snapshot loaded.",
               );
             }
           });
@@ -170,8 +170,8 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
           setPulseState(resolveAdminRealtimeFailureState(hasSnapshotRef.current));
           setPulseLabel(
             hasSnapshotRef.current
-              ? "Realtime pulse failed. Showing the last verified snapshot."
-              : "Realtime pulse failed before a verified snapshot was available.",
+              ? "Snapshot refresh failed. Showing the last verified snapshot."
+              : "Snapshot refresh failed before a verified snapshot was available.",
           );
           reportClientIssue({
             channel: "ui",
