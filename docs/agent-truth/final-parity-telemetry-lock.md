@@ -1,7 +1,7 @@
 # Final Parity Telemetry Lock
 
-Generated: 2026-06-10T04:11:05.960Z
-Head: 70a1e9fc52300814a6b66f7dbeb04a8a35e17b48
+Generated: 2026-06-18T16:24:47.327Z
+Head: 2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78
 Head source: git
 Git status: available
 Tooling degraded: false
@@ -20,7 +20,7 @@ Status: review
 - Stale parity logic removed: true
 - Surfaces covered: 17
 - Surfaces missing: 0
-- Score: 68.67 -> 68.67
+- Score: 77.4 -> 77.4
 - Score dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, costRisk, freshness, regressionRisk
 - Can clear source gate: true
 - Can clear runtime gate: false
