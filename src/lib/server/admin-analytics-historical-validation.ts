@@ -181,30 +181,34 @@ function collapseDayRanges(days: string[]) {
 function buildLaunchHistoryDayCoverage(input: {
   expectedDays: string[];
   gaPresentDays: Set<string>;
+  firstPartyPresentDays: Set<string>;
   snapshotPresentDays: Set<string>;
   legacyPresentDays: Set<string>;
 }) {
   return input.expectedDays.map((dayKey) => {
     const hasGa4 = input.gaPresentDays.has(dayKey);
-    const hasFirstParty = input.snapshotPresentDays.has(dayKey);
+    const hasFirstParty = input.firstPartyPresentDays.has(dayKey);
+    const hasHistoricalSnapshot = input.snapshotPresentDays.has(dayKey);
     const hasLegacy = input.legacyPresentDays.has(dayKey);
-    const sourceCount = Number(hasGa4) + Number(hasFirstParty) + Number(hasLegacy);
+    const sourceCount = Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy);
     const recovered = sourceCount > 0;
     const confidence: "verified" | "mixed" | "partial" | "fallback" | "unknown" = hasFirstParty && hasGa4
       ? "verified"
-      : hasFirstParty && hasLegacy
+      : hasFirstParty && (hasHistoricalSnapshot || hasLegacy)
         ? "mixed"
         : hasFirstParty
           ? "partial"
-          : hasGa4 || hasLegacy
+          : hasGa4 || hasHistoricalSnapshot || hasLegacy
             ? "fallback"
             : "unknown";
     const reason = !recovered
       ? "No launch-history source bucket was found for this day."
       : hasFirstParty && hasGa4
-        ? "First-party snapshot and GA4 second-source evidence both cover this day."
-        : hasFirstParty
-          ? "First-party snapshot covers this day; second-source agreement is incomplete."
+        ? "First-party event-fact/day-bucket evidence and GA4 second-source evidence both cover this day."
+      : hasFirstParty
+          ? "First-party event-fact/day-bucket evidence covers this day; second-source agreement is incomplete."
+        : hasHistoricalSnapshot
+          ? "Historical snapshot covers this day as support evidence; first-party product truth is still required."
           : hasGa4
             ? "GA4 covers this day as external evidence only; first-party truth is still required for identity, purchase, unlock, watch, and creator metrics."
             : "Legacy support covers this day as fallback evidence only.";
@@ -221,7 +225,7 @@ function buildLaunchHistoryDayCoverage(input: {
       sourceCounts: {
         first_party: hasFirstParty ? 1 as const : 0 as const,
         ga4: hasGa4 ? 1 as const : 0 as const,
-        historicalSnapshot: hasFirstParty ? 1 as const : 0 as const,
+        historicalSnapshot: hasHistoricalSnapshot ? 1 as const : 0 as const,
         legacySupport: hasLegacy ? 1 as const : 0 as const,
       },
       internalAdminExcludedCount: null,
@@ -236,6 +240,7 @@ function buildLaunchHistoryDayCoverage(input: {
 function classifySourceAgreementDisagreements(input: {
   expectedDays: string[];
   gaPresentDays: Set<string>;
+  firstPartyPresentDays: Set<string>;
   snapshotPresentDays: Set<string>;
   legacyPresentDays: Set<string>;
   activeSourceCount: number;
@@ -255,7 +260,8 @@ function classifySourceAgreementDisagreements(input: {
 
   for (const dayKey of input.expectedDays) {
     const hasGa4 = input.gaPresentDays.has(dayKey);
-    const hasFirstParty = input.snapshotPresentDays.has(dayKey);
+    const hasFirstParty = input.firstPartyPresentDays.has(dayKey);
+    const hasHistoricalSnapshot = input.snapshotPresentDays.has(dayKey);
     const hasLegacy = input.legacyPresentDays.has(dayKey);
 
     if (hasGa4 && !hasFirstParty) {
@@ -267,7 +273,11 @@ function classifySourceAgreementDisagreements(input: {
       classifications.add("missing_materializer");
     }
 
-    if (Number(hasGa4) + Number(hasFirstParty) + Number(hasLegacy) > 1) {
+    if (hasHistoricalSnapshot && !hasFirstParty) {
+      classifications.add("missing_materializer");
+    }
+
+    if (Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy) > 1) {
       classifications.add("duplicate_event");
     }
   }
@@ -548,6 +558,7 @@ function buildAnalyticsSourceHealth(input: {
   gaConfidence: number | null;
   gaPresentDayKeys: string[];
   gaLastSeenAtMs: number;
+  firstPartyPresentDayKeys?: string[];
   snapshotPresentDayKeys: string[];
   snapshotLastSeenAtMs: number;
   legacyPresentDayKeys: string[];
@@ -557,11 +568,14 @@ function buildAnalyticsSourceHealth(input: {
   truthState: AnalyticsTruthSummary;
 }) {
   const gaPresentDays = new Set(input.gaPresentDayKeys);
+  const firstPartyPresentDayKeys = input.firstPartyPresentDayKeys ?? input.snapshotPresentDayKeys;
+  const firstPartyPresentDays = new Set(firstPartyPresentDayKeys);
   const snapshotPresentDays = new Set(input.snapshotPresentDayKeys);
   const legacyPresentDays = new Set(input.legacyPresentDayKeys);
   const rawExpectedDays = input.expectedDayKeys.filter(Boolean);
   const rawExpectedDaySet = new Set(rawExpectedDays);
   const observedExpectedDays = Array.from(new Set([
+    ...firstPartyPresentDayKeys,
     ...input.gaPresentDayKeys,
     ...input.snapshotPresentDayKeys,
     ...input.legacyPresentDayKeys,
@@ -600,15 +614,16 @@ function buildAnalyticsSourceHealth(input: {
       ? `Historical analytics continuity gap detected: ${missingDays.length} expected daily bucket(s) are missing in ${input.selectedRange}.`
       : "Expected daily buckets are present or backed by explicit source evidence.";
 
-  const comparedSources = ["ga4", "historical_snapshot", "legacy_support"];
+  const comparedSources = ["first_party", "ga4", "historical_snapshot", "legacy_support"];
   const coverageBySource = [
+    { key: "first_party", days: firstPartyPresentDays.size },
     { key: "ga4", days: gaPresentDays.size },
     { key: "historical_snapshot", days: snapshotPresentDays.size },
     { key: "legacy_support", days: legacyPresentDays.size },
   ];
   const activeCoverage = coverageBySource.filter((entry) => entry.days > 0);
   const disagreementCount = expectedDays.filter((dayKey) => {
-    const coverageValues = [gaPresentDays.has(dayKey), snapshotPresentDays.has(dayKey), legacyPresentDays.has(dayKey)];
+    const coverageValues = [firstPartyPresentDays.has(dayKey), gaPresentDays.has(dayKey), snapshotPresentDays.has(dayKey), legacyPresentDays.has(dayKey)];
     return coverageValues.some(Boolean) && !coverageValues.every(Boolean);
   }).length;
   const maxCoverage = activeCoverage.length > 0 ? Math.max(...activeCoverage.map((entry) => entry.days)) : 0;
@@ -627,6 +642,7 @@ function buildAnalyticsSourceHealth(input: {
   const sourceAgreementClassifications = classifySourceAgreementDisagreements({
     expectedDays,
     gaPresentDays,
+    firstPartyPresentDays,
     snapshotPresentDays,
     legacyPresentDays,
     activeSourceCount: activeCoverage.length,
@@ -647,7 +663,7 @@ function buildAnalyticsSourceHealth(input: {
     chartReadinessState === "gap_detected"
       ? gapReason
       : chartReadinessState === "source_disagreement"
-        ? "Chart buckets are available, but source agreement failed across GA4, historical snapshot, and legacy support. Do not treat this chart as canonical until source agreement is resolved."
+        ? "Chart buckets are available, but source agreement failed across first-party, GA4, historical snapshot, and legacy support. Do not treat this chart as canonical until source agreement is resolved."
       : chartReadinessState === "partial"
         ? sourceAgreementState === "review" || sourceAgreementState === "not_enough_sources"
           ? "Historical snapshot is fresh enough to load, but source agreement needs review before the chart is canonical."
@@ -659,6 +675,7 @@ function buildAnalyticsSourceHealth(input: {
   const launchHistoryDays = buildLaunchHistoryDayCoverage({
     expectedDays,
     gaPresentDays,
+    firstPartyPresentDays,
     snapshotPresentDays,
     legacyPresentDays,
   });
@@ -675,7 +692,7 @@ function buildAnalyticsSourceHealth(input: {
         recoveredDayCount: unionPresentDays.size,
         preLaunchIgnoredDayCount,
         sourceDayCounts: {
-          firstParty: input.snapshotPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
+          firstParty: firstPartyPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
           ga4: input.gaPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
           historicalSnapshot: input.snapshotPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
           legacySupport: input.legacyPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
@@ -786,7 +803,7 @@ function buildAnalyticsSourceHealth(input: {
       state: sourceAgreementState,
       classifications: sourceAgreementClassifications,
       reason: sourceAgreementState === "failed"
-        ? "GA4, historical snapshot, and legacy support do not agree for the selected range."
+        ? "First-party, GA4, historical snapshot, and legacy support do not agree for the selected range."
         : sourceAgreementState === "review"
           ? "Compared sources have limited disagreement and need review before parity promotion."
           : sourceAgreementState === "not_enough_sources"
@@ -1347,6 +1364,7 @@ export function buildHistoricalValidationSummary(input: {
   telemetryEventCounts: Record<string, number>;
   canonicalEventCounts: Record<string, number>;
   gaPresentDayKeys: string[];
+  firstPartyPresentDayKeys?: string[];
   snapshotPresentDayKeys: string[];
   legacyPresentDayKeys: string[];
   expectedDayKeys: string[];
@@ -1751,6 +1769,7 @@ export function buildHistoricalValidationSummary(input: {
     gaConfidence: input.propertyId ? 100 : null,
     gaPresentDayKeys: input.gaPresentDayKeys,
     gaLastSeenAtMs: input.gaLastSeenAtMs,
+    firstPartyPresentDayKeys: input.firstPartyPresentDayKeys,
     snapshotPresentDayKeys: input.snapshotPresentDayKeys,
     snapshotLastSeenAtMs: input.snapshotLastSeenAtMs,
     legacyPresentDayKeys: input.legacyPresentDayKeys,

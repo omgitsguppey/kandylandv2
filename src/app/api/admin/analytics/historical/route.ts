@@ -1124,7 +1124,7 @@ async function GET_handler(request: NextRequest) {
                     }),
                 ])).sort()
                 : [];
-            const legacySupportDayKeys = timelineBucket === "day"
+            const firstPartyPresentDayKeys = timelineBucket === "day"
                 ? Array.from(new Set([
                     ...collectDocDayKeys(analyticsEventFactsSnapshot.docs, {
                         explicitKeys: ["dayKey"],
@@ -1138,6 +1138,10 @@ async function GET_handler(request: NextRequest) {
                         explicitKeys: ["dayKey"],
                         fallbackTimestampKeys: ["receivedAtMs", "updatedAt"],
                     }),
+                ])).sort()
+                : [];
+            const legacySupportDayKeys = timelineBucket === "day"
+                ? Array.from(new Set([
                     ...collectDocDayKeys(guestSessionsSnapshot.docs, {
                         explicitKeys: ["dayKey"],
                         fallbackTimestampKeys: ["lastReceivedAtMs", "firstEventAtMs", "lastEventAt", "updatedAt"],
@@ -1906,27 +1910,29 @@ async function GET_handler(request: NextRequest) {
                 expectedDayKeys,
                 recentWindowDayKeys,
                 gaPresentDayKeys,
-                firstPartyPresentDayKeys: snapshotPresentDayKeys,
+                firstPartyPresentDayKeys,
                 guestBatchPresentDayKeys: collectDocDayKeys(guestBatchesSnapshot.docs, {
                     explicitKeys: ["dayKey"],
                     fallbackTimestampKeys: ["receivedAtMs", "updatedAt"],
                 }),
                 guestEstimatedOnlyDayKeys: expectedDayKeys.filter((dayKey) => (
                     gaPresentDayKeys.includes(dayKey)
-                    && !snapshotPresentDayKeys.includes(dayKey)
+                    && !firstPartyPresentDayKeys.includes(dayKey)
                     && !legacySupportDayKeys.includes(dayKey)
                 )),
                 recoveredByGaDayKeys: expectedDayKeys.filter((dayKey) => (
-                    gaPresentDayKeys.includes(dayKey) && !snapshotPresentDayKeys.includes(dayKey)
+                    gaPresentDayKeys.includes(dayKey) && !firstPartyPresentDayKeys.includes(dayKey)
                 )),
                 unrecoveredDayKeys: expectedDayKeys.filter((dayKey) => (
-                    !gaPresentDayKeys.includes(dayKey) && !snapshotPresentDayKeys.includes(dayKey)
+                    !gaPresentDayKeys.includes(dayKey) && !firstPartyPresentDayKeys.includes(dayKey)
                 )),
                 gaLastSeenAtUtc: toUtcIsoOrNull(response.rows?.length ? endMs : 0),
                 firstPartyLastSeenAtUtc: toUtcIsoOrNull(Math.max(
+                    readLatestSnapshotTimestamp(analyticsEventFactsSnapshot.docs, ["timestamp"]),
                     readLatestSnapshotTimestamp(filteredDailyRollups, ["lastEventAt", "updatedAt"]),
                     readLatestSnapshotTimestamp(pageRollupsSnapshot.docs, ["lastEventAt", "updatedAt"]),
                     readLatestSnapshotTimestamp(sessionFactsSnapshot.docs, ["lastEventAtMs", "lastEventAt", "updatedAt"]),
+                    readLatestSnapshotTimestamp(guestBatchesSnapshot.docs, ["receivedAtMs", "updatedAt"]),
                 )),
                 guestBatchLastSeenAtUtc: toUtcIsoOrNull(guestBatchLastSeenAtMs),
             } as const;
@@ -1975,6 +1981,7 @@ async function GET_handler(request: NextRequest) {
                 telemetryEventCounts,
                 canonicalEventCounts,
                 gaPresentDayKeys,
+                firstPartyPresentDayKeys,
                 snapshotPresentDayKeys,
                 legacyPresentDayKeys: legacySupportDayKeys,
                 expectedDayKeys,
@@ -1988,9 +1995,6 @@ async function GET_handler(request: NextRequest) {
                     readLatestSnapshotTimestamp(commerceDailySnapshot.docs, ["updatedAt", "lastTransactionAt"]),
                 ),
                 legacyLastSeenAtMs: Math.max(
-                    readLatestSnapshotTimestamp(analyticsEventFactsSnapshot.docs, ["timestamp"]),
-                    readLatestSnapshotTimestamp(sessionFactsSnapshot.docs, ["lastEventAtMs", "lastEventAt", "updatedAt"]),
-                    readLatestSnapshotTimestamp(guestBatchesSnapshot.docs, ["receivedAtMs", "updatedAt"]),
                     readLatestSnapshotTimestamp(guestSessionsSnapshot.docs, ["lastReceivedAtMs", "lastEventAt", "updatedAt"]),
                 ),
                 taskPipeline,

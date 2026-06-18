@@ -81,7 +81,7 @@ describe("chart readiness hierarchy repair", () => {
     expect(summary.analyticsSourceHealth.continuity.gapSeverity).toBe("none");
     expect(summary.analyticsSourceHealth.sourceAgreement.state).toBe("failed");
     expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("source_disagreement");
-    expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("source agreement failed across GA4, historical snapshot, and legacy support");
+    expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("source agreement failed across first-party, GA4, historical snapshot, and legacy support");
     expect(sourceAgreementRow).toMatchObject({
       status: "fail",
       passAllowed: false,

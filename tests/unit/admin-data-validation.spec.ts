@@ -312,7 +312,8 @@ describe("buildHistoricalValidationSummary", () => {
     const summary = build({
       selectedRange: "all",
       gaPresentDayKeys: ["2026-05-01", "2026-05-02", "2026-05-03"],
-      snapshotPresentDayKeys: ["2026-05-01"],
+      firstPartyPresentDayKeys: ["2026-05-01"],
+      snapshotPresentDayKeys: ["2026-05-01", "2026-05-02"],
       legacyPresentDayKeys: ["2026-05-03"],
       expectedDayKeys: ["2026-05-01", "2026-05-02", "2026-05-03"],
       recentWindowDayKeys: ["2026-05-01", "2026-05-02", "2026-05-03"],
@@ -322,7 +323,7 @@ describe("buildHistoricalValidationSummary", () => {
     expect(coverage?.sourceDayCounts).toMatchObject({
       firstParty: 1,
       ga4: 3,
-      historicalSnapshot: 1,
+      historicalSnapshot: 2,
       legacySupport: 1,
     });
     expect(coverage?.days).toEqual([
@@ -336,7 +337,7 @@ describe("buildHistoricalValidationSummary", () => {
         dayKey: "2026-05-02",
         recovered: true,
         confidence: "fallback",
-        sourceCounts: expect.objectContaining({ first_party: 0, ga4: 1 }),
+        sourceCounts: expect.objectContaining({ first_party: 0, ga4: 1, historicalSnapshot: 1 }),
         nextAction: expect.stringContaining("first-party"),
       }),
       expect.objectContaining({
@@ -346,7 +347,7 @@ describe("buildHistoricalValidationSummary", () => {
         sourceCounts: expect.objectContaining({ first_party: 0, ga4: 1, legacySupport: 1 }),
       }),
     ]);
-    expect(coverage?.days[1]?.reason).toContain("external evidence only");
+    expect(coverage?.days[1]?.reason).toContain("Historical snapshot covers this day");
     expect(summary.analyticsSourceHealth.sourceAgreement.state).toBe("failed");
     expect(summary.analyticsSourceHealth.sourceAgreement.classifications).toEqual(expect.arrayContaining([
       "date_range_mismatch",

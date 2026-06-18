@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T02:17:12.638Z",
-  "currentHead": "d7421546263b8b6710b6b6e2ac65d0986fdb37c2",
+  "generatedAtUtc": "2026-06-18T02:29:22.510Z",
+  "currentHead": "6292d032500510e80d06b8e3c04cceb028449466",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -10,7 +10,7 @@
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
-  "status": "source_agreement_failed",
+  "status": "stale_evidence_review",
   "sourceMap": {
     "primaryTruth": "first_party",
     "secondSource": "ga4",
@@ -149,7 +149,7 @@
       "2026-05-01",
       "2026-05-03"
     ],
-    "staleInputEvidence": false,
+    "staleInputEvidence": true,
     "sourceAgreementEvidenceHead": "d7421546263b8b6710b6b6e2ac65d0986fdb37c2"
   },
   "sourceAgreement": {
@@ -168,6 +168,7 @@
     "maxDeltaPct": 67,
     "state": "failed",
     "classifications": [
+      "stale_generated_evidence",
       "date_range_mismatch",
       "duplicate_event",
       "external_source_gap",

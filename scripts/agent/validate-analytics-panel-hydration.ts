@@ -151,9 +151,12 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/admin/analytics/historical/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/server/admin-analytics-historical-validation.ts") return "real_source_change_needs_review";
   if (normalized === "src/types/admin-analytics.ts") return "real_source_change_needs_review";
   if (normalized === "tests/unit/admin-data-validation.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/chart-readiness-hierarchy-repair.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/data-validation-copy-consistency.spec.ts") return "test_artifact_expected";
   if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
