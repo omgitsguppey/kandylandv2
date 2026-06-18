@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T13:16:41.160Z",
-  "currentHead": "64bff1184f84d1164677baa16134dfc880947083",
+  "generatedAtUtc": "2026-06-18T13:21:29.654Z",
+  "currentHead": "14e7cec160b06cc7401ee96acabd6537436171b8",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,33 +416,21 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 6,
+    "total": 3,
     "byClassification": {
-      "current_generated_artifact_to_commit": 2,
+      "current_generated_artifact_to_commit": 1,
       "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 3
+      "documentation_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
       {
-        "path": "agent/state/event-translation-bridge.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/person-metrics-hydration.generated.json",
+        "path": "agent/state/current-beta-exit-status.generated.json",
         "classification": "current_generated_artifact_to_commit"
       },
       {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/event-translation-bridge.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/person-metrics-hydration.md",
-        "classification": "documentation_artifact_expected"
       },
       {
         "path": "docs/agent-truth/source-agreement-failure-detail.md",
