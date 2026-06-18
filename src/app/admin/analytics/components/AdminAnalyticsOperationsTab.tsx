@@ -73,11 +73,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       ? "Last verified data"
       : "No verified activity snapshot yet"
     : liveResponse?.liveTruthLabel === "stale"
-      ? "Snapshot refresh delayed"
+      ? "Last verified data"
       : liveResponse?.cacheState === "fresh"
         ? "Updated"
       : liveResponse?.liveTruthLabel === "fallback"
-        ? "Verified snapshot shown"
+        ? "Last verified data"
         : "Current activity";
   const compactLiveMetricClass = "rounded-[1rem] p-2 min-h-[4.75rem]";
   const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";
@@ -138,9 +138,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const livePulseCompactIssueLine =
     livePulseModel.guestSnapshotTruthState === "unavailable"
       ? "No guest sample yet"
-      : livePulseModel.mode === "delayed_snapshot"
-        ? "Snapshot refresh delayed"
-        : null;
+      : null;
   const catalogMappingSentence =
     eventMixModel.eventsNeedingCatalogMapping === null
       ? ""

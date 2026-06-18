@@ -171,8 +171,8 @@ function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHiera
 function formatAdminAnalyticsSourceNote(note: string) {
   return note
     .replace("No verified snapshot-first realtime payload is available yet.", "Collecting activity.")
-    .replaceAll("Live updates are delayed", "Snapshot refresh delayed")
-    .replaceAll("Live updates delayed", "Snapshot refresh delayed")
+    .replaceAll("Live updates are delayed", "Last verified data")
+    .replaceAll("Live updates delayed", "Last verified data")
     .replaceAll("Realtime analytics", "Current activity")
     .replaceAll("realtime payload", "current activity snapshot")
     .replaceAll("Historical analytics", "Historical snapshot");

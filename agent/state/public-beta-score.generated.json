@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-06-18T01:20:05.763Z",
-  "currentHead": "470a3623e547c6f5f32d0f87ef98745c49fc7574",
+  "generatedAt": "2026-06-18T01:51:45.740Z",
+  "currentHead": "6c5220106826bcded6cf2a3b68fbb31881250941",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
   "sourceHealthScore": 91.7,
   "runtimeHealthScore": 72.8,
   "evidenceCompletenessScore": 43.4,
-  "freshnessScore": 55,
+  "freshnessScore": 67.5,
   "costRiskScore": 42,
   "regressionRiskScore": 94,
   "quietFutureActivityCount": 416,
@@ -20,7 +20,7 @@
     "Admin truth/sample evidence: Stale evidence",
     "Report freshness and PR integrity: Stale evidence"
   ],
-  "healthScore": 68.02,
+  "healthScore": 69.89,
   "healthScoreBreakdown": {
     "sourceHealth": {
       "weight": 25,
@@ -57,14 +57,14 @@
     },
     "freshness": {
       "weight": 15,
-      "score": 55,
+      "score": 67.5,
       "reasons": [
         "Source safety freshness=fresh",
         "Targeted behavior tests freshness=stale",
         "Runtime/provider smoke freshness=stale",
         "Admin truth/sample evidence freshness=stale",
         "Report freshness and PR integrity freshness=stale",
-        "Debug/runtime evidence freshness=missing",
+        "Debug/runtime evidence freshness=fresh",
         "Algorithmic non-UI evidence coverage freshness=fresh",
         "Evidence bridge freshness=fresh",
         "Freshness penalties apply to stale score-impacting artifacts only, not non-events."
@@ -122,7 +122,7 @@
         "score": 80,
         "status": "watching",
         "source": "debugRuntimeEvidence gate",
-        "detail": "Debug evidence is empty, so absence of runtime issues is unknown."
+        "detail": "source-backed debug/runtime evidence checked debug sources without clearing deployed runtime smoke."
       },
       {
         "id": "adminHydration",
@@ -138,7 +138,7 @@
         "score": 43.4,
         "status": "needs_proof",
         "source": "evidenceCompletenessScore",
-        "detail": "5 evidence lane(s) still need formal proof or refresh."
+        "detail": "4 evidence lane(s) still need formal proof or refresh."
       }
     ]
   },
@@ -203,7 +203,7 @@
       "nextExactAction": "Complete the exact formal evidence gates listed in the beta score report."
     },
     "freshness": {
-      "after": 55,
+      "after": 67.5,
       "target": 80,
       "status": "below_target",
       "blockerType": "stale_score_evidence",
@@ -227,7 +227,7 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "overallHealthScore": {
-      "after": 68.02,
+      "after": 69.89,
       "target": 80,
       "status": "below_target",
       "blockerType": "formal_runtime_evidence",
@@ -239,7 +239,7 @@
     "sourceHealthScore=91.7",
     "runtimeHealthScore=72.8",
     "evidenceCompletenessScore=43.4",
-    "freshnessScore=55",
+    "freshnessScore=67.5",
     "costRiskScore=42",
     "regressionRiskScore=94",
     "quietFutureActivityCount=416",
@@ -257,7 +257,7 @@
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes."
   ],
-  "overallScore": 68.02,
+  "overallScore": 69.89,
   "overallStatus": "beta-risk",
   "readinessStatus": "Stale evidence",
   "readinessStatusReason": "Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke. Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
@@ -303,7 +303,7 @@
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
-      "partialReason": "Evidence is 146.36h old and outside the 24h freshness window.",
+      "partialReason": "Evidence is 146.89h old and outside the 24h freshness window.",
       "status": "Unknown evidence",
       "detail": "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
       "evidence": [
@@ -494,13 +494,13 @@
       "status": "Stale evidence",
       "detail": "7 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/evidence-capture-status.generated.json (29.27h old)",
-        "agent/state/creator-experience-simplification.generated.json (358.21h old)",
-        "agent/state/user-creator-ui-parity.generated.json (358.02h old)",
-        "agent/state/targeted-behavior-evidence.generated.json (146.36h old)",
-        "agent/state/final-parity-telemetry-lock.generated.json (189.15h old)",
-        "agent/state/media-discovery-score-lock.generated.json (357.99h old)",
-        "agent/state/creator-monetization-readiness-lock.generated.json (357.96h old)"
+        "agent/state/evidence-capture-status.generated.json (29.8h old)",
+        "agent/state/creator-experience-simplification.generated.json (358.74h old)",
+        "agent/state/user-creator-ui-parity.generated.json (358.55h old)",
+        "agent/state/targeted-behavior-evidence.generated.json (146.89h old)",
+        "agent/state/final-parity-telemetry-lock.generated.json (189.68h old)",
+        "agent/state/media-discovery-score-lock.generated.json (358.51h old)",
+        "agent/state/creator-monetization-readiness-lock.generated.json (358.49h old)"
       ],
       "recommendedAction": "Refresh outdated generated reports and PR triage from the latest code version before treating readiness as current."
     },
@@ -511,36 +511,34 @@
       "score": 0,
       "maxScore": 0,
       "confidence": "medium",
-      "evidenceQuality": "formal_partial",
-      "freshness": "missing",
-      "sourceCredit": 80,
+      "evidenceQuality": "source_ready",
+      "freshness": "fresh",
+      "sourceCredit": 55,
       "runtimeCredit": 80,
-      "evidenceCredit": 80,
-      "riskPenalty": 20,
+      "evidenceCredit": 55,
+      "riskPenalty": 45,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
-      "partialReason": "Debug evidence is empty, so absence of runtime issues is unknown.",
-      "status": "Unknown evidence",
-      "detail": "Debug evidence is empty, so absence of runtime issues is unknown.",
+      "partialReason": "Source-backed debug/runtime confidence is counted for Studio health without clearing deployed runtime smoke.",
+      "status": "Ready",
+      "detail": "source-backed debug/runtime evidence checked debug sources without clearing deployed runtime smoke.",
       "evidence": [
-        "artifactPath=agent/state/event-translation-bridge.generated.json",
-        "artifactStatus=fail",
+        "artifactPath=agent/state/person-metrics-hydration.generated.json",
+        "artifactStatus=source_ready_person_metrics_hydration",
         "artifactPassed=false",
-        "generatedAtUtc=2026-06-18T01:11:28.130Z",
-        "sourceCommit=470a3623e547c6f5f32d0f87ef98745c49fc7574",
-        "artifactDetail=Event translation bridge evidence is missing required source-ready guardrails.",
-        "eventTranslationBridge.status=fail",
-        "eventTranslationBridge.producersRegistered=0",
-        "eventTranslationBridge.producersConnected=0",
-        "eventTranslationBridge.eventEnvelopesTranslated=0",
-        "eventTranslationBridge.materializersMapped=0",
-        "eventTranslationBridge.personMetricsMapped=0",
-        "eventTranslationBridge.gapCount=0",
+        "generatedAtUtc=2026-06-18T01:37:54.574Z",
+        "sourceCommit=d4184ef0ca51c45eb662489ab064016adbcf3d25",
+        "artifactDetail=Person metrics hydration is source-ready for canonical envelopes, linked guest/user confidence, debug evidence, and score inputs without claiming future real activity as proven.",
+        "personMetricsHydration.status=pass",
+        "personMetricsHydration.producersRegistered=260",
+        "personMetricsHydration.producersConnected=37",
+        "personMetricsHydration.eventEnvelopesHydrated=105",
+        "personMetricsHydration.personMetricsMapped=37",
+        "personMetricsHydration.lowConfidenceMetrics=0",
+        "personMetricsHydration.gapCount=0",
         "launchGateImpact=does_not_clear_deployed_runtime_smoke",
-        "eventTranslationBridge.clearsFormalProvider=false",
-        "eventTranslationBridge.clearsDeployedRuntime=false",
-        "eventTranslationBridge.clearsFormalAdminTruth=false"
+        "legacyImpact=unknown_legacy_never_exact_user_truth"
       ],
       "recommendedAction": "Do not treat empty debug evidence as proof that no runtime issue exists."
     },
@@ -570,7 +568,7 @@
         "deployedRuntimeSmokeCleared=false",
         "formalProviderGateCleared=false",
         "formalAdminRuntimeSampleCleared=false",
-        "runtime_source_gate: confidence=partial; score=92; source=agent/state/event-translation-bridge.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json; source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
+        "runtime_source_gate: confidence=partial; score=92; source=agent/state/person-metrics-hydration.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json; source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
         "telemetry_gate: confidence=partial; score=92; source=agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json; telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
         "admin_truth_gate: confidence=missing; score=0; source=agent/state/admin-truth-sample-evidence.generated.json; admin source sample earns partial confidence but does not clear formal admin runtime sample",
         "provider_gate: confidence=partial; score=40; source=agent/state/provider-smoke-evidence.generated.json; operator-confirmed revenue smoke is partial product confidence only",
@@ -609,7 +607,8 @@
         "evidenceClass=operator_confirmed_revenue",
         "evidenceClass=source_backed_runtime_confidence",
         "evidenceClass=real_usage_confidence",
-        "evidenceClass=runtime_substitute_matrix"
+        "evidenceClass=runtime_substitute_matrix",
+        "evidenceClass=debug_runtime_source_evidence"
       ],
       "recommendedAction": "Use bridge confidence for score clarity only; attach any remaining formal evidence before clearing launch gates."
     }
@@ -618,15 +617,13 @@
     "Unknown evidence: Targeted behavior tests",
     "Stale evidence: Runtime/provider smoke",
     "Stale evidence: Admin truth/sample evidence",
-    "Stale evidence: Report freshness and PR integrity",
-    "Unknown evidence: Debug/runtime evidence"
+    "Stale evidence: Report freshness and PR integrity"
   ],
   "evidenceCapDetails": [
     "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
     "Stale evidence: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke. Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
     "Stale evidence: Admin truth/sample evidence - Keep redacted first-party admin truth JSON sample fresh.",
-    "Stale evidence: Report freshness and PR integrity - 7 required generated report(s) are older than the freshness window.",
-    "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
+    "Stale evidence: Report freshness and PR integrity - 7 required generated report(s) are older than the freshness window."
   ],
   "evidenceWeights": {
     "sourceSafety": 25,
@@ -638,13 +635,12 @@
   },
   "scoreExplanation": {
     "scannerScoreMeaning": "Scanner score 100/100 (clean) is scanner-only source hygiene, not beta readiness.",
-    "evidenceScoreMeaning": "Evidence score 31.5/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 68.02/100 currently maps to launch gate owner_review.",
+    "evidenceScoreMeaning": "Evidence score 31.5/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 69.89/100 currently maps to launch gate owner_review.",
     "missingEvidenceCaps": [
       "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
       "Stale evidence: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke. Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
       "Stale evidence: Admin truth/sample evidence - Keep redacted first-party admin truth JSON sample fresh.",
-      "Stale evidence: Report freshness and PR integrity - 7 required generated report(s) are older than the freshness window.",
-      "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
+      "Stale evidence: Report freshness and PR integrity - 7 required generated report(s) are older than the freshness window."
     ],
     "staleReportHandling": "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
     "sourcePassConfidence": "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Visual confirmation handled outside Codex as an operator-final checklist.",
@@ -652,8 +648,7 @@
       "Targeted behavior tests: Unknown evidence",
       "Runtime/provider smoke: Stale evidence",
       "Admin truth/sample evidence: Stale evidence",
-      "Report freshness and PR integrity: Stale evidence",
-      "Debug/runtime evidence: Unknown evidence"
+      "Report freshness and PR integrity: Stale evidence"
     ]
   },
   "operatorFinalChecks": {
@@ -855,7 +850,6 @@
     "Stale evidence: Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
     "Stale evidence: Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
     "Stale evidence: Refresh outdated generated reports and PR triage from the latest code version before treating readiness as current.",
-    "Unknown evidence: Do not treat empty debug evidence as proof that no runtime issue exists.",
     "Keep using `npm run score:beta` and targeted tests before public beta UI/economy changes."
   ],
   "minimalVerificationCommands": [
@@ -887,7 +881,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta readiness score 68.02/100 (Stale evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 5 evidence cap(s) applied.",
+  "summary": "Public beta readiness score 69.89/100 (Stale evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 4 evidence cap(s) applied.",
   "debugEvidence": {
     "layout": [],
     "hydration": [],
@@ -906,7 +900,7 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-18T01:20:05.763Z",
+      "generatedAtUtc": "2026-06-18T01:51:45.740Z",
       "ageHours": 0,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
@@ -921,8 +915,8 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-18T01:17:04.964Z",
-      "ageHours": 0.050221944444444444,
+      "generatedAtUtc": "2026-06-18T01:51:19.985Z",
+      "ageHours": 0.007154166666666666,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -937,7 +931,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T20:04:02.607Z",
-      "ageHours": 29.267543333333332,
+      "ageHours": 29.795314722222223,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -952,7 +946,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:17.434Z",
-      "ageHours": 358.6800913888889,
+      "ageHours": 359.2078627777778,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -967,7 +961,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:19.659Z",
-      "ageHours": 32.07947333333333,
+      "ageHours": 32.60724472222222,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -982,7 +976,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:24.640Z",
-      "ageHours": 358.67808972222224,
+      "ageHours": 359.2058611111111,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -997,7 +991,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:58:46.491Z",
-      "ageHours": 358.3553533333333,
+      "ageHours": 358.88312472222225,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1012,7 +1006,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:32.199Z",
-      "ageHours": 358.67599,
+      "ageHours": 359.2037613888889,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -1027,7 +1021,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:40.411Z",
-      "ageHours": 32.07370888888889,
+      "ageHours": 32.601480277777775,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -1042,7 +1036,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:46.945Z",
-      "ageHours": 32.07189388888889,
+      "ageHours": 32.59966527777778,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1057,7 +1051,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:37.034Z",
-      "ageHours": 358.6746469444444,
+      "ageHours": 359.20241833333336,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1072,7 +1066,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:58:51.998Z",
-      "ageHours": 358.3538236111111,
+      "ageHours": 358.881595,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1087,7 +1081,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:43.424Z",
-      "ageHours": 358.67287194444447,
+      "ageHours": 359.20064333333335,
       "refreshCommand": "npm run check:beta-freshness-language",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -1102,7 +1096,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:58:56.520Z",
-      "ageHours": 358.3525675,
+      "ageHours": 358.8803388888889,
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1117,7 +1111,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:48.261Z",
-      "ageHours": 358.67152833333336,
+      "ageHours": 359.19929972222224,
       "refreshCommand": "npm run check:overnight-wiring-integrity",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1132,7 +1126,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:58.327Z",
-      "ageHours": 358.6687322222222,
+      "ageHours": 359.1965036111111,
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1147,7 +1141,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:35.210Z",
-      "ageHours": 32.07515361111111,
+      "ageHours": 32.602925,
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -1162,7 +1156,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:40:07.415Z",
-      "ageHours": 358.6662077777778,
+      "ageHours": 359.1939791666667,
       "refreshCommand": "npm run check:global-marquee-truncated-titles",
       "owner": "mobile",
       "maxAgeHours": 24,

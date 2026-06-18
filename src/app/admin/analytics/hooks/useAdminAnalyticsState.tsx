@@ -1496,10 +1496,10 @@ export function useAdminAnalyticsState() {
       : liveRealtime.feedStatus === "partial"
         ? "Current activity partial"
         : liveRealtime.feedStatus === "failed"
-          ? "Snapshot refresh delayed"
+          ? "Last verified data"
           : isBackgroundSyncing
             ? "Refreshing"
-            : "Verified snapshot shown";
+            : "Last verified data";
 
   const historicalOverviewIssues = historicalOverviewResponse?.issues ?? [];
   const historicalEstimationReason =

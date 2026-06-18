@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T01:37:42.767Z",
-  "currentHead": "d4184ef0ca51c45eb662489ab064016adbcf3d25",
+  "generatedAtUtc": "2026-06-18T02:00:35.054Z",
+  "currentHead": "6c5220106826bcded6cf2a3b68fbb31881250941",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -9,10 +9,10 @@
     "sourceHealth": 91.7,
     "runtimeHealth": 72.8,
     "evidenceCompleteness": 43.4,
-    "freshness": 55,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.02
+    "overallHealthScore": 69.89
   },
   "totalPanels": 41,
   "hydratedPanels": 10,
@@ -416,17 +416,14 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 21,
+    "total": 11,
     "byClassification": {
       "analytics_panel_hydration_artifact_expected": 3,
-      "current_generated_artifact_to_commit": 2,
+      "current_generated_artifact_to_commit": 1,
       "launch_analytics_recovery_artifact_expected": 2,
-      "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 3,
-      "real_source_change_needs_review": 6,
-      "source_agreement_failure_classification_required": 2,
+      "stale_generated_artifact_to_regenerate": 1,
       "validator_artifact_expected": 1,
-      "test_artifact_expected": 1
+      "real_source_change_needs_review": 3
     },
     "unsafeUnknown": [],
     "sample": [
@@ -435,7 +432,7 @@
         "classification": "analytics_panel_hydration_artifact_expected"
       },
       {
-        "path": "agent/state/event-translation-bridge.generated.json",
+        "path": "agent/state/current-beta-exit-status.generated.json",
         "classification": "current_generated_artifact_to_commit"
       },
       {
@@ -443,24 +440,24 @@
         "classification": "launch_analytics_recovery_artifact_expected"
       },
       {
-        "path": "agent/state/person-metrics-hydration.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/source-agreement-failure-detail.generated.json",
-        "classification": "source_agreement_failure_artifact_expected"
+        "path": "agent/state/public-beta-score.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
       },
       {
         "path": "docs/agent-truth/analytics-panel-hydration.md",
         "classification": "analytics_panel_hydration_artifact_expected"
       },
       {
-        "path": "docs/agent-truth/event-translation-bridge.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
         "path": "docs/agent-truth/launch-analytics-recovery.md",
         "classification": "launch_analytics_recovery_artifact_expected"
+      },
+      {
+        "path": "scripts/agent/validate-admin-debug-control-tower.ts",
+        "classification": "validator_artifact_expected"
+      },
+      {
+        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+        "classification": "analytics_panel_hydration_artifact_expected"
       }
     ],
     "sampleTruncated": true
