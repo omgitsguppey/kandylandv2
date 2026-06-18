@@ -81,47 +81,31 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     const sourceNeedsRefresh = report.freshness === "stale_24h" || report.freshness === "stale_72h" || report.sourceDrift === "stale";
     const proofBoundaryOnly = !hasFindings
         && report.id === "public-beta-score"
-        && ["fail", "beta-risk", "warning", "review"].includes(report.status.toLowerCase());
+        && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(report.status.toLowerCase());
+    const normalizedStatus = report.status.toLowerCase();
+    const sourceDetail = `Source score ${report.score ?? "unavailable"}; freshness ${report.freshness}; truth ${report.truthState}.`;
     if (report.freshness === "missing" || report.truthState === "missing") {
-        return {
-            badgeState: "unavailable",
-            statusLabel: "Source missing",
-            findingLabel: hasFindings ? findingLabel : "No source",
-            sourceDetail: "Required generated state is missing and cannot clear this lane.",
-        };
+        return { badgeState: "unavailable", statusLabel: "Source missing", findingLabel: hasFindings ? findingLabel : "No source", sourceDetail: "Required generated state is missing and cannot clear this lane." };
     }
     if (report.freshness === "failed") {
-        return {
-            badgeState: "failed",
-            statusLabel: "Source failed",
-            findingLabel: hasFindings ? findingLabel : "Source failed",
-            sourceDetail: "Generated state could not be parsed and cannot clear this lane.",
-        };
+        return { badgeState: "failed", statusLabel: "Source failed", findingLabel: hasFindings ? findingLabel : "Source failed", sourceDetail: "Generated state could not be parsed and cannot clear this lane." };
     }
     if (proofBoundaryOnly) {
-        return {
-            badgeState: "degraded",
-            badgeLabel: "REVIEW",
-            statusLabel: "External proof required",
-            findingLabel: "Proof gate",
-            sourceDetail: "Source validators are not enough for provider, runtime, or admin truth proof.",
-        };
+        return { badgeState: "degraded", badgeLabel: "REVIEW", statusLabel: "External proof required", findingLabel: "Proof gate", sourceDetail: "Source validators are not enough for provider, runtime, or admin truth proof." };
     }
     if (sourceNeedsRefresh) {
-        return {
-            badgeState: "stale",
-            badgeLabel: "REFRESH",
-            statusLabel: "Refresh due",
-            findingLabel,
-            sourceDetail: "Generated state is older than its freshness window or current-head metadata.",
-        };
+        return { badgeState: "stale", badgeLabel: "REFRESH", statusLabel: "Refresh due", findingLabel, sourceDetail: "Generated state is older than its freshness window or current-head metadata." };
     }
-    return {
-        badgeState: toBadgeState(report.truthState),
-        statusLabel: report.status,
-        findingLabel,
-        sourceDetail: `Source score ${report.score ?? "unavailable"}; freshness ${report.freshness}; truth ${report.truthState}.`,
-    };
+    if (!hasFindings && report.truthState === "live") {
+        return { badgeState: "live", statusLabel: "Source current", findingLabel, sourceDetail };
+    }
+    if (!hasFindings && ["delayed", "queued", "waiting"].includes(normalizedStatus)) {
+        return { badgeState: "degraded", badgeLabel: "REVIEW", statusLabel: "Waiting for evidence", findingLabel, sourceDetail: `Generated state is waiting on its source lane. Refresh command: ${report.command}` };
+    }
+    if (!hasFindings && ["fail", "failed", "error"].includes(normalizedStatus)) {
+        return { badgeState: "degraded", badgeLabel: "REVIEW", statusLabel: "Needs review", findingLabel, sourceDetail: `Generated state reported ${report.status}, but no active source finding was attached. Check ${report.command}.` };
+    }
+    return { badgeState: toBadgeState(report.truthState), statusLabel: report.status, findingLabel, sourceDetail };
 }
 export function formatRelative(value?: number | null) {
     if (!value) return "Not generated";
