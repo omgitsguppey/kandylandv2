@@ -47,7 +47,7 @@ describe("resolveReportDisplay", () => {
 
     expect(display.statusLabel).toBe("External proof required");
     expect(display.findingLabel).toBe("Proof gate");
-    expect(display.badgeLabel).toBe("REVIEW");
+    expect(display.badgeLabel).toBe("Review");
   });
 
   it("shows zero-finding delayed reports as waiting evidence instead of delayed errors", () => {
@@ -59,7 +59,7 @@ describe("resolveReportDisplay", () => {
 
     expect(display.statusLabel).toBe("Waiting for evidence");
     expect(display.findingLabel).toBe("No active findings");
-    expect(display.badgeLabel).toBe("REVIEW");
+    expect(display.badgeLabel).toBe("Review");
   });
 
   it("keeps stale generated state as refresh due", () => {
@@ -70,6 +70,6 @@ describe("resolveReportDisplay", () => {
     }));
 
     expect(display.statusLabel).toBe("Refresh due");
-    expect(display.badgeLabel).toBe("REFRESH");
+    expect(display.badgeLabel).toBe("Refresh due");
   });
 });

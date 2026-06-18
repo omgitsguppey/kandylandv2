@@ -2637,6 +2637,7 @@ try {
     /^tests\/unit\/admin-analytics-navigation-destinations\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-page\.spec\.tsx$/u,
     /^tests\/unit\/admin-analytics-historical-traffic\.spec\.ts$/u,
+    /^tests\/unit\/debug-control-tower-cards\.spec\.tsx$/u,
     /^tests\/unit\/admin-notification-funnel\.spec\.ts$/u,
     /^tests\/unit\/admin-task-pipeline\.spec\.ts$/u,
     /^scripts\/check-admin-analytics-commerce-snapshot\.ts$/u,
