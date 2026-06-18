@@ -1,11 +1,48 @@
 {
-  "currentVersion": "1.5.98",
-  "betaReleaseCounter": 598,
+  "currentVersion": "1.5.99",
+  "betaReleaseCounter": 599,
   "channel": "beta",
-  "generatedAt": "2026-06-18T15:09:26.755Z",
-  "generatedAtUtc": "2026-06-18T15:09:26.755Z",
-  "lastCommitSha": "249216111a5757af71cca4a64c17599625526b81",
+  "generatedAt": "2026-06-18T15:16:21.858Z",
+  "generatedAtUtc": "2026-06-18T15:16:21.858Z",
+  "lastCommitSha": "355aee69957a969c9d9958145ee73084f73f22f1",
   "notes": [
+    {
+      "version": "1.5.99",
+      "previousVersion": "1.5.98",
+      "betaReleaseCounter": 599,
+      "previousBetaReleaseCounter": 598,
+      "commitSha": "355aee69957a969c9d9958145ee73084f73f22f1",
+      "commitTitle": "fix(admin): compact debug data validation",
+      "commitCount": 1,
+      "commitShas": [
+        "355aee69957a969c9d9958145ee73084f73f22f1"
+      ],
+      "committedAt": "2026-06-18T15:16:07.000Z",
+      "generatedAt": "2026-06-18T15:16:21.856Z",
+      "committedAtUtc": "2026-06-18T15:16:07.000Z",
+      "generatedAtUtc": "2026-06-18T15:16:21.856Z",
+      "updatedAtUtc": "2026-06-18T15:16:21.856Z",
+      "category": "Fixed",
+      "title": "Cleaner Admin Debug validation",
+      "summary": "Compact Admin Debug Data Validation so source, chart, parity, and blocked-pass states are easier to scan.",
+      "userFacingTitle": "Cleaner Admin Debug validation",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Compact Data Validation now shows one issue total instead of repeating every validation state in the header.",
+        "Detailed source, chart, parity, and blocked-pass evidence stays available in the panel body."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+        "tests/unit/data-validation-ui-semantic-cleanup.spec.ts"
+      ],
+      "sourceCommit": "355aee69957a969c9d9958145ee73084f73f22f1"
+    },
     {
       "version": "1.5.98",
       "previousVersion": "1.5.97",
@@ -1878,53 +1915,6 @@
         "tests/unit/ui-debug-opt-in.spec.ts"
       ],
       "sourceCommit": "414701925c6d602830f751305f47c775b11dd387"
-    },
-    {
-      "version": "1.5.74",
-      "previousVersion": "1.5.73",
-      "betaReleaseCounter": 574,
-      "previousBetaReleaseCounter": 573,
-      "commitSha": "59ed9c52c096664fe493f1b8f41d7db3897b5cdf",
-      "commitTitle": "fix(deploy): restore deployment readiness",
-      "commitCount": 2,
-      "commitShas": [
-        "e8b7cef206389e34a660d047f967bbb768607a89",
-        "59ed9c52c096664fe493f1b8f41d7db3897b5cdf"
-      ],
-      "committedAt": "2026-06-17T00:53:13.000Z",
-      "generatedAt": "2026-06-17T00:55:03.318Z",
-      "committedAtUtc": "2026-06-17T00:53:13.000Z",
-      "generatedAtUtc": "2026-06-17T00:55:03.318Z",
-      "updatedAtUtc": "2026-06-17T00:55:03.318Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/same-commit-release-head-discipline.generated.json",
-        "docs/agent-truth/same-commit-release-head-discipline.md",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "sourceCommit": "59ed9c52c096664fe493f1b8f41d7db3897b5cdf"
     }
   ]
 }

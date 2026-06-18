@@ -50,6 +50,12 @@ describe("data validation UI semantic cleanup", () => {
     expect(component).toContain("function formatAnalyticsSourceState");
     expect(component).toContain('if (status === "failed" || status === "fail" || status === "source_disagreement") return "needs repair";');
     expect(component).toContain('data-analytics-source-agreement-state');
+    expect(component).toContain('<Pill label="Issues" value={summary.issueCount}');
+    expect(component).not.toContain('<Pill label="Fail" value={countDisplay(panelState.failCount)}');
+    expect(component).not.toContain('<Pill label="Warn" value={countDisplay(panelState.warnCount)}');
+    expect(component).not.toContain('<Pill label="Stale" value={countDisplay(panelState.staleCount)}');
+    expect(component).not.toContain('<Pill label="Blocked pass" value={countDisplay(panelState.blockedPassCount)}');
+    expect(component).not.toContain('<Pill label="Validation parity" value=');
     expect(component).not.toContain('<Pill label="Source agreement" value={semanticSummary.sourceAgreement.state}');
     expect(component).not.toContain('<p><span className="font-semibold text-white">Source agreement:</span> {analyticsSourceHealth.sourceAgreement.state}');
   });

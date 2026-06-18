@@ -233,9 +233,9 @@ export function DebugAdvancedDataValidation() {
 
         return {
             grouped,
-            issueCount: (panelState.failCount ?? 0) + (panelState.warnCount ?? 0) + (panelState.staleCount ?? 0),
+            issueCount: (panelState.failCount ?? 0) + (panelState.warnCount ?? 0) + (panelState.staleCount ?? 0) + (panelState.blockedPassCount ?? 0),
         };
-    }, [panelState.failCount, panelState.warnCount, panelState.staleCount, validations]);
+    }, [panelState.blockedPassCount, panelState.failCount, panelState.warnCount, panelState.staleCount, validations]);
 
     const semanticSummary = useMemo(() => {
         const sourceAgreementFailed = analyticsSourceHealth?.sourceAgreement.state === "failed";
@@ -297,13 +297,9 @@ export function DebugAdvancedDataValidation() {
                                     : `Loaded ${panelState.checkCount}`}
                         tone={toneForPanelState(panelState.status)}
                     />
-                    <Pill label="Fail" value={countDisplay(panelState.failCount)} tone={panelState.failCount && panelState.failCount > 0 ? "bad" : "neutral"} />
-                    <Pill label="Warn" value={countDisplay(panelState.warnCount)} tone={panelState.warnCount && panelState.warnCount > 0 ? "warn" : "neutral"} />
-                    <Pill label="Stale" value={countDisplay(panelState.staleCount)} tone={panelState.staleCount && panelState.staleCount > 0 ? "warn" : "neutral"} />
-                    <Pill label="Blocked pass" value={countDisplay(panelState.blockedPassCount)} tone={panelState.blockedPassCount && panelState.blockedPassCount > 0 ? "warn" : "neutral"} />
-                    <Pill label="Chart readiness" value={formatAnalyticsSourceState(semanticSummary.chartReadiness.state)} tone={toneForReadinessState(semanticSummary.chartReadiness.state)} />
+                    <Pill label="Issues" value={summary.issueCount} tone={summary.issueCount > 0 ? "warn" : "neutral"} />
                     <Pill label="Source agreement" value={formatAnalyticsSourceState(semanticSummary.sourceAgreement.state)} tone={toneForReadinessState(semanticSummary.sourceAgreement.state)} />
-                    <Pill label="Validation parity" value={formatAnalyticsSourceState(semanticSummary.validationParity.state)} tone={toneForReadinessState(semanticSummary.validationParity.state)} />
+                    <Pill label="Chart readiness" value={formatAnalyticsSourceState(semanticSummary.chartReadiness.state)} tone={toneForReadinessState(semanticSummary.chartReadiness.state)} />
                 </>
             )}
         >

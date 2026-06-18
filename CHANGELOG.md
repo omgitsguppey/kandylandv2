@@ -4,6 +4,11 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.99 - 2026-06-18
+- Cleaner Admin Debug validation
+- Compact Data Validation now shows one issue total instead of repeating every validation state in the header.
+- Detailed source, chart, parity, and blocked-pass evidence stays available in the panel body.
+
 ## 1.5.98 - 2026-06-18
 - Clearer Admin Analytics source status
 - Clarified when analytics history is recovered from first-party sources.
@@ -140,12 +145,6 @@ Showing the last 25 public updates in pages of 5.
 - Updated Beta readiness evidence so stale or missing launch evidence stays visible.
 
 ## 1.5.75 - 2026-06-17
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
-
-## 1.5.74 - 2026-06-17
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
 - Improved guest analytics and admin truth checks behind the scenes.
