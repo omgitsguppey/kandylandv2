@@ -148,6 +148,7 @@ function readLaunchRecoveryDryRunSummary() {
       canClearRuntimeGate: readBoolean(report.canClearRuntimeGate, false),
       canClearProviderGate: readBoolean(report.canClearProviderGate, false),
       canClearAdminTruthGate: readBoolean(report.canClearAdminTruthGate, false),
+      sourceGateReason: readString(report.sourceGateReason, "Launch recovery source gate status was not explained."),
       rangeProof: {
         coverageWindowKind: readString(rangeProof.coverageWindowKind, "unknown"),
         allLaunchRangeProven: readBoolean(rangeProof.allLaunchRangeProven, false),

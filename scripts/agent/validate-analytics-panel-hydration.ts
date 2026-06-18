@@ -710,16 +710,34 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       proofBoundary: "Missing stays missing; zero is allowed only after a bounded source window proves zero.",
     },
   ];
+  const launchSourceGateCanClear =
+    expectedDays.length > 0
+    && !staleEvidence
+    && launchCoverageState === "available"
+    && firstPartyCoverageState === "available"
+    && sourceAgreementState === "pass";
+  const sourceGateReason = launchSourceGateCanClear
+    ? "First-party coverage is available for the local launch window, source agreement passed, and evidence is current."
+    : staleEvidence
+      ? "Launch recovery source evidence is stale relative to current HEAD."
+      : firstPartyCoverageState !== "available"
+        ? "First-party product truth is incomplete; GA4, historical snapshots, and legacy support cannot clear the source gate."
+        : sourceAgreementState !== "pass"
+          ? "Source agreement has not passed; repair the mismatched source lane before clearing source truth."
+          : launchCoverageState !== "available"
+            ? "Launch history coverage is not fully available for the bounded evidence window."
+            : "No launch history evidence window is available.";
 
   return {
     reportKey: "launch-analytics-recovery",
     generatedAtUtc: input.generatedAtUtc,
     currentHead: input.currentHead,
     evidenceClass: "generated_snapshot",
-    canClearSourceGate: true,
+    canClearSourceGate: launchSourceGateCanClear,
     canClearRuntimeGate: false,
     canClearProviderGate: false,
     canClearAdminTruthGate: false,
+    sourceGateReason,
     productionReadsPerformed: false,
     providerCallsPerformed: false,
     rawSensitiveDataAllowed: false,
@@ -885,6 +903,17 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (report.canClearRuntimeGate || report.canClearProviderGate || report.canClearAdminTruthGate) {
     failures.push("launch recovery generated snapshot must not clear runtime, provider, or admin truth gates.");
   }
+  if (report.canClearSourceGate && (
+    report.launchHistoryCoverage.state !== "available"
+    || report.launchHistoryCoverage.firstPartyCoverage.state !== "available"
+    || report.sourceAgreement.state !== "pass"
+    || report.launchHistoryCoverage.staleInputEvidence
+  )) {
+    failures.push("launch recovery cannot clear source gate until first-party coverage is available, source agreement passes, and evidence is current.");
+  }
+  if (!report.canClearSourceGate && (!report.sourceGateReason || !report.sourceGateReason.trim())) {
+    failures.push("blocked launch recovery source gate must explain the reason.");
+  }
   if (report.launchHistoryCoverage.staleInputEvidence && report.status !== "stale_evidence_review") {
     failures.push("stale launch source evidence must surface as stale_evidence_review.");
   }
@@ -997,6 +1026,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- GA4 read mode: ${report.evidenceProvenance.ga4ReadMode}`,
     `- First-party read mode: ${report.evidenceProvenance.firstPartyReadMode}`,
     `- Limitation: ${report.evidenceProvenance.limitation}`,
+    `- Source gate: ${report.canClearSourceGate ? "clear" : "blocked"} - ${report.sourceGateReason}`,
     "",
     "## Canonical Owners",
     "",

@@ -1,11 +1,64 @@
 {
-  "currentVersion": "1.6.3",
-  "betaReleaseCounter": 603,
+  "currentVersion": "1.6.4",
+  "betaReleaseCounter": 604,
   "channel": "beta",
-  "generatedAt": "2026-06-18T18:50:41.642Z",
-  "generatedAtUtc": "2026-06-18T18:50:41.642Z",
-  "lastCommitSha": "d1371d0b5aa991193fed4ef341bce26e2c62eed3",
+  "generatedAt": "2026-06-18T19:30:17.599Z",
+  "generatedAtUtc": "2026-06-18T19:30:17.599Z",
+  "lastCommitSha": "0df78c11d3a2ff846bdfb34c2e68a5a33c50ba4c",
   "notes": [
+    {
+      "version": "1.6.4",
+      "previousVersion": "1.6.3",
+      "betaReleaseCounter": 604,
+      "previousBetaReleaseCounter": 603,
+      "commitSha": "0df78c11d3a2ff846bdfb34c2e68a5a33c50ba4c",
+      "commitTitle": "fix(analytics): retire raw admin realtime listener",
+      "commitCount": 1,
+      "commitShas": [
+        "0df78c11d3a2ff846bdfb34c2e68a5a33c50ba4c"
+      ],
+      "committedAt": "2026-06-18T19:18:33.000Z",
+      "generatedAt": "2026-06-18T19:30:17.599Z",
+      "committedAtUtc": "2026-06-18T19:18:33.000Z",
+      "generatedAtUtc": "2026-06-18T19:30:17.599Z",
+      "updatedAtUtc": "2026-06-18T19:30:17.599Z",
+      "category": "Fixed",
+      "title": "Clearer Admin Analytics source status",
+      "summary": "Improved Admin Analytics so source agreement, launch history recovery, and missing evidence states are easier to understand.",
+      "userFacingTitle": "Clearer Admin Analytics source status",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Clarified when analytics history is recovered from first-party sources.",
+        "Kept GA4 and legacy analytics labeled as evidence instead of product truth.",
+        "Improved Admin Analytics source labels so missing data is not shown as zero."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/admin-analytics-realtime-hot-cache.generated.json",
+        "agent/state/admin-realtime-hot-cache-migration.generated.json",
+        "agent/state/route-diagnostics-error-map.generated.json",
+        "docs/agent-truth/admin-analytics-live-pulse.md",
+        "docs/agent-truth/admin-analytics-realtime-hot-cache.md",
+        "docs/agent-truth/admin-analytics-realtime-to-hot-cache-audit.md",
+        "docs/agent-truth/analytics-file-inventory.md",
+        "docs/agent-truth/route-diagnostics-error-map.md",
+        "scripts/agent/debug-cockpit-batch14-shared.ts",
+        "scripts/agent/validate-route-diagnostics-error-map.ts",
+        "scripts/check-admin-analytics-live-pulse.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
+        "src/lib/admin-analytics/realtime-hot-cache-contract.ts",
+        "src/lib/admin/admin-realtime-to-hot-cache-migration.ts",
+        "src/lib/legacy/legacy-registry.ts",
+        "tests/unit/admin-analytics-realtime-hot-cache.spec.ts",
+        "tests/unit/admin-overview-truth.spec.ts",
+        "tests/unit/debug-cockpit-batch14-cleanup.spec.ts"
+      ],
+      "sourceCommit": "0df78c11d3a2ff846bdfb34c2e68a5a33c50ba4c"
+    },
     {
       "version": "1.6.3",
       "previousVersion": "1.6.2",
@@ -1433,57 +1486,6 @@
         "tests/unit/admin-data-validation.spec.ts"
       ],
       "sourceCommit": "b4a9133d19e95e6dd8f3594c2ee4486493ce20db"
-    },
-    {
-      "version": "1.5.79",
-      "previousVersion": "1.5.78",
-      "betaReleaseCounter": 579,
-      "previousBetaReleaseCounter": 578,
-      "commitSha": "66b3ec000ad4eb3ca531292e2d4079a065fe973c",
-      "commitTitle": "analytics: normalize launch recovery sources",
-      "commitCount": 1,
-      "commitShas": [
-        "66b3ec000ad4eb3ca531292e2d4079a065fe973c"
-      ],
-      "committedAt": "2026-06-17T23:11:39.000Z",
-      "generatedAt": "2026-06-17T23:13:47.476Z",
-      "committedAtUtc": "2026-06-17T23:11:39.000Z",
-      "generatedAtUtc": "2026-06-17T23:13:47.476Z",
-      "updatedAtUtc": "2026-06-17T23:13:47.476Z",
-      "category": "Fixed",
-      "title": "Clearer Admin Analytics source status",
-      "summary": "Improved Admin Analytics so source agreement, launch history recovery, and missing evidence states are easier to understand.",
-      "userFacingTitle": "Clearer Admin Analytics source status",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Clarified when analytics history is recovered from first-party sources.",
-        "Kept GA4 and legacy analytics labeled as evidence instead of product truth.",
-        "Improved Admin Analytics source labels so missing data is not shown as zero."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-panel-hydration.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/launch-analytics-recovery.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "docs/agent-truth/analytics-panel-hydration.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/launch-analytics-recovery.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "scripts/agent/validate-analytics-panel-hydration.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/server/admin-analytics-historical-validation.ts",
-        "src/types/admin-analytics.ts",
-        "tests/unit/admin-data-validation.spec.ts"
-      ],
-      "sourceCommit": "66b3ec000ad4eb3ca531292e2d4079a065fe973c"
     }
   ]
 }

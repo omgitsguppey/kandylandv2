@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T18:31:52.420Z
-Current head: 07442f52388f7bc827c8df6f6705943637dd84f8
+Generated: 2026-06-18T19:31:30.795Z
+Current head: 0df78c11d3a2ff846bdfb34c2e68a5a33c50ba4c
 Status: source_agreement_failed
 
 ## Source Order
@@ -21,6 +21,7 @@ Status: source_agreement_failed
 - GA4 read mode: generated/local evidence only; no provider call performed
 - First-party read mode: source-agreement day-bucket evidence only; no production read performed
 - Limitation: This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof.
+- Source gate: blocked - First-party product truth is incomplete; GA4, historical snapshots, and legacy support cannot clear the source gate.
 
 ## Canonical Owners
 
