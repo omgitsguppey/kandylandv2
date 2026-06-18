@@ -332,7 +332,6 @@ export default function AdminRosterPage() {
     const [agreementSaving, setAgreementSaving] = useState<string | null>(null);
     const [accountSaving, setAccountSaving] = useState<string | null>(null);
     const [fanExperienceSaving, setFanExperienceSaving] = useState(false);
-    const [agreementPreviewOpen, setAgreementPreviewOpen] = useState(false);
     const [expandedSections, setExpandedSections] = useState<Record<RosterDetailSectionKey, boolean>>({
         account_controls: false,
         fan_experience_settings: false,
@@ -980,10 +979,6 @@ export default function AdminRosterPage() {
             window.open(`/api/admin/creator-agreements?download=1&templateId=${encodeURIComponent(agreementTemplate.templateId)}`, "_blank", "noopener,noreferrer");
             return;
         }
-        setAgreementPreviewOpen((current) => !current);
-        if (!agreementPreviewOpen) {
-            handleSectionToggle("agreement_document", true);
-        }
     };
 
     const handleSectionToggle = (sectionKey: RosterDetailSectionKey, open: boolean) => {
@@ -1329,25 +1324,22 @@ export default function AdminRosterPage() {
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             <button type="button" onClick={() => void handleAgreementTemplateSubmit("create_template")} disabled={creatorMutationDisabled || agreementSaving === "create_template"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Save template source</button>
-                                            <button type="button" onClick={() => setAgreementPreviewOpen((current) => !current)} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white">Preview active agreement</button>
                                             <button type="button" onClick={() => void handleAgreementTemplateSubmit("activate_template")} disabled={creatorMutationDisabled || !isOwner || agreementSaving === "activate_template"} className="rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Mark as active for new creators</button>
                                         </div>
                                         {!isOwner ? (
                                             <p className="text-xs leading-5 text-zinc-500">Only the primary owner can activate a template for new creators.</p>
                                         ) : null}
-                                        {agreementPreviewOpen ? (
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-sm font-semibold text-white">Active agreement preview</p>
-                                                <div className="mt-3 space-y-3 text-sm leading-6 text-zinc-300">
-                                                    {CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.map((section) => (
-                                                        <div key={section.heading}>
-                                                            <p className="font-semibold text-white">{section.heading}</p>
-                                                            <p className="mt-1">{section.body}</p>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                                        <details className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                            <summary className="cursor-pointer list-none text-sm font-semibold text-white">Preview active agreement</summary>
+                                            <div className="mt-3 space-y-3 text-sm leading-6 text-zinc-300">
+                                                {CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.map((section) => (
+                                                    <div key={section.heading}>
+                                                        <p className="font-semibold text-white">{section.heading}</p>
+                                                        <p className="mt-1">{section.body}</p>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ) : null}
+                                        </details>
                                     </div>
                                 </details>
                             </div>
@@ -1529,7 +1521,9 @@ export default function AdminRosterPage() {
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <button type="button" onClick={handleViewAgreement} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white">View agreement</button>
+                                            {(selectedCanonical.legalDocumentUrl || agreementTemplate?.agreementSource === "uploaded_pdf_snapshot" || agreementTemplate?.agreementSource === "hybrid") ? (
+                                                <button type="button" onClick={handleViewAgreement} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white">Open agreement source</button>
+                                            ) : null}
                                             <button type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
                                             <button type="button" onClick={() => void handleCreatorAgreementAction("send_updated_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_updated_agreement"} className="rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Send updated agreement</button>
                                             <button type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={creatorMutationDisabled || agreementSaving === "countersign_agreement" || selectedCanonical.creatorSignatureStatus !== "signature_signed"} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Countersign agreement</button>
@@ -1540,9 +1534,8 @@ export default function AdminRosterPage() {
                                                 {(agreementTemplate?.summaryBullets?.length ? agreementTemplate.summaryBullets : CREATOR_CONTRACT_SUMMARY_BULLETS).map((bullet) => <p key={bullet}>- {bullet}</p>)}
                                             </div>
                                         </div>
-                                        {agreementPreviewOpen ? (
-                                        <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                            <p className="text-sm font-semibold text-white">Full MGSA</p>
+                                        <details className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                            <summary className="cursor-pointer list-none text-sm font-semibold text-white">View full native agreement</summary>
                                             <div className="mt-3 space-y-3 text-sm leading-6 text-zinc-300">
                                                 {CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.map((section) => (
                                                     <div key={section.heading}>
@@ -1551,8 +1544,7 @@ export default function AdminRosterPage() {
                                                     </div>
                                                 ))}
                                             </div>
-                                        </div>
-                                        ) : null}
+                                        </details>
                                     </div>
                                 </details>
 

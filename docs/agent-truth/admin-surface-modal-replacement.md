@@ -2,7 +2,7 @@
 
 Source snapshot only. This lane tracks admin modal replacement and first-viewport admin status simplification. It does not prove production admin action success, provider/payment proof, browser visual QA, or creator modal removal.
 
-Current refresh: reviewed against `e03a49c5ce8a670671c5b440496f8cb7bd07893f`. Admin Analytics source agreement blockers use plain visible copy (`needs a connected source`) while preserving the canonical source-state enum for validators and Debug.
+Current refresh: reviewed against `b38dc66a8ee0ed4547b93aebb5de6378f6016274`. Admin Analytics source agreement blockers use plain visible copy (`needs a connected source`) while preserving the canonical source-state enum for validators and Debug.
 
 ## Already Replaced
 
@@ -17,9 +17,9 @@ Current refresh: reviewed against `e03a49c5ce8a670671c5b440496f8cb7bd07893f`. Ad
 
 ## Current Pass
 
-`src/components/Admin/CreateDropModal.tsx` remains the canonical drop form owner, but it now supports `presentation="inline"`. `/admin/drops` uses that inline presentation for create, edit, and duplicate actions, so the action stays connected to the existing admin drop route and form contract without forcing the operator into a full-screen overlay.
+The remaining admin roster agreement preview no longer uses one shared boolean to drive two separate preview blocks. The active agreement template preview and selected-creator full agreement now use local inline disclosures scoped to their own sections.
 
-The inline admin presentation now renders as a plain `section` with `data-admin-drop-form-presentation="inline"` instead of mounting `Dialog.Root` / `Dialog.Content`. Admin mode also defaults to inline presentation when the prop is omitted, so future admin call sites do not accidentally reintroduce the modal shell. Creator drop submission still keeps the default modal presentation because that flow is creator-facing and already uses the shared drop form contract.
+`src/components/Admin/CreateDropModal.tsx` remains the canonical drop form owner. `/admin/drops` still uses `presentation="inline"` for create, edit, and duplicate actions, so the action stays connected to the existing admin drop route and form contract without forcing the operator into a full-screen overlay.
 
 Payment runtime, GumDrop math, top nav, and bottom nav were not touched.
 
@@ -28,6 +28,7 @@ Payment runtime, GumDrop math, top nav, and bottom nav were not touched.
 | Surface | Source owner | Action owner | Decision |
 | --- | --- | --- | --- |
 | `/admin/drops` | `src/hooks/useAdminDropsFeed.ts` | `src/app/api/admin/drops/route.ts`, `src/lib/admin-drop-form.ts` | Replace admin overlay with inline connected panel |
+| `/admin/roster` | `src/app/admin/roster/page.tsx` | `src/app/api/admin/creator-agreements`, creator agreement helpers | Replace shared preview state with local inline disclosure |
 
 ## Remaining Debt
 
