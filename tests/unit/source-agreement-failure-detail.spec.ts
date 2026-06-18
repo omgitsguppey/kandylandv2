@@ -303,4 +303,34 @@ describe("source agreement failure detail", () => {
       },
     })).toBeNull();
   });
+
+  it("derives recovered launch coverage from rows instead of declared counts", () => {
+    const coverage = normalizeLaunchHistoryCoverageExport({
+      status: "complete",
+      surface: "admin_truth_sample",
+      launchHistoryCoverage: {
+        expectedDayCount: 99,
+        recoveredDayCount: 99,
+        state: "available",
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 0, ga4: 0, historicalSnapshot: 0, legacySupport: 0 },
+          },
+          {
+            dayKey: "2026-05-02",
+            expected: true,
+            sourceCounts: { first_party: 3, ga4: 4, historicalSnapshot: 0, legacySupport: 0 },
+          },
+        ],
+      },
+    });
+
+    expect(coverage).toMatchObject({
+      expectedDayCount: 2,
+      recoveredDayCount: 1,
+      state: "partial",
+    });
+  });
 });

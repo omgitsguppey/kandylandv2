@@ -124,19 +124,15 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
 
   if (days.length === 0) return null;
 
-  const expectedDayCount = typeof candidate.expectedDayCount === "number"
-    ? candidate.expectedDayCount
-    : days.filter((day) => day.expected).length;
-  const recoveredDayCount = typeof candidate.recoveredDayCount === "number"
-    ? candidate.recoveredDayCount
-    : days.filter((day) => Object.values(day.sourceCounts).some((count) => count > 0)).length;
-  const state = candidate.state === "source_missing" || candidate.state === "partial" || candidate.state === "available"
-    ? candidate.state
-    : recoveredDayCount === 0
-      ? "source_missing"
-      : recoveredDayCount < expectedDayCount
-        ? "partial"
-        : "available";
+  const expectedDayCount = days.filter((day) => day.expected).length;
+  const recoveredDayCount = days.filter((day) =>
+    day.expected && Object.values(day.sourceCounts).some((count) => count > 0)
+  ).length;
+  const state = recoveredDayCount === 0
+    ? "source_missing"
+    : recoveredDayCount < expectedDayCount
+      ? "partial"
+      : "available";
 
   return {
     expectedDayCount,
