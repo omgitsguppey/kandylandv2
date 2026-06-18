@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-18T18:13:29.845Z",
+  "generatedAtUtc": "2026-06-18T18:32:36.581Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "257906747a1b14dec6eda849aa864ff49ca2ffe8",
+  "currentHead": "07442f52388f7bc827c8df6f6705943637dd84f8",
   "summary": {
     "betaVersion": "1.5.72",
     "betaScore": 77.4,
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-18T18:13:29.845Z",
+      "generatedAtUtc": "2026-06-18T18:32:36.581Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
