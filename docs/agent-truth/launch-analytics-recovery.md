@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T09:44:19.838Z
-Current head: 08f0396c951322599c1b2a196dfcc5349b6a98e6
+Generated: 2026-06-18T09:48:41.841Z
+Current head: c18067b9d4aaaa4f0f6b6e02abd9cdc78288f272
 Status: source_agreement_failed
 
 ## Source Order
@@ -53,8 +53,8 @@ Status: source_agreement_failed
 - Recovered days: 3/3
 - First recovered day: 2026-05-01
 - Last recovered day: 2026-05-03
-- Coverage state: available
-- Coverage reason: Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.
+- Coverage state: partial
+- Coverage reason: Launch-history day buckets are only partially first-party backed; GA4, historical snapshots, and legacy support remain evidence-only until first-party product truth covers the range.
 - First-party product truth state: partial
 - First-party missing ranges: 2026-05-02..2026-05-03
 - First-party days: 1

@@ -208,4 +208,12 @@ describe("analytics panel hydration", () => {
     expect(refreshIndex).toBeGreaterThanOrEqual(0);
     expect(panelIndex).toBeGreaterThan(refreshIndex);
   });
+
+  it("keeps launch recovery partial until first-party coverage and source agreement both pass", () => {
+    const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
+
+    expect(source).toContain('firstPartyCoverageState !== "available"');
+    expect(source).toContain('sourceAgreementState !== "pass"');
+    expect(source).toContain("GA4, historical snapshots, and legacy support remain evidence-only");
+  });
 });

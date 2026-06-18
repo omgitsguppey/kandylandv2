@@ -527,11 +527,6 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     : firstPartyMissingDays.length > 0
       ? "partial"
       : "available";
-  const launchCoverageState = recoveredDays.length === 0
-    ? "source_missing"
-    : sourceMissingDays.length === 0
-      ? "available"
-      : "partial";
   const rawSourceAgreementState = sourceAgreementDetail.sourceAgreementStatus;
   const sourceAgreementState = typeof rawSourceAgreementState === "string"
     ? rawSourceAgreementState
@@ -540,13 +535,22 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       : asNumber(sourceAgreementDetail.disagreementCount, 0) > 0
       ? "review"
       : expectedDays.length > 0 ? "pass" : "not_enough_sources";
+  const launchCoverageState = recoveredDays.length === 0
+    ? "source_missing"
+    : firstPartyCoverageState !== "available" ||
+      sourceAgreementState !== "pass" ||
+      sourceMissingDays.length > 0
+      ? "partial"
+      : "available";
   const launchCoverageReason = launchCoverageState === "source_missing"
     ? "No launch-history source evidence was observed in the generated source agreement detail."
+    : firstPartyCoverageState !== "available"
+      ? "Launch-history day buckets are only partially first-party backed; GA4, historical snapshots, and legacy support remain evidence-only until first-party product truth covers the range."
     : sourceAgreementState === "failed" || sourceAgreementState === "fail"
-      ? "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth."
-      : launchCoverageState === "partial"
-        ? "Some launch-history day buckets are missing from all local source evidence."
-        : "Every expected launch day has at least one local source evidence bucket; source agreement still controls canonical chart promotion.";
+      ? "Launch-history day buckets exist, but source agreement failed; keep coverage partial until first-party and second-source lanes agree."
+    : launchCoverageState === "partial"
+      ? "Some launch-history day buckets are missing from all local source evidence."
+      : "Every expected launch day is first-party backed and source agreement passed; source agreement still controls canonical chart promotion.";
   const staleEvidence = sourceAgreementHead !== null && sourceAgreementHead !== input.currentHead;
   const status = expectedDays.length === 0
     ? "source_evidence_missing"
