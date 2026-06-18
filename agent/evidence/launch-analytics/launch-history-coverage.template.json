@@ -1,0 +1,34 @@
+{
+  "status": "template_not_evidence",
+  "surface": "launch_analytics_recovery",
+  "generatedAtUtc": "YYYY-MM-DDTHH:mm:ss.sssZ",
+  "source": "redacted_local_export",
+  "redaction": {
+    "rawUserIdentifiersIncluded": false,
+    "rawPaymentDetailsIncluded": false,
+    "secretsIncluded": false
+  },
+  "launchHistoryCoverage": {
+    "rangeStartDayKey": "YYYY-MM-DD",
+    "rangeEndDayKey": "YYYY-MM-DD",
+    "rangeProof": {
+      "expectedRangeSource": "approved_all_launch_export",
+      "coverageWindowKind": "all_range_historical_export",
+      "allLaunchRangeProven": false,
+      "reason": "Template only. Replace with the approved export reason before using as evidence."
+    },
+    "days": [
+      {
+        "dayKey": "YYYY-MM-DD",
+        "expected": true,
+        "sourceCounts": {
+          "first_party": 0,
+          "ga4": 0,
+          "historicalSnapshot": 0,
+          "legacySupport": 0
+        },
+        "internalAdminExcludedCount": null
+      }
+    ]
+  }
+}

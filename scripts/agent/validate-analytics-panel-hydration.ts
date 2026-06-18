@@ -251,6 +251,8 @@ function classifyDirtyFile(path: string) {
   if (normalized === "tests/unit/source-agreement-failure-detail.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/evidence/admin-truth-sample/README.md") return "admin_truth_sample_launch_coverage_evidence_expected";
   if (normalized === "agent/evidence/admin-truth-sample/evidence.template.json") return "admin_truth_sample_launch_coverage_evidence_expected";
+  if (normalized === "agent/evidence/launch-analytics/README.md") return "launch_analytics_recovery_artifact_expected";
+  if (normalized === "agent/evidence/launch-analytics/launch-history-coverage.template.json") return "launch_analytics_recovery_artifact_expected";
   if (normalized === "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/admin-debug-control-tower-component.spec.tsx") return "test_artifact_expected";
   if (normalized === "agent/state/source-agreement-failure-detail.generated.json") return "source_agreement_failure_artifact_expected";
