@@ -3,7 +3,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { buildAnalyticsSourceAgreementStatus } from "../../src/lib/analytics/analytics-source-agreement-status";
 import { buildDataValidationUiSemantics, buildValidationReadinessSummary } from "../../src/lib/analytics/validation-readiness-contract";
 import { buildDebugCockpitBatch28BugValidationReport } from "../../src/lib/debug/debug-cockpit-batch28-bug-validation";
 import { buildBugReportTruthState } from "../../src/lib/debug/bug-report-truth-contract";
@@ -216,30 +215,6 @@ export function validateDataValidationUiSemanticCleanup() {
   runValidation("data-validation-ui-semantic-cleanup", { ui }, failures, [
     "Data Validation renders compact split summary pills and visible source agreement failure rows.",
     "Raw validation rows stay collapsed by default while failed dimensions remain actionable.",
-  ]);
-}
-
-export function validateAnalyticsSourceAgreementCleanup() {
-  const failures: string[] = [];
-  const status = buildAnalyticsSourceAgreementStatus({
-    availability: "pass",
-    continuity: "none",
-    chartReadiness: "ready",
-    sourceAgreement: "failed",
-    comparedSources: ["ga4", "historical_snapshot", "legacy_support"],
-    failedSources: ["ga4", "historical_snapshot", "legacy_support"],
-    comparedMetrics: ["daily_bucket_presence"],
-    tolerance: "10% review / 25% fail",
-    confidence: 25,
-  });
-  expectPass(status.chartStatus === "chart_ready", failures, "availability pass does not preserve chart_ready.");
-  expectPass(status.agreementStatus === "source_agreement_failed", failures, "source agreement failure hidden by chart readiness.");
-  expectPass(status.failedSources.length === 3, failures, "failed sources missing.");
-  expectPass(status.tolerance.length > 0, failures, "comparison tolerance missing.");
-  expectPass(status.nextAction.length > 0, failures, "next action missing.");
-  runValidation("analytics-source-agreement-cleanup", { status }, failures, [
-    "Analytics Source Health can report chart_ready and source_agreement_failed at the same time.",
-    "Failed sources, compared metrics, tolerance, confidence, and next action are explicit.",
   ]);
 }
 

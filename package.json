@@ -518,7 +518,6 @@
         "check:bug-report-truth-source-cleanup": "tsx scripts/agent/validate-bug-report-truth-source-cleanup.ts",
         "check:analytics-validation-semantics": "tsx scripts/agent/validate-analytics-validation-semantics.ts",
         "check:data-validation-ui-semantic-cleanup": "tsx scripts/agent/validate-data-validation-ui-semantic-cleanup.ts",
-        "check:analytics-source-agreement-cleanup": "tsx scripts/agent/validate-analytics-source-agreement-cleanup.ts",
         "check:debug-cockpit-batch28-bug-validation": "tsx scripts/agent/validate-debug-cockpit-batch28-bug-validation.ts",
         "check:chart-readiness-hierarchy-repair": "tsx scripts/agent/validate-chart-readiness-hierarchy-repair.ts",
         "check:ga4-availability-semantics": "tsx scripts/agent/validate-ga4-availability-semantics.ts",

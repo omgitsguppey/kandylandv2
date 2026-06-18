@@ -218,6 +218,14 @@ function classifyDirtyFile(path: string) {
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "agent/state/analytics-admin-reorg.generated.json") return "analytics_admin_reorg_artifact_expected";
   if (normalized === "docs/agent-truth/analytics-admin-reorg.md") return "analytics_admin_reorg_artifact_expected";
+  if (
+    normalized === "src/lib/analytics/analytics-source-agreement-status.ts"
+    || normalized === "scripts/agent/validate-analytics-source-agreement-cleanup.ts"
+    || normalized === "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts"
+    || normalized === "tests/unit/analytics-source-agreement-cleanup.spec.ts"
+    || normalized === "agent/state/analytics-source-agreement-cleanup.generated.json"
+    || normalized === "docs/agent-truth/analytics-source-agreement-cleanup.md"
+  ) return "retired_duplicate_source_agreement_lane_expected";
   if (normalized === "src/lib/analytics/source-agreement-detail.ts") return "source_agreement_failure_classification_required";
   if (normalized === "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts") return "source_agreement_failure_classification_required";
   if (normalized === "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts") return "source_agreement_failure_classification_required";

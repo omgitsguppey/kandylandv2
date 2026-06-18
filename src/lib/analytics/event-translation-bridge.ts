@@ -142,6 +142,7 @@ export type DirtyFileClassification =
   | "stale_generated_artifact_to_revert_or_delete"
   | "stale_duplicate_telemetry_logic_to_remove"
   | "stale_metric_bridge_to_remove"
+  | "retired_duplicate_source_agreement_lane_expected"
   | "unrelated_agent_context_file_to_ignore"
   | "real_source_change_needs_review"
   | "release_artifact_expected"
@@ -740,6 +741,14 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/source-agreement-failure-detail.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md") return "documentation_artifact_expected";
+  if (
+    normalized === "src/lib/analytics/analytics-source-agreement-status.ts"
+    || normalized === "scripts/agent/validate-analytics-source-agreement-cleanup.ts"
+    || normalized === "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts"
+    || normalized === "tests/unit/analytics-source-agreement-cleanup.spec.ts"
+    || normalized === "agent/state/analytics-source-agreement-cleanup.generated.json"
+    || normalized === "docs/agent-truth/analytics-source-agreement-cleanup.md"
+  ) return "retired_duplicate_source_agreement_lane_expected";
   if (normalized === "functions/src/analytics-truth-cli.ts" || normalized === "functions/src/analytics-truth-runtime.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/rebuild-analytics-truth.ts" || normalized === "scripts/rebuild-behavioral-intelligence.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/source-agreement-detail.ts") return "real_source_change_needs_review";
