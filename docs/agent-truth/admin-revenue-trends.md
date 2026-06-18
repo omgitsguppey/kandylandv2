@@ -142,7 +142,7 @@ The truth chip is shared with the overall Admin Overview truth system:
 | All live upgrade listeners loaded, none cached | "Updated" | All displayed sources are confirmed by server |
 | Verified server data or cache is visible | "Showing last verified data" | Useful data is visible while cache/live metadata is not fully current |
 | Partial live upgrade listeners loaded | "Refreshing overview" | Some live updates are still connecting |
-| Nothing loaded | "Waiting for first overview snapshot" | No verified overview data exists yet |
+| Nothing loaded | "Collecting activity" | No verified overview data exists yet |
 | Listener failures | "Live updates delayed" | Some live update sources failed |
 
 ## What debug metadata is exposed

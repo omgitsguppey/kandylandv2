@@ -530,7 +530,7 @@ export function buildAdminAnalyticsCommerceSnapshotModel(input: {
           : `Showing verified commerce data for ${selectedRangeLabel}.`,
         "Promo and bonus GD are excluded from revenue.",
       ]
-    : [loading ? "Waiting for first snapshot." : "Commerce unavailable."];
+    : [loading ? "Collecting activity." : "Commerce unavailable."];
 
   const needsAttention = [
     checkoutConversionWarning,

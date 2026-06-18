@@ -269,7 +269,7 @@ const docs = [
 ].map((file) => [file, read(file)] as const);
 
 for (const [file, content] of docs) {
-  for (const term of ["Live", "Updated", "Refreshing", "Last verified data", "Estimated", "Partial", "Waiting for first snapshot", "Needs review", "Unavailable", "No sample", "Source mismatch", "Open in Debug", "Refresh"]) {
+  for (const term of ["Live", "Updated", "Refreshing", "Last verified data", "Estimated", "Partial", "Collecting activity", "Needs review", "Unavailable", "No sample", "Source mismatch", "Open in Debug", "Refresh"]) {
     if (!content.includes(term)) {
       fail(file, `Doc is missing allowed copy term: ${term}.`);
     }

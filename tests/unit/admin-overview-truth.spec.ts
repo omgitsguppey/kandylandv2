@@ -38,44 +38,44 @@ describe("admin overview truth chips", () => {
         adminActivityFromCache: false,
     };
 
-    it("returns 'Operational pulse connected' when all listeners loaded and none from cache", () => {
-        expect(resolveTruthChipLabel(allLoaded, true)).toBe("Operational pulse connected");
+    it("returns hot-cache snapshot copy when server data is present", () => {
+        expect(resolveTruthChipLabel(allLoaded, true)).toBe("Showing hourly hot-cache snapshot");
     });
 
-    it("returns 'Showing verified snapshot totals' when all loaded but some from cache", () => {
-        expect(resolveTruthChipLabel({ ...allLoaded, dropsFromCache: true }, true)).toBe("Showing verified snapshot totals");
+    it("returns last verified data when server data is present from cache", () => {
+        expect(resolveTruthChipLabel({ ...allLoaded, dropsFromCache: true }, true)).toBe("Last verified data");
     });
 
-    it("returns delayed copy when operational pulse lanes fail", () => {
+    it("returns refresh due copy when operational pulse lanes fail", () => {
         expect(resolveTruthChipLabel({ ...allLoaded, dropsFailed: true }, true)).toBe(
-            "Operational pulse delayed",
+            "Refresh due",
         );
         expect(resolveTruthChipLabel({ ...allLoaded, dropsFailed: true, summaryFailed: true }, true)).toBe(
-            "Operational pulse delayed",
+            "Refresh due",
         );
     });
 
-    it("returns 'Waiting for first overview snapshot' when nothing has loaded", () => {
+    it("returns 'Collecting activity' when nothing has loaded", () => {
         const empty = {
             dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false, adminActivityLoaded: false,
             dropsFailed: false, summaryFailed: false, transactionsFailed: false, adminActivityFailed: false,
             dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false, adminActivityFromCache: false,
         };
-        expect(resolveTruthChipLabel(empty, false)).toBe("Waiting for first overview snapshot");
+        expect(resolveTruthChipLabel(empty, false)).toBe("Collecting activity");
     });
 
-    it("returns 'Connecting operational pulse' when some but not all loaded", () => {
+    it("keeps hot-cache snapshot copy when server data exists during partial client loading", () => {
         const partial = { ...allLoaded, summaryLoaded: false, transactionsLoaded: false };
-        expect(resolveTruthChipLabel(partial, true)).toBe("Connecting operational pulse");
+        expect(resolveTruthChipLabel(partial, true)).toBe("Showing hourly hot-cache snapshot");
     });
 
-    it("returns 'Showing verified snapshot totals' when no live upgrade but server data exists", () => {
+    it("returns hot-cache snapshot copy when no client refresh has loaded but server data exists", () => {
         const noRealtime = {
             dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false, adminActivityLoaded: false,
             dropsFailed: false, summaryFailed: false, transactionsFailed: false, adminActivityFailed: false,
             dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false, adminActivityFromCache: false,
         };
-        expect(resolveTruthChipLabel(noRealtime, true)).toBe("Showing verified snapshot totals");
+        expect(resolveTruthChipLabel(noRealtime, true)).toBe("Showing hourly hot-cache snapshot");
     });
 
     it("never produces vague bracket-prefixed labels", () => {
@@ -106,11 +106,11 @@ describe("admin overview truth chips", () => {
 
 describe("admin overview truth chip variants", () => {
     it("maps known labels to correct CSS variants", () => {
-        expect(resolveTruthChipVariant("Operational pulse connected")).toBe("live");
-        expect(resolveTruthChipVariant("Showing verified snapshot totals")).toBe("stale");
-        expect(resolveTruthChipVariant("Connecting operational pulse")).toBe("degraded");
-        expect(resolveTruthChipVariant("Operational pulse delayed")).toBe("fallback");
-        expect(resolveTruthChipVariant("Waiting for first overview snapshot")).toBe("unavailable");
+        expect(resolveTruthChipVariant("Showing hourly hot-cache snapshot")).toBe("cached");
+        expect(resolveTruthChipVariant("Last verified data")).toBe("cached");
+        expect(resolveTruthChipVariant("Connecting snapshot refresh")).toBe("degraded");
+        expect(resolveTruthChipVariant("Refresh due")).toBe("fallback");
+        expect(resolveTruthChipVariant("Collecting activity")).toBe("unavailable");
     });
 
     it("returns waiting for unknown labels", () => {
@@ -228,13 +228,13 @@ describe("hero truth display rule", () => {
         expect(headerBlock).not.toContain("</>");
 
         // Must contain the single source-state badge plus the exact truth label text.
-        expect(ADMIN_PAGE_SOURCE).toContain("const truthLabel");
+        expect(ADMIN_PAGE_SOURCE).toContain("pageData.truthLabel");
         expect(headerBlock).toContain("<AdminStatusBadge state={truthVariant}");
-        expect(ADMIN_PAGE_SOURCE).toContain("{truthLabel}</span>");
+        expect(ADMIN_PAGE_SOURCE).toContain("pageData.truthLabel}</span>");
     });
 
     it("serverUpdateLabel is passed as subtitle, not as a standalone chip", () => {
-        expect(ADMIN_PAGE_SOURCE).toContain("subtitle={serverUpdateLabel}");
+        expect(ADMIN_PAGE_SOURCE).toContain("pageData.serverUpdateLabel");
         // Must NOT have a standalone chip with serverUpdateLabel
         expect(ADMIN_PAGE_SOURCE).not.toContain(">{serverUpdateLabel}</span>");
     });
@@ -245,7 +245,7 @@ describe("hero truth display rule", () => {
     });
 
     it("issue count remains in AdminStatsBar", () => {
-        expect(ADMIN_PAGE_SOURCE).toContain("issueCount={issueCount}");
+        expect(ADMIN_PAGE_SOURCE).toContain("overviewIssues={data.overviewIssues}");
     });
 });
 
@@ -409,11 +409,11 @@ import { calculateOverviewMetricDelta } from "@/lib/admin-overview";
 
 describe("revenue + unwraps module: source-code contracts", () => {
     it("uses canonical purple #b28cff", () => {
-        expect(CHART_SOURCE).toContain("#b28cff");
+        expect(CHART_SOURCE).toContain("KANDYDROPS_CHART_COLORS.brand");
     });
 
     it("uses lighter purple tint #d8b4fe for unwraps", () => {
-        expect(CHART_SOURCE).toContain("#d8b4fe");
+        expect(CHART_SOURCE).toContain("KANDYDROPS_CHART_COLORS.brandSoft");
     });
 
     it("does NOT use pink #d946ef (fuchsia-500)", () => {
@@ -460,7 +460,7 @@ describe("revenue + unwraps module: source-code contracts", () => {
     });
 
     it("passes truthLabel/truthVariant instead of issueCount to AdminAnalyticsCharts", () => {
-        expect(ADMIN_PAGE_SOURCE).toContain("truthLabel={truthLabel}");
+        expect(ADMIN_PAGE_SOURCE).toContain("truthLabel={pageData.truthLabel}");
         expect(ADMIN_PAGE_SOURCE).toContain("truthVariant={truthVariant}");
         // AdminAnalyticsCharts must not receive issueCount.
         // Note: AdminStatsBar still legitimately receives issueCount, so we check the chart block specifically.
@@ -625,12 +625,13 @@ describe("top drops table: source-code contracts", () => {
         expect(serverSource).not.toContain(".slice(0, 6)");
     });
 
-    it("realtime listener sends up to 20 drops (not 6)", () => {
+    it("overview refresh hook does not own top-drop slicing", () => {
         const realtimeSource = readFileSync(
             join(__dirname, "../../src/hooks/useAdminOverviewRealtime.ts"),
             "utf-8",
         );
-        expect(realtimeSource).toContain(".slice(0, 20)");
+        expect(realtimeSource).toContain('"/api/admin/overview"');
+        expect(realtimeSource).not.toContain("topDrops.slice");
         expect(realtimeSource).not.toContain(".slice(0, 6)");
     });
 
@@ -724,8 +725,10 @@ describe("admin overview recent transactions contract", () => {
 
     /* ── includeMetadataChanges ────────────────────────────────────────── */
 
-    it("uses includeMetadataChanges on transactions listener in realtime hook", () => {
-        expect(REALTIME_HOOK_SOURCE).toContain("includeMetadataChanges: true");
+    it("overview refresh uses the hot-cache route instead of raw Firestore listeners", () => {
+        expect(REALTIME_HOOK_SOURCE).toContain('"/api/admin/overview"');
+        expect(REALTIME_HOOK_SOURCE).toContain("refreshInterval: ADMIN_OVERVIEW_REALTIME_POLICY.snapshotRefreshCadenceMs");
+        expect(REALTIME_HOOK_SOURCE).not.toContain("onSnapshot(");
     });
 
     it("uses includeMetadataChanges in the panel's own listener", () => {
@@ -802,17 +805,18 @@ describe("admin activity truth contracts", () => {
 
     /* ── Source separation ────────────────────────────────────────────── */
 
-    it("admin activity listener filters on type == admin_adjustment", () => {
-        expect(ADMIN_ACTIVITY_HOOK_SOURCE).toContain('where("type", "==", "admin_adjustment")');
+    it("admin activity source declares admin adjustments and analytics facts", () => {
+        expect(ADMIN_ACTIVITY_TYPES_SOURCE).toContain('"admin_adjustment"');
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("analytics_event_facts");
     });
 
-    it("realtime hook has a dedicated admin activity listener (not shared with transactions)", () => {
-        const listenerOccurrences = (ADMIN_ACTIVITY_HOOK_SOURCE.match(/admin_overview_admin_activity/g) || []).length;
-        expect(listenerOccurrences).toBeGreaterThanOrEqual(1);
+    it("overview hook does not own a dedicated admin activity Firestore listener", () => {
+        expect(ADMIN_ACTIVITY_HOOK_SOURCE).not.toContain("admin_overview_admin_activity");
+        expect(ADMIN_ACTIVITY_HOOK_SOURCE).not.toContain("onSnapshot(");
     });
 
-    it("merge logic preserves server telemetry items alongside realtime adjustments", () => {
-        expect(ADMIN_ACTIVITY_HOOK_SOURCE).toContain('item.source === "analytics_event_facts"');
+    it("panel preserves server telemetry items alongside admin adjustments", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain('activity.filter(i => i.source === "analytics_event_facts")');
     });
 
     /* ── Actor / target separation ────────────────────────────────────── */
@@ -838,9 +842,9 @@ describe("admin activity truth contracts", () => {
     /* ── Actor fallback rules ─────────────────────────────────────────── */
 
     it("uses 'Unknown operator' as fallback actor, not 'Admin'", () => {
-        expect(ADMIN_ACTIVITY_HOOK_SOURCE).toContain('"Unknown operator"');
+        expect(ADMIN_ACTIVITY_SOURCE).toContain('"Unknown operator"');
         // 'Admin' as a generic fallback is forbidden
-        const fallbackAdminLines = ADMIN_ACTIVITY_HOOK_SOURCE.split("\n").filter(
+        const fallbackAdminLines = ADMIN_ACTIVITY_SOURCE.split("\n").filter(
             (line) => line.includes('?? "Admin"') || line.includes(': "Admin"'),
         );
         expect(fallbackAdminLines.length).toBe(0);
@@ -995,18 +999,18 @@ describe("admin analytics overview truth", () => {
         expect(ANALYTICS_STATE_SOURCE).toContain("liveActiveDisplay");
     });
 
-    it("page uses liveActiveDisplay instead of raw totalActive", () => {
-        expect(ANALYTICS_PAGE_SOURCE).toContain("liveActiveDisplay");
+    it("page uses compact live active metric model instead of raw totalActive", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("analyticsOverviewDisplayMetrics.liveActive.displayValue");
         expect(ANALYTICS_PAGE_SOURCE).not.toContain("liveResponse?.totalActive ?? 0)");
     });
 
-    it("page uses revenueDisplay instead of formatMoney(commerce.revenueUsd)", () => {
-        expect(ANALYTICS_PAGE_SOURCE).toContain("revenueDisplay");
+    it("page uses compact revenue metric model instead of direct commerce math", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("analyticsOverviewDisplayMetrics.revenue.displayValue");
         expect(ANALYTICS_PAGE_SOURCE).not.toContain("formatMoney(commerce.revenueUsd)");
     });
 
-    it("page uses purchasesDisplay instead of formatCompactNumber(funnel.purchases)", () => {
-        expect(ANALYTICS_PAGE_SOURCE).toContain("purchasesDisplay");
+    it("page uses compact purchases metric model instead of direct funnel math", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("analyticsOverviewDisplayMetrics.purchases.displayValue");
         expect(ANALYTICS_PAGE_SOURCE).not.toContain("formatCompactNumber(funnel.purchases)");
     });
 

@@ -28,7 +28,7 @@ If a route or module has a valid verified snapshot, the initial UI renders that 
 
 Waiting is allowed only when no verified snapshot or valid source value exists yet. Waiting copy must name the reason:
 
-- Waiting for first snapshot
+- Collecting activity
 - No verified snapshot yet
 - Source unavailable
 

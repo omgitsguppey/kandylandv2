@@ -377,7 +377,7 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
   const visibleHelperCopy = hasUsableEventSample
     ? "This is event volume, not a sequential conversion funnel. Counts can exceed earlier steps when users repeat actions."
     : input.loading
-      ? "Waiting for first snapshot."
+      ? "Collecting activity."
       : "No event sample yet.";
   const generatedAtUtc = input.response?.generatedAtMs
     ? new Date(input.response.generatedAtMs).toISOString()

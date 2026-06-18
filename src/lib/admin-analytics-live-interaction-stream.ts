@@ -268,7 +268,7 @@ function buildRecommendation(input: {
   freshnessState: StreamFreshnessState;
   failureCount: number;
 }) {
-  if (!input.hasResponse && input.loading) return "Waiting for first snapshot.";
+  if (!input.hasResponse && input.loading) return "Collecting activity.";
   if (!input.hasResponse) return "Interaction snapshot unavailable for this range.";
   if (input.freshnessState === "refresh_due") {
     return REFRESH_DUE_INTERACTION_COPY;
@@ -522,12 +522,12 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
             ? "Interaction snapshot expired. Refresh or wait for a new verified source."
             : REFRESH_DUE_INTERACTION_COPY
           : input.loading
-            ? "Waiting for first snapshot."
+            ? "Collecting activity."
             : "Interaction snapshot unavailable for this range.",
     streamSourceStatusDetail: hasResponse
       ? `Source ${sourceTruth}. ${streamSourceMode === "refresh_due_snapshot" ? "refresh due snapshot. " : streamSourceMode === "expired_snapshot" ? "expired snapshot. " : ""}Last event ${lastEventAt ? new Date(lastEventAt).toISOString() : "unknown"}. Generated ${generatedAtMs ? new Date(generatedAtMs).toISOString() : "unknown"}.`
       : input.loading
-        ? "Interaction stream is waiting for first snapshot."
+        ? "Interaction stream is collecting activity."
         : "Interaction stream has no validated snapshot for this range.",
     warnings,
   };

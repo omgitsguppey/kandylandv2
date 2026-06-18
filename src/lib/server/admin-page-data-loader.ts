@@ -47,7 +47,7 @@ export function buildAdminOverviewPageData(input: {
     : lastTransactionAt && lastTransactionAt > 0
       ? `Last server update ${formatDistanceToNow(lastTransactionAt, { addSuffix: true })}`
       : "No server update yet";
-  const truthLabel = input.data?.truthNotes?.overview ?? "Waiting for first overview snapshot";
+  const truthLabel = input.data?.truthNotes?.overview ?? "Collecting activity";
   const fallbackState = input.error ? "failed" : input.isLoading ? "loading" : "unavailable";
   const fallbackMessage = input.error?.message
     ?? (input.isLoading ? "Loading overview snapshot." : "Overview snapshot has no verified source yet.");

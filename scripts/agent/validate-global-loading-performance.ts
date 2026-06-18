@@ -52,7 +52,7 @@ for (const auditNeedle of [
 
 for (const doctrineNeedle of [
   "verified hot cache first",
-  "Waiting for first snapshot",
+  "Collecting activity",
   "No verified snapshot yet",
   "Source unavailable",
   "Generic `Waiting` or `Waiting for analytics` is forbidden",
@@ -68,7 +68,7 @@ for (const helperNeedle of [
   "normalizeAdminSnapshotRatio",
   "resolveAdminSnapshotSurfaceState",
   "resolveAdminAnalyticsWaitingCopy",
-  "Waiting for first snapshot",
+  "Collecting activity",
   "No verified snapshot yet",
   "Source unavailable",
 ]) {

@@ -388,7 +388,7 @@ export const ADMIN_SURFACE_STATE_BADGE_LABELS: Record<AdminSurfaceState, AdminOp
 
 export const ADMIN_SURFACE_STATE_OPERATOR_COPY: Record<AdminSurfaceState, Pick<AdminCopyPattern, "headline" | "shortBody" | "operatorImpact" | "recommendedAction">> = {
   loading: {
-    headline: "Waiting for first snapshot.",
+    headline: "Collecting activity.",
     shortBody: "Data is still loading.",
     operatorImpact: "The panel has not verified a source yet.",
     recommendedAction: "Wait briefly or refresh if this does not change.",

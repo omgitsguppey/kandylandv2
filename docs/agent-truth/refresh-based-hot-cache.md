@@ -58,4 +58,4 @@ Guest traffic estimates can display immediately when the formula and source flag
 
 ## No Fake Waiting Or Fake Zero
 
-`Waiting` is allowed only before the first verified snapshot exists. Visible waiting copy must say `Waiting for first snapshot`, `No verified snapshot yet`, or `Source unavailable`. Missing values stay `null` with fake-zero prevention metadata until a source confirms zero.
+`Collecting activity` is allowed only before the first verified snapshot exists. Visible waiting copy must say `Collecting activity`, `No verified snapshot yet`, or `Source unavailable`. Missing values stay `null` with fake-zero prevention metadata until a source confirms zero.

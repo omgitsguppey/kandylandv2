@@ -23,11 +23,11 @@ Use `src/lib/admin-copy/admin-truth-copy.ts` and `src/lib/admin-copy/admin-copy-
 
 ## Main UI Rules
 
-Allowed main UI language includes Live, Updated, Refreshing, Last verified data, Estimated, Partial, Waiting for first snapshot, Needs review, Unavailable, No sample, Source mismatch, Open in Debug, and Refresh.
+Allowed main UI language includes Live, Updated, Refreshing, Last verified data, Estimated, Partial, Collecting activity, Needs review, Unavailable, No sample, Source mismatch, Open in Debug, and Refresh.
 
 Badges must stay short and plain: Current, Updated, Refreshing, Delayed, Estimate, Partial, Collecting, Review, Error, Cached.
 
-Waiting is allowed only when no verified snapshot exists. Last verified data is the correct copy when a verified snapshot is available while refresh, source parity, or current activity catches up.
+Collecting activity is allowed only when no verified snapshot exists. Last verified data is the correct copy when a verified snapshot is available while refresh, source parity, or current activity catches up.
 
 Panel status by section must separate inventory from reviewable risk. Bug report counts, rollout counts, release-entry counts, and tracked-event inventory are INFO unless they breach a documented threshold. Show total signals separately from needs-review signals so operators can distinguish activity from system-health findings.
 

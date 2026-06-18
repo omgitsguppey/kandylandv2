@@ -26,7 +26,7 @@ Mobile should use ranked rows with count, share, mini bar, and surface/context s
 
 Approved visible badges: LIVE, UPDATED, REFRESHING, DELAYED, EST, PARTIAL, WAIT, REVIEW, ERROR, SNAP. Badges must stay inside their containers.
 
-Fake zeros are forbidden. Missing event data should show Waiting for first snapshot, No verified data yet, or Unavailable.
+Fake zeros are forbidden. Missing event data should show Collecting activity, No verified data yet, or Unavailable.
 
 Future agents must not reintroduce the giant slanted-label bar chart or giant empty Component Context panel.
 

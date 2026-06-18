@@ -40,7 +40,7 @@ export function resolveTruthChipLabel(
   if (hasServerData && anyFromCache) return "Last verified data";
   if (hasServerData) return "Showing hourly hot-cache snapshot";
   if (anyLoaded) return "Connecting snapshot refresh";
-  return "Waiting for first overview snapshot";
+  return "Collecting activity";
 }
 
 export function resolveTruthChipVariant(label: string): AdminSurfaceState {

@@ -10,7 +10,7 @@ Admin copy has two audiences. Primary admin UI is for operators; Debug is for de
 - Last verified data
 - Estimated
 - Partial
-- Waiting for first snapshot
+- Collecting activity
 - Needs review
 - Unavailable
 - No sample
@@ -73,12 +73,12 @@ Primary UI copy should be one to two short lines. Technical details belong in De
 
 For Admin Overview, Admin Analytics, and Admin Debug launch work:
 
-- Analytics primary copy must prefer "Last verified data", "Refreshing", "Estimated", "Partial", "Needs review", or "Waiting for first snapshot".
+- Analytics primary copy must prefer "Last verified data", "Refreshing", "Estimated", "Partial", "Needs review", or "Collecting activity".
 - Debug owns exact source names, route names, collection names, parity deltas, formulas, and recovery details.
 - A verified snapshot means the main UI must not show generic Waiting.
 - Event Mix visible copy says ranked event activity; raw event keys belong in Debug.
 - Commerce copy must state that promo and bonus GD are excluded from revenue when revenue is shown.
-- Admin Overview truth labels are Updated, Last verified data, Refreshing overview, Refresh due, and Waiting for first overview snapshot.
+- Admin Overview truth labels are Updated, Last verified data, Refreshing overview, Refresh due, and Collecting overview activity.
 
 ## User Problem-State Copy
 

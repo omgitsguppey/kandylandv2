@@ -287,7 +287,7 @@ export function buildAdminAnalyticsEventMixModel(input: {
     recommendation: topEvent
       ? `${topEvent.displayLabel} is the top tracked event for this range.`
       : input.loading
-        ? "Waiting for first snapshot."
+        ? "Collecting activity."
         : "Event mix unavailable for this range.",
     fullTechnicalReason: actualSurfaceContextState === "available"
       ? "Event counts are backend snapshot raw counts with verified route and surface context."

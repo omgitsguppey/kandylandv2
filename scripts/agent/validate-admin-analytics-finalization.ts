@@ -197,7 +197,7 @@ for (const oldOverviewCopy of [
 ]) {
   notIncludes(adminOverviewPage + adminOverviewHook, oldOverviewCopy, "Admin Overview operator copy");
 }
-includes(adminOverviewPage + adminOverviewHook, "Waiting for first overview snapshot", "Admin Overview no-snapshot copy");
+includes(adminOverviewPage + adminOverviewHook, "Collecting activity", "Admin Overview no-snapshot copy");
 includes(adminOverviewHook, "Last verified data", "Admin Overview snapshot copy");
 includes(adminOverviewHook, "Refresh due", "Admin Overview delayed copy");
 
