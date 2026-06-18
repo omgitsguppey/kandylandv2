@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { buildAdminDebugControlTowerModel } from "@/lib/admin-debug-control-tower";
+import { buildAdminDebugControlTowerModel, formatOperatorReportStatusForAdmin, type AdminDebugReportCard } from "@/lib/admin-debug-control-tower";
 
 const tempRoots: string[] = [];
 
@@ -16,6 +16,33 @@ function createTempRoot() {
 
 function writeReport(root: string, fileName: string, payload: Record<string, unknown>) {
     writeFileSync(join(root, "agent", "state", fileName), JSON.stringify(payload, null, 2), "utf8");
+}
+
+function reportCard(overrides: Partial<AdminDebugReportCard>): AdminDebugReportCard {
+    return {
+        id: "sample-report",
+        label: "Sample Report",
+        section: "beta_readiness",
+        filePath: "agent/state/sample.generated.json",
+        command: "npm run check:sample",
+        score: null,
+        status: "clean",
+        truthState: "live",
+        freshness: "fresh",
+        generatedAt: "2026-06-18T00:00:00.000Z",
+        updatedAtMs: Date.UTC(2026, 5, 18),
+        ageHours: 0,
+        findingCount: 0,
+        evidenceGateCount: 0,
+        criticalCount: 0,
+        majorCount: 0,
+        required: true,
+        sourceCommit: null,
+        currentHead: null,
+        sourceDrift: "unknown",
+        topFindings: [],
+        ...overrides,
+    };
 }
 
 describe("admin debug control tower model", () => {
@@ -131,6 +158,41 @@ describe("admin debug control tower model", () => {
         ]));
         expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Unknown evidence:");
         expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Stale evidence:");
+    });
+
+    it("formats zero-finding operator report statuses as evidence states", () => {
+        expect(formatOperatorReportStatusForAdmin(reportCard({
+            status: "DELAYED",
+            truthState: "unknown",
+        }))).toBe("Waiting for evidence");
+        expect(formatOperatorReportStatusForAdmin(reportCard({
+            status: "ERROR",
+            truthState: "unknown",
+        }))).toBe("Needs review");
+        expect(formatOperatorReportStatusForAdmin(reportCard({
+            id: "public-beta-score",
+            status: "ERROR",
+            truthState: "failed",
+            evidenceGateCount: 4,
+            topFindings: [{
+                id: "public-beta-runtime-provider-proof-0",
+                reportId: "public-beta-score",
+                section: "beta_readiness",
+                severity: "major",
+                title: "Runtime and provider proof required",
+                domain: "beta_readiness",
+                filePath: "agent/state/public-beta-score.generated.json",
+                humanReadableWarning: "Attach formal provider smoke and refresh deployed runtime smoke evidence.",
+                suggestedValidator: "npm run check:beta-score",
+                evidence: [],
+                truthState: "unknown",
+            }],
+        }))).toBe("Formal proof required");
+        expect(formatOperatorReportStatusForAdmin(reportCard({
+            status: "clean",
+            truthState: "stale",
+            freshness: "stale_72h",
+        }))).toBe("Refresh due");
     });
 
     it("marks generated report source commit drift as stale instead of live", () => {

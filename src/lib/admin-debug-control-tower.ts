@@ -1237,6 +1237,38 @@ function cockpitStateFromReport(report: AdminDebugReportCard) {
     return report.truthState === "missing" ? "unknown" as const : report.truthState;
 }
 
+function isRefreshOrMetadataFinding(finding: AdminDebugFindingCard) {
+    return /source commit|current repo head|older than 72 hours|freshness|generated report|report metadata/iu.test(
+        `${finding.title} ${finding.humanReadableWarning} ${finding.evidence.join(" ")}`,
+    );
+}
+
+function isFormalEvidenceFinding(finding: AdminDebugFindingCard) {
+    return /source-only behavior evidence|runtime and provider proof required|admin truth sample required|report refresh required|evidence gate/iu.test(finding.title);
+}
+
+function hasSourceFindings(report: AdminDebugReportCard) {
+    if (report.findingCount > 0 || report.criticalCount > 0) return true;
+    return report.topFindings.some((finding) => !isRefreshOrMetadataFinding(finding) && !isFormalEvidenceFinding(finding));
+}
+
+export function formatOperatorReportStatusForAdmin(report: AdminDebugReportCard) {
+    const normalizedStatus = report.status.toLowerCase();
+    const sourceFindingsPresent = hasSourceFindings(report);
+    const sourceNeedsRefresh = report.freshness === "stale_24h" || report.freshness === "stale_72h" || report.sourceDrift === "stale";
+
+    if (report.freshness === "missing" || report.truthState === "missing") return "Source missing";
+    if (report.freshness === "failed") return "Source failed";
+    if (sourceNeedsRefresh) return "Refresh due";
+    if (!sourceFindingsPresent && (report.evidenceGateCount ?? 0) > 0) return "Formal proof required";
+    if (["delayed", "queued", "waiting"].includes(normalizedStatus)) return sourceFindingsPresent ? "Review delayed" : "Waiting for evidence";
+    if (["fail", "failed", "error"].includes(normalizedStatus)) return "Needs review";
+    if (["beta-risk", "warning", "review", "needs_review"].includes(normalizedStatus)) return "Needs review";
+    if (["clean", "pass", "passed", "ready", "ok", "live", "healthy"].includes(normalizedStatus) && !sourceFindingsPresent) return "Source current";
+
+    return report.status.replaceAll("_", " ").replace(/\b\w/gu, (char) => char.toUpperCase());
+}
+
 function statusFromReports(reports: AdminDebugReportCard[], ids: string[], fallbackLabel: string, fallbackAction: string) {
     const selected = reports.filter((report) => ids.some((id) => report.id.includes(id) || report.filePath.includes(id)));
     const worst = selected.find((report) => report.truthState === "failed" || report.truthState === "missing")
@@ -1244,7 +1276,7 @@ function statusFromReports(reports: AdminDebugReportCard[], ids: string[], fallb
         ?? selected[0];
     return {
         state: worst ? cockpitStateFromReport(worst) : "unknown",
-        label: worst ? `${worst.label}: ${worst.status}` : fallbackLabel,
+        label: worst ? `${worst.label}: ${formatOperatorReportStatusForAdmin(worst)}` : fallbackLabel,
         nextAction: worst?.command ?? fallbackAction,
     };
 }
@@ -1255,7 +1287,7 @@ function costOwnerReviewLanes(reports: AdminDebugReportCard[]): DebugOperatorLan
         .map((report) => ({
             id: report.id,
             owner: "cost",
-            label: `${report.label}: ${report.status}`,
+            label: `${report.label}: ${formatOperatorReportStatusForAdmin(report)}`,
             state: cockpitStateFromReport(report),
             nextAction: report.command,
         }));
