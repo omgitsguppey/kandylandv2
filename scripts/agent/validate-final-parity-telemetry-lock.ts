@@ -278,7 +278,7 @@ export function classifyFinalParityTelemetryLockDirtyFile(pathValue: string): Fi
     || normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts"
     || normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
     || normalized === "scripts/agent/validate-media-discovery-score-lock.ts"
-    || /^scripts\/agent\/validate-(analytics-hydration-consolidation|analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)
+    || /^scripts\/agent\/validate-(analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)
   ) return "validator_artifact_expected";
   if (/^scripts\/agent\//u.test(normalized) || normalized === "scripts/repo-inventory.ts" || /^\.agent\//u.test(normalized) || normalized === "agent/README.md") {
     return "agent_tooling_outside_final_parity";

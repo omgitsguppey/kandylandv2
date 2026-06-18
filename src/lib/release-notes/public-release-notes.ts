@@ -1,13 +1,51 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.86",
-  "betaReleaseCounter": 586,
+  "currentVersion": "1.5.87",
+  "betaReleaseCounter": 587,
   "channel": "beta",
-  "generatedAt": "2026-06-18T02:42:05.594Z",
-  "generatedAtUtc": "2026-06-18T02:42:05.594Z",
-  "lastCommitSha": "777e86944a2ff4de132ac4040959fd5261e84326",
+  "generatedAt": "2026-06-18T04:21:01.562Z",
+  "generatedAtUtc": "2026-06-18T04:21:01.562Z",
+  "lastCommitSha": "05f05c4d3941ab1999608032c4bd72e5da6064b2",
   "notes": [
+    {
+      "version": "1.5.87",
+      "previousVersion": "1.5.86",
+      "betaReleaseCounter": 587,
+      "previousBetaReleaseCounter": 586,
+      "commitSha": "05f05c4d3941ab1999608032c4bd72e5da6064b2",
+      "commitTitle": "fix(admin): simplify surface actions",
+      "commitCount": 1,
+      "commitShas": [
+        "05f05c4d3941ab1999608032c4bd72e5da6064b2"
+      ],
+      "committedAt": "2026-06-18T04:06:35.000Z",
+      "generatedAt": "2026-06-18T04:21:01.560Z",
+      "committedAtUtc": "2026-06-18T04:06:35.000Z",
+      "generatedAtUtc": "2026-06-18T04:21:01.560Z",
+      "updatedAtUtc": "2026-06-18T04:21:01.560Z",
+      "category": "Fixed",
+      "title": "Admin moderation review is clearer",
+      "summary": "Admin moderation now separates weak evidence, missing proof, and confirmed review states more clearly.",
+      "userFacingTitle": "Admin moderation review is clearer",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Clarified admin moderation risk states without treating weak evidence as confirmed proof.",
+        "Kept missing evidence visible so review queues do not look healthier than they are."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "admin"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "docs/agent-truth/admin-moderation-real-risk.md",
+        "scripts/agent/validate-admin-moderation-real-risk.ts",
+        "src/components/Admin/AdminModerationConsole.tsx",
+        "tests/unit/admin-moderation-console-ui.spec.ts"
+      ],
+      "sourceCommit": "05f05c4d3941ab1999608032c4bd72e5da6064b2"
+    },
     {
       "version": "1.5.86",
       "previousVersion": "1.5.85",
@@ -2567,54 +2605,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-daily-task-pipeline-mobile.spec.ts"
       ],
       "sourceCommit": "9dae7044f1fc6b9f2cd0415242fbd1dc1cb0ae55"
-    },
-    {
-      "version": "1.5.62",
-      "previousVersion": "1.5.61",
-      "betaReleaseCounter": 562,
-      "previousBetaReleaseCounter": 561,
-      "commitSha": "0656aa2542d7ccce981f7f3f960508801d7a93e6",
-      "commitTitle": "fix(admin): add compact journey funnel modes",
-      "commitCount": 2,
-      "commitShas": [
-        "efb1ce7e905289f10e1f073d7c19d5bd942a41a6",
-        "0656aa2542d7ccce981f7f3f960508801d7a93e6"
-      ],
-      "committedAt": "2026-06-04T02:17:50.000Z",
-      "generatedAt": "2026-06-04T02:18:06.049Z",
-      "committedAtUtc": "2026-06-04T02:17:50.000Z",
-      "generatedAtUtc": "2026-06-04T02:18:06.049Z",
-      "updatedAtUtc": "2026-06-04T02:18:06.049Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-audience-mobile.spec.ts",
-        "tests/unit/admin-analytics-operations-mobile.spec.ts"
-      ],
-      "sourceCommit": "0656aa2542d7ccce981f7f3f960508801d7a93e6"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-18T02:13:37.813Z
+Generated: 2026-06-18T04:42:28.023Z
 Status: pass
-Current head: d7421546263b8b6710b6b6e2ac65d0986fdb37c2
+Current head: 05f05c4d3941ab1999608032c4bd72e5da6064b2
 
 ## Contract
 
@@ -53,13 +53,32 @@ Current head: d7421546263b8b6710b6b6e2ac65d0986fdb37c2
 
 ## Dirty Files
 
+- CHANGELOG.md: release_artifact_expected
+- agent/state/admin-surface-modal-replacement.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/admin-surface-modal-replacement.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
 - docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
+- public/kandydrops-release-notes.json: release_artifact_expected
 - scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
+- scripts/agent/validate-creator-monetization-readiness-lock.ts: validator_artifact_expected
+- scripts/agent/validate-debug-signal-actionability.ts: validator_artifact_expected
+- scripts/agent/validate-debug-signal-grouping.ts: validator_artifact_expected
+- scripts/agent/validate-final-parity-telemetry-lock.ts: validator_artifact_expected
+- scripts/agent/validate-media-discovery-score-lock.ts: validator_artifact_expected
+- scripts/agent/validate-score-80-refresh-pass.ts: validator_artifact_expected
+- src/app/admin/debug/components/DebugPanelStatusBySection.tsx: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 
 ## Validation Failures
 

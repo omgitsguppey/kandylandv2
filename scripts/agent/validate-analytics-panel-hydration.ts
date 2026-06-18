@@ -196,6 +196,9 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/release-readiness/automated-truth-reconciliation.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "scripts/agent/validate-admin-debug-control-tower.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-debug-signal-actionability.ts") return "analytics_admin_reorg_validator_expected";
+  if (normalized === "scripts/agent/validate-debug-signal-grouping.ts") return "analytics_admin_reorg_validator_expected";
+  if (normalized === "src/app/admin/debug/components/DebugPanelStatusBySection.tsx") return "analytics_admin_reorg_source_expected";
   if (normalized === "scripts/agent/validate-event-liveness-audit.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
@@ -229,16 +232,6 @@ function classifyDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md") return "documentation_artifact_expected";
   if (normalized === LAUNCH_RECOVERY_REPORT_PATH) return "launch_analytics_recovery_artifact_expected";
   if (normalized === LAUNCH_RECOVERY_DOC_PATH) return "launch_analytics_recovery_artifact_expected";
-  if (
-    normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts" ||
-    normalized === "tests/unit/analytics-hydration-consolidation.spec.ts" ||
-    normalized === "agent/state/analytics-hydration-consolidation.generated.json" ||
-    normalized === "agent/state/analytics-hydration-consolidation-audit.generated.json" ||
-    normalized === "docs/agent-truth/analytics-hydration-consolidation.md" ||
-    normalized === "docs/agent-truth/analytics-hydration-consolidation-audit.md"
-  ) {
-    return "retired_duplicate_analytics_hydration_lane";
-  }
   if (normalized === "tests/unit/admin-analytics-page.spec.tsx") return "test_artifact_expected";
   if (/^src\/lib\/agent-score\/(algorithmic-evidence-policy|core|evidence-quality|formal-evidence-bridge|regression-risk-refresh-plan)\.ts$/u.test(normalized)) {
     return "beta_studio_consolidation_source_expected";

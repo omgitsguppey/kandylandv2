@@ -727,6 +727,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-debug-panel-output-triage.ts") return "validator_artifact_expected";
   if (/^tests\/unit\/(admin-debug-control-tower|admin-debug-control-tower-component|debug-panel-output-triage)\.spec\.tsx?$/u.test(normalized)) return "test_artifact_expected";
   if (/^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "src/app/admin/debug/components/DebugPanelStatusBySection.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/agent-score/core.ts") return "real_source_change_needs_review";
   if (/^agent\/state\/(debug-panel-output-triage|debug-runtime-evidence|event-translation-bridge|person-metrics-hydration|public-beta-score|repo-spring-cleaning-rewire|targeted-behavior-evidence|telemetry-admin-debug-truth|user-facing-feature-connection-audit)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
   if (/^docs\/agent-truth\/(debug-runtime-evidence|event-translation-bridge|person-metrics-hydration|targeted-behavior-evidence|telemetry-admin-debug-truth)\.md$/u.test(normalized)) return "documentation_artifact_expected";
@@ -805,6 +806,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-future-activity-signal-reclassification.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-debug-signal-actionability.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-debug-signal-grouping.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-score-80-refresh-pass.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-non-event-score-policy.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/person-metrics-hydration.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/final-product-integrity-lock.spec.ts") return "test_artifact_expected";
@@ -979,16 +981,6 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts") return "test_artifact_expected";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "test_artifact_expected";
-  if (
-    normalized === "agent/state/analytics-hydration-consolidation.generated.json" ||
-    normalized === "agent/state/analytics-hydration-consolidation-audit.generated.json" ||
-    normalized === "docs/agent-truth/analytics-hydration-consolidation.md" ||
-    normalized === "docs/agent-truth/analytics-hydration-consolidation-audit.md" ||
-    normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts" ||
-    normalized === "tests/unit/analytics-hydration-consolidation.spec.ts"
-  ) {
-    return "retired_duplicate_analytics_hydration_lane";
-  }
   if (/^src\/lib\/admin-analytics\/panel-hydration-(contract|registry|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";

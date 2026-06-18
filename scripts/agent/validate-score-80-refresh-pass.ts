@@ -276,7 +276,6 @@ function classifyDirtyFile(path: string): Score80DirtyFile {
   }
   if (path === "scripts/agent/validate-score-80-refresh-pass.ts"
     || path === "scripts/agent/score-public-beta-readiness.ts"
-    || path === "scripts/agent/validate-analytics-hydration-consolidation.ts"
     || path === "scripts/agent/validate-analytics-panel-hydration.ts"
     || path === "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts"
     || path === "scripts/agent/validate-creator-monetization-readiness-lock.ts"

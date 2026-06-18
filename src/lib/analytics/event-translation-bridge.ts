@@ -558,7 +558,11 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (/^scripts\/agent\/validate-(source-window-zero-shell-classifier|behavior-normalization-internals|task-catalog-runtime-reconstruction|task-telemetry-mapping-reconstruction|behavioral-intelligence-snapshot-truth|telemetry-truth-recovery-formulas|experiment-rollout-registry-reconstruction|behavior-task-telemetry-ui-cleanup|debug-cockpit-batch35-behavior-stack)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (/^tests\/unit\/(source-window-zero-shell-classifier|behavior-normalization-internals|task-catalog-runtime-reconstruction|task-telemetry-mapping-reconstruction|behavioral-intelligence-snapshot-truth|telemetry-truth-recovery-formulas|experiment-rollout-registry-reconstruction|behavior-task-telemetry-ui-cleanup|debug-cockpit-batch35-behavior-stack)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (/^src\/lib\/(debug\/source-window-zero-shell-classifier|behavioral\/behavior-normalization-internals-(contract|engine)|behavioral\/behavioral-intelligence-snapshot-(contract|status)|analytics\/telemetry-truth-recovery-(formulas|status)|experiments\/experiment-rollout-registry-(contract|status)|tasks\/task-catalog-coverage-(contract|engine)|tasks\/task-runtime-sample-contract|tasks\/task-telemetry-mapping-(contract|engine))\.ts$/u.test(normalized)) return "real_source_change_needs_review";
-  if (normalized.startsWith("src/app/admin/debug/components/DebugAdvanced") || normalized === "src/app/admin/debug/components/DebugPrimitives.tsx") return "real_source_change_needs_review";
+  if (
+    normalized.startsWith("src/app/admin/debug/components/DebugAdvanced")
+    || normalized === "src/app/admin/debug/components/DebugPrimitives.tsx"
+    || normalized === "src/app/admin/debug/components/DebugPanelStatusBySection.tsx"
+  ) return "real_source_change_needs_review";
   if (/^docs\/agent-truth\/(server-unlock-telemetry-emission|unlock-rollup-reconciliation|viewer-start-telemetry-repair|watch-capture-quality-threshold|watch-session-fact-link-repair|unlock-watch-validation-semantics|unlock-watch-journey-normalization|debug-cockpit-batch33-unlock-watch-parity)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (/^scripts\/agent\/validate-(server-unlock-telemetry-emission|unlock-rollup-reconciliation|viewer-start-telemetry-repair|watch-capture-quality-threshold|watch-session-fact-link-repair|unlock-watch-validation-semantics|unlock-watch-journey-normalization|debug-cockpit-batch33-unlock-watch-parity|unlock-telemetry-truth)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (/^tests\/unit\/(server-unlock-telemetry-emission|unlock-rollup-reconciliation|viewer-start-telemetry-repair|watch-capture-quality-threshold|watch-session-fact-link-repair|unlock-watch-validation-semantics|unlock-watch-journey-normalization|debug-cockpit-batch33-unlock-watch-parity)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
@@ -646,6 +650,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "scripts/agent/validate-future-activity-signal-reclassification.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-debug-signal-actionability.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-debug-signal-grouping.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-score-80-refresh-pass.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-non-event-score-policy.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-person-metrics-hydration.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-telemetry-trigger-test-matrix.ts") return "validator_artifact_expected";

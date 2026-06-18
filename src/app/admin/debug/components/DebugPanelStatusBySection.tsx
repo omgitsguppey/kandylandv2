@@ -63,48 +63,60 @@ export function DebugPanelStatusBySection({
         emptyStateText: "No persisted panel logs are loaded yet.",
         nextAction: "Load persisted panel logs or attach a panel log source window proving zero.",
     });
+    const panelLogIssueCount = panelLogWarnCount + panelLogFailCount;
+    const panelLogSummary = panelLogCount === 0
+        ? "No panel logs loaded"
+        : panelLogIssueCount > 0
+            ? `${panelLogCount} panels / ${panelLogIssueCount} need review`
+            : `${panelLogCount} panels / no review items`;
     return (
         <Section
             title="Panel status by section"
             subtitle="Saved panel summaries with concrete next actions."
             defaultOpen={(panelLogWarnCount + panelLogFailCount) > 0}
-            summary={<><Pill label="Panels" value={panelLogCount} truthState={adminTruthStateForNoSampleStatus(panelLogStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(panelLogStatus.status)} /><Pill label="Warn" value={panelLogWarnCount} tone={panelLogWarnCount > 0 ? "warn" : "neutral"} truthState={adminTruthStateForNoSampleStatus(panelLogStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(panelLogStatus.status)} /><Pill label="Fail" value={panelLogFailCount} tone={panelLogFailCount > 0 ? "bad" : "neutral"} truthState={adminTruthStateForNoSampleStatus(panelLogStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(panelLogStatus.status)} /></>}
+            summary={<Pill label="Panel logs" value={panelLogSummary} tone={panelLogFailCount > 0 ? "bad" : panelLogWarnCount > 0 ? "warn" : "neutral"} truthState={adminTruthStateForNoSampleStatus(panelLogStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(panelLogStatus.status)} />}
         >
             <ScrollWrap>
                 <div className="divide-y divide-white/10">
-                    {(data?.panelSystemLogs || []).map((entry: any) => (
-                        <div
-                            key={entry.id}
-                            className="space-y-2 px-4 py-3"
-                            data-debug-section-status={entry.sectionStatus?.status ?? labelForPanelStatus(entry.status).toLowerCase()}
-                            data-debug-section-severity={entry.sectionStatus?.severity ?? entry.status}
-                            data-debug-current-counts={JSON.stringify(entry.sectionStatus?.currentCounts ?? {})}
-                            data-debug-historical-counts={JSON.stringify(entry.sectionStatus?.historicalCounts ?? {})}
-                            data-debug-inventory-counts={JSON.stringify(entry.sectionStatus?.inventoryCounts ?? {})}
-                            data-debug-reviewable-signal-count={entry.reviewableSignalCount ?? entry.signalCount ?? 0}
-                            data-debug-total-signal-count={entry.totalSignalCount ?? entry.signalCount ?? 0}
-                        >
-                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                <div>
-                                    <p className="font-semibold text-white">{entry.panelTitle}</p>
-                                    <p className="text-xs text-gray-400">{entry.tab} | {formatRelative(entry.updatedAtMs)}</p>
+                    {(data?.panelSystemLogs || []).map((entry: any) => {
+                        const totalSignals = entry.totalSignalCount ?? entry.signalCount ?? 0;
+                        const reviewableSignals = entry.reviewableSignalCount ?? entry.signalCount ?? 0;
+                        const signalPreview = (entry.signals || []).slice(0, 3);
+                        return (
+                            <div
+                                key={entry.id}
+                                className="space-y-2 px-4 py-3"
+                                data-debug-section-status={entry.sectionStatus?.status ?? labelForPanelStatus(entry.status).toLowerCase()}
+                                data-debug-section-severity={entry.sectionStatus?.severity ?? entry.status}
+                                data-debug-current-counts={JSON.stringify(entry.sectionStatus?.currentCounts ?? {})}
+                                data-debug-historical-counts={JSON.stringify(entry.sectionStatus?.historicalCounts ?? {})}
+                                data-debug-inventory-counts={JSON.stringify(entry.sectionStatus?.inventoryCounts ?? {})}
+                                data-debug-reviewable-signal-count={reviewableSignals}
+                                data-debug-total-signal-count={totalSignals}
+                            >
+                                <div className="flex flex-wrap items-start justify-between gap-2">
+                                    <div>
+                                        <p className="font-semibold text-white">{entry.panelTitle}</p>
+                                        <p className="text-xs text-gray-400">{entry.tab} | {formatRelative(entry.updatedAtMs)}</p>
+                                    </div>
+                                    <Pill label="Status" value={labelForPanelStatus(entry.status)} tone={toneForPanelStatus(entry.status)} truthState={truthStateForPanelStatus(entry.status)} />
                                 </div>
-                                <Pill label="Status" value={labelForPanelStatus(entry.status)} tone={toneForPanelStatus(entry.status)} truthState={truthStateForPanelStatus(entry.status)} />
+                                <p className="text-sm text-gray-200">{entry.summary}</p>
+                                {entry.sectionStatus?.explanation ? <p className="text-xs text-gray-400">{entry.sectionStatus.explanation}</p> : null}
+                                <p className="text-xs text-gray-400">{entry.action}</p>
+                                <p className="text-xs text-gray-500">
+                                    Signals total: {totalSignals} / Needs review: {reviewableSignals}
+                                    {signalPreview.length > 0 ? " / " : ""}
+                                    {signalPreview.map((signal: any, index: number) => (
+                                        <span key={`${entry.id}:${signal.key}`} data-debug-signal-type={signal.signalType}>
+                                            {index > 0 ? ", " : ""}
+                                            {signal.signalType}: {signal.key}
+                                        </span>
+                                    ))}
+                                </p>
                             </div>
-                            <p className="text-sm text-gray-200">{entry.summary}</p>
-                            {entry.sectionStatus?.explanation ? <p className="text-xs text-gray-400">{entry.sectionStatus.explanation}</p> : null}
-                            <p className="text-xs text-gray-400">{entry.action}</p>
-                            <div className="flex flex-wrap gap-2">
-                                <Pill label="Signals total" value={entry.totalSignalCount ?? entry.signalCount ?? 0} tone={(entry.totalSignalCount ?? entry.signalCount ?? 0) > 0 ? "neutral" : "good"} truthState={(entry.totalSignalCount ?? entry.signalCount ?? 0) > 0 ? "live" : "unavailable"} />
-                                <Pill label="Needs review" value={`${entry.reviewableSignalCount ?? entry.signalCount ?? 0}/${entry.totalSignalCount ?? entry.signalCount ?? 0}`} tone={(entry.reviewableSignalCount ?? entry.signalCount ?? 0) > 0 ? toneForPanelStatus(entry.status) : "good"} truthState={(entry.reviewableSignalCount ?? entry.signalCount ?? 0) > 0 ? truthStateForPanelStatus(entry.status) : "live"} />
-                                {(entry.signals || []).slice(0, 3).map((signal: any) => (
-                                    <span key={`${entry.id}:${signal.key}`} data-debug-signal-type={signal.signalType}>
-                                        <Pill label={signal.signalType} value={signal.key} tone={signal.reviewable ? toneForPanelStatus(entry.status) : "neutral"} truthState={signal.reviewable ? truthStateForPanelStatus(entry.status) : "live"} />
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                     {(data?.panelSystemLogs || []).length === 0 ? (
                         <div
                             className="px-4 py-4 text-sm text-gray-300"

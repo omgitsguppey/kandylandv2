@@ -131,7 +131,7 @@ export function classifyCreatorMonetizationReadinessLockDirtyFile(filePath: stri
   ) return "documentation_artifact_expected";
   if (/^agent\/state\/.+\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
   if (/^docs\/agent-truth\/.+\.md$/u.test(normalized)) return "documentation_artifact_expected";
-  if (/^scripts\/agent\/validate-(analytics-hydration-consolidation|analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (/^tests\/unit\/(creator-dashboard-error-cost-inventory|creator-experiences-panel|post-economy-creator-flow-qa|public-beta-score|purchase-modal|score-80-refresh-pass)\.spec\.tsx?$/u.test(normalized)) return "test_artifact_expected";
   if (/^src\/lib\/agent-score\/.+\.ts$/u.test(normalized)) return "current_source_change";
   if (normalized === "package.json") return "validator_artifact_expected";

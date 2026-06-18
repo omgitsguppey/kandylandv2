@@ -196,7 +196,7 @@ export function classifyMediaDiscoveryScoreLockDirtyFile(pathValue: string): Med
     || normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts"
     || normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
     || normalized === "scripts/agent/validate-final-parity-telemetry-lock.ts"
-    || /^scripts\/agent\/validate-(analytics-hydration-consolidation|analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)
+    || /^scripts\/agent\/validate-(analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)
   ) return "validator_artifact_expected";
   if (
     normalized === "tests/unit/targeted-behavior-evidence-repair.spec.ts"

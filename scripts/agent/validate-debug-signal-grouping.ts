@@ -177,7 +177,6 @@ function classifyDirtyFile(path: string): DirtyFileClassification {
   if (normalized === "scripts/agent/validate-non-event-score-policy.ts") return "validator_artifact_expected";
   if (
     normalized === "scripts/agent/score-public-beta-readiness.ts"
-    || normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts"
     || normalized === "scripts/agent/validate-analytics-panel-hydration.ts"
     || normalized === "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts"
     || normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
