@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-legacy-purgatory-queue",
-  "generatedAtUtc": "2026-06-10T04:21:02.886Z",
-  "currentHead": "ac7c7802007957d92acf6e0871b1fb306affcb33",
+  "generatedAtUtc": "2026-06-18T10:01:47.371Z",
+  "currentHead": "845980057b1bf49ec18ef86b526b9632998c0754",
   "sourceReportKey": "analytics-legacy-history-reconciliation",
   "summary": {
     "exactMatch": 0,
