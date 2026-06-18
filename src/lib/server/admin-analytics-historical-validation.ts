@@ -5,6 +5,10 @@ import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
 import { classifyTaskOnboardingParity } from "@/lib/analytics/task-onboarding-parity-semantics";
 import { buildTelemetryParityPassGate } from "@/lib/analytics/telemetry-parity-pass-gate";
 import {
+  classifySourceAgreementCoverage,
+  type SourceAgreementFailureClassification,
+} from "@/lib/analytics/source-agreement-detail";
+import {
   buildModuleSourceMap,
   type AnalyticsModuleCoverageId,
   type AnalyticsModuleCoverageSourceType,
@@ -51,17 +55,6 @@ export interface HistoricalValidationSummary {
 
 type DataValidationStatus = "pass" | "warn" | "fail" | "unavailable" | "stale" | "unknown";
 type DataValidationCacheState = "hit" | "miss" | "stale" | "unknown" | "not_loaded";
-type AnalyticsSourceAgreementClassification =
-  | "identity_mismatch"
-  | "event_translation_mismatch"
-  | "date_range_mismatch"
-  | "internal_traffic_mismatch"
-  | "route_normalization_mismatch"
-  | "duplicate_event"
-  | "missing_materializer"
-  | "external_source_gap"
-  | "stale_generated_evidence"
-  | "not_enough_sources";
 
 export interface SourceCheck {
   status: "pass" | "review" | "fail" | "unknown";
@@ -160,7 +153,7 @@ export interface AnalyticsSourceHealth {
     disagreementCount: number;
     maxDeltaPct: number | null;
     state: "pass" | "review" | "failed" | "not_enough_sources";
-    classifications: AnalyticsSourceAgreementClassification[];
+    classifications: SourceAgreementFailureClassification[];
     reason: string;
     nextAction: string;
   };
@@ -263,53 +256,6 @@ function buildLaunchHistoryDayCoverage(input: {
       nextAction,
     };
   });
-}
-
-function classifySourceAgreementDisagreements(input: {
-  expectedDays: string[];
-  gaPresentDays: Set<string>;
-  firstPartyPresentDays: Set<string>;
-  snapshotPresentDays: Set<string>;
-  legacyPresentDays: Set<string>;
-  activeSourceCount: number;
-  disagreementCount: number;
-  maxDeltaPct: number | null;
-}): NonNullable<AnalyticsSourceHealth["sourceAgreement"]["classifications"]> {
-  const classifications = new Set<NonNullable<AnalyticsSourceHealth["sourceAgreement"]["classifications"]>[number]>();
-
-  if (input.activeSourceCount < 2) {
-    classifications.add("not_enough_sources");
-    return [...classifications];
-  }
-
-  if (input.disagreementCount > 0 || (input.maxDeltaPct ?? 0) > 10) {
-    classifications.add("date_range_mismatch");
-  }
-
-  for (const dayKey of input.expectedDays) {
-    const hasGa4 = input.gaPresentDays.has(dayKey);
-    const hasFirstParty = input.firstPartyPresentDays.has(dayKey);
-    const hasHistoricalSnapshot = input.snapshotPresentDays.has(dayKey);
-    const hasLegacy = input.legacyPresentDays.has(dayKey);
-
-    if (hasGa4 && !hasFirstParty) {
-      classifications.add("external_source_gap");
-      classifications.add("missing_materializer");
-    }
-
-    if (hasLegacy && !hasFirstParty) {
-      classifications.add("missing_materializer");
-    }
-
-    if (hasHistoricalSnapshot && !hasFirstParty) {
-      classifications.add("missing_materializer");
-    }
-
-    // GA4 plus legacy/fallback overlap is corroborating evidence only until
-    // first-party facts exist; do not label it as a duplicated product event.
-  }
-
-  return [...classifications];
 }
 
 function hasBlockingSourceCoverageMismatch(input: {
@@ -684,12 +630,12 @@ function buildAnalyticsSourceHealth(input: {
         : disagreementCount > 0 || (maxDeltaPct ?? 0) > 10
           ? "review"
           : "pass";
-  const sourceAgreementClassifications = classifySourceAgreementDisagreements({
+  const sourceAgreementClassifications = classifySourceAgreementCoverage({
     expectedDays,
-    gaPresentDays,
-    firstPartyPresentDays,
-    snapshotPresentDays,
-    legacyPresentDays,
+    ga4Days: gaPresentDays,
+    firstPartyDays: firstPartyPresentDays,
+    historicalSnapshotDays: snapshotPresentDays,
+    legacySupportDays: legacyPresentDays,
     activeSourceCount: activeCoverage.length,
     disagreementCount,
     maxDeltaPct,

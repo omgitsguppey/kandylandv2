@@ -209,6 +209,13 @@ describe("analytics panel hydration", () => {
     expect(panelIndex).toBeGreaterThan(refreshIndex);
   });
 
+  it("uses the canonical source-agreement classifier instead of local drift logic", () => {
+    const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
+
+    expect(source).toContain("classifySourceAgreementCoverage");
+    expect(source).not.toContain("function classifySourceAgreementDisagreements");
+  });
+
   it("keeps launch recovery partial until first-party coverage and source agreement both pass", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
 

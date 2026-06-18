@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T22:07:06.078Z",
-  "currentHead": "ee3777283e819918ec7984126f9616062dcf8425",
+  "generatedAtUtc": "2026-06-18T22:15:08.992Z",
+  "currentHead": "a92061071502f6881033922016e7df7e10ddcd6b",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,14 +416,13 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 7,
+    "total": 6,
     "byClassification": {
       "source_agreement_failure_artifact_expected": 1,
       "documentation_artifact_expected": 1,
-      "analytics_panel_hydration_artifact_expected": 1,
+      "analytics_panel_hydration_artifact_expected": 2,
       "source_agreement_failure_classification_required": 1,
-      "real_source_change_needs_review": 1,
-      "test_artifact_expected": 2
+      "real_source_change_needs_review": 1
     },
     "unsafeUnknown": [],
     "sample": [
@@ -448,12 +447,8 @@
         "classification": "real_source_change_needs_review"
       },
       {
-        "path": "tests/unit/admin-data-validation.spec.ts",
-        "classification": "test_artifact_expected"
-      },
-      {
-        "path": "tests/unit/source-agreement-failure-detail.spec.ts",
-        "classification": "test_artifact_expected"
+        "path": "tests/unit/analytics-panel-hydration.spec.ts",
+        "classification": "analytics_panel_hydration_artifact_expected"
       }
     ],
     "sampleTruncated": false

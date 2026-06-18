@@ -6,6 +6,7 @@ import {
   buildAnalyticsPanelHydrationReport,
   validateAnalyticsPanelHydrationReport,
 } from "@/lib/admin-analytics/panel-hydration-resolver";
+import { classifySourceAgreementCoverage } from "@/lib/analytics/source-agreement-detail";
 import { buildLivePanelEvidenceReport } from "@/lib/release-readiness/live-panel-evidence-resolver";
 import { validateSourceAgreementFailureDetail } from "./debug-cockpit-batch29-analytics-source-hierarchy-shared";
 
@@ -82,76 +83,6 @@ function collapseDayRanges(days: string[]) {
 
   if (start) ranges.push(start === previous ? start : `${start}..${previous}`);
   return ranges;
-}
-
-type SourceAgreementClassification =
-  | "identity_mismatch"
-  | "event_translation_mismatch"
-  | "date_range_mismatch"
-  | "internal_traffic_mismatch"
-  | "route_normalization_mismatch"
-  | "duplicate_event"
-  | "missing_materializer"
-  | "external_source_gap"
-  | "stale_generated_evidence"
-  | "not_enough_sources";
-
-function classifySourceAgreementDisagreements(input: {
-  expectedDays: string[];
-  ga4Days: Set<string>;
-  firstPartyDays: Set<string>;
-  historicalSnapshotDays: Set<string>;
-  legacySupportDays: Set<string>;
-  staleEvidence: boolean;
-  disagreementCount: number;
-  maxDeltaPct: number | null;
-}) {
-  const classifications = new Set<SourceAgreementClassification>();
-
-  if (input.staleEvidence) {
-    classifications.add("stale_generated_evidence");
-  }
-
-  const activeSourceCount = [
-    input.ga4Days.size,
-    input.firstPartyDays.size,
-    input.historicalSnapshotDays.size,
-    input.legacySupportDays.size,
-  ].filter((count) => count > 0).length;
-
-  if (activeSourceCount < 2 || input.expectedDays.length === 0) {
-    classifications.add("not_enough_sources");
-    return [...classifications];
-  }
-
-  if (input.disagreementCount > 0 || (input.maxDeltaPct ?? 0) > 10) {
-    classifications.add("date_range_mismatch");
-  }
-
-  for (const dayKey of input.expectedDays) {
-    const hasGa4 = input.ga4Days.has(dayKey);
-    const hasFirstParty = input.firstPartyDays.has(dayKey);
-    const hasHistoricalSnapshot = input.historicalSnapshotDays.has(dayKey);
-    const hasLegacy = input.legacySupportDays.has(dayKey);
-
-    if (hasGa4 && !hasFirstParty) {
-      classifications.add("external_source_gap");
-      classifications.add("missing_materializer");
-    }
-
-    if (hasLegacy && !hasFirstParty) {
-      classifications.add("missing_materializer");
-    }
-
-    if (hasHistoricalSnapshot && !hasFirstParty) {
-      classifications.add("missing_materializer");
-    }
-
-    // GA4 plus legacy/fallback overlap is corroborating evidence only until
-    // first-party facts exist; do not label it as a duplicated product event.
-  }
-
-  return [...classifications];
 }
 
 function changedFiles() {
@@ -586,7 +517,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     : [];
   const sourceAgreementClassifications = [
     ...new Set([
-      ...classifySourceAgreementDisagreements({
+      ...classifySourceAgreementCoverage({
         expectedDays,
         ga4Days,
         firstPartyDays,

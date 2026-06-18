@@ -92,6 +92,67 @@ export type SourceAgreementFailureDetail = {
   };
 };
 
+export type SourceAgreementCoverageClassificationInput = {
+  expectedDays: string[];
+  ga4Days: Iterable<string>;
+  firstPartyDays: Iterable<string>;
+  historicalSnapshotDays: Iterable<string>;
+  legacySupportDays: Iterable<string>;
+  staleEvidence?: boolean;
+  activeSourceCount?: number;
+  disagreementCount?: number;
+  maxDeltaPct?: number | null;
+};
+
+export function classifySourceAgreementCoverage(input: SourceAgreementCoverageClassificationInput) {
+  const classifications = new Set<SourceAgreementFailureClassification>();
+  const ga4Days = new Set(input.ga4Days);
+  const firstPartyDays = new Set(input.firstPartyDays);
+  const historicalSnapshotDays = new Set(input.historicalSnapshotDays);
+  const legacySupportDays = new Set(input.legacySupportDays);
+  const activeSourceCount = input.activeSourceCount ?? [
+    ga4Days.size,
+    firstPartyDays.size,
+    historicalSnapshotDays.size,
+    legacySupportDays.size,
+  ].filter((count) => count > 0).length;
+
+  if (input.staleEvidence) {
+    classifications.add("stale_generated_evidence");
+  }
+
+  if (activeSourceCount < 2 || input.expectedDays.length === 0) {
+    classifications.add("not_enough_sources");
+    return [...classifications];
+  }
+
+  if ((input.disagreementCount ?? 0) > 0 || (input.maxDeltaPct ?? 0) > 10) {
+    classifications.add("date_range_mismatch");
+  }
+
+  for (const dayKey of input.expectedDays) {
+    const hasGa4 = ga4Days.has(dayKey);
+    const hasFirstParty = firstPartyDays.has(dayKey);
+    const hasHistoricalSnapshot = historicalSnapshotDays.has(dayKey);
+    const hasLegacy = legacySupportDays.has(dayKey);
+
+    if (hasGa4 && !hasFirstParty) {
+      classifications.add("external_source_gap");
+      classifications.add("missing_materializer");
+    }
+
+    if (hasLegacy && !hasFirstParty) {
+      classifications.add("missing_materializer");
+    }
+
+    if (hasHistoricalSnapshot && !hasFirstParty) {
+      classifications.add("missing_materializer");
+    }
+  }
+
+  return [...classifications];
+}
+
 function classifyDayDisagreement(input: {
   dayKey: string;
   sourcesPresent: string[];
