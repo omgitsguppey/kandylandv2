@@ -658,7 +658,7 @@ function buildAnalyticsSourceHealth(input: {
       : input.selectedRange === "all" && !launchStartBoundaryProven
         ? "All-time historical route evidence starts at the first recovered source day. Attach launch-start proof or an approved all-launch export before treating this as complete launch history."
       : chartReadinessState === "source_disagreement"
-        ? "Chart buckets are available, but source agreement failed across first-party, GA4, historical snapshot, and legacy support. Do not treat this chart as canonical until source agreement is resolved."
+        ? "Chart buckets are available, but source lanes do not agree across first-party, GA4, historical snapshot, and legacy support. Keep this chart out of canonical promotion until the mismatched source lane is repaired."
       : chartReadinessState === "partial"
         ? sourceAgreementState === "review" || sourceAgreementState === "not_enough_sources"
           ? "Historical snapshot is fresh enough to load, but source agreement needs review before the chart is canonical."

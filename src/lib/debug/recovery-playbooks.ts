@@ -145,7 +145,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       triggerPatterns: [
         "admin truth/sample evidence unknown",
         "Admin Debug shows missing or unavailable source truth",
-        "beta cap Ready with smoke required: Admin truth/sample evidence",
+        "beta cap formal admin truth sample required",
       ],
       sourceFiles: [
         "src/lib/admin-debug-control-tower.ts",

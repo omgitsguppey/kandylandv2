@@ -81,13 +81,13 @@ describe("chart readiness hierarchy repair", () => {
     expect(summary.analyticsSourceHealth.continuity.gapSeverity).toBe("none");
     expect(summary.analyticsSourceHealth.sourceAgreement.state).toBe("failed");
     expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("source_disagreement");
-    expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("source agreement failed across first-party, GA4, historical snapshot, and legacy support");
+    expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("source lanes do not agree across first-party, GA4, historical snapshot, and legacy support");
     expect(sourceAgreementRow).toMatchObject({
       status: "fail",
       passAllowed: false,
       passBlockedReason: "source_agreement_failed",
     });
     expect(sourceAgreementRow?.operatorSummary).not.toMatch(/passed|clear/iu);
-    expect(sourceAgreementRow?.technicalEvidence).toContain("source agreement failed");
+    expect(sourceAgreementRow?.technicalEvidence).toMatch(/source agreement failed/iu);
   });
 });
