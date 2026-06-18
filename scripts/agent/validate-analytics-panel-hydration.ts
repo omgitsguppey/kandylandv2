@@ -223,8 +223,6 @@ function classifyDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
   if (normalized === "tests/unit/event-liveness-audit.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
-  if (normalized === "agent/state/analytics-admin-reorg.generated.json") return "analytics_admin_reorg_artifact_expected";
-  if (normalized === "docs/agent-truth/analytics-admin-reorg.md") return "analytics_admin_reorg_artifact_expected";
   if (normalized === "agent/state/admin-surface-modal-replacement.generated.json") return "admin_surface_modal_replacement_artifact_expected";
   if (normalized === "docs/agent-truth/admin-surface-modal-replacement.md") return "admin_surface_modal_replacement_artifact_expected";
   if (normalized === "src/app/admin/roster/page.tsx") return "real_source_change_needs_review";
