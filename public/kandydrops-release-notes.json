@@ -1,11 +1,72 @@
 {
-  "currentVersion": "1.5.85",
-  "betaReleaseCounter": 585,
+  "currentVersion": "1.5.86",
+  "betaReleaseCounter": 586,
   "channel": "beta",
-  "generatedAt": "2026-06-18T01:20:18.629Z",
-  "generatedAtUtc": "2026-06-18T01:20:18.629Z",
-  "lastCommitSha": "470a3623e547c6f5f32d0f87ef98745c49fc7574",
+  "generatedAt": "2026-06-18T02:42:05.594Z",
+  "generatedAtUtc": "2026-06-18T02:42:05.594Z",
+  "lastCommitSha": "777e86944a2ff4de132ac4040959fd5261e84326",
   "notes": [
+    {
+      "version": "1.5.86",
+      "previousVersion": "1.5.85",
+      "betaReleaseCounter": 586,
+      "previousBetaReleaseCounter": 585,
+      "commitSha": "777e86944a2ff4de132ac4040959fd5261e84326",
+      "commitTitle": "fix(admin): simplify surface actions",
+      "commitCount": 3,
+      "commitShas": [
+        "d4184ef0ca51c45eb662489ab064016adbcf3d25",
+        "9bc587e3d122a0e82a0ae7174ab247b517fc1a85",
+        "777e86944a2ff4de132ac4040959fd5261e84326"
+      ],
+      "committedAt": "2026-06-18T02:40:58.000Z",
+      "generatedAt": "2026-06-18T02:42:05.593Z",
+      "committedAtUtc": "2026-06-18T02:40:58.000Z",
+      "generatedAtUtc": "2026-06-18T02:42:05.593Z",
+      "updatedAtUtc": "2026-06-18T02:42:05.593Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 3 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-surface-modal-replacement.generated.json",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/admin-surface-modal-replacement.md",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
+        "tests/unit/create-drop-modal-upload-block.spec.tsx"
+      ],
+      "sourceCommit": "777e86944a2ff4de132ac4040959fd5261e84326"
+    },
     {
       "version": "1.5.85",
       "previousVersion": "1.5.84",
@@ -2552,55 +2613,6 @@
         "tests/unit/admin-analytics-operations-mobile.spec.ts"
       ],
       "sourceCommit": "0656aa2542d7ccce981f7f3f960508801d7a93e6"
-    },
-    {
-      "version": "1.5.61",
-      "previousVersion": "1.5.60",
-      "betaReleaseCounter": 561,
-      "previousBetaReleaseCounter": 560,
-      "commitSha": "2ab0582ad85954b3f8b8c99dfb84c7056fb36681",
-      "commitTitle": "fix(admin): add compact return cadence modes",
-      "commitCount": 2,
-      "commitShas": [
-        "eae4c5814e0b08cd58eec360638f64b2e1bb21ae",
-        "2ab0582ad85954b3f8b8c99dfb84c7056fb36681"
-      ],
-      "committedAt": "2026-06-04T02:03:02.000Z",
-      "generatedAt": "2026-06-04T02:03:15.925Z",
-      "committedAtUtc": "2026-06-04T02:03:02.000Z",
-      "generatedAtUtc": "2026-06-04T02:03:15.925Z",
-      "updatedAtUtc": "2026-06-04T02:03:15.925Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-        "src/app/admin/debug/components/DebugTabNow.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-audience-mobile.spec.ts",
-        "tests/unit/admin-debug-compact-layout.spec.ts"
-      ],
-      "sourceCommit": "2ab0582ad85954b3f8b8c99dfb84c7056fb36681"
     }
   ]
 }
