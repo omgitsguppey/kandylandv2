@@ -489,6 +489,29 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       firstPartyOwns: ["user identity", "person metrics", "purchases", "unlocks", "drops", "watch", "tasks", "creator/admin actions"],
       ga4Owns: ["sessions", "views", "device mix", "region demand", "top paths", "acquisition-style comparison"],
       ga4CannotClear: ["wallet", "GumDrop balance", "unlock entitlement", "creator revenue", "person-level product truth"],
+      canonicalOwners: {
+        first_party: "analytics_event_facts and telemetry catalog",
+        person_metrics: "person metrics hydration",
+        ga4: "GA4/external evidence lane",
+        historicalSnapshot: "admin analytics historical snapshot",
+        legacySupport: "legacy support snapshot lane",
+        adminPanelHydration: "admin analytics panel hydration",
+      },
+      canonicalSourceFiles: [
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/lib/admin-analytics/panel-hydration-resolver.ts",
+      ],
+    },
+    evidenceProvenance: {
+      launchCoverageInput: "agent/state/source-agreement-failure-detail.generated.json",
+      panelHydrationInput: "agent/state/analytics-panel-hydration.generated.json",
+      sourceAgreementInputHead: sourceAgreementHead,
+      ga4ReadMode: "generated/local evidence only; no provider call performed",
+      firstPartyReadMode: "source-agreement day-bucket evidence only; no production read performed",
+      limitation: "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof.",
     },
     launchHistoryCoverage: {
       expectedDayCount: expectedDays.length,
@@ -528,8 +551,44 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       "Keep missing days labeled source missing until a bounded source window proves zero.",
       "Repair source agreement before treating admin charts as canonical launch-history truth.",
     ],
-    validationFailures: [],
+    validationFailures: [] as string[],
   };
+}
+
+function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLaunchAnalyticsRecoveryReport>) {
+  const failures: string[] = [];
+  const contractSources = new Set(Object.keys(report.sourceMap.canonicalOwners));
+  for (const required of ["first_party", "person_metrics", "ga4", "historicalSnapshot", "legacySupport", "adminPanelHydration"]) {
+    if (!contractSources.has(required)) {
+      failures.push(`launch recovery source map missing ${required} canonical owner.`);
+    }
+  }
+  if (report.sourceMap.primaryTruth !== "first_party" || report.sourceMap.secondSource !== "ga4") {
+    failures.push("launch recovery must keep first_party primary and ga4 second-source.");
+  }
+  if (report.providerCallsPerformed || report.productionReadsPerformed) {
+    failures.push("launch recovery generated report must not claim provider calls or production reads.");
+  }
+  if (report.canClearRuntimeGate || report.canClearProviderGate || report.canClearAdminTruthGate) {
+    failures.push("launch recovery generated snapshot must not clear runtime, provider, or admin truth gates.");
+  }
+  if (report.launchHistoryCoverage.staleInputEvidence && report.status !== "stale_evidence_review") {
+    failures.push("stale launch source evidence must surface as stale_evidence_review.");
+  }
+  if (!report.launchHistoryCoverage.staleInputEvidence && report.sourceAgreement.state === "failed" && report.status !== "source_agreement_failed") {
+    failures.push("current failed source agreement must surface as source_agreement_failed.");
+  }
+  for (const day of report.launchHistoryCoverage.dayCoverage) {
+    for (const required of ["first_party", "ga4", "historicalSnapshot", "legacySupport"] as const) {
+      if (typeof day.sourceCounts[required] !== "number") {
+        failures.push(`launch day ${day.dayKey} missing ${required} source count.`);
+      }
+    }
+    if (day.sourceCounts.first_party === 0 && day.confidence === "verified") {
+      failures.push(`launch day ${day.dayKey} cannot be verified without first-party evidence.`);
+    }
+  }
+  return failures;
 }
 
 function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsRecoveryReport>) {
@@ -545,6 +604,18 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     "- First-party/user activity is primary product truth.",
     "- GA4 is second-source evidence for sessions, views, device mix, regions, top paths, and acquisition-like comparisons.",
     "- Historical snapshots and legacy support can explain gaps, but they do not overwrite first-party user, purchase, unlock, watch, task, creator, admin, wallet, or GumDrop truth.",
+    "",
+    "## Evidence Provenance",
+    "",
+    `- Launch coverage input: ${report.evidenceProvenance.launchCoverageInput}`,
+    `- Panel hydration input: ${report.evidenceProvenance.panelHydrationInput}`,
+    `- GA4 read mode: ${report.evidenceProvenance.ga4ReadMode}`,
+    `- First-party read mode: ${report.evidenceProvenance.firstPartyReadMode}`,
+    `- Limitation: ${report.evidenceProvenance.limitation}`,
+    "",
+    "## Canonical Owners",
+    "",
+    ...Object.entries(report.sourceMap.canonicalOwners).map(([source, owner]) => `- ${source}: ${owner}`),
     "",
     "## Launch Coverage",
     "",
@@ -606,12 +677,17 @@ function main() {
   write(REPORT_PATH, `${JSON.stringify(compactReport(report, livePanelEvidence, validationFailures), null, 2)}\n`);
   write(DOC_PATH, renderDoc(finalReport));
   const launchRecoveryReport = buildLaunchAnalyticsRecoveryReport({ generatedAtUtc, currentHead, panelReport: report });
-  write(LAUNCH_RECOVERY_REPORT_PATH, `${JSON.stringify(launchRecoveryReport, null, 2)}\n`);
-  write(LAUNCH_RECOVERY_DOC_PATH, renderLaunchRecoveryDoc(launchRecoveryReport));
+  const launchRecoveryValidationFailures = validateLaunchAnalyticsRecoveryReport(launchRecoveryReport);
+  const finalLaunchRecoveryReport = {
+    ...launchRecoveryReport,
+    validationFailures: launchRecoveryValidationFailures,
+  };
+  write(LAUNCH_RECOVERY_REPORT_PATH, `${JSON.stringify(finalLaunchRecoveryReport, null, 2)}\n`);
+  write(LAUNCH_RECOVERY_DOC_PATH, renderLaunchRecoveryDoc(finalLaunchRecoveryReport));
 
-  if (validationFailures.length > 0) {
+  if (validationFailures.length > 0 || launchRecoveryValidationFailures.length > 0) {
     console.error("analytics-panel-hydration validation failed:");
-    for (const failure of validationFailures) console.error(`- ${failure}`);
+    for (const failure of [...validationFailures, ...launchRecoveryValidationFailures]) console.error(`- ${failure}`);
     process.exit(1);
   }
   console.log(`analytics-panel-hydration passed. panels=${report.totalPanels} hydrated=${report.hydratedPanels} collecting=${report.collectingPanels} sourceMissing=${report.sourceMissingPanels}`);

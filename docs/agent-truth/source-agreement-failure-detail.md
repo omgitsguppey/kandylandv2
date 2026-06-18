@@ -1,6 +1,6 @@
 # source-agreement-failure-detail
 
-Generated: 2026-06-18T02:09:07.304Z
+Generated: 2026-06-18T02:12:50.979Z
 
 Status: pass
 

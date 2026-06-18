@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T02:05:25.346Z",
-  "currentHead": "9bc587e3d122a0e82a0ae7174ab247b517fc1a85",
+  "generatedAtUtc": "2026-06-18T02:17:12.638Z",
+  "currentHead": "d7421546263b8b6710b6b6e2ac65d0986fdb37c2",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -42,7 +42,30 @@
       "unlock entitlement",
       "creator revenue",
       "person-level product truth"
+    ],
+    "canonicalOwners": {
+      "first_party": "analytics_event_facts and telemetry catalog",
+      "person_metrics": "person metrics hydration",
+      "ga4": "GA4/external evidence lane",
+      "historicalSnapshot": "admin analytics historical snapshot",
+      "legacySupport": "legacy support snapshot lane",
+      "adminPanelHydration": "admin analytics panel hydration"
+    },
+    "canonicalSourceFiles": [
+      "src/lib/telemetry-catalog.ts",
+      "src/lib/analytics/event-translation-bridge.ts",
+      "src/lib/analytics/person-metrics-hydration.ts",
+      "src/lib/server/admin-analytics-historical-validation.ts",
+      "src/lib/admin-analytics/panel-hydration-resolver.ts"
     ]
+  },
+  "evidenceProvenance": {
+    "launchCoverageInput": "agent/state/source-agreement-failure-detail.generated.json",
+    "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
+    "sourceAgreementInputHead": "d7421546263b8b6710b6b6e2ac65d0986fdb37c2",
+    "ga4ReadMode": "generated/local evidence only; no provider call performed",
+    "firstPartyReadMode": "source-agreement day-bucket evidence only; no production read performed",
+    "limitation": "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof."
   },
   "launchHistoryCoverage": {
     "expectedDayCount": 3,
@@ -127,7 +150,7 @@
       "2026-05-03"
     ],
     "staleInputEvidence": false,
-    "sourceAgreementEvidenceHead": "9bc587e3d122a0e82a0ae7174ab247b517fc1a85"
+    "sourceAgreementEvidenceHead": "d7421546263b8b6710b6b6e2ac65d0986fdb37c2"
   },
   "sourceAgreement": {
     "comparedSources": [

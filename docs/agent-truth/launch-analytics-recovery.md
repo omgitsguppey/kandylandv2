@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T02:05:25.346Z
-Current head: 9bc587e3d122a0e82a0ae7174ab247b517fc1a85
+Generated: 2026-06-18T02:17:12.638Z
+Current head: d7421546263b8b6710b6b6e2ac65d0986fdb37c2
 Status: source_agreement_failed
 
 ## Source Order
@@ -9,6 +9,23 @@ Status: source_agreement_failed
 - First-party/user activity is primary product truth.
 - GA4 is second-source evidence for sessions, views, device mix, regions, top paths, and acquisition-like comparisons.
 - Historical snapshots and legacy support can explain gaps, but they do not overwrite first-party user, purchase, unlock, watch, task, creator, admin, wallet, or GumDrop truth.
+
+## Evidence Provenance
+
+- Launch coverage input: agent/state/source-agreement-failure-detail.generated.json
+- Panel hydration input: agent/state/analytics-panel-hydration.generated.json
+- GA4 read mode: generated/local evidence only; no provider call performed
+- First-party read mode: source-agreement day-bucket evidence only; no production read performed
+- Limitation: This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof.
+
+## Canonical Owners
+
+- first_party: analytics_event_facts and telemetry catalog
+- person_metrics: person metrics hydration
+- ga4: GA4/external evidence lane
+- historicalSnapshot: admin analytics historical snapshot
+- legacySupport: legacy support snapshot lane
+- adminPanelHydration: admin analytics panel hydration
 
 ## Launch Coverage
 

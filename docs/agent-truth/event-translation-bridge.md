@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-18T02:05:25.006Z
+Generated: 2026-06-18T02:13:37.813Z
 Status: pass
-Current head: 9bc587e3d122a0e82a0ae7174ab247b517fc1a85
+Current head: d7421546263b8b6710b6b6e2ac65d0986fdb37c2
 
 ## Contract
 
@@ -59,10 +59,7 @@ Current head: 9bc587e3d122a0e82a0ae7174ab247b517fc1a85
 - docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
-- scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts: validator_artifact_expected
 - scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- src/lib/analytics/source-agreement-detail.ts: real_source_change_needs_review
-- tests/unit/source-agreement-failure-detail.spec.ts: test_artifact_expected
 
 ## Validation Failures
 
