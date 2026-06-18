@@ -135,10 +135,12 @@ export function proofModeForLaunchCoverageExport(
   raw: unknown,
 ): "admin_truth_sample" | "local_export" {
   const root = asRecord(raw);
+  const coverage = normalizeLaunchHistoryCoverageExport(raw);
   const isCompletedAdminTruthSample =
     filePath.replace(/\\/gu, "/").startsWith(`${ADMIN_TRUTH_SAMPLE_EVIDENCE_FOLDER}/`)
     && root.status === "complete"
-    && root.surface === "admin_truth_sample";
+    && root.surface === "admin_truth_sample"
+    && coverage !== null;
   return isCompletedAdminTruthSample ? "admin_truth_sample" : "local_export";
 }
 

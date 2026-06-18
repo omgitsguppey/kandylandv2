@@ -25,7 +25,30 @@
       "id": "redacted-artifact-attached",
       "status": "blocked",
       "notes": ""
+    },
+    {
+      "id": "launch-history-coverage",
+      "status": "blocked",
+      "notes": "Optional for general admin truth samples. Required when this sample is intended to clear launch analytics recovery."
     }
   ],
+  "launchHistoryCoverage": {
+    "expectedDayCount": 0,
+    "recoveredDayCount": 0,
+    "state": "source_missing",
+    "days": [
+      {
+        "dayKey": "YYYY-MM-DD",
+        "expected": true,
+        "sourceCounts": {
+          "first_party": 0,
+          "ga4": 0,
+          "historicalSnapshot": 0,
+          "legacySupport": 0
+        },
+        "internalAdminExcludedCount": 0
+      }
+    ]
+  },
   "operatorNotes": "Template only. Copy to a new JSON file before attaching evidence."
 }

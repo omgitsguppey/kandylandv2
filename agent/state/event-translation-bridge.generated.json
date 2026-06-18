@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-18T07:14:51.657Z",
-  "currentHead": "09c86fc006eefb5bd46a1ab70092da3974a19d18",
+  "generatedAtUtc": "2026-06-18T07:30:04.240Z",
+  "currentHead": "bc1494afa9743bcb4c674271c4b6c0fbd8bca42b",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5433,12 +5433,28 @@
   "gaps": [],
   "dirtyFiles": [
     {
+      "path": "agent/evidence/admin-truth-sample/README.md",
+      "classification": "admin_truth_sample_launch_coverage_evidence_expected"
+    },
+    {
+      "path": "agent/evidence/admin-truth-sample/evidence.template.json",
+      "classification": "admin_truth_sample_launch_coverage_evidence_expected"
+    },
+    {
       "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/launch-analytics-recovery.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
@@ -5449,8 +5465,16 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
       "path": "docs/agent-truth/launch-analytics-recovery.md",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
@@ -5459,6 +5483,18 @@
     {
       "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
       "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "tests/unit/source-agreement-failure-detail.spec.ts",

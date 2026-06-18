@@ -967,6 +967,8 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "agent/state/launch-analytics-recovery.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/analytics-panel-hydration.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/launch-analytics-recovery.md") return "documentation_artifact_expected";
+  if (normalized === "agent/evidence/admin-truth-sample/README.md") return "admin_truth_sample_launch_coverage_evidence_expected";
+  if (normalized === "agent/evidence/admin-truth-sample/evidence.template.json") return "admin_truth_sample_launch_coverage_evidence_expected";
   if (normalized === "agent/state/source-agreement-failure-detail.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/source-agreement-failure-detail.md") return "documentation_artifact_expected";

@@ -161,6 +161,10 @@ describe("source agreement failure detail", () => {
       ...raw,
       status: "template_not_evidence",
     })).toBe("local_export");
+    expect(proofModeForLaunchCoverageExport("agent/evidence/admin-truth-sample/general-admin-truth.json", {
+      status: "complete",
+      surface: "admin_truth_sample",
+    })).toBe("local_export");
     expect(coverage?.days[0]?.sourceCounts).toEqual({
       first_party: 12,
       ga4: 18,
