@@ -1,9 +1,10 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-05-25T05:21:10.189Z",
-  "currentHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136",
+  "generatedAtUtc": "2026-06-18T01:37:30.420Z",
+  "currentHead": "d4184ef0ca51c45eb662489ab064016adbcf3d25",
   "detail": {
     "comparedSources": [
+      "first_party",
       "ga4",
       "historical_snapshot",
       "legacy_support"
@@ -11,6 +12,13 @@
     "disagreementCount": 3,
     "maxDeltaPct": 67,
     "perSourceCoverage": [
+      {
+        "source": "first_party",
+        "dayCount": 1,
+        "days": [
+          "2026-05-01"
+        ]
+      },
       {
         "source": "ga4",
         "dayCount": 3,
@@ -36,6 +44,10 @@
       }
     ],
     "missingDaysBySource": {
+      "first_party": [
+        "2026-05-02",
+        "2026-05-03"
+      ],
       "ga4": [],
       "historical_snapshot": [
         "2026-05-02",
@@ -47,6 +59,7 @@
       ]
     },
     "extraDaysBySource": {
+      "first_party": [],
       "ga4": [],
       "historical_snapshot": [],
       "legacy_support": []
@@ -63,7 +76,7 @@
       "admin_analytics_charts",
       "debug_data_validation"
     ],
-    "nextAction": "Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity."
+    "nextAction": "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity."
   },
   "validationFailures": []
 }

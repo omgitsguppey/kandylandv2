@@ -35,7 +35,7 @@ const dataconnectProfiles = read("dataconnect/schema/structured_profiles.gql");
 const legacyInventory = read("scripts/analytics/inventory-legacy-sources.ts");
 const legacyMapping = read("scripts/analytics/map-legacy-events.ts");
 
-requireIncludes(bigQueryExport, 'document: "analytics_event_facts/{eventId}"', "BigQuery export");
+requireIncludes(bigQueryExport, 'db.collection("analytics_event_facts")', "BigQuery export");
 requireIncludes(bigQueryExport, "truthClass: EXPORT_TRUTH_CLASS", "BigQuery export");
 requireIncludes(bigQueryExport, "runtimeImportBlocked: true", "BigQuery export");
 requireIncludes(bigQueryExport, 'canonicalImportTargets: [...CANONICAL_IMPORT_TARGETS]', "BigQuery export");
@@ -45,11 +45,19 @@ requireExcludes(bigQueryExport, 'collection("analytics_admin_metric_snapshots")'
 requireIncludes(rebuildAnalyticsTruth, 'KD_ANALYTICS_IMPORT_SCHEMA_VALIDATION_REQUIRED: "true"', "Analytics truth rebuild");
 requireIncludes(rebuildAnalyticsTruth, 'KD_ANALYTICS_IMPORT_DRY_RUN_REQUIRED: "true"', "Analytics truth rebuild");
 requireIncludes(rebuildAnalyticsTruth, 'KD_ANALYTICS_IMPORT_RUNTIME_MUTATION_BLOCKED: "true"', "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "process.env.npm_execpath", "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, 'hasFlag("--execute-functions")', "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "executeFunctions: false", "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "readSkipped: true", "Analytics truth rebuild");
 requireIncludes(rebuildAnalyticsTruth, 'canonicalFactImportTargets: [...CANONICAL_FACT_IMPORT_TARGETS]', "Analytics truth rebuild");
 requireIncludes(rebuildAnalyticsTruth, 'forbiddenRuntimeMutationSurfaces: [...FORBIDDEN_RUNTIME_MUTATION_SURFACES]', "Analytics truth rebuild");
 
 requireIncludes(rebuildBehavioral, 'runFunctionsCommand("rebuild:analytics-truth")', "Behavioral rebuild");
 requireIncludes(rebuildBehavioral, 'KD_ANALYTICS_IMPORT_SCHEMA_VALIDATION_REQUIRED: "true"', "Behavioral rebuild");
+requireIncludes(rebuildBehavioral, "process.env.npm_execpath", "Behavioral rebuild");
+requireIncludes(rebuildBehavioral, 'hasFlag("--execute-functions")', "Behavioral rebuild");
+requireIncludes(rebuildBehavioral, "executeFunctions: false", "Behavioral rebuild");
+requireIncludes(rebuildBehavioral, "readSkipped: true", "Behavioral rebuild");
 requireIncludes(rebuildBehavioral, 'canonicalFactImportTargets: [...CANONICAL_FACT_IMPORT_TARGETS]', "Behavioral rebuild");
 
 requireIncludes(importExportTruthPolicy, 'ANALYTICS_IMPORT_EXPORT_TRUTH_CLASS = "analytics_evidence_only"', "Import/export truth policy");
@@ -69,6 +77,10 @@ requireIncludes(analyticsTruthRuntime, "buildCanonicalMetricFacts", "Analytics t
 requireIncludes(analyticsTruthRuntime, 'db.collection("analytics_event_facts")', "Analytics truth runtime");
 requireIncludes(analyticsTruthRuntime, 'db.collection("analytics_watch_sessions")', "Analytics truth runtime");
 requireIncludes(analyticsTruthRuntime, "readNormalizedAction", "Analytics truth runtime");
+requireIncludes(analyticsTruthRuntime, "KD_ANALYTICS_IMPORT_DRY_RUN_REQUIRED", "Analytics truth runtime");
+requireIncludes(analyticsTruthRuntime, "KD_ANALYTICS_IMPORT_RUNTIME_MUTATION_BLOCKED", "Analytics truth runtime");
+requireIncludes(analyticsTruthRuntime, "mutationSkipped: true", "Analytics truth runtime");
+requireIncludes(analyticsTruthRuntime, "readSkipped: true", "Analytics truth runtime");
 requireExcludes(analyticsTruthRuntime, 'analytics_admin_metric_snapshots', "Analytics truth runtime");
 
 requireIncludes(sourceHierarchy, "BigQuery/GA4 are validation lanes", "Analytics source hierarchy");

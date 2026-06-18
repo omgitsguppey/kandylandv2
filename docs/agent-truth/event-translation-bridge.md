@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-18T00:06:17.346Z
+Generated: 2026-06-18T01:37:54.631Z
 Status: pass
-Current head: 8ae88b8741a5f2cdfcbefa9287164b073952db8f
+Current head: d4184ef0ca51c45eb662489ab064016adbcf3d25
 
 ## Contract
 
@@ -54,13 +54,26 @@ Current head: 8ae88b8741a5f2cdfcbefa9287164b073952db8f
 ## Dirty Files
 
 - agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
+- agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
 - docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
+- docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
+- functions/src/analytics-truth-cli.ts: real_source_change_needs_review
+- functions/src/analytics-truth-runtime.ts: real_source_change_needs_review
+- scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts: validator_artifact_expected
 - scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- src/lib/server/admin-analytics-historical-validation.ts: real_source_change_needs_review
-- src/types/admin-analytics.ts: real_source_change_needs_review
-- tests/unit/admin-data-validation.spec.ts: test_artifact_expected
+- scripts/analytics/validate-canonical-import-export.ts: validator_artifact_expected
+- scripts/rebuild-analytics-truth.ts: real_source_change_needs_review
+- scripts/rebuild-behavioral-intelligence.ts: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/analytics/source-agreement-detail.ts: real_source_change_needs_review
+- tests/unit/source-agreement-failure-detail.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

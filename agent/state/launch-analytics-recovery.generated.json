@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T00:42:35.616Z",
-  "currentHead": "7c0de649892079e85dbc8884035baf6602656fcb",
+  "generatedAtUtc": "2026-06-18T01:37:42.767Z",
+  "currentHead": "d4184ef0ca51c45eb662489ab064016adbcf3d25",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -65,9 +65,9 @@
           "legacySupport": 0
         },
         "internalAdminExcludedCount": null,
-        "duplicateSourceCount": 1,
+        "duplicateSourceCount": 2,
         "confidence": "verified",
-        "reason": "First-party snapshot evidence is present for this day; GA4 remains comparison evidence only.",
+        "reason": "First-party event-fact/day-bucket evidence is present for this day; GA4 remains comparison evidence only.",
         "nextAction": "Use first-party truth for identity, purchase, unlock, watch, task, creator, and admin metrics; compare GA4 only as second source."
       },
       {
@@ -104,6 +104,10 @@
       }
     ],
     "missingRanges": {
+      "first_party": [
+        "2026-05-02",
+        "2026-05-03"
+      ],
       "ga4": [],
       "historical_snapshot": [
         "2026-05-02",
@@ -114,16 +118,20 @@
         "2026-05-02"
       ]
     },
-    "duplicateRanges": [],
+    "duplicateRanges": [
+      "2026-05-01",
+      "2026-05-03"
+    ],
     "sourceOverlapRanges": [
       "2026-05-01",
       "2026-05-03"
     ],
-    "staleInputEvidence": true,
-    "sourceAgreementEvidenceHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136"
+    "staleInputEvidence": false,
+    "sourceAgreementEvidenceHead": "d4184ef0ca51c45eb662489ab064016adbcf3d25"
   },
   "sourceAgreement": {
     "comparedSources": [
+      "first_party",
       "ga4",
       "historical_snapshot",
       "legacy_support"
@@ -137,13 +145,12 @@
     "maxDeltaPct": 67,
     "state": "failed",
     "classifications": [
-      "stale_generated_evidence",
       "date_range_mismatch",
       "duplicate_event",
       "external_source_gap",
       "missing_materializer"
     ],
-    "nextAction": "Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity."
+    "nextAction": "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity."
   },
   "adminPanelConnection": {
     "totalPanels": 41,
@@ -155,7 +162,7 @@
     "externalRequiredPanels": 4
   },
   "nextExactSteps": [
-    "Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party snapshots before chart promotion.",
+    "Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party day buckets before chart promotion.",
     "Compare GA4 day buckets only as second-source evidence; do not average or overwrite first-party product metrics.",
     "Keep missing days labeled source missing until a bounded source window proves zero.",
     "Repair source agreement before treating admin charts as canonical launch-history truth."

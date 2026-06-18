@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T00:42:35.616Z
-Current head: 7c0de649892079e85dbc8884035baf6602656fcb
+Generated: 2026-06-18T01:37:42.767Z
+Current head: d4184ef0ca51c45eb662489ab064016adbcf3d25
 Status: source_agreement_failed
 
 ## Source Order
@@ -15,17 +15,18 @@ Status: source_agreement_failed
 - Recovered days: 3/3
 - First-party days: 1
 - GA4 days: 3
+- Historical snapshot days: 1
 - Legacy support days: 1
-- Stale input evidence: yes
+- Stale input evidence: no
 
 ## Source Agreement
 
 - State: failed
-- Compared sources: ga4, historical_snapshot, legacy_support
+- Compared sources: first_party, ga4, historical_snapshot, legacy_support
 - Disagreements: 3
 - Max delta: 67
-- Classifications: stale_generated_evidence, date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
-- Next action: Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity.
+- Classifications: date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
+- Next action: Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.
 
 ## Admin Panel Connection
 
@@ -38,7 +39,7 @@ Status: source_agreement_failed
 
 ## Next Steps
 
-- Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party snapshots before chart promotion.
+- Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party day buckets before chart promotion.
 - Compare GA4 day buckets only as second-source evidence; do not average or overwrite first-party product metrics.
 - Keep missing days labeled source missing until a bounded source window proves zero.
 - Repair source agreement before treating admin charts as canonical launch-history truth.

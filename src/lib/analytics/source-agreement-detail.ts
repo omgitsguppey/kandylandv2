@@ -92,6 +92,6 @@ export function buildSourceAgreementFailureDetail(input: {
       "admin_analytics_insight_cards",
       "public_beta_score_evidence",
     ],
-    nextAction: "Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity.",
+    nextAction: "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.",
   };
 }

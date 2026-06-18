@@ -14,12 +14,27 @@ function hasFlag(flag: string) {
   return process.argv.slice(2).includes(flag)
 }
 
+function npmRunArgs(scriptName: string) {
+  const npmExecPath = process.env.npm_execpath
+  if (npmExecPath) {
+    return {
+      command: process.execPath,
+      args: [npmExecPath, "run", scriptName],
+    }
+  }
+
+  return {
+    command: process.platform === "win32" ? "npm.cmd" : "npm",
+    args: ["run", scriptName],
+  }
+}
+
 function runFunctionsCommand(scriptName: string) {
   return new Promise<void>((resolve, reject) => {
-    const npmExecutable = process.platform === "win32" ? "npm.cmd" : "npm"
+    const npmCommand = npmRunArgs(scriptName)
     const child = spawn(
-      npmExecutable,
-      ["run", scriptName],
+      npmCommand.command,
+      npmCommand.args,
       {
         cwd: path.resolve(process.cwd(), "functions"),
         stdio: "inherit",
@@ -52,10 +67,11 @@ function runFunctionsCommand(scriptName: string) {
   })
 }
 
-if (hasFlag("--dry-run")) {
+function emitDryRunReport() {
   console.log(JSON.stringify({
     dryRun: true,
     scriptName: "rebuild:analytics-truth",
+    executeFunctions: false,
     maxRows: ANALYTICS_TRUTH_REBUILD_MAX_ROWS,
     maxRuntimeMs: ANALYTICS_TRUTH_REBUILD_MAX_RUNTIME_MS,
     maxRetries: ANALYTICS_TRUTH_REBUILD_MAX_RETRIES,
@@ -67,8 +83,14 @@ if (hasFlag("--dry-run")) {
     materializerOutputContract: ["sourceBreakdown", "generatedAt", "freshnessState", "issues"],
     forbiddenRuntimeMutationSurfaces: [...FORBIDDEN_RUNTIME_MUTATION_SURFACES],
     mutationSkipped: true,
+    readSkipped: true,
+    nextAction: "Run with --execute-functions only after local Functions dependencies are installed and an operator approves a dry-run Functions build.",
   }, null, 2))
   process.exit(0)
+}
+
+if (hasFlag("--dry-run") || !hasFlag("--execute-functions")) {
+  emitDryRunReport()
 }
 
 void runFunctionsCommand("rebuild:analytics-truth").catch((error) => {

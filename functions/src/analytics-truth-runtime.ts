@@ -37,6 +37,18 @@ type AnalyticsTruthRuntimeWindow = {
   fullRebuild: boolean
 }
 
+export type AnalyticsTruthRebuildResult = {
+  mutationSkipped: boolean
+  readSkipped: boolean
+  reason: string
+  dropDocs: number
+  userDocs: number
+  sessionDocs: number
+  repairs: number
+  sourceWindowStartMs: number | null
+  windowMode: AnalyticsTruthRuntimeWindow["windowMode"] | "dry_run"
+}
+
 type CounterBucket = {
   rawViewCount: number
   rawPreviewCount: number
@@ -134,6 +146,11 @@ function buildTruthMaterializerIssue(code: string, severity: "info" | "warn" | "
     severity,
     message: code.replace(/_/g, " "),
   }
+}
+
+function analyticsTruthLocalMutationBlocked() {
+  return process.env.KD_ANALYTICS_IMPORT_DRY_RUN_REQUIRED === "true"
+    || process.env.KD_ANALYTICS_IMPORT_RUNTIME_MUTATION_BLOCKED === "true"
 }
 
 function resolveTruthFreshnessState(input: {
@@ -1003,7 +1020,23 @@ async function writeAnalyticsTruthRuntimeCursor(input: {
     }, {merge: true})
 }
 
-export async function rebuildAnalyticsTruthLayers(options: {fullRebuild?: boolean} = {}) {
+export async function rebuildAnalyticsTruthLayers(options: {fullRebuild?: boolean} = {}): Promise<AnalyticsTruthRebuildResult> {
+  if (analyticsTruthLocalMutationBlocked()) {
+    const result: AnalyticsTruthRebuildResult = {
+      mutationSkipped: true,
+      readSkipped: true,
+      reason: "dry_run_or_runtime_mutation_blocked",
+      dropDocs: 0,
+      userDocs: 0,
+      sessionDocs: 0,
+      repairs: 0,
+      sourceWindowStartMs: null,
+      windowMode: "dry_run",
+    }
+    logger.info("analytics truth rebuild skipped by local dry-run guard", result)
+    return result
+  }
+
   const nowMs = Date.now()
   const sources = await readTruthSources(nowMs, {
     fullRebuild: options.fullRebuild === true,
@@ -1019,4 +1052,15 @@ export async function rebuildAnalyticsTruthLayers(options: {fullRebuild?: boolea
     sourceWindowStartMs: sources.windowStartMs,
     windowMode: sources.windowMode,
   })
+  return {
+    mutationSkipped: false,
+    readSkipped: false,
+    reason: "rebuilt",
+    dropDocs: docs.dropDocs.length,
+    userDocs: docs.userDocs.length,
+    sessionDocs: docs.sessionWriteDocs.length,
+    repairs: docs.repairDocs.length,
+    sourceWindowStartMs: sources.windowStartMs,
+    windowMode: sources.windowMode,
+  }
 }

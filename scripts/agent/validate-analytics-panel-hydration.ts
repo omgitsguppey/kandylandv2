@@ -62,6 +62,7 @@ function classifySourceAgreementDisagreements(input: {
   expectedDays: string[];
   ga4Days: Set<string>;
   firstPartyDays: Set<string>;
+  historicalSnapshotDays: Set<string>;
   legacySupportDays: Set<string>;
   staleEvidence: boolean;
   disagreementCount: number;
@@ -76,6 +77,7 @@ function classifySourceAgreementDisagreements(input: {
   const activeSourceCount = [
     input.ga4Days.size,
     input.firstPartyDays.size,
+    input.historicalSnapshotDays.size,
     input.legacySupportDays.size,
   ].filter((count) => count > 0).length;
 
@@ -91,6 +93,7 @@ function classifySourceAgreementDisagreements(input: {
   for (const dayKey of input.expectedDays) {
     const hasGa4 = input.ga4Days.has(dayKey);
     const hasFirstParty = input.firstPartyDays.has(dayKey);
+    const hasHistoricalSnapshot = input.historicalSnapshotDays.has(dayKey);
     const hasLegacy = input.legacySupportDays.has(dayKey);
 
     if (hasGa4 && !hasFirstParty) {
@@ -102,7 +105,11 @@ function classifySourceAgreementDisagreements(input: {
       classifications.add("missing_materializer");
     }
 
-    if (Number(hasGa4) + Number(hasFirstParty) + Number(hasLegacy) > 1) {
+    if (hasHistoricalSnapshot && !hasFirstParty) {
+      classifications.add("missing_materializer");
+    }
+
+    if (Number(hasGa4) + Number(hasFirstParty) + Number(hasHistoricalSnapshot) + Number(hasLegacy) > 1) {
       classifications.add("duplicate_event");
     }
   }
@@ -170,6 +177,14 @@ function classifyDirtyFile(path: string) {
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "agent/state/analytics-admin-reorg.generated.json") return "analytics_admin_reorg_artifact_expected";
   if (normalized === "docs/agent-truth/analytics-admin-reorg.md") return "analytics_admin_reorg_artifact_expected";
+  if (normalized === "src/lib/analytics/source-agreement-detail.ts") return "source_agreement_failure_classification_required";
+  if (normalized === "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts") return "source_agreement_failure_classification_required";
+  if (normalized === "functions/src/analytics-truth-cli.ts" || normalized === "functions/src/analytics-truth-runtime.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/rebuild-analytics-truth.ts" || normalized === "scripts/rebuild-behavioral-intelligence.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/analytics/validate-canonical-import-export.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/source-agreement-failure-detail.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/source-agreement-failure-detail.generated.json") return "source_agreement_failure_artifact_expected";
+  if (normalized === "docs/agent-truth/source-agreement-failure-detail.md") return "documentation_artifact_expected";
   if (normalized === LAUNCH_RECOVERY_REPORT_PATH) return "launch_analytics_recovery_artifact_expected";
   if (normalized === LAUNCH_RECOVERY_DOC_PATH) return "launch_analytics_recovery_artifact_expected";
   if (
@@ -365,22 +380,25 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     daysBySource.set(source, new Set(asStringArray(row.days)));
   }
 
+  const firstPartyDays = daysBySource.get("first_party") ?? new Set<string>();
   const ga4Days = daysBySource.get("ga4") ?? new Set<string>();
   const historicalSnapshotDays = daysBySource.get("historical_snapshot") ?? new Set<string>();
   const legacySupportDays = daysBySource.get("legacy_support") ?? new Set<string>();
-  const expectedDays = [...new Set([...ga4Days, ...historicalSnapshotDays, ...legacySupportDays])].sort();
+  const expectedDays = [...new Set([...firstPartyDays, ...ga4Days, ...historicalSnapshotDays, ...legacySupportDays])].sort();
   const dayCoverage = expectedDays.map((dayKey) => {
-    const hasFirstParty = historicalSnapshotDays.has(dayKey);
+    const hasFirstParty = firstPartyDays.has(dayKey);
     const hasGa4 = ga4Days.has(dayKey);
+    const hasHistoricalSnapshot = historicalSnapshotDays.has(dayKey);
     const hasLegacy = legacySupportDays.has(dayKey);
-    const recovered = hasFirstParty || hasGa4 || hasLegacy;
+    const sourceCount = Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy);
+    const recovered = sourceCount > 0;
     const confidence = hasFirstParty && hasGa4
       ? "verified"
-      : hasFirstParty && hasLegacy
+      : hasFirstParty && (hasHistoricalSnapshot || hasLegacy)
         ? "mixed"
         : hasFirstParty
           ? "partial"
-          : hasGa4 || hasLegacy
+          : hasGa4 || hasHistoricalSnapshot || hasLegacy
             ? "fallback"
             : "unknown";
     return {
@@ -390,16 +408,18 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       sourceCounts: {
         first_party: hasFirstParty ? 1 : 0,
         ga4: hasGa4 ? 1 : 0,
-        historicalSnapshot: hasFirstParty ? 1 : 0,
+        historicalSnapshot: hasHistoricalSnapshot ? 1 : 0,
         legacySupport: hasLegacy ? 1 : 0,
       },
       internalAdminExcludedCount: null,
-      duplicateSourceCount: Math.max(0, Number(hasFirstParty) + Number(hasGa4) + Number(hasLegacy) - 1),
+      duplicateSourceCount: Math.max(0, sourceCount - 1),
       confidence,
       reason: recovered
         ? hasFirstParty
-          ? "First-party snapshot evidence is present for this day; GA4 remains comparison evidence only."
-          : "Only external or legacy evidence is present for this day; it cannot overwrite first-party product truth."
+          ? "First-party event-fact/day-bucket evidence is present for this day; GA4 remains comparison evidence only."
+          : hasHistoricalSnapshot
+            ? "Historical snapshot evidence is present without a first-party event-fact bucket; it can explain gaps but cannot replace product truth."
+            : "Only external or legacy evidence is present for this day; it cannot overwrite first-party product truth."
         : "No source evidence is present for this day.",
       nextAction: hasFirstParty
         ? "Use first-party truth for identity, purchase, unlock, watch, task, creator, and admin metrics; compare GA4 only as second source."
@@ -407,10 +427,16 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     };
   });
   const sourceDayCounts = {
-    first_party: historicalSnapshotDays.size,
+    first_party: firstPartyDays.size,
     ga4: ga4Days.size,
     historicalSnapshot: historicalSnapshotDays.size,
     legacySupport: legacySupportDays.size,
+  };
+  const computedMissingDaysBySource = {
+    first_party: expectedDays.filter((dayKey) => !firstPartyDays.has(dayKey)),
+    ga4: expectedDays.filter((dayKey) => !ga4Days.has(dayKey)),
+    historical_snapshot: expectedDays.filter((dayKey) => !historicalSnapshotDays.has(dayKey)),
+    legacy_support: expectedDays.filter((dayKey) => !legacySupportDays.has(dayKey)),
   };
   const rawSourceAgreementState = sourceAgreementDetail.sourceAgreementStatus;
   const sourceAgreementState = typeof rawSourceAgreementState === "string"
@@ -433,7 +459,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   const sourceAgreementClassifications = classifySourceAgreementDisagreements({
     expectedDays,
     ga4Days,
-    firstPartyDays: historicalSnapshotDays,
+    firstPartyDays,
+    historicalSnapshotDays,
     legacySupportDays,
     staleEvidence,
     disagreementCount,
@@ -466,8 +493,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       recoveredDayCount: dayCoverage.filter((day) => day.recovered).length,
       sourceDayCounts,
       dayCoverage,
-      missingRanges: asRecord(sourceAgreementDetail.missingDaysBySource),
-      duplicateRanges: [],
+      missingRanges: { ...computedMissingDaysBySource, ...asRecord(sourceAgreementDetail.missingDaysBySource) },
+      duplicateRanges: dayCoverage.filter((day) => day.duplicateSourceCount > 0).map((day) => day.dayKey),
       sourceOverlapRanges: dayCoverage.filter((day) => day.duplicateSourceCount > 0).map((day) => day.dayKey),
       staleInputEvidence: staleEvidence,
       sourceAgreementEvidenceHead: sourceAgreementHead,
@@ -494,7 +521,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       externalRequiredPanels: input.panelReport.externalRequiredPanels,
     },
     nextExactSteps: [
-      "Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party snapshots before chart promotion.",
+      "Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party day buckets before chart promotion.",
       "Compare GA4 day buckets only as second-source evidence; do not average or overwrite first-party product metrics.",
       "Keep missing days labeled source missing until a bounded source window proves zero.",
       "Repair source agreement before treating admin charts as canonical launch-history truth.",
@@ -522,6 +549,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Recovered days: ${report.launchHistoryCoverage.recoveredDayCount}/${report.launchHistoryCoverage.expectedDayCount}`,
     `- First-party days: ${report.launchHistoryCoverage.sourceDayCounts.first_party}`,
     `- GA4 days: ${report.launchHistoryCoverage.sourceDayCounts.ga4}`,
+    `- Historical snapshot days: ${report.launchHistoryCoverage.sourceDayCounts.historicalSnapshot}`,
     `- Legacy support days: ${report.launchHistoryCoverage.sourceDayCounts.legacySupport}`,
     `- Stale input evidence: ${report.launchHistoryCoverage.staleInputEvidence ? "yes" : "no"}`,
     "",

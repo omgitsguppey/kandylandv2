@@ -31,7 +31,16 @@ async function main() {
       "legacy_page_duration_as_verified_watch_truth",
     ],
   }))
-  await rebuildAnalyticsTruthLayers()
+  const result = await rebuildAnalyticsTruthLayers()
+  if (result.mutationSkipped) {
+    console.log(JSON.stringify({
+      analyticsTruthRebuild: "skipped",
+      mutationSkipped: true,
+      readSkipped: result.readSkipped,
+      reason: result.reason,
+    }))
+    return
+  }
   console.log("Analytics truth layers rebuilt.")
 }
 

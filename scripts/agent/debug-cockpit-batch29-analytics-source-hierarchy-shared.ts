@@ -232,8 +232,9 @@ export function validateDataValidationCopyConsistency() {
 export function validateSourceAgreementFailureDetail() {
   const failures: string[] = [];
   const detail = buildSourceAgreementFailureDetail({
-    comparedSources: ["ga4", "historical_snapshot", "legacy_support"],
+    comparedSources: ["first_party", "ga4", "historical_snapshot", "legacy_support"],
     coverageBySource: {
+      first_party: ["2026-05-01"],
       ga4: ["2026-05-01", "2026-05-02", "2026-05-03"],
       historical_snapshot: ["2026-05-01"],
       legacy_support: ["2026-05-03"],
@@ -242,7 +243,7 @@ export function validateSourceAgreementFailureDetail() {
     tolerance: { reviewDeltaPct: 10, failDeltaPct: 25 },
     blockedConsumers: ["admin_analytics_charts", "debug_data_validation"],
   });
-  expectPass(detail.comparedSources.length === 3, failures, "source agreement failed but no compared sources listed.");
+  expectPass(detail.comparedSources.includes("first_party") && detail.comparedSources.length === 4, failures, "source agreement failed but first-party compared source is missing.");
   expectPass(detail.disagreementCount > 0 && detail.maxDeltaPct > 25, failures, "maxDeltaPct/disagreementCount missing.");
   expectPass(detail.toleranceThresholds.failDeltaPct === 25, failures, "tolerance thresholds missing.");
   expectPass(detail.blockedConsumers.includes("admin_analytics_charts"), failures, "blocked consumers missing.");
