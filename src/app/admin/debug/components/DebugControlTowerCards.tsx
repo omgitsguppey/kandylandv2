@@ -71,12 +71,20 @@ export function formatPublicBetaReadinessStatusForAdmin(input: { status?: string
 export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
     const sourceFindingCount = report.findingCount > 0 ? report.findingCount : report.topFindings.filter((finding) => !isRefreshOnlyFinding(finding)).length;
     const hasFindings = sourceFindingCount > 0 || report.criticalCount > 0;
-    const findingLabel = hasFindings ? `${sourceFindingCount} source finding${sourceFindingCount === 1 ? "" : "s"}` : "No active findings";
+    const normalizedStatus = report.status.toLowerCase();
+    const zeroFindingEvidencePending = !hasFindings && ["delayed", "queued", "waiting"].includes(normalizedStatus);
+    const zeroFindingEvidenceGate = !hasFindings && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(normalizedStatus);
+    const findingLabel = hasFindings
+        ? `${sourceFindingCount} source finding${sourceFindingCount === 1 ? "" : "s"}`
+        : zeroFindingEvidencePending
+            ? "Evidence pending"
+            : zeroFindingEvidenceGate
+                ? "Evidence gate"
+                : "No active findings";
     const sourceNeedsRefresh = report.freshness === "stale_24h" || report.freshness === "stale_72h" || report.sourceDrift === "stale";
     const proofBoundaryOnly = !hasFindings
         && report.id === "public-beta-score"
         && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(report.status.toLowerCase());
-    const normalizedStatus = report.status.toLowerCase();
     const reportStatusLabel = (() => {
         if (["clean", "pass", "passed", "ready", "ok"].includes(normalizedStatus)) return "Source current";
         if (["delayed", "queued", "waiting"].includes(normalizedStatus)) return hasFindings ? "Review delayed" : "Waiting for evidence";

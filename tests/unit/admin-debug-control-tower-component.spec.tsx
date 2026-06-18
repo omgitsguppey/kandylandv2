@@ -426,6 +426,48 @@ describe("DebugControlTower", () => {
         }
     });
 
+    it("labels delayed zero-finding report rows as pending evidence instead of empty errors", async () => {
+        const originalPayload = JSON.parse(JSON.stringify(mockState.payload));
+        const delayedReport = {
+            ...mockState.payload.sections.beta_readiness[0],
+            id: "self-healing-refresh-queue",
+            label: "Self-Healing Refresh Queue",
+            filePath: "agent/state/self-healing-refresh-queue.generated.json",
+            command: "npm run check:self-healing-refresh-queue",
+            status: "DELAYED",
+            truthState: "stale",
+            findingCount: 0,
+            criticalCount: 0,
+            majorCount: 0,
+            topFindings: [],
+        };
+
+        try {
+            const payload = mockState.payload as any;
+            payload.reports = [delayedReport];
+            payload.sections.beta_readiness = [delayedReport];
+
+            await act(async () => {
+                root.render(<DebugControlTower />);
+            });
+
+            await act(async () => {
+                await Promise.resolve();
+            });
+
+            const queueCards = Array.from(container.querySelectorAll("[data-debug-report-source='agent/state/self-healing-refresh-queue.generated.json']"));
+            const queueText = queueCards.map((entry) => entry.textContent ?? "").join(" ");
+
+            expect(queueText).toContain("Waiting for evidence");
+            expect(queueText).toContain("Evidence pending");
+            expect(queueText).not.toContain("0 findings");
+            expect(queueText).not.toContain("No active findings");
+            expect(queueText).not.toContain("DELAYED");
+        } finally {
+            Object.assign(mockState.payload, originalPayload);
+        }
+    });
+
     it("formats delayed reports with findings as review delayed instead of raw delayed status", async () => {
         const originalPayload = JSON.parse(JSON.stringify(mockState.payload));
         const delayedReport = {
