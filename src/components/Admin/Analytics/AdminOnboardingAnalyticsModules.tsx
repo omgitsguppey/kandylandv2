@@ -51,25 +51,25 @@ function OnboardingDiscrepancyCallout({
 }
 
 function getOnboardingVelocityBadgeLabel(model: AdminOnboardingVelocityModel) {
-    if (model.discrepancyDetected) return "PARTIAL";
+    if (model.discrepancyDetected) return "Partial";
 
     switch (model.truthState) {
         case "loading":
-            return "WAIT";
+            return "Collecting";
         case "stale":
-            return "REFRESH";
+            return "Refresh due";
         case "cached":
-            return "SNAP";
+            return "Cached";
         case "degraded":
         case "fallback":
-            return "PARTIAL";
+            return "Partial";
         case "unavailable":
-            return "UNAVAILABLE";
+            return "No source";
         case "failed":
-            return "ERROR";
+            return "Failed";
         case "live":
         default:
-            return "LIVE";
+            return "Current";
     }
 }
 

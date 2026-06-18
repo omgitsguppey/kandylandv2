@@ -28,7 +28,7 @@ export type AdminAnalyticsGuestBounceQualityModel = {
   selectedRange: RangeOption;
   moduleTruthState: "verified" | "estimated" | "no_sample" | "stale" | "waiting" | "error";
   truthState: AdminSurfaceState;
-  badgeLabel: "SAMPLE" | "EST" | "DELAYED" | "STALE" | "WAIT" | "ERROR" | "NO SAMPLE";
+  badgeLabel: "Sample" | "Estimate" | "Refresh due" | "Expired" | "Collecting" | "Failed" | "No sample";
   generatedAtUtc: string | null;
   overallState: "verified" | "estimated" | "no_sample" | "stale" | "unavailable";
   visibleCopy: string;
@@ -188,27 +188,27 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     truthState = input.loading ? "loading" : "unavailable";
     overallState = "unavailable";
     moduleTruthState = input.loading ? "waiting" : "error";
-    badgeLabel = input.loading ? "WAIT" : "ERROR";
+    badgeLabel = input.loading ? "Collecting" : "Failed";
   } else if (stale) {
     truthState = "stale";
     overallState = "stale";
     moduleTruthState = "stale";
-    badgeLabel = "STALE";
+    badgeLabel = "Expired";
   } else if (diagnostics.state === "available" && input.guestTraffic?.truthLabel !== "estimated") {
     truthState = cacheRefreshDue ? "cached" : input.overviewTruthState ?? "live";
     overallState = "verified";
     moduleTruthState = "verified";
-    badgeLabel = cacheRefreshDue ? "DELAYED" : "SAMPLE";
+    badgeLabel = cacheRefreshDue ? "Refresh due" : "Sample";
   } else if (diagnostics.state === "available" || input.guestTraffic?.truthLabel === "estimated") {
     truthState = "degraded";
     overallState = "estimated";
     moduleTruthState = "estimated";
-    badgeLabel = "EST";
+    badgeLabel = "Estimate";
   } else {
     truthState = "degraded";
     overallState = "no_sample";
     moduleTruthState = "no_sample";
-    badgeLabel = "NO SAMPLE";
+    badgeLabel = "No sample";
   }
 
   const visibleCopy = diagnostics.state === "available"

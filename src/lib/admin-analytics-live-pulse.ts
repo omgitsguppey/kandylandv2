@@ -43,7 +43,7 @@ export type AdminAnalyticsLivePulseIdentity = {
   lastSeenAt: number;
   lastSeenLabel: string;
   truthState: AdminSurfaceState;
-  statusLabel: "LIVE" | "DELAYED" | "SNAP" | "WAIT" | "ERROR";
+  statusLabel: "Current" | "Refresh due" | "Cached" | "Collecting" | "Failed";
   actorBadgeLabel: "GUEST" | "AUTH";
   source: LivePulseSource;
   sourceTruth: "presence" | "event_fact" | "snapshot" | "estimated";
@@ -139,8 +139,8 @@ function resolveFreshnessState(nowMs: number, timestampMs: number) {
 }
 
 function resolveStatusLabel(freshnessState: "live" | "delayed" | "stale") {
-  if (freshnessState === "live") return "LIVE" as const;
-  return "DELAYED" as const;
+  if (freshnessState === "live") return "Current" as const;
+  return "Refresh due" as const;
 }
 
 function readableRoute(path: string) {
@@ -387,7 +387,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
       lastSeenAt: item.lastSeenAt,
       lastSeenLabel: relativeTime(item.lastSeenAt, input.nowMs),
       truthState: freshnessState === "stale" ? "stale" : freshnessState === "delayed" ? "degraded" : input.activeUsersTruthState,
-      statusLabel: input.activeUsersTruthState === "failed" ? "ERROR" : resolveStatusLabel(freshnessState),
+      statusLabel: input.activeUsersTruthState === "failed" ? "Failed" : resolveStatusLabel(freshnessState),
       actorBadgeLabel: actorType === "guest" ? "GUEST" : "AUTH",
       source: item.sourceLabel?.includes("fallback") ? "backend_snapshot" : canonicalPresenceSource,
       sourceTruth: item.sourceTruth ?? (item.sourceLabel?.includes("fallback") ? "snapshot" : "presence"),

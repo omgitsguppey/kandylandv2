@@ -1,1 +1,76 @@
-{"reportKey":"admin-surface-modal-replacement","status":"pass","generatedAtUtc":"2026-06-18T08:20:22.286Z","currentHead":"87c45861396dab9629bad0ad54bcee01a7117889","evidenceClass":"source_snapshot","canClearSourceGate":true,"canClearRuntimeGate":false,"canClearProviderGate":false,"canClearAdminTruthGate":false,"summary":{"adminModalCandidatesReviewed":8,"adminModalShellsAlreadyReplaced":6,"modalShellsRemovedThisPass":0,"sharedPreviewStateRemovedThisPass":0,"sourceRecoveryChipRowsRemovedThisPass":1,"sourceStatusCopySimplifiedThisPass":1,"keptConnectedAdminModals":0,"creatorDefaultModalKept":1,"paymentGumdropRuntimeTouched":false,"topBottomNavTouched":false,"newReportFamiliesAdded":0},"inventory":[{"surface":"/admin/users","component":"BalanceAdjustmentPanel","sourceOwner":"src/app/api/admin/balance/route.ts","decision":"keep_inline_panel","reason":"Already replaced from modal shell; payment-adjacent runtime stays untouched."},{"surface":"/admin/users","component":"TransactionHistoryPanel","sourceOwner":"src/app/api/admin/user/[userId]/route.ts","decision":"keep_inline_panel","reason":"Already read-only inline and connected to user detail source."},{"surface":"/admin/users","component":"inline_user_action_workspace","sourceOwner":"src/app/api/admin/users/route.ts","decision":"keep_inline_workspace","reason":"Existing action workspace avoids stacked overlays and keeps selected action context visible."},{"surface":"/admin/drops","component":"CreateDropModal","sourceOwner":"src/components/Admin/CreateDropModal.tsx","decision":"keep_admin_inline_presentation","reason":"Admin create/edit/duplicate already render through presentation=\"inline\". Creator-facing modal presentation remains outside this pass."},{"surface":"/admin/drops","component":"inline_drop_notification_panel","sourceOwner":"src/app/admin/drops/page.tsx","decision":"keep_inline_panel","reason":"Notification draft is already bounded, connected, and inline."},{"surface":"/admin/roster","component":"agreement_preview","sourceOwner":"src/app/admin/roster/page.tsx","decision":"keep_inline_disclosures","reason":"The template preview and selected-creator agreement preview are already scoped to local inline disclosures."},{"surface":"/admin/analytics","component":"source_status_drawer","sourceOwner":"src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx","decision":"keep_compact_connected_drawer","reason":"This pass kept the connected drilldown, simplified the visible title to Source status, removed the broken separator artifact, and preserved analytics-panel-hydration as the canonical panel hydration lane."},{"surface":"/admin/debug","component":"DebugControlTower","sourceOwner":"src/lib/admin-debug-control-tower.ts","decision":"keep_grouped_debug_summary","reason":"Raw evidence stays behind existing drilldown; no new modal shell was introduced."}],"excluded":[{"surface":"global user shell","components":["src/components/Auth/AuthModal.tsx","src/components/GlobalAuthModal.tsx","src/components/PurchaseModal.tsx","src/components/InsufficientBalanceModal.tsx","src/components/DropPreviewModal.tsx","src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx"],"reason":"Not admin-route modal inventory for this pass."},{"surface":"creator submission","components":["src/components/Creators/CreatorDropManager.tsx","src/components/Admin/CreateDropModal.tsx modal presentation"],"reason":"Creator-facing drop submission keeps its existing modal contract."}],"nextExactSteps":["Reject new admin modal call sites unless they declare source owner, action owner, and why inline disclosure cannot work.","Keep Admin Analytics source status as one compact summary plus drilldown; use plain states such as collecting, source missing, bridge missing, and external proof required.","Run browser QA for /admin/users, /admin/drops, /admin/roster, /admin/analytics, and /admin/debug with a verified admin session before claiming runtime visual proof.","Keep payment and GumDrop balance recovery actions behind explicit proof and audit reason."],"doesNotProve":["production admin action success","provider or payment proof","browser visual QA","creator modal removal"],"validationFailures":[]}
+{
+  "reportKey": "admin-surface-modal-replacement",
+  "status": "source_review_pass",
+  "generatedAtUtc": "2026-06-18T09:11:41Z",
+  "currentHead": "0eb8f34022ed36041c0b8e3c0b7b2084e82aec57",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Run targeted Admin Analytics UI tests after label-contract changes.",
+    "Use browser/computer-use audit only after a local admin session is available.",
+    "Defer CreateDropModal file rename until creator-dashboard imports can move in a separate slice."
+  ],
+  "validationFailures": [],
+  "doesNotProve": [
+    "No runtime browser interaction was executed by this source snapshot.",
+    "No provider, production database, PayPal, wallet, or GumDrop treasury truth was read or mutated.",
+    "This does not prove admin truth samples or runtime parity gates."
+  ],
+  "summary": {
+    "adminModalCandidatesInventoried": 4,
+    "modalShellsRemoved": 0,
+    "inlinePanelsConfirmed": 3,
+    "legacyModalNamesDeferred": 1,
+    "adminAnalyticsLabelContractsNormalized": true,
+    "navigationTouched": false,
+    "paymentOrGumDropRuntimeTouched": false
+  },
+  "decisions": [
+    {
+      "surface": "Admin Users",
+      "candidates": ["BalanceAdjustmentPanel", "TransactionHistoryPanel"],
+      "sourceOwner": "src/app/admin/users/page.tsx plus existing admin user routes/actions",
+      "decision": "keep_inline",
+      "reason": "Both actions render inside the selected-action workspace, not as modal overlays. Balance adjustment keeps payment-proof warning visible and transaction history stays bounded to the last 30 records."
+    },
+    {
+      "surface": "Admin Drops",
+      "candidates": ["CreateDropModal"],
+      "sourceOwner": "src/app/admin/drops/page.tsx and src/components/Admin/CreateDropModal.tsx",
+      "decision": "keep_inline_component_rename_deferred",
+      "reason": "The admin page already opens this as an inline Drop action panel with presentation=\"inline\". Renaming or splitting the legacy component would affect creator imports and should be a separate low-risk consolidation."
+    },
+    {
+      "surface": "Admin Analytics",
+      "candidates": ["overview badges", "operation tab badges", "model badge contracts"],
+      "sourceOwner": "src/lib/admin-analytics-contracts.ts and admin analytics model builders",
+      "decision": "simplify_plain_state_labels",
+      "reason": "All-caps labels like LIVE, DELAYED, REFRESH, SAMPLE, and WAIT were replaced with plain source states such as Current, Cached, Refresh due, Sample, No sample, Collecting, No source, and Failed."
+    }
+  ],
+  "retainedStates": [
+    "Last updated",
+    "Collecting activity",
+    "Source missing",
+    "Bridge missing",
+    "Materializer missing",
+    "External proof required",
+    "No recent activity",
+    "Payment proof required"
+  ],
+  "deferred": [
+    {
+      "item": "CreateDropModal filename/component split",
+      "owner": "admin/creator drop workflow consolidation",
+      "blocker": "Component is shared by admin drops and creator drop manager; broad rename is outside this UI label cleanup."
+    },
+    {
+      "item": "Deep Debug advanced pill cleanup",
+      "owner": "Admin Debug Control Tower",
+      "blocker": "Requires a separate source-to-UI pass so raw evidence remains drilldown-only without hiding active blockers."
+    }
+  ]
+}

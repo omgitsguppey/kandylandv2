@@ -3,7 +3,7 @@ import type { HistoricalAnalyticsResponse, RangeOption, RawEventItem } from "@/t
 
 type ActorType = "guest" | "user" | "creator" | "admin" | "system" | "unknown";
 type StreamSourceMode = "live" | "snapshot" | "refresh_due_snapshot" | "expired_snapshot" | "unavailable";
-type TruthBadge = "LIVE" | "SNAP" | "REFRESH" | "WAIT" | "ERROR";
+type TruthBadge = "Current" | "Cached" | "Refresh due" | "Collecting" | "Failed";
 type StreamSourceTruth = "realtime_presence" | "event_facts" | "backend_snapshot" | "mixed" | "unknown";
 type StreamFreshnessState = "live" | "recent" | "refresh_due" | "expired" | "unknown";
 type RowEventType = "event" | "reward" | "task" | "task_failed" | "message" | "purchase" | "unlock" | "unknown";
@@ -443,14 +443,14 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
     .filter((row) => row.missingSurfaceMapping)
     .map((row) => row.eventKey);
   const badgeLabel: TruthBadge = !hasResponse && input.loading
-    ? "WAIT"
+    ? "Collecting"
     : !hasResponse
-      ? "ERROR"
+      ? "Failed"
       : streamSourceMode === "live"
-        ? "LIVE"
+        ? "Current"
         : streamSourceMode === "snapshot"
-          ? "SNAP"
-          : "REFRESH";
+          ? "Cached"
+          : "Refresh due";
   const warnings: string[] = [];
   if (streamSourceMode === "refresh_due_snapshot" || streamSourceMode === "expired_snapshot") {
     warnings.push(

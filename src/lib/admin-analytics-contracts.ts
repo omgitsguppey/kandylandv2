@@ -29,7 +29,7 @@ export const ADMIN_ANALYTICS_MODULE_CONTRACT_REGISTRY: readonly AdminAnalyticsCo
     label: "Analytics badge labels",
     ownerFile: "src/lib/admin-analytics-contracts.ts",
     formulas: ["Admin analytics badge labels come from contract-owned surface state mapping."],
-    badgePolicy: "Contract owns LIVE/SNAP/REVIEW/DELAYED/WAIT/ERROR label mapping.",
+    badgePolicy: "Contract owns plain-language current/cached/review/refresh/loading/error label mapping.",
   },
   {
     key: "live_pulse",
@@ -50,7 +50,7 @@ export const ADMIN_ANALYTICS_MODULE_CONTRACT_REGISTRY: readonly AdminAnalyticsCo
       "Server transaction truth owns revenue and purchase language.",
     ],
     denominators: ["Checkout conversion uses completed purchases / checkout starts only when source and range match."],
-    badgePolicy: "Tabs must not map cacheState or refreshStatus to LIVE/ERROR/WAIT inline.",
+    badgePolicy: "Tabs must not map cacheState or refreshStatus to badge text inline.",
   },
   {
     key: "return_cadence",
@@ -94,14 +94,14 @@ export const ADMIN_ANALYTICS_MODULE_CONTRACT_REGISTRY: readonly AdminAnalyticsCo
 ] as const;
 
 export const ADMIN_ANALYTICS_BADGE_LABELS: Record<AdminSurfaceState, string> = {
-  loading: "WAIT",
-  live: "LIVE",
-  cached: "SNAP",
-  degraded: "REVIEW",
-  fallback: "SNAP",
-  stale: "DELAYED",
-  unavailable: "UNAVAILABLE",
-  failed: "ERROR",
+  loading: "Collecting",
+  live: "Current",
+  cached: "Cached",
+  degraded: "Review",
+  fallback: "Cached",
+  stale: "Expired",
+  unavailable: "No source",
+  failed: "Failed",
 };
 
 export function resolveAdminAnalyticsBadgeLabel(state: AdminSurfaceState) {
@@ -111,23 +111,23 @@ export function resolveAdminAnalyticsBadgeLabel(state: AdminSurfaceState) {
 export function resolveAdminAnalyticsLivePulseBadgeLabel(
   model: Pick<AdminAnalyticsLivePulseModel, "mode" | "presenceSourceStatus">,
 ) {
-  if (model.mode === "delayed_snapshot") return "SNAP";
-  if (model.presenceSourceStatus === "failed") return "ERROR";
-  if (model.presenceSourceStatus === "fallback") return "SNAP";
-  if (model.presenceSourceStatus === "waiting") return "WAIT";
-  if (model.presenceSourceStatus === "cache") return "DELAYED";
-  return "LIVE";
+  if (model.mode === "delayed_snapshot") return "Cached";
+  if (model.presenceSourceStatus === "failed") return "Failed";
+  if (model.presenceSourceStatus === "fallback") return "Cached";
+  if (model.presenceSourceStatus === "waiting") return "Collecting";
+  if (model.presenceSourceStatus === "cache") return "Refresh due";
+  return "Current";
 }
 
 export function resolveAdminAnalyticsCommerceBadgeLabel(
   model: Pick<AdminAnalyticsCommerceSnapshotModel, "cacheState" | "refreshStatus">,
 ) {
-  if (model.cacheState === "live") return "LIVE";
-  if (model.cacheState === "delayed") return "DELAYED";
-  if (model.cacheState === "partial") return "REVIEW";
-  if (model.cacheState === "stale") return "DELAYED";
-  if (model.refreshStatus === "running") return "WAIT";
-  return "ERROR";
+  if (model.cacheState === "live") return "Current";
+  if (model.cacheState === "delayed") return "Refresh due";
+  if (model.cacheState === "partial") return "Review";
+  if (model.cacheState === "stale") return "Refresh due";
+  if (model.refreshStatus === "running") return "Collecting";
+  return "Failed";
 }
 
 export function resolveAdminAnalyticsCommerceConversionFooter(input: {
@@ -141,7 +141,7 @@ export function resolveAdminAnalyticsCommerceConversionFooter(input: {
 }
 
 export function resolveAdminAnalyticsGuestEstimateBadgeLabel(guestEstimateFormulaUsed: boolean) {
-  return guestEstimateFormulaUsed ? "EST" : undefined;
+  return guestEstimateFormulaUsed ? "Estimate" : undefined;
 }
 
 export function formatAdminAnalyticsJourneyDenominatorMode(mode: string) {
@@ -256,7 +256,7 @@ export function buildAdminAnalyticsViewerDrilldownContract(input: ViewerDrilldow
     input.viewerDrilldownCaptureHealth.transportBreakdown.find((item) => item.transport === "unknown")?.count ?? 0;
   const captureUnknownTransportWarning =
     captureUnknownTransportCount > 0
-      ? `REVIEW: ${captureUnknownTransportCount.toLocaleString()} watch sessions have unknown capture transport.`
+      ? `Review: ${captureUnknownTransportCount.toLocaleString()} watch sessions have unknown capture transport.`
       : null;
   const captureHealthExplanation = "Full capture means the session closed or recovered cleanly. Replay recovery can still count as full when replay repaired missing capture segments. Avg gap is the mean max capture gap across sessions.";
   const viewerCapturePulseState =
@@ -269,8 +269,8 @@ export function buildAdminAnalyticsViewerDrilldownContract(input: ViewerDrilldow
     viewerCapturePulseState === "quiet"
       ? "QUIET"
       : viewerCapturePulseState === "stale"
-        ? "STALE"
-        : "LIVE";
+        ? "Expired"
+        : "Current";
   const viewerCapturePulseExplanation =
     viewerCapturePulseState === "quiet"
       ? "Monitor live - no recent viewer sessions."

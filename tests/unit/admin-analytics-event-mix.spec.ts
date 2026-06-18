@@ -99,7 +99,7 @@ describe("buildAdminAnalyticsEventMixModel", () => {
 
     expect(model.totalEventsInRange).toBeNull();
     expect(model.fakeZeroPrevented).toBe(true);
-    expect(model.badgeLabel).toBe("WAIT");
+    expect(model.badgeLabel).toBe("Collecting");
   });
 
   it("keeps refresh-due event mix snapshots as cached truth instead of live truth", () => {
@@ -133,7 +133,7 @@ describe("buildAdminAnalyticsEventMixModel", () => {
 
     expect(model.staleSnapshotUsed).toBe(false);
     expect(model.truthState).toBe("cached");
-    expect(model.badgeLabel).toBe("DELAYED");
+    expect(model.badgeLabel).toBe("Refresh due");
     expect(model.eventRows[0]?.truthState).toBe("cached");
     expect(model.eventMixSourceMode).toBe("backend_snapshot");
   });

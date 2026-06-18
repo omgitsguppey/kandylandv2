@@ -114,10 +114,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     livePulseModel.guestSnapshotTruthState === "live"
       ? livePulseBadgeLabel
       : livePulseModel.guestSnapshotTruthState === "stale"
-        ? "DELAYED"
+        ? "Refresh due"
         : livePulseModel.guestSnapshotTruthState === "needs_review"
-          ? "REVIEW"
-          : "NO SAMPLE";
+          ? "Review"
+          : "No sample";
   const guestMixHint =
     livePulseModel.guestSnapshotTruthState === "live"
       ? `Guest snapshot from ${livePulseModel.guestSnapshotSourceLabel}`
@@ -292,7 +292,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
           </span>
           <AdminStatusBadge
             state={item.freshness}
-            label={item.freshness === "live" ? "LIVE" : "DELAYED"}
+            label={item.freshness === "live" ? "Current" : "Refresh due"}
             className="max-w-[4.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
           />
         </div>
@@ -389,7 +389,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             {rowDiffers ? (
               <AdminStatusBadge
                 state="degraded"
-                label="PARTIAL"
+                label="Partial"
                 className="max-w-[4.5rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
               />
             ) : null}
@@ -1435,7 +1435,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     hint={`Source ${guestEstimateSourceLabel} - ${guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}`}
                     icon={Users}
                     truthState={guestBounceQualityModel.estimatedGuestViews.freshnessState === "stale" ? "stale" : guestBounceQualityModel.estimatedGuestViews.freshnessState === "refresh_due" ? "cached" : guestBounceQualityModel.truthState}
-                    statusBadgeLabel="EST"
+                    statusBadgeLabel="Estimate"
                     className="rounded-[1rem] p-2"
                     valueClassName="text-lg leading-6 md:text-xl"
                   />
@@ -1451,7 +1451,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     hint={guestQualityHint}
                     icon={AlertTriangle}
                     truthState={guestBounceQualityModel.guestQuality.state === "available" ? guestBounceQualityModel.truthState : "degraded"}
-                    statusBadgeLabel={guestBounceQualityModel.guestQuality.state === "available" ? "SAMPLE" : "NO SAMPLE"}
+                    statusBadgeLabel={guestBounceQualityModel.guestQuality.state === "available" ? "Sample" : "No sample"}
                     className="rounded-[1rem] p-2"
                     valueClassName="truncate text-base leading-6 md:text-lg"
                   />
@@ -1463,7 +1463,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     hint={signedInBounceHint}
                     icon={Activity}
                     truthState={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "stale" : guestBounceQualityModel.signedInBounce.freshnessState === "refresh_due" ? "cached" : guestBounceQualityModel.signedInBounce.value === null ? "degraded" : "live"}
-                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.freshnessState === "stale" || guestBounceQualityModel.signedInBounce.freshnessState === "refresh_due" ? "DELAYED" : guestBounceQualityModel.signedInBounce.value === null ? "PARTIAL" : "SAMPLE"}
+                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.freshnessState === "stale" || guestBounceQualityModel.signedInBounce.freshnessState === "refresh_due" ? "Refresh due" : guestBounceQualityModel.signedInBounce.value === null ? "Partial" : "Sample"}
                     className="rounded-[1rem] p-2"
                     valueClassName="truncate text-base leading-6 md:text-lg"
                   />

@@ -121,7 +121,7 @@ describe("buildAdminAnalyticsLiveInteractionStreamModel", () => {
     expect(model.streamSourceMode).toBe("refresh_due_snapshot");
     expect(model.freshnessState).toBe("refresh_due");
     expect(model.truthState).toBe("cached");
-    expect(model.badgeLabel).toBe("REFRESH");
+    expect(model.badgeLabel).toBe("Refresh due");
     expect(model.visibleCopy).toContain("Refresh due");
     expect(model.recommendation).toContain("Refresh due");
     expect(model.warnings).toContain("Refresh due. Showing the latest verified interaction snapshot until new events arrive.");
@@ -147,6 +147,6 @@ describe("buildAdminAnalyticsLiveInteractionStreamModel", () => {
     expect(model.visibleEventCount).toBeNull();
     expect(model.rawEventCount).toBeNull();
     expect(model.fakeZeroPrevented).toBe(true);
-    expect(model.badgeLabel).toBe("WAIT");
+    expect(model.badgeLabel).toBe("Collecting");
   });
 });

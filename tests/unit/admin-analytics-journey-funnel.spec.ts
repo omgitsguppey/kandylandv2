@@ -67,7 +67,7 @@ describe("buildAdminAnalyticsJourneyFunnelModel", () => {
 
     expect(model.steps[0].displayedCount).toBeNull();
     expect(model.steps[0].fakeZeroPrevented).toBe(true);
-    expect(model.modeLabel).toBe("WAIT");
+    expect(model.modeLabel).toBe("Collecting");
     expect(model.visibleHelperCopy).toContain("Waiting");
   });
 
@@ -78,8 +78,8 @@ describe("buildAdminAnalyticsJourneyFunnelModel", () => {
     });
 
     expect(model.hydrationState).toBe("no_sample");
-    expect(model.modeLabel).not.toBe("ERROR");
-    expect(model.modeLabel).toBe("NO SAMPLE");
+    expect(model.modeLabel).not.toBe("Failed");
+    expect(model.modeLabel).toBe("No sample");
     expect(model.hasUsableEventSample).toBe(false);
     expect(model.canRenderStepDetails).toBe(false);
     expect(model.nextSourceStep).toContain("Generate bounded sample activity");
@@ -93,7 +93,7 @@ describe("buildAdminAnalyticsJourneyFunnelModel", () => {
     });
 
     expect(model.hydrationState).toBe("error");
-    expect(model.modeLabel).toBe("ERROR");
+    expect(model.modeLabel).toBe("Failed");
   });
 
   it("prevents fake zero math for missing event counts", () => {
@@ -183,7 +183,7 @@ describe("buildAdminAnalyticsJourneyFunnelModel", () => {
     });
 
     expect(model.stale).toBe(false);
-    expect(model.modeLabel).toBe("DELAYED");
+    expect(model.modeLabel).toBe("Refresh due");
     expect(model.steps[0].truthState).toBe("cached");
     expect(model.steps[0].state).toBe("live");
     expect(model.supportingMetrics[0].truthState).toBe("cached");

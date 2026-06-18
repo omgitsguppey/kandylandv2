@@ -54,7 +54,7 @@ export type AdminAnalyticsEventMixModel = {
   selectedRange: RangeOption;
   eventMixSourceMode: EventMixSourceMode;
   truthState: AdminSurfaceState;
-  badgeLabel: "LIVE" | "UPDATED" | "DELAYED" | "PARTIAL" | "WAIT" | "ERROR";
+  badgeLabel: "Current" | "Updated" | "Refresh due" | "Partial" | "Collecting" | "Failed";
   totalEventsInRange: number | null;
   denominatorAvailable: boolean;
   topEvent: AdminAnalyticsEventMixRow | null;
@@ -252,14 +252,14 @@ export function buildAdminAnalyticsEventMixModel(input: {
   const topEvent = eventRows[0] ?? null;
   const badgeLabel =
     sourceMode === "waiting"
-      ? "WAIT"
+      ? "Collecting"
       : sourceMode === "error"
-        ? "ERROR"
+        ? "Failed"
         : stale || cacheRefreshDue
-          ? "DELAYED"
+          ? "Refresh due"
           : actualSurfaceContextState !== "available" || (eventsNeedingCatalogMapping ?? 0) > 0
-            ? "PARTIAL"
-            : "UPDATED";
+            ? "Partial"
+            : "Updated";
 
   return {
     selectedRange: input.selectedRange,

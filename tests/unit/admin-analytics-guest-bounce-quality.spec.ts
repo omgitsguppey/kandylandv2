@@ -89,7 +89,7 @@ describe("buildAdminAnalyticsGuestBounceQualityModel", () => {
       overviewTruthState: "live",
     });
 
-    expect(model.badgeLabel).toBe("SAMPLE");
+    expect(model.badgeLabel).toBe("Sample");
     expect(model.moduleTruthState).toBe("verified");
     expect(model.guestQuality.state).toBe("available");
   });
@@ -153,7 +153,7 @@ describe("buildAdminAnalyticsGuestBounceQualityModel", () => {
     });
 
     expect(model.truthState).toBe("cached");
-    expect(model.badgeLabel).toBe("DELAYED");
+    expect(model.badgeLabel).toBe("Refresh due");
     expect(model.moduleTruthState).toBe("verified");
     expect(model.estimatedGuestViews.freshnessState).toBe("refresh_due");
     expect(model.signedInBounce.freshnessState).toBe("refresh_due");
@@ -245,6 +245,6 @@ describe("buildAdminAnalyticsGuestBounceQualityModel", () => {
     expect(model.signedInBounce.value).toBeNull();
     expect(model.signedInBounce.fakeZeroPrevented).toBe(true);
     expect(model.signedInBounce.unavailableReason).toBe("Signed-in bounce has no valid visit sample.");
-    expect(model.badgeLabel).toBe("NO SAMPLE");
+    expect(model.badgeLabel).toBe("No sample");
   });
 });

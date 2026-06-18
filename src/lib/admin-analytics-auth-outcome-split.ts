@@ -74,7 +74,7 @@ export type AdminAnalyticsAuthOutcomeModel = {
   duplicateRefreshPrevented: boolean;
   badgeOverflowProtectionEnabled: true;
   sampleTooSmall: boolean;
-  modeLabel: "LIVE" | "CACHED" | "STALE" | "PARTIAL" | "WAIT" | "NO SAMPLE" | "UNAVAILABLE" | "ERROR";
+  modeLabel: "Current" | "Cached" | "Expired" | "Partial" | "Collecting" | "No sample" | "No source" | "Failed";
   hydrationState: AuthOutcomeHydrationState;
   hasCanonicalAuthAttemptSample: boolean;
   hasLegacyAuthSample: boolean;
@@ -469,16 +469,16 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
     badgeOverflowProtectionEnabled: true,
     sampleTooSmall: hasUsableAuthSample && summary.attempts < 10,
     modeLabel: input.error
-      ? "ERROR"
+      ? "Failed"
       : !hasResponse
-        ? input.loading ? "WAIT" : "NO SAMPLE"
+        ? input.loading ? "Collecting" : "No sample"
         : stale
-          ? "STALE"
+          ? "Expired"
           : hasCanonicalAuthAttemptSample
-            ? cacheRefreshDue ? "CACHED" : "LIVE"
+            ? cacheRefreshDue ? "Cached" : "Current"
             : hasLegacyAuthSample
-              ? "PARTIAL"
-              : "NO SAMPLE",
+              ? "Partial"
+              : "No sample",
     hydrationState,
     hasCanonicalAuthAttemptSample,
     hasLegacyAuthSample,

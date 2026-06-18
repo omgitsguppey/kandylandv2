@@ -26,9 +26,9 @@ describe("Admin onboarding analytics mobile consolidation", () => {
   it("derives the badge label from the actual onboarding truth state", () => {
     expect(source).toContain("function getOnboardingVelocityBadgeLabel");
     expect(source).toContain('case "cached":');
-    expect(source).toContain('return "SNAP"');
+    expect(source).toContain('return "Cached"');
     expect(source).toContain('case "unavailable":');
-    expect(source).toContain('return "UNAVAILABLE"');
+    expect(source).toContain('return "No source"');
     expect(source).not.toContain(': "LIVE";');
   });
 

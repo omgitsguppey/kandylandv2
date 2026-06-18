@@ -209,14 +209,14 @@ type StoredHistoricalOverviewSnapshot = {
 };
 
 const ANALYTICS_OVERVIEW_BADGE_LABELS: Record<AdminSurfaceState, string> = {
-  loading: "WAIT",
-  live: "LIVE",
-  cached: "SNAP",
-  degraded: "REVIEW",
-  fallback: "SNAP",
-  stale: "DELAYED",
-  unavailable: "UNAVAILABLE",
-  failed: "ERROR",
+  loading: "Collecting",
+  live: "Current",
+  cached: "Cached",
+  degraded: "Review",
+  fallback: "Cached",
+  stale: "Expired",
+  unavailable: "No source",
+  failed: "Failed",
 };
 
 const SNAPSHOT_SECTION_KEYS = new Set<string>([
@@ -235,14 +235,14 @@ const SNAPSHOT_SECTION_KEYS = new Set<string>([
 ]);
 
 const SNAPSHOT_SOURCE_LABELS: Record<string, string> = {
-  live: "LIVE",
-  verified_cache: "SNAP",
-  stale_cache: "REFRESH",
-  intraday: "UPDATED",
-  estimated: "EST",
-  fallback: "SNAP",
-  unavailable: "UNAVAILABLE",
-  mixed: "PARTIAL",
+  live: "Current",
+  verified_cache: "Cached",
+  stale_cache: "Refresh due",
+  intraday: "Updated",
+  estimated: "Estimate",
+  fallback: "Cached",
+  unavailable: "No source",
+  mixed: "Partial",
 };
 
 function isSnapshotSectionKey(value: string): value is AdminAnalyticsSnapshotSectionKey {
@@ -1707,7 +1707,7 @@ export function useAdminAnalyticsState() {
         displayValue: overviewFallbackRevenueDisplay,
         state: "partial",
         truthState: "degraded",
-        statusBadgeLabel: "PARTIAL",
+        statusBadgeLabel: "Partial",
         sourceTruth: "server_transactions",
         freshnessState: mapOverviewFreshnessState(overviewRevenueMetric?.freshnessState),
         windowLabel: "30D",
@@ -1777,7 +1777,7 @@ export function useAdminAnalyticsState() {
         displayValue: overviewFallbackPurchasesDisplay,
         state: "partial",
         truthState: "degraded",
-        statusBadgeLabel: "PARTIAL",
+        statusBadgeLabel: "Partial",
         sourceTruth: "server_transactions",
         freshnessState: mapOverviewFreshnessState(overviewPurchasesMetric?.freshnessState),
         windowLabel: "30D",
@@ -1821,7 +1821,7 @@ export function useAdminAnalyticsState() {
       statusBadgeLabel:
         historicalOverviewResponse
           ? undefined
-          : "SNAP",
+          : "Cached",
       sourceTruth: historicalOverviewResponse ? "realtime_snapshot" : "device_sample",
       freshnessState:
         historicalOverviewResponse
@@ -1849,7 +1849,7 @@ export function useAdminAnalyticsState() {
       displayValue: "No sample",
       state: "unavailable",
       truthState: "degraded",
-      statusBadgeLabel: "NO SAMPLE",
+        statusBadgeLabel: "No sample",
       sourceTruth: "missing",
       freshnessState: "not_observed",
       windowLabel: range.toUpperCase(),

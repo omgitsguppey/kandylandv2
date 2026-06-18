@@ -52,13 +52,13 @@ export type AdminAnalyticsJourneyFunnelModel = FunnelFlags & Omit<EventChainPane
   funnelMode: FunnelMode;
   denominatorMode: DenominatorMode;
   modeLabel:
-    | "UPDATED"
-    | "PARTIAL"
-    | "WAIT"
-    | "UNAVAILABLE"
-    | "NO SAMPLE"
-    | "ERROR"
-    | "DELAYED";
+    | "Updated"
+    | "Partial"
+    | "Collecting"
+    | "No source"
+    | "No sample"
+    | "Failed"
+    | "Refresh due";
   hydrationState: EventChainHydrationState;
   hasUsableEventSample: boolean;
   canRenderStepDetails: boolean;
@@ -397,16 +397,16 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     funnelMode,
     denominatorMode,
     modeLabel: input.error
-      ? "ERROR"
+      ? "Failed"
       : !hasResponse
-        ? input.loading ? "WAIT" : "NO SAMPLE"
+        ? input.loading ? "Collecting" : "No sample"
         : !hasUsableEventSample
-          ? "NO SAMPLE"
+          ? "No sample"
           : flags.stale || cacheRefreshDue
-            ? "DELAYED"
+            ? "Refresh due"
             : sourceMismatchSteps.length > 0 || nonSequentialSteps.length > 0
-              ? "PARTIAL"
-              : "UPDATED",
+              ? "Partial"
+              : "Updated",
     hydrationState,
     hasUsableEventSample,
     canRenderStepDetails,
