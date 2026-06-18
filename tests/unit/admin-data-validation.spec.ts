@@ -326,6 +326,12 @@ describe("buildHistoricalValidationSummary", () => {
       historicalSnapshot: 2,
       legacySupport: 1,
     });
+    expect(coverage?.firstPartyCoverage).toMatchObject({
+      state: "partial",
+      coveredDayCount: 1,
+      missingRanges: ["2026-05-02..2026-05-03"],
+      canPromoteProductTruth: false,
+    });
     expect(coverage?.days).toEqual([
       expect.objectContaining({
         dayKey: "2026-05-01",

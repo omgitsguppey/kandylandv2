@@ -666,6 +666,29 @@ describe("AdminAnalyticsPage", () => {
     expect(container.querySelector("[data-admin-analytics-status-summary=\"compact\"]")).toBeTruthy();
   });
 
+  it("surfaces first-party launch gaps even when second-source coverage exists", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      historicalSourceLabel: "Launch history partially recovered since 2026-05-01",
+      launchRecoverySummary: {
+        sourceLabel: "Mixed",
+        confidenceLabel: "review",
+        coverageLabel: "3/3 launch days - first-party 1/3",
+        missingRangeCount: 1,
+        sourceAgreementState: "failed",
+      },
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).toContain("Coverage: 3/3 launch days - first-party 1/3");
+    expect(container.textContent).toContain("Source: Mixed");
+    expect(container.textContent).toContain("Confidence: review");
+    expect(container.textContent).toContain("1 range(s) still need recovery");
+  });
+
   it("does not show missing analytics source states as bare unavailable summary copy", async () => {
     mockState.analyticsState = {
       ...mockState.analyticsState,

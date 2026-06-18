@@ -1,9 +1,9 @@
 {
   "reportKey": "admin-surface-modal-replacement",
   "status": "source_review_pass",
-  "generatedAtUtc": "2026-06-18T09:38:57.300Z",
-  "sourceCommit": "742254f45d7ab778d8a8c4c1d1f52a26989e847b",
-  "currentHead": "742254f45d7ab778d8a8c4c1d1f52a26989e847b",
+  "generatedAtUtc": "2026-06-18T10:12:09.000Z",
+  "sourceCommit": "0ddeb01d3d14af280e4686937654b0a3d60b0d28",
+  "currentHead": "0ddeb01d3d14af280e4686937654b0a3d60b0d28",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "sourceFileDiscovery": "git",
@@ -12,8 +12,8 @@
   "freshness": "fresh",
   "baselineStatus": "current",
   "reportCompleteness": "complete",
-  "totalFindingCount": 4,
-  "emittedFindingCount": 4,
+  "totalFindingCount": 5,
+  "emittedFindingCount": 5,
   "omittedFindingCount": 0,
   "capReason": null,
   "capStrategy": "none",
@@ -31,7 +31,7 @@
   "owner": "admin surface modal replacement source review",
   "safetyClass": "source_safe",
   "costClass": "local_free",
-  "rollback": "Revert agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md; no runtime source is changed by this report refresh.",
+  "rollback": "Revert the admin analytics first-party coverage metadata patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
   "cleanupPolicy": "preserve_tracked_snapshot",
   "cleanupCommand": null,
   "sourceTruthRole": "generated_snapshot",
@@ -43,7 +43,8 @@
   "nextExactSteps": [
     "Run targeted Admin Analytics UI tests after label-contract changes.",
     "Use browser/computer-use audit only after a local admin session is available.",
-    "Defer CreateDropModal file rename until creator-dashboard imports can move in a separate slice."
+    "Defer CreateDropModal file rename until creator-dashboard imports can move in a separate slice.",
+    "Recover first-party launch-history day buckets before promoting mixed GA4/fallback coverage as product truth."
   ],
   "validationFailures": [],
   "doesNotProve": [
@@ -57,6 +58,7 @@
     "inlinePanelsConfirmed": 3,
     "legacyModalNamesDeferred": 1,
     "adminAnalyticsLabelContractsNormalized": true,
+    "adminAnalyticsFirstPartyCoverageConnected": true,
     "navigationTouched": false,
     "paymentOrGumDropRuntimeTouched": false
   },
@@ -81,6 +83,13 @@
       "sourceOwner": "src/lib/admin-analytics-contracts.ts and admin analytics model builders",
       "decision": "simplify_plain_state_labels",
       "reason": "All-caps labels like LIVE, DELAYED, REFRESH, SAMPLE, and WAIT were replaced with plain source states such as Current, Cached, Refresh due, Sample, No sample, Collecting, No source, and Failed."
+    },
+    {
+      "surface": "Admin Analytics",
+      "candidates": ["launchHistoryCoverage", "Data status strip"],
+      "sourceOwner": "src/lib/server/admin-analytics-historical-validation.ts and src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "decision": "connect_first_party_coverage_metadata",
+      "reason": "The runtime launchHistoryCoverage response now exposes firstPartyCoverage so mixed GA4/fallback coverage cannot look fully product-truth-ready in the compact Admin Analytics status strip."
     }
   ],
   "retainedStates": [
@@ -103,6 +112,11 @@
       "item": "Deep Debug advanced pill cleanup",
       "owner": "Admin Debug Control Tower",
       "blocker": "Requires a separate source-to-UI pass so raw evidence remains drilldown-only without hiding active blockers."
+    },
+    {
+      "item": "Generated indexes that mention BalanceAdjustmentModal and TransactionHistoryModal",
+      "owner": "agent index refresh",
+      "blocker": "Runtime source imports BalanceAdjustmentPanel and TransactionHistoryPanel; stale index/report mentions are evidence snapshots and should be refreshed only in an agent-index slice."
     }
   ]
 }

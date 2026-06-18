@@ -866,6 +866,13 @@ export interface AnalyticsSourceHealth {
       historicalSnapshot: number;
       legacySupport: number;
     };
+    firstPartyCoverage: {
+      state: "available" | "partial" | "source_missing";
+      coveredDayCount: number;
+      missingRanges: string[];
+      canPromoteProductTruth: boolean;
+      reason: string;
+    };
     missingRanges: string[];
     duplicateRanges: string[];
     sourceOverlapRanges: string[];

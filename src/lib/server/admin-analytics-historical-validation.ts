@@ -90,6 +90,13 @@ export interface AnalyticsSourceHealth {
       historicalSnapshot: number;
       legacySupport: number;
     };
+    firstPartyCoverage: {
+      state: "available" | "partial" | "source_missing";
+      coveredDayCount: number;
+      missingRanges: string[];
+      canPromoteProductTruth: boolean;
+      reason: string;
+    };
     missingRanges: string[];
     duplicateRanges: string[];
     sourceOverlapRanges: string[];
@@ -593,6 +600,8 @@ function buildAnalyticsSourceHealth(input: {
   const unionPresentDays = new Set<string>(observedExpectedDays.filter((dayKey) => expectedDaySet.has(dayKey)));
 
   const missingDays = expectedDays.filter((dayKey) => !unionPresentDays.has(dayKey));
+  const firstPartyExpectedDayCount = expectedDays.filter((dayKey) => firstPartyPresentDays.has(dayKey)).length;
+  const firstPartyMissingDays = expectedDays.filter((dayKey) => !firstPartyPresentDays.has(dayKey));
   const recentGapDays = input.recentWindowDayKeys.filter((dayKey) => !unionPresentDays.has(dayKey));
   const lastCompleteDay = [...expectedDays].reverse().find((dayKey) => unionPresentDays.has(dayKey)) ?? null;
   let recentGapStreak = 0;
@@ -675,6 +684,12 @@ function buildAnalyticsSourceHealth(input: {
           ? "No day-bucket evidence was available for the selected range."
           : "Availability, continuity, and source agreement checks passed for the selected chart range.";
   const lastRecoveredDayKey = observedExpectedDays[observedExpectedDays.length - 1] ?? null;
+  const firstPartyCoverageState: NonNullable<AnalyticsSourceHealth["launchHistoryCoverage"]>["firstPartyCoverage"]["state"] =
+    expectedDays.length === 0 || firstPartyExpectedDayCount === 0
+      ? "source_missing"
+      : firstPartyMissingDays.length === 0
+        ? "available"
+        : "partial";
   const launchHistoryDays = buildLaunchHistoryDayCoverage({
     expectedDays,
     gaPresentDays,
@@ -699,6 +714,15 @@ function buildAnalyticsSourceHealth(input: {
           ga4: input.gaPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
           historicalSnapshot: input.snapshotPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
           legacySupport: input.legacyPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
+        },
+        firstPartyCoverage: {
+          state: firstPartyCoverageState,
+          coveredDayCount: firstPartyExpectedDayCount,
+          missingRanges: collapseDayRanges(firstPartyMissingDays),
+          canPromoteProductTruth: firstPartyCoverageState === "available" && sourceAgreementState === "pass",
+          reason: firstPartyCoverageState === "available"
+            ? "First-party product truth covers every recovered launch-history day."
+            : "First-party product truth is missing for at least one launch-history day; GA4, historical snapshots, and legacy support remain evidence-only.",
         },
         missingRanges: collapseDayRanges(missingDays),
         duplicateRanges: [],

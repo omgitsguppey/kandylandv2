@@ -1526,6 +1526,11 @@ export function useAdminAnalyticsState() {
       ? `${launchHistoryCoverage.state === "available" ? "Launch history recovered" : "Launch history partially recovered"} since ${launchHistoryCoverage.firstRecoveredDayKey}`
       : null;
   const launchSourceCounts = launchHistoryCoverage?.sourceDayCounts;
+  const launchFirstPartyCoverage = launchHistoryCoverage?.firstPartyCoverage;
+  const launchFirstPartyCoverageLabel =
+    launchHistoryCoverage && launchFirstPartyCoverage?.state !== "available"
+      ? ` - first-party ${launchFirstPartyCoverage?.coveredDayCount ?? launchSourceCounts?.firstParty ?? 0}/${launchHistoryCoverage.expectedDayCount}`
+      : "";
   const launchRecoverySourceLabel = launchSourceCounts
     ? launchSourceCounts.firstParty > 0 && launchSourceCounts.ga4 > 0
       ? "Mixed"
@@ -1555,9 +1560,9 @@ export function useAdminAnalyticsState() {
     sourceLabel: launchRecoverySourceLabel,
     confidenceLabel: launchRecoveryConfidenceLabel,
     coverageLabel: launchHistoryCoverage
-      ? `${launchHistoryCoverage.recoveredDayCount}/${launchHistoryCoverage.expectedDayCount} launch days`
+      ? `${launchHistoryCoverage.recoveredDayCount}/${launchHistoryCoverage.expectedDayCount} launch days${launchFirstPartyCoverageLabel}`
       : "Coverage waiting",
-    missingRangeCount: launchHistoryCoverage?.missingRanges.length ?? 0,
+    missingRangeCount: launchFirstPartyCoverage?.missingRanges.length ?? launchHistoryCoverage?.missingRanges.length ?? 0,
     sourceAgreementState,
   };
 
