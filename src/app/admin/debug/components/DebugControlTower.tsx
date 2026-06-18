@@ -17,8 +17,9 @@ import { DebugOperatorCockpit } from "./DebugOperatorCockpit";
 import { DebugGumdropRecoverySummary, DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
 import { FILTERS, type FilterId, FindingCard, LiveIssueCard, NextActionCard, ReportCard, SECTION_COPY, filterReport, formatRelative, resolveReportDisplay } from "./DebugControlTowerCards";
 
-function formatPublicBetaCapDetailForAdmin(detail: string) {
-    const normalized = detail.trim(), count = normalized.match(/\b\d+\b/u)?.[0];
+function formatPublicBetaCapDetailForAdmin(detail?: string) {
+    const normalized = String(detail ?? "").trim(), count = normalized.match(/\b\d+\b/u)?.[0];
+    if (!normalized) return "Readiness unavailable.";
     return /targeted behavior tests/iu.test(normalized) ? "Source checks passed: targeted behavior validators passed. They do not replace screenshot, provider, runtime, or admin truth proof." : /runtime\/provider smoke|provider smoke|runtime smoke/iu.test(normalized) ? "Provider and runtime proof needed: attach fresh redacted provider smoke evidence and keep deployed runtime smoke current." : /admin truth|sample evidence|truth sample/iu.test(normalized) ? "Admin truth sample needed: attach a fresh redacted production admin truth sample." : /report freshness|pr integrity|freshness window|current-head|current head/iu.test(normalized) ? count ? `Report refresh needed: ${count} required generated reports are older than the freshness window.` : "Report refresh needed: required generated reports are older than the freshness window." : normalized.replace(/^Unknown evidence:\s*/iu, "Evidence needs classification: ").replace(/^Stale evidence:\s*/iu, "Refresh or proof needed: ").replace(/^Runtime unverified:\s*/iu, "Runtime proof needed: ");
 }
 
@@ -116,14 +117,9 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
     const visibleNextActions = model?.nextActions.slice(0, 3) ?? [];
     const publicBetaNeedsFormalProof = canonicalBetaCapDetails.some((detail) => /proof|provider|runtime|admin truth|manual|unknown evidence|stale evidence/i.test(detail));
     const failedReportWithFindings = blockerReports.some((report) => report.truthState === "failed" && (report.criticalCount > 0 || report.findingCount > 0 || report.topFindings.length > 0));
-    const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale"
-        ? "stale"
-        : publicBetaNeedsFormalProof
-            ? "review"
-            : failedReportWithFindings
-                ? "failed"
-                : "live";
+    const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale" ? "stale" : publicBetaNeedsFormalProof ? "review" : failedReportWithFindings ? "failed" : "live";
     const publicBetaBadgeLabel = publicBetaNeedsFormalProof ? "Proof required" : undefined;
+    const publicBetaReadinessReason = model ? formatPublicBetaCapDetailForAdmin(model.canonicalPublicBetaReadinessReason) : "";
 
     return (
         <section
@@ -166,7 +162,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                         data-debug-visible-summary="single-triage-strip"
                         data-debug-report-source="agent/state/public-beta-score.generated.json"
                     >
-                        {canonicalBetaCapDetails.length || blockerReports.length} proof or refresh item{(canonicalBetaCapDetails.length || blockerReports.length) === 1 ? "" : "s"}, {model.liveIssues.length} current issues, and {visibleReports} evidence rows. {model.canonicalPublicBetaReadinessReason}
+                        {canonicalBetaCapDetails.length || blockerReports.length} proof or refresh item{(canonicalBetaCapDetails.length || blockerReports.length) === 1 ? "" : "s"}, {model.liveIssues.length} current issues, and {visibleReports} evidence rows. {publicBetaReadinessReason}
                     </p>
                 ) : null}
             </div>
@@ -206,7 +202,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                             <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div>
                                     <h3 className="font-bold text-white">Items to clear</h3>
-                                    <p className="text-xs text-gray-400">{model.canonicalPublicBetaReadinessReason}</p>
+                                    <p className="text-xs text-gray-400">{publicBetaReadinessReason}</p>
                                     <p className="mt-1 text-[11px] text-gray-500">
                                         {model.canonicalPublicBetaStatus} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"} | source {model.canonicalPublicBetaSourceDrift}
                                     </p>

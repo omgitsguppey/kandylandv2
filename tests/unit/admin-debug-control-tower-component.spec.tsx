@@ -285,6 +285,35 @@ describe("DebugControlTower", () => {
         }
     });
 
+    it("formats public beta evidence boundaries before they reach Admin Debug copy", async () => {
+        const originalPayload = JSON.parse(JSON.stringify(mockState.payload));
+
+        try {
+            const payload = mockState.payload as any;
+            payload.canonicalPublicBetaCapDetails = [
+                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
+                "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
+            ];
+            payload.canonicalPublicBetaReadinessReason = "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.";
+
+            await act(async () => {
+                root.render(<DebugControlTower />);
+            });
+
+            await act(async () => {
+                await Promise.resolve();
+            });
+
+            expect(container.textContent).toContain("Source checks passed: targeted behavior validators passed.");
+            expect(container.textContent).toContain("Report refresh needed: 6 required generated reports are older than the freshness window.");
+            expect(container.textContent).not.toContain("Unknown evidence: Targeted behavior tests");
+            expect(container.textContent).not.toContain("Stale evidence: Report freshness and PR integrity");
+            expect(container.textContent).not.toContain("manual proof");
+        } finally {
+            Object.assign(mockState.payload, originalPayload);
+        }
+    });
+
     it("labels stale zero-finding report rows as refresh due instead of delayed errors", async () => {
         const originalPayload = JSON.parse(JSON.stringify(mockState.payload));
         const staleDeviceReport = {
