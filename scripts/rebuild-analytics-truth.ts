@@ -83,6 +83,35 @@ function readBoolean(value: unknown, fallback = false) {
   return typeof value === "boolean" ? value : fallback
 }
 
+function readLaunchCoverageInputCandidates(evidenceProvenance: Record<string, unknown>) {
+  const statuses = Array.isArray(evidenceProvenance.candidateLaunchCoverageInputStatuses)
+    ? evidenceProvenance.candidateLaunchCoverageInputStatuses
+    : []
+  const summary = new Map<string, number>()
+  const candidates = statuses
+    .map((entry) => {
+      const record = asRecord(entry)
+      const state = readString(record.state, "unknown")
+      summary.set(state, (summary.get(state) ?? 0) + 1)
+      return {
+        path: readString(record.path, "unknown"),
+        state,
+        proofMode: readString(record.proofMode, "none"),
+        nextAction: readString(record.nextAction, "Attach a launch-history coverage input before promoting analytics truth."),
+      }
+    })
+    .slice(0, 8)
+
+  return {
+    inputMode: readString(evidenceProvenance.sourceAgreementInputMode, "unknown"),
+    inputPath: readString(evidenceProvenance.sourceAgreementInputPath, "none"),
+    usableInputFound: readBoolean(evidenceProvenance.usableLaunchCoverageInputFound, false),
+    candidateCount: statuses.length,
+    candidates,
+    stateCounts: Object.fromEntries(summary),
+  }
+}
+
 function readLaunchRecoveryDryRunSummary() {
   const artifactPath = path.resolve(process.cwd(), LAUNCH_RECOVERY_REPORT_PATH)
   if (!existsSync(artifactPath)) {
@@ -103,6 +132,7 @@ function readLaunchRecoveryDryRunSummary() {
 
   try {
     const report = asRecord(JSON.parse(readFileSync(artifactPath, "utf8")))
+    const evidenceProvenance = asRecord(report.evidenceProvenance)
     const rangeProof = asRecord(asRecord(report.launchHistoryCoverage).rangeProof)
     const firstPartyCoverage = asRecord(asRecord(report.launchHistoryCoverage).firstPartyCoverage)
     const sourceAgreement = asRecord(report.sourceAgreement)
@@ -123,6 +153,7 @@ function readLaunchRecoveryDryRunSummary() {
         allLaunchRangeProven: readBoolean(rangeProof.allLaunchRangeProven, false),
         reason: readString(rangeProof.reason, "No range proof reason was supplied."),
       },
+      launchCoverageInputs: readLaunchCoverageInputCandidates(evidenceProvenance),
       firstPartyCoverage: {
         state: readString(firstPartyCoverage.state, "unknown"),
         canPromoteProductTruth: readBoolean(firstPartyCoverage.canPromoteProductTruth, false),
