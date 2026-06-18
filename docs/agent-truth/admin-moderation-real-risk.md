@@ -23,7 +23,7 @@ Every security alert should expose:
 - recommended action
 - whether auto restriction is even allowed
 
-Auto restriction is allowed only when score is at least 80 and confidence is confirmed or strong. The UI still requires a real backend action and human decision; missing actions must render as `not_implemented`.
+Auto restriction is allowed only when score is at least 80 and confidence is confirmed or strong. The UI still requires a real backend action and human decision; missing actions must render as `not_configured`.
 
 ## Screenshot-Like Truth
 
@@ -40,7 +40,7 @@ The moderation console is a mobile-first workspace:
 - evidence workspace with what was actually observed
 - linked transcript when present
 - safe evidence media metadata, not raw asset URLs
-- real actions only, with missing backend routes shown as disabled `not_implemented`
+- real actions only, with missing backend routes shown as compact `not_configured` notes instead of disabled controls
 
 Raw asset URLs must not be rendered through default `<img>`, `<video>`, or open-file anchors. Use `AdminEvidenceMediaPreview` metadata cards unless a safe admin-authenticated preview route exists.
 

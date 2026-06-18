@@ -92,7 +92,7 @@ for (const expected of [
     "data-moderation-thread-queue=\"compact\"",
     "data-moderation-evidence-workspace=\"primary\"",
     "data-moderation-transcript-owner=\"primary-scroll-region\"",
-    "not_implemented",
+    "not_configured",
     "admin_moderation_alert_selected",
     "admin_moderation_risk_action_clicked",
 ]) requireIncludes(consoleUi, expected, "Admin moderation console UI");
@@ -159,7 +159,7 @@ for (const expected of [
     "KandyDrops moderation must never pretend browser/PWA screenshot detection is confirmed",
     "Weak visibility/blur events alone do not justify action",
     "evidence-weighted scrape-risk scoring",
-    "not_implemented",
+    "not_configured",
 ]) requireIncludes(docs, expected, "Moderation risk doctrine docs");
 
 try {

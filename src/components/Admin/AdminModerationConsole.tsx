@@ -358,8 +358,7 @@ export function AdminModerationConsole() {
                                                     {action === "reviewed" ? "Mark reviewed" : action === "escalated" ? "Escalate" : "Dismiss false positive"}
                                                 </button>
                                             ))}
-                                            <button type="button" disabled data-moderation-action-state="not_implemented" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Restrict account needs admin wiring</button>
-                                            <button type="button" disabled data-moderation-action-state="not_implemented" className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Disable file access needs admin wiring</button>
+                                            <div data-moderation-action-state="not_configured" className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-xs leading-5 text-gray-400"><span className="font-bold text-gray-200">Not configured.</span> Account restrictions and file access blocks need a connected admin action source before they can run here.</div>
                                         </div>
                                     </article>
                                 </aside>

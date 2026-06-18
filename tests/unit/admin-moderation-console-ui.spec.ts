@@ -6,10 +6,10 @@ import { describe, expect, it } from "vitest";
 const source = readFileSync(join(process.cwd(), "src/components/Admin/AdminModerationConsole.tsx"), "utf8");
 
 describe("admin moderation console UI truth", () => {
-  it("labels disabled future moderation actions as needing wiring while keeping a source-state marker", () => {
-    expect(source).toContain('data-moderation-action-state="not_implemented"');
-    expect(source).toContain("Restrict account needs admin wiring");
-    expect(source).toContain("Disable file access needs admin wiring");
+  it("replaces unavailable future moderation actions with a plain source-state note", () => {
+    expect(source).toContain('data-moderation-action-state="not_configured"');
+    expect(source).toContain("Account restrictions and file access blocks need a connected admin action source");
+    expect(source).not.toMatch(/data-moderation-action-state="not_implemented"|Restrict account needs admin wiring|Disable file access needs admin wiring/u);
   });
 
   it("routes default moderation route failures through safe error language", () => {
