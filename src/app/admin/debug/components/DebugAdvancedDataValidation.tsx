@@ -105,6 +105,17 @@ function toneForReadinessState(status?: string): PillTone {
     return "neutral";
 }
 
+function formatAnalyticsSourceState(status?: string) {
+    if (status === "pass" || status === "ready") return "ready";
+    if (status === "failed" || status === "fail" || status === "source_disagreement") return "needs repair";
+    if (status === "not_enough_sources") return "more evidence needed";
+    if (status === "gap_detected") return "source gap";
+    if (status === "partial" || status === "review" || status === "stale" || status === "not_validated") return "needs review";
+    if (status === "unavailable") return "no source";
+    if (status === "none") return "no gaps";
+    return status || "unknown";
+}
+
 function formatDayList(days: string[]) {
     return days.length > 0 ? days.join(", ") : "None";
 }
@@ -290,9 +301,9 @@ export function DebugAdvancedDataValidation() {
                     <Pill label="Warn" value={countDisplay(panelState.warnCount)} tone={panelState.warnCount && panelState.warnCount > 0 ? "warn" : "neutral"} />
                     <Pill label="Stale" value={countDisplay(panelState.staleCount)} tone={panelState.staleCount && panelState.staleCount > 0 ? "warn" : "neutral"} />
                     <Pill label="Blocked pass" value={countDisplay(panelState.blockedPassCount)} tone={panelState.blockedPassCount && panelState.blockedPassCount > 0 ? "warn" : "neutral"} />
-                    <Pill label="Chart readiness" value={semanticSummary.chartReadiness.state} tone={toneForReadinessState(semanticSummary.chartReadiness.state)} />
-                    <Pill label="Source agreement" value={semanticSummary.sourceAgreement.state} tone={toneForReadinessState(semanticSummary.sourceAgreement.state)} />
-                    <Pill label="Validation parity" value={semanticSummary.validationParity.state} tone={toneForReadinessState(semanticSummary.validationParity.state)} />
+                    <Pill label="Chart readiness" value={formatAnalyticsSourceState(semanticSummary.chartReadiness.state)} tone={toneForReadinessState(semanticSummary.chartReadiness.state)} />
+                    <Pill label="Source agreement" value={formatAnalyticsSourceState(semanticSummary.sourceAgreement.state)} tone={toneForReadinessState(semanticSummary.sourceAgreement.state)} />
+                    <Pill label="Validation parity" value={formatAnalyticsSourceState(semanticSummary.validationParity.state)} tone={toneForReadinessState(semanticSummary.validationParity.state)} />
                 </>
             )}
         >
@@ -392,16 +403,16 @@ export function DebugAdvancedDataValidation() {
                                                 ? "warn"
                                                 : "good")}
                                     />
-                                    <Pill label="Continuity" value={analyticsSourceHealth.continuity.gapSeverity} tone={toneForContinuity(analyticsSourceHealth.continuity.gapSeverity)} />
+                                    <Pill label="Continuity" value={formatAnalyticsSourceState(analyticsSourceHealth.continuity.gapSeverity)} tone={toneForContinuity(analyticsSourceHealth.continuity.gapSeverity)} />
                                     <Pill label="Recent gaps" value={analyticsSourceHealth.continuity.recentGapDays.length} tone={analyticsSourceHealth.continuity.recentGapDays.length > 0 ? "bad" : "neutral"} />
                                     <Pill label="Last complete day" value={formatUtcTimestamp(analyticsSourceHealth.continuity.lastCompleteDayUtc)} tone={analyticsSourceHealth.continuity.lastCompleteDayUtc ? "neutral" : "warn"} />
                                     <Pill label="Range" value={analyticsSourceHealth.range} tone="neutral" />
-                                    <Pill label="Chart readiness" value={analyticsSourceHealth.chartReadiness.state} tone={toneForContinuity(analyticsSourceHealth.chartReadiness.state)} />
+                                    <Pill label="Chart readiness" value={formatAnalyticsSourceState(analyticsSourceHealth.chartReadiness.state)} tone={toneForContinuity(analyticsSourceHealth.chartReadiness.state)} />
                                 </div>
                                 <div className="grid gap-2 text-xs text-gray-300 md:grid-cols-2">
                                     <p><span className="font-semibold text-white">Missing days:</span> {formatDayList(analyticsSourceHealth.continuity.missingDays)}</p>
                                     <p><span className="font-semibold text-white">Recent gaps:</span> {formatDayList(analyticsSourceHealth.continuity.recentGapDays)}</p>
-                                    <p><span className="font-semibold text-white">Source agreement:</span> {analyticsSourceHealth.sourceAgreement.state} across {analyticsSourceHealth.sourceAgreement.comparedSources.join(", ")}</p>
+                                    <p><span className="font-semibold text-white">Source agreement:</span> {formatAnalyticsSourceState(analyticsSourceHealth.sourceAgreement.state)} across {analyticsSourceHealth.sourceAgreement.comparedSources.join(", ")}</p>
                                     <p><span className="font-semibold text-white">Agreement tolerance:</span> {analyticsSourceHealth.sourceAgreement.tolerance || "10% review / 25% fail"}</p>
                                     <p><span className="font-semibold text-white">Agreement action:</span> {analyticsSourceHealth.sourceAgreement.nextAction || "Review source agreement before parity promotion."}</p>
                                     <p><span className="font-semibold text-white">Chart readiness:</span> {analyticsSourceHealth.chartReadiness.reason}</p>

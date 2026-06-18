@@ -40,4 +40,17 @@ describe("data validation UI semantic cleanup", () => {
     expect(component).toContain("REFRESH DUE");
     expect(component).not.toContain('panelState.cacheState === "stale" ? "STALE"');
   });
+
+  it("formats analytics source states for humans while preserving data attributes", () => {
+    const component = readFileSync(
+      join(process.cwd(), "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx"),
+      "utf8",
+    );
+
+    expect(component).toContain("function formatAnalyticsSourceState");
+    expect(component).toContain('if (status === "failed" || status === "fail" || status === "source_disagreement") return "needs repair";');
+    expect(component).toContain('data-analytics-source-agreement-state');
+    expect(component).not.toContain('<Pill label="Source agreement" value={semanticSummary.sourceAgreement.state}');
+    expect(component).not.toContain('<p><span className="font-semibold text-white">Source agreement:</span> {analyticsSourceHealth.sourceAgreement.state}');
+  });
 });

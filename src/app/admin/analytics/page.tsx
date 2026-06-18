@@ -121,7 +121,7 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
     case "consumer_source_mismatch":
       return "Source mismatch";
     case "source_agreement_failed":
-      return "Needs connected source";
+      return "Source agreement needs review";
     case "not_enough_sources":
       return "More source evidence needed";
     case "failed":
@@ -145,6 +145,12 @@ function formatSourceHierarchyCount(count: number, singular: string, plural = `$
 function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHierarchySummary) {
   const mismatchCount = sourceHierarchy.consumerSourceMismatches?.length ?? 0;
   const blockedCount = sourceHierarchy.blockedAnalyticsConsumers?.length ?? 0;
+
+  if (sourceHierarchy.status === "source_agreement_failed") {
+    return blockedCount > 0
+      ? `${formatSourceHierarchyCount(blockedCount, "analytics view")} in review mode.`
+      : "Source agreement needs review.";
+  }
 
   if (mismatchCount > 0 && blockedCount > 0) {
     const repairVerb = mismatchCount === 1 ? "needs" : "need";

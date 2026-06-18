@@ -160,7 +160,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
     consumerSourceMismatches,
     blockedAnalyticsConsumers,
     nextAction: sourceAgreementFailed
-      ? "Show source agreement failed in Debug and Analytics tab, then repair the mismatched source lane before canonical chart promotion."
+      ? "Review source agreement in Debug and restore first-party/materialized coverage before promoting charts."
       : mismatch
         ? "Align the Analytics tab with the Debug source hierarchy and keep fallback empty states reasoned."
         : "No action required.",
