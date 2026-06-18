@@ -216,4 +216,12 @@ describe("analytics panel hydration", () => {
     expect(source).toContain('sourceAgreementState !== "pass"');
     expect(source).toContain("GA4, historical snapshots, and legacy support remain evidence-only");
   });
+
+  it("keeps launch recovery day rows actionable instead of top-level-only", () => {
+    const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
+
+    expect(source).toContain("missingRangesBySource");
+    expect(source).toContain("duplicateRanges");
+    expect(source).toContain("## Daily Recovery Rows");
+  });
 });

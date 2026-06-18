@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T11:59:55.988Z
-Current head: 14dd68471efa21b5d2f3744e89e3acd4a19ae390
+Generated: 2026-06-18T12:25:21.694Z
+Current head: d20c07241807e67ae5760a54cb587ccfaaa13cbe
 Status: source_agreement_failed
 
 ## Source Order
@@ -63,6 +63,13 @@ Status: source_agreement_failed
 - Legacy support days: 1
 - Missing ranges: none
 - Stale input evidence: no
+
+## Daily Recovery Rows
+
+- 2026-05-01: recovered=yes; sourceCounts first_party=1, ga4=1, historicalSnapshot=1, legacySupport=0; missing=legacySupport:2026-05-01; duplicateRanges=2026-05-01; internalAdminExcluded=unknown; confidence=mixed; next=Use first-party truth for identity, purchase, unlock, watch, task, creator, and admin metrics; compare GA4 only as second source.
+- 2026-05-02: recovered=yes; sourceCounts first_party=0, ga4=1, historicalSnapshot=0, legacySupport=0; missing=first_party:2026-05-02 | historicalSnapshot:2026-05-02 | legacySupport:2026-05-02; duplicateRanges=none; internalAdminExcluded=unknown; confidence=fallback; next=Recover first-party materialization before promoting this day to canonical product analytics.
+- 2026-05-03: recovered=yes; sourceCounts first_party=0, ga4=1, historicalSnapshot=0, legacySupport=1; missing=first_party:2026-05-03 | historicalSnapshot:2026-05-03; duplicateRanges=2026-05-03; internalAdminExcluded=unknown; confidence=fallback; next=Recover first-party materialization before promoting this day to canonical product analytics.
+
 
 ## Source Agreement
 

@@ -459,6 +459,14 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     const hasFallback = hasHistoricalSnapshot || hasLegacy;
     const sourceCount = Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy);
     const recovered = sourceCount > 0;
+    const missingRangesBySource = {
+      first_party: hasFirstParty ? [] : [dayKey],
+      ga4: hasGa4 ? [] : [dayKey],
+      historicalSnapshot: hasHistoricalSnapshot ? [] : [dayKey],
+      legacySupport: hasLegacy ? [] : [dayKey],
+    };
+    const duplicateSourceCount = Math.max(0, sourceCount - 1);
+    const duplicateRanges = duplicateSourceCount > 0 ? [dayKey] : [];
     const confidence = hasFirstParty && hasGa4 && !hasFallback
       ? "verified"
       : hasFirstParty && hasFallback
@@ -478,10 +486,12 @@ function buildLaunchAnalyticsRecoveryReport(input: {
         historicalSnapshot: historicalSnapshotCount,
         legacySupport: legacySupportCount,
       },
+      missingRangesBySource,
+      duplicateRanges,
       internalAdminExcludedCount: typeof internalAdminExcludedCountByDay[dayKey] === "number"
         ? asNumber(internalAdminExcludedCountByDay[dayKey], 0)
         : null,
-      duplicateSourceCount: Math.max(0, sourceCount - 1),
+      duplicateSourceCount,
       confidence,
       reason: recovered
         ? hasFirstParty
@@ -887,6 +897,14 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
         failures.push(`launch day ${day.dayKey} missing ${required} source count.`);
       }
     }
+    for (const required of ["first_party", "ga4", "historicalSnapshot", "legacySupport"] as const) {
+      if (!Array.isArray(day.missingRangesBySource[required])) {
+        failures.push(`launch day ${day.dayKey} missing ${required} missing-range classification.`);
+      }
+    }
+    if (!Array.isArray(day.duplicateRanges)) {
+      failures.push(`launch day ${day.dayKey} missing duplicateRanges.`);
+    }
     if (day.sourceCounts.first_party === 0 && day.confidence === "verified") {
       failures.push(`launch day ${day.dayKey} cannot be verified without first-party evidence.`);
     }
@@ -960,6 +978,18 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Legacy support days: ${report.launchHistoryCoverage.sourceDayCounts.legacySupport}`,
     `- Missing ranges: ${report.launchHistoryCoverage.missingRanges.join(", ") || "none"}`,
     `- Stale input evidence: ${report.launchHistoryCoverage.staleInputEvidence ? "yes" : "no"}`,
+    "",
+    "## Daily Recovery Rows",
+    "",
+    ...report.launchHistoryCoverage.days.slice(0, 14).map((day) => {
+      const missingSources = Object.entries(day.missingRangesBySource)
+        .filter(([, ranges]) => ranges.length > 0)
+        .map(([source, ranges]) => `${source}:${ranges.join(",")}`);
+      return `- ${day.dayKey}: recovered=${day.recovered ? "yes" : "no"}; sourceCounts first_party=${day.sourceCounts.first_party}, ga4=${day.sourceCounts.ga4}, historicalSnapshot=${day.sourceCounts.historicalSnapshot}, legacySupport=${day.sourceCounts.legacySupport}; missing=${missingSources.join(" | ") || "none"}; duplicateRanges=${day.duplicateRanges.join(", ") || "none"}; internalAdminExcluded=${day.internalAdminExcludedCount ?? "unknown"}; confidence=${day.confidence}; next=${day.nextAction}`;
+    }),
+    report.launchHistoryCoverage.days.length > 14
+      ? `- ${report.launchHistoryCoverage.days.length - 14} additional days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.`
+      : "",
     "",
     "## Source Agreement",
     "",
