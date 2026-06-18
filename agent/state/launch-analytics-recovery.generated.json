@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T03:23:42.524Z",
-  "currentHead": "71ef2329819020d636348414c7bfe0b2b48eb7db",
+  "generatedAtUtc": "2026-06-18T03:35:58.934Z",
+  "currentHead": "ffdb9e7caec4c9e5a0223d0708788756ef98b118",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -10,7 +10,7 @@
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
-  "status": "source_agreement_failed",
+  "status": "stale_evidence_review",
   "sourceMap": {
     "primaryTruth": "first_party",
     "secondSource": "ga4",
@@ -46,6 +46,8 @@
     "canonicalOwners": {
       "first_party": "analytics_event_facts and telemetry catalog",
       "person_metrics": "person metrics hydration",
+      "guestHandoff": "identity handoff and analytics identity link",
+      "eventEnvelopeTranslation": "event translation bridge and analytics event contract",
       "ga4": "GA4/external evidence lane",
       "historicalSnapshot": "admin analytics historical snapshot",
       "legacySupport": "legacy support snapshot lane",
@@ -57,6 +59,178 @@
       "src/lib/analytics/person-metrics-hydration.ts",
       "src/lib/server/admin-analytics-historical-validation.ts",
       "src/lib/admin-analytics/panel-hydration-resolver.ts"
+    ],
+    "sourceInventory": [
+      {
+        "sourceId": "first_party_events",
+        "contract": "first_party",
+        "owner": "analytics_event_facts and telemetry catalog",
+        "canonicalFiles": [
+          "src/lib/telemetry-catalog.ts",
+          "src/app/api/analytics/ingest-identified/route.ts"
+        ],
+        "localState": "partial",
+        "coveredDayCount": 1,
+        "missingRanges": [
+          "2026-05-02..2026-05-03"
+        ],
+        "primaryFor": [
+          "identity",
+          "purchases",
+          "unlocks",
+          "drops",
+          "watch",
+          "tasks",
+          "creator/admin actions"
+        ],
+        "proofBoundary": "Primary product analytics only after first-party materialization; this generated report is not runtime/admin proof."
+      },
+      {
+        "sourceId": "user_person_metrics",
+        "contract": "person_metrics",
+        "owner": "person metrics hydration",
+        "canonicalFiles": [
+          "src/lib/analytics/person-metrics-hydration.ts",
+          "src/lib/analytics/person-metrics-contract.ts"
+        ],
+        "localState": "validator_passed",
+        "coveredDayCount": null,
+        "missingRanges": [],
+        "primaryFor": [
+          "linked person metrics",
+          "guest-to-user attribution",
+          "individual user analytics"
+        ],
+        "proofBoundary": "Global activity does not clear user/person parity; missing person metrics stay missing until hydrated."
+      },
+      {
+        "sourceId": "guest_to_user_handoff",
+        "contract": "first_party",
+        "owner": "identity handoff and analytics identity link",
+        "canonicalFiles": [
+          "src/lib/analytics/analytics-identity-link.ts",
+          "src/context/AuthContext.tsx",
+          "src/lib/client-session.ts"
+        ],
+        "localState": "source_mapped",
+        "coveredDayCount": null,
+        "missingRanges": [],
+        "primaryFor": [
+          "pre-auth journey continuity",
+          "linked guest attribution"
+        ],
+        "proofBoundary": "Handoff links journeys but must not double-count guest and signed-in actions."
+      },
+      {
+        "sourceId": "event_envelope_translation",
+        "contract": "first_party",
+        "owner": "event translation bridge and analytics event contract",
+        "canonicalFiles": [
+          "src/lib/analytics/event-translation-bridge.ts",
+          "src/lib/analytics/analytics-event-contract.ts"
+        ],
+        "localState": "validator_passed",
+        "coveredDayCount": null,
+        "missingRanges": [],
+        "primaryFor": [
+          "event envelope normalization",
+          "alias translation",
+          "runtime fact classification"
+        ],
+        "proofBoundary": "Source translation parity does not prove provider/runtime/admin truth."
+      },
+      {
+        "sourceId": "admin_panel_hydration",
+        "contract": "mixed",
+        "owner": "admin analytics panel hydration",
+        "canonicalFiles": [
+          "src/lib/admin-analytics/panel-hydration-resolver.ts",
+          "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
+        ],
+        "localState": "partial",
+        "coveredDayCount": null,
+        "missingRanges": [],
+        "primaryFor": [
+          "admin analytics display readiness",
+          "panel source labels"
+        ],
+        "proofBoundary": "Panels may be source-ready without runtime/admin truth evidence."
+      },
+      {
+        "sourceId": "historical_snapshots",
+        "contract": "historicalSnapshot",
+        "owner": "admin analytics historical snapshot",
+        "canonicalFiles": [
+          "src/app/api/admin/analytics/historical/route.ts",
+          "src/lib/server/admin-analytics-historical-validation.ts"
+        ],
+        "localState": "fallback",
+        "coveredDayCount": 1,
+        "missingRanges": [
+          "2026-05-02..2026-05-03"
+        ],
+        "primaryFor": [
+          "bounded historical chart continuity",
+          "fallback source agreement evidence"
+        ],
+        "proofBoundary": "Historical snapshots explain gaps but do not overwrite first-party product truth."
+      },
+      {
+        "sourceId": "legacy_support_snapshots",
+        "contract": "legacySupport",
+        "owner": "legacy recovery/support snapshot lane",
+        "canonicalFiles": [
+          "src/lib/analytics/legacy-recovery-contract.ts",
+          "src/lib/analytics/legacy-history-reconciler.ts"
+        ],
+        "localState": "fallback",
+        "coveredDayCount": 1,
+        "missingRanges": [
+          "2026-05-01..2026-05-02"
+        ],
+        "primaryFor": [
+          "legacy explanation",
+          "manual recovery review"
+        ],
+        "proofBoundary": "Legacy support remains recovery evidence only and cannot create current product truth."
+      },
+      {
+        "sourceId": "ga4_export_api",
+        "contract": "ga4",
+        "owner": "GA4/external analytics truth lane",
+        "canonicalFiles": [
+          "src/lib/analytics/ga4-truth.ts",
+          "src/lib/server/admin-analytics/ga4-evidence.ts"
+        ],
+        "localState": "second_source",
+        "coveredDayCount": 3,
+        "missingRanges": [],
+        "primaryFor": [
+          "sessions",
+          "views",
+          "device mix",
+          "region demand",
+          "top paths",
+          "acquisition-style comparison"
+        ],
+        "proofBoundary": "GA4 is second-source evidence and cannot replace identity, wallet, entitlement, purchase, or creator revenue truth."
+      },
+      {
+        "sourceId": "known_missing_ranges",
+        "contract": "unknown",
+        "owner": "launch analytics recovery",
+        "canonicalFiles": [
+          "agent/state/launch-analytics-recovery.generated.json"
+        ],
+        "localState": "source_disagreement",
+        "coveredDayCount": null,
+        "missingRanges": [],
+        "primaryFor": [
+          "gap triage",
+          "next recovery action"
+        ],
+        "proofBoundary": "Missing stays missing; zero is allowed only after a bounded source window proves zero."
+      }
     ]
   },
   "evidenceProvenance": {
@@ -170,7 +344,7 @@
     ],
     "state": "available",
     "reason": "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.",
-    "staleInputEvidence": false,
+    "staleInputEvidence": true,
     "sourceAgreementEvidenceHead": "71ef2329819020d636348414c7bfe0b2b48eb7db"
   },
   "sourceAgreement": {
@@ -189,6 +363,7 @@
     "maxDeltaPct": 67,
     "state": "failed",
     "classifications": [
+      "stale_generated_evidence",
       "date_range_mismatch",
       "duplicate_event",
       "external_source_gap",

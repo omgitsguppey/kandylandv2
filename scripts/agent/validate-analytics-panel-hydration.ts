@@ -532,6 +532,107 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     disagreementCount,
     maxDeltaPct,
   });
+  const sourceInventory = [
+    {
+      sourceId: "first_party_events",
+      contract: "first_party",
+      owner: "analytics_event_facts and telemetry catalog",
+      canonicalFiles: ["src/lib/telemetry-catalog.ts", "src/app/api/analytics/ingest-identified/route.ts"],
+      localState: firstPartyDays.size > 0 ? "partial" : "source_missing",
+      coveredDayCount: firstPartyDays.size,
+      missingRanges: collapseDayRanges(computedMissingDaysBySource.first_party),
+      primaryFor: ["identity", "purchases", "unlocks", "drops", "watch", "tasks", "creator/admin actions"],
+      proofBoundary: "Primary product analytics only after first-party materialization; this generated report is not runtime/admin proof.",
+    },
+    {
+      sourceId: "user_person_metrics",
+      contract: "person_metrics",
+      owner: "person metrics hydration",
+      canonicalFiles: ["src/lib/analytics/person-metrics-hydration.ts", "src/lib/analytics/person-metrics-contract.ts"],
+      localState: "validator_passed",
+      coveredDayCount: null,
+      missingRanges: [],
+      primaryFor: ["linked person metrics", "guest-to-user attribution", "individual user analytics"],
+      proofBoundary: "Global activity does not clear user/person parity; missing person metrics stay missing until hydrated.",
+    },
+    {
+      sourceId: "guest_to_user_handoff",
+      contract: "first_party",
+      owner: "identity handoff and analytics identity link",
+      canonicalFiles: ["src/lib/analytics/analytics-identity-link.ts", "src/context/AuthContext.tsx", "src/lib/client-session.ts"],
+      localState: "source_mapped",
+      coveredDayCount: null,
+      missingRanges: [],
+      primaryFor: ["pre-auth journey continuity", "linked guest attribution"],
+      proofBoundary: "Handoff links journeys but must not double-count guest and signed-in actions.",
+    },
+    {
+      sourceId: "event_envelope_translation",
+      contract: "first_party",
+      owner: "event translation bridge and analytics event contract",
+      canonicalFiles: ["src/lib/analytics/event-translation-bridge.ts", "src/lib/analytics/analytics-event-contract.ts"],
+      localState: "validator_passed",
+      coveredDayCount: null,
+      missingRanges: [],
+      primaryFor: ["event envelope normalization", "alias translation", "runtime fact classification"],
+      proofBoundary: "Source translation parity does not prove provider/runtime/admin truth.",
+    },
+    {
+      sourceId: "admin_panel_hydration",
+      contract: "mixed",
+      owner: "admin analytics panel hydration",
+      canonicalFiles: ["src/lib/admin-analytics/panel-hydration-resolver.ts", "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"],
+      localState: input.panelReport.hydratedPanels > 0 ? "partial" : "collecting",
+      coveredDayCount: null,
+      missingRanges: [],
+      primaryFor: ["admin analytics display readiness", "panel source labels"],
+      proofBoundary: "Panels may be source-ready without runtime/admin truth evidence.",
+    },
+    {
+      sourceId: "historical_snapshots",
+      contract: "historicalSnapshot",
+      owner: "admin analytics historical snapshot",
+      canonicalFiles: ["src/app/api/admin/analytics/historical/route.ts", "src/lib/server/admin-analytics-historical-validation.ts"],
+      localState: historicalSnapshotDays.size > 0 ? "fallback" : "source_missing",
+      coveredDayCount: historicalSnapshotDays.size,
+      missingRanges: collapseDayRanges(computedMissingDaysBySource.historical_snapshot),
+      primaryFor: ["bounded historical chart continuity", "fallback source agreement evidence"],
+      proofBoundary: "Historical snapshots explain gaps but do not overwrite first-party product truth.",
+    },
+    {
+      sourceId: "legacy_support_snapshots",
+      contract: "legacySupport",
+      owner: "legacy recovery/support snapshot lane",
+      canonicalFiles: ["src/lib/analytics/legacy-recovery-contract.ts", "src/lib/analytics/legacy-history-reconciler.ts"],
+      localState: legacySupportDays.size > 0 ? "fallback" : "source_missing",
+      coveredDayCount: legacySupportDays.size,
+      missingRanges: collapseDayRanges(computedMissingDaysBySource.legacy_support),
+      primaryFor: ["legacy explanation", "manual recovery review"],
+      proofBoundary: "Legacy support remains recovery evidence only and cannot create current product truth.",
+    },
+    {
+      sourceId: "ga4_export_api",
+      contract: "ga4",
+      owner: "GA4/external analytics truth lane",
+      canonicalFiles: ["src/lib/analytics/ga4-truth.ts", "src/lib/server/admin-analytics/ga4-evidence.ts"],
+      localState: ga4Days.size > 0 ? "second_source" : "external_proof_required",
+      coveredDayCount: ga4Days.size,
+      missingRanges: collapseDayRanges(computedMissingDaysBySource.ga4),
+      primaryFor: ["sessions", "views", "device mix", "region demand", "top paths", "acquisition-style comparison"],
+      proofBoundary: "GA4 is second-source evidence and cannot replace identity, wallet, entitlement, purchase, or creator revenue truth.",
+    },
+    {
+      sourceId: "known_missing_ranges",
+      contract: "unknown",
+      owner: "launch analytics recovery",
+      canonicalFiles: ["agent/state/launch-analytics-recovery.generated.json"],
+      localState: sourceMissingDays.length > 0 ? "source_missing" : sourceAgreementState === "failed" || sourceAgreementState === "fail" ? "source_disagreement" : "none_observed",
+      coveredDayCount: null,
+      missingRanges: collapseDayRanges(sourceMissingDays),
+      primaryFor: ["gap triage", "next recovery action"],
+      proofBoundary: "Missing stays missing; zero is allowed only after a bounded source window proves zero.",
+    },
+  ];
 
   return {
     reportKey: "launch-analytics-recovery",
@@ -556,6 +657,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       canonicalOwners: {
         first_party: "analytics_event_facts and telemetry catalog",
         person_metrics: "person metrics hydration",
+        guestHandoff: "identity handoff and analytics identity link",
+        eventEnvelopeTranslation: "event translation bridge and analytics event contract",
         ga4: "GA4/external evidence lane",
         historicalSnapshot: "admin analytics historical snapshot",
         legacySupport: "legacy support snapshot lane",
@@ -568,6 +671,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
         "src/lib/server/admin-analytics-historical-validation.ts",
         "src/lib/admin-analytics/panel-hydration-resolver.ts",
       ],
+      sourceInventory,
     },
     evidenceProvenance: {
       launchCoverageInput: "agent/state/source-agreement-failure-detail.generated.json",
@@ -636,10 +740,29 @@ function buildLaunchAnalyticsRecoveryReport(input: {
 function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLaunchAnalyticsRecoveryReport>) {
   const failures: string[] = [];
   const contractSources = new Set(Object.keys(report.sourceMap.canonicalOwners));
-  for (const required of ["first_party", "person_metrics", "ga4", "historicalSnapshot", "legacySupport", "adminPanelHydration"]) {
+  for (const required of ["first_party", "person_metrics", "guestHandoff", "eventEnvelopeTranslation", "ga4", "historicalSnapshot", "legacySupport", "adminPanelHydration"]) {
     if (!contractSources.has(required)) {
       failures.push(`launch recovery source map missing ${required} canonical owner.`);
     }
+  }
+  const sourceInventoryIds = new Set(report.sourceMap.sourceInventory.map((entry) => entry.sourceId));
+  for (const required of [
+    "first_party_events",
+    "user_person_metrics",
+    "guest_to_user_handoff",
+    "event_envelope_translation",
+    "admin_panel_hydration",
+    "historical_snapshots",
+    "legacy_support_snapshots",
+    "ga4_export_api",
+    "known_missing_ranges",
+  ]) {
+    if (!sourceInventoryIds.has(required)) {
+      failures.push(`launch recovery source inventory missing ${required}.`);
+    }
+  }
+  if (report.sourceMap.sourceInventory.some((entry) => !entry.proofBoundary || !Array.isArray(entry.canonicalFiles) || entry.canonicalFiles.length === 0)) {
+    failures.push("launch recovery source inventory entries require proof boundaries and canonical files.");
   }
   if (report.sourceMap.primaryTruth !== "first_party" || report.sourceMap.secondSource !== "ga4") {
     failures.push("launch recovery must keep first_party primary and ga4 second-source.");
@@ -718,6 +841,12 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     "## Canonical Owners",
     "",
     ...Object.entries(report.sourceMap.canonicalOwners).map(([source, owner]) => `- ${source}: ${owner}`),
+    "",
+    "## Source Inventory",
+    "",
+    ...report.sourceMap.sourceInventory.map((entry) =>
+      `- ${entry.sourceId}: ${entry.contract} / ${entry.localState}; owner ${entry.owner}; coverage ${entry.coveredDayCount ?? "n/a"}; boundary: ${entry.proofBoundary}`,
+    ),
     "",
     "## Launch Coverage",
     "",
