@@ -109,10 +109,12 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
         .filter((report) => report.truthState !== "live" || report.criticalCount > 0 || report.findingCount > 0)
         .slice(0, 5);
     const visibleNextActions = model?.nextActions.slice(0, 3) ?? [];
-    const publicBetaNeedsFormalProof = canonicalBetaCapDetails.some((detail) => /proof|provider|runtime|admin truth|manual|unknown evidence|stale evidence/i.test(detail));
+    const publicBetaNeedsFormalProof = canonicalBetaCapDetails.some((detail) => !/targeted behavior tests|source checks/i.test(detail) && /proof|provider|runtime|admin truth|manual screenshot|truth sample/i.test(detail));
+    const publicBetaNeedsRefresh = !publicBetaNeedsFormalProof && canonicalBetaCapDetails.some((detail) => /report freshness|freshness window|current-head|current head|generated reports? are older/i.test(detail));
+    const publicBetaNeedsReview = !publicBetaNeedsFormalProof && !publicBetaNeedsRefresh && canonicalBetaCapDetails.length > 0;
     const failedReportWithFindings = blockerReports.some((report) => report.truthState === "failed" && (report.criticalCount > 0 || report.findingCount > 0 || report.topFindings.length > 0));
-    const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale" ? "stale" : publicBetaNeedsFormalProof ? "review" : failedReportWithFindings ? "failed" : "live";
-    const publicBetaBadgeLabel = publicBetaNeedsFormalProof ? "Proof required" : undefined;
+    const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale" || publicBetaNeedsRefresh ? "stale" : (publicBetaNeedsFormalProof || publicBetaNeedsReview) ? "review" : failedReportWithFindings ? "failed" : "live";
+    const publicBetaBadgeLabel = publicBetaNeedsFormalProof ? "Proof required" : publicBetaNeedsRefresh ? "Refresh due" : publicBetaNeedsReview ? "Review" : undefined;
     const publicBetaReadinessReason = model ? formatPublicBetaCapDetailForAdmin(model.canonicalPublicBetaReadinessReason) : "";
     const publicBetaReadinessStatusLabel = model ? formatPublicBetaReadinessStatusForAdmin({
         status: model.canonicalPublicBetaReadinessStatus,

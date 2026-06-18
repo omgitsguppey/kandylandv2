@@ -309,10 +309,12 @@ describe("DebugControlTower", () => {
 
             expect(container.textContent).toContain("Source checks passed: targeted behavior validators passed.");
             expect(container.textContent).toContain("Report refresh needed");
+            expect(container.textContent).toContain("Refresh due");
             expect(container.textContent).toContain("Report refresh needed: 6 required generated reports are older than the freshness window.");
             expect(container.textContent).not.toContain("Unknown evidence: Targeted behavior tests");
             expect(container.textContent).not.toContain("Stale evidence: Report freshness and PR integrity");
             expect(container.textContent).not.toContain("manual proof");
+            expect(container.textContent).not.toContain("Proof required");
         } finally {
             Object.assign(mockState.payload, originalPayload);
         }
