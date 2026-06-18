@@ -69,14 +69,14 @@ export function toBadgeState(state: AdminDebugTruthState): AdminSurfaceState {
     if (state === "missing" || state === "unknown") return "unavailable";
     return "unavailable";
 }
-export function resolveReportDisplay(report: AdminDebugReportCard): {
-    badgeState: AdminSurfaceState;
-    badgeLabel?: string;
-    statusLabel: string;
-    findingLabel: string;
-    sourceDetail: string;
-} {
-    const hasFindings = report.findingCount > 0 || report.topFindings.length > 0 || report.criticalCount > 0;
+
+function isRefreshOnlyFinding(finding: AdminDebugFindingCard) {
+    return /source commit|current repo head|older than 72 hours|freshness|generated report|report metadata/u.test(`${finding.title} ${finding.humanReadableWarning} ${finding.evidence.join(" ")}`.toLowerCase());
+}
+
+export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
+    const sourceFindingCount = report.findingCount > 0 ? report.findingCount : report.topFindings.filter((finding) => !isRefreshOnlyFinding(finding)).length;
+    const hasFindings = sourceFindingCount > 0 || report.criticalCount > 0;
     const sourceNeedsRefresh = report.freshness === "stale_24h" || report.freshness === "stale_72h" || report.sourceDrift === "stale";
     const proofBoundaryOnly = !hasFindings
         && report.id === "public-beta-score"
@@ -111,7 +111,7 @@ export function resolveReportDisplay(report: AdminDebugReportCard): {
             badgeState: "cached",
             badgeLabel: "SNAP",
             statusLabel: "Refresh due",
-            findingLabel: hasFindings ? `${report.findingCount} finding${report.findingCount === 1 ? "" : "s"}` : "No findings",
+            findingLabel: hasFindings ? `${sourceFindingCount} finding${sourceFindingCount === 1 ? "" : "s"}` : "Report refresh",
             sourceDetail: "Generated state is older than its freshness window or current-head metadata.",
         };
     }

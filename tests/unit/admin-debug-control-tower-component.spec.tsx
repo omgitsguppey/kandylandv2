@@ -274,8 +274,12 @@ describe("DebugControlTower", () => {
             expect(publicBetaText).toContain("External proof required");
             expect(publicBetaText).toContain("Proof gate");
             expect(container.textContent).toContain("Proof required");
+            expect(container.textContent).toContain("Provider and runtime proof needed");
+            expect(container.textContent).toContain("Admin truth sample needed");
             expect(publicBetaText).not.toContain("0 findings");
             expect(publicBetaText).not.toContain("ERROR");
+            expect(container.textContent).not.toContain("Stale evidence: Runtime/provider smoke");
+            expect(container.textContent).not.toContain("Stale evidence: Admin truth/sample evidence");
         } finally {
             Object.assign(mockState.payload, originalPayload);
         }
