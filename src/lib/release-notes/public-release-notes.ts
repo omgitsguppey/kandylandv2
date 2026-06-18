@@ -1,13 +1,73 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.93",
-  "betaReleaseCounter": 593,
+  "currentVersion": "1.5.94",
+  "betaReleaseCounter": 594,
   "channel": "beta",
-  "generatedAt": "2026-06-18T11:37:09.483Z",
-  "generatedAtUtc": "2026-06-18T11:37:09.483Z",
-  "lastCommitSha": "e6216fcf3b43ea17bac16676ec02bc1e2cba533f",
+  "generatedAt": "2026-06-18T11:52:01.058Z",
+  "generatedAtUtc": "2026-06-18T11:52:01.058Z",
+  "lastCommitSha": "60f70dbb4b1c122c7cefd8b00d05c4e1a145982a",
   "notes": [
+    {
+      "version": "1.5.94",
+      "previousVersion": "1.5.93",
+      "betaReleaseCounter": 594,
+      "previousBetaReleaseCounter": 593,
+      "commitSha": "60f70dbb4b1c122c7cefd8b00d05c4e1a145982a",
+      "commitTitle": "analytics: retire stale source agreement cleanup lane",
+      "commitCount": 2,
+      "commitShas": [
+        "bb8b907c3e9c688ed92cc689502ebe08f9c988f7",
+        "60f70dbb4b1c122c7cefd8b00d05c4e1a145982a"
+      ],
+      "committedAt": "2026-06-18T11:51:32.000Z",
+      "generatedAt": "2026-06-18T11:52:01.056Z",
+      "committedAtUtc": "2026-06-18T11:51:32.000Z",
+      "generatedAtUtc": "2026-06-18T11:52:01.056Z",
+      "updatedAtUtc": "2026-06-18T11:52:01.056Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/source-agreement-failure-detail.generated.json",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/source-agreement-failure-detail.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/types/admin-analytics.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
+        "tests/unit/admin-data-validation.spec.ts"
+      ],
+      "sourceCommit": "60f70dbb4b1c122c7cefd8b00d05c4e1a145982a"
+    },
     {
       "version": "1.5.93",
       "previousVersion": "1.5.92",
@@ -1787,73 +1847,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/components/PurchaseModal.tsx"
       ],
       "sourceCommit": "0980f1fde1a51ffe53a3c1540e558bf342d2d365"
-    },
-    {
-      "version": "1.5.69",
-      "previousVersion": "1.5.68",
-      "betaReleaseCounter": 569,
-      "previousBetaReleaseCounter": 568,
-      "commitSha": "a4755cf0679e28656439e7fcdd5e500d81157196",
-      "commitTitle": "fix(admin): connect analytics overview truth",
-      "commitCount": 6,
-      "commitShas": [
-        "2d9ce76cf4e403178cebc6ce8a4f11b63c249c0c",
-        "d49461edcd839d6ccf12ddb65d4a8ecf06fb83d5",
-        "b22b5e497b300f932bf2214998324e45646c0b0a",
-        "fd280583fa4fdf80853c449530900feb8e346d9b",
-        "096cab329c009d4440dc3dc65f4118497ce521b1",
-        "a4755cf0679e28656439e7fcdd5e500d81157196"
-      ],
-      "committedAt": "2026-06-16T17:41:39.000Z",
-      "generatedAt": "2026-06-16T17:45:31.717Z",
-      "committedAtUtc": "2026-06-16T17:41:39.000Z",
-      "generatedAtUtc": "2026-06-16T17:45:31.717Z",
-      "updatedAtUtc": "2026-06-16T17:45:31.717Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 6 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/telemetry-identified-parity.generated.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-current-beta-exit-status.ts",
-        "scripts/agent/validate-runtime-watch-time-v2.ts",
-        "scripts/agent/validate-source-backed-runtime-confidence.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/admin/overview/route.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "src/components/Admin/AdminStatsBar.tsx",
-        "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
-        "src/lib/admin-debug-control-tower.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry.ts",
-        "tests/unit/admin-analytics-page.spec.tsx",
-        "tests/unit/admin-overview-route.spec.ts",
-        "tests/unit/admin-stats-bar-compact.spec.ts",
-        "tests/unit/source-backed-runtime-confidence.spec.ts"
-      ],
-      "sourceCommit": "a4755cf0679e28656439e7fcdd5e500d81157196"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

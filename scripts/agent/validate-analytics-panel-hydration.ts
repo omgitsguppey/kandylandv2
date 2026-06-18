@@ -230,14 +230,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/lib/telemetry-catalog.ts") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/app/admin/roster/page.tsx") return "real_source_change_needs_review";
-  if (
-    normalized === "src/lib/analytics/analytics-source-agreement-status.ts"
-    || normalized === "scripts/agent/validate-analytics-source-agreement-cleanup.ts"
-    || normalized === "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts"
-    || normalized === "tests/unit/analytics-source-agreement-cleanup.spec.ts"
-    || normalized === "agent/state/analytics-source-agreement-cleanup.generated.json"
-    || normalized === "docs/agent-truth/analytics-source-agreement-cleanup.md"
-  ) return "retired_duplicate_source_agreement_lane_expected";
+  if (normalized === "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts") return "retired_duplicate_source_agreement_lane_expected";
   if (normalized === "src/lib/analytics/source-agreement-detail.ts") return "source_agreement_failure_classification_required";
   if (normalized === "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts") return "source_agreement_failure_classification_required";
   if (normalized === "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts") return "source_agreement_failure_classification_required";

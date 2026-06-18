@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T11:32:43.588Z",
-  "currentHead": "a6e5357dee5b27a8be25c7ec3259401f6d119d07",
+  "generatedAtUtc": "2026-06-18T11:47:24.672Z",
+  "currentHead": "c42b2e83a1080fd7759257af868f72b3ee1e30f8",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,15 +416,15 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 13,
+    "total": 11,
     "byClassification": {
       "current_generated_artifact_to_commit": 1,
-      "analytics_panel_hydration_artifact_expected": 2,
+      "analytics_panel_hydration_artifact_expected": 3,
       "launch_analytics_recovery_artifact_expected": 2,
       "source_agreement_failure_artifact_expected": 1,
       "documentation_artifact_expected": 1,
-      "real_source_change_needs_review": 4,
-      "test_artifact_expected": 2
+      "validator_artifact_expected": 1,
+      "real_source_change_needs_review": 2
     },
     "unsafeUnknown": [],
     "sample": [
@@ -457,8 +457,8 @@
         "classification": "documentation_artifact_expected"
       },
       {
-        "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "classification": "real_source_change_needs_review"
+        "path": "scripts/agent/validate-admin-debug-control-tower.ts",
+        "classification": "validator_artifact_expected"
       }
     ],
     "sampleTruncated": true
