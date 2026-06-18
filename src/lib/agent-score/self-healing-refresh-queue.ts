@@ -22,6 +22,7 @@ export interface SelfHealingRefreshQueueInput {
   scoreImpactArtifacts?: ScoreImpactArtifactInput[];
   debugBacklogArtifacts?: ScoreImpactArtifactInput[];
   finalLockArtifacts?: ScoreImpactArtifactInput[];
+  currentArtifactPaths?: string[];
 }
 
 export interface SelfHealingRefreshQueueEntry {
@@ -215,11 +216,12 @@ export function buildSelfHealingRefreshQueue(input: SelfHealingRefreshQueueInput
   generatedAtUtc?: string;
   currentHead?: string;
 } = {}): SelfHealingRefreshQueueReport {
+  const currentArtifacts = new Set(input.currentArtifactPaths ?? []);
   const scoreArtifacts = [
     ...(input.scoreImpactArtifacts ?? []),
     ...(input.debugBacklogArtifacts ?? []),
     ...(input.finalLockArtifacts ?? []),
-  ];
+  ].filter((item) => !currentArtifacts.has(item.id));
   const impacts = impactMap(scoreArtifacts);
   const refreshPlanEntries = buildRefreshPlanEntries(input.refreshPlan, impacts);
   const existing = new Set(refreshPlanEntries.map((entry) => entry.artifact));

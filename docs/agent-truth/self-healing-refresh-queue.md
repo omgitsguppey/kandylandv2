@@ -4,24 +4,14 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 
 ## Summary
 
-- Queue entries: 31
-- Automatic entries: 27
+- Queue entries: 29
+- Automatic entries: 25
 - Blocked entries: 4
-- Estimated score impact: 143.06
+- Estimated score impact: 98.66
 
 ## Queue
 
-### 1. agent/state/public-beta-score.generated.json
-
-- Owner: beta
-- Stale reason: unknown
-- Refresh command: `npm run check:beta-score`
-- Score impact estimate: 43.4
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
-
-### 2. agent/state/score-80-path-lock.generated.json
+### 1. agent/state/score-80-path-lock.generated.json
 
 - Owner: repo
 - Stale reason: source_backed
@@ -31,7 +21,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 3. agent/state/provider-smoke-evidence.generated.json
+### 2. agent/state/provider-smoke-evidence.generated.json
 
 - Owner: runtime
 - Stale reason: stale
@@ -41,7 +31,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 4. agent/state/overnight-final-integration-lock.generated.json
+### 3. agent/state/overnight-final-integration-lock.generated.json
 
 - Owner: repo
 - Stale reason: stale_source_version
@@ -51,7 +41,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 5. agent/state/beta-evidence-gap-map.generated.json
+### 4. agent/state/beta-evidence-gap-map.generated.json
 
 - Owner: evidence
 - Stale reason: stale_source_version
@@ -61,7 +51,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 6. agent/state/beta-evidence-lane-prep.generated.json
+### 5. agent/state/beta-evidence-lane-prep.generated.json
 
 - Owner: evidence
 - Stale reason: stale_source_version
@@ -71,7 +61,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 7. agent/state/beta-freshness-language.generated.json
+### 6. agent/state/beta-freshness-language.generated.json
 
 - Owner: beta
 - Stale reason: stale_source_version
@@ -81,7 +71,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 8. agent/state/final-pr-stale-cleanup.generated.json
+### 7. agent/state/final-pr-stale-cleanup.generated.json
 
 - Owner: repo
 - Stale reason: stale_source_version
@@ -91,7 +81,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 9. agent/state/admin-truth-sample-evidence.generated.json
+### 8. agent/state/admin-truth-sample-evidence.generated.json
 
 - Owner: admin
 - Stale reason: stale
@@ -101,7 +91,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 10. agent/state/admin-truth.generated.json
+### 9. agent/state/admin-truth.generated.json
 
 - Owner: admin
 - Stale reason: missing
@@ -111,17 +101,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 11. agent/state/current-beta-exit-status.generated.json
-
-- Owner: beta
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:current-beta-exit-status`
-- Score impact estimate: 1
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
-
-### 12. agent/state/creator-drop-status-metrics.generated.json
+### 10. agent/state/creator-drop-status-metrics.generated.json
 
 - Owner: creator
 - Stale reason: stale_source_version
@@ -131,7 +111,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 13. agent/state/creator-settings-control-plane.generated.json
+### 11. agent/state/creator-settings-control-plane.generated.json
 
 - Owner: creator
 - Stale reason: stale_source_version
@@ -141,7 +121,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 14. agent/state/evidence-capture-status.generated.json
+### 12. agent/state/evidence-capture-status.generated.json
 
 - Owner: evidence
 - Stale reason: stale_source_version
@@ -151,7 +131,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 15. agent/state/operator-revenue-smoke.generated.json
+### 13. agent/state/operator-revenue-smoke.generated.json
 
 - Owner: evidence
 - Stale reason: stale_source_version
@@ -161,7 +141,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 16. agent/state/source-truth-authority-map.generated.json
+### 14. agent/state/source-truth-authority-map.generated.json
 
 - Owner: evidence
 - Stale reason: stale_source_version
@@ -171,7 +151,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 17. agent/state/global-marquee-truncated-titles.generated.json
+### 15. agent/state/global-marquee-truncated-titles.generated.json
 
 - Owner: mobile
 - Stale reason: stale_source_version
@@ -181,7 +161,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 18. agent/state/mobile-ui-final-lock.generated.json
+### 16. agent/state/mobile-ui-final-lock.generated.json
 
 - Owner: mobile
 - Stale reason: stale_source_version
@@ -191,7 +171,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 19. agent/state/user-loading-wallet-mobile-refinement.generated.json
+### 17. agent/state/user-loading-wallet-mobile-refinement.generated.json
 
 - Owner: mobile
 - Stale reason: stale_source_version
@@ -201,7 +181,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 20. agent/state/analytics-rewire-phase-one.generated.json
+### 18. agent/state/analytics-rewire-phase-one.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -211,7 +191,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 21. agent/state/content-protection.generated.json
+### 19. agent/state/content-protection.generated.json
 
 - Owner: repo
 - Stale reason: missing
@@ -221,7 +201,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 22. agent/state/existing-algorithm-refinement.generated.json
+### 20. agent/state/existing-algorithm-refinement.generated.json
 
 - Owner: repo
 - Stale reason: stale_source_version
@@ -231,7 +211,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 23. agent/state/overnight-wiring-integrity.generated.json
+### 21. agent/state/overnight-wiring-integrity.generated.json
 
 - Owner: repo
 - Stale reason: stale_source_version
@@ -241,7 +221,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 24. agent/state/targeted-behavior-evidence.generated.json
+### 22. agent/state/targeted-behavior-evidence.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -251,7 +231,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 25. agent/state/user-facing-feature-connection-audit.generated.json
+### 23. agent/state/user-facing-feature-connection-audit.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -261,7 +241,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 26. agent/state/runtime-smoke-evidence.generated.json
+### 24. agent/state/runtime-smoke-evidence.generated.json
 
 - Owner: runtime
 - Stale reason: stale
@@ -271,7 +251,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 27. agent/state/final-telemetry-closure-lock.generated.json
+### 25. agent/state/final-telemetry-closure-lock.generated.json
 
 - Owner: telemetry
 - Stale reason: stale_source_version
@@ -281,7 +261,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 28. debug_runtime_evidence
+### 26. debug_runtime_evidence
 
 - Owner: runtime
 - Stale reason: Unknown evidence: Debug/runtime evidence
@@ -291,7 +271,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.
 - Expected outcome: Remain blocked until a human attaches the deployed runtime smoke artifact.
 
-### 29. runtime_provider_smoke
+### 27. runtime_provider_smoke
 
 - Owner: runtime
 - Stale reason: Runtime unverified: Runtime/provider smoke
@@ -301,7 +281,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the formal provider smoke artifact.
 
-### 30. admin_truth_sample_evidence
+### 28. admin_truth_sample_evidence
 
 - Owner: admin
 - Stale reason: Unknown evidence: Admin truth/sample evidence
@@ -311,7 +291,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the admin truth sample artifact.
 
-### 31. visual_manual_smoke
+### 29. visual_manual_smoke
 
 - Owner: manual
 - Stale reason: Visual QA required: Visual/manual smoke

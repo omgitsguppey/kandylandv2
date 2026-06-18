@@ -134,6 +134,9 @@ const report = buildSelfHealingRefreshQueue({
   refreshPlan,
   scoreImpactArtifacts: scoreImpactArtifacts(),
   debugBacklogArtifacts: debugBacklogArtifacts(),
+  currentArtifactPaths: refreshPlan
+    .filter((entry) => !entry.needsRefresh)
+    .map((entry) => entry.artifactPath),
 }, {
   currentHead,
 });

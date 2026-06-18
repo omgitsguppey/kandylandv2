@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-18T15:51:56.257Z
+Generated: 2026-06-18T16:34:13.151Z
 Status: pass
-Current head: d1530d4f8e554148e839170837e2a14647a91511
+Current head: 441b70798155c33f807465cfe1f4aa1b1ccf084d
 
 ## Contract
 
@@ -72,31 +72,20 @@ Current head: d1530d4f8e554148e839170837e2a14647a91511
 
 ## Dirty Files
 
-- agent/state/analytics-legacy-history-reconciliation.generated.json: current_generated_artifact_to_commit
-- agent/state/analytics-legacy-purgatory-queue.generated.json: current_generated_artifact_to_commit
-- agent/state/analytics-legacy-recovery-reconciliation.generated.json: current_generated_artifact_to_commit
 - agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/ga4-availability-semantics.generated.json: current_generated_artifact_to_commit
-- agent/state/ga4-recovery-truth.generated.json: current_generated_artifact_to_commit
 - agent/state/launch-analytics-recovery.generated.json: current_generated_artifact_to_commit
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/self-healing-refresh-queue.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/source-agreement-failure-detail.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/analytics-legacy-history-reconciliation.md: documentation_artifact_expected
-- docs/agent-truth/analytics-legacy-recovery-reconciliation.md: documentation_artifact_expected
 - docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/ga4-availability-semantics.md: documentation_artifact_expected
-- docs/agent-truth/ga4-recovery-truth.md: documentation_artifact_expected
 - docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
+- docs/agent-truth/self-healing-refresh-queue.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/source-agreement-failure-detail.md: documentation_artifact_expected
-- scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts: validator_artifact_expected
-- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/legacy-recovery-reconciler.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- tests/unit/analytics-legacy-recovery-reconciliation.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 

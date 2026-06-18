@@ -82,7 +82,7 @@ describe("self-healing refresh queue", () => {
     expect(report.queue[0]).toMatchObject({
       artifact: "runtime_provider_smoke",
       canRunAutomatically: false,
-      blockedReason: expect.stringContaining("Formal evidence artifact required"),
+      blockedReason: expect.stringContaining("formal provider smoke artifact required"),
     });
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
   });
@@ -104,6 +104,32 @@ describe("self-healing refresh queue", () => {
       refreshCommand: "npm run check:current-beta-exit-status",
       canRunAutomatically: true,
     });
+    expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
+  });
+
+  it("does not queue stale score-impact aliases when the registered artifact is already current", () => {
+    const report = buildSelfHealingRefreshQueue({
+      currentArtifactPaths: ["agent/state/public-beta-score.generated.json"],
+      refreshPlan: [],
+      scoreImpactArtifacts: [
+        {
+          id: "agent/state/public-beta-score.generated.json",
+          status: "unknown",
+          pointImpact: 43.4,
+          refreshCommand: "npm run check:beta-score",
+        },
+        {
+          id: "agent/state/score-80-path-lock.generated.json",
+          status: "source_backed",
+          pointImpact: 12,
+          refreshCommand: "npm run check:beta-score",
+        },
+      ],
+    });
+
+    expect(report.queue.map((entry) => entry.artifact)).toEqual([
+      "agent/state/score-80-path-lock.generated.json",
+    ]);
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
   });
 
