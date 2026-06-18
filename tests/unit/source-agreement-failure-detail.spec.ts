@@ -131,6 +131,33 @@ describe("source agreement failure detail", () => {
     expect(detail.disagreementCount).toBe(0);
   });
 
+  it("does not prove all-launch coverage when declared counts do not match supplied day rows", () => {
+    const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
+      proofMode: "admin_truth_sample",
+      launchHistoryCoverage: {
+        expectedDayCount: 99,
+        recoveredDayCount: 99,
+        state: "available",
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 1, legacySupport: 1 },
+          },
+          {
+            dayKey: "2026-05-02",
+            expected: true,
+            sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 1, legacySupport: 1 },
+          },
+        ],
+      },
+    });
+
+    expect(detail.sourceAgreementStatus).toBe("pass");
+    expect(detail.allLaunchRangeProven).toBe(false);
+    expect(detail.expectedDayCount).toBe(2);
+  });
+
   it("recognizes completed admin truth sample coverage without flattening source counts", () => {
     const raw = {
       status: "complete",

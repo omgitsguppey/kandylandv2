@@ -1,13 +1,68 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.94",
-  "betaReleaseCounter": 594,
+  "currentVersion": "1.5.95",
+  "betaReleaseCounter": 595,
   "channel": "beta",
-  "generatedAt": "2026-06-18T11:52:01.058Z",
-  "generatedAtUtc": "2026-06-18T11:52:01.058Z",
-  "lastCommitSha": "60f70dbb4b1c122c7cefd8b00d05c4e1a145982a",
+  "generatedAt": "2026-06-18T12:03:59.931Z",
+  "generatedAtUtc": "2026-06-18T12:03:59.931Z",
+  "lastCommitSha": "c8830566965c5a5ef99e53d2d738aceb665b0fa8",
   "notes": [
+    {
+      "version": "1.5.95",
+      "previousVersion": "1.5.94",
+      "betaReleaseCounter": 595,
+      "previousBetaReleaseCounter": 594,
+      "commitSha": "c8830566965c5a5ef99e53d2d738aceb665b0fa8",
+      "commitTitle": "analytics: verify launch coverage row counts",
+      "commitCount": 2,
+      "commitShas": [
+        "facca2321b8b74acec8874d94414302a27c3888c",
+        "c8830566965c5a5ef99e53d2d738aceb665b0fa8"
+      ],
+      "committedAt": "2026-06-18T12:03:34.000Z",
+      "generatedAt": "2026-06-18T12:03:59.930Z",
+      "committedAtUtc": "2026-06-18T12:03:34.000Z",
+      "generatedAtUtc": "2026-06-18T12:03:59.930Z",
+      "updatedAtUtc": "2026-06-18T12:03:59.930Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/source-agreement-failure-detail.generated.json",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/source-agreement-failure-detail.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/source-agreement-detail.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/source-agreement-failure-detail.spec.ts"
+      ],
+      "sourceCommit": "c8830566965c5a5ef99e53d2d738aceb665b0fa8"
+    },
     {
       "version": "1.5.94",
       "previousVersion": "1.5.93",
@@ -1806,47 +1861,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/verify-deployment.spec.ts"
       ],
       "sourceCommit": "5f0bd1e264dc0081bbb49f8d536585f975e2dd78"
-    },
-    {
-      "version": "1.5.70",
-      "previousVersion": "1.5.69",
-      "betaReleaseCounter": 570,
-      "previousBetaReleaseCounter": 569,
-      "commitSha": "0980f1fde1a51ffe53a3c1540e558bf342d2d365",
-      "commitTitle": "fix(admin): simplify truth copy labels",
-      "commitCount": 1,
-      "commitShas": [
-        "0980f1fde1a51ffe53a3c1540e558bf342d2d365"
-      ],
-      "committedAt": "2026-06-16T18:11:03.000Z",
-      "generatedAt": "2026-06-16T18:11:11.420Z",
-      "committedAtUtc": "2026-06-16T18:11:03.000Z",
-      "generatedAtUtc": "2026-06-16T18:11:11.420Z",
-      "updatedAtUtc": "2026-06-16T18:11:11.420Z",
-      "category": "Fixed",
-      "title": "Clearer admin analytics status copy",
-      "summary": "Admin analytics now uses shorter status language and clearer delayed-state labels, with safer checkout fallback copy.",
-      "userFacingTitle": "Clearer admin analytics status copy",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Made admin analytics cards easier to scan on mobile and desktop.",
-        "Changed delayed analytics snapshots to say delayed instead of stale.",
-        "Kept wallet checkout fallback errors clear and safe without changing payments."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "admin analytics",
-        "wallet checkout"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/components/PurchaseModal.tsx"
-      ],
-      "sourceCommit": "0980f1fde1a51ffe53a3c1540e558bf342d2d365"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

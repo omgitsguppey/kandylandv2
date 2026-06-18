@@ -395,6 +395,14 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
       .filter((day) => day.expected && typeof day.internalAdminExcludedCount === "number")
       .map((day) => [day.dayKey, Math.max(0, day.internalAdminExcludedCount ?? 0)]),
   );
+  const recoveredExpectedDayCount = input.launchHistoryCoverage.days
+    .filter((day) =>
+      day.expected &&
+      Object.values(day.sourceCounts).some((count) => Number(count) > 0)
+    ).length;
+  const declaredCountsMatchRows =
+    input.launchHistoryCoverage.expectedDayCount === expectedDays.length &&
+    input.launchHistoryCoverage.recoveredDayCount === recoveredExpectedDayCount;
 
   return {
     ...detail,
@@ -402,7 +410,8 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
     internalAdminExcludedCountByDay,
     allLaunchRangeProven: input.proofMode === "admin_truth_sample"
       && input.launchHistoryCoverage.state === "available"
-      && input.launchHistoryCoverage.expectedDayCount === input.launchHistoryCoverage.recoveredDayCount
+      && declaredCountsMatchRows
+      && recoveredExpectedDayCount === expectedDays.length
       && detail.sourceAgreementStatus === "pass",
   };
 }

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.95 - 2026-06-18
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+
 ## 1.5.94 - 2026-06-18
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
@@ -143,9 +149,3 @@ Showing the last 25 public updates in pages of 5.
 - Bug fixes and general improvements
 - Improved internal beta reliability.
 - Updated the latest Beta build with behind-the-scenes fixes.
-
-## 1.5.70 - 2026-06-16
-- Clearer admin analytics status copy
-- Made admin analytics cards easier to scan on mobile and desktop.
-- Changed delayed analytics snapshots to say delayed instead of stale.
-- Kept wallet checkout fallback errors clear and safe without changing payments.

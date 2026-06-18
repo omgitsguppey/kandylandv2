@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T11:52:59.266Z",
-  "currentHead": "63c3a9633db8c0c9f6b0a46db27f27ca536cbfbd",
+  "generatedAtUtc": "2026-06-18T11:59:55.988Z",
+  "currentHead": "14dd68471efa21b5d2f3744e89e3acd4a19ae390",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,11 +416,13 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 3,
+    "total": 5,
     "byClassification": {
       "current_generated_artifact_to_commit": 1,
       "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 1
+      "documentation_artifact_expected": 1,
+      "source_agreement_failure_classification_required": 1,
+      "test_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
@@ -435,6 +437,14 @@
       {
         "path": "docs/agent-truth/source-agreement-failure-detail.md",
         "classification": "documentation_artifact_expected"
+      },
+      {
+        "path": "src/lib/analytics/source-agreement-detail.ts",
+        "classification": "source_agreement_failure_classification_required"
+      },
+      {
+        "path": "tests/unit/source-agreement-failure-detail.spec.ts",
+        "classification": "test_artifact_expected"
       }
     ],
     "sampleTruncated": false
