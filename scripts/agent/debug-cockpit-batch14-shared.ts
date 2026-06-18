@@ -153,12 +153,16 @@ function changedFiles() {
 function dirtyFilesClassified() {
   const allowed = [
     /^src\/lib\/admin-analytics\/realtime-hot-cache-contract\.ts$/u,
+    /^src\/lib\/admin\/admin-realtime-to-hot-cache-migration\.ts$/u,
     /^src\/lib\/analytics\/telemetry-intent-aliases\.ts$/u,
     /^src\/lib\/debug\/recommended-action-dedupe\.ts$/u,
     /^src\/lib\/debug\/system-health-materializer-status\.ts$/u,
     /^src\/lib\/creator\/creator-lane-freshness-status\.ts$/u,
+    /^src\/app\/admin\/analytics\/hooks\/useAdminAnalyticsRealtime\.ts$/u,
     /^scripts\/agent\/debug-cockpit-batch14-shared\.ts$/u,
     /^scripts\/agent\/validate-[a-z0-9-]+\.ts$/u,
+    /^scripts\/check-admin-analytics-live-pulse\.ts$/u,
+    /^src\/lib\/legacy\/legacy-registry\.ts$/u,
     /^tests\/unit\/[a-z0-9-]+\.spec\.ts$/u,
     /^agent\/state\/[a-z0-9-]+\.generated\.json$/u,
     /^agent\/context\/optimized-task-context\.generated\.json$/u,
@@ -250,24 +254,24 @@ export function buildAdminAnalyticsRealtimeHotCacheReport() {
   return {
     generatedAtUtc: new Date().toISOString(),
     currentHead: currentHead(),
-    status: "hot_cache_ready",
+    status: "retired_snapshot_first",
     realtimeListeners: ADMIN_ANALYTICS_REALTIME_HOT_CACHE_LISTENERS,
     reconnectRisk: "bounded_exponential_backoff",
     uiBehaviorChanged: false,
-    defaultTruthPolicy: "Use refresh-based hot-cache and verified snapshots for default admin analytics truth; keep direct realtime listeners out of default display unless an explicit operator debug exception is approved.",
+    defaultTruthPolicy: "Use the snapshot-first route, refresh-based hot-cache, and verified snapshots for default admin analytics truth; keep direct realtime listeners out of default display.",
     productionReadsRun: false,
-    nextAction: "Keep the legacy direct listener hook source-visible but disconnected from default admin analytics state; use explicit live-debug approval before reconnecting it.",
+    retiredHookPath: "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
+    nextAction: "Keep the retired direct listener hook deleted; use Admin Debug raw evidence for explicit live investigation.",
   };
 }
 
 export function validateAdminAnalyticsRealtimeHotCacheReport(report: ReturnType<typeof buildAdminAnalyticsRealtimeHotCacheReport>) {
   const failures = validateAdminAnalyticsRealtimeHotCacheContract(report.realtimeListeners);
-  const source = readIfExists("src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts");
-  for (const collectionPath of ["analytics_event_facts", "analytics_guest_batches", "analytics_sessions", "analytics_watch_sessions"]) {
-    if (!source.includes(`collection(db, "${collectionPath}")`)) failures.push(`${collectionPath} listener is not source-visible.`);
+  if (existsSync(pathOf(report.retiredHookPath))) failures.push("retired Admin Analytics direct realtime hook still exists.");
+  if (report.status !== "retired_snapshot_first") failures.push("Admin Analytics realtime report must stay retired_snapshot_first.");
+  if (!report.realtimeListeners.every((listener) => listener.migrationStatus === "retired_snapshot_first")) {
+    failures.push("Admin Analytics realtime listener lanes must be retired from default display.");
   }
-  if (!source.includes("createAutoHealingObserver")) failures.push("realtime hook lacks auto-healing observer.");
-  if (!source.includes("cleanup()")) failures.push("realtime hook lacks listener cleanup.");
   if (report.uiBehaviorChanged) failures.push("admin analytics UI behavior changed.");
   return failures;
 }

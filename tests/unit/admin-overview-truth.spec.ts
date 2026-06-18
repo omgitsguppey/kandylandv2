@@ -965,9 +965,9 @@ const ANALYTICS_STATE_SOURCE = readFileSync(
     join(__dirname, "../../src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
     "utf-8",
 );
-const ANALYTICS_REALTIME_SOURCE = readFileSync(
-    join(__dirname, "../../src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts"),
-    "utf-8",
+const ANALYTICS_REALTIME_HOOK_PATH = join(
+    __dirname,
+    "../../src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
 );
 const ANALYTICS_PRIMITIVES_SOURCE = readFileSync(
     join(__dirname, "../../src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx"),
@@ -1048,15 +1048,13 @@ describe("admin analytics overview truth", () => {
 
     /* ── fromCache tracking ─────────────────────────────────────────── */
 
-    it("realtime hook uses includeMetadataChanges", () => {
-        expect(ANALYTICS_REALTIME_SOURCE).toContain("includeMetadataChanges: true");
-    });
-
-    it("realtime hook tracks fromCache per listener", () => {
-        expect(ANALYTICS_REALTIME_SOURCE).toContain("eventFactsFromCache");
-        expect(ANALYTICS_REALTIME_SOURCE).toContain("guestBatchesFromCache");
-        expect(ANALYTICS_REALTIME_SOURCE).toContain("guestSessionsFromCache");
-        expect(ANALYTICS_REALTIME_SOURCE).toContain("watchSessionsFromCache");
+    it("retired the raw admin analytics realtime hook", () => {
+        expect(existsSync(ANALYTICS_REALTIME_HOOK_PATH)).toBe(false);
+        expect(ANALYTICS_STATE_SOURCE).not.toContain("from \"./useAdminAnalyticsRealtime\"");
+        expect(ANALYTICS_STATE_SOURCE).not.toContain("useAdminAnalyticsRealtime(");
+        expect(ANALYTICS_STATE_SOURCE).toContain("ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST");
+        expect(ANALYTICS_STATE_SOURCE).toContain("rawDisplayFallbackDisabled: true");
+        expect(ANALYTICS_STATE_SOURCE).toContain("sourceUse: \"snapshot_first_route\"");
     });
 
     it("runtime ListenerState type includes fromCache fields", () => {
@@ -1066,16 +1064,10 @@ describe("admin analytics overview truth", () => {
         expect(ANALYTICS_RUNTIME_SOURCE).toContain("watchSessionsFromCache");
     });
 
-    it("realtime hook reads snapshot.metadata.fromCache", () => {
-        expect(ANALYTICS_REALTIME_SOURCE).toContain("snapshot.metadata.fromCache");
-    });
-
-    it("realtime hook exports AnalyticsRealtimeDebugMeta type", () => {
-        expect(ANALYTICS_REALTIME_SOURCE).toContain("export type AnalyticsRealtimeDebugMeta");
-    });
-
-    it("realtime hook tracks lastServerConfirmedAtMs", () => {
-        expect(ANALYTICS_REALTIME_SOURCE).toContain("lastServerConfirmedAtMs");
+    it("snapshot-first state still exposes listener debug metadata shape", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("lastServerConfirmedAtMs");
+        expect(ANALYTICS_STATE_SOURCE).toContain("mountedAtMs");
+        expect(ANALYTICS_STATE_SOURCE).toContain("sourceUse: \"debug_only\"");
     });
 
     /* ── MetricCard unavailable state ───────────────────────────────── */

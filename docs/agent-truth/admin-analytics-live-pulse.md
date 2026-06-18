@@ -1,12 +1,12 @@
 # Admin Analytics Live Pulse
 
-Live Pulse shows first-party realtime presence for the last 30 minutes: active actors, guest/auth mix, top surfaces, graph health, and active identity context.
+Activity Snapshot shows first-party recent activity for the last 30 minutes: active actors, guest/auth mix, top surfaces, graph health, and active identity context.
 
 ## Source Hierarchy
 
-First-party realtime presence is the preferred source for Live Pulse. In this codebase the Admin Analytics Live Pulse surface currently reads Firestore realtime listeners over `analytics_event_facts`, `analytics_guest_batches`, `analytics_sessions`, and `analytics_watch_sessions`.
+First-party materialized snapshots are the preferred source for the compact Admin Analytics activity view. In this codebase the Admin Analytics surface uses the snapshot-first realtime route and `analytics_admin_metric_snapshots`; the old client Firestore listener hook has been retired from the default display path.
 
-Backend or polled snapshots are fallback/snapshot data, not exact live presence. GA4 intraday and BigQuery `events_intraday_YYYYMMDD` are live-ish analytics sources and may be incomplete; they must not be labeled as exact first-party presence. GA4 daily `events_YYYYMMDD` tables are the stable completed-day source and are not a realtime presence source.
+GA4 intraday and BigQuery `events_intraday_YYYYMMDD` are second-source analytics evidence and may be incomplete; they must not be labeled as exact first-party presence. GA4 daily `events_YYYYMMDD` tables are the stable completed-day source and are not a first-party product-truth source.
 
 ## Presence Lifecycle
 
@@ -14,7 +14,7 @@ If a future implementation uses Firebase Realtime Database presence, it must reg
 
 Short rule for agents: onDisconnect before writing online state, every time.
 
-If Firestore listeners drive the UI, cache/server transitions must be explicit. Use `includeMetadataChanges` when `SnapshotMetadata.fromCache` affects truth labels.
+If a future explicit debug-only Firestore listener is approved, cache/server transitions must be explicit. Use `includeMetadataChanges` when `SnapshotMetadata.fromCache` affects truth labels, keep the listener out of default Admin Analytics, and show the fallback snapshot path.
 
 ## Active Identities
 
@@ -38,13 +38,13 @@ Graph hydration metadata must include first presence row timing, first graph poi
 
 ## UI Rule
 
-Live Pulse should be compact on mobile. Use a small metric strip, compact chart height, dense surface rows, and compact active identity rows. Do not reintroduce giant identity cards or oversized blank charts.
+Activity Snapshot should be compact on mobile. Use a small metric strip, compact chart height, dense surface rows, and compact active identity rows. Do not reintroduce giant identity cards or oversized blank charts.
 
-Approved visible status labels are LIVE, STALE, SNAP, WAIT, ERROR, GUEST, and AUTH. Full source explanations belong in Admin Debug.
+Approved visible status labels are Current, Cached, Refresh due, Collecting, No source, Failed, Guest, and Signed in. Full source explanations belong in Admin Debug.
 
 ## Phase 5 Snapshot Migration
 
-Live Pulse reads the Admin Analytics snapshot registry first, then allows realtime presence to upgrade the view when server-confirmed source metadata supports it. Backend or polled data remains snapshot/stale truth, not fake live. Raw actor IDs stay out of primary labels, and graph hydration mismatches, actor/session classification, source freshness, and fake-zero prevention go to Admin Debug.
+Activity Snapshot reads the Admin Analytics snapshot registry and snapshot-first route first. Raw client listeners are not a default display dependency. Raw actor IDs stay out of primary labels, and graph hydration mismatches, actor/session classification, source freshness, and fake-zero prevention go to Admin Debug.
 
 Official references:
 - [Firebase Realtime Database offline and presence](https://firebase.google.com/docs/database/web/offline-capabilities)

@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -56,6 +56,11 @@ function read(relativePath: string) {
   return readFileSync(join(repoRoot, relativePath), "utf8");
 }
 
+function readIfExists(relativePath: string) {
+  const fullPath = join(repoRoot, relativePath);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
 }
@@ -86,7 +91,8 @@ function scanRawErrorFindings() {
 
   for (const file of listTracked(["src/app", "src/components"])) {
     if (allow.has(file)) continue;
-    const source = read(file);
+    const source = readIfExists(file);
+    if (!source) continue;
     if (rawPattern.test(source)) {
       findings.push(file);
     }
@@ -101,7 +107,8 @@ function validateSource() {
   const auth = read("src/lib/server/auth.ts");
   const walletPackages = read("src/app/api/wallet/packages/route.ts");
   const adminUsername = read("src/app/api/admin/users/[userId]/username/route.ts");
-  const adminAnalyticsRealtime = read("src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts");
+  const adminAnalyticsRealtime = readIfExists("src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts");
+  const adminAnalyticsState = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 
   const requiredRouteDiagnosticsMarkers = [
     "resolveHumanError",
@@ -142,8 +149,14 @@ function validateSource() {
   if (!adminUsername.includes("buildHumanApiErrorResponse") || adminUsername.includes('error.message || "Internal server error"')) {
     failures.push("admin username route must not forward raw error.message/Internal server error.");
   }
-  if (adminAnalyticsRealtime.includes('?? "Unknown error"')) {
-    failures.push("admin analytics realtime warnings must use classified fallback copy, not Unknown error.");
+  if (adminAnalyticsRealtime) {
+    failures.push("retired admin analytics realtime hook was reintroduced.");
+  }
+  if (!adminAnalyticsState.includes("ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST")) {
+    failures.push("admin analytics state must keep raw realtime listeners disabled for cost.");
+  }
+  if (adminAnalyticsState.includes('?? "Unknown error"')) {
+    failures.push("admin analytics snapshot-first warnings must use classified fallback copy, not Unknown error.");
   }
 
   return failures;

@@ -164,7 +164,6 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     name: "Realtime-ish admin/users route",
     paths: [
       "src/app/api/admin/users/realtime/route.ts",
-      "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
     ],
     status: "remove_by_deadline",
     canonicalReplacement: "Admin user hot-cache/materialized snapshot route",
@@ -176,7 +175,6 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     riskIfKept: "Unbounded realtime admin reads can bypass hot-cache doctrine and inflate cost or stale-state confusion.",
     allowedReferences: [
       "src/app/api/admin/users/realtime/route.ts",
-      "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
       "scripts/agent/validate-admin-analytics-hot-cache.ts",
       "scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
       "docs/agent-truth/admin-analytics-hot-cache.md",

@@ -1,53 +1,53 @@
 # Admin Analytics Realtime Hot Cache
 
-Generated: 2026-06-18T17:12:20.253Z
+Generated: 2026-06-18T19:16:43.640Z
 
 ```json
 {
-  "generatedAtUtc": "2026-06-18T17:12:20.253Z",
-  "currentHead": "5a3693233bbbad68cafa31e25f68ac6538bc0ded",
-  "status": "hot_cache_ready",
+  "generatedAtUtc": "2026-06-18T19:16:43.640Z",
+  "currentHead": "10aeeb2ab0ae84403a14ae55a82bceffa639c381",
+  "status": "retired_snapshot_first",
   "realtimeListeners": [
     {
       "listenerName": "eventFacts",
       "collectionPath": "analytics_event_facts",
       "limit": 80,
-      "purpose": "Legacy direct listener source kept visible for admin live-pulse debug review.",
-      "currentSourceTruth": "refresh_based_hot_cache_default",
+      "purpose": "Retired direct listener lane kept as a cost-history classification for admin live-pulse review.",
+      "currentSourceTruth": "snapshot_first_route_default",
       "hotCacheTarget": "analytics_event_fact_hot_cache",
-      "migrationStatus": "hot_cache_ready",
+      "migrationStatus": "retired_snapshot_first",
       "costRisk": "high",
       "reconnectRisk": "bounded_exponential_backoff",
       "fallbackPolicy": "Default admin display uses the verified current-activity snapshot route and snapshot metadata.",
       "sampleWindow": "latest 80 event facts",
       "debugVisibility": true,
       "listenerCleanup": "required",
-      "nextAction": "Keep the direct event-fact listener out of default state unless an explicit operator live-debug exception is approved."
+      "nextAction": "Keep the retired direct event-fact listener out of default state; use the snapshot-first route and Admin Debug raw evidence instead."
     },
     {
       "listenerName": "guestBatches",
       "collectionPath": "analytics_guest_batches",
       "limit": 50,
-      "purpose": "Legacy direct listener source kept visible for guest-batch debug review.",
-      "currentSourceTruth": "refresh_based_hot_cache_default",
+      "purpose": "Retired direct listener lane kept as a cost-history classification for guest-batch debug review.",
+      "currentSourceTruth": "snapshot_first_route_default",
       "hotCacheTarget": "analytics_guest_batch_hot_cache",
-      "migrationStatus": "hot_cache_ready",
+      "migrationStatus": "retired_snapshot_first",
       "costRisk": "medium",
       "reconnectRisk": "bounded_exponential_backoff",
       "fallbackPolicy": "Default admin display uses admin analytics snapshots and verified guest snapshot metadata.",
       "sampleWindow": "latest 50 guest batches",
       "debugVisibility": true,
       "listenerCleanup": "required",
-      "nextAction": "Keep recurring guest-batch totals on hot-cache summaries; direct batches remain debug-only."
+      "nextAction": "Keep recurring guest-batch totals on hot-cache summaries; direct batch listeners stay retired."
     },
     {
       "listenerName": "guestSessions",
       "collectionPath": "analytics_sessions",
       "limit": 50,
-      "purpose": "Legacy direct listener source kept visible for session debug review.",
-      "currentSourceTruth": "refresh_based_hot_cache_default",
+      "purpose": "Retired direct listener lane kept as a cost-history classification for session debug review.",
+      "currentSourceTruth": "snapshot_first_route_default",
       "hotCacheTarget": "analytics_session_hot_cache",
-      "migrationStatus": "hot_cache_ready",
+      "migrationStatus": "retired_snapshot_first",
       "costRisk": "medium",
       "reconnectRisk": "bounded_exponential_backoff",
       "fallbackPolicy": "Default admin display uses admin analytics snapshots and verified session metadata.",
@@ -60,23 +60,24 @@ Generated: 2026-06-18T17:12:20.253Z
       "listenerName": "watchSessions",
       "collectionPath": "analytics_watch_sessions",
       "limit": 50,
-      "purpose": "Live debug-only watch-session visibility for admin analytics diagnostics.",
-      "currentSourceTruth": "current_direct_realtime",
+      "purpose": "Retired direct listener lane kept as a cost-history classification for watch-session diagnostics.",
+      "currentSourceTruth": "snapshot_first_route_default",
       "hotCacheTarget": "watch_session_rollup",
-      "migrationStatus": "intentionally_live_debug_only",
+      "migrationStatus": "retired_snapshot_first",
       "costRisk": "high",
       "reconnectRisk": "bounded_exponential_backoff",
       "fallbackPolicy": "Do not claim persisted watch-time truth from this listener; use watch-session evidence artifacts for score truth.",
       "sampleWindow": "latest 50 watch sessions",
       "debugVisibility": true,
       "listenerCleanup": "required",
-      "nextAction": "Keep as live debug-only until persisted watch-time evidence proves runtime watch truth."
+      "nextAction": "Use watch-session rollups and Admin Debug evidence; do not restore direct Admin Analytics watch listeners without an explicit realtime contract."
     }
   ],
   "reconnectRisk": "bounded_exponential_backoff",
   "uiBehaviorChanged": false,
-  "defaultTruthPolicy": "Use refresh-based hot-cache and verified snapshots for default admin analytics truth; keep direct realtime listeners out of default display unless an explicit operator debug exception is approved.",
+  "defaultTruthPolicy": "Use the snapshot-first route, refresh-based hot-cache, and verified snapshots for default admin analytics truth; keep direct realtime listeners out of default display.",
   "productionReadsRun": false,
-  "nextAction": "Keep the legacy direct listener hook source-visible but disconnected from default admin analytics state; use explicit live-debug approval before reconnecting it."
+  "retiredHookPath": "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
+  "nextAction": "Keep the retired direct listener hook deleted; use Admin Debug raw evidence for explicit live investigation."
 }
 ```

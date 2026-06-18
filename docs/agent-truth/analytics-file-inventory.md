@@ -19,7 +19,6 @@ Legend:
 | `src/app/admin/analytics/page.tsx` | Admin Analytics shell, overview cards, tab routing, task/notification modules mount. | Admin display using `useAdminAnalyticsState`, historical/realtime routes, session snapshot. | high | yes |
 | `src/app/admin/analytics/AnalyticsHelpers.tsx` | Formatters, range controls, tab definitions, event descriptions. | UI helper over analytics state. | medium | yes |
 | `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` | Main client state orchestrator for historical, realtime, section ranges, models, local hot snapshot storage. | Mixed hot cache, realtime route, historical cache, local session storage. | high | yes |
-| `src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts` | Client realtime hook for admin analytics. | Firestore/realtime upgrade path with listener metadata implications. | high | yes |
 | `src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx` | Live Pulse, Journey Funnel, Auth Outcomes, Onboarding Performance, Guest Quality, Event Mix, Live Stream. | Module models from `src/lib/admin-analytics-*` and onboarding helper. | high | yes |
 | `src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx` | Audience Snapshot, return cadence, navigation, device, top paths, regions. | Historical traffic/GA/first-party data. | high | yes |
 | `src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx` | Commerce Snapshot, package performance, content conversion, viewer drilldown. | Commerce/funnel/watch/purchase historical data. | high | yes |

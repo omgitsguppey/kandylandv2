@@ -37,10 +37,10 @@ export const ADMIN_REALTIME_TO_HOT_CACHE_MIGRATION: readonly AdminRealtimeMigrat
   {
     surface: "admin_analytics",
     path: "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
-    currentRealtimeRefs: 4,
-    classification: "manual_exception_required",
+    currentRealtimeRefs: 0,
+    classification: "legacy_remove",
     hotCacheSnapshotId: "admin_analytics_snapshot",
-    nextAction: "Keep this hook out of default state; migrate any remaining live pulse to explicit operator debug with owner/cost exception.",
+    nextAction: "Retired the unused raw listener hook. Keep Admin Analytics on the snapshot-first route and use Admin Debug for explicit live evidence.",
   },
   {
     surface: "admin_debug",

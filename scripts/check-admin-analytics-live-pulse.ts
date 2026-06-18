@@ -34,11 +34,11 @@ const component = read("src/app/admin/analytics/components/AdminAnalyticsOperati
 const contracts = read("src/lib/admin-analytics-contracts.ts");
 const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
-const realtimeHook = read("src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts");
 const helper = read("src/lib/admin-analytics-live-pulse.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 const primitives = read("src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx");
 const doc = read("docs/agent-truth/admin-analytics-live-pulse.md");
+const retiredRealtimeHookPath = path.join(ROOT, "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts");
 const livePulseSection = component.slice(
   component.indexOf('title="Activity Snapshot"'),
   component.indexOf('title="Journey Funnel"'),
@@ -142,14 +142,17 @@ assertIncludes("useAdminAnalyticsState", hook, "rawDisplayFallbackDisabled: true
 assertIncludes("useAdminAnalyticsState", hook, "sourceUse: \"snapshot_first_route\"");
 assertNotIncludes("useAdminAnalyticsState", hook, "from \"./useAdminAnalyticsRealtime\"");
 assertNotIncludes("useAdminAnalyticsState", hook, "useAdminAnalyticsRealtime(");
-assertIncludes("useAdminAnalyticsRealtime", realtimeHook, "includeMetadataChanges: true");
+if (fs.existsSync(retiredRealtimeHookPath)) {
+  fail("retired raw Firestore realtime hook still exists at src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts");
+}
 assertIncludes("MetricCard primitive", primitives, "max-w-[5.75rem]");
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsLivePulse");
 assertIncludes("AdminDebugRoute", debugRoute, "rawIdentityIdsLocation");
 assertIncludes("AdminDebugRoute", debugRoute, "guestSnapshotTruthState");
 assertIncludes("AdminDebugRoute", debugRoute, "guestSnapshotSourceLabel");
 assertIncludes("AdminDebugRoute", debugRoute, "guestSnapshotReason");
-assertIncludes("agent truth doc", doc, "Backend or polled data remains snapshot/stale truth");
+assertIncludes("agent truth doc", doc, "snapshot-first route first");
+assertIncludes("agent truth doc", doc, "old client Firestore listener hook has been retired");
 assertIncludes("agent truth doc", doc, "event/action");
 
 assertIncludes("agent truth doc", doc, "Raw IDs must not be the primary visible label");
