@@ -196,6 +196,14 @@ export type LaunchHistoryCoverageForSourceAgreement = {
   expectedDayCount: number;
   recoveredDayCount: number;
   state: "available" | "partial" | "source_missing";
+  rangeStartDayKey?: string | null;
+  rangeEndDayKey?: string | null;
+  rangeProof?: {
+    allLaunchRangeProven?: boolean;
+    expectedRangeSource?: string;
+    coverageWindowKind?: string;
+    reason?: string;
+  };
   days: Array<{
     dayKey: string;
     expected: boolean;
@@ -208,6 +216,34 @@ export type LaunchHistoryCoverageForSourceAgreement = {
     internalAdminExcludedCount?: number | null;
   }>;
 };
+
+function parseDayStartUtc(dayKey: string | null | undefined) {
+  if (!dayKey || !/^\d{4}-\d{2}-\d{2}$/u.test(dayKey)) return null;
+  const timestamp = Date.parse(`${dayKey}T00:00:00.000Z`);
+  if (!Number.isFinite(timestamp)) return null;
+  return new Date(timestamp).toISOString().startsWith(dayKey) ? timestamp : null;
+}
+
+function inclusiveDayCount(startDayKey: string | null | undefined, endDayKey: string | null | undefined) {
+  const start = parseDayStartUtc(startDayKey);
+  const end = parseDayStartUtc(endDayKey);
+  if (start === null || end === null || end < start) return null;
+  return Math.floor((end - start) / 86_400_000) + 1;
+}
+
+function hasExplicitAllLaunchRangeProof(
+  coverage: LaunchHistoryCoverageForSourceAgreement,
+  expectedDays: string[],
+) {
+  if (coverage.rangeProof?.allLaunchRangeProven !== true) return false;
+  if (expectedDays.length === 0) return false;
+  const rangeStartDayKey = coverage.rangeStartDayKey ?? null;
+  const rangeEndDayKey = coverage.rangeEndDayKey ?? null;
+  if (rangeStartDayKey !== expectedDays[0] || rangeEndDayKey !== expectedDays[expectedDays.length - 1]) {
+    return false;
+  }
+  return inclusiveDayCount(rangeStartDayKey, rangeEndDayKey) === expectedDays.length;
+}
 
 export function buildSourceAgreementFailureDetail(input: {
   comparedSources: SourceAgreementCoverageInput[] | string[];
@@ -492,6 +528,7 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
   const declaredCountsMatchRows =
     input.launchHistoryCoverage.expectedDayCount === expectedDays.length &&
     input.launchHistoryCoverage.recoveredDayCount === recoveredExpectedDayCount;
+  const explicitAllLaunchRangeProof = hasExplicitAllLaunchRangeProof(input.launchHistoryCoverage, expectedDays);
 
   return {
     ...detail,
@@ -503,6 +540,7 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
     internalAdminExcludedCountByDay,
     perDayMetricDeltas,
     allLaunchRangeProven: input.proofMode === "admin_truth_sample"
+      && explicitAllLaunchRangeProof
       && input.launchHistoryCoverage.state === "available"
       && declaredCountsMatchRows
       && recoveredExpectedDayCount === expectedDays.length

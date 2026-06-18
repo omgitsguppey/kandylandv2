@@ -88,6 +88,10 @@ function asSourceCount(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : 0;
 }
 
+function asOptionalString(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
 function isDayKey(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/u.test(value)) return false;
   const timestamp = Date.parse(`${value}T00:00:00.000Z`);
@@ -98,6 +102,7 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
   const root = asRecord(raw);
   if (root.status === "template_not_evidence") return null;
   const candidate = asRecord(root.launchHistoryCoverage ?? asRecord(root.analyticsSourceHealth).launchHistoryCoverage ?? root);
+  const rangeProof = asRecord(candidate.rangeProof);
   const daysRaw = Array.isArray(candidate.days) ? candidate.days : [];
   const days: LaunchHistoryCoverageForSourceAgreement["days"] = [];
 
@@ -138,6 +143,14 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
     expectedDayCount,
     recoveredDayCount,
     state,
+    rangeStartDayKey: asOptionalString(candidate.rangeStartDayKey),
+    rangeEndDayKey: asOptionalString(candidate.rangeEndDayKey),
+    rangeProof: {
+      allLaunchRangeProven: rangeProof.allLaunchRangeProven === true,
+      expectedRangeSource: asOptionalString(rangeProof.expectedRangeSource) ?? undefined,
+      coverageWindowKind: asOptionalString(rangeProof.coverageWindowKind) ?? undefined,
+      reason: asOptionalString(rangeProof.reason) ?? undefined,
+    },
     days,
   };
 }

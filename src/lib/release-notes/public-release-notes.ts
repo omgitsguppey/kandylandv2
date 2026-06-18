@@ -1,13 +1,63 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.6.4",
-  "betaReleaseCounter": 604,
+  "currentVersion": "1.6.5",
+  "betaReleaseCounter": 605,
   "channel": "beta",
-  "generatedAt": "2026-06-18T19:30:17.599Z",
-  "generatedAtUtc": "2026-06-18T19:30:17.599Z",
-  "lastCommitSha": "0df78c11d3a2ff846bdfb34c2e68a5a33c50ba4c",
+  "generatedAt": "2026-06-18T19:51:06.429Z",
+  "generatedAtUtc": "2026-06-18T19:51:06.429Z",
+  "lastCommitSha": "c6f16de59ed558d294b0fc29db68c2faaa81100b",
   "notes": [
+    {
+      "version": "1.6.5",
+      "previousVersion": "1.6.4",
+      "betaReleaseCounter": 605,
+      "previousBetaReleaseCounter": 604,
+      "commitSha": "c6f16de59ed558d294b0fc29db68c2faaa81100b",
+      "commitTitle": "fix(analytics): block launch recovery source gate on partial truth",
+      "commitCount": 1,
+      "commitShas": [
+        "c6f16de59ed558d294b0fc29db68c2faaa81100b"
+      ],
+      "committedAt": "2026-06-18T19:39:39.000Z",
+      "generatedAt": "2026-06-18T19:51:06.427Z",
+      "committedAtUtc": "2026-06-18T19:39:39.000Z",
+      "generatedAtUtc": "2026-06-18T19:51:06.427Z",
+      "updatedAtUtc": "2026-06-18T19:51:06.427Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/source-agreement-failure-detail.generated.json",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/source-agreement-failure-detail.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "scripts/rebuild-analytics-truth.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/analytics-panel-hydration.spec.ts"
+      ],
+      "sourceCommit": "c6f16de59ed558d294b0fc29db68c2faaa81100b"
+    },
     {
       "version": "1.6.4",
       "previousVersion": "1.6.3",
@@ -1422,72 +1472,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-analytics-page.spec.tsx"
       ],
       "sourceCommit": "baad3fda8c2c3daee290eaaf1fea4206df5ad84f"
-    },
-    {
-      "version": "1.5.80",
-      "previousVersion": "1.5.79",
-      "betaReleaseCounter": 580,
-      "previousBetaReleaseCounter": 579,
-      "commitSha": "b4a9133d19e95e6dd8f3594c2ee4486493ce20db",
-      "commitTitle": "fix(admin): simplify surface actions",
-      "commitCount": 2,
-      "commitShas": [
-        "9d3de6c712134dd3245e5d35e53c834b0767c82c",
-        "b4a9133d19e95e6dd8f3594c2ee4486493ce20db"
-      ],
-      "committedAt": "2026-06-17T23:35:25.000Z",
-      "generatedAt": "2026-06-17T23:36:15.796Z",
-      "committedAtUtc": "2026-06-17T23:35:25.000Z",
-      "generatedAtUtc": "2026-06-17T23:36:15.796Z",
-      "updatedAtUtc": "2026-06-17T23:36:15.796Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/admin-surface-modal-replacement.generated.json",
-        "agent/state/analytics-panel-hydration.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/launch-analytics-recovery.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/admin-surface-modal-replacement.md",
-        "docs/agent-truth/analytics-panel-hydration.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/launch-analytics-recovery.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-analytics-panel-hydration.ts",
-        "scripts/release/update-public-changelog.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-analytics-historical-validation.ts",
-        "src/types/admin-analytics.ts",
-        "tests/unit/admin-analytics-page.spec.tsx",
-        "tests/unit/admin-data-validation.spec.ts"
-      ],
-      "sourceCommit": "b4a9133d19e95e6dd8f3594c2ee4486493ce20db"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

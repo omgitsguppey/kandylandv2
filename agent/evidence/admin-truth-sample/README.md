@@ -8,6 +8,7 @@ Do not touch admin backend for this lane. Evidence must be redacted and source f
 
 Launch analytics recovery can use a completed admin truth sample only when the JSON includes `launchHistoryCoverage`.
 General admin truth samples without that field remain valid admin-truth evidence, but they do not prove all-launch analytics coverage.
+To clear all-launch recovery, `launchHistoryCoverage.rangeProof.allLaunchRangeProven` must be `true`, `rangeStartDayKey` and `rangeEndDayKey` must match the provided day rows, and the row count must cover the declared range.
 
 For launch recovery, keep counts redacted and bounded:
 

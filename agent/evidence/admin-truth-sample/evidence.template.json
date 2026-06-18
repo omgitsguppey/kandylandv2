@@ -33,6 +33,14 @@
     }
   ],
   "launchHistoryCoverage": {
+    "rangeProof": {
+      "expectedRangeSource": "admin_truth_sample",
+      "coverageWindowKind": "admin_truth_sample",
+      "allLaunchRangeProven": false,
+      "reason": "Set to true only when the redacted sample spans every expected launch day and the day rows below match that declared range."
+    },
+    "rangeStartDayKey": "YYYY-MM-DD",
+    "rangeEndDayKey": "YYYY-MM-DD",
     "expectedDayCount": 0,
     "recoveredDayCount": 0,
     "state": "source_missing",

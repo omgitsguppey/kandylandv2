@@ -104,13 +104,48 @@ describe("source agreement failure detail", () => {
     expect(detail.sourceTruthPolicy.ga4SecondSourceOnly).toBe(true);
   });
 
-  it("allows an admin truth sample to prove the all-launch range only when source agreement passes", () => {
+  it("does not let a short admin truth sample prove all-launch range without explicit range proof", () => {
     const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
       proofMode: "admin_truth_sample",
       launchHistoryCoverage: {
         expectedDayCount: 2,
         recoveredDayCount: 2,
         state: "available",
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 1, legacySupport: 1 },
+          },
+          {
+            dayKey: "2026-05-02",
+            expected: true,
+            sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 1, legacySupport: 1 },
+          },
+        ],
+      },
+    });
+
+    expect(detail.coverageWindowKind).toBe("admin_truth_sample");
+    expect(detail.sourceAgreementStatus).toBe("pass");
+    expect(detail.allLaunchRangeProven).toBe(false);
+    expect(detail.disagreementCount).toBe(0);
+  });
+
+  it("allows an admin truth sample to prove all-launch range only when declared range matches rows", () => {
+    const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
+      proofMode: "admin_truth_sample",
+      launchHistoryCoverage: {
+        expectedDayCount: 2,
+        recoveredDayCount: 2,
+        state: "available",
+        rangeStartDayKey: "2026-05-01",
+        rangeEndDayKey: "2026-05-02",
+        rangeProof: {
+          allLaunchRangeProven: true,
+          expectedRangeSource: "admin_truth_sample",
+          coverageWindowKind: "admin_truth_sample",
+        },
         days: [
           {
             dayKey: "2026-05-01",
@@ -136,6 +171,13 @@ describe("source agreement failure detail", () => {
     const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
       proofMode: "admin_truth_sample",
       launchHistoryCoverage: {
+        rangeStartDayKey: "2026-05-04",
+        rangeEndDayKey: "2026-05-04",
+        rangeProof: {
+          allLaunchRangeProven: true,
+          expectedRangeSource: "admin_truth_sample",
+          coverageWindowKind: "admin_truth_sample",
+        },
         expectedDayCount: 1,
         recoveredDayCount: 1,
         state: "available",
@@ -211,6 +253,13 @@ describe("source agreement failure detail", () => {
       status: "complete",
       surface: "admin_truth_sample",
       launchHistoryCoverage: {
+        rangeStartDayKey: "2026-05-04",
+        rangeEndDayKey: "2026-05-04",
+        rangeProof: {
+          allLaunchRangeProven: true,
+          expectedRangeSource: "admin_truth_sample",
+          coverageWindowKind: "admin_truth_sample",
+        },
         expectedDayCount: 1,
         recoveredDayCount: 1,
         state: "available",
@@ -247,6 +296,9 @@ describe("source agreement failure detail", () => {
       historicalSnapshot: 3,
       legacySupport: 0,
     });
+    expect(coverage?.rangeStartDayKey).toBe("2026-05-04");
+    expect(coverage?.rangeEndDayKey).toBe("2026-05-04");
+    expect(coverage?.rangeProof?.allLaunchRangeProven).toBe(true);
     expect(coverage?.days[0]?.internalAdminExcludedCount).toBe(2);
   });
 

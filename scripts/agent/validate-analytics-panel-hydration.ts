@@ -710,16 +710,20 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       proofBoundary: "Missing stays missing; zero is allowed only after a bounded source window proves zero.",
     },
   ];
+  const allLaunchRangeProven = sourceAgreementDetail.allLaunchRangeProven === true;
   const launchSourceGateCanClear =
     expectedDays.length > 0
     && !staleEvidence
+    && allLaunchRangeProven
     && launchCoverageState === "available"
     && firstPartyCoverageState === "available"
     && sourceAgreementState === "pass";
   const sourceGateReason = launchSourceGateCanClear
-    ? "First-party coverage is available for the local launch window, source agreement passed, and evidence is current."
+    ? "First-party coverage is available for the all-launch window, source agreement passed, and evidence is current."
     : staleEvidence
       ? "Launch recovery source evidence is stale relative to current HEAD."
+      : !allLaunchRangeProven
+        ? "The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth."
       : firstPartyCoverageState !== "available"
         ? "First-party product truth is incomplete; GA4, historical snapshots, and legacy support cannot clear the source gate."
         : sourceAgreementState !== "pass"
@@ -794,8 +798,10 @@ function buildLaunchAnalyticsRecoveryReport(input: {
         coverageWindowKind: typeof sourceAgreementDetail.coverageWindowKind === "string"
           ? sourceAgreementDetail.coverageWindowKind
           : "local_source_window",
-        allLaunchRangeProven: false,
-        reason: typeof sourceAgreementDetail.coverageWindowKind === "string" && sourceAgreementDetail.coverageWindowKind.includes("fixture")
+        allLaunchRangeProven,
+        reason: allLaunchRangeProven
+          ? "The source-agreement detail includes explicit all-launch range proof from a formal admin truth sample."
+          : typeof sourceAgreementDetail.coverageWindowKind === "string" && sourceAgreementDetail.coverageWindowKind.includes("fixture")
           ? "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export."
           : "The local source-agreement evidence proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.",
       },
@@ -907,9 +913,10 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
     report.launchHistoryCoverage.state !== "available"
     || report.launchHistoryCoverage.firstPartyCoverage.state !== "available"
     || report.sourceAgreement.state !== "pass"
+    || report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== true
     || report.launchHistoryCoverage.staleInputEvidence
   )) {
-    failures.push("launch recovery cannot clear source gate until first-party coverage is available, source agreement passes, and evidence is current.");
+    failures.push("launch recovery cannot clear source gate until first-party coverage is available, source agreement passes, all-launch range proof exists, and evidence is current.");
   }
   if (!report.canClearSourceGate && (!report.sourceGateReason || !report.sourceGateReason.trim())) {
     failures.push("blocked launch recovery source gate must explain the reason.");
@@ -935,8 +942,14 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (report.launchHistoryCoverage.expectedDayCount > 0 && (!report.launchHistoryCoverage.rangeStartDayKey || !report.launchHistoryCoverage.rangeEndDayKey)) {
     failures.push("launch recovery expected days require rangeStartDayKey and rangeEndDayKey.");
   }
-  if (!report.launchHistoryCoverage.rangeProof || report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== false) {
-    failures.push("launch recovery must state that local generated evidence does not prove the full all-launch range.");
+  if (!report.launchHistoryCoverage.rangeProof || typeof report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== "boolean") {
+    failures.push("launch recovery must state whether source evidence proves the full all-launch range.");
+  }
+  if (
+    report.launchHistoryCoverage.rangeProof.allLaunchRangeProven === true
+    && report.launchHistoryCoverage.rangeProof.coverageWindowKind !== "admin_truth_sample"
+  ) {
+    failures.push("launch recovery all-launch proof must come from a formal admin truth sample.");
   }
   if (!report.launchHistoryCoverage.rangeProof.coverageWindowKind) {
     failures.push("launch recovery must label whether source agreement coverage is fixture/local/export evidence.");

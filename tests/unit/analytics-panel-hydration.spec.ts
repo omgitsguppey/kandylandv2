@@ -214,9 +214,10 @@ describe("analytics panel hydration", () => {
 
     expect(source).toContain('firstPartyCoverageState !== "available"');
     expect(source).toContain('sourceAgreementState !== "pass"');
+    expect(source).toContain("allLaunchRangeProven");
     expect(source).toContain("launchSourceGateCanClear");
     expect(source).toContain('canClearSourceGate: launchSourceGateCanClear');
-    expect(source).toContain("launch recovery cannot clear source gate until first-party coverage is available");
+    expect(source).toContain("all-launch range proof exists");
     expect(source).toContain("GA4, historical snapshots, and legacy support remain evidence-only");
   });
 
