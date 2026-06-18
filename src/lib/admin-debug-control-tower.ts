@@ -341,7 +341,7 @@ function readReportCommitState(raw: Record<string, unknown>, repoCurrentHead: st
     const currentHead = normalizeCommit(raw.currentHead);
     const sourceCommitMismatch = Boolean(sourceCommit && currentHead && !commitsMatch(sourceCommit, currentHead));
     const currentHeadLag = Boolean(currentHead && repoCurrentHead && !commitsMatch(currentHead, repoCurrentHead));
-    const sourceDrift: AdminDebugReportCard["sourceDrift"] = sourceCommitMismatch || currentHeadLag
+    const sourceDrift: AdminDebugReportCard["sourceDrift"] = sourceCommitMismatch
         ? "stale"
         : sourceCommit || currentHead
             ? "current"

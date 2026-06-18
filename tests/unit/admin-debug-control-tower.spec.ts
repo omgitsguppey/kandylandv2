@@ -126,6 +126,38 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaTruthState).toBe("stale");
     });
 
+    it("keeps fresh generated snapshots current when only deployed commit metadata moved", () => {
+        const root = createTempRoot();
+        const previousCommit = process.env.NEXT_PUBLIC_COMMIT_SHA;
+        process.env.NEXT_PUBLIC_COMMIT_SHA = "cccccccccccccccccccccccccccccccccccccccc";
+        try {
+            writeReport(root, "public-beta-score.generated.json", {
+                generatedAt: "2026-05-04T00:00:00.000Z",
+                overallScore: 99,
+                overallStatus: "clean",
+                readinessStatus: "Ready",
+                readinessStatusReason: "Source artifacts are current.",
+                currentHead: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                findings: [],
+            });
+
+            const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
+            const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
+
+            expect(publicBeta?.truthState).toBe("live");
+            expect(publicBeta?.sourceDrift).toBe("current");
+            expect(publicBeta?.topFindings.some((finding) => finding.title.includes("source commit needs review"))).toBe(false);
+            expect(model.canonicalPublicBetaSourceDrift).toBe("current");
+            expect(model.canonicalPublicBetaTruthState).toBe("live");
+        } finally {
+            if (previousCommit === undefined) {
+                delete process.env.NEXT_PUBLIC_COMMIT_SHA;
+            } else {
+                process.env.NEXT_PUBLIC_COMMIT_SHA = previousCommit;
+            }
+        }
+    });
+
     it("wires the compact UI to canonical beta score fields instead of aggregate score", () => {
         const root = process.cwd();
         const component = readFileSync(join(root, "src/app/admin/debug/components/DebugControlTower.tsx"), "utf8");
