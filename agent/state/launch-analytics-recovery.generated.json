@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T03:01:31.332Z",
-  "currentHead": "da619ef1400bca495a942f7969885a899cd3755d",
+  "generatedAtUtc": "2026-06-18T03:11:16.674Z",
+  "currentHead": "12d728d0fb207b0d4b8f4d7c216cae8cfa1eef1f",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -62,21 +62,27 @@
   "evidenceProvenance": {
     "launchCoverageInput": "agent/state/source-agreement-failure-detail.generated.json",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "da619ef1400bca495a942f7969885a899cd3755d",
+    "sourceAgreementInputHead": "12d728d0fb207b0d4b8f4d7c216cae8cfa1eef1f",
     "ga4ReadMode": "generated/local evidence only; no provider call performed",
     "firstPartyReadMode": "source-agreement day-bucket evidence only; no production read performed",
     "limitation": "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof."
   },
   "launchHistoryCoverage": {
+    "rangeStartDayKey": "2026-05-01",
+    "rangeEndDayKey": "2026-05-03",
+    "firstRecoveredDayKey": "2026-05-01",
+    "lastRecoveredDayKey": "2026-05-03",
     "expectedDayCount": 3,
     "recoveredDayCount": 3,
+    "preLaunchIgnoredDayCount": 0,
     "sourceDayCounts": {
+      "firstParty": 1,
       "first_party": 1,
       "ga4": 3,
       "historicalSnapshot": 1,
       "legacySupport": 1
     },
-    "dayCoverage": [
+    "days": [
       {
         "dayKey": "2026-05-01",
         "expected": true,
@@ -126,7 +132,20 @@
         "nextAction": "Recover first-party materialization before promoting this day to canonical product analytics."
       }
     ],
-    "missingRanges": {
+    "missingRanges": [],
+    "missingRangesBySource": {
+      "first_party": [
+        "2026-05-02..2026-05-03"
+      ],
+      "ga4": [],
+      "historical_snapshot": [
+        "2026-05-02..2026-05-03"
+      ],
+      "legacy_support": [
+        "2026-05-01..2026-05-02"
+      ]
+    },
+    "missingDaysBySource": {
       "first_party": [
         "2026-05-02",
         "2026-05-03"
@@ -149,8 +168,10 @@
       "2026-05-01",
       "2026-05-03"
     ],
+    "state": "available",
+    "reason": "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.",
     "staleInputEvidence": false,
-    "sourceAgreementEvidenceHead": "da619ef1400bca495a942f7969885a899cd3755d"
+    "sourceAgreementEvidenceHead": "12d728d0fb207b0d4b8f4d7c216cae8cfa1eef1f"
   },
   "sourceAgreement": {
     "comparedSources": [

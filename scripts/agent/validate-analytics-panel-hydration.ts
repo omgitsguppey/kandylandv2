@@ -46,6 +46,39 @@ function asNumber(value: unknown, fallback = 0) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function collapseDayRanges(days: string[]) {
+  const sorted = [...new Set(days)].sort();
+  const ranges: string[] = [];
+  let start: string | null = null;
+  let previous: string | null = null;
+
+  const nextDay = (dayKey: string) => {
+    const next = new Date(`${dayKey}T00:00:00.000Z`);
+    next.setUTCDate(next.getUTCDate() + 1);
+    return next.toISOString().slice(0, 10);
+  };
+
+  for (const dayKey of sorted) {
+    if (!start) {
+      start = dayKey;
+      previous = dayKey;
+      continue;
+    }
+
+    if (previous && dayKey === nextDay(previous)) {
+      previous = dayKey;
+      continue;
+    }
+
+    ranges.push(start === previous ? start : `${start}..${previous}`);
+    start = dayKey;
+    previous = dayKey;
+  }
+
+  if (start) ranges.push(start === previous ? start : `${start}..${previous}`);
+  return ranges;
+}
+
 type SourceAgreementClassification =
   | "identity_mismatch"
   | "event_translation_mismatch"
@@ -436,6 +469,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     };
   });
   const sourceDayCounts = {
+    firstParty: firstPartyDays.size,
     first_party: firstPartyDays.size,
     ga4: ga4Days.size,
     historicalSnapshot: historicalSnapshotDays.size,
@@ -447,6 +481,19 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     historical_snapshot: expectedDays.filter((dayKey) => !historicalSnapshotDays.has(dayKey)),
     legacy_support: expectedDays.filter((dayKey) => !legacySupportDays.has(dayKey)),
   };
+  const sourceMissingDays = expectedDays.filter((dayKey) =>
+    !firstPartyDays.has(dayKey) &&
+    !ga4Days.has(dayKey) &&
+    !historicalSnapshotDays.has(dayKey) &&
+    !legacySupportDays.has(dayKey),
+  );
+  const recoveredDays = dayCoverage.filter((day) => day.recovered);
+  const duplicateDays = dayCoverage.filter((day) => day.duplicateSourceCount > 0).map((day) => day.dayKey);
+  const launchCoverageState = recoveredDays.length === 0
+    ? "source_missing"
+    : sourceMissingDays.length === 0
+      ? "available"
+      : "partial";
   const rawSourceAgreementState = sourceAgreementDetail.sourceAgreementStatus;
   const sourceAgreementState = typeof rawSourceAgreementState === "string"
     ? rawSourceAgreementState
@@ -455,6 +502,13 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       : asNumber(sourceAgreementDetail.disagreementCount, 0) > 0
       ? "review"
       : expectedDays.length > 0 ? "pass" : "not_enough_sources";
+  const launchCoverageReason = launchCoverageState === "source_missing"
+    ? "No launch-history source evidence was observed in the generated source agreement detail."
+    : sourceAgreementState === "failed" || sourceAgreementState === "fail"
+      ? "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth."
+      : launchCoverageState === "partial"
+        ? "Some launch-history day buckets are missing from all local source evidence."
+        : "Every expected launch day has at least one local source evidence bucket; source agreement still controls canonical chart promotion.";
   const staleEvidence = sourceAgreementHead !== null && sourceAgreementHead !== input.currentHead;
   const status = expectedDays.length === 0
     ? "source_evidence_missing"
@@ -521,13 +575,25 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       limitation: "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof.",
     },
     launchHistoryCoverage: {
+      rangeStartDayKey: expectedDays[0] ?? null,
+      rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
+      firstRecoveredDayKey: recoveredDays[0]?.dayKey ?? null,
+      lastRecoveredDayKey: recoveredDays[recoveredDays.length - 1]?.dayKey ?? null,
       expectedDayCount: expectedDays.length,
-      recoveredDayCount: dayCoverage.filter((day) => day.recovered).length,
+      recoveredDayCount: recoveredDays.length,
+      preLaunchIgnoredDayCount: 0,
       sourceDayCounts,
-      dayCoverage,
-      missingRanges: { ...computedMissingDaysBySource, ...asRecord(sourceAgreementDetail.missingDaysBySource) },
-      duplicateRanges: dayCoverage.filter((day) => day.duplicateSourceCount > 0).map((day) => day.dayKey),
-      sourceOverlapRanges: dayCoverage.filter((day) => day.duplicateSourceCount > 0).map((day) => day.dayKey),
+      days: dayCoverage,
+      missingRanges: collapseDayRanges(sourceMissingDays),
+      missingRangesBySource: Object.fromEntries(
+        Object.entries({ ...computedMissingDaysBySource, ...asRecord(sourceAgreementDetail.missingDaysBySource) })
+          .map(([source, days]) => [source, collapseDayRanges(asStringArray(days))]),
+      ),
+      missingDaysBySource: { ...computedMissingDaysBySource, ...asRecord(sourceAgreementDetail.missingDaysBySource) },
+      duplicateRanges: collapseDayRanges(duplicateDays),
+      sourceOverlapRanges: collapseDayRanges(duplicateDays),
+      state: launchCoverageState,
+      reason: launchCoverageReason,
       staleInputEvidence: staleEvidence,
       sourceAgreementEvidenceHead: sourceAgreementHead,
     },
@@ -585,7 +651,25 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (!report.launchHistoryCoverage.staleInputEvidence && report.sourceAgreement.state === "failed" && report.status !== "source_agreement_failed") {
     failures.push("current failed source agreement must surface as source_agreement_failed.");
   }
-  for (const day of report.launchHistoryCoverage.dayCoverage) {
+  if (!Array.isArray(report.launchHistoryCoverage.days) || report.launchHistoryCoverage.days.length !== report.launchHistoryCoverage.expectedDayCount) {
+    failures.push("launch recovery must expose server-shaped launchHistoryCoverage.days.");
+  }
+  if (!Array.isArray(report.launchHistoryCoverage.missingRanges)) {
+    failures.push("launch recovery missingRanges must use the existing launchHistoryCoverage array shape.");
+  }
+  if (!["available", "partial", "source_missing"].includes(report.launchHistoryCoverage.state)) {
+    failures.push("launch recovery must expose launchHistoryCoverage.state.");
+  }
+  if (typeof report.launchHistoryCoverage.reason !== "string" || !report.launchHistoryCoverage.reason.trim()) {
+    failures.push("launch recovery must explain launchHistoryCoverage.reason.");
+  }
+  if (report.launchHistoryCoverage.expectedDayCount > 0 && (!report.launchHistoryCoverage.rangeStartDayKey || !report.launchHistoryCoverage.rangeEndDayKey)) {
+    failures.push("launch recovery expected days require rangeStartDayKey and rangeEndDayKey.");
+  }
+  if (report.launchHistoryCoverage.recoveredDayCount > 0 && (!report.launchHistoryCoverage.firstRecoveredDayKey || !report.launchHistoryCoverage.lastRecoveredDayKey)) {
+    failures.push("launch recovery recovered days require firstRecoveredDayKey and lastRecoveredDayKey.");
+  }
+  for (const day of report.launchHistoryCoverage.days) {
     for (const required of ["first_party", "ga4", "historicalSnapshot", "legacySupport"] as const) {
       if (typeof day.sourceCounts[required] !== "number") {
         failures.push(`launch day ${day.dayKey} missing ${required} source count.`);
@@ -626,11 +710,17 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     "",
     "## Launch Coverage",
     "",
+    `- Range: ${report.launchHistoryCoverage.rangeStartDayKey ?? "unknown"} to ${report.launchHistoryCoverage.rangeEndDayKey ?? "unknown"}`,
     `- Recovered days: ${report.launchHistoryCoverage.recoveredDayCount}/${report.launchHistoryCoverage.expectedDayCount}`,
+    `- First recovered day: ${report.launchHistoryCoverage.firstRecoveredDayKey ?? "unknown"}`,
+    `- Last recovered day: ${report.launchHistoryCoverage.lastRecoveredDayKey ?? "unknown"}`,
+    `- Coverage state: ${report.launchHistoryCoverage.state}`,
+    `- Coverage reason: ${report.launchHistoryCoverage.reason}`,
     `- First-party days: ${report.launchHistoryCoverage.sourceDayCounts.first_party}`,
     `- GA4 days: ${report.launchHistoryCoverage.sourceDayCounts.ga4}`,
     `- Historical snapshot days: ${report.launchHistoryCoverage.sourceDayCounts.historicalSnapshot}`,
     `- Legacy support days: ${report.launchHistoryCoverage.sourceDayCounts.legacySupport}`,
+    `- Missing ranges: ${report.launchHistoryCoverage.missingRanges.join(", ") || "none"}`,
     `- Stale input evidence: ${report.launchHistoryCoverage.staleInputEvidence ? "yes" : "no"}`,
     "",
     "## Source Agreement",
