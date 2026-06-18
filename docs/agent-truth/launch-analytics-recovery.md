@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T23:03:30.049Z
-Current head: f1bc8bc09808b1aa9cbe93d9120b5215634e83bd
+Generated: 2026-06-18T23:46:20.871Z
+Current head: 7be638a6a3d2e43dc6c081d2a3fb669f0b8a10d3
 Status: source_agreement_failed
 
 ## Source Order
@@ -36,15 +36,15 @@ Status: source_agreement_failed
 
 ## Source Inventory
 
-- first_party_events: first_party / partial; owner analytics_event_facts and telemetry catalog; coverage 1; boundary: Primary product analytics only after first-party materialization; this generated report is not runtime/admin proof.
-- user_person_metrics: person_metrics / validator_passed; owner person metrics hydration; coverage n/a; boundary: Global activity does not clear user/person parity; missing person metrics stay missing until hydrated.
-- guest_to_user_handoff: first_party / source_mapped; owner identity handoff and analytics identity link; coverage n/a; boundary: Handoff links journeys but must not double-count guest and signed-in actions.
-- event_envelope_translation: first_party / validator_passed; owner event translation bridge and analytics event contract; coverage n/a; boundary: Source translation parity does not prove provider/runtime/admin truth.
-- admin_panel_hydration: mixed / partial; owner admin analytics panel hydration; coverage n/a; boundary: Panels may be source-ready without runtime/admin truth evidence.
-- historical_snapshots: historicalSnapshot / fallback; owner admin analytics historical snapshot; coverage 1; boundary: Historical snapshots explain gaps but do not overwrite first-party product truth.
-- legacy_support_snapshots: legacySupport / fallback; owner legacy recovery/support snapshot lane; coverage 1; boundary: Legacy support remains recovery evidence only and cannot create current product truth.
-- ga4_export_api: ga4 / second_source; owner GA4/external analytics truth lane; coverage 3; boundary: GA4 is second-source evidence and cannot replace identity, wallet, entitlement, purchase, or creator revenue truth.
-- known_missing_ranges: unknown / source_disagreement; owner launch analytics recovery; coverage n/a; boundary: Missing stays missing; zero is allowed only after a bounded source window proves zero.
+- first_party_events: first_party / partial; role primary_product_truth; owner analytics_event_facts and telemetry catalog; coverage 1; boundary: Primary product analytics only after first-party materialization; this generated report is not runtime/admin proof.
+- user_person_metrics: person_metrics / validator_passed; role primary_person_truth; owner person metrics hydration; coverage n/a; boundary: Global activity does not clear user/person parity; missing person metrics stay missing until hydrated.
+- guest_to_user_handoff: first_party / source_mapped; role journey_linking_truth; owner identity handoff and analytics identity link; coverage n/a; boundary: Handoff links journeys but must not double-count guest and signed-in actions.
+- event_envelope_translation: first_party / validator_passed; role normalization_truth; owner event translation bridge and analytics event contract; coverage n/a; boundary: Source translation parity does not prove provider/runtime/admin truth.
+- admin_panel_hydration: mixed / partial; role display_readiness_only; owner admin analytics panel hydration; coverage n/a; boundary: Panels may be source-ready without runtime/admin truth evidence.
+- historical_snapshots: historicalSnapshot / fallback; role fallback_evidence_only; owner admin analytics historical snapshot; coverage 1; boundary: Historical snapshots explain gaps but do not overwrite first-party product truth.
+- legacy_support_snapshots: legacySupport / fallback; role fallback_evidence_only; owner legacy recovery/support snapshot lane; coverage 1; boundary: Legacy support remains recovery evidence only and cannot create current product truth.
+- ga4_export_api: ga4 / second_source; role second_source_evidence_only; owner GA4/external analytics truth lane; coverage 3; boundary: GA4 is second-source evidence and cannot replace identity, wallet, entitlement, purchase, or creator revenue truth.
+- known_missing_ranges: unknown / source_disagreement; role gap_triage_only; owner launch analytics recovery; coverage n/a; boundary: Missing stays missing; zero is allowed only after a bounded source window proves zero.
 
 ## Launch Coverage
 

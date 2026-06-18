@@ -226,6 +226,10 @@ describe("analytics panel hydration", () => {
     expect(source).toContain('canClearSourceGate: launchSourceGateCanClear');
     expect(source).toContain("all-launch range proof exists");
     expect(source).toContain("GA4, historical snapshots, and legacy support remain evidence-only");
+    expect(source).toContain('productTruthRole: "primary_product_truth"');
+    expect(source).toContain('productTruthRole: "second_source_evidence_only"');
+    expect(source).toContain('productTruthRole: "fallback_evidence_only"');
+    expect(source).toContain("launch recovery source inventory entries require productTruthRole and promotionRule.");
   });
 
   it("keeps launch recovery day rows actionable instead of top-level-only", () => {

@@ -549,6 +549,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       contract: "first_party",
       owner: "analytics_event_facts and telemetry catalog",
       canonicalFiles: ["src/lib/telemetry-catalog.ts", "src/app/api/analytics/ingest-identified/route.ts"],
+      productTruthRole: "primary_product_truth",
+      promotionRule: "Promote only when first-party day buckets or analytics_event_facts cover the bounded launch window.",
       localState: firstPartyDays.size > 0 ? "partial" : "source_missing",
       coveredDayCount: firstPartyDays.size,
       missingRanges: collapseDayRanges(computedMissingDaysBySource.first_party),
@@ -560,6 +562,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       contract: "person_metrics",
       owner: "person metrics hydration",
       canonicalFiles: ["src/lib/analytics/person-metrics-hydration.ts", "src/lib/analytics/person-metrics-contract.ts"],
+      productTruthRole: "primary_person_truth",
+      promotionRule: "Promote only after linked person metrics hydrate; global activity cannot clear this lane.",
       localState: "validator_passed",
       coveredDayCount: null,
       missingRanges: [],
@@ -571,6 +575,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       contract: "first_party",
       owner: "identity handoff and analytics identity link",
       canonicalFiles: ["src/lib/analytics/analytics-identity-link.ts", "src/context/AuthContext.tsx", "src/lib/client-session.ts"],
+      productTruthRole: "journey_linking_truth",
+      promotionRule: "Use only to connect guest and signed-in journeys without duplicating the same action.",
       localState: "source_mapped",
       coveredDayCount: null,
       missingRanges: [],
@@ -582,6 +588,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       contract: "first_party",
       owner: "event translation bridge and analytics event contract",
       canonicalFiles: ["src/lib/analytics/event-translation-bridge.ts", "src/lib/analytics/analytics-event-contract.ts"],
+      productTruthRole: "normalization_truth",
+      promotionRule: "Use for source event normalization only; translation parity does not prove runtime/provider/admin truth.",
       localState: "validator_passed",
       coveredDayCount: null,
       missingRanges: [],
@@ -593,6 +601,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       contract: "mixed",
       owner: "admin analytics panel hydration",
       canonicalFiles: ["src/lib/admin-analytics/panel-hydration-resolver.ts", "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"],
+      productTruthRole: "display_readiness_only",
+      promotionRule: "Use to decide panel display state; it does not promote product metrics without source truth.",
       localState: input.panelReport.hydratedPanels > 0 ? "partial" : "collecting",
       coveredDayCount: null,
       missingRanges: [],
@@ -604,6 +614,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       contract: "historicalSnapshot",
       owner: "admin analytics historical snapshot",
       canonicalFiles: ["src/app/api/admin/analytics/historical/route.ts", "src/lib/server/admin-analytics-historical-validation.ts"],
+      productTruthRole: "fallback_evidence_only",
+      promotionRule: "Use as gap explanation and chart continuity only; never overwrite first-party product truth.",
       localState: historicalSnapshotDays.size > 0 ? "fallback" : "source_missing",
       coveredDayCount: historicalSnapshotDays.size,
       missingRanges: collapseDayRanges(computedMissingDaysBySource.historical_snapshot),
@@ -615,6 +627,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       contract: "legacySupport",
       owner: "legacy recovery/support snapshot lane",
       canonicalFiles: ["src/lib/analytics/legacy-recovery-contract.ts", "src/lib/analytics/legacy-history-reconciler.ts"],
+      productTruthRole: "fallback_evidence_only",
+      promotionRule: "Use for recovery review only; weak legacy evidence cannot create current product truth.",
       localState: legacySupportDays.size > 0 ? "fallback" : "source_missing",
       coveredDayCount: legacySupportDays.size,
       missingRanges: collapseDayRanges(computedMissingDaysBySource.legacy_support),
@@ -626,6 +640,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       contract: "ga4",
       owner: "GA4/external analytics truth lane",
       canonicalFiles: ["src/lib/analytics/ga4-truth.ts", "src/lib/server/admin-analytics/ga4-evidence.ts"],
+      productTruthRole: "second_source_evidence_only",
+      promotionRule: "Use for sessions, views, device, region, top paths, and acquisition comparison only.",
       localState: ga4Days.size > 0 ? "second_source" : "external_proof_required",
       coveredDayCount: ga4Days.size,
       missingRanges: collapseDayRanges(computedMissingDaysBySource.ga4),
@@ -637,6 +653,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       contract: "unknown",
       owner: "launch analytics recovery",
       canonicalFiles: ["agent/state/launch-analytics-recovery.generated.json"],
+      productTruthRole: "gap_triage_only",
+      promotionRule: "Use to route recovery work; missing ranges remain missing until bounded source proof exists.",
       localState: sourceMissingDays.length > 0 ? "source_missing" : sourceAgreementState === "failed" || sourceAgreementState === "fail" ? "source_disagreement" : "none_observed",
       coveredDayCount: null,
       missingRanges: collapseDayRanges(sourceMissingDays),
@@ -834,6 +852,21 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (report.sourceMap.sourceInventory.some((entry) => !entry.proofBoundary || !Array.isArray(entry.canonicalFiles) || entry.canonicalFiles.length === 0)) {
     failures.push("launch recovery source inventory entries require proof boundaries and canonical files.");
   }
+  if (report.sourceMap.sourceInventory.some((entry) => typeof entry.productTruthRole !== "string" || typeof entry.promotionRule !== "string")) {
+    failures.push("launch recovery source inventory entries require productTruthRole and promotionRule.");
+  }
+  const inventoryById = new Map(report.sourceMap.sourceInventory.map((entry) => [entry.sourceId, entry]));
+  if (inventoryById.get("first_party_events")?.productTruthRole !== "primary_product_truth") {
+    failures.push("first-party launch source must remain primary product truth.");
+  }
+  if (inventoryById.get("ga4_export_api")?.productTruthRole !== "second_source_evidence_only") {
+    failures.push("GA4 launch source must remain second-source evidence only.");
+  }
+  for (const fallbackId of ["historical_snapshots", "legacy_support_snapshots"]) {
+    if (inventoryById.get(fallbackId)?.productTruthRole !== "fallback_evidence_only") {
+      failures.push(`${fallbackId} must remain fallback evidence only.`);
+    }
+  }
   if (report.sourceMap.primaryTruth !== "first_party" || report.sourceMap.secondSource !== "ga4") {
     failures.push("launch recovery must keep first_party primary and ga4 second-source.");
   }
@@ -982,7 +1015,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     "## Source Inventory",
     "",
     ...report.sourceMap.sourceInventory.map((entry) =>
-      `- ${entry.sourceId}: ${entry.contract} / ${entry.localState}; owner ${entry.owner}; coverage ${entry.coveredDayCount ?? "n/a"}; boundary: ${entry.proofBoundary}`,
+      `- ${entry.sourceId}: ${entry.contract} / ${entry.localState}; role ${entry.productTruthRole}; owner ${entry.owner}; coverage ${entry.coveredDayCount ?? "n/a"}; boundary: ${entry.proofBoundary}`,
     ),
     "",
     "## Launch Coverage",

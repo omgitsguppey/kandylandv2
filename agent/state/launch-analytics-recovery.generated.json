@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T23:03:30.049Z",
-  "currentHead": "f1bc8bc09808b1aa9cbe93d9120b5215634e83bd",
+  "generatedAtUtc": "2026-06-18T23:46:20.871Z",
+  "currentHead": "7be638a6a3d2e43dc6c081d2a3fb669f0b8a10d3",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -70,6 +70,8 @@
           "src/lib/telemetry-catalog.ts",
           "src/app/api/analytics/ingest-identified/route.ts"
         ],
+        "productTruthRole": "primary_product_truth",
+        "promotionRule": "Promote only when first-party day buckets or analytics_event_facts cover the bounded launch window.",
         "localState": "partial",
         "coveredDayCount": 1,
         "missingRanges": [
@@ -94,6 +96,8 @@
           "src/lib/analytics/person-metrics-hydration.ts",
           "src/lib/analytics/person-metrics-contract.ts"
         ],
+        "productTruthRole": "primary_person_truth",
+        "promotionRule": "Promote only after linked person metrics hydrate; global activity cannot clear this lane.",
         "localState": "validator_passed",
         "coveredDayCount": null,
         "missingRanges": [],
@@ -113,6 +117,8 @@
           "src/context/AuthContext.tsx",
           "src/lib/client-session.ts"
         ],
+        "productTruthRole": "journey_linking_truth",
+        "promotionRule": "Use only to connect guest and signed-in journeys without duplicating the same action.",
         "localState": "source_mapped",
         "coveredDayCount": null,
         "missingRanges": [],
@@ -130,6 +136,8 @@
           "src/lib/analytics/event-translation-bridge.ts",
           "src/lib/analytics/analytics-event-contract.ts"
         ],
+        "productTruthRole": "normalization_truth",
+        "promotionRule": "Use for source event normalization only; translation parity does not prove runtime/provider/admin truth.",
         "localState": "validator_passed",
         "coveredDayCount": null,
         "missingRanges": [],
@@ -148,6 +156,8 @@
           "src/lib/admin-analytics/panel-hydration-resolver.ts",
           "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
         ],
+        "productTruthRole": "display_readiness_only",
+        "promotionRule": "Use to decide panel display state; it does not promote product metrics without source truth.",
         "localState": "partial",
         "coveredDayCount": null,
         "missingRanges": [],
@@ -165,6 +175,8 @@
           "src/app/api/admin/analytics/historical/route.ts",
           "src/lib/server/admin-analytics-historical-validation.ts"
         ],
+        "productTruthRole": "fallback_evidence_only",
+        "promotionRule": "Use as gap explanation and chart continuity only; never overwrite first-party product truth.",
         "localState": "fallback",
         "coveredDayCount": 1,
         "missingRanges": [
@@ -184,6 +196,8 @@
           "src/lib/analytics/legacy-recovery-contract.ts",
           "src/lib/analytics/legacy-history-reconciler.ts"
         ],
+        "productTruthRole": "fallback_evidence_only",
+        "promotionRule": "Use for recovery review only; weak legacy evidence cannot create current product truth.",
         "localState": "fallback",
         "coveredDayCount": 1,
         "missingRanges": [
@@ -203,6 +217,8 @@
           "src/lib/analytics/ga4-truth.ts",
           "src/lib/server/admin-analytics/ga4-evidence.ts"
         ],
+        "productTruthRole": "second_source_evidence_only",
+        "promotionRule": "Use for sessions, views, device, region, top paths, and acquisition comparison only.",
         "localState": "second_source",
         "coveredDayCount": 3,
         "missingRanges": [],
@@ -223,6 +239,8 @@
         "canonicalFiles": [
           "agent/state/launch-analytics-recovery.generated.json"
         ],
+        "productTruthRole": "gap_triage_only",
+        "promotionRule": "Use to route recovery work; missing ranges remain missing until bounded source proof exists.",
         "localState": "source_disagreement",
         "coveredDayCount": null,
         "missingRanges": [],
@@ -237,7 +255,7 @@
   "evidenceProvenance": {
     "launchCoverageInput": "agent/state/source-agreement-failure-detail.generated.json",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "f1bc8bc09808b1aa9cbe93d9120b5215634e83bd",
+    "sourceAgreementInputHead": "7be638a6a3d2e43dc6c081d2a3fb669f0b8a10d3",
     "sourceAgreementInputMode": "fixture_only_local_window",
     "sourceAgreementInputPath": null,
     "usableLaunchCoverageInputFound": false,
@@ -433,7 +451,7 @@
     "state": "partial",
     "reason": "Launch-history day buckets are only partially first-party backed; GA4, historical snapshots, and legacy support remain evidence-only until first-party product truth covers the range.",
     "staleInputEvidence": false,
-    "sourceAgreementEvidenceHead": "f1bc8bc09808b1aa9cbe93d9120b5215634e83bd"
+    "sourceAgreementEvidenceHead": "7be638a6a3d2e43dc6c081d2a3fb669f0b8a10d3"
   },
   "sourceAgreement": {
     "comparedSources": [
