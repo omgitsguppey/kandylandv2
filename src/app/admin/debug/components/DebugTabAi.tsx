@@ -77,7 +77,7 @@ export function DebugTabAi({
     const summaryFreshnessLabel = aiDebugData?.displayed_summary_freshness === "fresh"
         ? "Fresh"
         : aiDebugData?.displayed_summary_freshness === "stale"
-            ? "Stale"
+            ? "Refresh due"
             : "Unknown";
     const liveStatusLabel = aiDebugData?.live_summary_status
         ? aiDebugData.live_summary_status.replace(/_/g, " ")
