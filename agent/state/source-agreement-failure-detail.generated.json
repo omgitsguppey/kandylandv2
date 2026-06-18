@@ -1,7 +1,7 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-06-18T03:10:47.832Z",
-  "currentHead": "12d728d0fb207b0d4b8f4d7c216cae8cfa1eef1f",
+  "generatedAtUtc": "2026-06-18T03:23:15.089Z",
+  "currentHead": "71ef2329819020d636348414c7bfe0b2b48eb7db",
   "detail": {
     "comparedSources": [
       "first_party",
@@ -10,8 +10,77 @@
       "legacy_support"
     ],
     "sourceAgreementStatus": "failed",
+    "rangeStartDayKey": "2026-05-01",
+    "rangeEndDayKey": "2026-05-03",
+    "expectedDayCount": 3,
+    "expectedRangeSource": "union_of_local_source_days",
     "disagreementCount": 3,
     "maxDeltaPct": 67,
+    "disagreements": [
+      {
+        "dayKey": "2026-05-01",
+        "sourcesPresent": [
+          "first_party",
+          "ga4",
+          "historical_snapshot"
+        ],
+        "sourcesMissing": [
+          "legacy_support"
+        ],
+        "primarySourceState": "first_party_present",
+        "secondSourceState": "ga4_present",
+        "fallbackState": "fallback_present",
+        "classifications": [
+          "date_range_mismatch",
+          "duplicate_event"
+        ],
+        "likelyRootCause": "Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.",
+        "nextAction": "Keep first-party as primary and use secondary/fallback evidence only for corroboration."
+      },
+      {
+        "dayKey": "2026-05-02",
+        "sourcesPresent": [
+          "ga4"
+        ],
+        "sourcesMissing": [
+          "first_party",
+          "historical_snapshot",
+          "legacy_support"
+        ],
+        "primarySourceState": "first_party_missing",
+        "secondSourceState": "ga4_present",
+        "fallbackState": "fallback_missing",
+        "classifications": [
+          "date_range_mismatch",
+          "external_source_gap",
+          "missing_materializer"
+        ],
+        "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
+        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+      },
+      {
+        "dayKey": "2026-05-03",
+        "sourcesPresent": [
+          "ga4",
+          "legacy_support"
+        ],
+        "sourcesMissing": [
+          "first_party",
+          "historical_snapshot"
+        ],
+        "primarySourceState": "first_party_missing",
+        "secondSourceState": "ga4_present",
+        "fallbackState": "fallback_present",
+        "classifications": [
+          "date_range_mismatch",
+          "external_source_gap",
+          "missing_materializer",
+          "duplicate_event"
+        ],
+        "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
+        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+      }
+    ],
     "perSourceCoverage": [
       {
         "source": "first_party",

@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch29-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-18T03:01:14.046Z",
-  "currentHead": "da619ef1400bca495a942f7969885a899cd3755d",
+  "generatedAtUtc": "2026-06-18T03:24:25.583Z",
+  "currentHead": "71ef2329819020d636348414c7bfe0b2b48eb7db",
   "ga4AvailabilityStatusBefore": "reports_available",
   "ga4AvailabilityStatusAfter": "reports_loaded_empty",
   "chartReadinessStatusBefore": "ready",
@@ -29,8 +29,77 @@
       "legacy_support"
     ],
     "sourceAgreementStatus": "failed",
+    "rangeStartDayKey": "2026-05-01",
+    "rangeEndDayKey": "2026-05-03",
+    "expectedDayCount": 3,
+    "expectedRangeSource": "union_of_local_source_days",
     "disagreementCount": 3,
     "maxDeltaPct": 67,
+    "disagreements": [
+      {
+        "dayKey": "2026-05-01",
+        "sourcesPresent": [
+          "first_party",
+          "ga4",
+          "historical_snapshot"
+        ],
+        "sourcesMissing": [
+          "legacy_support"
+        ],
+        "primarySourceState": "first_party_present",
+        "secondSourceState": "ga4_present",
+        "fallbackState": "fallback_present",
+        "classifications": [
+          "date_range_mismatch",
+          "duplicate_event"
+        ],
+        "likelyRootCause": "Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.",
+        "nextAction": "Keep first-party as primary and use secondary/fallback evidence only for corroboration."
+      },
+      {
+        "dayKey": "2026-05-02",
+        "sourcesPresent": [
+          "ga4"
+        ],
+        "sourcesMissing": [
+          "first_party",
+          "historical_snapshot",
+          "legacy_support"
+        ],
+        "primarySourceState": "first_party_missing",
+        "secondSourceState": "ga4_present",
+        "fallbackState": "fallback_missing",
+        "classifications": [
+          "date_range_mismatch",
+          "external_source_gap",
+          "missing_materializer"
+        ],
+        "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
+        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+      },
+      {
+        "dayKey": "2026-05-03",
+        "sourcesPresent": [
+          "ga4",
+          "legacy_support"
+        ],
+        "sourcesMissing": [
+          "first_party",
+          "historical_snapshot"
+        ],
+        "primarySourceState": "first_party_missing",
+        "secondSourceState": "ga4_present",
+        "fallbackState": "fallback_present",
+        "classifications": [
+          "date_range_mismatch",
+          "external_source_gap",
+          "missing_materializer",
+          "duplicate_event"
+        ],
+        "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
+        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+      }
+    ],
     "perSourceCoverage": [
       {
         "source": "first_party",
@@ -125,19 +194,7 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "filePath": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "filePath": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "filePath": "agent/state/person-metrics-hydration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -149,19 +206,7 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "filePath": "docs/agent-truth/launch-analytics-recovery.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "filePath": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -177,24 +222,8 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "analytics_validator_support_expected"
-    },
-    {
-      "filePath": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "analytics_validator_support_expected"
-    },
-    {
       "filePath": "src/lib/analytics/source-agreement-detail.ts",
       "classification": "source_agreement_failure_classification_required"
-    },
-    {
-      "filePath": "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts",
-      "classification": "validator_artifact_expected"
     },
     {
       "filePath": "tests/unit/source-agreement-failure-detail.spec.ts",

@@ -519,6 +519,9 @@ function buildLaunchAnalyticsRecoveryReport(input: {
         : "review";
   const disagreementCount = asNumber(sourceAgreementDetail.disagreementCount, 0);
   const maxDeltaPct = typeof sourceAgreementDetail.maxDeltaPct === "number" ? sourceAgreementDetail.maxDeltaPct : null;
+  const sourceAgreementDisagreements = Array.isArray(sourceAgreementDetail.disagreements)
+    ? sourceAgreementDetail.disagreements.map((entry) => asRecord(entry))
+    : [];
   const sourceAgreementClassifications = classifySourceAgreementDisagreements({
     expectedDays,
     ga4Days,
@@ -605,6 +608,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       maxDeltaPct,
       state: sourceAgreementState,
       classifications: sourceAgreementClassifications,
+      disagreements: sourceAgreementDisagreements.slice(0, 25),
+      disagreementsTruncated: sourceAgreementDisagreements.length > 25,
       nextAction: typeof sourceAgreementDetail.nextAction === "string"
         ? sourceAgreementDetail.nextAction
         : "Run the all-time historical analytics source path and keep GA4 as second-source evidence.",
@@ -679,6 +684,12 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
       failures.push(`launch day ${day.dayKey} cannot be verified without first-party evidence.`);
     }
   }
+  if (report.sourceAgreement.state === "failed" && (!Array.isArray(report.sourceAgreement.disagreements) || report.sourceAgreement.disagreements.length === 0)) {
+    failures.push("failed source agreement must include per-day disagreement details.");
+  }
+  if (report.sourceAgreement.disagreements.some((entry) => typeof entry.dayKey !== "string" || !Array.isArray(entry.classifications))) {
+    failures.push("source agreement disagreement details must include dayKey and classifications.");
+  }
   return failures;
 }
 
@@ -730,6 +741,10 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Disagreements: ${report.sourceAgreement.disagreementCount}`,
     `- Max delta: ${report.sourceAgreement.maxDeltaPct ?? "unknown"}`,
     `- Classifications: ${report.sourceAgreement.classifications.join(", ") || "none"}`,
+    `- Per-day disagreement details: ${report.sourceAgreement.disagreements.length}${report.sourceAgreement.disagreementsTruncated ? " (truncated)" : ""}`,
+    ...report.sourceAgreement.disagreements.slice(0, 6).map((entry) =>
+      `  - ${String(entry.dayKey)}: present ${asStringArray(entry.sourcesPresent).join(", ") || "none"}; missing ${asStringArray(entry.sourcesMissing).join(", ") || "none"}; ${String(entry.likelyRootCause ?? "review source mismatch")}`,
+    ),
     `- Next action: ${report.sourceAgreement.nextAction}`,
     "",
     "## Admin Panel Connection",

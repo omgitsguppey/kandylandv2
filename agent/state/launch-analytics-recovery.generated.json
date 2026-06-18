@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T03:11:16.674Z",
-  "currentHead": "12d728d0fb207b0d4b8f4d7c216cae8cfa1eef1f",
+  "generatedAtUtc": "2026-06-18T03:23:42.524Z",
+  "currentHead": "71ef2329819020d636348414c7bfe0b2b48eb7db",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -62,7 +62,7 @@
   "evidenceProvenance": {
     "launchCoverageInput": "agent/state/source-agreement-failure-detail.generated.json",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "12d728d0fb207b0d4b8f4d7c216cae8cfa1eef1f",
+    "sourceAgreementInputHead": "71ef2329819020d636348414c7bfe0b2b48eb7db",
     "ga4ReadMode": "generated/local evidence only; no provider call performed",
     "firstPartyReadMode": "source-agreement day-bucket evidence only; no production read performed",
     "limitation": "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof."
@@ -171,7 +171,7 @@
     "state": "available",
     "reason": "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.",
     "staleInputEvidence": false,
-    "sourceAgreementEvidenceHead": "12d728d0fb207b0d4b8f4d7c216cae8cfa1eef1f"
+    "sourceAgreementEvidenceHead": "71ef2329819020d636348414c7bfe0b2b48eb7db"
   },
   "sourceAgreement": {
     "comparedSources": [
@@ -194,6 +194,72 @@
       "external_source_gap",
       "missing_materializer"
     ],
+    "disagreements": [
+      {
+        "dayKey": "2026-05-01",
+        "sourcesPresent": [
+          "first_party",
+          "ga4",
+          "historical_snapshot"
+        ],
+        "sourcesMissing": [
+          "legacy_support"
+        ],
+        "primarySourceState": "first_party_present",
+        "secondSourceState": "ga4_present",
+        "fallbackState": "fallback_present",
+        "classifications": [
+          "date_range_mismatch",
+          "duplicate_event"
+        ],
+        "likelyRootCause": "Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.",
+        "nextAction": "Keep first-party as primary and use secondary/fallback evidence only for corroboration."
+      },
+      {
+        "dayKey": "2026-05-02",
+        "sourcesPresent": [
+          "ga4"
+        ],
+        "sourcesMissing": [
+          "first_party",
+          "historical_snapshot",
+          "legacy_support"
+        ],
+        "primarySourceState": "first_party_missing",
+        "secondSourceState": "ga4_present",
+        "fallbackState": "fallback_missing",
+        "classifications": [
+          "date_range_mismatch",
+          "external_source_gap",
+          "missing_materializer"
+        ],
+        "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
+        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+      },
+      {
+        "dayKey": "2026-05-03",
+        "sourcesPresent": [
+          "ga4",
+          "legacy_support"
+        ],
+        "sourcesMissing": [
+          "first_party",
+          "historical_snapshot"
+        ],
+        "primarySourceState": "first_party_missing",
+        "secondSourceState": "ga4_present",
+        "fallbackState": "fallback_present",
+        "classifications": [
+          "date_range_mismatch",
+          "external_source_gap",
+          "missing_materializer",
+          "duplicate_event"
+        ],
+        "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
+        "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+      }
+    ],
+    "disagreementsTruncated": false,
     "nextAction": "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity."
   },
   "adminPanelConnection": {

@@ -12,7 +12,20 @@ describe("source agreement failure detail", () => {
 
     expect(detail.comparedSources).toEqual(["first_party", "ga4", "historical_snapshot", "legacy_support"]);
     expect(detail.sourceAgreementStatus).toBe("failed");
+    expect(detail.rangeStartDayKey).toBe("2026-05-01");
+    expect(detail.rangeEndDayKey).toBe("2026-05-03");
+    expect(detail.expectedDayCount).toBe(3);
+    expect(detail.expectedRangeSource).toBe("union_of_local_source_days");
     expect(detail.missingDaysBySource.first_party).toEqual(["2026-05-02", "2026-05-03"]);
+    expect(detail.disagreements).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        dayKey: "2026-05-02",
+        sourcesPresent: ["ga4"],
+        primarySourceState: "first_party_missing",
+        secondSourceState: "ga4_present",
+        classifications: expect.arrayContaining(["external_source_gap", "missing_materializer"]),
+      }),
+    ]));
     expect(detail.disagreementCount).toBeGreaterThan(0);
     expect(detail.maxDeltaPct).toBeGreaterThan(25);
     expect(detail.toleranceThresholds.failDeltaPct).toBe(25);

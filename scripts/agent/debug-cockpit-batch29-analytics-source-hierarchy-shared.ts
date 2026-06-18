@@ -239,12 +239,20 @@ export function validateSourceAgreementFailureDetail() {
   });
   expectPass(detail.comparedSources.includes("first_party") && detail.comparedSources.length === 4, failures, "source agreement failed but first-party compared source is missing.");
   expectPass(detail.sourceAgreementStatus === "failed", failures, "source agreement detail lacks explicit failed state.");
+  expectPass(detail.rangeStartDayKey === "2026-05-01" && detail.rangeEndDayKey === "2026-05-03", failures, "source agreement detail lacks launch evidence range.");
+  expectPass(detail.expectedRangeSource === "union_of_local_source_days", failures, "source agreement detail does not identify local evidence range source.");
   expectPass(detail.disagreementCount > 0 && detail.maxDeltaPct > 25, failures, "maxDeltaPct/disagreementCount missing.");
+  expectPass(detail.disagreements.some((entry) =>
+    entry.dayKey === "2026-05-02"
+    && entry.primarySourceState === "first_party_missing"
+    && entry.secondSourceState === "ga4_present"
+    && entry.classifications.includes("missing_materializer"),
+  ), failures, "per-day GA4/first-party source disagreement missing.");
   expectPass(detail.toleranceThresholds.failDeltaPct === 25, failures, "tolerance thresholds missing.");
   expectPass(detail.blockedConsumers.includes("admin_analytics_charts"), failures, "blocked consumers missing.");
   expectPass(!/^retry$/iu.test(detail.nextAction), failures, "next action generic retry only.");
   runValidation("source-agreement-failure-detail", { detail }, failures, [
-    "Source agreement failures include compared sources, coverage deltas, tolerance, blocked consumers, and next actions.",
+    "Source agreement failures include compared sources, coverage deltas, per-day disagreement details, tolerance, blocked consumers, and next actions.",
     "The detail helper uses existing evidence only and does not call GA4.",
   ]);
 }

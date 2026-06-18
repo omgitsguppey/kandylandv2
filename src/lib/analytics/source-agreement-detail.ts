@@ -3,11 +3,40 @@ export type SourceAgreementCoverageInput = {
   days: string[];
 };
 
+export type SourceAgreementFailureClassification =
+  | "identity_mismatch"
+  | "event_translation_mismatch"
+  | "date_range_mismatch"
+  | "internal_traffic_mismatch"
+  | "route_normalization_mismatch"
+  | "duplicate_event"
+  | "missing_materializer"
+  | "external_source_gap"
+  | "stale_generated_evidence"
+  | "not_enough_sources";
+
+export type SourceAgreementDisagreementDetail = {
+  dayKey: string;
+  sourcesPresent: string[];
+  sourcesMissing: string[];
+  primarySourceState: "first_party_present" | "first_party_missing";
+  secondSourceState: "ga4_present" | "ga4_missing";
+  fallbackState: "fallback_present" | "fallback_missing";
+  classifications: SourceAgreementFailureClassification[];
+  likelyRootCause: string;
+  nextAction: string;
+};
+
 export type SourceAgreementFailureDetail = {
   comparedSources: string[];
   sourceAgreementStatus: "pass" | "review" | "failed" | "not_enough_sources";
+  rangeStartDayKey: string | null;
+  rangeEndDayKey: string | null;
+  expectedDayCount: number;
+  expectedRangeSource: "caller_supplied_expected_days" | "union_of_local_source_days";
   disagreementCount: number;
   maxDeltaPct: number;
+  disagreements: SourceAgreementDisagreementDetail[];
   perSourceCoverage: Array<{ source: string; dayCount: number; days: string[] }>;
   missingDaysBySource: Record<string, string[]>;
   extraDaysBySource: Record<string, string[]>;
@@ -19,6 +48,67 @@ export type SourceAgreementFailureDetail = {
   blockedConsumers: string[];
   nextAction: string;
 };
+
+function classifyDayDisagreement(input: {
+  dayKey: string;
+  sourcesPresent: string[];
+  sourcesMissing: string[];
+}): SourceAgreementDisagreementDetail | null {
+  const sourceSet = new Set(input.sourcesPresent);
+  const missingSet = new Set(input.sourcesMissing);
+  if (input.sourcesPresent.length === 0 || input.sourcesMissing.length === 0) return null;
+
+  const hasFirstParty = sourceSet.has("first_party");
+  const hasGa4 = sourceSet.has("ga4");
+  const hasFallback = sourceSet.has("historical_snapshot") || sourceSet.has("legacy_support");
+  const classifications = new Set<SourceAgreementFailureClassification>();
+  classifications.add("date_range_mismatch");
+
+  if (hasGa4 && !hasFirstParty) {
+    classifications.add("external_source_gap");
+    classifications.add("missing_materializer");
+  }
+  if (!hasGa4 && hasFirstParty) {
+    classifications.add("external_source_gap");
+  }
+  if (hasFallback && !hasFirstParty) {
+    classifications.add("missing_materializer");
+  }
+  if (input.sourcesPresent.length > 1) {
+    classifications.add("duplicate_event");
+  }
+  if (missingSet.has("first_party") && !hasGa4 && hasFallback) {
+    classifications.add("event_translation_mismatch");
+  }
+
+  const likelyRootCause = !hasFirstParty && hasGa4
+    ? "GA4 observed the day, but first-party product facts are missing or not materialized."
+    : hasFirstParty && !hasGa4
+      ? "First-party product facts exist, but GA4/export evidence is missing for the day."
+      : !hasFirstParty && hasFallback
+        ? "Only fallback historical or legacy evidence exists; it cannot replace first-party truth."
+        : hasFirstParty && hasGa4 && hasFallback
+          ? "Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration."
+          : "Compared source lanes do not cover the same day range.";
+
+  const nextAction = !hasFirstParty
+    ? "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics."
+    : !hasGa4
+      ? "Refresh or attach GA4/export evidence as second-source comparison; do not downgrade first-party product truth."
+      : "Keep first-party as primary and use secondary/fallback evidence only for corroboration.";
+
+  return {
+    dayKey: input.dayKey,
+    sourcesPresent: input.sourcesPresent,
+    sourcesMissing: input.sourcesMissing,
+    primarySourceState: hasFirstParty ? "first_party_present" : "first_party_missing",
+    secondSourceState: hasGa4 ? "ga4_present" : "ga4_missing",
+    fallbackState: hasFallback ? "fallback_present" : "fallback_missing",
+    classifications: [...classifications],
+    likelyRootCause,
+    nextAction,
+  };
+}
 
 export const LAUNCH_ANALYTICS_SOURCE_AGREEMENT_COVERAGE: Record<string, string[]> = {
   first_party: ["2026-05-01"],
@@ -51,6 +141,9 @@ export function buildSourceAgreementFailureDetail(input: {
       days: input.coverageBySource?.[entry] ?? [],
     };
   });
+  const expectedRangeSource = input.expectedDays
+    ? "caller_supplied_expected_days"
+    : "union_of_local_source_days";
   const expectedDays = [...new Set((input.expectedDays ?? [
     ...Object.values(input.coverageBySource ?? {}).flat(),
     ...comparedSources.flatMap((entry) => entry.days),
@@ -86,6 +179,17 @@ export function buildSourceAgreementFailureDetail(input: {
         : disagreementCount > 0 || maxDeltaPct > reviewDeltaPct
           ? "review"
           : "pass";
+  const disagreements = allDays
+    .map((dayKey) => classifyDayDisagreement({
+      dayKey,
+      sourcesPresent: comparedSources
+        .map((entry) => entry.source)
+        .filter((source) => sourceDaySets.get(source)?.has(dayKey)),
+      sourcesMissing: comparedSources
+        .map((entry) => entry.source)
+        .filter((source) => !sourceDaySets.get(source)?.has(dayKey)),
+    }))
+    .filter((entry): entry is SourceAgreementDisagreementDetail => Boolean(entry));
   const missingDaysBySource = Object.fromEntries(
     perSourceCoverage.map((entry) => [
       entry.source,
@@ -102,8 +206,13 @@ export function buildSourceAgreementFailureDetail(input: {
   return {
     comparedSources: comparedSources.map((entry) => entry.source),
     sourceAgreementStatus,
+    rangeStartDayKey: expectedDays[0] ?? null,
+    rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
+    expectedDayCount: expectedDays.length,
+    expectedRangeSource,
     disagreementCount,
     maxDeltaPct,
+    disagreements,
     perSourceCoverage,
     missingDaysBySource,
     extraDaysBySource,
