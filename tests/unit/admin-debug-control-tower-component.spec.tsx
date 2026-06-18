@@ -232,9 +232,10 @@ describe("DebugControlTower", () => {
         expect(container.textContent).toContain("Support message detail route returned forbidden.");
         expect(container.textContent).toContain("Last updated");
         expect(container.textContent).toContain("Why this state");
-        expect(container.textContent).toContain("Refresh command: npm run check:google-cost");
+        expect(container.textContent).toContain("Next check: npm run check:google-cost");
         expect(container.textContent).toContain("Next actions");
         expect(container.textContent).toContain("Admin sample required");
+        expect(container.textContent).not.toContain("Source score");
         expect(container.textContent).not.toContain("0h old");
         expect(container.textContent).not.toContain("admin truth source required");
         expect(container.textContent).not.toContain("Device + UI");

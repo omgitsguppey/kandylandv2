@@ -40,6 +40,9 @@ describe("resolveReportDisplay", () => {
     expect(display.statusLabel).toBe("Source current");
     expect(display.findingLabel).toBe("No active findings");
     expect(display.badgeState).toBe("live");
+    expect(display.sourceDetail).toBe("This source lane is current and has no active findings.");
+    expect(display.sourceDetail).not.toContain("Source score");
+    expect(display.sourceDetail).not.toContain("freshness");
   });
 
   it("shows zero-finding public beta failures as proof gates", () => {
@@ -52,6 +55,7 @@ describe("resolveReportDisplay", () => {
     expect(display.statusLabel).toBe("External proof required");
     expect(display.findingLabel).toBe("Proof gate");
     expect(display.badgeLabel).toBe("Review");
+    expect(display.sourceDetail).toBe("Source validators are not enough for provider, runtime, or admin truth proof.");
   });
 
   it("shows counted public beta evidence gates instead of zero findings", () => {
@@ -77,6 +81,7 @@ describe("resolveReportDisplay", () => {
     expect(display.statusLabel).toBe("Waiting for evidence");
     expect(display.findingLabel).toBe("Evidence pending");
     expect(display.badgeLabel).toBe("Review");
+    expect(display.sourceDetail).toBe("This lane is waiting for its source evidence to refresh.");
   });
 
   it("keeps stale generated state as refresh due", () => {
@@ -88,5 +93,6 @@ describe("resolveReportDisplay", () => {
 
     expect(display.statusLabel).toBe("Refresh due");
     expect(display.badgeLabel).toBe("Refresh due");
+    expect(display.sourceDetail).toBe("This evidence is older than its freshness window or current app version.");
   });
 });

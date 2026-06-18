@@ -75,27 +75,29 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
         if (["beta-risk", "warning", "review"].includes(normalizedStatus)) return "Needs review";
         return report.status.replaceAll("_", " ").replace(/\b\w/gu, (char) => char.toUpperCase());
     })();
-    const sourceDetail = `Source score ${report.score ?? "unavailable"}; freshness ${report.freshness}; truth ${report.truthState}.`;
+    const sourceDetail = hasFindings
+        ? "This source lane has active findings. Repair the source owner before treating it as clear."
+        : "This source lane is current and has no active findings.";
     if (report.freshness === "missing" || report.truthState === "missing") {
-        return { badgeState: "unavailable", statusLabel: "Source missing", findingLabel: hasFindings ? findingLabel : "No source", sourceDetail: "Required generated state is missing and cannot clear this lane." };
+        return { badgeState: "unavailable", statusLabel: "Source missing", findingLabel: hasFindings ? findingLabel : "No source", sourceDetail: "Required source evidence is missing and cannot clear this lane." };
     }
     if (report.freshness === "failed") {
-        return { badgeState: "failed", statusLabel: "Source failed", findingLabel: hasFindings ? findingLabel : "Source failed", sourceDetail: "Generated state could not be parsed and cannot clear this lane." };
+        return { badgeState: "failed", statusLabel: "Source failed", findingLabel: hasFindings ? findingLabel : "Source failed", sourceDetail: "The source evidence could not be read and cannot clear this lane." };
     }
     if (proofBoundaryOnly) {
         return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "External proof required", findingLabel: evidenceGateCount > 0 ? findingLabel : "Proof gate", sourceDetail: "Source validators are not enough for provider, runtime, or admin truth proof." };
     }
     if (sourceNeedsRefresh) {
-        return { badgeState: "stale", badgeLabel: "Refresh due", statusLabel: "Refresh due", findingLabel, sourceDetail: "Generated state is older than its freshness window or current-head metadata." };
+        return { badgeState: "stale", badgeLabel: "Refresh due", statusLabel: "Refresh due", findingLabel, sourceDetail: "This evidence is older than its freshness window or current app version." };
     }
     if (!hasFindings && report.truthState === "live") {
         return { badgeState: "live", statusLabel: "Source current", findingLabel, sourceDetail };
     }
     if (!hasFindings && ["delayed", "queued", "waiting"].includes(normalizedStatus)) {
-        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Waiting for evidence", findingLabel, sourceDetail: `Generated state is waiting on its source lane. Refresh command: ${report.command}` };
+        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Waiting for evidence", findingLabel, sourceDetail: "This lane is waiting for its source evidence to refresh." };
     }
     if (!hasFindings && ["fail", "failed", "error"].includes(normalizedStatus)) {
-        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Needs review", findingLabel, sourceDetail: `Generated state reported ${report.status}, but no active source finding was attached. Check ${report.command}.` };
+        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Needs review", findingLabel, sourceDetail: "This lane reported a problem without an attached source finding. Review the owning check." };
     }
     return { badgeState: toBadgeState(report.truthState), statusLabel: reportStatusLabel, findingLabel, sourceDetail };
 }
@@ -201,7 +203,7 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
             </div>
             <details className="mt-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-gray-300">
                 <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Why this state</summary>
-                <p className="mt-1">{display.sourceDetail} Refresh command: {report.command}</p>
+                <p className="mt-1">{display.sourceDetail} Next check: {report.command}</p>
             </details>
             {report.topFindings.length > 0 ? (
                 <details className="mt-3 rounded-xl border border-white/10 bg-black/25 p-2 text-xs text-gray-300">
