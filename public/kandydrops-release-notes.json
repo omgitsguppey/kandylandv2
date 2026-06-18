@@ -1,11 +1,80 @@
 {
-  "currentVersion": "1.5.96",
-  "betaReleaseCounter": 596,
+  "currentVersion": "1.5.97",
+  "betaReleaseCounter": 597,
   "channel": "beta",
-  "generatedAt": "2026-06-18T12:18:13.803Z",
-  "generatedAtUtc": "2026-06-18T12:18:13.803Z",
-  "lastCommitSha": "1a55854756b23ac23e7b9317a235f30897420c37",
+  "generatedAt": "2026-06-18T14:13:23.854Z",
+  "generatedAtUtc": "2026-06-18T14:13:23.854Z",
+  "lastCommitSha": "4378b15dd43fd41430deb989ec9a9854b9b6f71f",
   "notes": [
+    {
+      "version": "1.5.97",
+      "previousVersion": "1.5.96",
+      "betaReleaseCounter": 597,
+      "previousBetaReleaseCounter": 596,
+      "commitSha": "4378b15dd43fd41430deb989ec9a9854b9b6f71f",
+      "commitTitle": "fix(admin): clarify control tower evidence gates",
+      "commitCount": 5,
+      "commitShas": [
+        "546b6a1d9b82d96c099cc9217f5fec24826ff4d8",
+        "55875cd9a2401cc264e87807ebfa2952cb6d04c6",
+        "64bff1184f84d1164677baa16134dfc880947083",
+        "2d59e1c0a3947ab095f88c152443d086025bfbec",
+        "4378b15dd43fd41430deb989ec9a9854b9b6f71f"
+      ],
+      "committedAt": "2026-06-18T14:10:37.000Z",
+      "generatedAt": "2026-06-18T14:13:23.852Z",
+      "committedAtUtc": "2026-06-18T14:10:37.000Z",
+      "generatedAtUtc": "2026-06-18T14:13:23.852Z",
+      "updatedAtUtc": "2026-06-18T14:13:23.852Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 5 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "drops-viewer",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-surface-modal-replacement.generated.json",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "agent/state/launch-analytics-recovery.generated.json",
+        "agent/state/source-agreement-failure-detail.generated.json",
+        "docs/agent-truth/admin-surface-modal-replacement.md",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "docs/agent-truth/launch-analytics-recovery.md",
+        "docs/agent-truth/source-agreement-failure-detail.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "src/app/admin/debug/components/DebugControlTower.tsx",
+        "src/app/admin/debug/components/DebugControlTowerCards.tsx",
+        "src/app/admin/drops/page.tsx",
+        "src/app/admin/users/page.tsx",
+        "src/components/Admin/BalanceAdjustmentPanel.tsx",
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/components/Admin/TransactionHistoryPanel.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-debug-control-tower-component.spec.tsx",
+        "tests/unit/admin-drops-fixture-boundary.spec.ts",
+        "tests/unit/source-agreement-failure-detail.spec.ts"
+      ],
+      "sourceCommit": "4378b15dd43fd41430deb989ec9a9854b9b6f71f"
+    },
     {
       "version": "1.5.96",
       "previousVersion": "1.5.95",
@@ -1834,51 +1903,6 @@
         "src/lib/release-notes/release-version-contract.ts"
       ],
       "sourceCommit": "422fc7f96fcc7087120ea5a3d4af68b71e55fe89"
-    },
-    {
-      "version": "1.5.72",
-      "previousVersion": "1.5.71",
-      "betaReleaseCounter": 572,
-      "previousBetaReleaseCounter": 571,
-      "commitSha": "18439dd00b6083b28aa877d210349ea7cdc1d6c6",
-      "commitTitle": "fix(deploy): restore deployment readiness",
-      "commitCount": 2,
-      "commitShas": [
-        "97f4b15f36721986f5c3f2492fd49d42164172f7",
-        "18439dd00b6083b28aa877d210349ea7cdc1d6c6"
-      ],
-      "committedAt": "2026-06-16T19:33:59.000Z",
-      "generatedAt": "2026-06-16T19:34:46.186Z",
-      "committedAtUtc": "2026-06-16T19:33:59.000Z",
-      "generatedAtUtc": "2026-06-16T19:34:46.186Z",
-      "updatedAtUtc": "2026-06-16T19:34:46.186Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "sourceCommit": "18439dd00b6083b28aa877d210349ea7cdc1d6c6"
     }
   ]
 }

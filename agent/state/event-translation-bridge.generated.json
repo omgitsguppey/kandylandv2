@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-18T13:21:29.317Z",
-  "currentHead": "14e7cec160b06cc7401ee96acabd6537436171b8",
+  "generatedAtUtc": "2026-06-18T14:11:21.745Z",
+  "currentHead": "4378b15dd43fd41430deb989ec9a9854b9b6f71f",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5432,10 +5432,6 @@
   ],
   "gaps": [],
   "dirtyFiles": [
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
     {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
