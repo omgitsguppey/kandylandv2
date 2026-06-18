@@ -839,28 +839,46 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     if (!isOpen) return null;
 
     const titleLabel = isEditMode ? (mode === "creator" ? "Edit submission" : "Edit Drop") : (mode === "creator" ? "Submit drop for review" : "Create Drop");
-    const panelContent = (
-                    <Dialog.Content
-                        className={cn(
-                            "relative flex w-full flex-col overflow-hidden border border-white/10 bg-[#0a0a0a] shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50",
-                            presentation === "inline"
-                                ? "rounded-[1.5rem] shadow-black/20"
-                                : "max-h-[calc(100svh-0.5rem)] max-w-3xl rounded-[2rem] md:max-h-[92vh] md:rounded-3xl",
-                        )}
-                        aria-describedby={undefined}
-                    >
+    const titleId = "create-drop-form-title";
+    const panelClassName = cn(
+        "relative flex w-full flex-col overflow-hidden border border-white/10 bg-[#0a0a0a] shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50",
+        presentation === "inline"
+            ? "rounded-[1.5rem] shadow-black/20"
+            : "max-h-[calc(100svh-0.5rem)] max-w-3xl rounded-[2rem] md:max-h-[92vh] md:rounded-3xl",
+    );
+    const panelBody = (
+                    <>
                         <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-md md:px-6 md:pb-5 md:pt-5">
-                            <Dialog.Title className="shrink-0 text-xl font-bold text-white">
-                                {titleLabel}
-                            </Dialog.Title>
-                            <Dialog.Close asChild>
+                            {presentation === "inline" ? (
+                                <h2 id={titleId} className="shrink-0 text-xl font-bold text-white">
+                                    {titleLabel}
+                                </h2>
+                            ) : (
+                                <Dialog.Title className="shrink-0 text-xl font-bold text-white">
+                                    {titleLabel}
+                                </Dialog.Title>
+                            )}
+                            {presentation === "inline" ? (
                                 <button
+                                    type="button"
                                     onClick={onClose}
+                                    aria-label="Close drop form"
                                     className="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
-                            </Dialog.Close>
+                            ) : (
+                                <Dialog.Close asChild>
+                                    <button
+                                        type="button"
+                                        onClick={onClose}
+                                        aria-label="Close drop form"
+                                        className="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </Dialog.Close>
+                            )}
                         </header>
 
                         <div className="custom-scrollbar flex-1 overflow-y-auto px-3 pb-24 pt-3 md:px-5 md:pb-6 md:pt-5">
@@ -1160,19 +1178,35 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                             </button>
                             </div>
                         </div>
-                    </Dialog.Content>
+                    </>
+    );
+
+    if (presentation === "inline") {
+        return (
+            <section
+                className={panelClassName}
+                aria-labelledby={titleId}
+                data-admin-drop-form-presentation="inline"
+            >
+                {panelBody}
+            </section>
+        );
+    }
+
+    const panelContent = (
+        <Dialog.Content className={panelClassName} aria-describedby={undefined}>
+            {panelBody}
+        </Dialog.Content>
     );
 
     return (
-        <Dialog.Root open={isOpen} modal={presentation !== "inline"} onOpenChange={(open) => !open && onClose()}>
-            {presentation === "inline" ? panelContent : (
-                <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
-                    <div className="fixed inset-0 z-50 flex items-end justify-center p-2 md:items-center md:p-4">
-                        {panelContent}
-                    </div>
-                </Dialog.Portal>
-            )}
+        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <Dialog.Portal>
+                <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
+                <div className="fixed inset-0 z-50 flex items-end justify-center p-2 md:items-center md:p-4">
+                    {panelContent}
+                </div>
+            </Dialog.Portal>
         </Dialog.Root>
     );
 }

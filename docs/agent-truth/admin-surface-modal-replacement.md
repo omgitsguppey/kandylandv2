@@ -15,7 +15,9 @@ Source snapshot only. This lane tracks admin modal replacement and first-viewpor
 
 `src/components/Admin/CreateDropModal.tsx` remains the canonical drop form owner, but it now supports `presentation="inline"`. `/admin/drops` uses that inline presentation for create, edit, and duplicate actions, so the action stays connected to the existing admin drop route and form contract without forcing the operator into a full-screen overlay.
 
-Creator drop submission still uses the default modal presentation. Payment runtime, GumDrop math, top nav, and bottom nav were not touched.
+The inline admin presentation now renders as a plain `section` with `data-admin-drop-form-presentation="inline"` instead of mounting `Dialog.Root` / `Dialog.Content`. Creator drop submission still keeps the default modal presentation because that flow is creator-facing and already uses the shared drop form contract.
+
+Payment runtime, GumDrop math, top nav, and bottom nav were not touched.
 
 ## Source Ownership
 
