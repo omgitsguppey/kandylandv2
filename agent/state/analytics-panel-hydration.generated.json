@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T23:46:20.871Z",
-  "currentHead": "7be638a6a3d2e43dc6c081d2a3fb669f0b8a10d3",
+  "generatedAtUtc": "2026-06-18T23:58:47.689Z",
+  "currentHead": "f7c670e156675130c699f9e0c2e1c41ec1f233c9",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,46 +416,20 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 8,
+    "total": 2,
     "byClassification": {
-      "analytics_panel_hydration_artifact_expected": 4,
-      "launch_analytics_recovery_artifact_expected": 2,
       "source_agreement_failure_artifact_expected": 1,
       "documentation_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
       {
-        "path": "agent/state/analytics-panel-hydration.generated.json",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "agent/state/launch-analytics-recovery.generated.json",
-        "classification": "launch_analytics_recovery_artifact_expected"
-      },
-      {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
       },
       {
-        "path": "docs/agent-truth/analytics-panel-hydration.md",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/launch-analytics-recovery.md",
-        "classification": "launch_analytics_recovery_artifact_expected"
-      },
-      {
         "path": "docs/agent-truth/source-agreement-failure-detail.md",
         "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "tests/unit/analytics-panel-hydration.spec.ts",
-        "classification": "analytics_panel_hydration_artifact_expected"
       }
     ],
     "sampleTruncated": false
