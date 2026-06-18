@@ -201,7 +201,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                                     <h3 className="font-bold text-white">Items to clear</h3>
                                     <p className="text-xs text-gray-400">{publicBetaReadinessReason}</p>
                                     <p className="mt-1 text-[11px] text-gray-500">
-                                        {model.canonicalPublicBetaStatus} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"} | source {model.canonicalPublicBetaSourceDrift}
+                                        {publicBetaReadinessStatusLabel} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"} | source {model.canonicalPublicBetaSourceDrift}
                                     </p>
                                 </div>
                                 <AdminTruthBadge state={publicBetaBadgeState} label={publicBetaBadgeLabel} />

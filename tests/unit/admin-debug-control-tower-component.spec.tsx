@@ -343,6 +343,7 @@ describe("DebugControlTower", () => {
                 "Stale evidence: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
                 "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
             ];
+            payload.canonicalPublicBetaStatus = "ERROR";
             payload.canonicalPublicBetaReadinessStatus = "External proof required";
             payload.canonicalPublicBetaReadinessReason = payload.canonicalPublicBetaCapDetails[0];
             payload.canonicalPublicBetaTruthState = "live";
@@ -367,7 +368,7 @@ describe("DebugControlTower", () => {
             expect(container.textContent).toContain("Admin sample required");
             expect(container.textContent).toContain("Refresh due - 6 required generated reports are outside the freshness window.");
             expect(publicBetaText).not.toContain("0 findings");
-            expect(publicBetaText).not.toContain("ERROR");
+            expect(container.textContent).not.toContain("ERROR");
             expect(container.textContent).not.toContain("Unknown evidence: Targeted behavior tests");
             expect(container.textContent).not.toContain("Stale evidence: Runtime/provider smoke");
             expect(container.textContent).not.toContain("Stale evidence: Admin truth/sample evidence");
