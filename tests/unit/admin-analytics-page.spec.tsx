@@ -738,8 +738,8 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Source state: Source mismatch");
-    expect(container.textContent).toContain("6 analytics views waiting for source agreement.");
+    expect(container.textContent).toContain("Source state: Source agreement failed");
+    expect(container.textContent).toContain("Source agreement failed; 6 analytics views paused until first-party coverage is repaired.");
     expect(container.textContent).toContain("Review source details in Debug");
     expect(container.textContent).not.toContain("consumer_source_mismatch");
     expect(container.textContent).not.toContain("source_agreement_failed");

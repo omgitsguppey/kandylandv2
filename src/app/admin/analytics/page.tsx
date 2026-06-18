@@ -121,7 +121,7 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
     case "consumer_source_mismatch":
       return "Source mismatch";
     case "source_agreement_failed":
-      return "Source mismatch";
+      return "Source agreement failed";
     case "not_enough_sources":
       return "More source evidence needed";
     case "failed":
@@ -148,15 +148,15 @@ function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHiera
 
   if (sourceHierarchy.status === "source_agreement_failed") {
     return blockedCount > 0
-      ? `${formatSourceHierarchyCount(blockedCount, "analytics view")} waiting for source agreement.`
-      : "Source agreement needs review.";
+      ? `Source agreement failed; ${formatSourceHierarchyCount(blockedCount, "analytics view")} paused until first-party coverage is repaired.`
+      : "Source agreement failed; repair first-party coverage before promoting charts.";
   }
 
   if (mismatchCount > 0 && blockedCount > 0) {
     const repairVerb = mismatchCount === 1 ? "needs" : "need";
     const sourceLinkLabel = formatSourceHierarchyCount(mismatchCount, "source link");
     const blockedViewLabel = formatSourceHierarchyCount(blockedCount, "analytics view");
-    return `${sourceLinkLabel} ${repairVerb} repair; ${blockedViewLabel} blocked.`;
+    return `${sourceLinkLabel} ${repairVerb} repair; ${blockedViewLabel} paused.`;
   }
 
   if (mismatchCount > 0) {
@@ -165,7 +165,7 @@ function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHiera
   }
 
   if (blockedCount > 0) {
-    return `${formatSourceHierarchyCount(blockedCount, "analytics view")} need a connected source.`;
+    return `${formatSourceHierarchyCount(blockedCount, "analytics view")} paused until a connected source is available.`;
   }
 
   return null;
