@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-18T16:57:59.577Z",
-  "currentHead": "bcc001481d5d0bfb644f3402fde2826c3b7c4131",
+  "generatedAtUtc": "2026-06-18T18:12:03.038Z",
+  "currentHead": "8c664d581ce64ccf3022958ce9bf2f7b275012d0",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5433,15 +5433,7 @@
   "gaps": [],
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -5454,10 +5446,6 @@
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -5483,18 +5471,6 @@
     {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
     }
   ],
   "validationFailures": [],

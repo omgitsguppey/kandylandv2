@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-18T16:57:59.653Z
+Generated: 2026-06-18T18:12:02.944Z
 Status: pass
-Current head: bcc001481d5d0bfb644f3402fde2826c3b7c4131
+Current head: 8c664d581ce64ccf3022958ce9bf2f7b275012d0
 
 ## Contract
 
@@ -72,22 +72,16 @@ Current head: bcc001481d5d0bfb644f3402fde2826c3b7c4131
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
 - agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/launch-analytics-recovery.generated.json: current_generated_artifact_to_commit
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
 - agent/state/source-agreement-failure-detail.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
 - docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: documentation_artifact_expected
-- public/kandydrops-release-notes.json: release_artifact_expected
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 
 ## Active Old Logic
 
