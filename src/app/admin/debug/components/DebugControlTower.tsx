@@ -139,7 +139,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                             </div>
                         </div>
                         <p className="mt-2 max-w-2xl text-xs leading-5 text-gray-300">
-                            Public beta truth, current evidence, and next actions.
+                            Readiness, current issues, and next actions.
                         </p>
                     </div>
                     <div className="shrink-0 text-left sm:text-right">
@@ -154,7 +154,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                         data-debug-visible-summary="single-triage-strip"
                         data-debug-report-source="agent/state/public-beta-score.generated.json"
                     >
-                        {canonicalBetaCapDetails.length || blockerReports.length} launch blockers, {model.liveIssues.length} current issues, and {visibleReports} source rows. {model.canonicalPublicBetaReadinessReason}
+                        {canonicalBetaCapDetails.length || blockerReports.length} items to clear, {model.liveIssues.length} current issues, and {visibleReports} evidence rows. {model.canonicalPublicBetaReadinessReason}
                     </p>
                 ) : null}
             </div>
@@ -176,7 +176,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
 
             {loading ? (
                 <div className="rounded-lg border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-300" data-debug-truth-state="unknown">
-                    Loading generated audit summaries.
+                    Loading admin status.
                 </div>
             ) : null}
 
@@ -187,13 +187,13 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                     data-debug-default-details="collapsed"
                 >
                     <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">
-                        Evidence drawer: Source detail, launch blockers, current issues, next actions, and report rows
+                        Details and next steps
                     </summary>
                     <div className="mt-3 space-y-3">
                         <section className="rounded-md border border-white/10 bg-black/25 p-3" data-debug-report-source="triage-summary">
                             <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div>
-                                    <h3 className="font-bold text-white">Launch blockers</h3>
+                                    <h3 className="font-bold text-white">Items to clear</h3>
                                     <p className="text-xs text-gray-400">{model.canonicalPublicBetaReadinessReason}</p>
                                     <p className="mt-1 text-[11px] text-gray-500">
                                         {model.canonicalPublicBetaStatus} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"} | source {model.canonicalPublicBetaSourceDrift}
@@ -247,7 +247,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
 
                         {model.liveIssues.length > 0 ? (
                             <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source={model.debugEvidenceSource}>
-                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Current Issues ({model.liveIssues.length})</summary>
+                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Current issues ({model.liveIssues.length})</summary>
                                 <div className="mt-2 grid gap-2">
                                     {model.liveIssues.slice(0, 10).map((issue) => (
                                         <LiveIssueCard key={issue.id} issue={issue} />
@@ -258,7 +258,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
 
                         {visibleNextActions.length > 0 ? (
                             <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source="next-actions">
-                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Recommended Next Actions ({model.nextActions.length})</summary>
+                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Next actions ({model.nextActions.length})</summary>
                                 <div className="mt-2 grid gap-2">
                                     {visibleNextActions.map((action) => (
                                         <NextActionCard key={action.id} action={action} />
@@ -286,7 +286,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                         ) : null}
 
                         <details className="rounded-md border border-white/10 bg-black/20 p-2">
-                            <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">Report filters and source rows ({visibleReports})</summary>
+                            <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">Filters and evidence rows ({visibleReports})</summary>
                             <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
                                 {FILTERS.map((filter) => {
                                     const active = activeFilter === filter.id;

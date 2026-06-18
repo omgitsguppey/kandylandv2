@@ -10,7 +10,7 @@ const mockState = vi.hoisted(() => ({
     payload: {
         generatedAt: "2026-05-04T12:00:00.000Z",
         title: "Control Tower",
-        subtitle: "Public beta truth, current evidence, and next actions.",
+        subtitle: "Readiness, current issues, and next actions.",
         overallScore: 88,
         overallStatus: "stale",
         truthState: "stale",
@@ -230,7 +230,7 @@ describe("DebugControlTower", () => {
         expect(container.textContent).toContain("Public Beta");
         expect(container.textContent).toContain("Money + Cost");
         expect(container.textContent).toContain("Support message detail route returned forbidden.");
-        expect(container.textContent).toContain("Recommended Next Actions");
+        expect(container.textContent).toContain("Next actions");
         expect(container.textContent).toContain("admin truth source required");
         expect(container.textContent).not.toContain("Device + UI");
         expect(container.textContent).not.toContain("secret support body");
