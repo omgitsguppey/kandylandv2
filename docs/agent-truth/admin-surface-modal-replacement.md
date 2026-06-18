@@ -1,8 +1,8 @@
 # Admin Surface Modal Replacement
 
 Status: source_review_pass
-Generated: 2026-06-18T10:40:40.850Z
-Current head: bb49edbfd1d42aea14ea259da20bf14ea437643d
+Generated: 2026-06-18T10:54:17.299Z
+Current head: 8ff529ee74d16ded23eec82357ebeb00e866c4d0
 Evidence boundary: complete source snapshot, local free, no runtime/provider/admin truth gate cleared.
 
 This pass reviewed admin modal-style actions and normalized Admin Analytics state labels. It is source evidence only. It does not clear runtime, provider, PayPal, wallet, GumDrop treasury, production database, or admin truth sample gates.
@@ -14,6 +14,7 @@ This pass reviewed admin modal-style actions and normalized Admin Analytics stat
 - Admin Analytics: all-caps operational chips were replaced with plain state labels: Current, Cached, Refresh due, Sample, No sample, Collecting, No source, Review, Failed, and Estimate.
 - Admin Analytics: source recovery details and panel hydration states now share one compact expandable list instead of nested source-detail and panel-status cards.
 - Admin Analytics: `launchHistoryCoverage` now includes `firstPartyCoverage`, and the compact Data status strip surfaces first-party launch gaps. Mixed GA4/fallback coverage can no longer look fully product-truth-ready.
+- Admin Drops / AI Draft Helpers: history-clear actions still use the same connected telemetry events, but admin-facing success copy and telemetry catalog labels no longer describe inline draft helpers as modal-only actions.
 
 ## Deferred
 

@@ -390,7 +390,7 @@ export function AiDropCoverGeneratorPanel({
             drop_id: dropId || "",
             draft_session_id: draftSessionId || "",
         });
-        toast.success("Cover history cleared for this modal");
+        toast.success("Cover history cleared for this drop draft");
     }, [draftSessionId, dropId]);
 
     const runtimeTone = useMemo(() => {

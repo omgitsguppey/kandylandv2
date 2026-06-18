@@ -1,9 +1,9 @@
 {
   "reportKey": "admin-surface-modal-replacement",
   "status": "source_review_pass",
-  "generatedAtUtc": "2026-06-18T10:40:40.850Z",
-  "sourceCommit": "bb49edbfd1d42aea14ea259da20bf14ea437643d",
-  "currentHead": "bb49edbfd1d42aea14ea259da20bf14ea437643d",
+  "generatedAtUtc": "2026-06-18T10:54:17.299Z",
+  "sourceCommit": "8ff529ee74d16ded23eec82357ebeb00e866c4d0",
+  "currentHead": "8ff529ee74d16ded23eec82357ebeb00e866c4d0",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "sourceFileDiscovery": "git",
@@ -12,8 +12,8 @@
   "freshness": "fresh",
   "baselineStatus": "current",
   "reportCompleteness": "complete",
-  "totalFindingCount": 5,
-  "emittedFindingCount": 5,
+  "totalFindingCount": 6,
+  "emittedFindingCount": 6,
   "omittedFindingCount": 0,
   "capReason": null,
   "capStrategy": "none",
@@ -31,7 +31,7 @@
   "owner": "admin surface modal replacement source review",
   "safetyClass": "source_safe",
   "costClass": "local_free",
-  "rollback": "Revert the Admin drop inline chrome patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
+  "rollback": "Revert the Admin drop inline chrome/admin AI modal-language patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
   "cleanupPolicy": "preserve_tracked_snapshot",
   "cleanupCommand": null,
   "sourceTruthRole": "generated_snapshot",
@@ -53,9 +53,10 @@
     "This does not prove admin truth samples or runtime parity gates."
   ],
   "summary": {
-    "adminModalCandidatesInventoried": 4,
+    "adminModalCandidatesInventoried": 5,
     "modalShellsRemoved": 0,
     "inlineModalChromeRemoved": 1,
+    "staleModalLanguageRemoved": 3,
     "inlinePanelsConfirmed": 3,
     "legacyModalNamesDeferred": 1,
     "adminAnalyticsLabelContractsNormalized": true,
@@ -99,6 +100,13 @@
       "sourceOwner": "src/lib/server/admin-analytics-historical-validation.ts and src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
       "decision": "connect_first_party_coverage_metadata",
       "reason": "The runtime launchHistoryCoverage response now exposes firstPartyCoverage so mixed GA4/fallback coverage cannot look fully product-truth-ready in the compact Admin Analytics status strip."
+    },
+    {
+      "surface": "Admin Drops / AI Draft Helpers",
+      "candidates": ["AI cover history clear", "AI description history clear", "telemetry catalog labels"],
+      "sourceOwner": "src/components/Admin/AiDropCoverGeneratorPanel.tsx, src/components/Admin/AiDropDescriptionGeneratorPanel.tsx, and src/lib/telemetry-catalog.ts",
+      "decision": "remove_stale_modal_language",
+      "reason": "History-clear actions remain connected to the same telemetry events, but admin-facing success copy and catalog labels no longer describe inline draft helpers as modal-only actions."
     }
   ],
   "retainedStates": [

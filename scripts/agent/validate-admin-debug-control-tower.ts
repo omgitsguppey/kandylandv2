@@ -2597,6 +2597,8 @@ try {
     /^src\/app\/api\/admin\/moderation\/threads\/\[threadId\]\/route\.ts$/u,
     /^src\/app\/api\/admin\/moderation\/security-alerts\/route\.ts$/u,
     /^src\/app\/admin\/roster\/page\.tsx$/u,
+    /^src\/components\/Admin\/AiDropCoverGeneratorPanel\.tsx$/u,
+    /^src\/components\/Admin\/AiDropDescriptionGeneratorPanel\.tsx$/u,
     /^agent\/state\/admin-surface-modal-replacement\.generated\.json$/u,
     /^docs\/agent-truth\/admin-surface-modal-replacement\.md$/u,
     /^scripts\/agent\/validate-analytics-panel-hydration\.ts$/u,

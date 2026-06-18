@@ -255,7 +255,7 @@ export function AiDropDescriptionGeneratorPanel({
             drop_id: dropId || "",
             draft_session_id: draftSessionId || "",
         });
-        toast.success("Description history cleared for this modal");
+        toast.success("Description history cleared for this drop draft");
     }, [draftSessionId, dropId]);
 
     if (!visible) {
@@ -266,7 +266,7 @@ export function AiDropDescriptionGeneratorPanel({
         <CompactAiModuleCard
             title="Description"
             defaultOpen
-            statusChip={<CompactAiStatusChip label={dashboard?.runtime.status === "ready" ? "live" : "degraded"} tone={dashboard?.runtime.status === "ready" ? "good" : "warn"} />}
+            statusChip={<CompactAiStatusChip label={dashboard?.runtime.status === "ready" ? "Ready" : "Needs review"} tone={dashboard?.runtime.status === "ready" ? "good" : "warn"} />}
             className="border-brand-purple/15 bg-brand-purple/[0.04]"
         >
         <div data-description-source="deterministic-patterns" data-description-ai-polish="optional">
