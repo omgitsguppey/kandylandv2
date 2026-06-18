@@ -1465,6 +1465,30 @@ function studioStatusFromScore(score: number): PublicBetaStudioDashboardSection[
   return "needs_attention";
 }
 
+function summarizeEvidenceGateStates(gates: PublicBetaEvidenceGate[]) {
+  const openGates = gates.filter((gate) => gate.status !== "Ready");
+  if (openGates.length === 0) {
+    return {
+      openGates,
+      detail: "All evidence gates are clear in the existing evidence model.",
+    };
+  }
+
+  const statusCounts = openGates.reduce<Record<string, number>>((counts, gate) => {
+    counts[gate.status] = (counts[gate.status] ?? 0) + 1;
+    return counts;
+  }, {});
+  const summary = Object.entries(statusCounts)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([status, count]) => `${status} (${count})`)
+    .join(", ");
+
+  return {
+    openGates,
+    detail: `Open evidence gates: ${summary}. Source checks stay separate from provider, deployed runtime, and admin truth proof.`,
+  };
+}
+
 function buildStudioDashboard(input: {
   sourceHealthScore: number;
   runtimeHealthScore: number;
@@ -1476,7 +1500,7 @@ function buildStudioDashboard(input: {
 }): PublicBetaStudioDashboard {
   const debugGate = input.evidenceGates.find((gate) => gate.id === "debugRuntimeEvidence");
   const adminGate = input.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
-  const proofNeeded = input.evidenceGates.filter((gate) => gate.status !== "Ready");
+  const evidenceGateSummary = summarizeEvidenceGateStates(input.evidenceGates);
   const sections: PublicBetaStudioDashboardSection[] = [
     {
       id: "audienceActivity",
@@ -1520,13 +1544,11 @@ function buildStudioDashboard(input: {
     },
     {
       id: "needsProof",
-      label: "Needs Proof",
+      label: "Evidence Gates",
       score: input.evidenceCompletenessScore,
-      status: proofNeeded.length > 0 ? "needs_proof" : studioStatusFromScore(input.evidenceCompletenessScore),
+      status: evidenceGateSummary.openGates.length > 0 ? "needs_proof" : studioStatusFromScore(input.evidenceCompletenessScore),
       source: "evidenceCompletenessScore",
-      detail: proofNeeded.length > 0
-        ? `${proofNeeded.length} evidence lane(s) still need formal proof or refresh.`
-        : "Formal proof lanes are clear in the existing evidence model.",
+      detail: evidenceGateSummary.detail,
     },
   ];
   const overall = Math.min(...sections.filter((section) => section.id !== "needsProof").map((section) => section.score));

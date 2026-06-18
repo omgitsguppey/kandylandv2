@@ -203,7 +203,7 @@ if (report) {
     failures.push("studioDashboard.sections must summarize existing health and gate signals.");
   } else {
     const sectionLabels = report.studioDashboard.sections.map((section) => section.label);
-    for (const expected of ["Audience Activity", "Runtime Confidence", "Source Quality", "Debug Signal", "Admin Hydration", "Needs Proof"]) {
+    for (const expected of ["Audience Activity", "Runtime Confidence", "Source Quality", "Debug Signal", "Admin Hydration", "Evidence Gates"]) {
       if (!sectionLabels.includes(expected)) failures.push(`studioDashboard must include ${expected}.`);
     }
     for (const section of report.studioDashboard.sections) {

@@ -646,10 +646,11 @@ describe("public beta scoring math", () => {
             "Source Quality",
             "Debug Signal",
             "Admin Hydration",
-            "Needs Proof",
+            "Evidence Gates",
         ]);
         expect(report.studioDashboard.sections.find((section) => section.id === "runtimeConfidence")?.score).toBe(report.runtimeHealthScore);
         expect(report.studioDashboard.sections.find((section) => section.id === "needsProof")?.status).toBe("needs_proof");
+        expect(report.studioDashboard.sections.find((section) => section.id === "needsProof")?.detail).toContain("Open evidence gates:");
         expect(report.sourceHealthScore).toBeGreaterThanOrEqual(90);
         expect(report.runtimeHealthScore).toBeLessThan(90);
         expect(report.evidenceCompletenessScore).toBeLessThan(90);
