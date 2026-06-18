@@ -332,7 +332,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
               </div>
 
               <details className="mt-3 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300" data-product-surface-integrity-debug-detail>
-                <summary className="cursor-pointer list-none font-semibold text-white">Source details</summary>
+                <summary className="cursor-pointer list-none font-semibold text-white">Source notes</summary>
                 <div className="mt-2 grid gap-2.5 lg:grid-cols-3">
                   <div>
                     <p className="font-semibold text-white">Guest estimate</p>
