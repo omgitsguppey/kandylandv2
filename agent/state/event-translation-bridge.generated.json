@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-18T08:10:38.231Z",
-  "currentHead": "889367e7f7863e2684264003cbb4a133c63891ef",
+  "generatedAtUtc": "2026-06-18T08:29:43.797Z",
+  "currentHead": "2e9b7990d25ab93302a1814ef28f667d56e37a75",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5433,56 +5433,8 @@
   "gaps": [],
   "dirtyFiles": [
     {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/source-agreement-failure-detail.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/launch-analytics-recovery.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/source-agreement-failure-detail.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "tests/unit/source-agreement-failure-detail.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     }
   ],
   "validationFailures": [],

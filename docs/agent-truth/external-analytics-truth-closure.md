@@ -1,7 +1,7 @@
 # External Analytics Truth Closure
 
-Generated: 2026-05-19T23:31:35.031Z
-Current code version: 2e91fea3b74d8c5e1122a1fe7acb475510e9019a
+Generated: 2026-06-18T08:31:13.569Z
+Current code version: 2e9b7990d25ab93302a1814ef28f667d56e37a75
 
 ## Summary
 
