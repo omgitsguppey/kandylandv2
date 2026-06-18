@@ -9,7 +9,11 @@ describe("generated artifact version policy validator", () => {
         "check:generated-artifact-version-policy": "tsx scripts/agent/validate-generated-artifact-version-policy.ts",
       },
     }),
-    policy: "export function classifyGeneratedArtifactVersion() {}",
+    policy: [
+      "export function classifyGeneratedArtifactVersion() {}",
+      "const artifactCommit = null;",
+      "const effectiveComparisonHead = artifactCommit;",
+    ].join("\n"),
     refreshSafeguards: [
       "import { classifyGeneratedArtifactVersion } from './generated-artifact-version-policy';",
       '"same_commit_snapshot"',
@@ -56,5 +60,12 @@ describe("generated artifact version policy validator", () => {
       ...baseSources,
       currentBetaValidator: "import { classifyGeneratedArtifactVersion } from '../../src/lib/agent-score/generated-artifact-version-policy';",
     })).toContain("current beta exit validator must declare owned source inputs for current_by_impact artifact status.");
+  });
+
+  it("fails when the central policy omits same-commit artifact comparison tracking", () => {
+    expect(validateGeneratedArtifactVersionPolicySources({
+      ...baseSources,
+      policy: "export function classifyGeneratedArtifactVersion() {}",
+    })).toContain("central generated artifact version policy must track the last commit that touched each generated artifact.");
   });
 });

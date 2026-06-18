@@ -806,7 +806,7 @@ function main() {
 
   const head = currentHead();
   if (report) {
-    const versionContext = readGeneratedArtifactGitContext(repoRoot, report.currentHead);
+    const versionContext = readGeneratedArtifactGitContext(repoRoot, report.currentHead, reportRelativePath);
     const version = classifyGeneratedArtifactVersion({
       artifactPath: reportRelativePath,
       artifactHead: report.currentHead,
@@ -824,7 +824,7 @@ function main() {
   failures.push(...validateCurrentBetaExitStatusReport(
     report,
     head,
-    report ? readGeneratedArtifactGitContext(repoRoot, report.currentHead) : {},
+    report ? readGeneratedArtifactGitContext(repoRoot, report.currentHead, reportRelativePath) : {},
   ));
 
   if (failures.length > 0) {

@@ -29,6 +29,8 @@ export type GeneratedArtifactVersionResult = {
 export type GeneratedArtifactGitContext = {
   currentHead: string;
   parentHead: string | null;
+  artifactCommit: string | null;
+  effectiveComparisonHead: string | null;
   changedFilesInHead: string[];
   changedFilesSinceArtifactHead: string[];
 };
@@ -135,6 +137,7 @@ function gitList(cwd: string, args: string[]) {
 export function readGeneratedArtifactGitContext(
   cwd: string,
   artifactHead?: string,
+  artifactPath?: string,
 ): GeneratedArtifactGitContext {
   const currentHead = git(cwd, ["rev-parse", "HEAD"]);
   let parentHead: string | null = null;
@@ -144,10 +147,31 @@ export function readGeneratedArtifactGitContext(
     parentHead = null;
   }
 
-  let changedFilesSinceArtifactHead: string[] = [];
-  if (artifactHead) {
+  let artifactCommit: string | null = null;
+  if (artifactPath) {
     try {
-      changedFilesSinceArtifactHead = gitList(cwd, ["diff", "--name-only", `${artifactHead}..HEAD`]);
+      artifactCommit = git(cwd, ["log", "-n", "1", "--format=%H", "--", normalizePath(artifactPath)]);
+    } catch {
+      artifactCommit = null;
+    }
+  }
+
+  let effectiveComparisonHead: string | null = artifactHead ?? null;
+  if (artifactHead && artifactCommit) {
+    try {
+      const artifactCommitParent = git(cwd, ["rev-parse", `${artifactCommit}^`]);
+      if (artifactCommitParent === artifactHead) {
+        effectiveComparisonHead = artifactCommit;
+      }
+    } catch {
+      effectiveComparisonHead = artifactHead;
+    }
+  }
+
+  let changedFilesSinceArtifactHead: string[] = [];
+  if (effectiveComparisonHead) {
+    try {
+      changedFilesSinceArtifactHead = gitList(cwd, ["diff", "--name-only", `${effectiveComparisonHead}..HEAD`]);
     } catch {
       changedFilesSinceArtifactHead = [];
     }
@@ -156,6 +180,8 @@ export function readGeneratedArtifactGitContext(
   return {
     currentHead,
     parentHead,
+    artifactCommit,
+    effectiveComparisonHead,
     changedFilesInHead: gitList(cwd, ["diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"]),
     changedFilesSinceArtifactHead,
   };
@@ -167,7 +193,7 @@ export function classifyGeneratedArtifactFromGit(input: {
   artifactHead?: string;
   ownedSourcePaths?: string[];
 }) {
-  const context = readGeneratedArtifactGitContext(input.cwd, input.artifactHead);
+  const context = readGeneratedArtifactGitContext(input.cwd, input.artifactHead, input.artifactPath);
   return classifyGeneratedArtifactVersion({
     artifactPath: input.artifactPath,
     artifactHead: input.artifactHead,

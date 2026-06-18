@@ -54,6 +54,18 @@ export function validateGeneratedArtifactVersionPolicySources(sources: PolicySou
     failures,
   );
   requireIncludes(
+    sources.policy,
+    "artifactCommit",
+    "central generated artifact version policy must track the last commit that touched each generated artifact.",
+    failures,
+  );
+  requireIncludes(
+    sources.policy,
+    "effectiveComparisonHead",
+    "central generated artifact version policy must compare owner changes after the generated artifact commit.",
+    failures,
+  );
+  requireIncludes(
     sources.refreshSafeguards,
     "classifyGeneratedArtifactVersion",
     "refresh safeguards must use the central generated artifact version policy.",
