@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-18T20:16:02.465Z
+Generated: 2026-06-18T20:26:14.552Z
 Status: pass
-Current head: 1c3d6e38fe85b9819b0b28ca709184bb62dfaec9
+Current head: c68c4e1bfed1ab11de82f945ca5dd094304c8243
 
 ## Contract
 
@@ -53,18 +53,8 @@ Current head: 1c3d6e38fe85b9819b0b28ca709184bb62dfaec9
 
 ## Dirty Files
 
-- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
-- scripts/analytics/validate-canonical-import-export.ts: validator_artifact_expected
-- scripts/rebuild-analytics-truth.ts: real_source_change_needs_review
 
 ## Validation Failures
 
