@@ -430,7 +430,24 @@ function collectFindings(raw: Record<string, unknown>): unknown[] {
         raw.speedRisks,
         raw.mismatches,
     ];
-    return candidates.flatMap((candidate) => Array.isArray(candidate) ? candidate : []);
+    const seen = new Set<string>();
+    return candidates
+        .flatMap((candidate) => Array.isArray(candidate) ? candidate : [])
+        .filter((candidate) => {
+            const rawFinding = isRecord(candidate) ? candidate : { title: String(candidate) };
+            const dedupeKey = [
+                toStringValue(rawFinding.id),
+                toStringValue(rawFinding.title ?? rawFinding.message ?? rawFinding.humanReadableWarning),
+                toStringValue(rawFinding.filePath ?? rawFinding.routePath ?? rawFinding.surface),
+            ].filter(Boolean).join("|");
+            const fallbackKey = JSON.stringify(candidate).slice(0, 500);
+            const key = dedupeKey || fallbackKey;
+            if (seen.has(key)) {
+                return false;
+            }
+            seen.add(key);
+            return true;
+        });
 }
 
 function translateSpeedSecurityFinding(

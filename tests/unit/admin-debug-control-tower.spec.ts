@@ -198,6 +198,51 @@ describe("admin debug control tower model", () => {
         expect(model.sections.beta_readiness.some((report) => report.id === "public-beta-score")).toBe(true);
     });
 
+    it("dedupes overlapping generated report finding arrays before admin display", () => {
+        const root = createTempRoot();
+        writeReport(root, "speed-security-hardening.generated.json", {
+            generatedAt: "2026-05-04T00:00:00.000Z",
+            overallScore: 52,
+            overallStatus: "beta-risk",
+            findings: [
+                {
+                    id: "speed_security_duplicate",
+                    severity: "major",
+                    title: "Request body cap needed",
+                    filePath: "src/app/api/example/route.ts",
+                    humanReadableWarning: "API route needs a visible payload size cap.",
+                },
+            ],
+            exploitRisks: [
+                {
+                    id: "speed_security_duplicate",
+                    severity: "major",
+                    title: "Request body cap needed",
+                    filePath: "src/app/api/example/route.ts",
+                    humanReadableWarning: "API route needs a visible payload size cap.",
+                },
+            ],
+            costRisks: [
+                {
+                    id: "speed_security_unique",
+                    severity: "moderate",
+                    title: "Potential unbounded Promise.all fanout",
+                    filePath: "src/lib/example.ts",
+                    humanReadableWarning: "Backend work can fan out too much at once.",
+                },
+            ],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
+        const speedSecurity = model.reports.find((report) => report.id === "speed-security-hardening");
+
+        expect(speedSecurity?.findingCount).toBe(2);
+        expect(speedSecurity?.topFindings.map((finding) => finding.id)).toEqual([
+            "speed_security_duplicate",
+            "speed_security_unique",
+        ]);
+    });
+
     it("derives backlog item truth states instead of showing generic manual proof buckets", () => {
         const root = createTempRoot();
         writeReport(root, "debug-backlog-engine.generated.json", {
