@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T08:52:57.665Z",
-  "currentHead": "22d7a538c2a79c053ee8e92a2b3e6e00bf4eb3a2",
+  "generatedAtUtc": "2026-06-18T08:54:52.888Z",
+  "currentHead": "80e8aa1a98e855a0e2d9f30a90ecc6f2452f95ea",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,10 +416,40 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 0,
-    "byClassification": {},
+    "total": 6,
+    "byClassification": {
+      "analytics_panel_hydration_artifact_expected": 2,
+      "current_generated_artifact_to_commit": 1,
+      "launch_analytics_recovery_artifact_expected": 2,
+      "stale_generated_artifact_to_regenerate": 1
+    },
     "unsafeUnknown": [],
-    "sample": [],
+    "sample": [
+      {
+        "path": "agent/state/analytics-panel-hydration.generated.json",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "agent/state/current-beta-exit-status.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
+        "path": "agent/state/launch-analytics-recovery.generated.json",
+        "classification": "launch_analytics_recovery_artifact_expected"
+      },
+      {
+        "path": "agent/state/public-beta-score.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "docs/agent-truth/analytics-panel-hydration.md",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "docs/agent-truth/launch-analytics-recovery.md",
+        "classification": "launch_analytics_recovery_artifact_expected"
+      }
+    ],
     "sampleTruncated": false
   },
   "nextExactSteps": [
