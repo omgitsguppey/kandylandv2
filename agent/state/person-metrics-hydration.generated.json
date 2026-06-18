@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-06-18T12:32:26.420Z",
+  "generatedAtUtc": "2026-06-18T12:41:25.354Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4973,7 +4973,7 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "e8237718e709e33ed3c9e44a2b87bb9ab3f6b175",
+  "currentHead": "7c41b895e6b3d72b47dc031f016939981dfa6209",
   "dirtyFiles": [
     {
       "path": "agent/state/analytics-panel-hydration.generated.json",
@@ -4998,6 +4998,18 @@
     {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
       "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "tests/unit/source-agreement-failure-detail.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "activeOldLogic": [],

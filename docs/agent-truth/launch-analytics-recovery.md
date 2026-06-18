@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T12:32:11.630Z
-Current head: e8237718e709e33ed3c9e44a2b87bb9ab3f6b175
+Generated: 2026-06-18T12:40:58.845Z
+Current head: 7c41b895e6b3d72b47dc031f016939981dfa6209
 Status: source_agreement_failed
 
 ## Source Order
@@ -16,6 +16,7 @@ Status: source_agreement_failed
 - Launch coverage input mode: fixture_only_local_window
 - Usable launch coverage input found: no
 - Candidate local/export inputs: agent/evidence/launch-analytics/launch-history-coverage.local.json, agent/evidence/launch-analytics/launch-history-coverage.export.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json
+- Candidate input states: agent/evidence/launch-analytics/launch-history-coverage.local.json=missing; agent/evidence/launch-analytics/launch-history-coverage.export.json=missing; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json=present_without_launch_history_coverage
 - Panel hydration input: agent/state/analytics-panel-hydration.generated.json
 - GA4 read mode: generated/local evidence only; no provider call performed
 - First-party read mode: source-agreement day-bucket evidence only; no production read performed

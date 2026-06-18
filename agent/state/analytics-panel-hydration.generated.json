@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T12:32:11.630Z",
-  "currentHead": "e8237718e709e33ed3c9e44a2b87bb9ab3f6b175",
+  "generatedAtUtc": "2026-06-18T12:40:58.845Z",
+  "currentHead": "7c41b895e6b3d72b47dc031f016939981dfa6209",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,10 +416,13 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 2,
+    "total": 5,
     "byClassification": {
       "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 1
+      "documentation_artifact_expected": 1,
+      "source_agreement_failure_classification_required": 1,
+      "analytics_panel_hydration_artifact_expected": 1,
+      "test_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
@@ -430,6 +433,18 @@
       {
         "path": "docs/agent-truth/source-agreement-failure-detail.md",
         "classification": "documentation_artifact_expected"
+      },
+      {
+        "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+        "classification": "source_agreement_failure_classification_required"
+      },
+      {
+        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "tests/unit/source-agreement-failure-detail.spec.ts",
+        "classification": "test_artifact_expected"
       }
     ],
     "sampleTruncated": false

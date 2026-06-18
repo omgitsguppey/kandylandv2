@@ -5,6 +5,7 @@ import {
   buildSourceAgreementFailureDetailFromLaunchHistoryCoverage,
 } from "@/lib/analytics/source-agreement-detail";
 import {
+  launchHistoryCoverageInputStatuses,
   launchHistoryCoverageExportPaths,
   normalizeLaunchHistoryCoverageExport,
   proofModeForLaunchCoverageExport,
@@ -207,6 +208,24 @@ describe("source agreement failure detail", () => {
       "agent/evidence/launch-analytics/launch-history-coverage.local.json",
       "agent/evidence/launch-analytics/launch-history-coverage.export.json",
     ]));
+  });
+
+  it("classifies candidate launch coverage inputs without treating general samples as proof", () => {
+    const statuses = launchHistoryCoverageInputStatuses();
+
+    expect(statuses).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+        state: "missing",
+        proofMode: "none",
+      }),
+      expect.objectContaining({
+        path: "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json",
+        state: "present_without_launch_history_coverage",
+        proofMode: "none",
+      }),
+    ]));
+    expect(statuses.some((entry) => entry.state === "usable_launch_history_coverage")).toBe(false);
   });
 
   it("rejects template or malformed launch coverage rows as non-evidence", () => {

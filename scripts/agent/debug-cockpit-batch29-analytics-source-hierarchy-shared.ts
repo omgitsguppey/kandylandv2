@@ -13,6 +13,18 @@ import { buildDebugCockpitBatch29AnalyticsSourceHierarchyReport } from "../../sr
 
 type Report = Record<string, unknown>;
 
+type LaunchHistoryCoverageInputStatus = {
+  path: string;
+  state:
+    | "missing"
+    | "usable_launch_history_coverage"
+    | "present_without_launch_history_coverage"
+    | "template_not_evidence"
+    | "malformed_json";
+  proofMode: "admin_truth_sample" | "local_export" | "none";
+  nextAction: string;
+};
+
 function read(filePath: string) {
   return fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
 }
@@ -23,6 +35,19 @@ function readJson(filePath: string): unknown {
     return JSON.parse(fs.readFileSync(filePath, "utf8")) as unknown;
   } catch {
     return null;
+  }
+}
+
+function readJsonWithStatus(filePath: string): { exists: false } | { exists: true; parsed: boolean; raw: unknown } {
+  if (!fs.existsSync(filePath)) return { exists: false };
+  try {
+    return {
+      exists: true,
+      parsed: true,
+      raw: JSON.parse(fs.readFileSync(filePath, "utf8")) as unknown,
+    };
+  } catch {
+    return { exists: true, parsed: false, raw: null };
   }
 }
 
@@ -135,6 +160,54 @@ export function launchHistoryCoverageExportPaths() {
     ...LAUNCH_HISTORY_COVERAGE_EXPORT_PATHS,
     ...listAdminTruthSampleEvidencePaths(),
   ];
+}
+
+export function launchHistoryCoverageInputStatuses(): LaunchHistoryCoverageInputStatus[] {
+  return launchHistoryCoverageExportPaths().map((filePath) => {
+    const readResult = readJsonWithStatus(filePath);
+    if (!readResult.exists) {
+      return {
+        path: filePath,
+        state: "missing",
+        proofMode: "none",
+        nextAction: "Attach an approved local launch-history export at this path before using it as source evidence.",
+      };
+    }
+    if (!readResult.parsed) {
+      return {
+        path: filePath,
+        state: "malformed_json",
+        proofMode: "none",
+        nextAction: "Fix JSON syntax before this file can be considered launch-history evidence.",
+      };
+    }
+
+    const root = asRecord(readResult.raw);
+    const coverage = normalizeLaunchHistoryCoverageExport(readResult.raw);
+    if (root.status === "template_not_evidence") {
+      return {
+        path: filePath,
+        state: "template_not_evidence",
+        proofMode: "none",
+        nextAction: "Use this only as a shape reference; it cannot clear source agreement.",
+      };
+    }
+    if (coverage) {
+      return {
+        path: filePath,
+        state: "usable_launch_history_coverage",
+        proofMode: proofModeForLaunchCoverageExport(filePath, readResult.raw),
+        nextAction: "Use this file as the local launch-history coverage input for source agreement.",
+      };
+    }
+
+    return {
+      path: filePath,
+      state: "present_without_launch_history_coverage",
+      proofMode: "none",
+      nextAction: "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery.",
+    };
+  });
 }
 
 export function proofModeForLaunchCoverageExport(
@@ -391,11 +464,13 @@ export function validateDataValidationCopyConsistency() {
 export function validateSourceAgreementFailureDetail() {
   const failures: string[] = [];
   const { detail, inputMode, inputPath } = buildLaunchSourceAgreementDetail();
+  const candidateInputStatuses = launchHistoryCoverageInputStatuses();
   const launchCoverageEvidence = {
     inputMode,
     inputPath,
     usableInputFound: Boolean(inputPath),
     candidateInputPaths: launchHistoryCoverageExportPaths(),
+    candidateInputStatuses,
     adminTruthSampleRequiresLaunchHistoryCoverage: true,
   };
   expectPass(detail.comparedSources.includes("first_party") && detail.comparedSources.length === 4, failures, "source agreement failed but first-party compared source is missing.");
@@ -410,6 +485,9 @@ export function validateSourceAgreementFailureDetail() {
     expectPass(detail.disagreementCount > 0 && detail.maxDeltaPct > 25, failures, "fixture maxDeltaPct/disagreementCount missing.");
     expectPass(!launchCoverageEvidence.usableInputFound, failures, "fixture mode cannot claim a usable launch coverage input.");
     expectPass(launchCoverageEvidence.candidateInputPaths.includes("agent/evidence/launch-analytics/launch-history-coverage.local.json"), failures, "local launch coverage export path is not advertised.");
+    expectPass(candidateInputStatuses.some((entry) => entry.state === "missing"), failures, "missing launch coverage input paths are not classified.");
+    expectPass(candidateInputStatuses.some((entry) => entry.state === "present_without_launch_history_coverage"), failures, "admin truth samples without launchHistoryCoverage are not classified.");
+    expectPass(candidateInputStatuses.every((entry) => entry.state !== "usable_launch_history_coverage"), failures, "fixture mode cannot classify any input as usable coverage.");
   }
   expectPass(detail.disagreements.some((entry) =>
     entry.dayKey === "2026-05-02"
@@ -429,7 +507,7 @@ export function validateSourceAgreementFailureDetail() {
     "Source agreement failures include compared sources, coverage deltas, per-day disagreement details, tolerance, blocked consumers, and next actions.",
     inputPath
       ? `Using local launch coverage export: ${inputPath}.`
-      : "No local launch coverage export or launch-history admin truth sample found; using fixture-only local window until approved evidence is attached.",
+      : "No usable local launch coverage export or launch-history admin truth sample found; present samples without launchHistoryCoverage remain evidence-only.",
     "The detail helper uses existing evidence only and does not call GA4.",
   ]);
 }

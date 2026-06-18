@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-18T12:32:26.271Z",
-  "currentHead": "e8237718e709e33ed3c9e44a2b87bb9ab3f6b175",
+  "generatedAtUtc": "2026-06-18T12:41:25.397Z",
+  "currentHead": "7c41b895e6b3d72b47dc031f016939981dfa6209",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5455,6 +5455,18 @@
     {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "tests/unit/source-agreement-failure-detail.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "validationFailures": [],

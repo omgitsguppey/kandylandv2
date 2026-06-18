@@ -1,7 +1,7 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-06-18T12:32:11.403Z",
-  "currentHead": "e8237718e709e33ed3c9e44a2b87bb9ab3f6b175",
+  "generatedAtUtc": "2026-06-18T12:41:25.197Z",
+  "currentHead": "7c41b895e6b3d72b47dc031f016939981dfa6209",
   "inputMode": "fixture_only_local_window",
   "inputPath": null,
   "launchCoverageEvidence": {
@@ -13,6 +13,32 @@
       "agent/evidence/launch-analytics/launch-history-coverage.export.json",
       "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
       "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json"
+    ],
+    "candidateInputStatuses": [
+      {
+        "path": "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+        "state": "missing",
+        "proofMode": "none",
+        "nextAction": "Attach an approved local launch-history export at this path before using it as source evidence."
+      },
+      {
+        "path": "agent/evidence/launch-analytics/launch-history-coverage.export.json",
+        "state": "missing",
+        "proofMode": "none",
+        "nextAction": "Attach an approved local launch-history export at this path before using it as source evidence."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery."
+      }
     ],
     "adminTruthSampleRequiresLaunchHistoryCoverage": true
   },
