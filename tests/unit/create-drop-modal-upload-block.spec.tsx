@@ -129,6 +129,8 @@ describe("CreateDropModal upload guard", () => {
       />,
     );
 
+    expect(document.querySelector('[data-admin-drop-form-presentation="inline"]')).not.toBeNull();
+
     fireEvent.click(screen.getByRole("button", { name: /Files & Assets/i }));
 
     await waitFor(() => {

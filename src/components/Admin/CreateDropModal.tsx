@@ -280,8 +280,9 @@ function buildDropSaveErrorMessage(result: DropSaveApiResult, fallback: string) 
     return recoveryAction ? `${base} ${recoveryAction}` : base;
 }
 
-export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess, mode = "admin", presentation = "modal", creatorIdOverride = null, onSubmitFailure }: CreateDropModalProps) {
+export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess, mode = "admin", presentation, creatorIdOverride = null, onSubmitFailure }: CreateDropModalProps) {
     const isEditMode = !!dropId;
+    const resolvedPresentation = presentation ?? (mode === "admin" ? "inline" : "modal");
     const [fetching, setFetching] = useState(isEditMode);
     const [contentAssets, setContentAssets] = useState<UploadedAsset[]>([]);
     const [coverAssets, setCoverAssets] = useState<UploadedAsset[]>([]);
@@ -842,14 +843,14 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const titleId = "create-drop-form-title";
     const panelClassName = cn(
         "relative flex w-full flex-col overflow-hidden border border-white/10 bg-[#0a0a0a] shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50",
-        presentation === "inline"
+        resolvedPresentation === "inline"
             ? "rounded-[1.5rem] shadow-black/20"
             : "max-h-[calc(100svh-0.5rem)] max-w-3xl rounded-[2rem] md:max-h-[92vh] md:rounded-3xl",
     );
     const panelBody = (
                     <>
                         <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-md md:px-6 md:pb-5 md:pt-5">
-                            {presentation === "inline" ? (
+                            {resolvedPresentation === "inline" ? (
                                 <h2 id={titleId} className="shrink-0 text-xl font-bold text-white">
                                     {titleLabel}
                                 </h2>
@@ -858,7 +859,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                     {titleLabel}
                                 </Dialog.Title>
                             )}
-                            {presentation === "inline" ? (
+                            {resolvedPresentation === "inline" ? (
                                 <button
                                     type="button"
                                     onClick={onClose}
@@ -1181,7 +1182,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     </>
     );
 
-    if (presentation === "inline") {
+    if (resolvedPresentation === "inline") {
         return (
             <section
                 className={panelClassName}

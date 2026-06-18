@@ -1,13 +1,50 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.84",
-  "betaReleaseCounter": 584,
+  "currentVersion": "1.5.85",
+  "betaReleaseCounter": 585,
   "channel": "beta",
-  "generatedAt": "2026-06-18T00:41:45.270Z",
-  "generatedAtUtc": "2026-06-18T00:41:45.270Z",
-  "lastCommitSha": "7c0de649892079e85dbc8884035baf6602656fcb",
+  "generatedAt": "2026-06-18T01:20:18.629Z",
+  "generatedAtUtc": "2026-06-18T01:20:18.629Z",
+  "lastCommitSha": "470a3623e547c6f5f32d0f87ef98745c49fc7574",
   "notes": [
+    {
+      "version": "1.5.85",
+      "previousVersion": "1.5.84",
+      "betaReleaseCounter": 585,
+      "previousBetaReleaseCounter": 584,
+      "commitSha": "470a3623e547c6f5f32d0f87ef98745c49fc7574",
+      "commitTitle": "fix(admin): simplify surface actions",
+      "commitCount": 1,
+      "commitShas": [
+        "470a3623e547c6f5f32d0f87ef98745c49fc7574"
+      ],
+      "committedAt": "2026-06-18T01:10:02.000Z",
+      "generatedAt": "2026-06-18T01:20:18.629Z",
+      "committedAtUtc": "2026-06-18T01:10:02.000Z",
+      "generatedAtUtc": "2026-06-18T01:20:18.629Z",
+      "updatedAtUtc": "2026-06-18T01:20:18.629Z",
+      "category": "Fixed",
+      "title": "Cleaner admin drop actions",
+      "summary": "Admin drop actions now stay in the page by default, so admins can review and finish the task without a separate overlay.",
+      "userFacingTitle": "Cleaner admin drop actions",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Admin drop actions open in place by default.",
+        "Creator drop submission keeps its existing flow."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "admin"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/admin-surface-modal-replacement.generated.json",
+        "docs/agent-truth/admin-surface-modal-replacement.md",
+        "src/components/Admin/CreateDropModal.tsx"
+      ],
+      "sourceCommit": "470a3623e547c6f5f32d0f87ef98745c49fc7574"
+    },
     {
       "version": "1.5.84",
       "previousVersion": "1.5.83",
@@ -2566,55 +2603,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-debug-compact-layout.spec.ts"
       ],
       "sourceCommit": "2ab0582ad85954b3f8b8c99dfb84c7056fb36681"
-    },
-    {
-      "version": "1.5.60",
-      "previousVersion": "1.5.59",
-      "betaReleaseCounter": 560,
-      "previousBetaReleaseCounter": 559,
-      "commitSha": "5d2d432b82a456750d07ce4425a1ed5cd1e25ee0",
-      "commitTitle": "fix(admin): simplify debug now panel",
-      "commitCount": 2,
-      "commitShas": [
-        "885da4a8acfdfc3316a90f2539320717f34ab6c2",
-        "5d2d432b82a456750d07ce4425a1ed5cd1e25ee0"
-      ],
-      "committedAt": "2026-06-04T01:54:20.000Z",
-      "generatedAt": "2026-06-04T01:54:32.293Z",
-      "committedAtUtc": "2026-06-04T01:54:20.000Z",
-      "generatedAtUtc": "2026-06-04T01:54:32.293Z",
-      "updatedAtUtc": "2026-06-04T01:54:32.293Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/app/admin/debug/components/DebugTabNow.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-operations-mobile.spec.ts",
-        "tests/unit/admin-debug-compact-layout.spec.ts"
-      ],
-      "sourceCommit": "5d2d432b82a456750d07ce4425a1ed5cd1e25ee0"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
