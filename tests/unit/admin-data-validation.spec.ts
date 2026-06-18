@@ -300,7 +300,7 @@ describe("buildHistoricalValidationSummary", () => {
       rangeProof: {
         expectedRangeSource: "all_range_historical_route",
         coverageWindowKind: "all_range_historical_route",
-        allLaunchRangeProven: true,
+        allLaunchRangeProven: false,
       },
       firstRecoveredDayKey: "2026-05-01",
       lastRecoveredDayKey: "2026-05-03",
@@ -309,8 +309,11 @@ describe("buildHistoricalValidationSummary", () => {
       preLaunchIgnoredDayCount: 2,
       state: "available",
     });
+    expect(summary.analyticsSourceHealth.launchHistoryCoverage?.rangeProof.reason).toContain("launch-start proof");
+    expect(summary.analyticsSourceHealth.launchHistoryCoverage?.firstPartyCoverage.canPromoteProductTruth).toBe(false);
     expect(summary.analyticsSourceHealth.continuity.missingDays).toEqual([]);
-    expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("ready");
+    expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("partial");
+    expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("first recovered source day");
   });
 
   it("keeps per-day launch recovery source labels without promoting GA4 to product truth", () => {

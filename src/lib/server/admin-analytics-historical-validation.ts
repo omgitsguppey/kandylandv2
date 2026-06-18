@@ -625,6 +625,7 @@ function buildAnalyticsSourceHealth(input: {
     ? rawExpectedDays.filter((dayKey) => dayKey >= (firstRecoveredDayKey as string))
     : rawExpectedDays;
   const preLaunchIgnoredDayCount = Math.max(0, rawExpectedDays.length - expectedDays.length);
+  const launchStartBoundaryProven = input.selectedRange !== "all" || preLaunchIgnoredDayCount === 0;
   const expectedDaySet = new Set(expectedDays);
   const unionPresentDays = new Set<string>(observedExpectedDays.filter((dayKey) => expectedDaySet.has(dayKey)));
 
@@ -697,6 +698,8 @@ function buildAnalyticsSourceHealth(input: {
   const chartReadinessState: AnalyticsSourceHealth["chartReadiness"]["state"] =
     expectedDays.length === 0
       ? "unavailable"
+      : input.selectedRange === "all" && !launchStartBoundaryProven
+        ? "partial"
       : recentGapDays.length > 0
         ? "gap_detected"
         : sourceAgreementState === "failed"
@@ -707,6 +710,8 @@ function buildAnalyticsSourceHealth(input: {
   const chartReadinessReason =
     chartReadinessState === "gap_detected"
       ? gapReason
+      : input.selectedRange === "all" && !launchStartBoundaryProven
+        ? "All-time historical route evidence starts at the first recovered source day. Attach launch-start proof or an approved all-launch export before treating this as complete launch history."
       : chartReadinessState === "source_disagreement"
         ? "Chart buckets are available, but source agreement failed across first-party, GA4, historical snapshot, and legacy support. Do not treat this chart as canonical until source agreement is resolved."
       : chartReadinessState === "partial"
@@ -739,17 +744,20 @@ function buildAnalyticsSourceHealth(input: {
           expectedRangeSource: "all_range_historical_route",
           coverageWindowKind: "all_range_historical_route",
           allLaunchRangeProven:
+            launchStartBoundaryProven &&
             unionPresentDays.size > 0 &&
             missingDays.length === 0 &&
             firstPartyCoverageState === "available" &&
             sourceAgreementState === "pass",
           reason:
-            unionPresentDays.size > 0 &&
-            missingDays.length === 0 &&
-            firstPartyCoverageState === "available" &&
-            sourceAgreementState === "pass"
-              ? "All-time historical route coverage is bounded by recovered first-party days and source agreement passed."
-              : "All-time historical route coverage is not product-truth complete until first-party coverage is available and source agreement passes.",
+            !launchStartBoundaryProven
+              ? `All-time historical route coverage starts at the first recovered source day (${firstRecoveredDayKey}); ${preLaunchIgnoredDayCount} earlier expected day(s) still need launch-start proof or an approved all-launch export.`
+              : unionPresentDays.size > 0 &&
+                missingDays.length === 0 &&
+                firstPartyCoverageState === "available" &&
+                sourceAgreementState === "pass"
+                ? "All-time historical route coverage is bounded by recovered first-party days and source agreement passed."
+                : "All-time historical route coverage is not product-truth complete until first-party coverage is available and source agreement passes.",
         },
         rangeStartDayKey: expectedDays[0] ?? null,
         rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
@@ -768,7 +776,7 @@ function buildAnalyticsSourceHealth(input: {
           state: firstPartyCoverageState,
           coveredDayCount: firstPartyExpectedDayCount,
           missingRanges: collapseDayRanges(firstPartyMissingDays),
-          canPromoteProductTruth: firstPartyCoverageState === "available" && sourceAgreementState === "pass",
+          canPromoteProductTruth: launchStartBoundaryProven && firstPartyCoverageState === "available" && sourceAgreementState === "pass",
           reason: firstPartyCoverageState === "available"
             ? "First-party product truth covers every recovered launch-history day."
             : "First-party product truth is missing for at least one launch-history day; GA4, historical snapshots, and legacy support remain evidence-only.",
