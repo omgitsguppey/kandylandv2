@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-18T13:03:43.788Z
+Generated: 2026-06-18T13:16:27.241Z
 Status: pass
-Current head: 55875cd9a2401cc264e87807ebfa2952cb6d04c6
+Current head: 64bff1184f84d1164677baa16134dfc880947083
 
 ## Contract
 
@@ -53,16 +53,7 @@ Current head: 55875cd9a2401cc264e87807ebfa2952cb6d04c6
 
 ## Dirty Files
 
-- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
-- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- src/lib/analytics/source-agreement-detail.ts: real_source_change_needs_review
-- tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
-- tests/unit/source-agreement-failure-detail.spec.ts: test_artifact_expected
+- none
 
 ## Validation Failures
 

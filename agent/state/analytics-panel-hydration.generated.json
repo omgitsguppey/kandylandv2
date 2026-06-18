@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-18T13:14:03.501Z",
-  "currentHead": "c1f32f05e1996cd752ec27a978a8b4098edf5ad7",
+  "generatedAtUtc": "2026-06-18T13:16:41.160Z",
+  "currentHead": "64bff1184f84d1164677baa16134dfc880947083",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,30 +416,37 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 4,
+    "total": 6,
     "byClassification": {
+      "current_generated_artifact_to_commit": 2,
       "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 1,
-      "source_agreement_failure_classification_required": 1,
-      "test_artifact_expected": 1
+      "documentation_artifact_expected": 3
     },
     "unsafeUnknown": [],
     "sample": [
+      {
+        "path": "agent/state/event-translation-bridge.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
+        "path": "agent/state/person-metrics-hydration.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
       {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
       },
       {
-        "path": "docs/agent-truth/source-agreement-failure-detail.md",
+        "path": "docs/agent-truth/event-translation-bridge.md",
         "classification": "documentation_artifact_expected"
       },
       {
-        "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
-        "classification": "source_agreement_failure_classification_required"
+        "path": "docs/agent-truth/person-metrics-hydration.md",
+        "classification": "documentation_artifact_expected"
       },
       {
-        "path": "tests/unit/source-agreement-failure-detail.spec.ts",
-        "classification": "test_artifact_expected"
+        "path": "docs/agent-truth/source-agreement-failure-detail.md",
+        "classification": "documentation_artifact_expected"
       }
     ],
     "sampleTruncated": false
