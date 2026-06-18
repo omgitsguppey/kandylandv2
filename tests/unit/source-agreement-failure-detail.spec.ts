@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buildLaunchAnalyticsSourceAgreementFailureDetail } from "@/lib/analytics/source-agreement-detail";
+import {
+  buildLaunchAnalyticsSourceAgreementFailureDetail,
+  buildSourceAgreementFailureDetailFromLaunchHistoryCoverage,
+} from "@/lib/analytics/source-agreement-detail";
 
 describe("source agreement failure detail", () => {
   it("reports compared sources, disagreement size, tolerance, blocked consumers, and exact next actions", () => {
@@ -45,5 +48,73 @@ describe("source agreement failure detail", () => {
       fallbackEvidenceOnly: true,
       missingIsNotZero: true,
     });
+  });
+
+  it("normalizes launchHistoryCoverage export rows into source agreement without proving product truth", () => {
+    const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
+      proofMode: "local_export",
+      launchHistoryCoverage: {
+        expectedDayCount: 3,
+        recoveredDayCount: 3,
+        state: "available",
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 1, legacySupport: 0 },
+          },
+          {
+            dayKey: "2026-05-02",
+            expected: true,
+            sourceCounts: { first_party: 0, ga4: 1, historicalSnapshot: 1, legacySupport: 0 },
+          },
+          {
+            dayKey: "2026-05-03",
+            expected: true,
+            sourceCounts: { first_party: 0, ga4: 1, historicalSnapshot: 0, legacySupport: 1 },
+          },
+        ],
+      },
+    });
+
+    expect(detail.coverageWindowKind).toBe("all_range_historical_export");
+    expect(detail.allLaunchRangeProven).toBe(false);
+    expect(detail.missingDaysBySource.first_party).toEqual(["2026-05-02", "2026-05-03"]);
+    expect(detail.disagreements).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        dayKey: "2026-05-02",
+        recoveryLane: "first_party_materialization",
+        productTruthEligible: false,
+      }),
+    ]));
+    expect(detail.sourceTruthPolicy.ga4SecondSourceOnly).toBe(true);
+  });
+
+  it("allows an admin truth sample to prove the all-launch range only when source agreement passes", () => {
+    const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
+      proofMode: "admin_truth_sample",
+      launchHistoryCoverage: {
+        expectedDayCount: 2,
+        recoveredDayCount: 2,
+        state: "available",
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 1, legacySupport: 1 },
+          },
+          {
+            dayKey: "2026-05-02",
+            expected: true,
+            sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 1, legacySupport: 1 },
+          },
+        ],
+      },
+    });
+
+    expect(detail.coverageWindowKind).toBe("admin_truth_sample");
+    expect(detail.sourceAgreementStatus).toBe("pass");
+    expect(detail.allLaunchRangeProven).toBe(true);
+    expect(detail.disagreementCount).toBe(0);
   });
 });

@@ -45,7 +45,12 @@ export type SourceAgreementFailureDetail = {
   rangeEndDayKey: string | null;
   expectedDayCount: number;
   expectedRangeSource: "caller_supplied_expected_days" | "union_of_local_source_days";
-  coverageWindowKind: "caller_supplied_expected_days" | "fixture_only_local_window" | "local_source_window";
+  coverageWindowKind:
+    | "caller_supplied_expected_days"
+    | "fixture_only_local_window"
+    | "local_source_window"
+    | "all_range_historical_export"
+    | "admin_truth_sample";
   allLaunchRangeProven: boolean;
   disagreementCount: number;
   maxDeltaPct: number;
@@ -168,6 +173,22 @@ export const LAUNCH_ANALYTICS_SOURCE_AGREEMENT_SOURCES = [
   "historical_snapshot",
   "legacy_support",
 ] as const;
+
+export type LaunchHistoryCoverageForSourceAgreement = {
+  expectedDayCount: number;
+  recoveredDayCount: number;
+  state: "available" | "partial" | "source_missing";
+  days: Array<{
+    dayKey: string;
+    expected: boolean;
+    sourceCounts: {
+      first_party: 0 | 1 | number;
+      ga4: 0 | 1 | number;
+      historicalSnapshot: 0 | 1 | number;
+      legacySupport: 0 | 1 | number;
+    };
+  }>;
+};
 
 export function buildSourceAgreementFailureDetail(input: {
   comparedSources: SourceAgreementCoverageInput[] | string[];
@@ -308,4 +329,52 @@ export function buildLaunchAnalyticsSourceAgreementFailureDetail(input: {
     blockedConsumers: input.blockedConsumers,
     coverageWindowKind: input.expectedDays ? "caller_supplied_expected_days" : "fixture_only_local_window",
   });
+}
+
+export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input: {
+  launchHistoryCoverage: LaunchHistoryCoverageForSourceAgreement;
+  proofMode?: "local_export" | "admin_truth_sample";
+  comparedMetrics?: string[];
+  tolerance?: { reviewDeltaPct?: number; failDeltaPct?: number };
+  blockedConsumers?: string[];
+}): SourceAgreementFailureDetail {
+  const expectedDays = [...new Set(
+    input.launchHistoryCoverage.days
+      .filter((day) => day.expected)
+      .map((day) => day.dayKey)
+      .filter(Boolean),
+  )].sort();
+  const coverageBySource = {
+    first_party: input.launchHistoryCoverage.days
+      .filter((day) => day.expected && day.sourceCounts.first_party > 0)
+      .map((day) => day.dayKey),
+    ga4: input.launchHistoryCoverage.days
+      .filter((day) => day.expected && day.sourceCounts.ga4 > 0)
+      .map((day) => day.dayKey),
+    historical_snapshot: input.launchHistoryCoverage.days
+      .filter((day) => day.expected && day.sourceCounts.historicalSnapshot > 0)
+      .map((day) => day.dayKey),
+    legacy_support: input.launchHistoryCoverage.days
+      .filter((day) => day.expected && day.sourceCounts.legacySupport > 0)
+      .map((day) => day.dayKey),
+  };
+  const detail = buildSourceAgreementFailureDetail({
+    comparedSources: [...LAUNCH_ANALYTICS_SOURCE_AGREEMENT_SOURCES],
+    coverageBySource,
+    expectedDays,
+    comparedMetrics: input.comparedMetrics,
+    tolerance: input.tolerance,
+    blockedConsumers: input.blockedConsumers,
+    coverageWindowKind: input.proofMode === "admin_truth_sample"
+      ? "admin_truth_sample"
+      : "all_range_historical_export",
+  });
+
+  return {
+    ...detail,
+    allLaunchRangeProven: input.proofMode === "admin_truth_sample"
+      && input.launchHistoryCoverage.state === "available"
+      && input.launchHistoryCoverage.expectedDayCount === input.launchHistoryCoverage.recoveredDayCount
+      && detail.sourceAgreementStatus === "pass",
+  };
 }

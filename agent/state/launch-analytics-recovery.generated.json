@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-18T04:59:10.272Z",
-  "currentHead": "04d6d998375f26a108095fa76602739de3c81229",
+  "generatedAtUtc": "2026-06-18T05:11:49.564Z",
+  "currentHead": "e1ef284c68597e0921685058ef9e5de23e3bcac6",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -236,7 +236,7 @@
   "evidenceProvenance": {
     "launchCoverageInput": "agent/state/source-agreement-failure-detail.generated.json",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "04d6d998375f26a108095fa76602739de3c81229",
+    "sourceAgreementInputHead": "e1ef284c68597e0921685058ef9e5de23e3bcac6",
     "ga4ReadMode": "generated/local evidence only; no provider call performed",
     "firstPartyReadMode": "source-agreement day-bucket evidence only; no production read performed",
     "limitation": "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof."
@@ -360,7 +360,7 @@
     "state": "available",
     "reason": "Launch-history day buckets exist, but source agreement failed; GA4, historical snapshots, and legacy support cannot replace missing first-party product truth.",
     "staleInputEvidence": false,
-    "sourceAgreementEvidenceHead": "04d6d998375f26a108095fa76602739de3c81229"
+    "sourceAgreementEvidenceHead": "e1ef284c68597e0921685058ef9e5de23e3bcac6"
   },
   "sourceAgreement": {
     "comparedSources": [

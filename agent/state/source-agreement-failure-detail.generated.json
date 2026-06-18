@@ -1,7 +1,7 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-06-18T04:59:09.806Z",
-  "currentHead": "04d6d998375f26a108095fa76602739de3c81229",
+  "generatedAtUtc": "2026-06-18T05:11:12.560Z",
+  "currentHead": "e1ef284c68597e0921685058ef9e5de23e3bcac6",
   "detail": {
     "comparedSources": [
       "first_party",
