@@ -233,7 +233,8 @@ describe("DebugControlTower", () => {
         expect(container.textContent).toContain("Last updated");
         expect(container.textContent).toContain("Refresh command: npm run check:google-cost");
         expect(container.textContent).toContain("Next actions");
-        expect(container.textContent).toContain("admin truth source required");
+        expect(container.textContent).toContain("Admin sample required");
+        expect(container.textContent).not.toContain("admin truth source required");
         expect(container.textContent).not.toContain("Device + UI");
         expect(container.textContent).not.toContain("secret support body");
     });

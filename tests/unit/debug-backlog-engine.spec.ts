@@ -103,6 +103,13 @@ describe("debug backlog engine", () => {
     expect(backlog.some((item) => item.source === "evidence" && item.status === "stale_retired")).toBe(true);
     expect(backlog.some((item) => item.source === "route_diagnostics" && item.fixClass === "route_fix")).toBe(true);
     expect(backlog.every((item) => item.owner && item.surface && item.sourceFiles.length > 0 && item.scoreDimensionImpact.length > 0)).toBe(true);
+    expect(backlog.map((item) => item.title)).toEqual(expect.arrayContaining([
+      "Runtime and provider proof required",
+      "Admin truth sample required",
+      "Manual UI proof required",
+    ]));
+    expect(JSON.stringify(backlog)).not.toContain("Unknown evidence:");
+    expect(JSON.stringify(backlog)).not.toContain("Stale evidence:");
     expect(validateDebugBacklog(backlog)).toEqual([]);
 
     const summary = summarizeDebugBacklog(backlog);
@@ -114,6 +121,29 @@ describe("debug backlog engine", () => {
     expect(summary.sourceTruthStates.manual_visual_required).toBeGreaterThan(0);
     expect(Object.values(summary.sourceTruthStates).reduce((total, count) => total + count, 0)).toBe(backlog.length);
     expect(summary).not.toHaveProperty("manualRequired");
+  });
+
+  it("keeps passed targeted behavior checks source-only instead of unknown proof", () => {
+    const backlog = buildDebugBacklog({
+      publicBetaScore: {
+        evidenceCompletenessScore: 80,
+        evidenceCapDetails: [
+          "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
+        ],
+      },
+    });
+
+    expect(backlog).toHaveLength(1);
+    expect(backlog[0]).toMatchObject({
+      title: "Source-only behavior evidence",
+      severity: "info",
+      status: "not_applicable",
+      fixClass: "no_action",
+      evidenceStatus: "source_backed",
+    });
+    expect(backlog[0].evidenceReason).toContain("does not prove runtime");
+    expect(JSON.stringify(backlog)).not.toContain("Unknown evidence:");
+    expect(validateDebugBacklog(backlog)).toEqual([]);
   });
 
   it("fails validation for unmapped warnings, unknown evidence without reason, stale issues without action, and p1 items without next action", () => {

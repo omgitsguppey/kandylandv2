@@ -41,13 +41,40 @@ function itemLabel(item: unknown) {
     return String(record.title ?? record.artifact ?? record.label ?? record.message ?? record.id ?? "Unknown item");
 }
 
+function sourceTruthStateLabel(state: unknown) {
+    switch (state) {
+        case "source_backed":
+            return "Source backed";
+        case "source_fixable":
+            return "Source fixable";
+        case "source_refresh_required":
+            return "Refresh required";
+        case "runtime_proof_required":
+            return "Runtime proof required";
+        case "provider_or_external_proof_required":
+            return "External proof required";
+        case "admin_truth_source_required":
+            return "Admin sample required";
+        case "manual_visual_required":
+            return "Manual UI proof required";
+        case "protected_manual_review":
+            return "Protected review required";
+        case "stale_evidence_archive":
+            return "Archive evidence only";
+        case "not_actionable":
+            return "Not actionable";
+        case "unknown_source_state":
+            return "Needs classification";
+        default:
+            return "";
+    }
+}
+
 function itemAction(item: unknown) {
     const record = asRecord(item);
     const commands = Array.isArray(record.commands) ? record.commands : [];
     const action = String(record.refreshCommand ?? record.nextAction ?? record.requiredFix ?? commands[0] ?? "Open the linked validator.");
-    const sourceTruthState = typeof record.sourceTruthState === "string"
-        ? record.sourceTruthState.replaceAll("_", " ")
-        : "";
+    const sourceTruthState = sourceTruthStateLabel(record.sourceTruthState);
     return sourceTruthState ? `${sourceTruthState}. ${action}` : action;
 }
 

@@ -279,43 +279,139 @@ function makeItem(input: Omit<DebugBacklogItem,
   };
 }
 
+function stripBetaCapPrefix(detail: string) {
+  return detail
+    .replace(/^(unknown evidence|stale evidence|runtime unverified|ready with smoke required|visual qa required|needs review):\s*/iu, "")
+    .trim();
+}
+
+function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string) {
+  const normalized = stripBetaCapPrefix(`${rawTitle}${rawReason ? ` - ${rawReason}` : ""}` || cap);
+  const lower = normalized.toLowerCase();
+  const runtime = lower.includes("runtime/provider smoke") || lower.includes("runtime smoke") || lower.includes("debug/runtime evidence") || lower.includes("deployed runtime");
+  const provider = lower.includes("provider smoke");
+  const adminTruth = lower.includes("admin truth") || lower.includes("truth sample") || lower.includes("sample evidence");
+  const visual = lower.includes("visual") || lower.includes("manual screenshot");
+  const refresh = lower.includes("report freshness") || lower.includes("pr integrity") || lower.includes("freshness window");
+  const sourceOnly = lower.includes("targeted behavior tests");
+
+  if (sourceOnly) {
+    return {
+      title: "Source-only behavior evidence",
+      severity: "info" as const,
+      status: "not_applicable" as const,
+      fixClass: "no_action" as const,
+      evidenceStatus: "source_backed" as const,
+      owner: "beta_score",
+      surface: "beta_score",
+      exactNextAction: "Keep targeted behavior checks as source-only evidence; clear runtime, provider, and admin truth gates separately.",
+      evidenceReason: "Implemented behavior validators passed. This does not prove runtime, provider, screenshot, or admin truth sample evidence.",
+      sourceMessage: "Source-only behavior evidence is present.",
+    };
+  }
+
+  if (runtime || provider) {
+    return {
+      title: "Runtime and provider proof required",
+      severity: "p1" as const,
+      status: "blocked_external" as const,
+      fixClass: "manual_required" as const,
+      evidenceStatus: runtime ? "runtime_unverified" as const : "external_required" as const,
+      owner: provider ? "provider_evidence" : "runtime_evidence",
+      surface: "runtime_evidence",
+      exactNextAction: "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      evidenceReason: rawReason || "Formal runtime/provider proof is missing.",
+      sourceMessage: /operator-confirmed|operator confirmed|paypal/iu.test(cap)
+        ? "Operator-confirmed payment is product context only; formal provider/runtime proof is still required."
+        : "Formal provider/runtime proof is still required.",
+    };
+  }
+
+  if (adminTruth) {
+    return {
+      title: "Admin truth sample required",
+      severity: "p1" as const,
+      status: "blocked_manual" as const,
+      fixClass: "manual_required" as const,
+      evidenceStatus: "formal_missing" as const,
+      owner: "admin_debug",
+      surface: "admin_debug",
+      exactNextAction: "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+      evidenceReason: rawReason || "A redacted production admin truth sample is missing.",
+      sourceMessage: "Admin truth sample evidence is required.",
+    };
+  }
+
+  if (visual) {
+    return {
+      title: "Manual UI proof required",
+      severity: "p1" as const,
+      status: "blocked_manual" as const,
+      fixClass: "manual_required" as const,
+      evidenceStatus: "formal_missing" as const,
+      owner: "mobile_ui",
+      surface: "mobile_ui",
+      exactNextAction: "Attach targeted manual or screenshot evidence before clearing visual proof.",
+      evidenceReason: rawReason || "Manual UI proof is missing.",
+      sourceMessage: "Manual UI proof is required.",
+    };
+  }
+
+  if (refresh) {
+    return {
+      title: "Report refresh required",
+      severity: "p2" as const,
+      status: "open" as const,
+      fixClass: "evidence_refresh" as const,
+      evidenceStatus: "stale" as const,
+      owner: "evidence",
+      surface: "agent_state",
+      exactNextAction: "Refresh the required generated reports before treating the beta evidence snapshot as current.",
+      evidenceReason: rawReason || "Required generated reports are outside the freshness window.",
+      sourceMessage: "Report freshness is outside the accepted window.",
+    };
+  }
+
+  return {
+    title: stripBetaCapPrefix(rawTitle || cap) || "Evidence gate needs review",
+    severity: "p2" as const,
+    status: "open" as const,
+    fixClass: "evidence_refresh" as const,
+    evidenceStatus: "unknown" as const,
+    owner: "beta_score",
+    surface: "beta_score",
+    exactNextAction: "Classify the owning evidence artifact and keep the beta cap visible until evidence is formal.",
+    evidenceReason: rawReason || normalized || "Evidence gate needs classification.",
+    sourceMessage: normalized || "Evidence gate needs classification.",
+  };
+}
+
 function buildBetaCapItems(publicBetaScore?: PublicBetaScoreInput | null): DebugBacklogItem[] {
   const caps = publicBetaScore?.evidenceCapDetails ?? [];
   return caps.map((cap, index) => {
     const [rawTitle, rawReason] = cap.split(/\s+-\s+/u);
-    const lower = cap.toLowerCase();
-    const runtime = lower.includes("runtime");
-    const provider = lower.includes("provider");
-    const adminTruth = lower.includes("admin truth");
-    const visual = lower.includes("visual") || lower.includes("manual");
-    const source: DebugBacklogSource = adminTruth ? "admin_truth" : "beta_score";
-    const dimension: ScoreDimensionImpact = runtime || provider ? "runtimeHealth" : "evidenceCompleteness";
-    const external = runtime || provider || visual || adminTruth;
+    const copy = resolveBetaCapItemCopy(cap, rawTitle || "", rawReason || "");
+    const source: DebugBacklogSource = copy.surface === "admin_debug" ? "admin_truth" : copy.surface === "mobile_ui" ? "mobile_ui" : copy.owner === "evidence" ? "evidence" : "beta_score";
+    const dimension: ScoreDimensionImpact = copy.evidenceStatus === "runtime_unverified" || copy.evidenceStatus === "external_required" ? "runtimeHealth" : "evidenceCompleteness";
     return makeItem({
       id: `beta-cap-${slug(rawTitle || cap)}-${index}`,
-      title: rawTitle || "Beta score evidence cap",
-      owner: adminTruth ? "admin_debug" : provider ? "provider_evidence" : runtime ? "runtime_evidence" : "beta_score",
-      surface: adminTruth ? "admin_debug" : runtime || provider ? "runtime_evidence" : visual ? "mobile_ui" : "beta_score",
-      severity: external ? "p1" : "p2",
+      title: copy.title,
+      owner: copy.owner,
+      surface: copy.surface,
+      severity: copy.severity,
       source,
-      status: external ? "blocked_manual" : "open",
-      fixClass: external ? "manual_required" : "evidence_refresh",
+      status: copy.status,
+      fixClass: copy.fixClass,
       scoreDimensionImpact: [dimension],
       scoreImpact: dimension === "runtimeHealth" ? publicBetaScore?.runtimeHealthScore : publicBetaScore?.evidenceCompletenessScore,
       sourceFiles: ["agent/state/public-beta-score.generated.json"],
-      sourceRoute: adminTruth ? "/admin/debug" : "agent/state/public-beta-score.generated.json",
-      evidenceStatus: runtime ? "runtime_unverified" : external ? "formal_missing" : "unknown",
-      evidenceReason: runtime || external ? rawReason || cap : `Unknown evidence classification: ${rawReason || cap}`,
-      exactNextAction: adminTruth
-        ? "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate."
-        : runtime || provider
-          ? "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate."
-          : visual
-            ? "Attach targeted manual or screenshot evidence before clearing visual/manual smoke."
-            : "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
-      sourceMessage: cap,
+      sourceRoute: copy.surface === "admin_debug" ? "/admin/debug" : "agent/state/public-beta-score.generated.json",
+      evidenceStatus: copy.evidenceStatus,
+      evidenceReason: copy.evidenceReason,
+      exactNextAction: copy.exactNextAction,
+      sourceMessage: copy.sourceMessage,
       sourceValidator: "npm run check:beta-score",
-      blockedReason: external ? "Formal evidence is required and cannot be generated from source-only validation." : undefined,
+      blockedReason: copy.fixClass === "manual_required" ? "Formal evidence is required and cannot be generated from source-only validation." : undefined,
     });
   });
 }
@@ -352,25 +448,32 @@ function buildScoreDragItems(score80PathLock?: Score80PathLockInput | null): Deb
     const artifactPath = toText(artifact.id, "unknown artifact");
     const nextAction = toText(artifact.nextAction, "Refresh or retire the stale artifact.");
     const refreshCommand = toText(artifact.refreshCommand);
+    const copy = resolveBetaCapItemCopy(
+      `${toText(artifact.status)} - ${nextAction}`,
+      toText(artifact.status),
+      nextAction,
+    );
+    const formalGate = copy.fixClass === "manual_required";
+    const dimension: ScoreDimensionImpact = copy.evidenceStatus === "runtime_unverified" || copy.evidenceStatus === "external_required" ? "runtimeHealth" : "freshness";
     return makeItem({
-      id: `stale-artifact-${slug(artifactPath)}`,
-      title: `Stale artifact: ${artifactPath}`,
-      owner: "evidence",
-      surface: "agent_state",
+      id: `${formalGate ? "formal-evidence" : "stale-artifact"}-${slug(artifactPath)}`,
+      title: formalGate ? copy.title : `Stale artifact: ${artifactPath}`,
+      owner: formalGate ? copy.owner : "evidence",
+      surface: formalGate ? copy.surface : "agent_state",
       severity: toNumber(artifact.pointImpact) >= 2 ? "p1" : "p2",
-      source: "evidence",
-      status: refreshCommand ? "open" : "stale_retired",
-      fixClass: refreshCommand ? "evidence_refresh" : "stale_retire",
-      scoreDimensionImpact: ["freshness"],
+      source: formalGate && copy.surface === "admin_debug" ? "admin_truth" : formalGate && copy.surface === "mobile_ui" ? "mobile_ui" : "evidence",
+      status: formalGate ? copy.status : refreshCommand ? "open" : "stale_retired",
+      fixClass: formalGate ? copy.fixClass : refreshCommand ? "evidence_refresh" : "stale_retire",
+      scoreDimensionImpact: [dimension],
       scoreImpact: artifact.pointImpact,
       sourceFiles: [artifactPath],
-      sourceRoute: artifactPath,
-      evidenceStatus: "stale",
-      evidenceReason: toText(artifact.status, "stale_source_version"),
-      exactNextAction: nextAction,
-      sourceMessage: nextAction,
+      sourceRoute: formalGate && copy.surface === "admin_debug" ? "/admin/debug" : artifactPath,
+      evidenceStatus: formalGate ? copy.evidenceStatus : "stale",
+      evidenceReason: formalGate ? copy.evidenceReason : toText(artifact.status, "stale_source_version"),
+      exactNextAction: formalGate ? copy.exactNextAction : nextAction,
+      sourceMessage: formalGate ? copy.sourceMessage : nextAction,
       refreshCommand,
-      staleRetireReason: refreshCommand ? undefined : "No focused refresh command exists, so this remains evidence-only until an owner command is added.",
+      staleRetireReason: formalGate || refreshCommand ? undefined : "No focused refresh command exists, so this remains evidence-only until an owner command is added.",
     });
   });
 
@@ -605,7 +708,7 @@ function dedupeBacklog(items: DebugBacklogItem[]) {
     const actionability = scoredById.get(item.id);
     output.push(actionability ? {
       ...item,
-      severity: actionability.severity,
+      severity: item.fixClass === "no_action" || item.status === "not_applicable" ? item.severity : actionability.severity,
       actionability: actionability.actionability,
       estimatedPointImpact: actionability.estimatedPointImpact,
       defaultVisible: actionability.defaultVisible,
