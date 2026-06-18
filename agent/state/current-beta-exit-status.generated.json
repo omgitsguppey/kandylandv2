@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-18T16:24:04.675Z",
+  "generatedAtUtc": "2026-06-18T16:26:33.235Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78",
+  "currentHead": "1b4d165f84ab3bc829413304f6a072495168163e",
   "summary": {
     "betaVersion": "1.5.72",
     "betaScore": 77.4,
@@ -47,8 +47,8 @@
       {
         "id": "manualScreenshotQa",
         "label": "Manual screenshot QA",
-        "truthState": "stale_evidence",
-        "actionState": "refresh_stale_evidence",
+        "truthState": "manual_evidence_required",
+        "actionState": "attach_manual_evidence",
         "sourceStatus": "stale_visual_evidence",
         "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
         "captureStatus": "missing",
@@ -59,8 +59,8 @@
       {
         "id": "providerSmoke",
         "label": "Provider smoke",
-        "truthState": "stale_evidence",
-        "actionState": "refresh_stale_evidence",
+        "truthState": "external_evidence_required",
+        "actionState": "attach_external_evidence",
         "sourceStatus": "stale_provider_smoke_evidence",
         "sourcePath": "agent/state/provider-smoke-evidence.generated.json",
         "captureStatus": "missing",
@@ -83,8 +83,8 @@
       {
         "id": "adminTruthSample",
         "label": "Admin truth sample",
-        "truthState": "stale_evidence",
-        "actionState": "refresh_stale_evidence",
+        "truthState": "admin_truth_source_required",
+        "actionState": "attach_admin_truth_sample",
         "sourceStatus": "stale_admin_truth_sample_evidence",
         "sourcePath": "agent/state/admin-truth-sample-evidence.generated.json",
         "captureStatus": "stale",
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-18T16:24:04.675Z",
+      "generatedAtUtc": "2026-06-18T16:26:33.235Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",

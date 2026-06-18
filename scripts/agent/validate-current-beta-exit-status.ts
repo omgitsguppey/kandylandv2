@@ -279,11 +279,14 @@ function proofTruthStateFor(input: {
   artifact: Record<string, unknown> | null;
   head: string;
 }): CurrentBetaExitProofTruthState {
-  if (artifactIsStale(input.artifact, input.head) || /^stale_/iu.test(input.sourceStatus)) {
-    return "stale_evidence";
-  }
-  if (formalStatusPassed(input.id, input.sourceStatus) && input.captureStatus === "complete") {
-    return "current_formal_evidence";
+  const artifactStatus = stringValue(input.artifact?.overallStatus ?? input.artifact?.status, input.sourceStatus);
+  const hasFormalPassingStatus = formalStatusPassed(input.id, input.sourceStatus) || formalStatusPassed(input.id, artifactStatus);
+  const isStaleSource = artifactIsStale(input.artifact, input.head) || /^stale_/iu.test(input.sourceStatus);
+
+  if (hasFormalPassingStatus) {
+    return isStaleSource || input.captureStatus !== "complete"
+      ? "stale_evidence"
+      : "current_formal_evidence";
   }
   if (/source_only/iu.test(input.sourceStatus)) {
     return "source_only_not_formal";
@@ -294,8 +297,14 @@ function proofTruthStateFor(input: {
   if (input.id === "adminTruthSample") {
     return "admin_truth_source_required";
   }
+  if (/source_ready/iu.test(artifactStatus)) {
+    return "source_only_not_formal";
+  }
   if (input.id === "providerSmoke" || input.id === "runtimeSmoke") {
     return "external_evidence_required";
+  }
+  if (isStaleSource) {
+    return "stale_evidence";
   }
   return "unknown";
 }
@@ -639,8 +648,8 @@ export function validateCurrentBetaExitStatusReport(
     if (typeof lane.captureStatus !== "string" || lane.captureStatus.trim().length === 0) {
       failures.push(`${lane.id} proof lane must include captureStatus.`);
     }
-    if (/^stale_/iu.test(lane.sourceStatus) && lane.truthState !== "stale_evidence") {
-      failures.push(`${lane.id} stale proof source must have truthState=stale_evidence.`);
+    if (/^stale_/iu.test(lane.sourceStatus) && lane.truthState === "current_formal_evidence") {
+      failures.push(`${lane.id} stale proof source must not clear a formal gate.`);
     }
     if (lane.canClearGate && lane.truthState !== "current_formal_evidence") {
       failures.push(`${lane.id} proof lane canClearGate must only be true for current_formal_evidence.`);
