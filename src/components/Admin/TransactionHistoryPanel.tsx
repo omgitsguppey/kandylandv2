@@ -73,14 +73,14 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
     };
 
     return (
-        <div className="flex max-h-[34rem] flex-col rounded-2xl border border-white/10 bg-zinc-900/85 p-4 shadow-xl md:p-5">
-            <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
+        <div className="flex max-h-[34rem] flex-col rounded-xl border border-white/10 bg-zinc-900/80 p-4">
+            <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
                     <div>
-                        <h3 className="flex items-center gap-2 text-lg font-bold text-white">
+                        <h3 className="flex items-center gap-2 text-base font-bold text-white">
                             <ScrollText className="h-5 w-5 text-brand-purple" />
                             Transaction history
                         </h3>
-                        <p className="mt-1 text-sm text-gray-400">{user.displayName || user.email || "Selected user"} - Last 30 transactions</p>
+                        <p className="mt-1 text-sm text-gray-400">{user.displayName || user.email || "Selected user"} - Last 30 records</p>
                     </div>
                     <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-center">
                         <span className="block text-[10px] font-bold uppercase text-gray-500">Balance</span>
@@ -101,7 +101,7 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
                     ) : transactions.length === 0 ? (
                         <div className="rounded-xl border border-white/5 bg-white/5 py-12 text-center text-sm text-gray-500">
                             <ScrollText className="mx-auto mb-3 h-8 w-8 opacity-20" />
-                            No transactions found for this user.
+                            No recent transactions for this user.
                         </div>
                     ) : (
                         transactions.map((tx) => {
@@ -189,7 +189,7 @@ export function TransactionHistoryPanel({ user, onClose }: Props) {
                     )}
             </div>
 
-            <div className="mt-4 flex shrink-0 justify-end border-t border-white/10 pt-4">
+            <div className="mt-3 flex shrink-0 justify-end border-t border-white/10 pt-3">
                 <Button variant="ghost" onClick={onClose}>Close</Button>
             </div>
         </div>

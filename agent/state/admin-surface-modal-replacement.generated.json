@@ -1,9 +1,9 @@
 {
   "reportKey": "admin-surface-modal-replacement",
   "status": "source_review_pass",
-  "generatedAtUtc": "2026-06-18T12:12:34.254Z",
-  "sourceCommit": "04a1ecccdd8c4647537ceaacac02b7a0a484647e",
-  "currentHead": "04a1ecccdd8c4647537ceaacac02b7a0a484647e",
+  "generatedAtUtc": "2026-06-18T12:56:45.183Z",
+  "sourceCommit": "b5847dd700e599156a7bdf7dfbbcf93bc10d8de6",
+  "currentHead": "b5847dd700e599156a7bdf7dfbbcf93bc10d8de6",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "sourceFileDiscovery": "git",
@@ -31,7 +31,7 @@
   "owner": "admin surface modal replacement source review",
   "safetyClass": "source_safe",
   "costClass": "local_free",
-  "rollback": "Revert the Admin drop inline diagnostic source-context patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
+  "rollback": "Revert the admin users inline action density patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
   "cleanupPolicy": "preserve_tracked_snapshot",
   "cleanupCommand": null,
   "sourceTruthRole": "generated_snapshot",
@@ -41,7 +41,7 @@
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,
   "nextExactSteps": [
-    "Run targeted Admin Analytics UI tests after label-contract changes.",
+    "Run targeted admin user UI tests after selected-action copy or density changes.",
     "Use browser/computer-use audit only after a local admin session is available.",
     "Defer CreateDropModal file rename until creator-dashboard imports can move in a separate slice.",
     "Recover first-party launch-history day buckets before promoting mixed GA4/fallback coverage as product truth."
@@ -55,8 +55,8 @@
   "summary": {
     "adminModalCandidatesInventoried": 5,
     "modalShellsRemoved": 0,
-    "inlineModalChromeRemoved": 2,
-    "staleModalLanguageRemoved": 13,
+    "inlineModalChromeRemoved": 5,
+    "staleModalLanguageRemoved": 18,
     "inlinePanelsConfirmed": 3,
     "legacyModalNamesDeferred": 1,
     "adminAnalyticsLabelContractsNormalized": true,
@@ -68,10 +68,10 @@
   "decisions": [
     {
       "surface": "Admin Users",
-      "candidates": ["BalanceAdjustmentPanel", "TransactionHistoryPanel"],
+      "candidates": ["selected action workspace", "BalanceAdjustmentPanel", "TransactionHistoryPanel", "content access panel", "security details panel"],
       "sourceOwner": "src/app/admin/users/page.tsx plus existing admin user routes/actions",
-      "decision": "keep_inline",
-      "reason": "Both actions render inside the selected-action workspace, not as modal overlays. Balance adjustment keeps payment-proof warning visible and transaction history stays bounded to the last 30 records."
+      "decision": "compact_inline",
+      "reason": "The remaining admin user actions render inside the selected-action workspace, not modal overlays. This pass removed modal-like shadow/chrome, shortened dev-facing copy, kept payment-proof language on balance changes, and preserved transaction history as a bounded last-30-record panel."
     },
     {
       "surface": "Admin Drops",

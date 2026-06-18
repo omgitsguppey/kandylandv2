@@ -74,10 +74,10 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
     const finalBalance = currentBalance + adjustment;
 
     return (
-        <div className="rounded-2xl border border-amber-400/20 bg-amber-400/8 p-4 shadow-xl md:p-5">
-            <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="rounded-xl border border-amber-400/20 bg-amber-400/8 p-4">
+            <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
-                    <h3 className="text-lg font-bold text-white">Adjust balance</h3>
+                    <h3 className="text-base font-bold text-white">Adjust balance</h3>
                     <p className="mt-1 text-sm text-gray-400">
                         Update GumDrops for <strong>{user.displayName || user.email}</strong>.
                     </p>
@@ -89,14 +89,12 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
                 <Button variant="ghost" size="sm" onClick={onClose} disabled={processing}>Close</Button>
             </div>
 
-            <div className="space-y-4">
-                    {/* Current Balance Display */}
+            <div className="space-y-3">
                     <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
                         <span className="text-xs font-bold text-gray-500 uppercase">Current</span>
                         <span className="font-mono text-xl text-white">{currentBalance} GD</span>
                     </div>
 
-                    {/* Inputs */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Adjustment (+/-)</label>
@@ -121,7 +119,6 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
                         </div>
                     </div>
 
-                    {/* Preview */}
                     <div className="bg-black/50 p-3 rounded-xl border border-white/10 flex justify-between items-center">
                         <span className="text-xs font-bold text-gray-500 uppercase">New Balance</span>
                         <span className={`font-mono text-xl font-bold ${adjustment > 0 ? "text-brand-purple" : adjustment < 0 ? "text-red-400" : "text-gray-400"}`}>
@@ -130,13 +127,13 @@ export function BalanceAdjustmentPanel({ user, onClose, onSuccess }: Props) {
                     </div>
             </div>
 
-            <div className="mt-5 flex justify-end gap-3">
+            <div className="mt-4 flex justify-end gap-3">
                 <Button
                     variant="brand"
                     onClick={handleConfirm}
                     disabled={processing || adjustment === 0 || !reason.trim()}
                 >
-                    {processing ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : "Confirm Adjustment"}
+                    {processing ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : "Confirm adjustment"}
                 </Button>
             </div>
         </div>

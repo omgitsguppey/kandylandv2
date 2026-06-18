@@ -1640,14 +1640,13 @@ export default function UserManagementPage() {
                 )
             )}
 
-            {/* Inline action workspace */}
             {(actionType || editUsernameUser || editBalanceUser || contentUser || historyUser || securityDetailsUser) && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-black/45 p-4 shadow-xl shadow-black/20 sm:p-5">
-                    <div className="mb-4 flex flex-col gap-2 border-b border-white/8 pb-4 sm:flex-row sm:items-center sm:justify-between">
+                <section className="rounded-2xl border border-white/10 bg-black/40 p-3 sm:p-4">
+                    <div className="mb-3 flex flex-col gap-2 border-b border-white/8 pb-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple">Selected action</p>
-                            <h2 className="mt-1 text-lg font-black text-white">Review and confirm in place</h2>
-                            <p className="mt-1 text-sm text-gray-400">Connected admin actions stay visible with their source state. Missing data is not treated as zero.</p>
+                            <h2 className="mt-1 text-base font-black text-white">Confirm connected controls</h2>
+                            <p className="mt-1 text-xs text-gray-400">Missing data stays labeled.</p>
                         </div>
                         <Button
                             variant="ghost"
@@ -1666,14 +1665,14 @@ export default function UserManagementPage() {
                             Clear action
                         </Button>
                     </div>
-                    <div className="grid gap-4 xl:grid-cols-2">
+                    <div className="grid gap-3 xl:grid-cols-2">
                     {editUsernameUser && (
-                        <div className="w-full rounded-2xl border border-white/10 bg-zinc-900/85 p-5 shadow-xl">
-                            <h3 className="text-xl font-bold text-white mb-2">Edit Username</h3>
-                            <p className="text-gray-400 mb-6">
+                        <div className="w-full rounded-xl border border-white/10 bg-zinc-900/80 p-4">
+                            <h3 className="mb-1 text-base font-bold text-white">Edit username</h3>
+                            <p className="mb-4 text-sm text-gray-400">
                                 Change username for <strong>{editUsernameUser.email}</strong>
                             </p>
-                            <div className="mb-6">
+                            <div className="mb-4">
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">New Username</label>
                                 <input
                                     type="text"
@@ -1683,7 +1682,7 @@ export default function UserManagementPage() {
                                     onChange={(e) => setEditUsernameInput(e.target.value)}
                                 />
                                 <p className="mt-2 text-xs text-brand-purple/70">Requires exactly 3-20 chars (a-z, 0-9, _).</p>
-                                <p className="mt-1 text-xs text-red-400 font-bold">Warning: This instantly alters the creator&apos;s public profile URL!</p>
+                                <p className="mt-1 text-xs font-semibold text-red-300">Changes the creator&apos;s public profile URL immediately.</p>
                             </div>
                             <div className="flex justify-end gap-3">
                                 <Button variant="ghost" onClick={() => setEditUsernameUser(null)}>Cancel</Button>
@@ -1692,23 +1691,23 @@ export default function UserManagementPage() {
                                     onClick={handleUpdateUsername}
                                     disabled={processing || !editUsernameInput || editUsernameInput === editUsernameUser.username}
                                 >
-                                    {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
+                                    {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save username"}
                                 </Button>
                             </div>
                         </div>
                     )}
 
                     {actionType && actionUser && (
-                        <div className="w-full rounded-2xl border border-white/10 bg-zinc-900/85 p-5 shadow-xl">
-                            <h3 className="text-xl font-bold text-white mb-2">
-                                {actionType === 'ban' ? 'Ban User' : actionType === 'suspend' ? 'Suspend User' : 'Reactivate User'}
+                        <div className="w-full rounded-xl border border-white/10 bg-zinc-900/80 p-4">
+                            <h3 className="mb-1 text-base font-bold text-white">
+                                {actionType === "ban" ? "Ban user" : actionType === "suspend" ? "Suspend user" : "Reactivate user"}
                             </h3>
-                            <p className="text-gray-400 mb-6">
+                            <p className="mb-4 text-sm text-gray-400">
                                 Are you sure you want to {actionType} <strong>{actionUser.email}</strong>?
-                                {actionType !== 'activate' && " They will lose access to the platform."}
+                                {actionType !== "activate" && " This removes platform access."}
                             </p>
                             {actionType !== 'activate' && (
-                                <div className="mb-6">
+                                <div className="mb-4">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Reason</label>
                                     <textarea
                                         className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-purple outline-none resize-none h-24"
@@ -1746,10 +1745,10 @@ export default function UserManagementPage() {
                         />
                     )}
                     {contentUser && (
-                        <div className="w-full rounded-2xl border border-white/10 bg-zinc-900/85 p-5 shadow-xl">
-                            <h3 className="text-xl font-bold text-white mb-2">Manage Content</h3>
-                            <p className="text-gray-400 mb-6">Unlocked drops for <strong>{contentUser.username ? `@${contentUser.username}` : contentUser.displayName || contentUser.email}</strong>.</p>
-                            <div className="mb-6">
+                        <div className="w-full rounded-xl border border-white/10 bg-zinc-900/80 p-4">
+                            <h3 className="mb-1 text-base font-bold text-white">Content access</h3>
+                            <p className="mb-4 text-sm text-gray-400">Unlocked Drops for <strong>{contentUser.username ? `@${contentUser.username}` : contentUser.displayName || contentUser.email}</strong>.</p>
+                            <div className="mb-4">
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Unlocked Drops ({contentUser.unlockedContent?.length || 0})</label>
                                 <div className="max-h-40 overflow-y-auto space-y-2 mb-4">
                                     {contentUser.unlockedContent && contentUser.unlockedContent.length > 0 ? (
@@ -1763,7 +1762,7 @@ export default function UserManagementPage() {
                                             </div>
                                         ))
                                     ) : (
-                                        <div className="text-gray-600 text-sm italic">No content unlocked.</div>
+                                        <div className="text-sm text-gray-500">No unlocked Drops.</div>
                                     )}
                                 </div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Grant Access (Drop ID)</label>
@@ -1778,15 +1777,15 @@ export default function UserManagementPage() {
                         </div>
                     )}
                     {securityDetailsUser && (
-                        <div className="w-full rounded-2xl border border-white/10 bg-zinc-900/85 p-5 shadow-xl">
-                            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                        <div className="w-full rounded-xl border border-white/10 bg-zinc-900/80 p-4">
+                            <h3 className="mb-1 flex items-center gap-2 text-base font-bold text-white">
                                 <Shield className="w-5 h-5 text-red-500" /> Security details
                             </h3>
-                            <p className="text-gray-400 mb-6 flex items-center gap-2">
+                            <p className="mb-4 flex items-center gap-2 text-sm text-gray-400">
                                 Target: <span className="text-white font-bold">{securityDetailsUser.username ? `@${securityDetailsUser.username}` : securityDetailsUser.displayName || securityDetailsUser.email}</span>
                             </p>
 
-                            <div className="space-y-4 mb-6">
+                            <div className="mb-4 space-y-3">
                                 <div className="bg-black/50 p-4 rounded-xl border border-white/5">
                                     <div className="flex justify-between items-center mb-2">
                                         <span className="text-xs text-gray-500 font-bold uppercase">Total Violations</span>
@@ -1833,7 +1832,7 @@ export default function UserManagementPage() {
                                         setActionUser(securityDetailsUser);
                                         setActionType('ban');
                                     }}>
-                                        Immediate Ban
+                                        Ban account
                                     </Button>
                                 )}
                             </div>
