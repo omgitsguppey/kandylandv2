@@ -55,7 +55,7 @@ const mockState = vi.hoisted(() => {
           exactness: "exact",
           compactFreshnessLine: "Updated 1m ago",
           debugReason: "live response loaded",
-          debugSource: "realtime_snapshot",
+          debugSource: "current_activity_snapshot",
           badgeLabel: "Current",
           showBadgeInPrimary: false,
         },

@@ -239,8 +239,10 @@ export function formatAdminAnalyticsSourceTruthLabel(
       return "Last verified snapshot";
     case "materialized_snapshot":
       return "Materialized snapshot";
-    case "realtime_snapshot":
+    case "current_activity_snapshot":
       return "Current activity snapshot";
+    case "historical_snapshot":
+      return "Historical snapshot";
     case "telemetry_sample":
       return "Telemetry sample";
     case "device_sample":

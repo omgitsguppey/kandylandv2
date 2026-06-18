@@ -214,7 +214,8 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(formatAdminAnalyticsSourceTruthLabel("ga_total_minus_identified_first_party")).toBe(
       "Vendor estimate minus signed-in traffic",
     );
-    expect(formatAdminAnalyticsSourceTruthLabel("realtime_snapshot")).toBe("Current activity snapshot");
+    expect(formatAdminAnalyticsSourceTruthLabel("current_activity_snapshot")).toBe("Current activity snapshot");
+    expect(formatAdminAnalyticsSourceTruthLabel("historical_snapshot")).toBe("Historical snapshot");
     expect(formatAdminAnalyticsSourceTruthLabel("payment_transactions")).toBe("Payment records");
     expect(formatAdminAnalyticsSourceTruthLabel("gumdrop_ledger")).toBe("GumDrop ledger");
     expect(formatAdminAnalyticsSourceTruthLabel("drop_metadata_plus_rollups")).toBe(
@@ -269,7 +270,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     const state = resolveAdminAnalyticsOverviewMetricState({
       primaryValue: null,
       truthState: "live",
-      sourceTruth: "realtime_snapshot",
+      sourceTruth: "current_activity_snapshot",
     });
 
     expect(state.displayState).toBe("unavailable");

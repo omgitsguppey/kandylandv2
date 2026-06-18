@@ -1363,7 +1363,8 @@ export type AnalyticsOverviewCard = {
   primaryValue: string | number | null;
   state: "live" | "snap" | "partial" | "waiting" | "stale" | "unavailable" | "error";
   sourceTruth:
-    | "realtime_snapshot"
+    | "current_activity_snapshot"
+    | "historical_snapshot"
     | "last_verified_snapshot"
     | "server_transactions"
     | "commerce_rollup"

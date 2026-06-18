@@ -1700,7 +1700,7 @@ export function useAdminAnalyticsState() {
       sourceTruth:
         historicalOverviewResponse.cacheState === "refresh_due"
           ? "last_verified_snapshot"
-          : "realtime_snapshot",
+          : "historical_snapshot",
       freshnessState:
         resolvedHistoricalOverviewTruthState === "stale"
           ? "stale"
@@ -1768,7 +1768,7 @@ export function useAdminAnalyticsState() {
       sourceTruth:
         historicalOverviewResponse.cacheState === "refresh_due"
           ? "last_verified_snapshot"
-          : "realtime_snapshot",
+          : "historical_snapshot",
       freshnessState:
         resolvedHistoricalOverviewTruthState === "stale"
           ? "stale"
@@ -1838,7 +1838,7 @@ export function useAdminAnalyticsState() {
         historicalOverviewResponse
           ? undefined
           : "Cached",
-      sourceTruth: historicalOverviewResponse ? "realtime_snapshot" : "device_sample",
+      sourceTruth: historicalOverviewResponse ? "historical_snapshot" : "device_sample",
       freshnessState:
         historicalOverviewResponse
           ? resolvedHistoricalOverviewTruthState === "stale"
@@ -1998,7 +1998,7 @@ export function useAdminAnalyticsState() {
       sourceTruth: effectiveLiveResponse && (
         liveRealtime.feedStatus === "realtime" || liveRealtime.feedStatus === "partial"
       )
-        ? "realtime_snapshot"
+        ? "current_activity_snapshot"
         : snapshotLiveActiveValue !== null
           ? "last_verified_snapshot"
           : "missing",
@@ -2253,7 +2253,7 @@ export function useAdminAnalyticsState() {
           ? liveRealtime.feedStatus === "realtime" ? "firestore_realtime" : liveRealtime.feedStatus === "partial" ? "firestore_partial" : "verified_snapshot"
           : snapshotLiveActiveValue !== null ? "verified_snapshot" : liveLoading ? "hydrating" : "unavailable",
         truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
-        sourceTruth: effectiveLiveResponse ? "realtime_snapshot" : snapshotLiveActiveValue !== null ? "last_verified_snapshot" : "missing",
+        sourceTruth: effectiveLiveResponse ? "current_activity_snapshot" : snapshotLiveActiveValue !== null ? "last_verified_snapshot" : "missing",
         freshnessState: liveActiveTruthState === "live" ? "live" : liveActiveTruthState === "cached" ? "recent" : liveActiveTruthState === "stale" ? "stale" : "unknown",
         realtimeLaneStatus: liveRealtime.feedStatus,
         snapshotModule: livePulseSnapshotModule,
@@ -2331,7 +2331,7 @@ export function useAdminAnalyticsState() {
       liveActive: {
         sourceTruth: effectiveLiveResponse && (
           liveRealtime.feedStatus === "realtime" || liveRealtime.feedStatus === "partial"
-        ) ? "realtime_snapshot" : snapshotLiveActiveValue !== null ? "last_verified_snapshot" : "missing",
+        ) ? "current_activity_snapshot" : snapshotLiveActiveValue !== null ? "last_verified_snapshot" : "missing",
         freshnessState: liveActiveTruthState === "live" ? "live" : liveActiveTruthState === "cached" ? "recent" : liveActiveTruthState === "stale" ? "stale" : "unknown",
       },
       mobileShare: mobileShareCard,
