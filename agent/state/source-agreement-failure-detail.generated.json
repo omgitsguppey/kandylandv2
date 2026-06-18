@@ -1,9 +1,21 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-06-18T07:26:42.688Z",
-  "currentHead": "bc1494afa9743bcb4c674271c4b6c0fbd8bca42b",
+  "generatedAtUtc": "2026-06-18T08:09:53.648Z",
+  "currentHead": "889367e7f7863e2684264003cbb4a133c63891ef",
   "inputMode": "fixture_only_local_window",
   "inputPath": null,
+  "launchCoverageEvidence": {
+    "inputMode": "fixture_only_local_window",
+    "inputPath": null,
+    "usableInputFound": false,
+    "candidateInputPaths": [
+      "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      "agent/evidence/launch-analytics/launch-history-coverage.export.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json"
+    ],
+    "adminTruthSampleRequiresLaunchHistoryCoverage": true
+  },
   "detail": {
     "comparedSources": [
       "first_party",

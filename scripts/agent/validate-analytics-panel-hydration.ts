@@ -425,6 +425,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   const sourceAgreementReport = readJson("agent/state/source-agreement-failure-detail.generated.json");
   const sourceAgreementHead = typeof sourceAgreementReport?.currentHead === "string" ? sourceAgreementReport.currentHead : null;
   const sourceAgreementDetail = asRecord(sourceAgreementReport?.detail);
+  const sourceAgreementEvidence = asRecord(sourceAgreementReport?.launchCoverageEvidence);
   const coverageRows = Array.isArray(sourceAgreementDetail.perSourceCoverage)
     ? sourceAgreementDetail.perSourceCoverage.map((entry) => asRecord(entry))
     : [];
@@ -715,6 +716,10 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       launchCoverageInput: "agent/state/source-agreement-failure-detail.generated.json",
       panelHydrationInput: "agent/state/analytics-panel-hydration.generated.json",
       sourceAgreementInputHead: sourceAgreementHead,
+      sourceAgreementInputMode: typeof sourceAgreementReport?.inputMode === "string" ? sourceAgreementReport.inputMode : "unknown",
+      sourceAgreementInputPath: typeof sourceAgreementReport?.inputPath === "string" ? sourceAgreementReport.inputPath : null,
+      usableLaunchCoverageInputFound: sourceAgreementEvidence.usableInputFound === true,
+      candidateLaunchCoverageInputPaths: asStringArray(sourceAgreementEvidence.candidateInputPaths),
       ga4ReadMode: "generated/local evidence only; no provider call performed",
       firstPartyReadMode: "source-agreement day-bucket evidence only; no production read performed",
       limitation: "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof.",
@@ -861,6 +866,12 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (!report.launchHistoryCoverage.rangeProof.coverageWindowKind) {
     failures.push("launch recovery must label whether source agreement coverage is fixture/local/export evidence.");
   }
+  if (report.launchHistoryCoverage.rangeProof.coverageWindowKind === "fixture_only_local_window" && report.evidenceProvenance.usableLaunchCoverageInputFound) {
+    failures.push("fixture-only launch recovery cannot claim a usable local coverage input.");
+  }
+  if (!Array.isArray(report.evidenceProvenance.candidateLaunchCoverageInputPaths) || report.evidenceProvenance.candidateLaunchCoverageInputPaths.length === 0) {
+    failures.push("launch recovery must list candidate local/export input paths.");
+  }
   if (!report.launchHistoryCoverage.firstPartyCoverage || !["available", "partial", "source_missing"].includes(report.launchHistoryCoverage.firstPartyCoverage.state)) {
     failures.push("launch recovery must expose firstPartyCoverage state.");
   }
@@ -912,6 +923,9 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     "## Evidence Provenance",
     "",
     `- Launch coverage input: ${report.evidenceProvenance.launchCoverageInput}`,
+    `- Launch coverage input mode: ${report.evidenceProvenance.sourceAgreementInputMode}`,
+    `- Usable launch coverage input found: ${report.evidenceProvenance.usableLaunchCoverageInputFound ? "yes" : "no"}`,
+    `- Candidate local/export inputs: ${report.evidenceProvenance.candidateLaunchCoverageInputPaths.join(", ") || "none"}`,
     `- Panel hydration input: ${report.evidenceProvenance.panelHydrationInput}`,
     `- GA4 read mode: ${report.evidenceProvenance.ga4ReadMode}`,
     `- First-party read mode: ${report.evidenceProvenance.firstPartyReadMode}`,

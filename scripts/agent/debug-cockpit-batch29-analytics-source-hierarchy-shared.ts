@@ -123,7 +123,7 @@ function listAdminTruthSampleEvidencePaths() {
     .sort();
 }
 
-function launchHistoryCoverageExportPaths() {
+export function launchHistoryCoverageExportPaths() {
   return [
     ...LAUNCH_HISTORY_COVERAGE_EXPORT_PATHS,
     ...listAdminTruthSampleEvidencePaths(),
@@ -384,6 +384,13 @@ export function validateDataValidationCopyConsistency() {
 export function validateSourceAgreementFailureDetail() {
   const failures: string[] = [];
   const { detail, inputMode, inputPath } = buildLaunchSourceAgreementDetail();
+  const launchCoverageEvidence = {
+    inputMode,
+    inputPath,
+    usableInputFound: Boolean(inputPath),
+    candidateInputPaths: launchHistoryCoverageExportPaths(),
+    adminTruthSampleRequiresLaunchHistoryCoverage: true,
+  };
   expectPass(detail.comparedSources.includes("first_party") && detail.comparedSources.length === 4, failures, "source agreement failed but first-party compared source is missing.");
   expectPass(["failed", "review", "pass", "not_enough_sources"].includes(detail.sourceAgreementStatus), failures, "source agreement detail lacks explicit status.");
   expectPass(Boolean(detail.rangeStartDayKey && detail.rangeEndDayKey), failures, "source agreement detail lacks launch evidence range.");
@@ -394,6 +401,8 @@ export function validateSourceAgreementFailureDetail() {
     expectPass(detail.rangeStartDayKey === "2026-05-01" && detail.rangeEndDayKey === "2026-05-03", failures, "fixture source agreement detail lacks launch evidence range.");
     expectPass(detail.coverageWindowKind === "fixture_only_local_window", failures, "fixture source agreement detail can be mistaken for all-launch proof.");
     expectPass(detail.disagreementCount > 0 && detail.maxDeltaPct > 25, failures, "fixture maxDeltaPct/disagreementCount missing.");
+    expectPass(!launchCoverageEvidence.usableInputFound, failures, "fixture mode cannot claim a usable launch coverage input.");
+    expectPass(launchCoverageEvidence.candidateInputPaths.includes("agent/evidence/launch-analytics/launch-history-coverage.local.json"), failures, "local launch coverage export path is not advertised.");
   }
   expectPass(detail.disagreements.some((entry) =>
     entry.dayKey === "2026-05-02"
@@ -409,7 +418,7 @@ export function validateSourceAgreementFailureDetail() {
   expectPass(detail.blockedConsumers.includes("admin_analytics_charts"), failures, "blocked consumers missing.");
   expectPass(detail.sourceTruthPolicy.firstPartyPrimary && detail.sourceTruthPolicy.ga4SecondSourceOnly && detail.sourceTruthPolicy.missingIsNotZero, failures, "source truth policy missing.");
   expectPass(!/^retry$/iu.test(detail.nextAction), failures, "next action generic retry only.");
-  runValidation("source-agreement-failure-detail", { inputMode, inputPath, detail }, failures, [
+  runValidation("source-agreement-failure-detail", { inputMode, inputPath, launchCoverageEvidence, detail }, failures, [
     "Source agreement failures include compared sources, coverage deltas, per-day disagreement details, tolerance, blocked consumers, and next actions.",
     inputPath
       ? `Using local launch coverage export: ${inputPath}.`

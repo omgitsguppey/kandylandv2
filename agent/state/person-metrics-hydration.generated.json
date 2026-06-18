@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-06-18T07:44:18.112Z",
+  "generatedAtUtc": "2026-06-18T08:10:38.280Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4973,22 +4973,14 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "1341f6d52f5e848c3d81bc39039e3f8333bb66e7",
+  "currentHead": "889367e7f7863e2684264003cbb4a133c63891ef",
   "dirtyFiles": [
-    {
-      "path": "agent/state/admin-truth-sample-evidence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
     {
       "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/evidence-capture-status.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -5000,15 +4992,15 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "agent/state/source-agreement-failure-detail.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "docs/agent-truth/analytics-panel-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/evidence-capture-status.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -5020,7 +5012,11 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-admin-truth-sample-evidence.ts",
+      "path": "docs/agent-truth/source-agreement-failure-detail.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -5028,19 +5024,7 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-evidence-capture-status.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/evidence-artifact-schemas.spec.ts",
+      "path": "tests/unit/source-agreement-failure-detail.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

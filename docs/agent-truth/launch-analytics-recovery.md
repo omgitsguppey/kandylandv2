@@ -1,8 +1,8 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-18T08:01:42.832Z
-Current head: b3159135ac06079c624bae42c91acd8297ac14c6
-Status: stale_evidence_review
+Generated: 2026-06-18T08:09:54.631Z
+Current head: 889367e7f7863e2684264003cbb4a133c63891ef
+Status: source_agreement_failed
 
 ## Source Order
 
@@ -13,6 +13,9 @@ Status: stale_evidence_review
 ## Evidence Provenance
 
 - Launch coverage input: agent/state/source-agreement-failure-detail.generated.json
+- Launch coverage input mode: fixture_only_local_window
+- Usable launch coverage input found: no
+- Candidate local/export inputs: agent/evidence/launch-analytics/launch-history-coverage.local.json, agent/evidence/launch-analytics/launch-history-coverage.export.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json
 - Panel hydration input: agent/state/analytics-panel-hydration.generated.json
 - GA4 read mode: generated/local evidence only; no provider call performed
 - First-party read mode: source-agreement day-bucket evidence only; no production read performed
@@ -59,7 +62,7 @@ Status: stale_evidence_review
 - Historical snapshot days: 1
 - Legacy support days: 1
 - Missing ranges: none
-- Stale input evidence: yes
+- Stale input evidence: no
 
 ## Source Agreement
 
@@ -67,7 +70,7 @@ Status: stale_evidence_review
 - Compared sources: first_party, ga4, historical_snapshot, legacy_support
 - Disagreements: 3
 - Max delta: 67
-- Classifications: stale_generated_evidence, date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
+- Classifications: date_range_mismatch, duplicate_event, external_source_gap, missing_materializer
 - Per-day disagreement details: 3
   - 2026-05-01: present first_party, ga4, historical_snapshot; missing legacy_support; lane source_overlap_review; owner source agreement overlap review; Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.
   - 2026-05-02: present ga4; missing first_party, historical_snapshot, legacy_support; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.

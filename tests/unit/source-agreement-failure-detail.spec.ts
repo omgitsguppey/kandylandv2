@@ -5,6 +5,7 @@ import {
   buildSourceAgreementFailureDetailFromLaunchHistoryCoverage,
 } from "@/lib/analytics/source-agreement-detail";
 import {
+  launchHistoryCoverageExportPaths,
   normalizeLaunchHistoryCoverageExport,
   proofModeForLaunchCoverageExport,
 } from "../../scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared";
@@ -172,5 +173,12 @@ describe("source agreement failure detail", () => {
       legacySupport: 0,
     });
     expect(coverage?.days[0]?.internalAdminExcludedCount).toBe(2);
+  });
+
+  it("advertises the local/export recovery inputs without requiring provider reads", () => {
+    expect(launchHistoryCoverageExportPaths()).toEqual(expect.arrayContaining([
+      "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      "agent/evidence/launch-analytics/launch-history-coverage.export.json",
+    ]));
   });
 });
