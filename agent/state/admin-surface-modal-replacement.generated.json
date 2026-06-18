@@ -1,9 +1,9 @@
 {
   "reportKey": "admin-surface-modal-replacement",
   "status": "source_review_pass",
-  "generatedAtUtc": "2026-06-18T10:12:09.000Z",
-  "sourceCommit": "0ddeb01d3d14af280e4686937654b0a3d60b0d28",
-  "currentHead": "0ddeb01d3d14af280e4686937654b0a3d60b0d28",
+  "generatedAtUtc": "2026-06-18T10:23:16.797Z",
+  "sourceCommit": "404d9037c67fdad6398e002b31985b2c31c62b12",
+  "currentHead": "404d9037c67fdad6398e002b31985b2c31c62b12",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "sourceFileDiscovery": "git",
@@ -31,7 +31,7 @@
   "owner": "admin surface modal replacement source review",
   "safetyClass": "source_safe",
   "costClass": "local_free",
-  "rollback": "Revert the admin analytics first-party coverage metadata patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
+  "rollback": "Revert the Admin Analytics compact source-status patch plus agent/state/admin-surface-modal-replacement.generated.json and docs/agent-truth/admin-surface-modal-replacement.md.",
   "cleanupPolicy": "preserve_tracked_snapshot",
   "cleanupCommand": null,
   "sourceTruthRole": "generated_snapshot",
@@ -59,6 +59,7 @@
     "legacyModalNamesDeferred": 1,
     "adminAnalyticsLabelContractsNormalized": true,
     "adminAnalyticsFirstPartyCoverageConnected": true,
+    "adminAnalyticsSourceDrilldownCompacted": true,
     "navigationTouched": false,
     "paymentOrGumDropRuntimeTouched": false
   },
@@ -83,6 +84,13 @@
       "sourceOwner": "src/lib/admin-analytics-contracts.ts and admin analytics model builders",
       "decision": "simplify_plain_state_labels",
       "reason": "All-caps labels like LIVE, DELAYED, REFRESH, SAMPLE, and WAIT were replaced with plain source states such as Current, Cached, Refresh due, Sample, No sample, Collecting, No source, and Failed."
+    },
+    {
+      "surface": "Admin Analytics",
+      "candidates": ["Source status drilldown", "Panel status card"],
+      "sourceOwner": "src/app/admin/analytics/page.tsx and analytics panel hydration report",
+      "decision": "compact_inline_drilldown",
+      "reason": "The source recovery details and panel hydration states now render as one compact expandable list instead of nested source-detail and panel-status cards. Generic cache/debug policy phrases stay filtered from the admin-facing status strip."
     },
     {
       "surface": "Admin Analytics",

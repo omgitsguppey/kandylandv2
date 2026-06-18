@@ -168,6 +168,7 @@ function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHiera
 function formatAdminAnalyticsSourceNote(note: string) {
   return note
     .replace("No verified snapshot-first realtime payload is available yet.", "Collecting activity.")
+    .replace(/^Snapshot refresh [^.]+\.\s*/u, "")
     .replaceAll("Live updates are delayed", "Last verified data")
     .replaceAll("Live updates delayed", "Last verified data")
     .replaceAll("Realtime analytics", "Current activity")
@@ -186,7 +187,8 @@ function formatAdminAnalyticsSourceStatusItem(note: string) {
     normalized.includes("showing last verified data") ||
     normalized === "verified snapshot shown." ||
     normalized === "verified snapshot shown" ||
-    normalized.includes("snapshot refresh delayed");
+    normalized === "refresh due." ||
+    normalized === "refresh due";
   const genericDebugPrompt =
     normalized.includes("open debug for source details");
   const genericCollectingCopy =
@@ -437,7 +439,7 @@ export default function AdminAnalyticsPage() {
           statusBadgeLabel={analyticsOverviewDisplayMetrics.liveActive.badgeLabel}
           badgePlacement={analyticsOverviewDisplayMetrics.liveActive.showBadgeInPrimary ? "footer" : "hidden"}
           compactPrimary
-          dictionaryTooltip="Current active users on the platform. If the current snapshot is delayed, this card shows the last verified short-window count."
+          dictionaryTooltip="Current active users on the platform. If refresh is due, this card keeps showing the last verified short-window count."
         />
         <MetricCard
           label="Mobile Share"
@@ -511,22 +513,20 @@ export default function AdminAnalyticsPage() {
               <span className="text-white">Source status</span>
               <p className="mt-1 text-[11px] font-medium leading-4 text-gray-300">{sourceRecoverySummary}</p>
             </summary>
-            <div className="mt-2 grid gap-2 text-[11px] text-gray-300 md:grid-cols-2">
+            <div className="mt-2 space-y-2 text-[11px] text-gray-300">
               {sourceDetailItems.length > 0 ? (
-                <section className="rounded-md border border-white/10 bg-black/20 px-2 py-1.5">
-                  <p className="font-semibold text-gray-100">Source detail</p>
-                  <ul className="mt-1 list-disc space-y-1 pl-4">
-                    {sourceDetailItems.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </section>
+                <ul className="grid gap-1 sm:grid-cols-2">
+                  {sourceDetailItems.map((item) => (
+                    <li key={item} className="rounded-md border border-white/10 bg-black/20 px-2 py-1">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               ) : null}
               {showPanelRecovery ? (
-                <section className="rounded-md border border-white/10 bg-black/20 px-2 py-1.5">
-                  <p className="font-semibold text-gray-100">Panel status</p>
+                <div className="space-y-2">
                   {panelRecoveryTruthItems.length > 0 ? (
-                    <ul className="mt-1 grid gap-1 pl-0 sm:grid-cols-2">
+                    <ul className="grid gap-1 pl-0 sm:grid-cols-3">
                       {panelRecoveryTruthItems.map((item) => {
                         const label = formatPanelRecoveryTruthState(item.state);
                         return (
@@ -542,8 +542,8 @@ export default function AdminAnalyticsPage() {
                     </ul>
                   ) : null}
                   {panelRecoveryActions.length > 0 ? (
-                    <div className="mt-2">
-                      <p className="font-semibold text-gray-100">Next actions</p>
+                    <div>
+                      <p className="font-semibold text-gray-100">Next action</p>
                       <ul className="mt-1 list-disc space-y-1 pl-4">
                       {panelRecoveryActions.slice(0, 3).map((action) => (
                         <li key={action} title={action}>{formatPanelRecoveryAction(action)}</li>
@@ -551,7 +551,7 @@ export default function AdminAnalyticsPage() {
                       </ul>
                     </div>
                   ) : null}
-                </section>
+                </div>
               ) : null}
             </div>
           </details>

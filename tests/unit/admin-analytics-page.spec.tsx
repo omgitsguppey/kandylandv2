@@ -589,7 +589,7 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).toContain("Source status");
     expect(container.querySelector("[data-admin-analytics-source-recovery='compact']")).toBeTruthy();
     const sourceNotes = container.querySelector("details[title]");
-    expect(container.textContent).toContain("Source detail");
+    expect(container.textContent).not.toContain("Source detail");
     expect(sourceNotes?.getAttribute("title")).not.toContain("No current activity snapshot has loaded yet.");
     expect(sourceNotes?.getAttribute("title")).not.toContain("Collecting activity");
     expect(sourceNotes?.getAttribute("title")).not.toContain("Realtime analytics");
@@ -611,8 +611,8 @@ describe("AdminAnalyticsPage", () => {
     expect(container.querySelector("[data-panel-recovery-truth-state='source_missing']")).toBeTruthy();
     expect(container.querySelector("[data-panel-recovery-truth-state='source_ready_collecting']")).toBeTruthy();
     expect(container.querySelector("[data-panel-recovery-truth-state='external_required']")).toBeTruthy();
-    expect(container.textContent).toContain("Panel status");
-    expect(container.textContent).toContain("Next actions");
+    expect(container.textContent).not.toContain("Panel status");
+    expect(container.textContent).toContain("Next action");
     expect(container.textContent).toContain(
       "Traffic overview: Reconnect the source so Traffic overview can hydrate.",
     );
