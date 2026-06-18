@@ -348,12 +348,12 @@ export function DebugAdvancedDataValidation() {
                 <p className="text-xs text-gray-400">{effectiveNextAction}</p>
                 {sourceAgreementFailureRows.length > 0 ? (
                     <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-xs text-red-100" data-source-agreement-failures="visible">
-                        <p className="font-semibold text-white">Source agreement failures</p>
-                        <p className="mt-1">Failed sources: {semanticSummary.sourceAgreement.failedSources.join(", ") || "source comparison rows"}</p>
+                        <p className="font-semibold text-white">Source agreement failed</p>
+                        <p className="mt-1">Sources to repair: {semanticSummary.sourceAgreement.failedSources.join(", ") || "source comparison rows"}</p>
                         <div className="mt-2 space-y-1">
                             {sourceAgreementFailureRows.map((row) => (
                                 <p key={row.checkKey || row.label}>
-                                    {row.title || row.label}: {row.passBlockedReason || row.action || row.recommendedNextCheck || "Review the source agreement row before trusting analytics parity."}
+                                    {row.title || row.label}: {row.passBlockedReason || row.action || row.recommendedNextCheck || "Review this source agreement row before trusting analytics charts."}
                                 </p>
                             ))}
                         </div>

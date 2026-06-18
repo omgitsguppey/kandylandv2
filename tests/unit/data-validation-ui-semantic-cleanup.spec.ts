@@ -49,6 +49,8 @@ describe("data validation UI semantic cleanup", () => {
 
     expect(component).toContain("function formatAnalyticsSourceState");
     expect(component).toContain('if (status === "failed" || status === "fail" || status === "source_disagreement") return "needs repair";');
+    expect(component).toContain("Source agreement failed");
+    expect(component).toContain("Sources to repair");
     expect(component).toContain('data-analytics-source-agreement-state');
     expect(component).toContain('<Pill label="Issues" value={summary.issueCount}');
     expect(component).not.toContain('<Pill label="Fail" value={countDisplay(panelState.failCount)}');
