@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch29-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-18T04:59:20.811Z",
-  "currentHead": "04d6d998375f26a108095fa76602739de3c81229",
+  "generatedAtUtc": "2026-06-18T14:42:30.740Z",
+  "currentHead": "ba822abce140a896b0b9ddeb2cd988410380ba03",
   "ga4AvailabilityStatusBefore": "reports_available",
   "ga4AvailabilityStatusAfter": "reports_loaded_empty",
   "chartReadinessStatusBefore": "ready",
@@ -220,29 +220,29 @@
   ],
   "nextExactSteps": [
     "GA4 reports loaded from admin analytics historical validation route, but no sample rows or day buckets were present. Keep this as setup availability only until data samples load.",
-    "Show source agreement failed in Debug and Analytics tab, then repair the mismatched source lane before canonical chart promotion.",
+    "Review source agreement in Debug and restore first-party/materialized coverage before promoting charts.",
     "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity."
   ],
   "dirtyFileClassifications": [
     {
-      "filePath": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "filePath": "agent/state/chart-readiness-hierarchy-repair.generated.json",
+      "classification": "analytics_source_hierarchy_fix_required"
     },
     {
-      "filePath": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "filePath": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
+      "classification": "validator_artifact_expected"
     },
     {
       "filePath": "agent/state/source-agreement-failure-detail.generated.json",
       "classification": "source_agreement_failure_classification_required"
     },
     {
-      "filePath": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "documentation_artifact_expected"
+      "filePath": "docs/agent-truth/chart-readiness-hierarchy-repair.md",
+      "classification": "analytics_source_hierarchy_fix_required"
     },
     {
-      "filePath": "docs/agent-truth/launch-analytics-recovery.md",
-      "classification": "documentation_artifact_expected"
+      "filePath": "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
+      "classification": "validator_artifact_expected"
     },
     {
       "filePath": "docs/agent-truth/source-agreement-failure-detail.md",
@@ -253,16 +253,8 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-analytics-panel-hydration.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "src/lib/analytics/source-agreement-detail.ts",
-      "classification": "source_agreement_failure_classification_required"
-    },
-    {
-      "filePath": "tests/unit/source-agreement-failure-detail.spec.ts",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "src/lib/debug/debug-cockpit-batch28-bug-validation.ts",
+      "classification": "analytics_source_hierarchy_fix_required"
     }
   ],
   "openPrClassifications": [],

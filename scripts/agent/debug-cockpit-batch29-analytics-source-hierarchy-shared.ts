@@ -298,14 +298,14 @@ function buildSourceDisagreementFixture() {
     analyticsSourceHealth: {
       sourceAgreement: {
         state: "failed",
-        comparedSources: ["ga4", "historical_snapshot", "legacy_support"],
-        failedSources: ["ga4", "historical_snapshot", "legacy_support"],
+        comparedSources: ["first_party", "ga4", "historical_snapshot", "legacy_support"],
+        failedSources: ["first_party", "ga4", "historical_snapshot", "legacy_support"],
         disagreementCount: 5,
         maxDeltaPct: 60,
       },
       chartReadiness: {
         state: "source_disagreement",
-        reason: "Chart buckets are available, but source agreement failed across GA4, historical snapshot, and legacy support.",
+        reason: "Chart buckets are available, but source agreement failed across first-party, GA4, historical snapshot, and legacy support.",
       },
     },
     validations: [{
@@ -334,6 +334,7 @@ function dirtyClassifications() {
                 : filePath.includes("public-beta-score") || filePath.includes("current-beta-exit-status") || filePath.includes("overnight-beta-readiness-lock") ? "current_generated_artifact_to_commit"
                 : filePath.includes("source-agreement-failure-detail") || filePath.includes("source-agreement-detail") ? "source_agreement_failure_classification_required"
                   : filePath.includes("debug-cockpit-batch29") ? "validator_artifact_expected"
+                    : filePath.includes("debug-cockpit-batch28-bug-validation") ? "analytics_source_hierarchy_fix_required"
                     : filePath === "package.json" ? "validator_artifact_expected"
                     : filePath.startsWith("tests/unit/") ? "test_artifact_expected"
                       : filePath.startsWith("scripts/agent/") ? "validator_artifact_expected"

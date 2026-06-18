@@ -1,6 +1,6 @@
 # chart-readiness-hierarchy-repair
 
-Generated: 2026-05-25T05:23:08.962Z
+Generated: 2026-06-18T14:42:16.331Z
 
 Status: pass
 

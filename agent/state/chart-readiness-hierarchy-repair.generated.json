@@ -1,10 +1,10 @@
 {
   "reportKey": "chart-readiness-hierarchy-repair",
-  "generatedAtUtc": "2026-05-25T05:23:08.962Z",
-  "currentHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136",
+  "generatedAtUtc": "2026-06-18T14:42:16.331Z",
+  "currentHead": "ba822abce140a896b0b9ddeb2cd988410380ba03",
   "chartReadiness": {
     "state": "source_disagreement",
-    "reason": "Chart buckets are available, but source agreement failed across GA4, historical snapshot, and legacy support."
+    "reason": "Chart buckets are available, but source agreement failed across first-party, GA4, historical snapshot, and legacy support."
   },
   "row": {
     "checkKey": "source_agreement_chart_readiness",

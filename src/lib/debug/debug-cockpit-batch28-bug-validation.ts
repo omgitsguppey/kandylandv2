@@ -55,7 +55,7 @@ export function buildDebugCockpitBatch28BugValidationReport(input: {
     scoreAfter: Math.round(scoreAfter),
     scoreDimensions: [...DEBUG_COCKPIT_BATCH28_SCORE_DIMENSIONS],
     remainingGaps: sourceAgreementFailed
-      ? ["Source agreement remains failed until GA4, historical snapshot, and legacy support agree inside tolerance."]
+      ? ["Source agreement remains failed until first-party, GA4, historical snapshot, and legacy support agree inside tolerance."]
       : [],
     nextExactSteps: [
       input.blockedPassCount > 0
