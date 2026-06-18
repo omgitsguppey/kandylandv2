@@ -210,6 +210,8 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
     };
   }
 
+  const text = evidenceArtifactText(artifact);
+
   if (status.includes("failed") || status === "failed" || artifact.passed === false && status === "failed") {
     return {
       quality: "failed",
@@ -262,6 +264,18 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
       reason: requiresRuntime
         ? "Source-ready evidence earns source credit, but runtime proof is still required."
         : "Source-ready evidence earns source credit only.",
+    };
+  }
+
+  if (/formalEvidenceImpact=source_behavior_only|source[-_\s]behavior[-_\s]only|source-backed targeted behavior evidence only/iu.test(text)) {
+    return {
+      quality: "source_ready",
+      confidence: PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.sourceReady,
+      freshness: freshness.freshness,
+      freshnessScore: freshness.freshnessScore,
+      partialCredit: round(PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.sourceReady * freshness.freshnessScore),
+      blocksLaunch: false,
+      reason: "Source-only behavior evidence earns source credit but does not clear runtime, provider, admin truth, or manual proof gates.",
     };
   }
 

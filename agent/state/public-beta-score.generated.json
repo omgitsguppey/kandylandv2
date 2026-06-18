@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-06-18T22:17:43.786Z",
-  "currentHead": "a92061071502f6881033922016e7df7e10ddcd6b",
+  "generatedAt": "2026-06-18T23:00:52.503Z",
+  "currentHead": "f74cfda939c50f0a25314a6b7fc990e59e05d907",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
-  "sourceHealthScore": 100,
+  "sourceHealthScore": 99.2,
   "runtimeHealthScore": 72.8,
   "evidenceCompletenessScore": 58.4,
   "freshnessScore": 83.75,
@@ -19,14 +19,14 @@
     "Runtime/provider smoke: External proof required",
     "Admin truth/sample evidence: External proof required"
   ],
-  "healthScore": 77.4,
+  "healthScore": 77.2,
   "healthScoreBreakdown": {
     "sourceHealth": {
       "weight": 25,
-      "score": 100,
+      "score": 99.2,
       "reasons": [
         "scannerScore=100",
-        "sourceGateCredit=100"
+        "sourceGateCredit=97.33"
       ]
     },
     "runtimeHealth": {
@@ -110,7 +110,7 @@
       {
         "id": "sourceQuality",
         "label": "Source Quality",
-        "score": 100,
+        "score": 99.2,
         "status": "healthy",
         "source": "sourceHealthScore",
         "detail": "Scanner and source-gate confidence using the existing source health dimension."
@@ -137,7 +137,7 @@
         "score": 58.4,
         "status": "needs_proof",
         "source": "evidenceCompletenessScore",
-        "detail": "Open evidence gates: External proof required (2). Source checks stay separate from provider, deployed runtime, and admin truth proof."
+        "detail": "Open evidence gates: External proof required (2), Source validation only (1). Source checks stay separate from provider, deployed runtime, and admin truth proof."
       }
     ]
   },
@@ -177,7 +177,7 @@
   },
   "scoreDimensionExplanations": {
     "sourceHealth": {
-      "after": 100,
+      "after": 99.2,
       "target": 80,
       "status": "meets_target",
       "blockerType": "source_connectivity",
@@ -225,7 +225,7 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "overallHealthScore": {
-      "after": 77.4,
+      "after": 77.2,
       "target": 80,
       "status": "below_target",
       "blockerType": "formal_runtime_evidence",
@@ -234,7 +234,7 @@
     }
   },
   "scoreDeltaDrivers": [
-    "sourceHealthScore=100",
+    "sourceHealthScore=99.2",
     "runtimeHealthScore=72.8",
     "evidenceCompletenessScore=58.4",
     "freshnessScore=83.75",
@@ -255,11 +255,11 @@
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes."
   ],
-  "overallScore": 77.4,
+  "overallScore": 77.2,
   "overallStatus": "beta-risk",
   "readinessStatus": "External proof required",
   "readinessStatusReason": "Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke. Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
-  "evidenceScore": 55,
+  "evidenceScore": 46,
   "evidenceGates": [
     {
       "id": "sourceSafety",
@@ -289,19 +289,20 @@
       "id": "targetedBehaviorTests",
       "label": "Targeted behavior tests",
       "weight": 20,
-      "score": 20,
+      "score": 11,
       "maxScore": 20,
-      "confidence": "high",
-      "evidenceQuality": "formal_passed",
+      "confidence": "medium",
+      "evidenceQuality": "source_ready",
       "freshness": "fresh",
-      "sourceCredit": 100,
+      "sourceCredit": 92,
       "runtimeCredit": 0,
-      "evidenceCredit": 100,
-      "riskPenalty": 0,
+      "evidenceCredit": 55,
+      "riskPenalty": 45,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
-      "status": "Ready",
+      "partialReason": "Source-only behavior evidence earns source credit but does not clear runtime, provider, admin truth, or manual proof gates.",
+      "status": "Source validation only",
       "detail": "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
       "evidence": [
         "artifactPath=agent/state/targeted-behavior-evidence.generated.json",
@@ -373,7 +374,7 @@
         "runtimeEvidenceItems[2]=runtimeEvidence.passingArtifacts=1",
         "runtimeEvidenceItems[3]=runtimeEvidence.passingArtifact=agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
         "sourceBackedRuntimeConfidenceStatus=source_ready_runtime_confidence",
-        "sourceBackedRuntimeConfidenceCredit=33",
+        "sourceBackedRuntimeConfidenceCredit=32",
         "artifactPath=agent/state/source-backed-runtime-confidence.generated.json",
         "artifactStatus=source_ready_runtime_confidence",
         "generatedAtUtc=2026-06-16T17:15:53.638Z",
@@ -622,10 +623,12 @@
     }
   ],
   "evidenceCapsApplied": [
+    "Source validation only: Targeted behavior tests",
     "External proof required: Runtime/provider smoke",
     "External proof required: Admin truth/sample evidence"
   ],
   "evidenceCapDetails": [
+    "Source validation only: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
     "External proof required: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke. Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
     "External proof required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate."
   ],
@@ -639,14 +642,16 @@
   },
   "scoreExplanation": {
     "scannerScoreMeaning": "Scanner score 100/100 (clean) is scanner-only source hygiene, not beta readiness.",
-    "evidenceScoreMeaning": "Evidence score 55/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 77.4/100 currently maps to launch gate owner_review.",
+    "evidenceScoreMeaning": "Evidence score 46/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 77.2/100 currently maps to launch gate owner_review.",
     "missingEvidenceCaps": [
+      "Source validation only: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
       "External proof required: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke. Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
       "External proof required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate."
     ],
     "staleReportHandling": "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
     "sourcePassConfidence": "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Visual confirmation handled outside Codex as an operator-final checklist.",
     "betaExitBlockedBy": [
+      "Targeted behavior tests: Source validation only",
       "Runtime/provider smoke: External proof required",
       "Admin truth/sample evidence: External proof required"
     ]
@@ -846,6 +851,7 @@
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
   "recommendedNextActions": [
+    "Source validation only: Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",
     "External proof required: Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
     "External proof required: Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
     "Keep using `npm run score:beta` and targeted tests before public beta UI/economy changes."
@@ -879,7 +885,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta readiness score 77.4/100 (External proof required; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 2 evidence cap(s) applied.",
+  "summary": "Public beta readiness score 77.2/100 (External proof required; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 3 evidence cap(s) applied.",
   "debugEvidence": {
     "layout": [],
     "hydration": [],
@@ -898,7 +904,7 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-18T22:17:43.786Z",
+      "generatedAtUtc": "2026-06-18T23:00:52.503Z",
       "ageHours": 0,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
@@ -914,7 +920,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-18T21:59:06.413Z",
-      "ageHours": 0.3103813888888889,
+      "ageHours": 1.0294694444444445,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -929,7 +935,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-18T07:44:18.572Z",
-      "ageHours": 14.55700388888889,
+      "ageHours": 15.276091944444444,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -944,7 +950,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:17.434Z",
-      "ageHours": 379.6406533333333,
+      "ageHours": 380.3597413888889,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -959,7 +965,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:19.659Z",
-      "ageHours": 53.040035277777775,
+      "ageHours": 53.759123333333335,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -974,7 +980,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:24.640Z",
-      "ageHours": 379.63865166666665,
+      "ageHours": 380.3577397222222,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -989,7 +995,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:58:46.491Z",
-      "ageHours": 379.3159152777778,
+      "ageHours": 380.03500333333335,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1004,7 +1010,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:32.199Z",
-      "ageHours": 379.6365519444444,
+      "ageHours": 380.35564,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -1019,7 +1025,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:40.411Z",
-      "ageHours": 53.03427083333333,
+      "ageHours": 53.75335888888889,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -1034,7 +1040,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:46.945Z",
-      "ageHours": 53.03245583333333,
+      "ageHours": 53.75154388888889,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1049,7 +1055,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:37.034Z",
-      "ageHours": 379.6352088888889,
+      "ageHours": 380.35429694444446,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1064,7 +1070,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:58:51.998Z",
-      "ageHours": 379.31438555555553,
+      "ageHours": 380.0334736111111,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1079,7 +1085,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:43.424Z",
-      "ageHours": 379.6334338888889,
+      "ageHours": 380.35252194444445,
       "refreshCommand": "npm run check:beta-freshness-language",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -1094,7 +1100,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:58:56.520Z",
-      "ageHours": 379.3131294444444,
+      "ageHours": 380.0322175,
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1109,7 +1115,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:48.261Z",
-      "ageHours": 379.63209027777776,
+      "ageHours": 380.35117833333334,
       "refreshCommand": "npm run check:overnight-wiring-integrity",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1124,7 +1130,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:39:58.327Z",
-      "ageHours": 379.6292941666667,
+      "ageHours": 380.3483822222222,
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1139,7 +1145,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-16T17:15:35.210Z",
-      "ageHours": 53.035715555555555,
+      "ageHours": 53.754803611111114,
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -1154,7 +1160,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-03T02:40:07.415Z",
-      "ageHours": 379.6267697222222,
+      "ageHours": 380.3458577777778,
       "refreshCommand": "npm run check:global-marquee-truncated-titles",
       "owner": "mobile",
       "maxAgeHours": 24,

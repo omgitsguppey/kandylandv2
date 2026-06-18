@@ -374,6 +374,32 @@ describe("public beta scoring math", () => {
         expect(report.launchClearance.formalGates.adminTruthSample.cleared).toBe(false);
     });
 
+    it("classifies passed targeted behavior artifacts as source-only when the artifact says source behavior only", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                targetedBehaviorEvidence: {
+                    ...freshEvidence.targetedBehaviorEvidence,
+                    detail: "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
+                    evidence: [
+                        "targetedBehavior.status=passed",
+                        "formalEvidenceImpact=source_behavior_only",
+                    ],
+                },
+            },
+        });
+
+        const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
+        expect(targetedGate?.status).toBe("Source validation only");
+        expect(targetedGate?.evidenceQuality).toBe("source_ready");
+        expect(targetedGate?.runtimeCredit).toBe(0);
+        expect(targetedGate?.detail).toContain("does not prove manual screenshot");
+        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Source validation only: Targeted behavior tests"),
+        ]));
+    });
+
     it("does not score stale formal smoke and admin artifacts", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
