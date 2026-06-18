@@ -223,5 +223,7 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("missingRangesBySource");
     expect(source).toContain("duplicateRanges");
     expect(source).toContain("## Daily Recovery Rows");
+    expect(source).toContain("perDayMetricDeltas");
+    expect(source).toContain("Count delta details");
   });
 });

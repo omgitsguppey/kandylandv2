@@ -132,6 +132,53 @@ describe("source agreement failure detail", () => {
     expect(detail.disagreementCount).toBe(0);
   });
 
+  it("classifies first-party and GA4 count deltas without letting GA4 overwrite truth", () => {
+    const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
+      proofMode: "admin_truth_sample",
+      launchHistoryCoverage: {
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 20, ga4: 80, historicalSnapshot: 0, legacySupport: 0 },
+            internalAdminExcludedCount: 3,
+          },
+        ],
+      },
+    });
+
+    expect(detail.sourceAgreementStatus).toBe("failed");
+    expect(detail.maxDeltaPct).toBe(75);
+    expect(detail.allLaunchRangeProven).toBe(false);
+    expect(detail.perDayMetricDeltas).toEqual([
+      expect.objectContaining({
+        dayKey: "2026-05-01",
+        metric: "source_count_delta",
+        primarySource: "first_party",
+        secondSource: "ga4",
+        primaryCount: 20,
+        secondSourceCount: 80,
+        deltaPct: 75,
+        classifications: ["internal_traffic_mismatch"],
+      }),
+    ]);
+    expect(detail.disagreements).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        dayKey: "2026-05-01",
+        primarySourceState: "first_party_present",
+        secondSourceState: "ga4_present",
+        classifications: ["internal_traffic_mismatch"],
+        blockingOwner: "source agreement count-delta review",
+        productTruthEligible: true,
+      }),
+    ]));
+    expect(detail.sourceTruthPolicy.firstPartyPrimary).toBe(true);
+    expect(detail.sourceTruthPolicy.ga4SecondSourceOnly).toBe(true);
+  });
+
   it("does not prove all-launch coverage when declared counts do not match supplied day rows", () => {
     const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
       proofMode: "admin_truth_sample",

@@ -575,16 +575,32 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   const sourceAgreementDisagreements = Array.isArray(sourceAgreementDetail.disagreements)
     ? sourceAgreementDetail.disagreements.map((entry) => asRecord(entry))
     : [];
-  const sourceAgreementClassifications = classifySourceAgreementDisagreements({
-    expectedDays,
-    ga4Days,
-    firstPartyDays,
-    historicalSnapshotDays,
-    legacySupportDays,
-    staleEvidence,
-    disagreementCount,
-    maxDeltaPct,
-  });
+  const sourceAgreementClassifications = [
+    ...new Set([
+      ...classifySourceAgreementDisagreements({
+        expectedDays,
+        ga4Days,
+        firstPartyDays,
+        historicalSnapshotDays,
+        legacySupportDays,
+        staleEvidence,
+        disagreementCount,
+        maxDeltaPct,
+      }),
+      ...sourceAgreementDisagreements.flatMap((entry) => asStringArray(entry.classifications)),
+    ]),
+  ];
+  const perDayMetricDeltas = asRecordArray(sourceAgreementDetail.perDayMetricDeltas).map((entry) => ({
+    dayKey: typeof entry.dayKey === "string" ? entry.dayKey : "unknown",
+    metric: typeof entry.metric === "string" ? entry.metric : "source_count_delta",
+    primarySource: typeof entry.primarySource === "string" ? entry.primarySource : "first_party",
+    secondSource: typeof entry.secondSource === "string" ? entry.secondSource : "ga4",
+    primaryCount: asNumber(entry.primaryCount, 0),
+    secondSourceCount: asNumber(entry.secondSourceCount, 0),
+    deltaPct: asNumber(entry.deltaPct, 0),
+    classifications: asStringArray(entry.classifications),
+    nextAction: typeof entry.nextAction === "string" ? entry.nextAction : "Review source count delta before chart promotion.",
+  }));
   const sourceInventory = [
     {
       sourceId: "first_party_events",
@@ -798,6 +814,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       classifications: sourceAgreementClassifications,
       disagreements: sourceAgreementDisagreements.slice(0, 25),
       disagreementsTruncated: sourceAgreementDisagreements.length > 25,
+      perDayMetricDeltas: perDayMetricDeltas.slice(0, 25),
+      perDayMetricDeltasTruncated: perDayMetricDeltas.length > 25,
       nextExactSteps: asStringArray(sourceAgreementDetail.nextExactSteps),
       sourceTruthPolicy: asRecord(sourceAgreementDetail.sourceTruthPolicy),
       nextAction: typeof sourceAgreementDetail.nextAction === "string"
@@ -1024,6 +1042,10 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Per-day disagreement details: ${report.sourceAgreement.disagreements.length}${report.sourceAgreement.disagreementsTruncated ? " (truncated)" : ""}`,
     ...report.sourceAgreement.disagreements.slice(0, 6).map((entry) =>
       `  - ${String(entry.dayKey)}: present ${asStringArray(entry.sourcesPresent).join(", ") || "none"}; missing ${asStringArray(entry.sourcesMissing).join(", ") || "none"}; lane ${String(entry.recoveryLane ?? "review")}; owner ${String(entry.blockingOwner ?? "source agreement")}; ${String(entry.likelyRootCause ?? "review source mismatch")}`,
+    ),
+    `- Count delta details: ${report.sourceAgreement.perDayMetricDeltas.length}${report.sourceAgreement.perDayMetricDeltasTruncated ? " (truncated)" : ""}`,
+    ...report.sourceAgreement.perDayMetricDeltas.slice(0, 6).map((entry) =>
+      `  - ${entry.dayKey}: ${entry.primarySource}=${entry.primaryCount}, ${entry.secondSource}=${entry.secondSourceCount}, delta=${entry.deltaPct}%; ${entry.classifications.join(", ") || "review"}`,
     ),
     `- Exact next steps: ${asStringArray(report.sourceAgreement.nextExactSteps).join(" | ") || "see next action"}`,
     `- Next action: ${report.sourceAgreement.nextAction}`,

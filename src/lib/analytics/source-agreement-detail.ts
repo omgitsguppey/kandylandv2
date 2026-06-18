@@ -63,6 +63,17 @@ export type SourceAgreementFailureDetail = {
     legacySupport: number;
   }>;
   internalAdminExcludedCountByDay?: Record<string, number>;
+  perDayMetricDeltas?: Array<{
+    dayKey: string;
+    metric: "source_count_delta";
+    primarySource: "first_party";
+    secondSource: "ga4";
+    primaryCount: number;
+    secondSourceCount: number;
+    deltaPct: number;
+    classifications: SourceAgreementFailureClassification[];
+    nextAction: string;
+  }>;
   missingDaysBySource: Record<string, string[]>;
   extraDaysBySource: Record<string, string[]>;
   comparedMetrics: string[];
@@ -395,6 +406,84 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
       .filter((day) => day.expected && typeof day.internalAdminExcludedCount === "number")
       .map((day) => [day.dayKey, Math.max(0, day.internalAdminExcludedCount ?? 0)]),
   );
+  const reviewDeltaPct = input.tolerance?.reviewDeltaPct ?? 10;
+  const failDeltaPct = input.tolerance?.failDeltaPct ?? 25;
+  const perDayMetricDeltas = input.launchHistoryCoverage.days
+    .filter((day) => day.expected)
+    .map((day) => {
+      const primaryCount = Math.max(0, Number(day.sourceCounts.first_party) || 0);
+      const secondSourceCount = Math.max(0, Number(day.sourceCounts.ga4) || 0);
+      const denominator = Math.max(primaryCount, secondSourceCount);
+      const deltaPct = denominator > 0
+        ? Math.round((Math.abs(primaryCount - secondSourceCount) / denominator) * 100)
+        : 0;
+      const classifications: SourceAgreementFailureClassification[] = [];
+      if (deltaPct > reviewDeltaPct && primaryCount > 0 && secondSourceCount > 0) {
+        classifications.push(
+          typeof day.internalAdminExcludedCount === "number" && day.internalAdminExcludedCount > 0
+            ? "internal_traffic_mismatch"
+            : "route_normalization_mismatch",
+        );
+      }
+      return {
+        dayKey: day.dayKey,
+        metric: "source_count_delta" as const,
+        primarySource: "first_party" as const,
+        secondSource: "ga4" as const,
+        primaryCount,
+        secondSourceCount,
+        deltaPct,
+        classifications,
+        nextAction: classifications.includes("internal_traffic_mismatch")
+          ? "Compare first-party internal/admin filtering against GA4 before promoting this day."
+          : "Compare route/event normalization between first-party facts and GA4 before promoting this day.",
+      };
+    })
+    .filter((entry) => entry.classifications.length > 0);
+  const metricDisagreements = perDayMetricDeltas.map((entry): SourceAgreementDisagreementDetail => {
+    const row = input.launchHistoryCoverage.days.find((day) => day.dayKey === entry.dayKey);
+    const hasFallback = Boolean(row && (row.sourceCounts.historicalSnapshot > 0 || row.sourceCounts.legacySupport > 0));
+    return {
+      dayKey: entry.dayKey,
+      sourcesPresent: [
+        "first_party",
+        "ga4",
+        ...(row?.sourceCounts.historicalSnapshot ? ["historical_snapshot"] : []),
+        ...(row?.sourceCounts.legacySupport ? ["legacy_support"] : []),
+      ],
+      sourcesMissing: [
+        ...(row?.sourceCounts.historicalSnapshot ? [] : ["historical_snapshot"]),
+        ...(row?.sourceCounts.legacySupport ? [] : ["legacy_support"]),
+      ],
+      primarySourceState: "first_party_present",
+      secondSourceState: "ga4_present",
+      fallbackState: hasFallback ? "fallback_present" : "fallback_missing",
+      classifications: entry.classifications,
+      likelyRootCause: entry.classifications.includes("internal_traffic_mismatch")
+        ? "First-party and GA4 counts differ beyond tolerance, likely because internal/admin traffic filtering differs."
+        : "First-party and GA4 counts differ beyond tolerance, likely because route or event normalization differs.",
+      nextAction: entry.nextAction,
+      recoveryLane: "source_agreement_review",
+      blockingOwner: "source agreement count-delta review",
+      proofRequired: entry.classifications.includes("internal_traffic_mismatch")
+        ? ["internal_traffic_filter_review", "ga4_export_day_bucket_review"]
+        : ["route_normalization_mapping_review", "ga4_export_day_bucket_review"],
+      productTruthEligible: true,
+    };
+  });
+  const metricStatus: SourceAgreementFailureDetail["sourceAgreementStatus"] =
+    perDayMetricDeltas.some((entry) => entry.deltaPct > failDeltaPct)
+      ? "failed"
+      : perDayMetricDeltas.length > 0
+        ? "review"
+        : "pass";
+  const sourceAgreementStatus: SourceAgreementFailureDetail["sourceAgreementStatus"] =
+    detail.sourceAgreementStatus === "failed" || metricStatus === "failed"
+      ? "failed"
+      : detail.sourceAgreementStatus === "review" || metricStatus === "review"
+        ? "review"
+        : detail.sourceAgreementStatus;
+  const maxMetricDeltaPct = perDayMetricDeltas.reduce((max, entry) => Math.max(max, entry.deltaPct), 0);
   const recoveredExpectedDayCount = input.launchHistoryCoverage.days
     .filter((day) =>
       day.expected &&
@@ -406,12 +495,17 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
 
   return {
     ...detail,
+    sourceAgreementStatus,
+    disagreementCount: detail.disagreementCount + metricDisagreements.length,
+    maxDeltaPct: Math.max(detail.maxDeltaPct, maxMetricDeltaPct),
+    disagreements: [...detail.disagreements, ...metricDisagreements],
     perDaySourceCounts,
     internalAdminExcludedCountByDay,
+    perDayMetricDeltas,
     allLaunchRangeProven: input.proofMode === "admin_truth_sample"
       && input.launchHistoryCoverage.state === "available"
       && declaredCountsMatchRows
       && recoveredExpectedDayCount === expectedDays.length
-      && detail.sourceAgreementStatus === "pass",
+      && sourceAgreementStatus === "pass",
   };
 }
