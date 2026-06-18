@@ -406,7 +406,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     (entry) => entry.lastServerConfirmedAtMs !== null,
   );
   const visibleCopy = input.displayState?.visibleMessage ?? (input.feedStatus === "snapshot"
-    ? "Showing last verified snapshot."
+    ? "Last verified data."
     : input.feedStatus === "failed"
       ? "No verified snapshot yet."
       : graphSourceMismatch
@@ -448,7 +448,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
           ? "stale"
           : "ready";
   const topWarning = mode === "delayed_snapshot"
-    ? "Live updates are delayed. Showing last verified snapshot."
+    ? "Last verified data."
     : visibleCopy;
   const topWarningDetail = guestSnapshotDisplay.state === "unavailable"
     ? guestSnapshotDisplay.reason

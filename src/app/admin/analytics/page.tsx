@@ -190,6 +190,8 @@ function formatAdminAnalyticsSourceStatusItem(note: string) {
     normalized.includes("snapshot-first realtime route") ||
     normalized.includes("admin debug raw evidence");
   const genericVerifiedSnapshotCopy =
+    normalized === "last verified data." ||
+    normalized === "last verified data" ||
     normalized.includes("showing last verified data") ||
     normalized === "verified snapshot shown." ||
     normalized === "verified snapshot shown" ||

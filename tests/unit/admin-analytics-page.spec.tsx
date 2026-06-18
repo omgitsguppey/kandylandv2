@@ -515,7 +515,7 @@ describe("AdminAnalyticsPage", () => {
           compactFreshnessLine: "Last verified data",
           debugReason: "snapshot fallback",
           debugSource: "last_verified_snapshot",
-          badgeLabel: "Verified snapshot shown",
+          badgeLabel: "Last verified data",
           showBadgeInPrimary: false,
         },
       },

@@ -16,7 +16,7 @@ Last updated: 2026-05-01
 
 ## Module Rules
 
-- Admin Overview uses operator truth labels: Updated, Showing last verified data, Refreshing overview, Snapshot refresh delayed, and Waiting for first overview snapshot.
+- Admin Overview uses operator truth labels: Updated, Last verified data, Refreshing overview, Refresh due, and Waiting for first overview snapshot.
 - Platform Pulse, Audience Snapshot, Commerce Snapshot, and Live Pulse must use snapshot values before realtime or refresh state.
 - Live Pulse uses snapshot when realtime is missing and scopes graph gaps to the graph area.
 - Guest estimates are labeled. Guest/auth/admin/creator/system lanes must remain separated in Debug.

@@ -282,10 +282,10 @@ export function summarizeAdminIssueForOperator(issue: string): string {
     return "No sample is available for this range.";
   }
   if (normalized.includes("realtime") || normalized.includes("listener") || normalized.includes("observer")) {
-    return "Live updates are delayed. Verified snapshot shown.";
+    return "Last verified data.";
   }
   if (normalized.includes("stale") || normalized.includes("cache") || normalized.includes("snapshot") || normalized.includes("fallback")) {
-    return "Verified snapshot shown.";
+    return "Last verified data.";
   }
   if (normalized.includes("pipeline") || normalized.includes("coverage") || normalized.includes("fail")) {
     return "Tracking needs review.";

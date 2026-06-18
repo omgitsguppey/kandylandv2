@@ -42,7 +42,7 @@ describe("admin truth copy", () => {
       sourceName: "analytics_aggregate_stats/realtime_summary",
     });
 
-    expect(copy.headline).toBe("Verified snapshot shown.");
+    expect(copy.headline).toBe("Last verified data.");
     expect(copy.shortBody).toBe("Refresh again if you need the newest value.");
     expect(copy.badgeLabel).toBe("SNAP");
     expect(copy.technicalDetails).toContain("analytics_aggregate_stats/realtime_summary");
@@ -56,7 +56,7 @@ describe("admin truth copy", () => {
       staleReason: "stale validated backend cache",
     });
 
-    expect(copy.headline).toBe("Verified snapshot shown.");
+    expect(copy.headline).toBe("Last verified data.");
     expect(copy.shortBody).toContain("next refresh");
     expectOperatorCopyIsPlain(copy.headline, copy.shortBody);
   });

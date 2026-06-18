@@ -7,8 +7,7 @@ Admin copy has two audiences. Primary admin UI is for operators; Debug is for de
 - Live
 - Updated
 - Refreshing
-- Verified snapshot shown
-- Delayed
+- Last verified data
 - Estimated
 - Partial
 - Waiting for first snapshot
@@ -49,8 +48,8 @@ These words can appear in Debug technical evidence only when paired with an oper
 
 ## Translation Examples
 
-- "Realtime analytics observers failed closed" -> "Live updates are delayed."
-- "Admin analytics is falling back to the polled route snapshot" -> "Verified snapshot shown."
+- "Realtime analytics observers failed closed" -> "Last verified data."
+- "Admin analytics is falling back to the polled route snapshot" -> "Last verified data."
 - "Guest batch realtime lane fell back to polled data" -> "Guest activity is delayed."
 - "Historical analytics serving stale validated cache" -> "Verified historical snapshot shown."
 - "Purchase parity fail" -> "Purchase tracking needs review."
@@ -74,12 +73,12 @@ Primary UI copy should be one to two short lines. Technical details belong in De
 
 For Admin Overview, Admin Analytics, and Admin Debug launch work:
 
-- Analytics primary copy must prefer "Verified snapshot shown", "Refreshing", "Live updates are delayed", "Estimated", "Partial", "Needs review", or "Waiting for first snapshot".
+- Analytics primary copy must prefer "Last verified data", "Refreshing", "Estimated", "Partial", "Needs review", or "Waiting for first snapshot".
 - Debug owns exact source names, route names, collection names, parity deltas, formulas, and recovery details.
 - A verified snapshot means the main UI must not show generic Waiting.
 - Event Mix visible copy says ranked event activity; raw event keys belong in Debug.
 - Commerce copy must state that promo and bonus GD are excluded from revenue when revenue is shown.
-- Admin Overview truth labels are Updated, Verified snapshot shown, Refreshing overview, Snapshot refresh delayed, and Waiting for first overview snapshot.
+- Admin Overview truth labels are Updated, Last verified data, Refreshing overview, Refresh due, and Waiting for first overview snapshot.
 
 ## User Problem-State Copy
 
