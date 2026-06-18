@@ -831,7 +831,7 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
         const sourceDriftCap = commitState.sourceDrift === "stale"
             ? [
                 [
-                    "Stale evidence: Public beta score source metadata",
+                    "Report freshness and PR integrity: Public beta score source metadata is stale",
                     commitState.sourceCommit ? `sourceCommit=${commitState.sourceCommit}` : null,
                     commitState.currentHead ? `reportCurrentHead=${commitState.currentHead}` : null,
                     commitState.repoCurrentHead ? `repoCurrentHead=${commitState.repoCurrentHead}` : null,
