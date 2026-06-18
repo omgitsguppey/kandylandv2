@@ -945,7 +945,7 @@ async function GET_handler(request: NextRequest) {
         });
 
         const searchParams = request.nextUrl.searchParams;
-        const period = searchParams.get("period"); // "24h", "7d", "30d", "all"
+        const period = searchParams.get("period") ?? searchParams.get("range"); // "24h", "7d", "30d", "all"
         const viewerUser = searchParams.get("viewerUser")?.trim() || "";
         const section = searchParams.get("section")?.trim() || null;
         const forceRefresh = searchParams.get("refresh") === "1" || searchParams.get("forceRefresh") === "1";

@@ -476,4 +476,15 @@ describe("admin analytics historical route snapshot authority", () => {
     expect(payload.verification.status).toBe("cached");
     expect(payload.issues).toContain("Serving refresh-due canonical admin metric snapshot; raw analytics collections remain debug-only.");
   }, 15_000);
+
+  it("accepts range as a documented alias for period when resolving historical snapshot authority", async () => {
+    routeMockState.getLatestVerifiedSnapshot.mockResolvedValue(snapshot({ rangeKey: "all" }));
+
+    const { response, payload } = await callHistoricalRoute("/api/admin/analytics/historical?range=all&section=audienceSnapshot");
+
+    expect(response.status).toBe(200);
+    expect(routeMockState.getLatestVerifiedSnapshot).toHaveBeenCalledWith("audience_snapshot", "all");
+    expect(routeMockState.fetchAdminHistoricalAnalyticsSources).not.toHaveBeenCalled();
+    expect(payload.cacheSourceLabel).toBe("analytics_admin_metric_snapshots/audience_snapshot:all");
+  }, 15_000);
 });
