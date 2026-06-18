@@ -242,6 +242,9 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/analytics/source-agreement-detail.ts") return "source_agreement_failure_classification_required";
   if (normalized === "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts") return "source_agreement_failure_classification_required";
   if (normalized === "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts") return "source_agreement_failure_classification_required";
+  if (normalized === "src/lib/analytics/legacy-recovery-reconciler.ts") return "launch_analytics_recovery_source_expected";
+  if (normalized === "scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts") return "launch_analytics_recovery_validator_expected";
+  if (normalized === "tests/unit/analytics-legacy-recovery-reconciliation.spec.ts") return "test_artifact_expected";
   if (normalized === "functions/src/analytics-truth-cli.ts" || normalized === "functions/src/analytics-truth-runtime.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/rebuild-analytics-truth.ts" || normalized === "scripts/rebuild-behavioral-intelligence.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/analytics/validate-canonical-import-export.ts") return "validator_artifact_expected";

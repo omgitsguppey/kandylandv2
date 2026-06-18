@@ -45,6 +45,8 @@ describe("analytics legacy recovery reconciliation", () => {
       targetTruthLayer: "product_truth",
       identityConfidence: "exact_match",
       recoveryAction: "link_candidate",
+      recoveryMode: "dry_run_manual_review",
+      productionMutationAllowed: false,
       overwriteCurrentTruth: false,
     });
   });
@@ -143,6 +145,15 @@ describe("analytics legacy recovery reconciliation", () => {
     });
 
     expect(report.summary.overwritesCurrentTruth).toBe(false);
+    expect(report.productTruthPolicy).toMatchObject({
+      dryRunOnly: true,
+      productionMutationAllowed: false,
+      recoveredEventsCanOverwriteCurrentTruth: false,
+      externalEvidenceCanPromoteProductTruth: false,
+      importCandidatesRequireSeparateApproval: true,
+    });
+    expect(report.candidateMappings.every((mapping) => mapping.productionMutationAllowed === false)).toBe(true);
+    expect(report.candidateMappings.every((mapping) => mapping.recoveryMode === "dry_run_manual_review")).toBe(true);
     expect(report.summary.productTruthSources).toBeGreaterThan(0);
     expect(report.costFindings.map((finding) => finding.lane)).toEqual(
       expect.arrayContaining(["cloud_run", "cloud_sql", "gemini_cloud_assist", "route_4xx"]),

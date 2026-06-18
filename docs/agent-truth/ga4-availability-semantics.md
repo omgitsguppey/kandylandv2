@@ -1,6 +1,6 @@
 # ga4-availability-semantics
 
-Generated: 2026-06-07T23:57:57.940Z
+Generated: 2026-06-18T15:52:58.512Z
 
 Status: pass
 

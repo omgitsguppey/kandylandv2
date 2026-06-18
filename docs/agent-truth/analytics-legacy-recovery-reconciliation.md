@@ -1,7 +1,7 @@
 # Analytics Legacy Recovery Reconciliation
 
-Generated: 2026-06-18T10:01:46.912Z
-Current head: 845980057b1bf49ec18ef86b526b9632998c0754
+Generated: 2026-06-18T15:52:24.991Z
+Current head: d1530d4f8e554148e839170837e2a14647a91511
 
 ## Summary
 
@@ -11,23 +11,26 @@ Current head: 845980057b1bf49ec18ef86b526b9632998c0754
 - Evidence-only candidates: 1
 - Product truth sources: 2
 - Overwrites current truth: no
+- Dry run only: yes
+- Production mutation allowed: no
+- External evidence can promote product truth: no
 - Cloud SQL status: cloud_sql_not_detected_in_reconciliation_runtime
 - Gemini/Cloud Assist status: gemini_cloud_assist_not_used
 
 ## Candidate Mappings
 
-| Legacy source | Legacy id | Target truth layer | Identity confidence | Duplicate risk | Recovery action | Reason |
-| --- | --- | --- | --- | --- | --- | --- |
-| analytics_event_facts | fixture_evt_drop_click | product_truth | probable_match | low | import_candidate | Candidate has enough first-party shape to review as a dry-run recovery candidate. |
-| analytics_guest_batches | fixture_guest_batch | product_truth | weak_match | low | import_candidate | Candidate has enough first-party shape to review as a dry-run recovery candidate. |
-| transactions | fixture_txn_completed | product_truth | probable_match | low | import_candidate | Candidate has enough first-party shape to review as a dry-run recovery candidate. |
-| unlocks | fixture_unlock | product_truth | probable_match | low | import_candidate | Candidate has enough first-party shape to review as a dry-run recovery candidate. |
-| daily_task_events | fixture_task_complete | product_truth | probable_match | low | import_candidate | Candidate has enough first-party shape to review as a dry-run recovery candidate. |
-| task_lifecycle_logs | fixture_task_start | product_truth | probable_match | low | import_candidate | Candidate has enough first-party shape to review as a dry-run recovery candidate. |
-| notifications | fixture_notification_read | debug_truth | unknown | unknown | archive_only | Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it. |
-| onboarding_steps | fixture_onboarding_step | product_truth | probable_match | low | import_candidate | Candidate has enough first-party shape to review as a dry-run recovery candidate. |
-| admin_audit_logs | fixture_admin_action | debug_truth | unknown | unknown | archive_only | Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it. |
-| ga4_intraday | fixture_ga_intraday | evidence_only | unknown | unknown | archive_only | External analytics evidence remains evidence-only until first-party reconciliation promotes it. |
+| Legacy source | Legacy id | Target truth layer | Identity confidence | Duplicate risk | Recovery action | Recovery mode | Production mutation | Reason |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| analytics_event_facts | fixture_evt_drop_click | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
+| analytics_guest_batches | fixture_guest_batch | product_truth | weak_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
+| transactions | fixture_txn_completed | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
+| unlocks | fixture_unlock | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
+| daily_task_events | fixture_task_complete | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
+| task_lifecycle_logs | fixture_task_start | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
+| notifications | fixture_notification_read | debug_truth | unknown | unknown | archive_only | dry_run_manual_review | no | Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it. |
+| onboarding_steps | fixture_onboarding_step | product_truth | probable_match | low | import_candidate | dry_run_manual_review | no | Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan. |
+| admin_audit_logs | fixture_admin_action | debug_truth | unknown | unknown | archive_only | dry_run_manual_review | no | Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it. |
+| ga4_intraday | fixture_ga_intraday | evidence_only | unknown | unknown | archive_only | dry_run_manual_review | no | External analytics evidence remains evidence-only until first-party reconciliation promotes it. |
 
 ## Source Truth
 
@@ -49,5 +52,5 @@ Current head: 845980057b1bf49ec18ef86b526b9632998c0754
 ## Next Fix Order
 
 1. Review candidate mappings in Debug/source artifacts before any write-mode backfill proposal.
-2. Promote only exact/probable first-party candidates after a separate dry-run parity check.
+2. Keep exact/probable first-party candidates in dry-run review until a separate approved backfill plan exists.
 3. Keep GA4, BigQuery, and PostHog as evidence-only unless first-party reconciliation proves identity and dedupe.

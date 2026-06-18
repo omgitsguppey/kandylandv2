@@ -1,7 +1,7 @@
 # Analytics Legacy History Reconciliation
 
-Generated: 2026-06-18T10:01:47.371Z
-Current head: 845980057b1bf49ec18ef86b526b9632998c0754
+Generated: 2026-06-18T15:52:58.621Z
+Current head: d1530d4f8e554148e839170837e2a14647a91511
 
 This is a dry-run source artifact. It maps legacy history into current truth lanes with confidence and duplicate-risk labels. It does not read production data, write production data, run BigQuery jobs, or promote legacy evidence into current totals.
 

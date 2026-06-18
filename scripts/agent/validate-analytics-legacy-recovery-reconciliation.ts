@@ -45,7 +45,7 @@ function readJsonRequired<T>(relativePath: string): T {
 
 function renderMarkdown(report: LegacyRecoveryReconciliationReport) {
   const candidateRows = report.candidateMappings
-    .map((candidate) => `| ${candidate.legacySource} | ${candidate.legacyId} | ${candidate.targetTruthLayer} | ${candidate.identityConfidence} | ${candidate.duplicateRisk} | ${candidate.recoveryAction} | ${candidate.reason} |`)
+    .map((candidate) => `| ${candidate.legacySource} | ${candidate.legacyId} | ${candidate.targetTruthLayer} | ${candidate.identityConfidence} | ${candidate.duplicateRisk} | ${candidate.recoveryAction} | ${candidate.recoveryMode} | ${candidate.productionMutationAllowed ? "yes" : "no"} | ${candidate.reason} |`)
     .join("\n");
   const sourceRows = report.sourceTruthMap
     .map((entry) => `| ${entry.source} | ${entry.truthLayer} | ${entry.currentProductTruth ? "yes" : "no"} | ${entry.notes} |`)
@@ -68,13 +68,16 @@ Current head: ${report.currentHead}
 - Evidence-only candidates: ${report.summary.evidenceOnlyCount}
 - Product truth sources: ${report.summary.productTruthSources}
 - Overwrites current truth: ${report.summary.overwritesCurrentTruth ? "yes" : "no"}
+- Dry run only: ${report.productTruthPolicy.dryRunOnly ? "yes" : "no"}
+- Production mutation allowed: ${report.productTruthPolicy.productionMutationAllowed ? "yes" : "no"}
+- External evidence can promote product truth: ${report.productTruthPolicy.externalEvidenceCanPromoteProductTruth ? "yes" : "no"}
 - Cloud SQL status: ${report.summary.cloudSqlStatus}
 - Gemini/Cloud Assist status: ${report.summary.geminiCloudAssistStatus}
 
 ## Candidate Mappings
 
-| Legacy source | Legacy id | Target truth layer | Identity confidence | Duplicate risk | Recovery action | Reason |
-| --- | --- | --- | --- | --- | --- | --- |
+| Legacy source | Legacy id | Target truth layer | Identity confidence | Duplicate risk | Recovery action | Recovery mode | Production mutation | Reason |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ${candidateRows}
 
 ## Source Truth

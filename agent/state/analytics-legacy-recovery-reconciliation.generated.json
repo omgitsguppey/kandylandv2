@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-18T10:01:46.912Z",
+  "generatedAtUtc": "2026-06-18T15:52:24.991Z",
   "reportKey": "analytics-legacy-recovery-reconciliation",
-  "currentHead": "845980057b1bf49ec18ef86b526b9632998c0754",
+  "currentHead": "d1530d4f8e554148e839170837e2a14647a91511",
   "summary": {
     "candidateCount": 10,
     "exactMatchCount": 0,
@@ -26,7 +26,9 @@
       "identityConfidence": "probable_match",
       "duplicateRisk": "low",
       "recoveryAction": "import_candidate",
-      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "recoveryMode": "dry_run_manual_review",
+      "productionMutationAllowed": false,
+      "reason": "Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan.",
       "overwriteCurrentTruth": false,
       "currentProductTruthSource": "analytics_event_facts"
     },
@@ -37,7 +39,9 @@
       "identityConfidence": "weak_match",
       "duplicateRisk": "low",
       "recoveryAction": "import_candidate",
-      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "recoveryMode": "dry_run_manual_review",
+      "productionMutationAllowed": false,
+      "reason": "Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan.",
       "overwriteCurrentTruth": false,
       "currentProductTruthSource": "analytics_event_facts"
     },
@@ -48,7 +52,9 @@
       "identityConfidence": "probable_match",
       "duplicateRisk": "low",
       "recoveryAction": "import_candidate",
-      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "recoveryMode": "dry_run_manual_review",
+      "productionMutationAllowed": false,
+      "reason": "Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan.",
       "overwriteCurrentTruth": false,
       "currentProductTruthSource": "analytics_event_facts"
     },
@@ -59,7 +65,9 @@
       "identityConfidence": "probable_match",
       "duplicateRisk": "low",
       "recoveryAction": "import_candidate",
-      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "recoveryMode": "dry_run_manual_review",
+      "productionMutationAllowed": false,
+      "reason": "Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan.",
       "overwriteCurrentTruth": false,
       "currentProductTruthSource": "analytics_event_facts"
     },
@@ -70,7 +78,9 @@
       "identityConfidence": "probable_match",
       "duplicateRisk": "low",
       "recoveryAction": "import_candidate",
-      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "recoveryMode": "dry_run_manual_review",
+      "productionMutationAllowed": false,
+      "reason": "Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan.",
       "overwriteCurrentTruth": false,
       "currentProductTruthSource": "analytics_event_facts"
     },
@@ -81,7 +91,9 @@
       "identityConfidence": "probable_match",
       "duplicateRisk": "low",
       "recoveryAction": "import_candidate",
-      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "recoveryMode": "dry_run_manual_review",
+      "productionMutationAllowed": false,
+      "reason": "Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan.",
       "overwriteCurrentTruth": false,
       "currentProductTruthSource": "analytics_event_facts"
     },
@@ -92,6 +104,8 @@
       "identityConfidence": "unknown",
       "duplicateRisk": "unknown",
       "recoveryAction": "archive_only",
+      "recoveryMode": "dry_run_manual_review",
+      "productionMutationAllowed": false,
       "reason": "Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it.",
       "overwriteCurrentTruth": false,
       "currentProductTruthSource": "analytics_event_facts"
@@ -103,7 +117,9 @@
       "identityConfidence": "probable_match",
       "duplicateRisk": "low",
       "recoveryAction": "import_candidate",
-      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "recoveryMode": "dry_run_manual_review",
+      "productionMutationAllowed": false,
+      "reason": "Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan.",
       "overwriteCurrentTruth": false,
       "currentProductTruthSource": "analytics_event_facts"
     },
@@ -114,6 +130,8 @@
       "identityConfidence": "unknown",
       "duplicateRisk": "unknown",
       "recoveryAction": "archive_only",
+      "recoveryMode": "dry_run_manual_review",
+      "productionMutationAllowed": false,
       "reason": "Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it.",
       "overwriteCurrentTruth": false,
       "currentProductTruthSource": "analytics_event_facts"
@@ -125,6 +143,8 @@
       "identityConfidence": "unknown",
       "duplicateRisk": "unknown",
       "recoveryAction": "archive_only",
+      "recoveryMode": "dry_run_manual_review",
+      "productionMutationAllowed": false,
       "reason": "External analytics evidence remains evidence-only until first-party reconciliation promotes it.",
       "overwriteCurrentTruth": false,
       "currentProductTruthSource": "analytics_event_facts"
@@ -180,9 +200,16 @@
       "action": "Dry-run reconciliation adds no user-facing route and no new 4xx path."
     }
   ],
+  "productTruthPolicy": {
+    "dryRunOnly": true,
+    "productionMutationAllowed": false,
+    "recoveredEventsCanOverwriteCurrentTruth": false,
+    "externalEvidenceCanPromoteProductTruth": false,
+    "importCandidatesRequireSeparateApproval": true
+  },
   "nextFixOrder": [
     "Review candidate mappings in Debug/source artifacts before any write-mode backfill proposal.",
-    "Promote only exact/probable first-party candidates after a separate dry-run parity check.",
+    "Keep exact/probable first-party candidates in dry-run review until a separate approved backfill plan exists.",
     "Keep GA4, BigQuery, and PostHog as evidence-only unless first-party reconciliation proves identity and dedupe."
   ]
 }

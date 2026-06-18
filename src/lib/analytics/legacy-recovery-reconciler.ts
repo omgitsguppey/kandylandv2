@@ -45,6 +45,8 @@ export type LegacyRecoveryCandidateMapping = {
   identityConfidence: LegacyIdentityConfidence;
   duplicateRisk: LegacyDuplicateRisk;
   recoveryAction: LegacyRecoveryAction;
+  recoveryMode: "dry_run_manual_review";
+  productionMutationAllowed: false;
   reason: string;
   overwriteCurrentTruth: false;
   currentProductTruthSource: string;
@@ -90,6 +92,13 @@ export type LegacyRecoveryReconciliationReport = {
     status: string;
     action: string;
   }>;
+  productTruthPolicy: {
+    dryRunOnly: true;
+    productionMutationAllowed: false;
+    recoveredEventsCanOverwriteCurrentTruth: false;
+    externalEvidenceCanPromoteProductTruth: false;
+    importCandidatesRequireSeparateApproval: true;
+  };
   nextFixOrder: string[];
 };
 
@@ -214,7 +223,7 @@ function buildReason(input: {
   if (input.identityConfidence === "exact_match") {
     return "Candidate matches an existing current event id; link it to current truth without overwriting.";
   }
-  return "Candidate has enough first-party shape to review as a dry-run recovery candidate.";
+  return "Candidate has enough first-party shape for dry-run manual review; no production import is allowed without a separate approved backfill plan.";
 }
 
 export function reconcileLegacyAnalyticsHistory(input: {
@@ -239,6 +248,8 @@ export function reconcileLegacyAnalyticsHistory(input: {
       identityConfidence,
       duplicateRisk,
       recoveryAction,
+      recoveryMode: "dry_run_manual_review",
+      productionMutationAllowed: false,
       reason: buildReason({ candidate, targetTruthLayer, identityConfidence, duplicateRisk }),
       overwriteCurrentTruth: false,
       currentProductTruthSource: "analytics_event_facts",
@@ -338,9 +349,16 @@ export function buildLegacyRecoveryReconciliationReport(input: {
     candidateMappings: reconciled.candidateMappings,
     sourceTruthMap,
     costFindings,
+    productTruthPolicy: {
+      dryRunOnly: true,
+      productionMutationAllowed: false,
+      recoveredEventsCanOverwriteCurrentTruth: false,
+      externalEvidenceCanPromoteProductTruth: false,
+      importCandidatesRequireSeparateApproval: true,
+    },
     nextFixOrder: [
       "Review candidate mappings in Debug/source artifacts before any write-mode backfill proposal.",
-      "Promote only exact/probable first-party candidates after a separate dry-run parity check.",
+      "Keep exact/probable first-party candidates in dry-run review until a separate approved backfill plan exists.",
       "Keep GA4, BigQuery, and PostHog as evidence-only unless first-party reconciliation proves identity and dedupe.",
     ],
   };
@@ -371,6 +389,18 @@ export function validateLegacyRecoveryReconciliationReport(
   }
   if (report.summary.overwritesCurrentTruth !== false || report.candidateMappings.some((mapping) => mapping.overwriteCurrentTruth !== false)) {
     failures.push("current product truth must not be overwritten.");
+  }
+  if (
+    report.productTruthPolicy?.dryRunOnly !== true
+    || report.productTruthPolicy.productionMutationAllowed !== false
+    || report.productTruthPolicy.recoveredEventsCanOverwriteCurrentTruth !== false
+    || report.productTruthPolicy.externalEvidenceCanPromoteProductTruth !== false
+    || report.productTruthPolicy.importCandidatesRequireSeparateApproval !== true
+  ) {
+    failures.push("legacy recovery report must declare dry-run product-truth policy.");
+  }
+  if (report.candidateMappings.some((mapping) => mapping.recoveryMode !== "dry_run_manual_review" || mapping.productionMutationAllowed !== false)) {
+    failures.push("legacy recovery candidates must remain dry-run/manual-review only.");
   }
   for (const lane of ["cloud_run", "cloud_sql", "gemini_cloud_assist", "route_4xx"] as const) {
     if (!report.costFindings.some((finding) => finding.lane === lane)) {

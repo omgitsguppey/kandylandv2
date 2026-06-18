@@ -1,7 +1,7 @@
 # GA4 Recovery Truth
 
-Generated: 2026-06-18T08:31:13.149Z
-Current code version: 2e9b7990d25ab93302a1814ef28f667d56e37a75
+Generated: 2026-06-18T15:52:25.595Z
+Current code version: d1530d4f8e554148e839170837e2a14647a91511
 
 ## Summary
 
