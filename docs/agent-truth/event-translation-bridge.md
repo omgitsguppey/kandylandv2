@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-18T20:30:33.532Z
+Generated: 2026-06-18T21:48:22.419Z
 Status: pass
-Current head: 442ed1fda137f50be07d25380a270eec736c9e84
+Current head: a8ac76d8cd819c040930565f6c837ed114397bc5
 
 ## Contract
 
@@ -53,7 +53,6 @@ Current head: 442ed1fda137f50be07d25380a270eec736c9e84
 
 ## Dirty Files
 
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
 
