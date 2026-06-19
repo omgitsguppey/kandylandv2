@@ -104,6 +104,23 @@ function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
   }
 }
 
+function groupPanelRecoveryTruthItems(items: Array<{ state: PanelRecoveryTruthState; count: number }>) {
+  const groups = new Map<string, { label: string; count: number; states: PanelRecoveryTruthState[] }>();
+
+  for (const item of items) {
+    const label = formatPanelRecoveryTruthState(item.state);
+    const existing = groups.get(label) ?? { label, count: 0, states: [] };
+    existing.count += item.count;
+    existing.states.push(item.state);
+    groups.set(label, existing);
+  }
+
+  return Array.from(groups.values()).map((group) => ({
+    ...group,
+    primaryState: group.states.includes("external_required") ? "external_required" : group.states[0],
+  }));
+}
+
 function formatAnalyticsShellStateLabel(value: string | null | undefined) {
   switch (value) {
     case "aligned":
@@ -446,6 +463,7 @@ export default function AdminAnalyticsPage() {
         { state: "broken", count: panelHydrationSummary.broken },
       ] satisfies Array<{ state: PanelRecoveryTruthState; count: number }>).filter((item) => item.count > 0)
     : [];
+  const panelRecoveryTruthGroups = groupPanelRecoveryTruthItems(panelRecoveryTruthItems);
   const panelRecoveryWaitingCount = panelRecoveryTruthItems
     .filter((item) =>
       item.state === "collecting" ||
@@ -634,17 +652,17 @@ export default function AdminAnalyticsPage() {
               ) : null}
               {showPanelRecovery ? (
                 <div className="space-y-2">
-                  {panelRecoveryTruthItems.length > 0 ? (
+                  {panelRecoveryTruthGroups.length > 0 ? (
                     <ul className="grid gap-1 pl-0 sm:grid-cols-3">
-                      {panelRecoveryTruthItems.map((item) => {
-                        const label = formatPanelRecoveryTruthState(item.state);
+                      {panelRecoveryTruthGroups.map((item) => {
                         return (
                           <li
-                            key={item.state}
+                            key={item.label}
                             className="list-none rounded-md border border-white/10 bg-black/20 px-2 py-1"
-                            data-panel-recovery-truth-state={item.state}
+                            data-panel-recovery-truth-state={item.primaryState}
+                            data-panel-recovery-truth-states={item.states.join(",")}
                           >
-                            {formatPanelRecoveryCount(item.count, label, label)}
+                            {formatPanelRecoveryCount(item.count, item.label, item.label)}
                           </li>
                         );
                       })}
