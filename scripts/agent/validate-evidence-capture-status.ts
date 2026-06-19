@@ -15,7 +15,6 @@ import {
 } from "../../src/lib/agent-score/refresh-safeguards";
 import {
   classifyGeneratedArtifactFromGit,
-  classifyGeneratedArtifactVersion,
   isGeneratedArtifactCurrent,
 } from "../../src/lib/agent-score/generated-artifact-version-policy";
 
@@ -99,6 +98,19 @@ const uiSurfaceCoverageArtifactPath = "agent/state/ui-visual-smoke-minimal.gener
 const uiSurfaceCoverageOwnedInputPaths = [
   "scripts/agent/validate-ui-visual-smoke-minimal.ts",
   "scripts/agent/check-ui-surface-coverage.ts",
+  "src/lib/evidence/ui-visual-smoke-contract.ts",
+  "agent/evidence/ui-visual-smoke/template.json",
+] as const;
+const evidenceCaptureOwnedInputPaths = [
+  "scripts/agent/validate-evidence-capture-status.ts",
+  "scripts/agent/validate-admin-truth-sample-evidence.ts",
+  "scripts/agent/validate-provider-smoke-evidence.ts",
+  "scripts/agent/validate-runtime-smoke-evidence.ts",
+  "scripts/agent/validate-ui-visual-smoke-minimal.ts",
+  "scripts/agent/check-ui-surface-coverage.ts",
+  "src/lib/agent-score/generated-artifact-version-policy.ts",
+  "src/lib/agent-score/refresh-registry.ts",
+  "src/lib/agent-score/refresh-safeguards.ts",
   "src/lib/evidence/ui-visual-smoke-contract.ts",
   "agent/evidence/ui-visual-smoke/template.json",
 ] as const;
@@ -452,6 +464,7 @@ export function validateEvidenceCaptureStatusReport(
       cwd: repoRoot,
       artifactPath: reportRelativePath,
       artifactHead: report.currentHead,
+      ownedSourcePaths: [...evidenceCaptureOwnedInputPaths],
     }))
     : false;
   if (report.currentHead !== head && !reportVersionCurrent) {
@@ -640,14 +653,12 @@ function main() {
   const head = currentHead();
   const forceRefresh = process.argv.includes("--refresh") || process.env.EVIDENCE_CAPTURE_STATUS_REFRESH === "1";
   const existing = readReport();
-  const currentContext = currentGeneratedCommitContext();
   const existingVersion = existing
-    ? classifyGeneratedArtifactVersion({
+    ? classifyGeneratedArtifactFromGit({
+      cwd: repoRoot,
       artifactPath: reportRelativePath,
       artifactHead: existing.currentHead,
-      currentHead: head,
-      parentHead: currentContext.parentHead,
-      changedFilesInHead: currentContext.changedFilesInHead,
+      ownedSourcePaths: [...evidenceCaptureOwnedInputPaths],
     })
     : null;
   const report = !forceRefresh && existing && existingVersion && isGeneratedArtifactCurrent(existingVersion)
