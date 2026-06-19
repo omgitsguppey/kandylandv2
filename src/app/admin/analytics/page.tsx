@@ -322,20 +322,35 @@ function formatLaunchRecoveryStatusLine(
   },
   rangeLabel?: string | null,
 ) {
-  const label = rangeLabel ?? "All";
+  const label = rangeLabel && rangeLabel.toLowerCase() !== "all" ? `${rangeLabel} history` : "Launch history";
   const suffix = summary.missingRangeCount > 0
     ? ` ${summary.missingRangeCount} range(s) still need recovery.`
     : "";
 
   if (summary.sourceAgreementState === "pass" && summary.confidenceLabel === "verified") {
-    return `${label} keeps launch history available. Missing stays labeled; estimates are not zero.${suffix}`;
+    return `${label} is available. Missing stays labeled; estimates are not zero.${suffix}`;
   }
 
   if (summary.sourceAgreementState === "not_enough_sources" || summary.confidenceLabel === "unknown") {
-    return `${label} is waiting for launch source evidence. Missing stays labeled; estimates are not zero.${suffix}`;
+    return `${label} is collecting source evidence. Missing stays labeled; estimates are not zero.${suffix}`;
   }
 
   return `${label} shows launch evidence under review. First-party gaps stay labeled until sources agree.${suffix}`;
+}
+
+function formatLaunchRecoverySourceLabel(value: string | null | undefined) {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  if (!normalized || normalized === "unknown") return "Collecting";
+  return String(value).trim();
+}
+
+function formatLaunchRecoveryConfidenceLabel(value: string | null | undefined) {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  if (!normalized || normalized === "unknown") return "Partial";
+  if (normalized === "verified") return "Verified";
+  if (normalized === "partial") return "Partial";
+  if (normalized === "review") return "Review";
+  return String(value).trim();
 }
 
 const AdminAnalyticsOperationsTab = dynamic(
@@ -383,8 +398,8 @@ export default function AdminAnalyticsPage() {
     `Coverage: ${state.launchRecoverySummary.coverageLabel}`,
   ];
   const sourceQualitySummary = [
-    `Source: ${state.launchRecoverySummary.sourceLabel}`,
-    `Confidence: ${state.launchRecoverySummary.confidenceLabel}`,
+    `Source: ${formatLaunchRecoverySourceLabel(state.launchRecoverySummary.sourceLabel)}`,
+    `Confidence: ${formatLaunchRecoveryConfidenceLabel(state.launchRecoverySummary.confidenceLabel)}`,
   ];
   const primaryBlockingAnalyticsError = overviewSnapshotUnavailable ? null : blockingAnalyticsError;
   const visibleOverviewDegradedCopy = (visibleDegradedCopy ?? []).filter(
@@ -567,7 +582,7 @@ export default function AdminAnalyticsPage() {
           statusBadgeLabel={analyticsOverviewDisplayMetrics.liveActive.badgeLabel}
           badgePlacement={analyticsOverviewDisplayMetrics.liveActive.showBadgeInPrimary ? "footer" : "hidden"}
           compactPrimary
-          dictionaryTooltip="Current active users on the platform. If refresh is due, this card keeps showing the last verified short-window count."
+          dictionaryTooltip="Active users from the latest verified short-window snapshot."
         />
         <MetricCard
           label="Mobile Share"
@@ -578,7 +593,7 @@ export default function AdminAnalyticsPage() {
           statusBadgeLabel={analyticsOverviewDisplayMetrics.mobileShare.badgeLabel}
           badgePlacement={analyticsOverviewDisplayMetrics.mobileShare.showBadgeInPrimary ? "footer" : "hidden"}
           compactPrimary
-          dictionaryTooltip="Percentage of visitors in this time range who are on mobile devices. Essential for guiding responsive design priority."
+          dictionaryTooltip="Mobile share from classified visitor traffic."
         />
         <MetricCard
           label="Revenue"
@@ -589,7 +604,7 @@ export default function AdminAnalyticsPage() {
           statusBadgeLabel={analyticsOverviewDisplayMetrics.revenue.badgeLabel}
           badgePlacement={analyticsOverviewDisplayMetrics.revenue.showBadgeInPrimary ? "footer" : "hidden"}
           compactPrimary
-          dictionaryTooltip="Total top-line revenue measured in USD across all confirmed transactions within the range. Does not subtract platform fees."
+          dictionaryTooltip="Confirmed transaction revenue for the selected range."
         />
         <MetricCard
           label="Purchases"
@@ -600,7 +615,7 @@ export default function AdminAnalyticsPage() {
           statusBadgeLabel={analyticsOverviewDisplayMetrics.purchases.badgeLabel}
           badgePlacement={analyticsOverviewDisplayMetrics.purchases.showBadgeInPrimary ? "footer" : "hidden"}
           compactPrimary
-          dictionaryTooltip="Number of distinct successful purchases completed. Compare to checkout starts to monitor conversion dropout."
+          dictionaryTooltip="Confirmed completed purchases for the selected range."
         />
       </div>
 

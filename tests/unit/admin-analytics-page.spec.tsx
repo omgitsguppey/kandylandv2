@@ -656,12 +656,12 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).toContain("Operations view - 30D Server snapshot");
     expect(container.textContent).toContain("Last updated: Current snapshot");
     expect(container.textContent).toContain("Coverage: 11/11 launch days");
-    expect(container.textContent).toContain("All keeps launch history available");
+    expect(container.textContent).toContain("Launch history is available");
     expect(container.textContent).toContain("Source: First-party");
-    expect(container.textContent).toContain("Confidence: verified");
+    expect(container.textContent).toContain("Confidence: Verified");
     expect(container.textContent).toContain("Current snapshot");
     expect(container.textContent).toContain("First-party");
-    expect(container.textContent).toContain("verified");
+    expect(container.textContent).toContain("Verified");
     expect(container.textContent).not.toContain("Realtime feed");
     expect(container.textContent).not.toContain("view ·");
     expect(container.textContent).not.toContain("Â·");
@@ -687,11 +687,12 @@ describe("AdminAnalyticsPage", () => {
 
     expect(container.textContent).toContain("Coverage: 3/3 local evidence days - first-party 1/3");
     expect(container.textContent).toContain("Source: Mixed");
-    expect(container.textContent).toContain("Confidence: review");
-    expect(container.textContent).toContain("All shows launch evidence under review");
+    expect(container.textContent).toContain("Confidence: Review");
+    expect(container.textContent).toContain("Launch history shows launch evidence under review");
     expect(container.textContent).toContain("First-party gaps stay labeled until sources agree");
     expect(container.textContent).toContain("1 range(s) still need recovery");
     expect(container.textContent).not.toContain("All keeps launch history available");
+    expect(container.textContent).not.toContain("All shows launch evidence under review");
   });
 
   it("does not show missing analytics source states as bare unavailable summary copy", async () => {
@@ -714,9 +715,12 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain("Operations view - No historical snapshot yet");
-    expect(container.textContent).toContain("Source: Unknown");
-    expect(container.textContent).toContain("Confidence: unknown");
-    expect(container.textContent).toContain("All is waiting for launch source evidence");
+    expect(container.textContent).toContain("Source: Collecting");
+    expect(container.textContent).toContain("Confidence: Partial");
+    expect(container.textContent).toContain("Launch history is collecting source evidence");
+    expect(container.textContent).not.toContain("Source: Unknown");
+    expect(container.textContent).not.toContain("Confidence: unknown");
+    expect(container.textContent).not.toContain("All is waiting for launch source evidence");
     expect(container.textContent).not.toContain("Source: Unavailable");
     expect(container.textContent).not.toContain("Confidence: Unavailable");
   });
