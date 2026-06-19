@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-19T07:31:30.701Z
-Current head: 1618a20e488d121fd96e359a8dc52cc84fb8ba3c
+Generated: 2026-06-19T07:42:36.451Z
+Current head: 90ac421574d9b17f1a29d6a5f8e02bad11de2419
 Status: source_agreement_failed
 
 ## Source Order
@@ -134,6 +134,11 @@ Status: source_agreement_failed
 - Bridge missing: 0
 - Runtime evidence required: 2
 - External evidence required: 4
+- Source-agreement blocked consumers: 9
+- Source-agreement source missing: 3
+- Source-agreement second-source only: 3
+- Source-agreement chart promotion held: 3
+- Source-agreement consumer mismatch: 0
 
 ## Next Steps
 

@@ -799,6 +799,12 @@ function buildLaunchAnalyticsRecoveryReport(input: {
           : launchCoverageState !== "available"
             ? "Launch history coverage is not fully available for the bounded evidence window."
             : "No launch history evidence window is available.";
+  const sourceAgreementBlockedConsumerDetails = asRecordArray(sourceAgreementDetail.blockedConsumerDetails);
+  const sourceAgreementDisplayStateCounts = sourceAgreementBlockedConsumerDetails.reduce<Record<string, number>>((counts, entry) => {
+    const state = typeof entry.allowedDisplayState === "string" ? entry.allowedDisplayState : "review";
+    counts[state] = (counts[state] ?? 0) + 1;
+    return counts;
+  }, {});
 
   return {
     reportKey: "launch-analytics-recovery",
@@ -927,6 +933,11 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       bridgeMissingPanels: input.panelReport.bridgeMissingPanels,
       runtimeEvidenceRequiredPanels: input.panelReport.runtimeEvidenceRequiredPanels,
       externalRequiredPanels: input.panelReport.externalRequiredPanels,
+      sourceAgreementBlockedConsumers: sourceAgreementBlockedConsumerDetails.length,
+      sourceAgreementSourceMissingConsumers: sourceAgreementDisplayStateCounts.source_missing ?? 0,
+      sourceAgreementSecondSourceConsumers: sourceAgreementDisplayStateCounts.second_source_only ?? 0,
+      sourceAgreementChartPromotionBlockedConsumers: sourceAgreementDisplayStateCounts.chart_promotion_blocked ?? 0,
+      sourceAgreementConsumerMismatchConsumers: sourceAgreementDisplayStateCounts.consumer_source_mismatch ?? 0,
     },
     nextExactSteps: [
       "Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party day buckets before chart promotion.",
@@ -1101,6 +1112,17 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   ))) {
     failures.push("blocked consumer details must include consumer, allowedDisplayState, and nextAction.");
   }
+  if (report.sourceAgreement.state === "failed" && report.adminPanelConnection.sourceAgreementBlockedConsumers !== report.sourceAgreement.blockedConsumerDetails.length) {
+    failures.push("admin panel connection must count source-agreement blocked consumers separately from hydration gaps.");
+  }
+  const sourceAgreementConsumerStateTotal =
+    report.adminPanelConnection.sourceAgreementSourceMissingConsumers
+    + report.adminPanelConnection.sourceAgreementSecondSourceConsumers
+    + report.adminPanelConnection.sourceAgreementChartPromotionBlockedConsumers
+    + report.adminPanelConnection.sourceAgreementConsumerMismatchConsumers;
+  if (report.adminPanelConnection.sourceAgreementBlockedConsumers > 0 && sourceAgreementConsumerStateTotal !== report.adminPanelConnection.sourceAgreementBlockedConsumers) {
+    failures.push("source-agreement blocked consumer state counts must sum to the blocked consumer total.");
+  }
   if (report.legacyRecovery.productTruthRole !== "recovery_evidence_only" || report.legacyRecovery.productionMutationAllowed) {
     failures.push("legacy recovery must remain recovery evidence only with production mutations disabled.");
   }
@@ -1244,6 +1266,11 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Bridge missing: ${report.adminPanelConnection.bridgeMissingPanels}`,
     `- Runtime evidence required: ${report.adminPanelConnection.runtimeEvidenceRequiredPanels}`,
     `- External evidence required: ${report.adminPanelConnection.externalRequiredPanels}`,
+    `- Source-agreement blocked consumers: ${report.adminPanelConnection.sourceAgreementBlockedConsumers}`,
+    `- Source-agreement source missing: ${report.adminPanelConnection.sourceAgreementSourceMissingConsumers}`,
+    `- Source-agreement second-source only: ${report.adminPanelConnection.sourceAgreementSecondSourceConsumers}`,
+    `- Source-agreement chart promotion held: ${report.adminPanelConnection.sourceAgreementChartPromotionBlockedConsumers}`,
+    `- Source-agreement consumer mismatch: ${report.adminPanelConnection.sourceAgreementConsumerMismatchConsumers}`,
     "",
     "## Next Steps",
     "",

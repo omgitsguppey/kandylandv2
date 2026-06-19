@@ -1,7 +1,7 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-06-19T07:31:30.531Z",
-  "currentHead": "1618a20e488d121fd96e359a8dc52cc84fb8ba3c",
+  "generatedAtUtc": "2026-06-19T07:42:36.015Z",
+  "currentHead": "90ac421574d9b17f1a29d6a5f8e02bad11de2419",
   "inputMode": "fixture_only_local_window",
   "inputPath": null,
   "launchCoverageEvidence": {
