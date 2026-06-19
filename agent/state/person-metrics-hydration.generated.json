@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-06-19T03:47:35.174Z",
+  "generatedAtUtc": "2026-06-19T04:06:52.315Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4973,7 +4973,7 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "a082a1e8e38034f1fe050ef50d7928cb23737e16",
+  "currentHead": "544dde648898688d18b51de064d4843b67f57c81",
   "dirtyFiles": [
     {
       "path": "agent/state/analytics-panel-hydration.generated.json",
