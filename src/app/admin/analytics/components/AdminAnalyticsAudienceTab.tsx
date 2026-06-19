@@ -241,7 +241,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     Decision source: {verifiedSnapshotLabel}. Vendor analytics are supporting evidence, not product truth.
                   </p>
                   <p className="text-gray-500">
-                    Source mix: GA4 site users; views are mixed site analytics and first-party snapshots.
+                    Source mix: site users; views are mixed site analytics and first-party snapshots.
                   </p>
                 </div>
 
@@ -273,7 +273,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 
               <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
                 <MetricCard
-                  label="GA4 Users"
+                  label="Site users"
                   value={formatAudienceValue(
                     audienceSnapshotModel.totalUsers.value,
                     formatCompactNumber,

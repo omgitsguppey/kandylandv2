@@ -97,10 +97,10 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).not.toContain("Source: {row.sourceTruth}");
     expect(source).not.toContain("Recovery label:");
     expect(source).not.toContain("vendor evidence + first-party snapshot");
-    expect(source).toContain('label="GA4 Users"');
-    expect(source).toContain("Source mix: GA4 site users; views are mixed site analytics and first-party snapshots.");
+    expect(source).toContain('label="Site users"');
+    expect(source).toContain("Source mix: site users; views are mixed site analytics and first-party snapshots.");
     expect(source).toContain("Chart source: Site users plus site views.");
-    expect(source).not.toContain("GA4 Users (estimated)");
+    expect(source).not.toContain("GA4 Users");
     expect(source).not.toContain("vendor evidence only");
     expect(source).toContain("Decision source: {verifiedSnapshotLabel}");
     expect(source).toContain("Vendor analytics are supporting evidence, not product truth.");
