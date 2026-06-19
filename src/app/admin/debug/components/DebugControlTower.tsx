@@ -27,18 +27,13 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
     useEffect(() => {
         let cancelled = false;
 
-        if (isLocalAdminUiTestSession) {
-            setModel(null);
-            setLoading(false);
-            setError(null);
-            return;
-        }
-
         async function loadControlTower() {
             setLoading(true);
             setError(null);
             try {
-                const response = await authFetch("/api/admin/debug/control-tower");
+                const response = isLocalAdminUiTestSession
+                    ? await fetch("/api/admin/debug/control-tower", { credentials: "same-origin" })
+                    : await authFetch("/api/admin/debug/control-tower");
                 const payload = await response.json() as AdminDebugControlTowerModel & { error?: string };
                 if (!response.ok) {
                     throw new Error(payload.error || "Admin Control Tower could not be loaded.");
@@ -88,9 +83,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
         .slice(0, 5), [activeFilter, model?.reports]);
 
     const Icon = model?.criticalCount ? AlertTriangle : loading ? Clock3 : CheckCircle2;
-    const controlTruthState = isLocalAdminUiTestSession
-        ? "missing"
-        : model?.truthState ?? (loading ? "unknown" : error ? "failed" : "unavailable");
+    const controlTruthState = model?.truthState ?? (loading ? "unknown" : error ? "failed" : "unavailable");
     const resolvedBusinessSnapshot = model?.businessSnapshot ?? businessSnapshot ?? null;
     const canonicalBusinessTruthState = model?.businessTruthState ?? resolveControlTowerBusinessTruthState(resolvedBusinessSnapshot);
     const controlTowerBadgeState = controlTruthState === "missing" || controlTruthState === "unknown"
@@ -149,7 +142,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                     </div>
                     <div className="shrink-0 text-left sm:text-right">
                         <AdminTruthBadge state={controlTowerBadgeState} className="mb-1" />
-                        <p className="text-[11px] font-semibold text-gray-300">{isLocalAdminUiTestSession ? "Waiting for verified source" : publicBetaReadinessStatusLabel}</p>
+                        <p className="text-[11px] font-semibold text-gray-300">{isLocalAdminUiTestSession ? "Source reports only" : publicBetaReadinessStatusLabel}</p>
                         <p className="text-[11px] text-gray-400">{isLocalAdminUiTestSession ? "Local UI fixture" : loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
                     </div>
                 </div>
@@ -173,9 +166,9 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                 <div
                     className="rounded-lg border border-amber-400/25 bg-amber-500/10 p-3 text-sm text-amber-100"
                     data-admin-debug-control-tower-fixture-boundary="true"
-                    data-admin-debug-control-tower-fixture-state="source_missing"
+                    data-admin-debug-control-tower-fixture-state="source_reports_only"
                 >
-                    Control Tower reports are waiting for verified debug evidence from a real admin session.
+                    Local UI review is using generated source reports. Live admin evidence, route samples, and protected actions still require a real admin session.
                 </div>
             ) : null}
 

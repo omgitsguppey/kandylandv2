@@ -21,6 +21,7 @@ import {
 const NOW = Date.UTC(2026, 5, 15, 12, 0, 0);
 const authContextSource = readFileSync(join(process.cwd(), "src/context/AuthContext.tsx"), "utf8");
 const rootLayoutSource = readFileSync(join(process.cwd(), "src/app/layout.tsx"), "utf8");
+const controlTowerRouteSource = readFileSync(join(process.cwd(), "src/app/api/admin/debug/control-tower/route.ts"), "utf8");
 
 function session(overrides: Record<string, unknown> = {}) {
   return JSON.stringify({
@@ -360,5 +361,17 @@ describe("admin UI test session", () => {
     expect(navigationSyncEffect.indexOf("if (adminUiTestSessionActive) {")).toBeLessThan(
       navigationSyncEffect.indexOf("authFetch(\"/api/auth/navigation-session\""),
     );
+  });
+
+  it("allows local fixture Control Tower source reports without Firebase admin credentials", () => {
+    expect(controlTowerRouteSource).toContain("isLocalAdminUiTestSessionRequest");
+    expect(controlTowerRouteSource).toContain("ADMIN_UI_TEST_SESSION_COOKIE_KEY");
+    expect(controlTowerRouteSource).toContain("resolveAdminUiTestSession({ rawValue: rawSession })");
+    expect(controlTowerRouteSource).toContain("buildAdminDebugControlTowerModel");
+    expect(controlTowerRouteSource).toContain('debugEvidenceSource: "generated"');
+    expect(controlTowerRouteSource.indexOf("isLocalAdminUiTestSessionRequest(request)")).toBeLessThan(
+      controlTowerRouteSource.indexOf("await guardApiRequest(request"),
+    );
+    expect(controlTowerRouteSource).toContain('"X-Admin-Ui-Test-Session": "source-reports-only"');
   });
 });

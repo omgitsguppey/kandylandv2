@@ -37,8 +37,9 @@ describe("admin debug local fixture boundary", () => {
     expect(pageSource).toContain("Waiting for verified");
     expect(pageSource).toContain("Local review checks layout and controls only; it does not load verified admin evidence.");
     expect(pageSource).toContain("local_fixture_source_missing");
-    expect(controlTowerSource).toContain("Waiting for verified source");
-    expect(controlTowerSource).toContain("waiting for verified debug evidence");
+    expect(controlTowerSource).toContain("Source reports only");
+    expect(controlTowerSource).toContain('data-admin-debug-control-tower-fixture-state="source_reports_only"');
+    expect(controlTowerSource).toContain("generated source reports");
   });
 
   it("skips debug route reads and realtime listeners in fixture mode", () => {
@@ -56,6 +57,7 @@ describe("admin debug local fixture boundary", () => {
     expect(nowTabSource).toContain("isLocalAdminUiTestSession?: boolean");
     expect(controlTowerSource).toContain("isLocalAdminUiTestSession = false");
     expect(controlTowerSource).toContain('data-admin-debug-control-tower-fixture-boundary="true"');
+    expect(controlTowerSource).toContain('fetch("/api/admin/debug/control-tower", { credentials: "same-origin" })');
   });
 
   it("guards debug mutations and protected balance adjustments behind real admin sessions", () => {

@@ -2516,6 +2516,8 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabActions\.tsx$/u,
     /^tests\/unit\/admin-truth-state\.spec\.ts$/u,
+    /^tests\/unit\/admin-debug-fixture-boundary\.spec\.ts$/u,
+    /^tests\/unit\/admin-ui-test-session\.spec\.ts$/u,
     /^tests\/unit\/client-error-reporting\.spec\.ts$/u,
     /^tests\/unit\/admin-debug-compact-layout\.spec\.ts$/u,
     /^src\/components\/Dashboard\/DailyTasksModule\.tsx$/u,
