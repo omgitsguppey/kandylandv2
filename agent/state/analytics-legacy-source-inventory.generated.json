@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-30T17:27:13.830Z",
+  "generatedAt": "2026-06-19T09:25:40.885Z",
   "dryRun": true,
   "liveScanEnabled": false,
   "sourceFilter": null,
@@ -615,7 +615,7 @@
       "recoverability": "directional",
       "confidence": "medium",
       "risks": [
-        "GA4 daily is stable historical validation, not first-party product truth."
+        "GA4 daily is stable historical validation, not first-party product truth or a runtime import target."
       ]
     },
     {
@@ -652,7 +652,7 @@
       "recoverability": "directional",
       "confidence": "directional",
       "risks": [
-        "Intraday export is incomplete/live-ish; label as directional and never as verified server truth."
+        "Intraday export is incomplete/live-ish; label as directional and never as verified server truth or a runtime import target."
       ]
     },
     {
@@ -690,7 +690,7 @@
       "recoverability": "debug_only",
       "confidence": "high",
       "risks": [
-        "Snapshots are display truth; they must include parity but are not raw event ledgers."
+        "Snapshots are display truth; they must include parity but are not raw event ledgers and must never be a direct import/export mutation target."
       ]
     }
   ],
@@ -700,5 +700,24 @@
     "directionalCount": 6,
     "debugOnlyCount": 2,
     "unavailableCount": 0
-  }
+  },
+  "reportKey": "analytics-legacy-source-inventory",
+  "status": "pass",
+  "generatedAtUtc": "2026-06-19T09:25:40.885Z",
+  "currentHead": "90eb55e4dc78d49afac1c66067d52121a5c3a4c9",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": false,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Attach approved launch-history coverage before using legacy/GA4 sources to clear launch analytics source gates.",
+    "Run npm run check:analytics-legacy-recovery and npm run check:analytics-panel-hydration after refreshing this inventory."
+  ],
+  "validationFailures": [],
+  "doesNotProve": [
+    "Does not query Firestore, GA4, BigQuery, provider systems, or production databases.",
+    "Does not prove record counts, all-launch coverage, runtime smoke, provider smoke, or admin truth sample evidence.",
+    "GA4 and historical sources remain second-source or fallback evidence only and cannot replace first-party product truth."
+  ]
 }

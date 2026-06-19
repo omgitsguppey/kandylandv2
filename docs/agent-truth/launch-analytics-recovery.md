@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-19T09:15:39.016Z
-Current head: 034ca83f8156a0077b6495043e22f6f3dc68c1aa
+Generated: 2026-06-19T09:25:52.916Z
+Current head: 90eb55e4dc78d49afac1c66067d52121a5c3a4c9
 Status: source_agreement_failed
 
 ## Source Order
@@ -113,7 +113,7 @@ Status: source_agreement_failed
 - Unknown legacy rows: 3
 - Manual review required: 10
 - Stale legacy report inputs: agent/state/analytics-legacy-history-reconciliation.generated.json, agent/state/analytics-legacy-purgatory-queue.generated.json, agent/state/analytics-legacy-recovery-reconciliation.generated.json
-- Historical evidence-only inputs: agent/state/analytics-legacy-source-inventory.generated.json
+- Historical evidence-only inputs: none
 - Boundary: Legacy, historical snapshot, and GA4 evidence can explain gaps or seed manual review only. They cannot overwrite analytics_event_facts, wallet, GumDrop, unlock, purchase, creator revenue, or person metric truth.
   - analytics_event_facts/fixture_evt_drop_click: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
   - analytics_guest_batches/fixture_guest_batch: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
