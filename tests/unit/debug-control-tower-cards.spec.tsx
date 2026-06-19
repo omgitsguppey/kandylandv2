@@ -71,6 +71,33 @@ describe("resolveReportDisplay", () => {
     expect(display.badgeLabel).toBe("Review");
   });
 
+  it("shows source-only public beta evidence as source checks, not external proof", () => {
+    const display = resolveReportDisplay(report({
+      id: "public-beta-score",
+      status: "error",
+      truthState: "failed",
+      evidenceGateCount: 1,
+      topFindings: [{
+        id: "source-only",
+        reportId: "public-beta-score",
+        section: "beta_readiness",
+        severity: "moderate",
+        title: "Source-only behavior evidence",
+        domain: "beta_readiness",
+        filePath: "agent/state/public-beta-score.generated.json",
+        humanReadableWarning: "Implemented behavior checks passed.",
+        suggestedValidator: "npm run check:beta-score",
+        evidence: [],
+        truthState: "live",
+      }],
+    }));
+
+    expect(display.statusLabel).toBe("Source checks only");
+    expect(display.findingLabel).toBe("1 evidence gate");
+    expect(display.badgeLabel).toBe("Review");
+    expect(display.sourceDetail).toBe("Source validators passed; runtime, provider, admin truth, and visual proof stay separate.");
+  });
+
   it("shows evidence-gate-only failures as proof gates even when the producer omits evidenceGateCount", () => {
     const display = resolveReportDisplay(report({
       status: "error",

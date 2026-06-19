@@ -1347,24 +1347,36 @@ function isRefreshOrMetadataFinding(finding: AdminDebugFindingCard) {
     );
 }
 
-function isFormalEvidenceFinding(finding: AdminDebugFindingCard) {
+function isEvidenceBoundaryFinding(finding: AdminDebugFindingCard) {
     return /source-only behavior evidence|runtime and provider proof required|admin truth sample required|report refresh required|evidence gate/iu.test(finding.title);
+}
+
+function isSourceOnlyEvidenceFinding(finding: AdminDebugFindingCard) {
+    return /source-only behavior evidence/iu.test(finding.title);
+}
+
+function isFormalProofFinding(finding: AdminDebugFindingCard) {
+    return /runtime and provider proof required|admin truth sample required|external proof required/iu.test(finding.title);
 }
 
 function hasSourceFindings(report: AdminDebugReportCard) {
     if (report.findingCount > 0 || report.criticalCount > 0) return true;
-    return report.topFindings.some((finding) => !isRefreshOrMetadataFinding(finding) && !isFormalEvidenceFinding(finding));
+    return report.topFindings.some((finding) => !isRefreshOrMetadataFinding(finding) && !isEvidenceBoundaryFinding(finding));
 }
 
 export function formatOperatorReportStatusForAdmin(report: AdminDebugReportCard) {
     const normalizedStatus = report.status.toLowerCase();
     const sourceFindingsPresent = hasSourceFindings(report);
     const sourceNeedsRefresh = report.freshness === "stale_24h" || report.freshness === "stale_72h" || report.sourceDrift === "stale";
+    const hasFormalProofGate = report.topFindings.some(isFormalProofFinding);
+    const hasSourceOnlyGate = report.topFindings.some(isSourceOnlyEvidenceFinding);
+    const hasRefreshGate = report.topFindings.some((finding) => isRefreshOrMetadataFinding(finding) || /report refresh required/iu.test(finding.title));
 
     if (report.freshness === "missing" || report.truthState === "missing") return "Source missing";
     if (report.freshness === "failed") return "Source failed";
-    if (sourceNeedsRefresh) return "Refresh due";
-    if (!sourceFindingsPresent && (report.evidenceGateCount ?? 0) > 0) return "Formal proof required";
+    if (sourceNeedsRefresh || (!sourceFindingsPresent && hasRefreshGate && !hasFormalProofGate)) return "Refresh due";
+    if (!sourceFindingsPresent && (hasFormalProofGate || ((report.evidenceGateCount ?? 0) > 0 && !hasSourceOnlyGate))) return "Formal proof required";
+    if (!sourceFindingsPresent && hasSourceOnlyGate) return "Source checks only";
     if (["delayed", "queued", "waiting"].includes(normalizedStatus)) return sourceFindingsPresent ? "Review delayed" : "Waiting for evidence";
     if (["fail", "failed", "error"].includes(normalizedStatus)) return "Needs review";
     if (["beta-risk", "warning", "review", "needs_review"].includes(normalizedStatus)) return "Needs review";

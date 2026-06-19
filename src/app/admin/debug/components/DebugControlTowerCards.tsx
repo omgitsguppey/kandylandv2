@@ -46,9 +46,9 @@ function isEvidenceGateFinding(finding: AdminDebugFindingCard) {
     return /source-only behavior evidence|runtime and provider proof required|admin truth sample required|report refresh required|evidence gate/u.test(finding.title.toLowerCase());
 }
 
-function isFormalProofGateFinding(finding: AdminDebugFindingCard) {
-    return /source-only behavior evidence|runtime and provider proof required|admin truth sample required|external proof required/u.test(finding.title.toLowerCase());
-}
+const isSourceOnlyEvidenceFinding = (finding: AdminDebugFindingCard) => /source-only behavior evidence/u.test(finding.title.toLowerCase());
+
+const isFormalProofGateFinding = (finding: AdminDebugFindingCard) => /runtime and provider proof required|admin truth sample required|external proof required/u.test(finding.title.toLowerCase());
 
 export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
     const evidenceGateCount = report.evidenceGateCount ?? 0;
@@ -72,10 +72,18 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     const evidenceGateOnly = !hasFindings && (evidenceGateCount > 0 || report.topFindings.some(isEvidenceGateFinding));
     const formalProofGateOnly = !hasFindings
         && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(normalizedStatus)
-        && (report.id === "public-beta-score" || report.topFindings.some(isFormalProofGateFinding));
+        && (
+            report.topFindings.some(isFormalProofGateFinding)
+            || (report.id === "public-beta-score" && report.topFindings.length === 0)
+        );
     const refreshGateOnly = !hasFindings
         && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(normalizedStatus)
         && report.topFindings.some((finding) => isRefreshOnlyFinding(finding) || /report refresh required/u.test(finding.title.toLowerCase()));
+    const sourceOnlyGateOnly = !hasFindings
+        && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(normalizedStatus)
+        && report.topFindings.some(isSourceOnlyEvidenceFinding)
+        && !report.topFindings.some(isFormalProofGateFinding)
+        && !refreshGateOnly;
     const proofBoundaryOnly = !hasFindings
         && formalProofGateOnly
         && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(report.status.toLowerCase());
@@ -97,6 +105,9 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     }
     if (proofBoundaryOnly) {
         return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "External proof required", findingLabel: evidenceGateOnly ? findingLabel : "Proof gate", sourceDetail: "Source validators are not enough for provider, runtime, or admin truth proof." };
+    }
+    if (sourceOnlyGateOnly) {
+        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Source checks only", findingLabel: evidenceGateOnly ? findingLabel : "Source-only evidence", sourceDetail: "Source validators passed; runtime, provider, admin truth, and visual proof stay separate." };
     }
     if (sourceNeedsRefresh || refreshGateOnly) {
         return { badgeState: "stale", badgeLabel: "Refresh due", statusLabel: "Refresh due", findingLabel, sourceDetail: "This evidence is older than its freshness window or current app version." };

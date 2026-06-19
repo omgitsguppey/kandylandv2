@@ -202,6 +202,25 @@ describe("admin debug control tower model", () => {
             }],
         }))).toBe("Formal proof required");
         expect(formatOperatorReportStatusForAdmin(reportCard({
+            id: "public-beta-score",
+            status: "ERROR",
+            truthState: "failed",
+            evidenceGateCount: 1,
+            topFindings: [{
+                id: "public-beta-source-only-0",
+                reportId: "public-beta-score",
+                section: "beta_readiness",
+                severity: "moderate",
+                title: "Source-only behavior evidence",
+                domain: "beta_readiness",
+                filePath: "agent/state/public-beta-score.generated.json",
+                humanReadableWarning: "Implemented behavior checks passed.",
+                suggestedValidator: "npm run check:beta-score",
+                evidence: [],
+                truthState: "live",
+            }],
+        }))).toBe("Source checks only");
+        expect(formatOperatorReportStatusForAdmin(reportCard({
             status: "clean",
             truthState: "stale",
             freshness: "stale_72h",
