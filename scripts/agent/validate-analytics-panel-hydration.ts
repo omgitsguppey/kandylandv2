@@ -102,6 +102,16 @@ function inclusiveDayCount(startDayKey: string, endDayKey: string) {
   return Math.floor((end - start) / 86_400_000) + 1;
 }
 
+function listInclusiveDays(startDayKey: string, endDayKey: string) {
+  const dayCount = inclusiveDayCount(startDayKey, endDayKey);
+  if (dayCount <= 0) return [];
+  return Array.from({ length: dayCount }, (_, index) => {
+    const day = new Date(`${startDayKey}T00:00:00.000Z`);
+    day.setUTCDate(day.getUTCDate() + index);
+    return day.toISOString().slice(0, 10);
+  });
+}
+
 function rangeLabel(startDayKey: string, endDayKey: string) {
   return startDayKey === endDayKey ? startDayKey : `${startDayKey}..${endDayKey}`;
 }
@@ -869,6 +879,43 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     ? expectedDays[expectedDays.length - 1]
     : dayKeyFromIso(input.generatedAtUtc);
   const formalLaunchExpectedDayCount = inclusiveDayCount(LAUNCH_ANALYTICS_FIRST_DAY_KEY, formalLaunchEndDayKey);
+  const localEvidenceByDay = new Map(dayCoverage.map((day) => [day.dayKey, day]));
+  const formalLaunchDayCoverage = listInclusiveDays(LAUNCH_ANALYTICS_FIRST_DAY_KEY, formalLaunchEndDayKey).map((dayKey) => {
+    const localDay = localEvidenceByDay.get(dayKey);
+    if (localDay) {
+      return {
+        ...localDay,
+        formalEvidenceState: "local_evidence_window" as const,
+        sourceCountsKnown: true,
+      };
+    }
+
+    return {
+      dayKey,
+      expected: true as const,
+      recovered: false,
+      formalEvidenceState: "outside_evidence_window" as const,
+      sourceCountsKnown: false,
+      sourceCounts: {
+        first_party: null,
+        ga4: null,
+        historicalSnapshot: null,
+        legacySupport: null,
+      },
+      missingRangesBySource: {
+        first_party: [],
+        ga4: [],
+        historicalSnapshot: [],
+        legacySupport: [],
+      },
+      duplicateRanges: [],
+      internalAdminExcludedCount: null,
+      duplicateSourceCount: 0,
+      confidence: "unknown" as const,
+      reason: "No approved all-launch evidence covers this day yet; source counts are unknown, not zero.",
+      nextAction: "Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.",
+    };
+  });
   const formalLaunchRange = {
     launchStartDayKey: LAUNCH_ANALYTICS_FIRST_DAY_KEY,
     expectedThroughDayKey: formalLaunchEndDayKey,
@@ -881,6 +928,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     reason: allLaunchRangeProven
       ? "Approved launch-history evidence declares the all-launch range and supplies matching day rows."
       : "Current evidence only covers the local source window; approved all-launch export or admin truth sample is still required.",
+    dayCoverage: formalLaunchDayCoverage,
+    unprovenDayCount: formalLaunchDayCoverage.filter((day) => day.formalEvidenceState === "outside_evidence_window").length,
   };
   const allLaunchRangeProofReason = allLaunchRangeProven
     ? coverageWindowKind === "all_range_historical_export"
@@ -1192,6 +1241,23 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (report.formalLaunchRange.state === "all_launch_range_proven" && report.formalLaunchRange.approvedCoverageDayCount !== report.formalLaunchRange.expectedDayCount) {
     failures.push("formal launch range proof must cover every expected launch day before clearing source truth.");
   }
+  if (!Array.isArray(report.formalLaunchRange.dayCoverage) || report.formalLaunchRange.dayCoverage.length !== report.formalLaunchRange.expectedDayCount) {
+    failures.push("formal launch range must expose one dayCoverage row for every launch day.");
+  }
+  const formalUnprovenDayCount = report.formalLaunchRange.dayCoverage.filter((day) => day.formalEvidenceState === "outside_evidence_window").length;
+  if (formalUnprovenDayCount !== report.formalLaunchRange.unprovenDayCount) {
+    failures.push("formal launch range unprovenDayCount must match outside_evidence_window day rows.");
+  }
+  for (const day of report.formalLaunchRange.dayCoverage) {
+    if (day.formalEvidenceState === "outside_evidence_window") {
+      if (day.recovered || day.confidence !== "unknown" || day.sourceCountsKnown !== false) {
+        failures.push(`formal launch day ${day.dayKey} outside evidence window must stay unrecovered and unknown.`);
+      }
+      if (Object.values(day.sourceCounts).some((value) => value !== null)) {
+        failures.push(`formal launch day ${day.dayKey} outside evidence window must use null source counts, not zero.`);
+      }
+    }
+  }
   if (report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== (report.formalLaunchRange.state === "all_launch_range_proven")) {
     failures.push("formal launch range state must agree with launchHistoryCoverage range proof.");
   }
@@ -1335,6 +1401,8 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Formal expected days: ${report.formalLaunchRange.expectedDayCount}`,
     `- Local evidence days: ${report.formalLaunchRange.localEvidenceDayCount}`,
     `- Approved coverage days: ${report.formalLaunchRange.approvedCoverageDayCount}`,
+    `- Formal day rows: ${report.formalLaunchRange.dayCoverage.length}`,
+    `- Unproven formal days: ${report.formalLaunchRange.unprovenDayCount}`,
     `- Local evidence ranges: ${report.formalLaunchRange.localEvidenceRanges.join(", ") || "none"}`,
     `- Unproven formal ranges: ${report.formalLaunchRange.unprovenRanges.join(", ") || "none"}`,
     `- Formal range reason: ${report.formalLaunchRange.reason}`,
@@ -1355,6 +1423,15 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Legacy support days: ${report.launchHistoryCoverage.sourceDayCounts.legacySupport}`,
     `- Missing ranges: ${report.launchHistoryCoverage.missingRanges.join(", ") || "none"}`,
     `- Stale input evidence: ${report.launchHistoryCoverage.staleInputEvidence ? "yes" : "no"}`,
+    "",
+    "## Formal Launch Day Rows",
+    "",
+    ...report.formalLaunchRange.dayCoverage.slice(0, 14).map((day) =>
+      `- ${day.dayKey}: state=${day.formalEvidenceState}; recovered=${day.recovered ? "yes" : "no"}; sourceCountsKnown=${day.sourceCountsKnown}; first_party=${day.sourceCounts.first_party ?? "unknown"}, ga4=${day.sourceCounts.ga4 ?? "unknown"}, historicalSnapshot=${day.sourceCounts.historicalSnapshot ?? "unknown"}, legacySupport=${day.sourceCounts.legacySupport ?? "unknown"}; confidence=${day.confidence}; next=${day.nextAction}`,
+    ),
+    report.formalLaunchRange.dayCoverage.length > 14
+      ? `- ${report.formalLaunchRange.dayCoverage.length - 14} additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.`
+      : "",
     "",
     "## Daily Recovery Rows",
     "",
