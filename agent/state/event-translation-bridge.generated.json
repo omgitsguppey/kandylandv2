@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-19T02:41:57.122Z",
-  "currentHead": "50a408ece3d6f11ca96e0ee5554d779e113b281f",
+  "generatedAtUtc": "2026-06-19T02:58:31.949Z",
+  "currentHead": "1de0e3f16959e14e64ea07d1247aa0efe55bc6c7",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5433,18 +5433,6 @@
   "gaps": [],
   "dirtyFiles": [
     {
-      "path": "agent/state/analytics-legacy-history-reconciliation.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/analytics-legacy-purgatory-queue.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
@@ -5454,14 +5442,6 @@
     },
     {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-legacy-history-reconciliation.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -5475,14 +5455,6 @@
     {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "tests/unit/analytics-panel-hydration.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
   "validationFailures": [],

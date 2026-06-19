@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-19T02:41:57.172Z
+Generated: 2026-06-19T02:58:32.127Z
 Status: pass
-Current head: 50a408ece3d6f11ca96e0ee5554d779e113b281f
+Current head: 1de0e3f16959e14e64ea07d1247aa0efe55bc6c7
 
 ## Contract
 
@@ -72,19 +72,12 @@ Current head: 50a408ece3d6f11ca96e0ee5554d779e113b281f
 
 ## Dirty Files
 
-- agent/state/analytics-legacy-history-reconciliation.generated.json: current_generated_artifact_to_commit
-- agent/state/analytics-legacy-purgatory-queue.generated.json: current_generated_artifact_to_commit
-- agent/state/analytics-legacy-recovery-reconciliation.generated.json: current_generated_artifact_to_commit
 - agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/launch-analytics-recovery.generated.json: current_generated_artifact_to_commit
 - agent/state/source-agreement-failure-detail.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/analytics-legacy-history-reconciliation.md: documentation_artifact_expected
-- docs/agent-truth/analytics-legacy-recovery-reconciliation.md: documentation_artifact_expected
 - docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
 - docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: documentation_artifact_expected
-- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 
