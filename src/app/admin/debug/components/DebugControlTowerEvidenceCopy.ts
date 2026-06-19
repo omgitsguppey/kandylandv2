@@ -28,12 +28,16 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
     }
 
     if (/runtime\/provider smoke|provider smoke|runtime smoke/iu.test(normalized)) {
+        const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true/iu.test(normalized);
+        const providerProofDetail = runtimeRecorded
+            ? "Attach redacted provider proof. Runtime smoke is recorded; keep it fresh."
+            : "Attach redacted provider proof and deployed runtime smoke.";
         return {
             state: "external_proof_required",
             label: "External proof required",
             detail: /operator-confirmed|operator confirmed|paypal/iu.test(normalized)
-                ? "Operator-confirmed payment is product context only. Attach formal provider smoke and refresh deployed runtime smoke."
-                : "Attach formal provider smoke and refresh deployed runtime smoke.",
+                ? `The operator-confirmed payment is product context only. ${providerProofDetail}`
+                : providerProofDetail,
         };
     }
 

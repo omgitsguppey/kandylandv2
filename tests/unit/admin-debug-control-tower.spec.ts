@@ -182,7 +182,7 @@ describe("admin debug control tower model", () => {
                 title: "Runtime and provider proof required",
                 domain: "beta_readiness",
                 filePath: "agent/state/public-beta-score.generated.json",
-                humanReadableWarning: "Attach formal provider smoke and refresh deployed runtime smoke evidence.",
+                humanReadableWarning: "Attach redacted provider proof. Deployed runtime smoke is still required.",
                 suggestedValidator: "npm run check:beta-score",
                 evidence: [],
                 truthState: "unknown",

@@ -281,7 +281,7 @@ describe("DebugControlTower", () => {
             expect(publicBetaText).toContain("Proof gate");
             expect(container.textContent).toContain("External proof required");
             expect(container.textContent).toContain("Proof required");
-            expect(container.textContent).toContain("External proof required - Attach formal provider smoke");
+            expect(container.textContent).toContain("External proof required - Attach redacted provider proof");
             expect(container.textContent).toContain("Admin sample required");
             expect(publicBetaText).not.toContain("0 findings");
             expect(publicBetaText).not.toContain("ERROR");
@@ -367,7 +367,8 @@ describe("DebugControlTower", () => {
             expect(publicBetaText).toContain("External proof required");
             expect(publicBetaText).toContain("4 evidence gates");
             expect(container.textContent).toContain("Source-only evidence - Implemented behavior checks passed");
-            expect(container.textContent).toContain("External proof required - Operator-confirmed payment is product context only");
+            expect(container.textContent).toContain("External proof required - The operator-confirmed payment is product context only");
+            expect(container.textContent).toContain("Runtime smoke is recorded; keep it fresh.");
             expect(container.textContent).toContain("Admin sample required");
             expect(container.textContent).toContain("Refresh due - 6 required generated reports are outside the freshness window.");
             expect(publicBetaText).not.toContain("0 findings");

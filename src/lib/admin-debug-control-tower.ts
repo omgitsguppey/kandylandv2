@@ -567,8 +567,12 @@ function normalizePublicBetaEvidenceGateFinding(
 
     if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke")) {
         const operatorContext = /operator-confirmed|operator confirmed|paypal/iu.test(normalized)
-            ? " Operator-confirmed payment is product context only and does not clear formal provider proof."
+            ? " The operator-confirmed payment is product context only and does not clear provider proof."
             : "";
+        const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true/iu.test(normalized);
+        const runtimeContext = runtimeRecorded
+            ? " Runtime smoke is recorded; keep it fresh."
+            : " Deployed runtime smoke is still required.";
         return {
             id: `public-beta-runtime-provider-proof-${index}`,
             reportId: definition.id,
@@ -577,7 +581,7 @@ function normalizePublicBetaEvidenceGateFinding(
             title: "Runtime and provider proof required",
             domain: "beta_readiness",
             filePath: relativePath,
-            humanReadableWarning: `Attach formal provider smoke and refresh deployed runtime smoke evidence.${operatorContext}`,
+            humanReadableWarning: `Attach redacted provider proof.${runtimeContext}${operatorContext}`,
             suggestedValidator: definition.command,
             evidence: [detail.slice(0, 220)],
             truthState: "unknown",

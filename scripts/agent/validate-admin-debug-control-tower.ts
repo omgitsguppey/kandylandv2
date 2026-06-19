@@ -2494,6 +2494,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugOperatorCockpit\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugBugReportSummary\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugControlTowerEvidenceCopy\.ts$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTowerBusinessTruth\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugBugIntakePanel\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
