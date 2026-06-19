@@ -17,6 +17,7 @@ import {
   type RefreshArtifactInput,
 } from "../../src/lib/agent-score/refresh-safeguards";
 import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
+import { readGeneratedArtifactGitContext } from "../../src/lib/agent-score/generated-artifact-version-policy";
 import {
   summarizeUiVisualSmokeEvidenceForScore,
   type UiVisualSmokeMinimalReport,
@@ -104,11 +105,19 @@ function collectRefreshArtifacts(root: string, currentHead: string, generatedAtU
         exists: false,
       };
     }
+    const artifactHead = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
+    const gitContext = artifactHead
+      ? readGeneratedArtifactGitContext(root, artifactHead, entry.artifactPath)
+      : null;
     return {
       artifactPath: entry.artifactPath,
       generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
-      sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+      sourceCommit: artifactHead,
+      currentHead: readString(parsed.currentHead),
       currentCodeVersion: currentHead,
+      parentHead: gitContext?.parentHead,
+      changedFilesInHead: gitContext?.changedFilesInHead,
+      changedFilesSinceArtifactHead: gitContext?.changedFilesSinceArtifactHead,
       exists: true,
     };
   });

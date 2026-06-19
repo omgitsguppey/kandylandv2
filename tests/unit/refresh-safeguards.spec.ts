@@ -37,6 +37,7 @@ describe("refresh safeguards", () => {
     const staleByAge = getArtifactRefreshStatus({
       artifactPath: "agent/state/mobile-ui-final-lock.generated.json",
       generatedAtUtc: "2026-05-18T12:00:00.000Z",
+      sourceCommit: "new",
       currentCodeVersion: "new",
       nowUtc: "2026-05-20T13:00:00.000Z",
     });
@@ -68,6 +69,25 @@ describe("refresh safeguards", () => {
     expect(plan.some((entry) => entry.artifactPath === "agent/state/public-beta-score.generated.json" && entry.needsRefresh)).toBe(true);
     expect(plan.every((entry) => entry.refreshCommand)).toBe(true);
     expect(plan.map((entry) => entry.message).join("\n")).not.toMatch(/\bHEAD\b|currentHead/u);
+  });
+
+  it("keeps same-commit generated report snapshots out of the stale queue", () => {
+    const plan = buildRefreshPlan([
+      {
+        artifactPath: "agent/state/public-beta-score.generated.json",
+        generatedAtUtc: "2026-05-20T12:00:00.000Z",
+        sourceCommit: "parent",
+      },
+    ], {
+      currentCodeVersion: "head",
+      parentHead: "parent",
+      changedFilesInHead: ["agent/state/public-beta-score.generated.json"],
+      nowUtc: "2026-05-20T13:00:00.000Z",
+    });
+
+    expect(plan[0]?.status).toBe("same_commit_snapshot");
+    expect(plan[0]?.needsRefresh).toBe(false);
+    expect(plan[0]?.message).toContain("same-commit generated report snapshot");
   });
 
   it("keeps formal gates blocked when stale evidence exists", () => {

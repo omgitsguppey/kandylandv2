@@ -7,6 +7,7 @@ import {
   type RefreshArtifactInput,
 } from "../../src/lib/agent-score/refresh-safeguards";
 import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
+import { readGeneratedArtifactGitContext } from "../../src/lib/agent-score/generated-artifact-version-policy";
 import {
   buildSelfHealingRefreshQueue,
   validateSelfHealingRefreshQueue,
@@ -53,12 +54,19 @@ function readNumber(value: unknown) {
 
 function artifactInput(entry: typeof REFRESH_ARTIFACT_REGISTRY[number], currentHead: string): RefreshArtifactInput {
   const artifact = readJson(entry.artifactPath);
+  const artifactHead = readString(artifact?.sourceCommit) ?? readString(artifact?.currentHead);
+  const gitContext = artifactHead
+    ? readGeneratedArtifactGitContext(ROOT, artifactHead, entry.artifactPath)
+    : null;
   return {
     artifactPath: entry.artifactPath,
     generatedAtUtc: readString(artifact?.generatedAtUtc) ?? readString(artifact?.generatedAt),
-    sourceCommit: readString(artifact?.sourceCommit) ?? readString(artifact?.currentHead),
+    sourceCommit: artifactHead,
     currentHead: readString(artifact?.currentHead),
     currentCodeVersion: currentHead,
+    parentHead: gitContext?.parentHead,
+    changedFilesInHead: gitContext?.changedFilesInHead,
+    changedFilesSinceArtifactHead: gitContext?.changedFilesSinceArtifactHead,
     exists: Boolean(artifact),
   };
 }

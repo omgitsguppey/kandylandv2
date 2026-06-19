@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { buildRefreshPlan, uniqueRefreshCommands } from "../../src/lib/agent-score/refresh-safeguards";
 import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
+import { readGeneratedArtifactGitContext } from "../../src/lib/agent-score/generated-artifact-version-policy";
 
 type FormalEvidenceStatus = "missing" | "incomplete" | "complete";
 type EvidenceLaneStatus =
@@ -141,11 +142,19 @@ function artifactInput(relativePath: string, head: string) {
       exists: false,
     };
   }
+  const artifactHead = readString(parsed.sourceCommit ?? parsed.currentHead) || undefined;
+  const gitContext = artifactHead
+    ? readGeneratedArtifactGitContext(repoRoot, artifactHead, relativePath)
+    : null;
   return {
     artifactPath: relativePath,
     generatedAtUtc: readString(parsed.generatedAtUtc ?? parsed.generatedAt) || undefined,
-    sourceCommit: readString(parsed.sourceCommit ?? parsed.currentHead) || undefined,
+    sourceCommit: artifactHead,
+    currentHead: readString(parsed.currentHead) || undefined,
     currentCodeVersion: head,
+    parentHead: gitContext?.parentHead,
+    changedFilesInHead: gitContext?.changedFilesInHead,
+    changedFilesSinceArtifactHead: gitContext?.changedFilesSinceArtifactHead,
     exists: true,
   };
 }

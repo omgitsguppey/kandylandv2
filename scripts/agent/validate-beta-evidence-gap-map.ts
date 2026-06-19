@@ -11,6 +11,7 @@ import {
   type RefreshArtifactInput,
 } from "../../src/lib/agent-score/refresh-safeguards";
 import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
+import { readGeneratedArtifactGitContext } from "../../src/lib/agent-score/generated-artifact-version-policy";
 
 export type BetaEvidenceGapLane = {
   id: string;
@@ -273,11 +274,19 @@ function artifactInput(relativePath: string, head: string): RefreshArtifactInput
       exists: false,
     };
   }
+  const artifactHead = readString(parsed.sourceCommit ?? parsed.currentHead);
+  const gitContext = artifactHead
+    ? readGeneratedArtifactGitContext(repoRoot, artifactHead, relativePath)
+    : null;
   return {
     artifactPath: relativePath,
     generatedAtUtc: readString(parsed.generatedAtUtc ?? parsed.generatedAt),
-    sourceCommit: readString(parsed.sourceCommit ?? parsed.currentHead),
+    sourceCommit: artifactHead,
+    currentHead: readString(parsed.currentHead),
     currentCodeVersion: head,
+    parentHead: gitContext?.parentHead,
+    changedFilesInHead: gitContext?.changedFilesInHead,
+    changedFilesSinceArtifactHead: gitContext?.changedFilesSinceArtifactHead,
     exists: true,
   };
 }

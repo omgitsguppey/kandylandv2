@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T07:56:53.258Z",
+  "generatedAtUtc": "2026-06-19T08:03:34.954Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+  "currentHead": "1c6b084a8027aa23095cb799bfde8808d006be69",
   "summary": {
     "laneCount": 8,
     "formalMissingCount": 3,
@@ -11,7 +11,7 @@
     "providerSmokeGateCleared": false,
     "p0Count": 0,
     "p1Count": 3,
-    "p2Count": 7
+    "p2Count": 17
   },
   "lanes": [
     {
@@ -191,61 +191,61 @@
   "refreshPlan": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run score:beta && npm run check:beta-score"
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:evidence-capture-status"
     },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:source-truth-authority-map"
     },
     {
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:final-telemetry-closure-lock"
     },
     {
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:mobile-ui-final-lock"
     },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:creator-settings-control-plane"
     },
     {
       "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:creator-drop-status-metrics"
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:operator-revenue-smoke"
     },
@@ -257,88 +257,148 @@
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-freshness-language"
     },
     {
       "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:final-pr-stale-cleanup"
     },
     {
       "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:overnight-wiring-integrity"
     },
     {
       "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:existing-algorithm-refinement"
     },
     {
       "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
     },
     {
       "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:global-marquee-truncated-titles"
     }
   ],
   "staleReports": [
     {
+      "artifactPath": "agent/state/public-beta-score.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run score:beta && npm run check:beta-score"
+    },
+    {
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:current-beta-exit-status"
+    },
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:evidence-capture-status"
+    },
+    {
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:source-truth-authority-map"
+    },
+    {
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:final-telemetry-closure-lock"
+    },
+    {
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:mobile-ui-final-lock"
+    },
+    {
+      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:overnight-final-integration-lock"
+    },
+    {
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:creator-settings-control-plane"
+    },
+    {
+      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:creator-drop-status-metrics"
+    },
+    {
+      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:operator-revenue-smoke"
+    },
+    {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-freshness-language"
     },
     {
       "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:final-pr-stale-cleanup"
     },
     {
       "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:overnight-wiring-integrity"
     },
     {
       "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:existing-algorithm-refinement"
     },
     {
       "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
     },
     {
       "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:global-marquee-truncated-titles"
     }
   ],
