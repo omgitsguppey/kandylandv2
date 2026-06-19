@@ -15,6 +15,11 @@ describe("admin privacy fixture boundary", () => {
     expect(componentSource).toContain('data-privacy-console-overall-state={isLocalFixtureSourceMissing ? "source_missing"');
   });
 
+  it("keeps privacy evidence drilldown compact", () => {
+    expect(componentSource).toContain(">Details</summary>");
+    expect(componentSource).not.toContain("Source notes");
+  });
+
   it("skips privacy preflight route reads in fixture mode", () => {
     expect(hookSource).toContain("isAdminUiTestSessionUser(user)");
     expect(hookSource).toContain('"local_fixture_source_missing"');

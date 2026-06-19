@@ -149,7 +149,7 @@ export function AdminPrivacyPreflight() {
                             <p>Next action: {check.nextAction}</p>
                         </div>
                         <details className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-gray-400">
-                            <summary className="cursor-pointer font-semibold text-gray-300">Source notes</summary>
+                            <summary className="cursor-pointer font-semibold text-gray-300">Details</summary>
                             <div className="mt-2 space-y-1">
                                 <p>Source: {check.source}</p>
                                 <p>Reason: {check.reasonCode}</p>
