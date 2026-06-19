@@ -465,7 +465,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     guestSnapshotDisplay.state === "unavailable"
       ? `Auth ${authCount} · Guest unavailable`
       : guestSnapshotDisplay.state === "stale"
-        ? `Auth ${authCount} · Guest stale ${guestSnapshotDisplay.count ?? "unknown"}`
+        ? `Auth ${authCount} · Guest refresh due ${guestSnapshotDisplay.count ?? "unknown"}`
         : guestSnapshotDisplay.state === "needs_review"
           ? `Auth ${authCount} · Guest review ${guestSnapshotDisplay.count ?? "unknown"}`
           : guestSnapshotDisplay.sampleEvidence

@@ -251,6 +251,7 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     });
 
     expect(model.guestSnapshotTruthState).toBe("stale");
+    expect(model.guestMixLabel).toBe("Auth 0 · Guest refresh due 4");
     expect(model.guestSnapshotReason).toBe("Guest snapshot refresh due");
     expect(model.topWarningDetail).toBe("Guest snapshot refresh due. Showing cached guest sample.");
   });

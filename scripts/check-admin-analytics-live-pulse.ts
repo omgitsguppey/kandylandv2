@@ -121,7 +121,7 @@ assertIncludes("live pulse helper", helper, "resolveGuestSnapshotDisplay");
 assertIncludes("live pulse helper", helper, "guestSamplesAvailable");
 assertIncludes("live pulse helper", helper, "sourceSampleCounts.analytics_guest_batches");
 assertIncludes("live pulse helper", helper, "Guest unavailable");
-assertIncludes("live pulse helper", helper, "Guest snapshot stale");
+assertIncludes("live pulse helper", helper, "Guest refresh due");
 assertIncludes("live pulse helper", helper, "Identity linked");
 assertIncludes("live pulse helper", helper, "graphSourceLabel");
 assertIncludes("live pulse helper", helper, "graphLegendLabel");

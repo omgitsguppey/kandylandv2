@@ -108,7 +108,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     livePulseModel.guestSnapshotTruthState === "live"
       ? activeUsersTruthState
       : livePulseModel.guestSnapshotTruthState === "stale"
-        ? "stale"
+        ? "cached"
         : "degraded";
   const guestMixBadgeLabel =
     livePulseModel.guestSnapshotTruthState === "live"
