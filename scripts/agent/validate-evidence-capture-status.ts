@@ -15,6 +15,7 @@ import {
 } from "../../src/lib/agent-score/refresh-safeguards";
 import {
   classifyGeneratedArtifactFromGit,
+  classifyGeneratedArtifactVersion,
   isGeneratedArtifactCurrent,
 } from "../../src/lib/agent-score/generated-artifact-version-policy";
 
@@ -185,8 +186,21 @@ function readRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
+function readReport(): EvidenceCaptureStatusReport | null {
+  if (!existsSync(reportPath)) return null;
+  try {
+    return JSON.parse(readFileSync(reportPath, "utf8")) as EvidenceCaptureStatusReport;
+  } catch {
+    return null;
+  }
+}
+
 function readString(value: unknown) {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function looksLikeGitSha(value: string) {
+  return /^[a-f0-9]{7,40}$/iu.test(value);
 }
 
 function summarizeLiveRuntimeEvidenceFromArtifact(): LiveRuntimeEvidenceCapture {
@@ -432,7 +446,15 @@ export function validateEvidenceCaptureStatusReport(
   if (report.reportKey !== "evidence-capture-status") {
     failures.push("reportKey must be evidence-capture-status.");
   }
-  if (report.currentHead !== head) {
+  const reportVersionCurrent = report.currentHead !== head
+    && looksLikeGitSha(report.currentHead)
+    ? isGeneratedArtifactCurrent(classifyGeneratedArtifactFromGit({
+      cwd: repoRoot,
+      artifactPath: reportRelativePath,
+      artifactHead: report.currentHead,
+    }))
+    : false;
+  if (report.currentHead !== head && !reportVersionCurrent) {
     failures.push(`evidence capture status currentHead must match git HEAD (${head}).`);
   }
   if (!report.summary.strictModeReady) {
@@ -615,11 +637,28 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
 }
 
 function main() {
-  const report = buildFromWorkspace();
-  writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
-  writeDocs(report);
+  const head = currentHead();
+  const forceRefresh = process.argv.includes("--refresh") || process.env.EVIDENCE_CAPTURE_STATUS_REFRESH === "1";
+  const existing = readReport();
+  const currentContext = currentGeneratedCommitContext();
+  const existingVersion = existing
+    ? classifyGeneratedArtifactVersion({
+      artifactPath: reportRelativePath,
+      artifactHead: existing.currentHead,
+      currentHead: head,
+      parentHead: currentContext.parentHead,
+      changedFilesInHead: currentContext.changedFilesInHead,
+    })
+    : null;
+  const report = !forceRefresh && existing && existingVersion && isGeneratedArtifactCurrent(existingVersion)
+    ? existing
+    : buildFromWorkspace();
+  if (report !== existing) {
+    writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+    writeDocs(report);
+  }
 
-  const failures = validateEvidenceCaptureStatusReport(report, currentHead());
+  const failures = validateEvidenceCaptureStatusReport(report, head);
   if (failures.length > 0) {
     console.error("Evidence capture status validation failed:");
     for (const failure of failures) console.error(`- ${failure}`);
