@@ -46,6 +46,10 @@ function isEvidenceGateFinding(finding: AdminDebugFindingCard) {
     return /source-only behavior evidence|runtime and provider proof required|admin truth sample required|report refresh required|evidence gate/u.test(finding.title.toLowerCase());
 }
 
+function isFormalProofGateFinding(finding: AdminDebugFindingCard) {
+    return /source-only behavior evidence|runtime and provider proof required|admin truth sample required|external proof required/u.test(finding.title.toLowerCase());
+}
+
 export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
     const evidenceGateCount = report.evidenceGateCount ?? 0;
     const sourceFindingCount = report.findingCount > 0
@@ -65,8 +69,15 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
                 ? "Evidence gate"
                 : "No active findings";
     const sourceNeedsRefresh = report.freshness === "stale_24h" || report.freshness === "stale_72h" || report.sourceDrift === "stale";
+    const evidenceGateOnly = !hasFindings && (evidenceGateCount > 0 || report.topFindings.some(isEvidenceGateFinding));
+    const formalProofGateOnly = !hasFindings
+        && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(normalizedStatus)
+        && (report.id === "public-beta-score" || report.topFindings.some(isFormalProofGateFinding));
+    const refreshGateOnly = !hasFindings
+        && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(normalizedStatus)
+        && report.topFindings.some((finding) => isRefreshOnlyFinding(finding) || /report refresh required/u.test(finding.title.toLowerCase()));
     const proofBoundaryOnly = !hasFindings
-        && report.id === "public-beta-score"
+        && formalProofGateOnly
         && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(report.status.toLowerCase());
     const reportStatusLabel = (() => {
         if (["clean", "pass", "passed", "ready", "ok"].includes(normalizedStatus)) return "Source current";
@@ -85,9 +96,9 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
         return { badgeState: "failed", statusLabel: "Source failed", findingLabel: hasFindings ? findingLabel : "Source failed", sourceDetail: "The source evidence could not be read and cannot clear this lane." };
     }
     if (proofBoundaryOnly) {
-        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "External proof required", findingLabel: evidenceGateCount > 0 ? findingLabel : "Proof gate", sourceDetail: "Source validators are not enough for provider, runtime, or admin truth proof." };
+        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "External proof required", findingLabel: evidenceGateOnly ? findingLabel : "Proof gate", sourceDetail: "Source validators are not enough for provider, runtime, or admin truth proof." };
     }
-    if (sourceNeedsRefresh) {
+    if (sourceNeedsRefresh || refreshGateOnly) {
         return { badgeState: "stale", badgeLabel: "Refresh due", statusLabel: "Refresh due", findingLabel, sourceDetail: "This evidence is older than its freshness window or current app version." };
     }
     if (!hasFindings && report.truthState === "live") {

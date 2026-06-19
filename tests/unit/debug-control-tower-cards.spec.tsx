@@ -71,6 +71,54 @@ describe("resolveReportDisplay", () => {
     expect(display.badgeLabel).toBe("Review");
   });
 
+  it("shows evidence-gate-only failures as proof gates even when the producer omits evidenceGateCount", () => {
+    const display = resolveReportDisplay(report({
+      status: "error",
+      truthState: "failed",
+      topFindings: [{
+        id: "provider-proof",
+        reportId: "sample-report",
+        section: "beta_readiness",
+        severity: "major",
+        title: "Runtime and provider proof required",
+        domain: "beta_readiness",
+        filePath: "agent/state/sample.generated.json",
+        humanReadableWarning: "Formal provider and runtime evidence is required.",
+        suggestedValidator: "npm run check:sample",
+        evidence: [],
+        truthState: "unknown",
+      }],
+    }));
+
+    expect(display.statusLabel).toBe("External proof required");
+    expect(display.findingLabel).toBe("Evidence gate");
+    expect(display.sourceDetail).toBe("Source validators are not enough for provider, runtime, or admin truth proof.");
+  });
+
+  it("shows refresh evidence gates as refresh due instead of provider proof", () => {
+    const display = resolveReportDisplay(report({
+      status: "warning",
+      truthState: "stale",
+      topFindings: [{
+        id: "report-refresh",
+        reportId: "sample-report",
+        section: "beta_readiness",
+        severity: "major",
+        title: "Report refresh required",
+        domain: "beta_readiness",
+        filePath: "agent/state/sample.generated.json",
+        humanReadableWarning: "Generated report metadata is outside the freshness window.",
+        suggestedValidator: "npm run check:sample",
+        evidence: [],
+        truthState: "stale",
+      }],
+    }));
+
+    expect(display.statusLabel).toBe("Refresh due");
+    expect(display.findingLabel).toBe("Evidence gate");
+    expect(display.badgeLabel).toBe("Refresh due");
+  });
+
   it("shows zero-finding delayed reports as waiting evidence instead of delayed errors", () => {
     const display = resolveReportDisplay(report({
       id: "self-healing-refresh-queue",
