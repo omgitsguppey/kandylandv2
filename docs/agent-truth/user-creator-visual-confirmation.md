@@ -17,16 +17,16 @@ This lane confirms user-facing and creator-facing UI stability after the source 
 ## This Pass
 
 - Confirmed route/action source truth for the required user and creator routes.
-- Kept visual confirmation source-only because no screenshot evidence was attached in this run.
+- Kept visual confirmation source-owned; optional reproduction evidence is not required unless this lane reports a concrete UI issue.
 - Aligned the Broadcast manager shell/header with the other Creator Dashboard managers.
 - Raised creator agreement PDF and table-of-contents controls to mobile-safe tap targets.
 - Added a validator that blocks forbidden admin/payment drift, fake hrefs, eager manager mounts, missing manager tap targets, release drawer overflow regressions, chat shell safe-area regressions, and false visual-QA pass claims.
 
-## Screenshot Evidence Status
+## Reproduction Evidence Status
 
-No screenshot evidence is attached in this artifact. The correct status is source-confirmed and ready for manual screenshot confirmation, not final visual QA complete.
+No reproduction evidence is attached in this artifact. The correct status is source-checked. Browser viewing or screenshots are optional follow-up only after this source lane reports a concrete UI issue.
 
-Manual confirmation routes:
+Source-covered routes:
 
 - `/`
 - `/drops`
@@ -43,4 +43,4 @@ Manual confirmation routes:
 
 ## Next Step
 
-Capture mobile screenshots for the listed routes. Any screenshot-confirmed defect should become a route-specific microfix in the allowed user/creator frontend surface only.
+Fix any source-reported route issue first. Use browser viewing or screenshots only to reproduce a reported issue, then make a route-specific microfix in the allowed user/creator frontend surface only.

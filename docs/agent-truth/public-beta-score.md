@@ -26,7 +26,7 @@ Scanner cleanliness is not readiness by itself. The score now also records evide
 
 - source safety
 - targeted behavior tests
-- visual/manual smoke evidence
+- UI source coverage
 - runtime/provider smoke evidence
 - admin truth/sample evidence
 - generated report freshness, open PR, and latest code version integrity
@@ -42,9 +42,8 @@ Honest readiness statuses:
 - `Unknown evidence`
 - `Stale evidence`
 - `Runtime unverified`
-- `Visual QA required`
 
-If manual/screenshot evidence is absent, readiness is capped at `Visual QA required`. If provider smoke is absent, readiness is capped at `Ready with smoke required`. If generated reports are older than 24 hours, readiness is capped at `Stale evidence` or `Needs review`. Empty debug evidence is `Unknown evidence`, not proof of health.
+If UI source coverage reports a gap, readiness is blocked by that source finding. Screenshots or browser viewing are optional reproduction evidence only after a source-reported UI issue exists. If provider smoke is absent, readiness is capped at `Ready with smoke required`. If generated reports are older than 24 hours, readiness is capped at `Stale evidence` or `Needs review`. Empty debug evidence is `Unknown evidence`, not proof of health.
 
 Domain weights:
 
@@ -69,7 +68,7 @@ Evidence-weighted readiness model:
 
 - Source safety: 25
 - Targeted behavior tests: 20
-- User-critical visual/manual smoke evidence: 20
+- UI source coverage: 20
 - Runtime/provider smoke state: 15
 - Admin truth/sample evidence: 10
 - Freshness/open-PR/source-commit integrity: 10
@@ -174,7 +173,7 @@ Latest code version for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`
 - Scanner-only score: 100/100 clean.
 - Current Phase 1 status: `Stale evidence`.
 
-The score still applies caps for targeted behavior evidence, visual/manual smoke, runtime/provider smoke, admin truth/sample evidence, report freshness and PR integrity, and empty Debug/runtime evidence. This is an evidence-blocked state, not a proven runtime code blocker.
+The historical score still applied caps for targeted behavior evidence, an old visual smoke lane, runtime/provider smoke, admin truth/sample evidence, report freshness and PR integrity, and empty Debug/runtime evidence. That historical result is evidence-only; current score gates use UI source coverage instead of that retired cap.
 
 ## 2026-05-14 Formal Smoke Evidence Tracking
 
@@ -196,11 +195,11 @@ After this evidence tracking pass, `npm run score:beta` still reports 25/100 ove
 - `agent/state/runtime-smoke-evidence.generated.json`
 - `agent/state/admin-truth-sample-evidence.generated.json`
 - `agent/state/targeted-behavior-evidence.generated.json`
-- visual/manual evidence artifacts when a valid schema-backed artifact exists
+- UI source coverage artifacts when the deterministic source lane is current
 
-The score no longer awards provider smoke from final launch readiness report text, targeted behavior from a hardcoded boolean, admin truth samples from debug-entry presence, or visual/manual evidence from file existence alone.
+The score no longer awards provider smoke from final launch readiness report text, targeted behavior from a hardcoded boolean, admin truth samples from debug-entry presence, or UI confidence from file existence alone.
 
-At the time of this ingestion fix, `npm run score:beta` still reported 25/100 overall, 25/100 evidence score, and 100/100 scanner-only score. That historical result remains evidence only. Later targeted behavior evidence can raise the score, but the score remains capped whenever visual/manual smoke, provider smoke, runtime smoke, admin truth samples, or required generated report freshness remain missing or stale.
+At the time of this ingestion fix, `npm run score:beta` still reported 25/100 overall, 25/100 evidence score, and 100/100 scanner-only score. That historical result remains evidence only. Later targeted behavior and UI source coverage evidence can raise the score, but the score remains capped whenever provider smoke, runtime smoke, admin truth samples, or required generated report freshness remain missing or stale.
 
 `evidenceCapDetails` now records every active cap with the gate label and detail so operators can see which formal artifact is blocking each gate.
 
@@ -215,11 +214,11 @@ At the time of this ingestion fix, `npm run score:beta` still reported 25/100 ov
 - Scanner-only score: 100/100 clean.
 - Current Phase 1 status: `Stale evidence`.
 
-The targeted behavior gate is now backed by a formal artifact and can pass. This does not clear visual/manual QA, provider smoke, PayPal smoke, real-device smoke, deployed runtime smoke, admin truth samples, or launch/PR freshness.
+The targeted behavior gate is now backed by a formal artifact and can pass. This does not clear provider smoke, PayPal smoke, real-device smoke, deployed runtime smoke, admin truth samples, or launch/PR freshness.
 
 Remaining active caps:
 
-- `Visual QA required`: no valid visual/manual evidence artifact exists.
+- UI source coverage: deterministic source checks must be current; optional visual reproduction does not clear provider/runtime/admin truth.
 - `Runtime unverified`: provider smoke remains `missing_formal_evidence` and runtime smoke remains `runtime_unverified`.
 - `Unknown evidence`: admin truth sample evidence remains `missing_or_unknown`.
 - `Stale evidence`: final launch readiness, launch readiness, and PR triage reports are older than the freshness window.
@@ -227,11 +226,11 @@ Remaining active caps:
 
 ## 2026-05-15 Final Cleanup Lock
 
-`agent/state/final-phase-cleanup-lock.generated.json` now records the cleanup-phase evidence lock. At the time of the lock, `npm run score:beta` reports 45/100 with `Stale evidence`. The lock confirms source-connected cleanup can move to screenshot QA and formal smoke evidence collection, but it does not mark beta ready.
+`agent/state/final-phase-cleanup-lock.generated.json` now records the cleanup-phase evidence lock. At the time of the lock, `npm run score:beta` reports 45/100 with `Stale evidence`. The lock is historical evidence only; current UI readiness starts with deterministic UI source coverage and uses screenshots/browser viewing only to reproduce source-reported issues.
 
 The remaining blockers are evidence and authority gaps:
 
-- visual/manual screenshot QA is still required;
+- UI source coverage must stay current;
 - provider smoke is still formal-evidence-missing;
 - runtime smoke is still unverified;
 - admin truth sample evidence is still missing or unknown;
@@ -248,6 +247,6 @@ The remaining blockers are evidence and authority gaps:
 
 Legacy launch/readiness artifacts are retired from required beta score freshness math. They remain historical evidence snapshots only. Current evidence freshness is represented by evidence-capture status, source validators, and the current beta exit status lane.
 
-After this cleanup, the score is `55/100` with `Unknown evidence`. Scanner score remains `100/100 clean`, but that is scanner-only source hygiene. Missing visual/manual evidence, provider smoke, runtime smoke, admin truth sample evidence, and debug/runtime evidence still keep beta exit blocked.
+After this cleanup, the score is `55/100` with `Unknown evidence`. Scanner score remains `100/100 clean`, but that is scanner-only source hygiene. Missing provider smoke, runtime smoke, admin truth sample evidence, and debug/runtime evidence still keep beta exit blocked.
 
 Cost-readiness sublanes are not formal passes. `not_detected_in_repo`, `config_not_in_repo`, and `source_inventory_complete` are source inventory states. `cost_review_required` and `owner_review` remain owner-review states until real provider/runtime/cost evidence exists.

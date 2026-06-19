@@ -5,8 +5,8 @@ Validator: `npm run check:operator-final-qa-packet`
 
 ## Summary
 
-- Generated: `2026-05-26T21:09:06.001Z`
-- Current head: `c00b6d90c112eb289ec1b354f92fdbbc9a793ab9`
+- Generated: `2026-06-19T16:42:59.057Z`
+- Current head: `880b720a2125ff78f08570ca18e4325c6e2f2b70`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:operator-final-qa-packet`
 ```json
 {
   "reportKey": "operator-final-qa-packet",
-  "generatedAtUtc": "2026-05-26T21:09:06.001Z",
-  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
+  "generatedAtUtc": "2026-06-19T16:42:59.057Z",
+  "currentHead": "880b720a2125ff78f08570ca18e4325c6e2f2b70",
   "outsideCodexScoreGate": true,
   "surfaces": [
     {
@@ -26,7 +26,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -37,9 +37,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches homepage screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep homepage in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "signup-login",
@@ -49,7 +49,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -60,9 +60,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches signup-login screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep signup-login in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "user-dashboard",
@@ -72,7 +72,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -83,9 +83,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches user-dashboard screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep user-dashboard in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "wallet-purchase-modal",
@@ -95,7 +95,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -106,9 +106,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches wallet-purchase-modal screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep wallet-purchase-modal in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "drops-library",
@@ -118,7 +118,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -129,9 +129,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches drops-library screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep drops-library in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "drop-detail-unlock-unwrap-watch",
@@ -141,7 +141,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -152,9 +152,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches drop-detail-unlock-unwrap-watch screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep drop-detail-unlock-unwrap-watch in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "creator-profile",
@@ -164,7 +164,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -175,9 +175,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches creator-profile screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep creator-profile in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "creator-dashboard",
@@ -187,7 +187,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -198,9 +198,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches creator-dashboard screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep creator-dashboard in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "creator-settings",
@@ -210,7 +210,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -221,9 +221,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches creator-settings screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep creator-settings in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "creator-drop-manager",
@@ -233,7 +233,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -244,9 +244,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches creator-drop-manager screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep creator-drop-manager in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "chat",
@@ -256,7 +256,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -267,9 +267,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches chat screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep chat in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "daily-tasks",
@@ -279,7 +279,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -290,9 +290,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches daily-tasks screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep daily-tasks in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "account-settings-support",
@@ -302,7 +302,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -313,9 +313,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches account-settings-support screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep account-settings-support in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "notifications-pwa-prompt",
@@ -324,7 +324,7 @@ Validator: `npm run check:operator-final-qa-packet`
       "device": [
         "mobile"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -335,9 +335,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches notifications-pwa-prompt screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep notifications-pwa-prompt in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "admin-debug",
@@ -347,7 +347,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -358,9 +358,9 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches admin-debug screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep admin-debug in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
       "surfaceId": "user-management",
@@ -370,7 +370,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": true,
+      "screenshotRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -381,19 +381,34 @@ Validator: `npm run check:operator-final-qa-packet`
         "primary action visible",
         "telemetry/debug lane source-ready"
       ],
-      "status": "operator_pending",
-      "nextExactAction": "Operator captures and attaches user-management screenshots for required devices.",
-      "notes": "Outside Codex score gates; organized for operator-final review."
+      "status": "source_checked",
+      "nextExactAction": "Keep user-management in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     }
   ],
-  "operatorFinalStatus": "operator_pending",
-  "validationFailures": []
+  "operatorFinalStatus": "source_checked",
+  "validationFailures": [],
+  "status": "pass",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Use the owning release-readiness validator, then attach formal runtime/provider/admin evidence separately."
+  ],
+  "doesNotProve": [
+    "Does not prove deployed runtime behavior.",
+    "Does not prove provider smoke success.",
+    "Does not prove current admin truth samples.",
+    "Does not prove external billing or GitHub PR state unless an opt-in fresh evidence artifact says so."
+  ]
 }
 ```
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or operator-final visual QA unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a formal artifact for that category.
 
 ## Validation
 

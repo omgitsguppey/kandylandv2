@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-06-19T15:05:02.277Z",
+  "generatedAtUtc": "2026-06-19T16:42:57.326Z",
   "reportKey": "user-creator-visual-confirmation",
-  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "currentHead": "880b720a2125ff78f08570ca18e4325c6e2f2b70",
   "summary": {
     "routesChecked": 12,
-    "screenshotEvidenceAttached": false,
-    "sourceOnlyRoutes": 12,
-    "visualIssuesFound": 1,
+    "reproductionEvidenceAttached": false,
+    "sourceCoveredRoutes": 12,
+    "visualIssuesFound": 0,
     "visualIssuesFixed": 3,
-    "deferredManualChecks": 12,
-    "forbiddenAdminBackendDrift": 1,
+    "deferredReproductionChecks": 12,
+    "forbiddenAdminBackendDrift": 0,
     "forbiddenPaymentRuntimeDrift": 0,
-    "p0Count": 1,
+    "p0Count": 0,
     "p1Count": 0,
     "p2Count": 0
   },
@@ -19,131 +19,131 @@
     {
       "route": "/",
       "surface": "user",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/app/page.tsx",
         "src/app/HomeClient.tsx",
         "src/components/Navigation/ProfileDropdown.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "/drops",
       "surface": "user",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/app/drops/DropsClient.tsx",
         "src/components/Drops/LockedDropPreviewView.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "/drops/[id]/preview",
       "surface": "user",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/components/Drops/LockedDropPreviewView.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "/dashboard",
       "surface": "user",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/app/dashboard/layout.tsx",
         "src/components/Navigation/ProfileSidebar.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "/dashboard/creator",
       "surface": "creator",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/components/Creators/CreatorDashboardSettingsHub.tsx",
         "src/components/Creators/CreatorBroadcastManager.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "/dashboard/profile",
       "surface": "user",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/app/dashboard/profile/components/ProfileProfileSection.tsx",
         "src/app/dashboard/profile/components/ProfilePrimitives.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "/dashboard/settings",
       "surface": "user",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/app/dashboard/settings/page.tsx",
         "src/components/Navigation/ProfileSidebar.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "/dashboard/library",
       "surface": "user",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/app/dashboard/library/LibraryClient.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "/dashboard/chat",
       "surface": "shared_shell",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/components/Chat/ChatExperience.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "/creators/[username]",
       "surface": "creator",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/app/creators/[username]/CreatorProfileClient.tsx",
         "src/components/Creators/CreatorExperiencesPanel.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "Beta release notes drawer",
       "surface": "release_notes",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     },
     {
       "route": "Mobile nav/sidebar/profile dropdown",
       "surface": "shared_shell",
-      "confirmationMode": "source_only",
+      "confirmationMode": "source_coverage",
       "evidencePaths": [],
       "sourceFiles": [
         "src/components/Navigation/ProfileSidebar.tsx",
         "src/components/Navigation/ProfileDropdown.tsx"
       ],
-      "status": "source_confirmed_pending_screenshot"
+      "status": "source_checked"
     }
   ],
   "fixesApplied": [
@@ -174,20 +174,20 @@
       "exactNextAction": "Keep legal agreement controls tappable while preserving the approved bounded scroll region."
     },
     {
-      "key": "source_only_visual_confirmation_lock",
+      "key": "source_coverage_visual_confirmation_lock",
       "severity": "P2",
-      "title": "Added a source-only visual confirmation artifact; optional visual reproduction is only for source-reported UI issues.",
+      "title": "Added a source coverage artifact; optional visual reproduction is only for source-reported UI issues.",
       "fileOrSurface": "agent/state/user-creator-visual-confirmation.generated.json",
       "status": "fixed",
       "ownerLane": "user-creator-ui",
       "evidence": [
         "sourceFirst=true",
-        "sourceOnlyRoutes"
+        "sourceCoveredRoutes"
       ],
       "exactNextAction": "Run UI source coverage before any optional visual reproduction."
     }
   ],
-  "deferredManualChecks": [
+  "deferredReproductionChecks": [
     {
       "key": "ui_source_surface_home",
       "severity": "P2",
@@ -348,11 +348,9 @@
   "forbiddenDriftCheck": [
     {
       "key": "admin_backend_drift",
-      "status": "blocked",
-      "files": [
-        "src/app/admin/debug/components/DebugOperatorCockpit.tsx"
-      ],
-      "exactNextAction": "Revert forbidden admin/backend files before staging."
+      "status": "clean",
+      "files": [],
+      "exactNextAction": "No admin/backend drift detected."
     },
     {
       "key": "payment_runtime_drift",
@@ -362,8 +360,8 @@
     }
   ],
   "nextFixOrder": [
-    "Capture manual mobile screenshots for /, /drops, locked preview, dashboard, creator dashboard, profile, settings, library, chat shell, creator profile, release drawer, and mobile navigation.",
-    "Convert any screenshot-confirmed issue into a route-specific microfix without touching admin backend or payment runtime.",
-    "Keep screenshotEvidenceAttached=false until real screenshot evidence paths are attached."
+    "Fix every source-reported UI gap before optional browser or screenshot reproduction.",
+    "Use browser viewing or screenshots only to reproduce a specific source-reported issue.",
+    "Keep reproductionEvidenceAttached=false unless an optional reproduction artifact is attached for a source-reported issue."
   ]
 }

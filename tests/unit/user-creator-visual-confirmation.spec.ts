@@ -13,7 +13,7 @@ import {
   detectForbiddenPaymentRuntimeDrift,
   detectMissingManagerMobileTargets,
   detectMissingReleaseDrawerOverflowGuard,
-  detectScreenshotEvidenceMismatch,
+  detectReproductionEvidenceMismatch,
   type UserCreatorVisualConfirmationReport,
 } from "../../scripts/agent/validate-user-creator-visual-confirmation";
 
@@ -28,27 +28,27 @@ function readJson(relativePath: string) {
 }
 
 describe("user creator visual confirmation", () => {
-  it("records source-only visual confirmation when screenshots are not attached", () => {
+  it("records source-owned visual confirmation without requiring screenshots", () => {
     expect(existsSync(join(root, "agent/state/user-creator-visual-confirmation.generated.json"))).toBe(true);
     const report = readJson("agent/state/user-creator-visual-confirmation.generated.json");
 
     expect(report.reportKey).toBe("user-creator-visual-confirmation");
     expect(report.currentHead).toMatch(/^[a-f0-9]{40}$/u);
     expect(report.summary.routesChecked).toBeGreaterThanOrEqual(REQUIRED_VISUAL_CONFIRMATION_ROUTES.length);
-    expect(report.summary.screenshotEvidenceAttached).toBe(false);
-    expect(report.summary.sourceOnlyRoutes).toBeGreaterThanOrEqual(REQUIRED_VISUAL_CONFIRMATION_ROUTES.length);
-    expect(report.deferredManualChecks.length).toBeGreaterThan(0);
+    expect(report.summary.reproductionEvidenceAttached).toBe(false);
+    expect(report.summary.sourceCoveredRoutes).toBeGreaterThanOrEqual(REQUIRED_VISUAL_CONFIRMATION_ROUTES.length);
+    expect(report.deferredReproductionChecks.length).toBeGreaterThan(0);
   });
 
-  it("requires every visual route in the source-only route list when screenshots are missing", () => {
-    const report = buildUserCreatorVisualConfirmationReport({ screenshotEvidenceAttached: false });
+  it("requires every visual route in the source coverage route list when reproduction evidence is absent", () => {
+    const report = buildUserCreatorVisualConfirmationReport({ reproductionEvidenceAttached: false });
     const routeIds = new Set(report.routes.map((route) => route.route));
 
     for (const route of REQUIRED_VISUAL_CONFIRMATION_ROUTES) {
       expect(routeIds.has(route)).toBe(true);
     }
 
-    expect(detectScreenshotEvidenceMismatch(report)).toEqual([]);
+    expect(detectReproductionEvidenceMismatch(report)).toEqual([]);
   });
 
   it("detects fake action targets and creator self-loops", () => {
@@ -84,14 +84,14 @@ describe("user creator visual confirmation", () => {
   });
 
   it("does not allow final visual QA pass claims without evidence", () => {
-    const report = buildUserCreatorVisualConfirmationReport({ screenshotEvidenceAttached: false });
+    const report = buildUserCreatorVisualConfirmationReport({ reproductionEvidenceAttached: false });
     expect(detectFinalVisualQaClaimWithoutEvidence(report)).toBe(false);
 
     expect(detectFinalVisualQaClaimWithoutEvidence({
       ...report,
       summary: {
         ...report.summary,
-        screenshotEvidenceAttached: false,
+        reproductionEvidenceAttached: false,
       },
       nextFixOrder: ["final visual QA passed"],
     })).toBe(true);

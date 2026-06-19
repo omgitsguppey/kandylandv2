@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T15:45:21.527Z",
+  "generatedAtUtc": "2026-06-19T16:46:53.382Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "6814557860101ba2db6006ff37bbd670d9c8c0f0",
+  "currentHead": "880b720a2125ff78f08570ca18e4325c6e2f2b70",
   "summary": {
     "betaVersion": "1.6.6",
     "betaScore": 76.88,
@@ -52,7 +52,7 @@
         "sourceStatus": "source_surface_checks_current",
         "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "6814557860101ba2db6006ff37bbd670d9c8c0f0",
+        "sourceCommit": "880b720a2125ff78f08570ca18e4325c6e2f2b70",
         "canClearGate": true,
         "nextAction": "Run deterministic UI surface coverage, admin browser surface smoke, and device UI checks before manual viewing."
       },
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-19T15:45:21.527Z",
+      "generatedAtUtc": "2026-06-19T16:46:53.382Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -168,8 +168,8 @@
       "label": "Evidence capture status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-19T15:44:34.258Z",
-      "ageHours": 0.013130277777777777,
+      "generatedAtUtc": "2026-06-19T16:44:30.065Z",
+      "ageHours": 0.03981027777777778,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,

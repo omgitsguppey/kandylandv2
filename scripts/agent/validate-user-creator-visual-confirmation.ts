@@ -20,10 +20,10 @@ type VisualFinding = {
 type VisualRoute = {
   route: string;
   surface: "user" | "creator" | "shared_shell" | "release_notes";
-  confirmationMode: "source_only" | "screenshot";
+  confirmationMode: "source_coverage" | "reproduction_evidence";
   evidencePaths: string[];
   sourceFiles: string[];
-  status: "source_confirmed_pending_screenshot" | "screenshot_confirmed";
+  status: "source_checked" | "reproduction_attached";
 };
 
 type ForbiddenDriftCheck = {
@@ -39,11 +39,11 @@ export type UserCreatorVisualConfirmationReport = {
   currentHead: string;
   summary: {
     routesChecked: number;
-    screenshotEvidenceAttached: boolean;
-    sourceOnlyRoutes: number;
+    reproductionEvidenceAttached: boolean;
+    sourceCoveredRoutes: number;
     visualIssuesFound: number;
     visualIssuesFixed: number;
-    deferredManualChecks: number;
+    deferredReproductionChecks: number;
     forbiddenAdminBackendDrift: number;
     forbiddenPaymentRuntimeDrift: number;
     p0Count: number;
@@ -52,7 +52,7 @@ export type UserCreatorVisualConfirmationReport = {
   };
   routes: VisualRoute[];
   fixesApplied: VisualFinding[];
-  deferredManualChecks: VisualFinding[];
+  deferredReproductionChecks: VisualFinding[];
   forbiddenDriftCheck: ForbiddenDriftCheck[];
   nextFixOrder: string[];
 };
@@ -225,29 +225,29 @@ export function detectChatShellBottomGuardRegression(source: string) {
   );
 }
 
-export function detectScreenshotEvidenceMismatch(report: UserCreatorVisualConfirmationReport) {
+export function detectReproductionEvidenceMismatch(report: UserCreatorVisualConfirmationReport) {
   const failures: string[] = [];
   const routes = new Set(report.routes.map((route) => route.route));
   for (const route of REQUIRED_VISUAL_CONFIRMATION_ROUTES) {
     if (!routes.has(route)) failures.push(`missing_route:${route}`);
   }
-  if (report.summary.screenshotEvidenceAttached) {
+  if (report.summary.reproductionEvidenceAttached) {
     const evidenceCount = report.routes.reduce((total, route) => total + route.evidencePaths.length, 0);
-    if (evidenceCount === 0) failures.push("missing_screenshot_evidence_paths");
+    if (evidenceCount === 0) failures.push("missing_reproduction_evidence_paths");
   } else {
-    const sourceOnlyCount = report.routes.filter((route) => route.confirmationMode === "source_only").length;
-    if (sourceOnlyCount < REQUIRED_VISUAL_CONFIRMATION_ROUTES.length) failures.push("missing_source_only_routes");
+    const sourceCoveredCount = report.routes.filter((route) => route.confirmationMode === "source_coverage").length;
+    if (sourceCoveredCount < REQUIRED_VISUAL_CONFIRMATION_ROUTES.length) failures.push("missing_source_coverage_routes");
   }
   return failures;
 }
 
 export function detectFinalVisualQaClaimWithoutEvidence(report: UserCreatorVisualConfirmationReport) {
-  if (report.summary.screenshotEvidenceAttached) return false;
+  if (report.summary.reproductionEvidenceAttached) return false;
   const serialized = JSON.stringify(report).toLowerCase();
   return /final visual qa passed|visual qa passed|visualqapassed["']?\s*:\s*true|visualqastatus["']?\s*:\s*["']passed/u.test(serialized);
 }
 
-function routeFor(route: typeof REQUIRED_VISUAL_CONFIRMATION_ROUTES[number], screenshotEvidenceAttached: boolean): VisualRoute {
+function routeFor(route: typeof REQUIRED_VISUAL_CONFIRMATION_ROUTES[number], reproductionEvidenceAttached: boolean): VisualRoute {
   const sourceFileMap: Record<typeof REQUIRED_VISUAL_CONFIRMATION_ROUTES[number], string[]> = {
     "/": ["src/app/page.tsx", "src/app/HomeClient.tsx", "src/components/Navigation/ProfileDropdown.tsx"],
     "/drops": ["src/app/drops/DropsClient.tsx", "src/components/Drops/LockedDropPreviewView.tsx"],
@@ -267,10 +267,10 @@ function routeFor(route: typeof REQUIRED_VISUAL_CONFIRMATION_ROUTES[number], scr
   return {
     route,
     surface: releaseRoutes.has(route) ? "release_notes" : creatorRoutes.has(route) ? "creator" : route === "/dashboard/chat" || route === "Mobile nav/sidebar/profile dropdown" ? "shared_shell" : "user",
-    confirmationMode: screenshotEvidenceAttached ? "screenshot" : "source_only",
+    confirmationMode: reproductionEvidenceAttached ? "reproduction_evidence" : "source_coverage",
     evidencePaths: [],
     sourceFiles: sourceFileMap[route],
-    status: screenshotEvidenceAttached ? "screenshot_confirmed" : "source_confirmed_pending_screenshot",
+    status: reproductionEvidenceAttached ? "reproduction_attached" : "source_checked",
   };
 }
 
@@ -309,8 +309,8 @@ function scanVisualFindings(files = sourceFiles(), changed = changedFiles()) {
   return current;
 }
 
-export function buildUserCreatorVisualConfirmationReport(options: { screenshotEvidenceAttached?: boolean } = {}): UserCreatorVisualConfirmationReport {
-  const screenshotEvidenceAttached = options.screenshotEvidenceAttached === true;
+export function buildUserCreatorVisualConfirmationReport(options: { reproductionEvidenceAttached?: boolean } = {}): UserCreatorVisualConfirmationReport {
+  const reproductionEvidenceAttached = options.reproductionEvidenceAttached === true;
   const files = sourceFiles();
   const changed = changedFiles();
   const current = scanVisualFindings(files, changed);
@@ -319,16 +319,16 @@ export function buildUserCreatorVisualConfirmationReport(options: { screenshotEv
   const p0Count = current.filter((item) => item.severity === "P0").length;
   const p1Count = current.filter((item) => item.severity === "P1").length;
   const p2Count = current.filter((item) => item.severity === "P2").length;
-  const routes = REQUIRED_VISUAL_CONFIRMATION_ROUTES.map((route) => routeFor(route, screenshotEvidenceAttached));
-  const sourceOnlyRoutes = routes.filter((route) => route.confirmationMode === "source_only").length;
+  const routes = REQUIRED_VISUAL_CONFIRMATION_ROUTES.map((route) => routeFor(route, reproductionEvidenceAttached));
+  const sourceCoveredRoutes = routes.filter((route) => route.confirmationMode === "source_coverage").length;
 
   const fixesApplied: VisualFinding[] = [
     finding("creator_broadcast_manager_density", "P2", "Aligned the Broadcast manager shell/header density with other Creator Dashboard managers.", "src/components/Creators/CreatorBroadcastManager.tsx", "fixed", "creator-ui", ["bg-black/45", "Manage fan broadcasts"], "Keep active manager panels visually consistent when adding creator tools."),
     finding("creator_agreement_tap_targets", "P2", "Raised creator agreement PDF and table-of-contents controls to mobile-safe tap targets.", "src/components/Creators/CreatorAgreementFullText.tsx", "fixed", "creator-ui", ["min-h-11", "py-2.5"], "Keep legal agreement controls tappable while preserving the approved bounded scroll region."),
-    finding("source_only_visual_confirmation_lock", "P2", "Added a source-only visual confirmation artifact; optional visual reproduction is only for source-reported UI issues.", reportRelativePath, "fixed", "user-creator-ui", ["sourceFirst=true", "sourceOnlyRoutes"], "Run UI source coverage before any optional visual reproduction."),
+    finding("source_coverage_visual_confirmation_lock", "P2", "Added a source coverage artifact; optional visual reproduction is only for source-reported UI issues.", reportRelativePath, "fixed", "user-creator-ui", ["sourceFirst=true", "sourceCoveredRoutes"], "Run UI source coverage before any optional visual reproduction."),
   ];
 
-  const deferredManualChecks = REQUIRED_VISUAL_CONFIRMATION_ROUTES.map((route) => finding(
+  const deferredReproductionChecks = REQUIRED_VISUAL_CONFIRMATION_ROUTES.map((route) => finding(
     `ui_source_surface_${route.toString().replace(/[^a-z0-9]+/giu, "_").replace(/^_|_$/gu, "").toLowerCase() || "home"}`,
     "P2",
     `UI source coverage remains the first check for ${route}.`,
@@ -345,11 +345,11 @@ export function buildUserCreatorVisualConfirmationReport(options: { screenshotEv
     currentHead: currentHead(),
     summary: {
       routesChecked: routes.length,
-      screenshotEvidenceAttached,
-      sourceOnlyRoutes,
+      reproductionEvidenceAttached,
+      sourceCoveredRoutes,
       visualIssuesFound: current.length,
       visualIssuesFixed: fixesApplied.length,
-      deferredManualChecks: deferredManualChecks.length,
+      deferredReproductionChecks: deferredReproductionChecks.length,
       forbiddenAdminBackendDrift: adminDrift.length,
       forbiddenPaymentRuntimeDrift: paymentDrift.length,
       p0Count,
@@ -358,7 +358,7 @@ export function buildUserCreatorVisualConfirmationReport(options: { screenshotEv
     },
     routes,
     fixesApplied,
-    deferredManualChecks,
+    deferredReproductionChecks,
     forbiddenDriftCheck: [
       {
         key: "admin_backend_drift",
@@ -374,9 +374,9 @@ export function buildUserCreatorVisualConfirmationReport(options: { screenshotEv
       },
     ],
     nextFixOrder: [
-      "Capture manual mobile screenshots for /, /drops, locked preview, dashboard, creator dashboard, profile, settings, library, chat shell, creator profile, release drawer, and mobile navigation.",
-      "Convert any screenshot-confirmed issue into a route-specific microfix without touching admin backend or payment runtime.",
-      "Keep screenshotEvidenceAttached=false until real screenshot evidence paths are attached.",
+      "Fix every source-reported UI gap before optional browser or screenshot reproduction.",
+      "Use browser viewing or screenshots only to reproduce a specific source-reported issue.",
+      "Keep reproductionEvidenceAttached=false unless an optional reproduction artifact is attached for a source-reported issue.",
     ],
   };
 }
@@ -390,13 +390,13 @@ function validate() {
   const report = buildUserCreatorVisualConfirmationReport();
   writeReport(report);
 
-  const evidenceFailures = detectScreenshotEvidenceMismatch(report);
+  const evidenceFailures = detectReproductionEvidenceMismatch(report);
   if (evidenceFailures.length > 0) {
     console.error(`User/creator visual confirmation failed: ${evidenceFailures.join(", ")}`);
     process.exit(1);
   }
   if (detectFinalVisualQaClaimWithoutEvidence(report)) {
-    console.error("User/creator visual confirmation failed: report claims visual QA passed without screenshots.");
+    console.error("User/creator visual confirmation failed: report claims visual QA passed without source/reproduction evidence.");
     process.exit(1);
   }
   if (report.summary.p0Count > 0 || report.summary.p1Count > 0) {
@@ -411,7 +411,7 @@ function validate() {
     process.exit(1);
   }
 
-  console.log(`User/creator visual confirmation passed source checks: ${report.summary.routesChecked} routes source-confirmed, screenshots attached=${report.summary.screenshotEvidenceAttached}, P0=${report.summary.p0Count}, P1=${report.summary.p1Count}, P2=${report.summary.p2Count}.`);
+  console.log(`User/creator visual confirmation passed source checks: ${report.summary.routesChecked} routes source-covered, reproduction attached=${report.summary.reproductionEvidenceAttached}, P0=${report.summary.p0Count}, P1=${report.summary.p1Count}, P2=${report.summary.p2Count}.`);
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {

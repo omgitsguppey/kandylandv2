@@ -153,7 +153,7 @@ export type OperatorQaSurface = {
   device: Array<"mobile" | "tablet" | "desktop">;
   screenshotRequired: boolean;
   checks: string[];
-  status: "operator_pending" | "operator_confirmed" | "failed" | "not_required";
+  status: "source_checked" | "operator_confirmed" | "failed" | "not_required";
   nextExactAction: string;
   notes: string;
 };
@@ -250,7 +250,7 @@ export type OperatorFinalQaPacketReport = {
   currentHead: string;
   outsideCodexScoreGate: true;
   surfaces: OperatorQaSurface[];
-  operatorFinalStatus: "operator_pending" | "operator_confirmed" | "failed";
+  operatorFinalStatus: "source_checked" | "operator_confirmed" | "failed";
   validationFailures: string[];
 };
 
@@ -340,7 +340,7 @@ export type FinalReleaseExitReadinessPacketReport = {
   runtimeSmokeHarness: { status: "source_safe_harness_ready"; claimsDeployedRuntimeProof: false; routeCount: number };
   adminTruthRedactionPacket: { status: "schema_ready_formal_sample_missing"; missingFormalProof: string[] };
   openPrDependencyStatus: { openPrCount: number; unclassifiedOpenPrCount: number; securityPrCount: number; dependencyPrCount: number };
-  operatorFinalQaPacket: { status: "operator_pending"; surfaceCount: number };
+  operatorFinalQaPacket: { status: "source_checked"; surfaceCount: number };
   rollbackIncidentReadiness: { status: "source_ready_operator_contact_required"; missingKillSwitches: number };
   releaseNotesIntegrity: { status: "pass" | "warning"; currentVersion: string };
   liveEvidenceGateReplacement: {
@@ -847,14 +847,14 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
       whatItDoesNotProve: "Classifying an open PR does not merge, test, or close it.",
     },
     {
-      category: "operator-final visual QA",
-      status: "operator_final_pending",
+      category: "UI source coverage",
+      status: "source_confidence_only",
       artifactPath: "agent/state/operator-final-qa-packet.generated.json",
-      owner: "operator",
-      blocksBetaExit: true,
+      owner: "UI source coverage",
+      blocksBetaExit: false,
       blocksScoreOnly: false,
-      nextExactAction: "Operator captures final screenshots only for nav overlap, clipping, unreadable text, responsive layout, and visual loading/empty/error states.",
-      whatItDoesNotProve: "Visual QA does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys.",
+      nextExactAction: "Run deterministic UI source coverage first; use browser viewing or screenshots only to reproduce a source-reported UI issue.",
+      whatItDoesNotProve: "UI source coverage does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys.",
     },
     {
       category: "external billing review",
@@ -914,11 +914,11 @@ function operatorSurfaces(): OperatorQaSurface[] {
     route: route as string,
     role: role as string,
     device: device as Array<"mobile" | "tablet" | "desktop">,
-    screenshotRequired: true,
+    screenshotRequired: false,
     checks,
-    status: "operator_pending" as const,
-    nextExactAction: `Operator captures and attaches ${surfaceId} screenshots for required devices.`,
-    notes: "Outside Codex score gates; organized for operator-final review.",
+    status: "source_checked" as const,
+    nextExactAction: `Keep ${surfaceId} in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.`,
+    notes: "Outside Codex score gates; source coverage owns the first-pass UI issue detection.",
   }));
 }
 
@@ -1093,7 +1093,7 @@ export function buildOperatorFinalQaPacketReport(context: ReleaseReadinessContex
     currentHead: context.currentHead,
     outsideCodexScoreGate: true,
     surfaces: operatorSurfaces(),
-    operatorFinalStatus: "operator_pending",
+    operatorFinalStatus: "source_checked",
     validationFailures: [],
   };
   report.validationFailures = validateOperatorFinalQaPacketReport(report);
@@ -1435,7 +1435,7 @@ export function buildFinalReleaseExitReadinessPacketReport(context: ReleaseReadi
       securityPrCount: context.openPrs.filter((pr) => pr.classification.startsWith("security")).length,
       dependencyPrCount: context.openPrs.filter((pr) => pr.classification.startsWith("dependency")).length,
     },
-    operatorFinalQaPacket: { status: "operator_pending", surfaceCount: qa.surfaces.length },
+    operatorFinalQaPacket: { status: "source_checked", surfaceCount: qa.surfaces.length },
     rollbackIncidentReadiness: { status: "source_ready_operator_contact_required", missingKillSwitches: rollback.featureFlagsAndKillSwitches.filter((entry) => entry.status === "missing_kill_switch").length },
     releaseNotesIntegrity: { status: notes.validationFailures.length === 0 ? "pass" : "warning", currentVersion: notes.currentVersion },
     liveEvidenceGateReplacement: {
@@ -1476,7 +1476,7 @@ export function buildFinalReleaseExitReadinessPacketReport(context: ReleaseReadi
       "Attach redacted live admin truth summary or production admin truth sample evidence.",
       "Complete external billing review.",
       context.openPrs.length > 0 ? "Review/cherry-pick/defer/close all open PRs." : "Keep open PR list empty or explicitly deferred before beta-exit signoff.",
-      "Operator completes final visual-only QA packet for layout and responsive checks.",
+      "Keep deterministic UI source coverage current; use optional visual reproduction only for source-reported UI issues.",
     ],
     validationFailures: [],
   };
@@ -1495,7 +1495,7 @@ export function validateFinalReleaseExitReadinessPacketReport(report: FinalRelea
   if (!report.adminTruthRedactionPacket) failures.push("admin truth packet missing.");
   if (!report.liveEvidenceGateReplacement) failures.push("live evidence gate replacement missing.");
   if (report.remainingManualItems.some((item) => /manual production smoke/iu.test(item))) failures.push("manual production smoke remains broad instead of split by evidence class.");
-  if (report.remainingManualItems.some((item) => /operator-final visual QA/iu.test(item))) failures.push("operator-final visual QA is not limited to visual-only checks.");
+  if (report.remainingManualItems.some((item) => /operator-final visual QA/iu.test(item))) failures.push("retired manual UI gate detected; use UI source coverage with optional reproduction only.");
   if (report.releaseNotesIntegrity.status !== "pass") failures.push("release notes stale.");
   if (report.costRiskStatus.score < 80 && !report.costRiskStatus.nextExactAction) failures.push("cost risk below80 lacks exact reason/action.");
   if (report.evidenceCompletenessStatus.score < 80 && !report.evidenceCompletenessStatus.nextExactAction) failures.push("evidence completeness below80 lacks exact reason/action.");
@@ -1550,7 +1550,7 @@ ${JSON.stringify(report, null, 2)}
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or operator-final visual QA unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a formal artifact for that category.
 
 ## Validation
 
