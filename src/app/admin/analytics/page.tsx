@@ -168,7 +168,7 @@ function labelForSourceHierarchyDisplayState(state: AdminAnalyticsConsumerDispla
     case "second_source_only":
       return "second-source views";
     case "chart_promotion_blocked":
-      return "chart promotion held";
+      return "charts waiting for proof";
     case "consumer_source_mismatch":
       return "source mismatch";
     case "source_missing":

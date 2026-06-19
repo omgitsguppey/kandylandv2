@@ -647,7 +647,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
             <SectionCard
               title={journeyFunnelModel.visibleTitle}
-              subtitle="Repeated event-volume chain. Not a unique-user funnel."
+              subtitle="Event order from the latest verified sample; user-level proof stays separate."
               icon={Eye}
               density="compact"
               rightSlot={(
@@ -884,7 +884,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
                 title="Auth Outcomes"
-                subtitle="Source-truthed auth attempts, lifecycle outcomes, and finish timing."
+                subtitle="Confirmed sign-in attempts, outcomes, and finish timing."
                 icon={Users}
                 density="compact"
                 rightSlot={(

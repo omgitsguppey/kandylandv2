@@ -772,13 +772,14 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain("Source state: Source needs repair");
-    expect(container.textContent).toContain("Source needs repair; 3 source missing, 3 second-source views, 3 chart promotion held.");
+    expect(container.textContent).toContain("Source needs repair; 3 source missing, 3 second-source views, 3 charts waiting for proof.");
     expect(container.textContent).toContain("source missing: Analytics overview, Analytics charts, Insight cards");
     expect(container.textContent).toContain("second-source views: Device mix, Region demand, Top paths");
-    expect(container.textContent).toContain("chart promotion held: Debug source agreement, Source health, Public beta evidence");
+    expect(container.textContent).toContain("charts waiting for proof: Debug source agreement, Source health, Public beta evidence");
     expect(container.textContent).toContain("Open Debug, restore first-party/materialized coverage");
     expect(container.textContent).not.toContain("consumer_source_mismatch");
     expect(container.textContent).not.toContain("source_agreement_failed");
+    expect(container.textContent).not.toContain("chart promotion held");
     expect(container.querySelector("[data-admin-analytics-status-summary='compact']")?.getAttribute("data-admin-analytics-source-hierarchy")).toBe("source_agreement_failed");
   });
 
