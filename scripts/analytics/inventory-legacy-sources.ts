@@ -6,6 +6,7 @@ import {
   type LegacySourceInventoryReport,
   parseLegacyRecoveryCliArgs,
 } from "@/lib/analytics/legacy-recovery-contract";
+import { withGeneratedReportEnvelope } from "../agent/generated-report-envelope";
 
 const outputPath = join(process.cwd(), "agent", "state", "analytics-legacy-source-inventory.generated.json");
 
@@ -305,9 +306,10 @@ const options = parseLegacyRecoveryCliArgs(process.argv.slice(2));
 const filteredSources = options.source
   ? LEGACY_SOURCES.filter((source) => source.sourceName === options.source)
   : LEGACY_SOURCES;
+const generatedAtUtc = new Date().toISOString();
 
-const report: LegacySourceInventoryReport = {
-  generatedAt: new Date().toISOString(),
+const reportBase: LegacySourceInventoryReport = {
+  generatedAt: generatedAtUtc,
   dryRun: true,
   liveScanEnabled: false,
   sourceFilter: options.source,
@@ -320,6 +322,25 @@ const report: LegacySourceInventoryReport = {
     unavailableCount: filteredSources.filter((source) => source.recoverability === "unavailable").length,
   },
 };
+const report = withGeneratedReportEnvelope(reportBase as unknown as Record<string, unknown>, {
+  reportKey: "analytics-legacy-source-inventory",
+  status: "pass",
+  generatedAtUtc,
+  evidenceClass: "source_snapshot",
+  canClearSourceGate: false,
+  canClearRuntimeGate: false,
+  canClearProviderGate: false,
+  canClearAdminTruthGate: false,
+  nextExactSteps: [
+    "Attach approved launch-history coverage before using legacy/GA4 sources to clear launch analytics source gates.",
+    "Run npm run check:analytics-legacy-recovery and npm run check:analytics-panel-hydration after refreshing this inventory.",
+  ],
+  doesNotProve: [
+    "Does not query Firestore, GA4, BigQuery, provider systems, or production databases.",
+    "Does not prove record counts, all-launch coverage, runtime smoke, provider smoke, or admin truth sample evidence.",
+    "GA4 and historical sources remain second-source or fallback evidence only and cannot replace first-party product truth.",
+  ],
+});
 
 if (!existsSync(dirname(outputPath))) {
   mkdirSync(dirname(outputPath), { recursive: true });
