@@ -110,14 +110,17 @@ describe("admin debug control tower model", () => {
 
         expect(model.canonicalPublicBetaScore).toBe(25);
         expect(model.canonicalPublicBetaStatus).toBe("beta-risk");
-        expect(model.canonicalPublicBetaReadinessStatus).toBe("Stale evidence");
+        expect(model.canonicalPublicBetaReadinessStatus).toBe("External proof required");
         expect(model.canonicalPublicBetaReadinessReason).toContain("3 required generated report");
         expect(model.canonicalPublicBetaEvidenceScore).toBe(25);
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
-            expect.stringContaining("Runtime unverified"),
+            expect.stringContaining("External proof required: Runtime/provider smoke"),
             expect.stringContaining("Admin truth/sample evidence"),
             expect.stringContaining("Cost owner evidence"),
         ]));
+        expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Unknown evidence:");
+        expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Stale evidence:");
+        expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Runtime unverified:");
         expect(model.canonicalPublicBetaCapDetails).toHaveLength(4);
         expect(model.canonicalPublicBetaSourceDrift).toBe("current");
         expect(model.canonicalPublicBetaTruthState).toBe("live");
@@ -158,6 +161,14 @@ describe("admin debug control tower model", () => {
         ]));
         expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Unknown evidence:");
         expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Stale evidence:");
+        expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Source validation only: Targeted behavior tests"),
+            expect.stringContaining("External proof required: Runtime/provider smoke"),
+            expect.stringContaining("External proof required: Admin truth/sample evidence"),
+            expect.stringContaining("Report refresh needed: Report freshness and PR integrity"),
+        ]));
+        expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Unknown evidence:");
+        expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Stale evidence:");
     });
 
     it("formats zero-finding operator report statuses as evidence states", () => {
@@ -213,11 +224,13 @@ describe("admin debug control tower model", () => {
         expect(publicBeta?.sourceDrift).toBe("stale");
         expect(publicBeta?.topFindings[0]?.title).toContain("source commit needs review");
         expect(model.canonicalPublicBetaStatus).toBe("stale");
-        expect(model.canonicalPublicBetaReadinessStatus).toBe("Stale evidence");
+        expect(model.canonicalPublicBetaReadinessStatus).toBe("Report refresh needed");
         expect(model.canonicalPublicBetaReadinessReason).toContain("source metadata is stale");
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Public beta score source metadata"),
         ]));
+        expect(model.canonicalPublicBetaCapDetails.join("\n")).toContain("Report refresh needed:");
+        expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Stale evidence:");
         expect(model.canonicalPublicBetaSourceDrift).toBe("stale");
         expect(model.canonicalPublicBetaTruthState).toBe("stale");
     });

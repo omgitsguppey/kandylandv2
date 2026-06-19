@@ -536,8 +536,47 @@ function normalizeFinding(
 
 function stripEvidenceGatePrefix(detail: string) {
     return detail
-        .replace(/^(unknown evidence|stale evidence|runtime unverified|external proof required|needs review):\s*/iu, "")
+        .replace(/^(unknown evidence|stale evidence|runtime unverified|external proof required|needs review|source validation only|report refresh needed):\s*/iu, "")
         .trim();
+}
+
+function normalizePublicBetaCapDetailForAdminModel(detail: string) {
+    const normalized = stripEvidenceGatePrefix(detail);
+    const lower = normalized.toLowerCase();
+    const reason = normalized
+        .replace(/^Targeted behavior tests\s*[-:]\s*/iu, "")
+        .replace(/^Runtime\/provider smoke\s*[-:]\s*/iu, "")
+        .replace(/^Admin truth\/sample evidence\s*[-:]\s*/iu, "")
+        .replace(/^Report freshness and PR integrity\s*[-:]\s*/iu, "")
+        .trim();
+
+    if (lower.includes("targeted behavior tests")) {
+        return `Source validation only: Targeted behavior tests - ${reason || "Implemented behavior checks passed. Runtime, provider, admin truth, and manual visual proof still need formal evidence."}`;
+    }
+
+    if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke")) {
+        return `External proof required: Runtime/provider smoke - ${reason || "Attach redacted provider proof and deployed runtime smoke evidence before clearing this gate."}`;
+    }
+
+    if (lower.includes("admin truth") || lower.includes("truth sample") || lower.includes("sample evidence")) {
+        return `External proof required: Admin truth/sample evidence - ${reason || "Attach a fresh redacted production admin truth sample before clearing this gate."}`;
+    }
+
+    if (lower.includes("report freshness") || lower.includes("pr integrity") || lower.includes("freshness window") || lower.includes("current-head") || lower.includes("current head") || lower.includes("generated report")) {
+        return `Report refresh needed: Report freshness and PR integrity - ${reason || normalized}`;
+    }
+
+    return detail;
+}
+
+function normalizePublicBetaReadinessStatusForAdminModel(status: string, reason: string, capDetails: string[]) {
+    const combined = [status, reason, ...capDetails].filter(Boolean).join(" ");
+    if (/runtime\/provider smoke|provider smoke|runtime smoke|admin truth|sample evidence|truth sample|external proof|proof required/iu.test(combined)) return "External proof required";
+    if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older|source metadata is stale/iu.test(combined)) return "Report refresh needed";
+    if (/targeted behavior tests|source checks|source validation only/iu.test(combined)) return "Source checks only";
+    if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";
+    if (/stale evidence/iu.test(combined)) return "Refresh or proof needed";
+    return status;
 }
 
 function normalizePublicBetaEvidenceGateFinding(
@@ -831,32 +870,37 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
     try {
         const raw = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
         const commitState = readReportCommitState(raw, repoCurrentHead);
-        const capDetails = toStringArray(raw.evidenceCapDetails);
+        const capDetails = toStringArray(raw.evidenceCapDetails).map(normalizePublicBetaCapDetailForAdminModel);
         const sourceDriftCap = commitState.sourceDrift === "stale"
             ? [
-                [
+                normalizePublicBetaCapDetailForAdminModel([
                     "Report freshness and PR integrity: Public beta score source metadata is stale",
                     commitState.sourceCommit ? `sourceCommit=${commitState.sourceCommit}` : null,
                     commitState.currentHead ? `reportCurrentHead=${commitState.currentHead}` : null,
                     commitState.repoCurrentHead ? `repoCurrentHead=${commitState.repoCurrentHead}` : null,
-                ].filter((entry): entry is string => Boolean(entry)).join(" - "),
+                ].filter((entry): entry is string => Boolean(entry)).join(" - ")),
             ]
             : [];
         const rawReadinessStatus = toStringValue(raw.readinessStatus, "unknown");
         const rawReadinessReason = toStringValue(raw.readinessStatusReason, "No readiness status reason was supplied.");
+        const canonicalCapDetails = [...sourceDriftCap, ...capDetails];
+        const canonicalReadinessReason = normalizePublicBetaCapDetailForAdminModel(commitState.sourceDrift === "stale"
+            ? `Report freshness and PR integrity: Canonical public beta score artifact source metadata is stale. ${rawReadinessReason}`
+            : rawReadinessReason);
+        const canonicalReadinessStatus = normalizePublicBetaReadinessStatusForAdminModel(
+            commitState.sourceDrift === "stale" ? "Stale evidence" : rawReadinessStatus,
+            canonicalReadinessReason,
+            canonicalCapDetails,
+        );
         return {
             canonicalPublicBetaScore: toNumber(raw.overallScore),
             canonicalPublicBetaStatus: commitState.sourceDrift === "stale"
                 ? "stale"
                 : toStringValue(raw.overallStatus ?? raw.status, "unknown"),
-            canonicalPublicBetaReadinessStatus: commitState.sourceDrift === "stale"
-                ? "Stale evidence"
-                : rawReadinessStatus,
-            canonicalPublicBetaReadinessReason: commitState.sourceDrift === "stale"
-                ? `Canonical public beta score artifact source metadata is stale. ${rawReadinessReason}`
-                : rawReadinessReason,
+            canonicalPublicBetaReadinessStatus: canonicalReadinessStatus,
+            canonicalPublicBetaReadinessReason: canonicalReadinessReason,
             canonicalPublicBetaEvidenceScore: toNumber(raw.evidenceScore),
-            canonicalPublicBetaCapDetails: [...sourceDriftCap, ...capDetails],
+            canonicalPublicBetaCapDetails: canonicalCapDetails,
             canonicalPublicBetaGeneratedAtUtc: toStringValue(raw.generatedAtUtc ?? raw.generatedAt, "") || null,
             canonicalPublicBetaSourceCommit: commitState.sourceCommit,
             canonicalPublicBetaCurrentHead: commitState.currentHead,
