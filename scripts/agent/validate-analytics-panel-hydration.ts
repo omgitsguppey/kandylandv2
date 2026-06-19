@@ -798,6 +798,8 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       classifications: sourceAgreementClassifications,
       disagreements: sourceAgreementDisagreements.slice(0, 25),
       disagreementsTruncated: sourceAgreementDisagreements.length > 25,
+      blockedConsumerDetails: asRecordArray(sourceAgreementDetail.blockedConsumerDetails).slice(0, 25),
+      blockedConsumerDetailsTruncated: asRecordArray(sourceAgreementDetail.blockedConsumerDetails).length > 25,
       perDayMetricDeltas: perDayMetricDeltas.slice(0, 25),
       perDayMetricDeltasTruncated: perDayMetricDeltas.length > 25,
       nextExactSteps: asStringArray(sourceAgreementDetail.nextExactSteps),
@@ -978,6 +980,16 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   )) {
     failures.push("first-party-missing source disagreements must name recovery lane, owner, required proof, and block product truth.");
   }
+  if (report.sourceAgreement.state === "failed" && (!Array.isArray(report.sourceAgreement.blockedConsumerDetails) || report.sourceAgreement.blockedConsumerDetails.length === 0)) {
+    failures.push("failed source agreement must include blocked consumer display states.");
+  }
+  if (report.sourceAgreement.blockedConsumerDetails.some((entry) => (
+    typeof entry.consumer !== "string"
+    || typeof entry.allowedDisplayState !== "string"
+    || typeof entry.nextAction !== "string"
+  ))) {
+    failures.push("blocked consumer details must include consumer, allowedDisplayState, and nextAction.");
+  }
   return failures;
 }
 
@@ -1060,6 +1072,10 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Per-day disagreement details: ${report.sourceAgreement.disagreements.length}${report.sourceAgreement.disagreementsTruncated ? " (truncated)" : ""}`,
     ...report.sourceAgreement.disagreements.slice(0, 6).map((entry) =>
       `  - ${String(entry.dayKey)}: present ${asStringArray(entry.sourcesPresent).join(", ") || "none"}; missing ${asStringArray(entry.sourcesMissing).join(", ") || "none"}; lane ${String(entry.recoveryLane ?? "review")}; owner ${String(entry.blockingOwner ?? "source agreement")}; ${String(entry.likelyRootCause ?? "review source mismatch")}`,
+    ),
+    `- Blocked consumers: ${report.sourceAgreement.blockedConsumerDetails.length}${report.sourceAgreement.blockedConsumerDetailsTruncated ? " (truncated)" : ""}`,
+    ...report.sourceAgreement.blockedConsumerDetails.slice(0, 8).map((entry) =>
+      `  - ${String(entry.label ?? entry.consumer)}: ${String(entry.allowedDisplayState ?? "review")}; Next: ${String(entry.nextAction ?? "repair source agreement")}`,
     ),
     `- Count delta details: ${report.sourceAgreement.perDayMetricDeltas.length}${report.sourceAgreement.perDayMetricDeltasTruncated ? " (truncated)" : ""}`,
     ...report.sourceAgreement.perDayMetricDeltas.slice(0, 6).map((entry) =>

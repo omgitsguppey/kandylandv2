@@ -38,6 +38,22 @@ export type SourceAgreementDisagreementDetail = {
   productTruthEligible: boolean;
 };
 
+export type SourceAgreementBlockedConsumerDetail = {
+  consumer: string;
+  label: string;
+  currentState:
+    | "connected"
+    | "source_agreement_failed"
+    | "materializer_missing";
+  allowedDisplayState:
+    | "connected"
+    | "source_missing"
+    | "second_source_only"
+    | "chart_promotion_blocked";
+  blockingOwner: string;
+  nextAction: string;
+};
+
 export type SourceAgreementFailureDetail = {
   comparedSources: string[];
   sourceAgreementStatus: "pass" | "review" | "failed" | "not_enough_sources";
@@ -82,6 +98,7 @@ export type SourceAgreementFailureDetail = {
     failDeltaPct: number;
   };
   blockedConsumers: string[];
+  blockedConsumerDetails: SourceAgreementBlockedConsumerDetail[];
   nextAction: string;
   nextExactSteps: string[];
   sourceTruthPolicy: {
@@ -103,6 +120,17 @@ export type SourceAgreementCoverageClassificationInput = {
   disagreementCount?: number;
   maxDeltaPct?: number | null;
 };
+
+export const LAUNCH_ANALYTICS_DEFAULT_BLOCKED_CONSUMERS = [
+  "admin_analytics_overview",
+  "admin_analytics_charts",
+  "admin_analytics_device_mix",
+  "admin_analytics_region_demand",
+  "admin_analytics_top_paths",
+  "admin_analytics_insight_cards",
+  "debug_data_validation",
+  "public_beta_score_evidence",
+] as const;
 
 export function classifySourceAgreementCoverage(input: SourceAgreementCoverageClassificationInput) {
   const classifications = new Set<SourceAgreementFailureClassification>();
@@ -252,6 +280,71 @@ function isBlockingCoverageMismatch(input: {
   const hasFirstParty = sourceSet.has("first_party");
   const hasGa4 = sourceSet.has("ga4");
   return !hasFirstParty || !hasGa4;
+}
+
+function labelForBlockedConsumer(consumer: string) {
+  const labels: Record<string, string> = {
+    admin_analytics_overview: "Analytics overview",
+    admin_analytics_charts: "Analytics charts",
+    admin_analytics_device_mix: "Device mix",
+    admin_analytics_region_demand: "Region demand",
+    admin_analytics_top_paths: "Top paths",
+    admin_analytics_insight_cards: "Insight cards",
+    debug_data_validation: "Debug source agreement",
+    public_beta_score_evidence: "Public beta evidence",
+  };
+  return labels[consumer] ?? consumer.replaceAll("_", " ").replace(/\b\w/gu, (char) => char.toUpperCase());
+}
+
+function allowsSecondSourceDisplay(consumer: string) {
+  return consumer === "admin_analytics_device_mix"
+    || consumer === "admin_analytics_region_demand"
+    || consumer === "admin_analytics_top_paths";
+}
+
+function buildBlockedConsumerDetails(
+  blockedConsumers: string[],
+  sourceAgreementStatus: SourceAgreementFailureDetail["sourceAgreementStatus"],
+  disagreements: SourceAgreementDisagreementDetail[],
+): SourceAgreementBlockedConsumerDetail[] {
+  const hasMaterializerGap = disagreements.some((entry) => entry.classifications.includes("missing_materializer"));
+  const currentState: SourceAgreementBlockedConsumerDetail["currentState"] = sourceAgreementStatus === "pass"
+    ? "connected"
+    : hasMaterializerGap
+      ? "materializer_missing"
+      : "source_agreement_failed";
+
+  return [...new Set(blockedConsumers)].map((consumer) => {
+    const secondSourceOnly = sourceAgreementStatus !== "pass" && allowsSecondSourceDisplay(consumer);
+    const allowedDisplayState: SourceAgreementBlockedConsumerDetail["allowedDisplayState"] = sourceAgreementStatus === "pass"
+      ? "connected"
+      : secondSourceOnly
+        ? "second_source_only"
+        : consumer === "public_beta_score_evidence" || consumer === "debug_data_validation"
+          ? "chart_promotion_blocked"
+          : "source_missing";
+    const blockingOwner = sourceAgreementStatus === "pass"
+      ? "none"
+      : secondSourceOnly
+        ? "GA4/external evidence lane, with first-party promotion blocked"
+        : hasMaterializerGap
+          ? "analytics_event_facts materialization"
+          : "source agreement comparison";
+    const nextAction = sourceAgreementStatus === "pass"
+      ? "Keep this panel connected to the verified source window."
+      : secondSourceOnly
+        ? "Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes."
+        : "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.";
+
+    return {
+      consumer,
+      label: labelForBlockedConsumer(consumer),
+      currentState,
+      allowedDisplayState,
+      blockingOwner,
+      nextAction,
+    };
+  });
 }
 
 export const LAUNCH_ANALYTICS_SOURCE_AGREEMENT_COVERAGE: Record<string, string[]> = {
@@ -411,6 +504,7 @@ export function buildSourceAgreementFailureDetail(input: {
       entry.days.filter((day) => !expectedDaySet.has(day)),
     ]),
   );
+  const blockedConsumers = input.blockedConsumers ?? [...LAUNCH_ANALYTICS_DEFAULT_BLOCKED_CONSUMERS];
 
   return {
     comparedSources: comparedSources.map((entry) => entry.source),
@@ -432,12 +526,8 @@ export function buildSourceAgreementFailureDetail(input: {
       reviewDeltaPct,
       failDeltaPct,
     },
-    blockedConsumers: input.blockedConsumers ?? [
-      "admin_analytics_overview",
-      "admin_analytics_charts",
-      "admin_analytics_insight_cards",
-      "public_beta_score_evidence",
-    ],
+    blockedConsumers,
+    blockedConsumerDetails: buildBlockedConsumerDetails(blockedConsumers, sourceAgreementStatus, disagreements),
     nextAction: "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.",
     nextExactSteps: [
       "Run the existing all-range historical analytics route or approved local export path to produce first-party day buckets.",

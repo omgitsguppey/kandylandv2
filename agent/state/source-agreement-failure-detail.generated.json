@@ -1,7 +1,7 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-06-18T23:58:47.562Z",
-  "currentHead": "f7c670e156675130c699f9e0c2e1c41ec1f233c9",
+  "generatedAtUtc": "2026-06-19T00:22:28.685Z",
+  "currentHead": "93e129b86408c28bd6e0c8fe202ae3e26eae6a16",
   "inputMode": "fixture_only_local_window",
   "inputPath": null,
   "launchCoverageEvidence": {
@@ -179,8 +179,80 @@
       "failDeltaPct": 25
     },
     "blockedConsumers": [
+      "admin_analytics_overview",
       "admin_analytics_charts",
-      "debug_data_validation"
+      "admin_analytics_device_mix",
+      "admin_analytics_region_demand",
+      "admin_analytics_top_paths",
+      "admin_analytics_insight_cards",
+      "debug_data_validation",
+      "public_beta_score_evidence"
+    ],
+    "blockedConsumerDetails": [
+      {
+        "consumer": "admin_analytics_overview",
+        "label": "Analytics overview",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "source_missing",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "admin_analytics_charts",
+        "label": "Analytics charts",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "source_missing",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "admin_analytics_device_mix",
+        "label": "Device mix",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "second_source_only",
+        "blockingOwner": "GA4/external evidence lane, with first-party promotion blocked",
+        "nextAction": "Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes."
+      },
+      {
+        "consumer": "admin_analytics_region_demand",
+        "label": "Region demand",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "second_source_only",
+        "blockingOwner": "GA4/external evidence lane, with first-party promotion blocked",
+        "nextAction": "Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes."
+      },
+      {
+        "consumer": "admin_analytics_top_paths",
+        "label": "Top paths",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "second_source_only",
+        "blockingOwner": "GA4/external evidence lane, with first-party promotion blocked",
+        "nextAction": "Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes."
+      },
+      {
+        "consumer": "admin_analytics_insight_cards",
+        "label": "Insight cards",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "source_missing",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "debug_data_validation",
+        "label": "Debug source agreement",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "chart_promotion_blocked",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "public_beta_score_evidence",
+        "label": "Public beta evidence",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "chart_promotion_blocked",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      }
     ],
     "nextAction": "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.",
     "nextExactSteps": [

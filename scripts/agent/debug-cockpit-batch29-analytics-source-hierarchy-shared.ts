@@ -259,7 +259,6 @@ function buildLaunchSourceAgreementDetail() {
         launchHistoryCoverage: localExport.coverage,
         comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
         tolerance: { reviewDeltaPct: 10, failDeltaPct: 25 },
-        blockedConsumers: ["admin_analytics_charts", "debug_data_validation"],
       }),
     };
   }
@@ -270,7 +269,6 @@ function buildLaunchSourceAgreementDetail() {
     detail: buildLaunchAnalyticsSourceAgreementFailureDetail({
       comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
       tolerance: { reviewDeltaPct: 10, failDeltaPct: 25 },
-      blockedConsumers: ["admin_analytics_charts", "debug_data_validation"],
     }),
   };
 }
@@ -511,6 +509,14 @@ export function validateSourceAgreementFailureDetail() {
   ), failures, "first-party-missing disagreements lack owner/proof/product-truth boundary.");
   expectPass(detail.toleranceThresholds.failDeltaPct === 25, failures, "tolerance thresholds missing.");
   expectPass(detail.blockedConsumers.includes("admin_analytics_charts"), failures, "blocked consumers missing.");
+  expectPass(detail.blockedConsumerDetails.some((entry) =>
+    entry.consumer === "admin_analytics_device_mix"
+    && entry.allowedDisplayState === "second_source_only"
+  ), failures, "GA4-owned blocked consumers do not remain second-source only.");
+  expectPass(detail.blockedConsumerDetails.some((entry) =>
+    entry.consumer === "admin_analytics_overview"
+    && (entry.allowedDisplayState === "source_missing" || entry.allowedDisplayState === "connected")
+  ), failures, "first-party-owned admin analytics panels lack source-missing display state.");
   expectPass(detail.sourceTruthPolicy.firstPartyPrimary && detail.sourceTruthPolicy.ga4SecondSourceOnly && detail.sourceTruthPolicy.missingIsNotZero, failures, "source truth policy missing.");
   expectPass(!/^retry$/iu.test(detail.nextAction), failures, "next action generic retry only.");
   runValidation("source-agreement-failure-detail", { inputMode, inputPath, launchCoverageEvidence, detail }, failures, [

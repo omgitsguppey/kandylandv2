@@ -56,6 +56,42 @@ describe("source agreement failure detail", () => {
     });
   });
 
+  it("maps blocked launch analytics consumers to truthful display states", () => {
+    const detail = buildLaunchAnalyticsSourceAgreementFailureDetail();
+    const adminAnalyticsConsumers = detail.blockedConsumerDetails.filter((entry) => entry.consumer.startsWith("admin_analytics_"));
+
+    expect(adminAnalyticsConsumers).toHaveLength(6);
+    expect(detail.blockedConsumerDetails).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        consumer: "admin_analytics_overview",
+        currentState: "materializer_missing",
+        allowedDisplayState: "source_missing",
+        blockingOwner: "analytics_event_facts materialization",
+      }),
+      expect.objectContaining({
+        consumer: "admin_analytics_device_mix",
+        currentState: "materializer_missing",
+        allowedDisplayState: "second_source_only",
+      }),
+      expect.objectContaining({
+        consumer: "admin_analytics_region_demand",
+        allowedDisplayState: "second_source_only",
+      }),
+      expect.objectContaining({
+        consumer: "admin_analytics_top_paths",
+        allowedDisplayState: "second_source_only",
+      }),
+      expect.objectContaining({
+        consumer: "debug_data_validation",
+        allowedDisplayState: "chart_promotion_blocked",
+      }),
+      expect.objectContaining({
+        consumer: "public_beta_score_evidence",
+        allowedDisplayState: "chart_promotion_blocked",
+      }),
+    ]));
+  });
+
   it("normalizes launchHistoryCoverage export rows into source agreement without proving product truth", () => {
     const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
       proofMode: "local_export",
