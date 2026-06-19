@@ -100,7 +100,12 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).toContain('label="Site users"');
     expect(source).toContain("Source mix: site users; views are mixed site analytics and first-party snapshots.");
     expect(source).toContain("Chart source: Site users plus site views.");
+    expect(source).toContain("avg site session");
+    expect(source).toContain('name="Site users"');
+    expect(source).toContain("Device data will appear after site analytics has enough sessions");
     expect(source).not.toContain("GA4 Users");
+    expect(source).not.toContain("avg GA session");
+    expect(source).not.toContain('name="GA users"');
     expect(source).not.toContain("vendor evidence only");
     expect(source).toContain("Decision source: {verifiedSnapshotLabel}");
     expect(source).toContain("Vendor analytics are supporting evidence, not product truth.");

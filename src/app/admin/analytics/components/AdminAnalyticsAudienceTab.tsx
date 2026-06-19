@@ -323,7 +323,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   hint={
                     audienceSnapshotModel.avgSession.value === null
                       ? audienceSnapshotModel.engagementRate.label
-                      : `${formatDuration(audienceSnapshotModel.avgSession.value)} avg GA session`
+                      : `${formatDuration(audienceSnapshotModel.avgSession.value)} avg site session`
                   }
                   icon={Clock3}
                   truthState={audienceSnapshotModel.engagementRate.truthState}
@@ -428,7 +428,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     <Area
                       type="monotone"
                       dataKey="users"
-                      name="GA users"
+                      name="Site users"
                       stroke="#ffffff"
                       strokeWidth={2.5}
                       fill="url(#historyUsersFill)"
@@ -1074,7 +1074,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 
                   {deviceMixModel.rows.length === 0 ? (
                     <div className="rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                      Device data will appear after GA has enough sessions for
+                      Device data will appear after site analytics has enough sessions for
                       this range.
                     </div>
                   ) : null}
