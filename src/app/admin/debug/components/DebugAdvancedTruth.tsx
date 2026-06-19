@@ -1,6 +1,6 @@
 "use client";
 
-import { Pill, StatCard, Section, ScrollWrap, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
+import { Pill, StatCard, Section, ScrollWrap, badgeForDebugSeverity, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 
 /* ─── Props ─── */
 export interface DebugAdvancedTruthProps {
@@ -127,7 +127,7 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                                 <Pill label="Open" value={entry.uniqueOpenFindings ?? entry.openFindingCount ?? 0} tone={entry.openFindingCount ? "warn" : "good"} truthState={entry ? "live" : "unavailable"} badgeLabel="LOADED" />
                                                 <Pill label="Duplicates" value={entry.duplicateFindings ?? 0} tone={(entry.duplicateFindings ?? 0) > 0 ? "warn" : "neutral"} truthState={entry ? "live" : "unavailable"} badgeLabel="LOADED" />
                                                 <Pill label="Inspect only" value={entry.inspectOnlyFindings ?? 0} tone={(entry.inspectOnlyFindings ?? 0) > 0 ? "warn" : "neutral"} truthState={entry ? "live" : "unavailable"} badgeLabel="LOADED" />
-                                                <Pill label="State" value={entry.state || "info"} tone={toneForDomainState(entry.state)} truthState={entry ? "live" : "unavailable"} badgeLabel={entry.state === "error" ? "ERROR" : entry.state === "review" ? "REVIEW" : entry.state === "live" ? "LIVE" : "INFO"} />
+                                                <Pill label="State" value={entry.state || "info"} tone={toneForDomainState(entry.state)} truthState={entry ? "live" : "unavailable"} badgeLabel={badgeForDebugSeverity(entry.state)} />
                                             </div>
                                         </div>
                                         <p className="text-xs text-gray-400">{entry.explanation || DUPLICATE_INSPECT_EXPLANATION}</p>
@@ -212,7 +212,7 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                                 >
                                                     <div className="flex flex-wrap items-center justify-between gap-2">
                                                         <div className="flex flex-wrap gap-2">
-                                                            <Pill label="Reason" value={reason.reasonCode || "unknown"} tone={toneForActorRiskSeverity(reason.severity)} truthState={reason ? "live" : "unavailable"} badgeLabel={reason.severity === "error" ? "ERROR" : reason.severity === "warn" ? "REVIEW" : "INFO"} />
+                                                            <Pill label="Reason" value={reason.reasonCode || "unknown"} tone={toneForActorRiskSeverity(reason.severity)} truthState={reason ? "live" : "unavailable"} badgeLabel={badgeForDebugSeverity(reason.severity)} />
                                                             <Pill label="Count" value={reason.count ?? 0} tone="neutral" truthState={reason ? "live" : "unavailable"} badgeLabel="LOADED" />
                                                             <Pill label="Domain" value={reason.domain || "telemetry"} tone="neutral" truthState={reason ? "live" : "unavailable"} badgeLabel="INFO" />
                                                             {reason.appliesToBleedRisk ? <Pill label="Bleed" value="yes" tone="bad" truthState={reason ? "live" : "unavailable"} badgeLabel="RISK" /> : null}

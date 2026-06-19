@@ -8,7 +8,7 @@ import { buildDataValidationUiSemantics, buildValidationReadinessSummary } from 
 import { sanitizeErrorForUser } from "@/lib/errors/resolve-human-error";
 import type { AnalyticsModuleCoverage, AnalyticsSourceHealth, DataValidationPanelState, TelemetryParityValidation, ValidationItem } from "@/types/admin-analytics";
 
-import { Pill, ScrollWrap, Section, type PillTone } from "./DebugPrimitives";
+import { Pill, ScrollWrap, Section, badgeForDebugSeverity, type PillTone } from "./DebugPrimitives";
 
 type ValidationResponse = {
     success?: boolean;
@@ -443,7 +443,7 @@ export function DebugAdvancedDataValidation() {
                                                     >
                                                         <div className="flex flex-wrap items-center gap-2">
                                                             <Pill label="Module" value={module.moduleLabel} truthState="live" badgeLabel="INFO" />
-                                                            <Pill label="Status" value={module.status} tone={module.severity === "error" ? "bad" : module.severity === "review" ? "warn" : "neutral"} truthState="live" badgeLabel={module.severity === "error" ? "ERROR" : module.severity === "review" ? "REVIEW" : "INFO"} />
+                                                            <Pill label="Status" value={module.status} tone={module.severity === "error" ? "bad" : module.severity === "review" ? "warn" : "neutral"} truthState="live" badgeLabel={badgeForDebugSeverity(module.severity)} />
                                                             <Pill label="Tier" value={module.requiredForBeta ? "required" : "optional"} tone={module.requiredForBeta ? "warn" : "neutral"} truthState="live" badgeLabel={module.requiredForBeta ? "BLOCKING" : "NONBLOCKING"} />
                                                             <Pill label="Evidence samples" value={module.evidenceSamples ?? module.sampleCount} tone={(module.evidenceSamples ?? module.sampleCount) === 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
                                                             <Pill label="Last seen" value={formatUtcTimestamp(module.lastSeenAtUtc)} tone={module.lastSeenAtUtc ? "neutral" : "warn"} truthState={module.lastSeenAtUtc ? "live" : "unavailable"} badgeLabel={module.lastSeenAtUtc ? "INFO" : "UNKNOWN"} />

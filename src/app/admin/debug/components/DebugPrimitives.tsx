@@ -44,6 +44,13 @@ export function badgeForSourceStatus(status?: string) {
     return "UNKNOWN";
 }
 
+export function badgeForDebugSeverity(state?: string) {
+    if (state === "error" || state === "fail" || state === "failed" || state === "mismatch") return "Needs fix";
+    if (state === "review" || state === "warn" || state === "warning" || state === "partial") return "Review";
+    if (state === "live" || state === "ready" || state === "pass" || state === "ok") return "Live";
+    return "Info";
+}
+
 function formatDebugPillBadgeLabel(label?: string) {
     if (!label) return undefined;
     const normalized = label.trim();

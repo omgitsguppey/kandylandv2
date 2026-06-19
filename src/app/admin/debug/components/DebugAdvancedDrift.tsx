@@ -1,6 +1,6 @@
 "use client";
 
-import { Pill, Section, ScrollWrap, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
+import { Pill, Section, ScrollWrap, badgeForDebugSeverity, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 
 export interface DebugAdvancedDriftProps {
     data: any;
@@ -226,7 +226,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                             value={entry.receiptParityState || "review"}
                                             tone={toneForGuardrailState(entry.receiptParityState)}
                                             truthState="live"
-                                            badgeLabel={entry.receiptParityState === "error" ? "ERROR" : entry.receiptParityState === "review" ? "REVIEW" : "LIVE"}
+                                            badgeLabel={badgeForDebugSeverity(entry.receiptParityState)}
                                         />
                                     </div>
                                     <div className="flex flex-wrap gap-2">
@@ -322,7 +322,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                     <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                         <div className="flex flex-wrap gap-2">
                         <Pill label="Generated" value={runtimeTaskDrift?.generatedAtUtc || "unknown"} tone={toneForSourceStatus(runtimeSourceStatus?.status)} truthState={truthStateForSourceStatus(runtimeSourceStatus?.status)} badgeLabel={badgeForSourceStatus(runtimeSourceStatus?.status)} />
-                            <Pill label="State" value={runtimeTaskDrift?.state || "review"} tone={toneForGuardrailState(runtimeTaskDrift?.state)} truthState="live" badgeLabel={(runtimeTaskDrift?.state || "review") === "error" ? "ERROR" : (runtimeTaskDrift?.state || "review") === "review" ? "REVIEW" : "LIVE"} />
+                            <Pill label="State" value={runtimeTaskDrift?.state || "review"} tone={toneForGuardrailState(runtimeTaskDrift?.state)} truthState="live" badgeLabel={badgeForDebugSeverity(runtimeTaskDrift?.state || "review")} />
                         </div>
                         <p className="mt-3 text-xs leading-6 text-gray-400">
                             Unsupported runtime records are grouped by reason and source so active assignment risk stays separate from historical-only drift.
@@ -347,7 +347,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Count" value={group.count} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Severity" value={group.severity} tone={toneForRuntimeDriftSeverity(group.severity)} truthState="live" badgeLabel={group.severity === "error" ? "ERROR" : group.severity === "review" ? "REVIEW" : "INFO"} />
+                                            <Pill label="Severity" value={group.severity} tone={toneForRuntimeDriftSeverity(group.severity)} truthState="live" badgeLabel={badgeForDebugSeverity(group.severity)} />
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
@@ -395,7 +395,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                                             <p className="text-xs text-gray-400">{entry.taskId} | {entry.triggerEvent}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Parity" value={entry.sourceParityState} tone={entry.sourceParityState === "mismatch" ? "bad" : entry.sourceParityState === "partial" ? "warn" : "good"} truthState="live" badgeLabel={entry.sourceParityState === "mismatch" ? "ERROR" : entry.sourceParityState === "partial" ? "REVIEW" : "LIVE"} />
+                                            <Pill label="Parity" value={entry.sourceParityState} tone={entry.sourceParityState === "mismatch" ? "bad" : entry.sourceParityState === "partial" ? "warn" : "good"} truthState="live" badgeLabel={badgeForDebugSeverity(entry.sourceParityState)} />
                                             <Pill label="Canonical source" value={entry.canonicalCompletionSource} tone="neutral" truthState="live" badgeLabel="INFO" />
                                         </div>
                                     </div>

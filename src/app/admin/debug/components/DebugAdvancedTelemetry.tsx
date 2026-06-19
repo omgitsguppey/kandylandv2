@@ -1,6 +1,6 @@
 "use client";
 
-import { Pill, Section, ScrollWrap, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
+import { Pill, Section, ScrollWrap, badgeForDebugSeverity, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 
 export interface DebugAdvancedTelemetryProps {
     data: any;
@@ -294,7 +294,7 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                                 <p className="font-semibold text-white">{entry.normalizedAction === entry.eventName ? entry.eventName : `${entry.eventName} -> ${entry.normalizedAction}`}</p>
                                                 <p className="text-xs text-gray-400">Kind: receipt</p>
                                             </div>
-                                            <Pill label="Mapping" value={entry.mappingState} tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={entry.severity === "error" ? "ERROR" : entry.severity === "review" ? "REVIEW" : "INFO"} />
+                                            <Pill label="Mapping" value={entry.mappingState} tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={badgeForDebugSeverity(entry.severity)} />
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Count" value={entry.count} tone="neutral" truthState="live" badgeLabel="LOADED" />
@@ -323,7 +323,7 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                                 <p className="font-semibold text-white">{entry.displayLabel}</p>
                                                 <p className="text-xs text-gray-400">{entry.eventName}</p>
                                             </div>
-                                            <Pill label="Ambiguity" value="Shared event needs criteria" tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={entry.severity === "error" ? "ERROR" : "REVIEW"} />
+                                            <Pill label="Ambiguity" value="Shared event needs criteria" tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={badgeForDebugSeverity(entry.severity === "error" ? "error" : "review")} />
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Shared by" value={entry.sharedByCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
@@ -403,7 +403,7 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                                 <p className="font-semibold text-white">{entry.taskTitle || entry.taskId || entry.triggerEvent || entry.reason}</p>
                                                 <p className="text-xs text-gray-400">{entry.reason} | {entry.source} | {entry.activityScope}</p>
                                             </div>
-                                            <Pill label="Severity" value={entry.severity} tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={entry.severity === "error" ? "ERROR" : entry.severity === "review" ? "REVIEW" : "INFO"} />
+                                            <Pill label="Severity" value={entry.severity} tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={badgeForDebugSeverity(entry.severity)} />
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Count" value={entry.count} tone="neutral" truthState="live" badgeLabel="LOADED" />
