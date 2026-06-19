@@ -990,7 +990,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 {drop.creatorName ? `${drop.creatorName} | ` : ""}{drop.shortDropId}
                               </p>
                               <details className="mt-1 text-[11px] text-gray-500">
-                                <summary className="cursor-pointer">Identity and source notes</summary>
+                                <summary className="cursor-pointer">Identity details</summary>
                                 <p>Drop ID: {drop.dropId}</p>
                                 <p title={drop.sourceTruth}>
                                   Source: {formatAdminAnalyticsSourceTruthLabel(drop.sourceTruth)}

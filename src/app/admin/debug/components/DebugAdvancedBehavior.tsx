@@ -378,7 +378,7 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                             </div>
                                         )}
                                         <details className="rounded-xl border border-white/10 bg-black/10 p-3">
-                                            <summary className="cursor-pointer text-sm text-gray-200">Identity and source notes</summary>
+                                            <summary className="cursor-pointer text-sm text-gray-200">Identity details</summary>
                                             <div className="mt-3 space-y-2 text-xs text-gray-400">
                                                 <p>dropId: {entry.dropId}</p>
                                                 <p>adminDropHref: {entry.adminDropHref || "none"}</p>

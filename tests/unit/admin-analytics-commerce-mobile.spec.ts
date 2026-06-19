@@ -120,7 +120,7 @@ describe("Admin analytics commerce mobile consolidation", () => {
     expect(source).not.toContain("<p>Source: {drop.sourceTruth}</p>");
     expect(source).not.toContain("{item.sourceLabel} | {item.sourceTruth}");
     expect(source).not.toContain("source {viewerSourceTruth.replace(/_/g, \" \")}");
-    expect(source).toContain("Identity and source notes");
+    expect(source).toContain("Identity details");
     expect(source).not.toContain("Raw identity and source details");
     expect(source).not.toContain("Source truth");
     expect(source).not.toContain("Source label:");
@@ -130,7 +130,7 @@ describe("Admin analytics commerce mobile consolidation", () => {
     expect(source).not.toContain("commerceSnapshotModel.yieldPer100GdFormula");
     expect(source).toContain("Decision source: {verifiedSnapshotLabel}");
     expect(source).toContain("Decision source</div>");
-    expect(source).toContain("Identity and source notes");
+    expect(source).toContain("Identity details");
     expect(source).toContain("Watch source");
     expect(source).toContain("Server ledger remains the treasury source.");
   });
