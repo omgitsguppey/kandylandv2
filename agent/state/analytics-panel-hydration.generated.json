@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T06:06:48.681Z",
-  "currentHead": "dd03fbe68fc2fb3a9e0fdb9d3b014fb4bfbfa92f",
+  "generatedAtUtc": "2026-06-19T06:11:25.906Z",
+  "currentHead": "2f18945c98deedccf4b7b817969586fb7d1d42ef",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,23 +365,51 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 2,
+    "total": 9,
     "byClassification": {
+      "analytics_panel_hydration_artifact_expected": 3,
+      "launch_analytics_recovery_artifact_expected": 2,
       "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 1
+      "documentation_artifact_expected": 1,
+      "historical_analytics_source_reader_expected": 1,
+      "test_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
+      {
+        "path": "agent/state/analytics-panel-hydration.generated.json",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "agent/state/launch-analytics-recovery.generated.json",
+        "classification": "launch_analytics_recovery_artifact_expected"
+      },
       {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
       },
       {
+        "path": "docs/agent-truth/analytics-panel-hydration.md",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "docs/agent-truth/launch-analytics-recovery.md",
+        "classification": "launch_analytics_recovery_artifact_expected"
+      },
+      {
         "path": "docs/agent-truth/source-agreement-failure-detail.md",
         "classification": "documentation_artifact_expected"
+      },
+      {
+        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "src/lib/server/admin-analytics-data.ts",
+        "classification": "historical_analytics_source_reader_expected"
       }
     ],
-    "sampleTruncated": false
+    "sampleTruncated": true
   },
   "nextExactSteps": [
     "Connect safe lastSeen/materialized summaries for source-missing panels.",

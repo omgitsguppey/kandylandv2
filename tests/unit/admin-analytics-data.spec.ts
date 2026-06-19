@@ -217,7 +217,7 @@ describe("fetchAdminHistoricalAnalyticsSources", () => {
         });
     });
 
-    it("reads all-time launch history rollups without requiring modern dayKey fields", async () => {
+    it("samples all-time launch and recent daily rollup edges without requiring modern dayKey fields", async () => {
         const startMs = Date.UTC(2020, 0, 1, 0, 0, 0);
         mockState.collections.set("analytics_page_daily", [
             {
@@ -225,6 +225,13 @@ describe("fetchAdminHistoricalAnalyticsSources", () => {
                 data: () => ({
                     pagePath: "/",
                     viewCount: 9,
+                }),
+            },
+            {
+                id: "2026-06-17__drops",
+                data: () => ({
+                    pagePath: "/drops",
+                    viewCount: 3,
                 }),
             },
         ]);
@@ -240,13 +247,35 @@ describe("fetchAdminHistoricalAnalyticsSources", () => {
             timelineBucket: "day",
         });
 
-        const pageRollupQuery = mockState.queryHistory.find((entry) => entry.name === "analytics_page_daily");
-        const dailyRollupQuery = mockState.queryHistory.find((entry) => entry.name === "analytics_rollups_daily");
+        const pageRollupQueries = mockState.queryHistory.filter((entry) => entry.name === "analytics_page_daily");
+        const dailyRollupQueries = mockState.queryHistory.filter((entry) => entry.name === "analytics_rollups_daily");
 
-        expect(result.pageRollupsSnapshot.size).toBe(1);
-        expect(pageRollupQuery?.clauses.some((clause) => clause.field === "dayKey")).toBe(false);
-        expect(pageRollupQuery?.limits).toContain(2_500);
-        expect(dailyRollupQuery?.limits).toContain(2_500);
+        expect(result.pageRollupsSnapshot.docs.map((doc) => doc.id)).toEqual([
+            "2024-01-15__home",
+            "2026-06-17__drops",
+        ]);
+        expect(pageRollupQueries).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                clauses: [],
+                orderBys: [expect.objectContaining({ field: "__name__", direction: "asc" })],
+                limits: [1_250],
+            }),
+            expect.objectContaining({
+                clauses: [],
+                orderBys: [expect.objectContaining({ field: "__name__", direction: "desc" })],
+                limits: [1_250],
+            }),
+        ]));
+        expect(dailyRollupQueries).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                orderBys: [expect.objectContaining({ field: "__name__", direction: "asc" })],
+                limits: [1_250],
+            }),
+            expect.objectContaining({
+                orderBys: [expect.objectContaining({ field: "__name__", direction: "desc" })],
+                limits: [1_250],
+            }),
+        ]));
     });
 
     it("samples all-time launch and recent edges for capped event lanes", async () => {

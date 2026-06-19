@@ -135,6 +135,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/release-readiness/automated-truth-reconciliation.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/server/admin-analytics-data.ts") return "historical_analytics_source_reader_expected";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "scripts/agent/validate-admin-truth-sample-evidence.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-evidence-capture-status.ts") return "validator_artifact_expected";
@@ -159,6 +160,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/global-user-dedupe-normalization.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
   if (normalized === "tests/unit/event-liveness-audit.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/admin-analytics-data.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "agent/state/admin-surface-modal-replacement.generated.json") return "admin_surface_modal_replacement_artifact_expected";
   if (normalized === "docs/agent-truth/admin-surface-modal-replacement.md") return "admin_surface_modal_replacement_artifact_expected";

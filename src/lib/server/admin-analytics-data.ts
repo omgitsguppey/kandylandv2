@@ -1,6 +1,7 @@
 import "server-only";
 
 import { adminDb } from "./firebase-admin";
+import { FieldPath } from "firebase-admin/firestore";
 import { fetchTelemetryLogs } from "./admin-analytics-shared";
 import { readThroughEphemeralRouteCache } from "./ephemeral-route-cache";
 import {
@@ -30,6 +31,7 @@ const ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT = 200;
 const ADMIN_ANALYTICS_DROP_ARCHIVE_LIMIT = 100;
 const ADMIN_ANALYTICS_TASK_EVENT_LIMIT = 500;
 const ADMIN_ANALYTICS_TRANSACTION_LIMIT = 500;
+const DOCUMENT_ID_ORDER_FIELD = FieldPath.documentId();
 
 function uniqueSnapshotDocs(
   snapshots: Array<FirebaseFirestore.QuerySnapshot | null>,
@@ -60,7 +62,7 @@ function uniqueSnapshotDocs(
 
 async function readAllTimeLaunchAndRecentSamples(input: {
   collection: FirebaseFirestore.CollectionReference;
-  orderField: string;
+  orderField: string | FirebaseFirestore.FieldPath;
   limit: number;
 }) {
   const edgeLimit = Math.max(1, Math.ceil(input.limit / 2));
@@ -261,7 +263,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       reader: () => {
         const collection = adminDb.collection("analytics_rollups_daily");
         return period === "all"
-          ? collection.limit(dailyRollupLimit).get()
+          ? readAllTimeLaunchAndRecentSamples({
+            collection,
+            orderField: DOCUMENT_ID_ORDER_FIELD,
+            limit: dailyRollupLimit,
+          })
           : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
       },
     }),
@@ -273,7 +279,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       reader: () => {
         const collection = adminDb.collection("analytics_page_daily");
         return period === "all"
-          ? collection.limit(dailyRollupLimit).get()
+          ? readAllTimeLaunchAndRecentSamples({
+            collection,
+            orderField: DOCUMENT_ID_ORDER_FIELD,
+            limit: dailyRollupLimit,
+          })
           : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
       },
     }),
@@ -285,7 +295,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       reader: () => {
         const collection = adminDb.collection("analytics_drop_daily");
         return period === "all"
-          ? collection.limit(dailyRollupLimit).get()
+          ? readAllTimeLaunchAndRecentSamples({
+            collection,
+            orderField: DOCUMENT_ID_ORDER_FIELD,
+            limit: dailyRollupLimit,
+          })
           : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
       },
     }),
@@ -297,7 +311,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       reader: () => {
         const collection = adminDb.collection("analytics_task_daily");
         return period === "all"
-          ? collection.limit(dailyRollupLimit).get()
+          ? readAllTimeLaunchAndRecentSamples({
+            collection,
+            orderField: DOCUMENT_ID_ORDER_FIELD,
+            limit: dailyRollupLimit,
+          })
           : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
       },
     }),
@@ -309,7 +327,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       reader: () => {
         const collection = adminDb.collection("analytics_commerce_daily");
         return period === "all"
-          ? collection.limit(dailyRollupLimit).get()
+          ? readAllTimeLaunchAndRecentSamples({
+            collection,
+            orderField: DOCUMENT_ID_ORDER_FIELD,
+            limit: dailyRollupLimit,
+          })
           : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
       },
     }),
@@ -333,7 +355,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       reader: () => {
         const collection = adminDb.collection("analytics_pipeline_daily");
         return period === "all"
-          ? collection.limit(dailyRollupLimit).get()
+          ? readAllTimeLaunchAndRecentSamples({
+            collection,
+            orderField: DOCUMENT_ID_ORDER_FIELD,
+            limit: dailyRollupLimit,
+          })
           : collection.where("dayKey", ">=", startDayKey).limit(dailyRollupLimit).get();
       },
     }),
