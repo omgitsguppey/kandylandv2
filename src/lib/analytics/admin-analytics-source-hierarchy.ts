@@ -132,7 +132,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       fallbackAllowed: false,
       emptyStateAllowed: false,
       blockerReason: sourceAgreementFailed ? "source_agreement_failed" : null,
-      nextAction: sourceAgreementFailed ? "Review source agreement details in Debug before promoting charts." : "No action required.",
+      nextAction: sourceAgreementFailed ? "Open Debug and reconnect source agreement before showing charts as current." : "No action required.",
     }),
     consumer({
       consumerId: "admin_analytics_overview",
@@ -282,7 +282,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
     blockedAnalyticsConsumers,
     secondSourceAnalyticsConsumers,
     nextAction: sourceAgreementFailed
-      ? "Review source details in Debug and restore first-party/materialized coverage before promoting charts."
+      ? "Open Debug, restore first-party/materialized coverage, then show charts as current."
       : mismatch
         ? "Align the Analytics tab with the Debug source hierarchy and keep fallback empty states reasoned."
         : "No action required.",
