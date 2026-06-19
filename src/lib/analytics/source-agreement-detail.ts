@@ -416,6 +416,18 @@ function hasExplicitAllLaunchRangeProof(
   return inclusiveDayCount(rangeStartDayKey, rangeEndDayKey) === expectedDays.length;
 }
 
+function proofModeAllowsLaunchRangeProof(input: {
+  proofMode?: "local_export" | "admin_truth_sample";
+  coverage: LaunchHistoryCoverageForSourceAgreement;
+}) {
+  if (input.proofMode === "admin_truth_sample") return true;
+  if (input.proofMode !== "local_export") return false;
+
+  const rangeProof = input.coverage.rangeProof;
+  return rangeProof?.coverageWindowKind === "all_range_historical_export"
+    || rangeProof?.expectedRangeSource === "approved_all_launch_export";
+}
+
 export function buildSourceAgreementFailureDetail(input: {
   comparedSources: SourceAgreementCoverageInput[] | string[];
   coverageBySource?: Record<string, string[]>;
@@ -716,7 +728,10 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
     perDaySourceCounts,
     internalAdminExcludedCountByDay,
     perDayMetricDeltas,
-    allLaunchRangeProven: input.proofMode === "admin_truth_sample"
+    allLaunchRangeProven: proofModeAllowsLaunchRangeProof({
+      proofMode: input.proofMode,
+      coverage: input.launchHistoryCoverage,
+    })
       && explicitAllLaunchRangeProof
       && input.launchHistoryCoverage.state === "available"
       && declaredCountsMatchRows

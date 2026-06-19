@@ -488,7 +488,15 @@ export function validateSourceAgreementFailureDetail() {
   expectPass(["failed", "review", "pass", "not_enough_sources"].includes(detail.sourceAgreementStatus), failures, "source agreement detail lacks explicit status.");
   expectPass(Boolean(detail.rangeStartDayKey && detail.rangeEndDayKey), failures, "source agreement detail lacks launch evidence range.");
   expectPass(["union_of_local_source_days", "caller_supplied_expected_days"].includes(detail.expectedRangeSource), failures, "source agreement detail does not identify local evidence range source.");
-  expectPass(detail.allLaunchRangeProven === false || (detail.coverageWindowKind === "admin_truth_sample" && detail.sourceAgreementStatus === "pass"), failures, "source agreement detail can be mistaken for all-launch proof.");
+  expectPass(
+    detail.allLaunchRangeProven === false
+      || (detail.sourceAgreementStatus === "pass" && (
+        detail.coverageWindowKind === "admin_truth_sample"
+        || detail.coverageWindowKind === "all_range_historical_export"
+      )),
+    failures,
+    "source agreement detail can be mistaken for all-launch proof.",
+  );
   if (inputMode === "fixture_only_local_window") {
     expectPass(detail.sourceAgreementStatus === "failed", failures, "fixture source agreement detail must remain failed until first-party coverage is recovered.");
     expectPass(detail.rangeStartDayKey === "2026-05-01" && detail.rangeEndDayKey === "2026-05-03", failures, "fixture source agreement detail lacks launch evidence range.");

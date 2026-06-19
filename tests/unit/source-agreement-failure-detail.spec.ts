@@ -232,6 +232,69 @@ describe("source agreement failure detail", () => {
     expect(detail.disagreementCount).toBe(0);
   });
 
+  it("allows an approved all-range local export to prove launch range when declared range matches rows", () => {
+    const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
+      proofMode: "local_export",
+      launchHistoryCoverage: {
+        expectedDayCount: 2,
+        recoveredDayCount: 2,
+        state: "available",
+        rangeStartDayKey: "2026-05-01",
+        rangeEndDayKey: "2026-05-02",
+        rangeProof: {
+          allLaunchRangeProven: true,
+          expectedRangeSource: "approved_all_launch_export",
+          coverageWindowKind: "all_range_historical_export",
+        },
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 8, ga4: 8, historicalSnapshot: 1, legacySupport: 0 },
+          },
+          {
+            dayKey: "2026-05-02",
+            expected: true,
+            sourceCounts: { first_party: 5, ga4: 5, historicalSnapshot: 0, legacySupport: 1 },
+          },
+        ],
+      },
+    });
+
+    expect(detail.coverageWindowKind).toBe("all_range_historical_export");
+    expect(detail.sourceAgreementStatus).toBe("pass");
+    expect(detail.allLaunchRangeProven).toBe(true);
+    expect(detail.disagreementCount).toBe(0);
+  });
+
+  it("does not let local export rows prove launch range without approved all-range proof markers", () => {
+    const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
+      proofMode: "local_export",
+      launchHistoryCoverage: {
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
+        rangeStartDayKey: "2026-05-01",
+        rangeEndDayKey: "2026-05-01",
+        rangeProof: {
+          allLaunchRangeProven: true,
+          expectedRangeSource: "local_sample",
+          coverageWindowKind: "local_source_window",
+        },
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 8, ga4: 8, historicalSnapshot: 0, legacySupport: 0 },
+          },
+        ],
+      },
+    });
+
+    expect(detail.sourceAgreementStatus).toBe("pass");
+    expect(detail.allLaunchRangeProven).toBe(false);
+  });
+
   it("classifies first-party and GA4 count deltas without letting GA4 overwrite truth", () => {
     const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
       proofMode: "admin_truth_sample",
