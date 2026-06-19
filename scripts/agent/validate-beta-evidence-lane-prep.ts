@@ -11,13 +11,15 @@ type FormalEvidenceStatus = "missing" | "incomplete" | "complete";
 type EvidenceLaneStatus =
   | "formal_missing"
   | "formal_complete"
+  | "source_surface_checked"
+  | "source_surface_gap"
   | "operator_confirmed"
   | "source_ready_runtime_proof_required"
   | "owner_review_required";
 
 export type BetaEvidenceLanePrepLane = {
   id:
-    | "manual_screenshot_qa"
+    | "ui_surface_coverage"
     | "provider_smoke"
     | "operator_confirmed_revenue_smoke"
     | "runtime_smoke"
@@ -80,7 +82,7 @@ type BuildInput = {
   currentHead?: string;
   generatedAtUtc?: string;
   evidenceCaptureSummary?: Partial<{
-    manualScreenshotEvidence: FormalEvidenceStatus;
+    uiSurfaceCoverageEvidence: FormalEvidenceStatus;
     providerSmokeEvidence: FormalEvidenceStatus;
     runtimeSmokeEvidence: FormalEvidenceStatus;
     adminTruthSampleEvidence: FormalEvidenceStatus;
@@ -133,6 +135,10 @@ function formalStatus(status: unknown): EvidenceLaneStatus {
   return status === "complete" ? "formal_complete" : "formal_missing";
 }
 
+function uiSurfaceCoverageStatus(status: unknown): EvidenceLaneStatus {
+  return status === "complete" ? "source_surface_checked" : "source_surface_gap";
+}
+
 function artifactInput(relativePath: string, head: string) {
   const parsed = readJson(relativePath);
   if (Object.keys(parsed).length === 0) {
@@ -180,7 +186,7 @@ function readWorkspaceInput(head: string): Required<Pick<BuildInput, "evidenceCa
 
   return {
     evidenceCaptureSummary: {
-      manualScreenshotEvidence: evidenceSummary.manualScreenshotEvidence as FormalEvidenceStatus | undefined,
+      uiSurfaceCoverageEvidence: evidenceSummary.uiSurfaceCoverageEvidence as FormalEvidenceStatus | undefined,
       providerSmokeEvidence: evidenceSummary.providerSmokeEvidence as FormalEvidenceStatus | undefined,
       runtimeSmokeEvidence: evidenceSummary.runtimeSmokeEvidence as FormalEvidenceStatus | undefined,
       adminTruthSampleEvidence: evidenceSummary.adminTruthSampleEvidence as FormalEvidenceStatus | undefined,
@@ -222,21 +228,21 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
 
   const lanes: BetaEvidenceLanePrepLane[] = [
     lane({
-      id: "manual_screenshot_qa",
-      label: "Manual screenshot QA",
-      folder: "agent/evidence/manual-screenshot-qa",
-      template: "agent/evidence/manual-screenshot-qa/evidence.template.json",
-      checklist: "docs/agent-truth/manual-screenshot-qa-checklist.md",
-      validatorCommand: "EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence",
-      status: formalStatus(evidence.manualScreenshotEvidence),
-      statusEnum: ["formal_missing", "formal_complete"],
+      id: "ui_surface_coverage",
+      label: "UI surface coverage",
+      folder: "agent/state",
+      template: "agent/state/ui-visual-smoke-minimal.generated.json",
+      checklist: "docs/agent-truth/ui-visual-smoke-minimal.md",
+      validatorCommand: "npm run check:ui-visual-smoke-minimal",
+      status: uiSurfaceCoverageStatus(evidence.uiSurfaceCoverageEvidence),
+      statusEnum: ["source_surface_gap", "source_surface_checked"],
       requiredForBetaExit: true,
-      sourceReady: false,
-      completeAsProductSignal: false,
+      sourceReady: evidence.uiSurfaceCoverageEvidence === "complete",
+      completeAsProductSignal: evidence.uiSurfaceCoverageEvidence === "complete",
       clearsFormalProviderGate: false,
-      scoreImpact: "Raises manual confidence and evidence completeness after real screenshots are attached.",
-      launchGateImpact: "Required for beta exit; source-only UI validation does not clear manual evidence.",
-      nextAction: "Attach dated screenshot evidence using the manual screenshot QA template.",
+      scoreImpact: "Raises UI confidence when deterministic source coverage can find disconnected surfaces before visual review.",
+      launchGateImpact: "Required for beta exit as source coverage; screenshots are optional only to reproduce a source-reported UI issue.",
+      nextAction: "Run npm run check:ui-visual-smoke-minimal and fix any source-reported UI surface gap.",
     }),
     lane({
       id: "provider_smoke",
@@ -411,7 +417,7 @@ export function validateBetaEvidenceLanePrepReport(report: BetaEvidenceLanePrepR
   if (report.reportKey !== "beta-evidence-lane-prep") failures.push("reportKey must be beta-evidence-lane-prep.");
   if (report.currentHead !== head) failures.push("currentHead must match the latest code version.");
   const requiredIds = [
-    "manual_screenshot_qa",
+    "ui_surface_coverage",
     "provider_smoke",
     "operator_confirmed_revenue_smoke",
     "runtime_smoke",

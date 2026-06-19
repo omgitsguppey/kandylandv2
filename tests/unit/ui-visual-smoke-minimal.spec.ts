@@ -9,7 +9,7 @@ import {
   type UiVisualSmokeMinimalReport,
 } from "@/lib/evidence/ui-visual-smoke-contract";
 
-describe("UI visual smoke minimal evidence lane", () => {
+describe("UI surface coverage evidence lane", () => {
   it("requires only the targeted layout-sensitive UI surfaces by default", () => {
     const report = buildUiVisualSmokeMinimalReport({
       currentHead: "abc123",
@@ -19,9 +19,9 @@ describe("UI visual smoke minimal evidence lane", () => {
     expect(report.surfaces).toHaveLength(UI_VISUAL_SMOKE_REQUIRED_SURFACES.length);
     expect(report.summary.requiredSurfaceCount).toBe(9);
     expect(report.summary.surfaceGroupCount).toBe(8);
-    expect(report.summary.statusCounts.operator_final_pending).toBe(9);
-    expect(report.passed).toBe(false);
-    expect(report.status).toBe("operator_final_pending");
+    expect(report.summary.statusCounts.source_surface_checked).toBe(9);
+    expect(report.passed).toBe(true);
+    expect(report.status).toBe("source_surface_checks_current");
     expect(report.nonUiLanesBlocked).toBe(false);
     expect(report.surfaces.every((surface) => surface.codexScoreBlocking === false)).toBe(true);
     expect(report.surfaces.map((surface) => surface.surfaceId)).toEqual([
@@ -48,13 +48,13 @@ describe("UI visual smoke minimal evidence lane", () => {
     expect(serializedSurfaces).not.toContain("navbar");
   });
 
-  it("does not pass visual smoke without screenshot or operator confirmation artifacts", () => {
+  it("passes source coverage without requiring screenshot or operator confirmation artifacts", () => {
     const report = buildUiVisualSmokeMinimalReport();
     const scoreEvidence = summarizeUiVisualSmokeEvidenceForScore(report);
 
-    expect(scoreEvidence.passed).toBe(false);
-    expect(scoreEvidence.status).toBe("operator_final_pending");
-    expect(scoreEvidence.detail).toContain("operator-final checklist");
+    expect(scoreEvidence.passed).toBe(true);
+    expect(scoreEvidence.status).toBe("source_surface_checks_current");
+    expect(scoreEvidence.detail).toContain("deterministic UI surface coverage");
     expect(scoreEvidence.detail).toContain("user_dashboard_mobile");
     expect(scoreEvidence.evidence).toEqual(expect.arrayContaining([
       "uiVisualSmoke.nonUiLanesBlocked=false",
@@ -70,8 +70,8 @@ describe("UI visual smoke minimal evidence lane", () => {
       surfaces: [
         {
           ...report.surfaces[0],
-          status: "operator_confirmed_outside_codex",
-          operatorConfirmed: false,
+          status: "source_surface_gap",
+          requiresVisualSmokeReason: "",
         },
         {
           ...report.surfaces[1],
@@ -93,8 +93,8 @@ describe("UI visual smoke minimal evidence lane", () => {
 
     expect(validateUiVisualSmokeMinimalReport(invalid, { templateExists: false })).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("must not pass inside Codex"),
-        expect.stringContaining("operator_confirmed_outside_codex but lacks operator confirmation"),
+        expect.stringContaining("must not pass while required surfaces are missing"),
+        expect.stringContaining("source_surface_gap without a reason"),
         expect.stringContaining("screenshot_attached but lacks screenshotArtifactPath"),
         expect.stringContaining("non-UI lane"),
         expect.stringContaining("protected chat/nav surface"),
@@ -103,7 +103,7 @@ describe("UI visual smoke minimal evidence lane", () => {
     );
   });
 
-  it("ships the evidence template as a local schema starter, not as proof", () => {
+  it("keeps the optional evidence template as context, not as the gate", () => {
     expect(existsSync("agent/evidence/ui-visual-smoke/template.json")).toBe(true);
   });
 });

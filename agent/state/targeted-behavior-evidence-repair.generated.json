@@ -1,7 +1,7 @@
 {
   "reportKey": "targeted-behavior-evidence-repair",
-  "generatedAtUtc": "2026-05-26T04:49:03.108Z",
-  "currentHead": "a81cdb0b",
+  "generatedAtUtc": "2026-06-19T14:33:29.274Z",
+  "currentHead": "fbc3a07e8",
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -11,7 +11,6 @@
   "sourceEvidenceOnly": true,
   "formalEvidenceImpact": "source_behavior_only",
   "doesNotClear": [
-    "manual_screenshot",
     "provider_smoke",
     "runtime_smoke",
     "admin_truth_sample"
@@ -45,7 +44,7 @@
         "overnight-wiring-integrity",
         "mobile-ui-final-lock"
       ],
-      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+      "artifactHead": "2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78"
     },
     {
       "id": "media-discovery-score-lock",
@@ -63,7 +62,7 @@
         "creator-profile-mobile-timeline",
         "creator-broadcast-timeline-prep"
       ],
-      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+      "artifactHead": "2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78"
     },
     {
       "id": "creator-monetization-readiness-lock",
@@ -83,7 +82,7 @@
         "creator-pricing-wiring",
         "gumdrop-economy-accuracy"
       ],
-      "artifactHead": "79ad1387"
+      "artifactHead": "2b84d852e"
     },
     {
       "id": "auth-readiness-lock",
@@ -113,7 +112,7 @@
       "replacementFor": [
         "creator-broadcast-timeline-prep"
       ],
-      "artifactHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0"
+      "artifactHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39"
     },
     {
       "id": "daily-task-debug-score-lock",
@@ -127,7 +126,7 @@
         "debug"
       ],
       "replacementFor": [],
-      "artifactHead": "e53968ae"
+      "artifactHead": "225f9e53"
     },
     {
       "id": "chat-functionality-score-lock",
@@ -141,7 +140,7 @@
         "chat_realtime"
       ],
       "replacementFor": [],
-      "artifactHead": "d02b8b2da859d47d880182fe2169db1ad6a40ad6"
+      "artifactHead": "c755f63fefff812038edb484ff5577fea601631c"
     },
     {
       "id": "final-testing-tracking-telemetry-lock",
@@ -171,7 +170,7 @@
         "telemetry"
       ],
       "replacementFor": [],
-      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+      "artifactHead": "7cf1ea434bab50842a223111f99d5e10c215b49e"
     },
     {
       "id": "activity-verification-engine",
@@ -185,7 +184,7 @@
         "telemetry"
       ],
       "replacementFor": [],
-      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+      "artifactHead": "5bd37e429242d5c9ebb2cfb75d84061c49af7991"
     },
     {
       "id": "event-translation-bridge",
@@ -199,7 +198,7 @@
         "feature_activity"
       ],
       "replacementFor": [],
-      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+      "artifactHead": "150f93852f2029bd14694ddfe9fd65ec917c1897"
     },
     {
       "id": "person-metrics-hydration",
@@ -213,7 +212,7 @@
         "analytics"
       ],
       "replacementFor": [],
-      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+      "artifactHead": "150f93852f2029bd14694ddfe9fd65ec917c1897"
     },
     {
       "id": "surface-state-parity",
@@ -232,7 +231,7 @@
         "user-loading-wallet-mobile-refinement",
         "mobile-ui-final-lock"
       ],
-      "artifactHead": "5e5f33ff72d513742ccfce8c32a5a1c416afd5f9"
+      "artifactHead": "c5e5f6fccd93481f42b0da25a10f85ae0df6f0a8"
     },
     {
       "id": "role-permission-parity",
@@ -248,7 +247,7 @@
         "guest"
       ],
       "replacementFor": [],
-      "artifactHead": "d11f133f925ed09141b89633d5ebaff72e38eb55"
+      "artifactHead": "c5e5f6fccd93481f42b0da25a10f85ae0df6f0a8"
     }
   ],
   "failedValidators": [],
@@ -269,15 +268,171 @@
   "missingValidators": [],
   "limitations": [
     "source behavior only",
-    "does not clear manual screenshot evidence",
+    "does not clear provider/runtime/admin truth evidence",
     "does not clear provider smoke",
     "does not clear deployed runtime smoke",
     "does not clear production admin truth sample evidence"
   ],
   "dirtyFiles": [
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/ui-visual-smoke-minimal.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "scripts/agent/score-public-beta-readiness.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-algorithmic-evidence-policy.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-beta-evidence-gap-map.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-beta-evidence-lane-prep.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-codex-visual-gate-removal.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-current-beta-exit-status.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-debug-runtime-evidence.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-evidence-capture-status.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-new-additions-score-coverage.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-public-beta-score.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-source-backed-runtime-confidence.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "scripts/agent/validate-targeted-behavior-evidence-repair.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-targeted-behavior-evidence.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-ui-visual-smoke-minimal.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "src/lib/agent-score/self-healing-refresh-queue.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "src/lib/evidence/ui-visual-smoke-contract.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/admin-debug-control-tower-component.spec.tsx",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/admin-debug-control-tower.spec.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/algorithmic-evidence-policy.spec.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/beta-evidence-gap-map.spec.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/beta-evidence-lane-prep.spec.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/codex-visual-gate-removal.spec.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/current-beta-exit-status.spec.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/evidence-capture-status.spec.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/new-additions-score-coverage.spec.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/public-beta-score.spec.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/targeted-behavior-evidence-repair.spec.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "tests/unit/targeted-behavior-evidence.spec.ts",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "tests/unit/ui-visual-smoke-minimal.spec.ts",
+      "classification": "source_evidence_gate_repair"
     }
   ],
   "remainingGaps": [],

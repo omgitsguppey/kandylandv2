@@ -13,10 +13,11 @@ const baseArtifacts = {
     evidenceGates: [{ id: "runtimeProviderSmoke", gateRequiredForExit: true }],
     operatorFinalChecks: {
       uiVisualSurfaces: {
-        status: "operator_final_pending",
-        needsOperatorReview: true,
-        passedInCodex: false,
-        note: "visual confirmation handled outside Codex.",
+        status: "source_surface_checked",
+        needsOperatorReview: false,
+        passedInCodex: true,
+        sourceChecksPassed: true,
+        note: "screenshots are optional only for a source-reported UI issue.",
         surfaces: [{ surfaceId: "wallet_mobile" }],
       },
     },
@@ -89,7 +90,7 @@ describe("new additions score coverage finalizer", () => {
     expect(report.orphanedNewAdditions).toEqual([]);
     expect(report.unscoredNewAdditions).toEqual([]);
     expect(report.manualGateRemovedFromCodexScore).toBe(true);
-    expect(report.operatorFinalChecklistStatus).toBe("operator_final_pending_outside_codex_score");
+    expect(report.operatorFinalChecklistStatus).toBe("source_surface_checked_outside_codex_score");
     expect(validateNewAdditionsScoreCoverageReport(report)).toEqual([]);
   });
 
@@ -118,7 +119,7 @@ describe("new additions score coverage finalizer", () => {
       publicBetaScore: {
         ...baseArtifacts.publicBetaScore,
         evidenceGates: [{ id: "visualManualSmoke", gateRequiredForExit: true }],
-        launchBlockers: ["UI visual/manual screenshot smoke"],
+        launchBlockers: ["UI source coverage gap"],
       },
       codexVisualGateRemoval: {
         ...baseArtifacts.codexVisualGateRemoval,

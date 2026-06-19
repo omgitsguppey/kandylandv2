@@ -18,7 +18,7 @@ export type CurrentBetaExitCheck = {
 };
 
 export type CurrentBetaExitProofLaneId =
-  | "manualScreenshotQa"
+  | "uiSurfaceCoverage"
   | "providerSmoke"
   | "runtimeSmoke"
   | "adminTruthSample";
@@ -29,6 +29,8 @@ export type CurrentBetaExitProofTruthState =
   | "external_evidence_required"
   | "manual_evidence_required"
   | "admin_truth_source_required"
+  | "source_ui_surface_current"
+  | "source_evidence_required"
   | "source_only_not_formal"
   | "unknown";
 
@@ -38,6 +40,7 @@ export type CurrentBetaExitProofActionState =
   | "attach_manual_evidence"
   | "attach_external_evidence"
   | "attach_admin_truth_sample"
+  | "run_source_ui_checks"
   | "source_only_cannot_clear"
   | "unknown";
 
@@ -151,7 +154,7 @@ const requiredRepresentedChecks = [
 ] as const;
 
 const requiredChecklistRefs = [
-  "docs/agent-truth/manual-screenshot-qa-checklist.md",
+  "docs/agent-truth/ui-visual-smoke-minimal.md",
   "docs/agent-truth/provider-smoke-evidence-checklist.md",
   "docs/agent-truth/runtime-smoke-evidence-checklist.md",
   "docs/agent-truth/admin-truth-sample-evidence-checklist.md",
@@ -161,7 +164,7 @@ const evidenceCaptureStatusRelativePath = "agent/state/evidence-capture-status.g
 const evidenceCaptureStatusPath = join(repoRoot, evidenceCaptureStatusRelativePath);
 const operatorRevenueSmokeRelativePath = "agent/state/operator-revenue-smoke.generated.json";
 const operatorRevenueSmokePath = join(repoRoot, operatorRevenueSmokeRelativePath);
-const manualVisualEvidenceRelativePath = "agent/state/ui-visual-smoke-minimal.generated.json";
+const uiSurfaceCoverageRelativePath = "agent/state/ui-visual-smoke-minimal.generated.json";
 const providerSmokeEvidenceRelativePath = "agent/state/provider-smoke-evidence.generated.json";
 const runtimeSmokeEvidenceRelativePath = "agent/state/runtime-smoke-evidence.generated.json";
 const adminTruthSampleEvidenceRelativePath = "agent/state/admin-truth-sample-evidence.generated.json";
@@ -171,7 +174,7 @@ const currentBetaExitOwnedInputPaths = [
   "agent/state/public-beta-score.generated.json",
   evidenceCaptureStatusRelativePath,
   operatorRevenueSmokeRelativePath,
-  manualVisualEvidenceRelativePath,
+  uiSurfaceCoverageRelativePath,
   providerSmokeEvidenceRelativePath,
   runtimeSmokeEvidenceRelativePath,
   adminTruthSampleEvidenceRelativePath,
@@ -189,6 +192,7 @@ function readReport() {
 }
 
 function evidenceMissing(status: string) {
+  if (/\b(source_surface_checks_current|source_ui_surface_current|not_required)\b/iu.test(status)) return false;
   if (/\b(false|missing|unverified|unknown|source_only)\b/iu.test(status)) return true;
   return !/\b(pass|passed|attached|formal_.*_passed)\b/iu.test(status);
 }
@@ -201,7 +205,7 @@ function readEvidenceCaptureStatus() {
   if (!existsSync(evidenceCaptureStatusPath)) return null;
   return JSON.parse(readFileSync(evidenceCaptureStatusPath, "utf8")) as {
     summary?: {
-      manualScreenshotEvidence?: string;
+      uiSurfaceCoverageEvidence?: string;
       providerSmokeEvidence?: string;
       runtimeSmokeEvidence?: string;
       adminTruthSampleEvidence?: string;
@@ -328,7 +332,7 @@ function artifactIsStale(artifact: Record<string, unknown> | null, head: string)
 }
 
 function formalStatusPassed(id: CurrentBetaExitProofLaneId, status: string) {
-  if (id === "manualScreenshotQa") return /formal_screenshot_evidence_attached|screenshot_attached/iu.test(status);
+  if (id === "uiSurfaceCoverage") return /source_surface_checks_current|source_ui_surface_current|not_required/iu.test(status);
   if (id === "providerSmoke") return /formal_provider_smoke_passed|passed_formal_evidence/iu.test(status);
   if (id === "runtimeSmoke") return /formal_runtime_smoke_passed|passed_formal_evidence/iu.test(status);
   return /formal_admin_truth_sample_passed|passed_formal_evidence/iu.test(status);
@@ -345,20 +349,22 @@ function proofTruthStateFor(input: {
   const hasFormalPassingStatus = formalStatusPassed(input.id, input.sourceStatus) || formalStatusPassed(input.id, artifactStatus);
   const isStaleSource = artifactIsStale(input.artifact, input.head) || /^stale_/iu.test(input.sourceStatus);
 
+  if (input.id === "uiSurfaceCoverage") {
+    if (isStaleSource) return "stale_evidence";
+    if (hasFormalPassingStatus) return "source_ui_surface_current";
+    return "source_evidence_required";
+  }
+
   if (hasFormalPassingStatus) {
     if (!isStaleSource && input.captureStatus === "complete") {
       return "current_formal_evidence";
     }
-    if (input.id === "manualScreenshotQa") return "manual_evidence_required";
     if (input.id === "adminTruthSample") return "admin_truth_source_required";
     if (input.id === "providerSmoke" || input.id === "runtimeSmoke") return "external_evidence_required";
     return "stale_evidence";
   }
   if (/source_only/iu.test(input.sourceStatus)) {
     return "source_only_not_formal";
-  }
-  if (input.id === "manualScreenshotQa") {
-    return "manual_evidence_required";
   }
   if (input.id === "adminTruthSample") {
     return "admin_truth_source_required";
@@ -381,7 +387,9 @@ function proofActionStateFor(
   sourceStatus = "",
 ): CurrentBetaExitProofActionState {
   if (truthState === "current_formal_evidence") return "gate_cleared";
+  if (truthState === "source_ui_surface_current") return "gate_cleared";
   if (truthState === "stale_evidence") return "refresh_stale_evidence";
+  if (truthState === "source_evidence_required") return "run_source_ui_checks";
   if (truthState === "source_only_not_formal") return "source_only_cannot_clear";
   if (/^stale_/iu.test(sourceStatus) && (
     truthState === "manual_evidence_required"
@@ -414,7 +422,7 @@ function buildProofLane(input: {
     sourcePath: input.sourcePath,
     captureStatus: input.captureStatus,
     sourceCommit: artifactCommit(input.artifact),
-    canClearGate: truthState === "current_formal_evidence",
+    canClearGate: truthState === "current_formal_evidence" || truthState === "source_ui_surface_current",
     nextAction: input.nextAction,
   };
 }
@@ -433,14 +441,14 @@ export function buildProofLanes(input: {
 }): CurrentBetaExitProofLane[] {
   return [
     buildProofLane({
-      id: "manualScreenshotQa",
-      label: "Manual screenshot QA",
+      id: "uiSurfaceCoverage",
+      label: "UI surface coverage",
       sourceStatus: input.visualEvidenceStatus,
-      sourcePath: manualVisualEvidenceRelativePath,
-      captureStatus: stringValue(input.captureSummary.manualScreenshotEvidence, "missing"),
+      sourcePath: uiSurfaceCoverageRelativePath,
+      captureStatus: stringValue(input.captureSummary.uiSurfaceCoverageEvidence, "missing"),
       artifact: input.manualVisual,
       head: input.head,
-      nextAction: "Attach real manual screenshot QA evidence before treating visual proof as current.",
+      nextAction: "Run deterministic UI surface coverage, admin browser surface smoke, and device UI checks before manual viewing.",
     }),
     buildProofLane({
       id: "providerSmoke",
@@ -493,7 +501,7 @@ export function betaExitReviewStateFor(input: {
 function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, head: string): CurrentBetaExitStatusReport {
   const beta = readJson("agent/state/public-beta-score.generated.json");
   const evidenceCapture = readEvidenceCaptureStatus();
-  const manualVisual = readJson(manualVisualEvidenceRelativePath);
+  const manualVisual = readJson(uiSurfaceCoverageRelativePath);
   const provider = readJson(providerSmokeEvidenceRelativePath);
   const runtime = readJson(runtimeSmokeEvidenceRelativePath);
   const admin = readJson(adminTruthSampleEvidenceRelativePath);
@@ -557,8 +565,23 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     }),
     proofLanes,
   } satisfies CurrentBetaExitStatusReport["summary"];
+  const legacyUiVisualBlockerIds = new Set([
+      "runtime-smoke",
+      "admin-truth-sample",
+      "provider-smoke",
+      "visual_manual_smoke_missing",
+      "screenshot_evidence_missing",
+      "ui-surface-coverage",
+    ]);
   const remainingBlockers = [
-    ...report.remainingBlockers.filter((blocker) => !["runtime-smoke", "admin-truth-sample", "provider-smoke"].includes(blocker.id)),
+    ...report.remainingBlockers.filter((blocker) => !legacyUiVisualBlockerIds.has(blocker.id) && !/screenshot|visual_manual/iu.test(blocker.id)),
+    ...(summary.visualEvidenceStatus === "source_surface_checks_current" ? [] : [{
+      id: "ui-surface-coverage",
+      severity: "P1" as const,
+      status: summary.visualEvidenceStatus,
+      evidence: [uiSurfaceCoverageRelativePath],
+      nextAction: "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui; fix source-reported UI gaps before manual viewing.",
+    }]),
     ...(summary.providerSmokeStatus === "formal_provider_smoke_passed" ? [] : [{
       id: "provider-smoke",
       severity: "P1" as const,
@@ -581,6 +604,15 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     staleArtifacts: report.staleArtifacts.filter((entry) =>
       refreshPlan.some((planEntry) => planEntry.artifactPath === entry.artifactPath && planEntry.needsRefresh)),
     remainingBlockers,
+    nextExactSteps: [
+      "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui before manual viewing; fix any source-reported UI surface issue.",
+      "Use docs/agent-truth/ui-visual-smoke-minimal.md as the deterministic UI source coverage lane.",
+      "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider proof.",
+      "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed runtime smoke proof.",
+      "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted production admin truth samples.",
+      `Reference ${evidenceCaptureStatusRelativePath}.`,
+      "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
+    ],
     refreshedArtifacts: Array.from(new Set([...report.refreshedArtifacts, reportRelativePath])),
     checksRun: report.checksRun.map((check) =>
       check.command === "npm run check:evidence-capture-status"
@@ -682,13 +714,13 @@ export function validateCurrentBetaExitStatusReport(
     failures.push("cost readiness lanes must not mark source-only or not-detected inventory as pass.");
   }
 
-  const visualMissing = evidenceMissing(report.summary.visualEvidenceStatus);
+  const uiSurfaceCoverageMissing = evidenceMissing(report.summary.visualEvidenceStatus);
   const providerMissing = evidenceMissing(report.summary.providerSmokeStatus);
   const runtimeMissing = evidenceMissing(report.summary.runtimeSmokeStatus);
   const proofLanes = Array.isArray(report.summary.proofLanes) ? report.summary.proofLanes : [];
   const proofLaneIds = new Set(proofLanes.map((lane) => lane.id));
   const requiredProofLaneIds: CurrentBetaExitProofLaneId[] = [
-    "manualScreenshotQa",
+    "uiSurfaceCoverage",
     "providerSmoke",
     "runtimeSmoke",
     "adminTruthSample",
@@ -699,7 +731,7 @@ export function validateCurrentBetaExitStatusReport(
     }
   }
   const expectedProofStatuses: Record<CurrentBetaExitProofLaneId, string> = {
-    manualScreenshotQa: report.summary.visualEvidenceStatus,
+    uiSurfaceCoverage: report.summary.visualEvidenceStatus,
     providerSmoke: report.summary.providerSmokeStatus,
     runtimeSmoke: report.summary.runtimeSmokeStatus,
     adminTruthSample: report.summary.adminTruthSampleStatus,
@@ -717,8 +749,8 @@ export function validateCurrentBetaExitStatusReport(
     if (/^stale_/iu.test(lane.sourceStatus) && lane.truthState === "current_formal_evidence") {
       failures.push(`${lane.id} stale proof source must not clear a formal gate.`);
     }
-    if (lane.canClearGate && lane.truthState !== "current_formal_evidence") {
-      failures.push(`${lane.id} proof lane canClearGate must only be true for current_formal_evidence.`);
+    if (lane.canClearGate && lane.truthState !== "current_formal_evidence" && lane.truthState !== "source_ui_surface_current") {
+      failures.push(`${lane.id} proof lane canClearGate must only be true for current_formal_evidence or source_ui_surface_current.`);
     }
     if (lane.actionState !== proofActionStateFor(lane.id, lane.truthState, lane.sourceStatus)) {
       failures.push(`${lane.id} proof lane actionState must be derived from truthState and sourceStatus.`);
@@ -779,16 +811,16 @@ export function validateCurrentBetaExitStatusReport(
     }
   }
 
-  if ((visualMissing || providerMissing || runtimeMissing) && report.summary.betaExitReviewState === "ready_for_review") {
-    failures.push("betaExitReviewState must not be ready_for_review while visual/provider/runtime evidence is missing.");
+  if ((uiSurfaceCoverageMissing || providerMissing || runtimeMissing) && report.summary.betaExitReviewState === "ready_for_review") {
+    failures.push("betaExitReviewState must not be ready_for_review while UI surface/provider/runtime evidence is missing.");
   }
   if (report.summary.launchGateStatus !== "launch_ready" && report.summary.betaExitReviewState === "ready_for_review") {
     failures.push("betaExitReviewState must not be ready_for_review until launchGateStatus is launch_ready.");
   }
-  if (visualMissing && /\b(pass|passed|complete|completed)\b/iu.test(report.summary.visualEvidenceStatus)) {
-    failures.push("visual QA must not be marked passed while screenshot evidence is missing.");
+  if (uiSurfaceCoverageMissing && /\b(pass|passed|complete|completed|current)\b/iu.test(report.summary.visualEvidenceStatus)) {
+    failures.push("UI surface coverage must not be marked current while source coverage is missing.");
   }
-  if ((visualMissing || providerMissing || runtimeMissing) && (report.remainingBlockers?.length ?? 0) === 0) {
+  if ((uiSurfaceCoverageMissing || providerMissing || runtimeMissing) && (report.remainingBlockers?.length ?? 0) === 0) {
     failures.push("remainingBlockers must not be empty while required evidence is missing.");
   }
   if ((report.nextExactSteps?.length ?? 0) === 0) {
@@ -835,7 +867,7 @@ export function validateCurrentBetaExitStatusReport(
   } else {
     const captureSummary = evidenceCaptureStatus.summary ?? {};
     const evidenceCaptureMissing = [
-      captureSummary.manualScreenshotEvidence,
+      captureSummary.uiSurfaceCoverageEvidence,
       captureSummary.providerSmokeEvidence,
       captureSummary.runtimeSmokeEvidence,
       captureSummary.adminTruthSampleEvidence,

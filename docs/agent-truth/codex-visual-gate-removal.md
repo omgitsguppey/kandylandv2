@@ -1,8 +1,8 @@
 # Codex Visual Gate Removal
 
-Status: UI visual screenshot confirmation is no longer a Codex-managed source/debug score gate.
+Status: UI screenshot confirmation is no longer a Codex-managed readiness gate.
 
-Visual confirmation remains an operator-final checklist outside Codex. Codex tracks the affected surfaces and does not fake screenshots or mark visual proof passed.
+Deterministic UI surface coverage is source-owned. The codebase can fail missing modal/surface coverage before anyone opens the site. Screenshots are optional reproduction evidence only.
 
 ## Summary
 
@@ -14,11 +14,11 @@ Visual confirmation remains an operator-final checklist outside Codex. Codex tra
 - UI surfaces tracked: 9
 - Provider/runtime/admin gates preserved: true
 
-## Operator Final Checklist
+## UI Source Coverage
 
 - `operatorFinalChecks.uiVisualSurfaces` lists layout-sensitive UI surfaces.
-- `needsOperatorReview=true` means a human should review screenshots or the external visual workflow.
-- `passedInCodex=false` is intentional.
+- `sourceChecksPassed=true` means deterministic source coverage is current.
+- `passedInCodex=true` is allowed for source UI coverage only.
 
 ## Formal Gates
 

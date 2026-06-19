@@ -17,7 +17,7 @@ function result(overrides: Partial<TargetedBehaviorValidatorResult> = {}): Targe
     currentHead: head,
     surfaces: ["creator_settings", "creator_profile"],
     proves: "Creator settings controls are source-validated.",
-    doesNotProve: "Does not prove manual_screenshot, provider_smoke, runtime_smoke, or admin_truth_sample.",
+    doesNotProve: "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample.",
     ...overrides,
   };
 }
@@ -36,7 +36,7 @@ describe("targeted behavior evidence", () => {
           surfaces: ["mobile_ui"],
         }),
       ],
-      notCovered: ["manual screenshot QA", "provider smoke"],
+      notCovered: ["provider smoke"],
     });
 
     expect(report.status).toBe("passed");
@@ -52,7 +52,7 @@ describe("targeted behavior evidence", () => {
       latestCodeVersion: head,
       validatorResults: [
         result({
-          doesNotProve: "Does not prove manual_screenshot.",
+          doesNotProve: "Does not prove provider_smoke.",
         }),
       ],
       notCovered: [],

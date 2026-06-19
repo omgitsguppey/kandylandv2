@@ -57,14 +57,14 @@ export type AlgorithmicEvidencePolicyReport = {
   overallStatus: "algorithmic_evidence_policy_ready" | "algorithmic_evidence_policy_blocked";
   manualEvidenceScope: {
     visualUiGate: {
-      requiresVisualOrOperatorEvidence: boolean;
-      canClearFromAlgorithmicEvidence: false;
+      requiresSourceSurfaceCoverage: boolean;
+      canClearFromAlgorithmicEvidence: boolean;
       status: AlgorithmicEvidenceConfidence;
       sourcePath: string;
       nextAction: string;
     };
     nonUiAlgorithmicEvidence: {
-      blockedByManualScreenshot: false;
+      blockedByUiSourceCoverage: false;
       coveredCategories: AlgorithmicEvidenceGateCategory[];
       score: number;
       note: string;
@@ -296,21 +296,21 @@ export function buildAlgorithmicEvidencePolicyReport(
   ];
   const manualEvidenceScope = {
     visualUiGate: {
-      requiresVisualOrOperatorEvidence: input.uiChanged === true || !uiVisualGateCleared,
-      canClearFromAlgorithmicEvidence: false as const,
+      requiresSourceSurfaceCoverage: input.uiChanged === true || !uiVisualGateCleared,
+      canClearFromAlgorithmicEvidence: uiVisualGateCleared,
       status: confidenceFromScore(uiVisualGateCleared ? 100 : 0, uiVisualGateCleared),
       sourcePath: pathOf(input.visualManualEvidence),
       nextAction: uiVisualGateCleared
-        ? "Visual confirmation is recorded for operator-final review outside Codex."
-        : "Track layout-sensitive UI surfaces for operator-final review; visual confirmation handled outside Codex.",
+        ? "Deterministic UI surface coverage is current; screenshots are optional only after source-reported UI issues."
+        : "Run UI source coverage, admin browser surface smoke, and device UI checks before manual viewing.",
     },
     nonUiAlgorithmicEvidence: {
-      blockedByManualScreenshot: false as const,
+      blockedByUiSourceCoverage: false as const,
       coveredCategories: coverage
         .filter((item) => item.score > 0)
         .map((item) => item.category),
       score: nonUiAlgorithmicCoverageScore,
-      note: "Manual screenshot evidence is operator-final outside Codex and must not block telemetry, admin, cost, refresh, or source-runtime confidence.",
+      note: "UI visual artifacts are optional reproduction evidence only after source-reported UI issues and must not block telemetry, admin, cost, refresh, or source-runtime confidence.",
     },
   };
   const report: AlgorithmicEvidencePolicyReport = {
@@ -347,11 +347,11 @@ export function buildAlgorithmicEvidencePolicyReport(
 
 export function validateAlgorithmicEvidencePolicyReport(report: AlgorithmicEvidencePolicyReport) {
   const failures: string[] = [];
-  if (report.manualEvidenceScope.visualUiGate.canClearFromAlgorithmicEvidence !== false) {
-    failures.push("UI visual gate must not clear from algorithmic evidence.");
+  if (report.formalGateImpact.uiVisualGateCleared && report.manualEvidenceScope.visualUiGate.canClearFromAlgorithmicEvidence !== true) {
+    failures.push("UI source coverage must clear the UI source gate when deterministic UI evidence is current.");
   }
-  if (report.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByManualScreenshot !== false) {
-    failures.push("manual screenshot gate must not block non-UI algorithmic evidence.");
+  if (report.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage !== false) {
+    failures.push("UI source coverage must not block non-UI algorithmic evidence.");
   }
   if (report.providerConfidence.confidence === "partial" && report.formalGateImpact.formalProviderGateCleared) {
     failures.push("operator-confirmed provider confidence must not clear formal provider gate.");

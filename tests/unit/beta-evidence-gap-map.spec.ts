@@ -15,7 +15,7 @@ function reportFixture(overrides: Partial<BetaEvidenceGapMapReport> = {}): BetaE
     launchGateStatus: "owner_review",
     canStartBetaExitReview: false,
     evidenceCapture: {
-      manualScreenshotEvidence: "missing",
+      uiSurfaceCoverageEvidence: "complete",
       providerSmokeEvidence: "missing",
       runtimeSmokeEvidence: "missing",
       adminTruthSampleEvidence: "missing",
@@ -66,7 +66,7 @@ describe("beta evidence gap map", () => {
     const laneIds = report.evidenceLanes.map((lane) => lane.id);
 
     expect(laneIds).toEqual([
-      "manual_screenshot_qa",
+      "ui_surface_coverage",
       "provider_smoke",
       "runtime_smoke",
       "admin_truth_sample",
@@ -100,10 +100,10 @@ describe("beta evidence gap map", () => {
     });
 
     const failures = validateBetaEvidenceGapMapReport(report, "head");
-    expect(failures).toContain("manual_screenshot_qa must include exactFolder.");
-    expect(failures).toContain("manual_screenshot_qa must include exactTemplate.");
-    expect(failures).toContain("manual_screenshot_qa must include exactCheckCommand.");
-    expect(failures).toContain("manual_screenshot_qa must include nextAction.");
+    expect(failures).toContain("ui_surface_coverage must include exactFolder.");
+    expect(failures).toContain("ui_surface_coverage must include exactTemplate.");
+    expect(failures).toContain("ui_surface_coverage must include exactCheckCommand.");
+    expect(failures).toContain("ui_surface_coverage must include nextAction.");
   });
 
   it("keeps operator-reported revenue separate from formal provider evidence", () => {

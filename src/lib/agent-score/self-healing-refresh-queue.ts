@@ -7,7 +7,7 @@ export type SelfHealingRefreshQueueSource =
   | "debug_backlog"
   | "final_lock";
 
-export type SelfHealingRefreshQueueOwner = ArtifactRefreshStatus["owner"] | "runtime" | "admin" | "manual";
+export type SelfHealingRefreshQueueOwner = ArtifactRefreshStatus["owner"] | "runtime" | "admin" | "ui_source";
 
 export interface ScoreImpactArtifactInput {
   id: string;
@@ -60,15 +60,15 @@ export interface SelfHealingRefreshQueueReport {
   validationFailures: string[];
 }
 
-type FormalEvidenceKind = "runtime" | "provider" | "admin_truth" | "visual_manual" | "generic";
+type FormalEvidenceKind = "runtime" | "provider" | "admin_truth" | "generic";
 
-const FORMAL_EVIDENCE_PATTERN = /\battach formal|formal provider|formal runtime|manual screenshot|admin truth sample|provider smoke|runtime smoke|visual\/manual/i;
+const FORMAL_EVIDENCE_PATTERN = /\battach formal|formal provider|formal runtime|admin truth sample|provider smoke|runtime smoke/i;
 const FORBIDDEN_COMMAND_PATTERN = /\b(firebase deploy|gcloud|deploy|production read|paypal|provider call)\b/i;
 
 const OWNER_BY_ARTIFACT: Array<[RegExp, SelfHealingRefreshQueueOwner]> = [
   [/runtime|provider/i, "runtime"],
   [/admin-truth|admin_truth/i, "admin"],
-  [/manual|visual|screenshot/i, "manual"],
+  [/ui-visual|ui-surface|visual/i, "ui_source"],
   [/telemetry/i, "telemetry"],
   [/mobile|wallet/i, "mobile"],
   [/creator/i, "creator"],
@@ -94,7 +94,6 @@ function normalizeFormalEvidenceText(value: string) {
 function formalEvidenceKind(value: string): FormalEvidenceKind | null {
   const normalized = normalizeFormalEvidenceText(value);
   if (!normalized) return null;
-  if (/\b(visual manual smoke|manual screenshot|manual ui proof|screenshot proof)\b/u.test(normalized)) return "visual_manual";
   if (/\b(admin truth sample evidence|admin truth sample|admin sample required|truth sample)\b/u.test(normalized)) return "admin_truth";
   if (/\b(provider smoke evidence|provider smoke|formal provider|external proof|required provider)\b/u.test(normalized)) return "provider";
   if (/\b(runtime smoke evidence|runtime smoke|debug runtime evidence|deployed runtime|formal runtime)\b/u.test(normalized)) return "runtime";
@@ -117,9 +116,6 @@ function formalEvidenceBlockedReason(artifact: string) {
   if (kind === "admin_truth") {
     return "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.";
   }
-  if (kind === "visual_manual") {
-    return "blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.";
-  }
   return "blocked_formal_evidence: formal artifact required; source queue cannot generate proof.";
 }
 
@@ -128,7 +124,6 @@ function formalEvidenceStaleReason(artifact: string) {
   if (kind === "runtime") return "Deployed runtime proof required";
   if (kind === "provider") return "External proof required";
   if (kind === "admin_truth") return "Admin sample required";
-  if (kind === "visual_manual") return "Manual UI proof required";
   return "Formal proof required";
 }
 
@@ -142,9 +137,6 @@ function formalEvidenceExpectedOutcome(artifact: string) {
   }
   if (kind === "admin_truth") {
     return "Remain blocked until a human attaches the admin truth sample artifact.";
-  }
-  if (kind === "visual_manual") {
-    return "Remain blocked until a human attaches the visual/manual smoke artifact.";
   }
   return "Remain blocked until a human attaches the required formal artifact.";
 }

@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-06-17T07:24:02.828Z",
-  "currentHead": "4625e11a355879686d31f9e27a3df030259b43ac",
+  "generatedAtUtc": "2026-06-19T14:34:02.017Z",
+  "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
   "debugPanelSourceSnapshotStatus": "stale",
   "routeDiagnosticsStatus": "source_ready",
   "runtimeWarningStoreStatus": "source_ready",
@@ -10,8 +10,8 @@
   "errorDictionaryMappingStatus": "source_ready",
   "criticalRuntimeIssueCount": 0,
   "unresolvedWarningCount": 0,
-  "unknownEvidenceCount": 1,
-  "sourceBackedRuntimeConfidence": 100,
+  "unknownEvidenceCount": 0,
+  "sourceBackedRuntimeConfidence": 0,
   "validatorResults": [
     {
       "command": "npm run check:debug-panel-output-triage",
@@ -27,7 +27,7 @@
     }
   ],
   "reportKey": "debug-runtime-evidence",
-  "sourceCommit": "4625e11a355879686d31f9e27a3df030259b43ac",
+  "sourceCommit": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
   "status": "partial_debug_runtime_evidence",
   "passed": false,
   "launchGateImpact": "does_not_clear_deployed_runtime_smoke",
@@ -37,7 +37,6 @@
   "doesNotClear": [
     "deployed_runtime_smoke",
     "provider_smoke",
-    "manual_screenshot",
     "admin_truth_sample"
   ],
   "evidence": [
@@ -50,8 +49,8 @@
     "errorDictionaryMappingStatus=source_ready",
     "criticalRuntimeIssueCount=0",
     "unresolvedWarningCount=0",
-    "unknownEvidenceCount=1",
-    "sourceBackedRuntimeConfidence=100",
+    "unknownEvidenceCount=0",
+    "sourceBackedRuntimeConfidence=0",
     "launchGateImpact=does_not_clear_deployed_runtime_smoke",
     "formalProviderSmokeCleared=false",
     "deployedRuntimeSmokeCleared=false"
@@ -62,7 +61,7 @@
     "checkedSources": 5,
     "criticalRuntimeIssueCount": 0,
     "unresolvedWarningCount": 0,
-    "unknownEvidenceCount": 1,
+    "unknownEvidenceCount": 0,
     "formalRuntimeSmokeStillRequired": true
   }
 }

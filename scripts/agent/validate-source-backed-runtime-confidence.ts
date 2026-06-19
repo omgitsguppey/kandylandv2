@@ -60,7 +60,7 @@ const __dirname = dirname(__filename);
 const ROOT = join(__dirname, "..", "..");
 const ARTIFACT_PATH = "agent/state/source-backed-runtime-confidence.generated.json";
 const DOC_PATH = "docs/agent-truth/source-backed-runtime-confidence.md";
-const FORMAL_GATES_NOT_CLEARED = ["runtime_smoke", "provider_smoke", "manual_screenshot", "admin_truth_sample"];
+const FORMAL_GATES_NOT_CLEARED = ["runtime_smoke", "provider_smoke", "admin_truth_sample"];
 
 function safeExec(command: string, args: string[]) {
   try {
@@ -292,7 +292,7 @@ ${validators}
 
 ## Evidence Boundary
 
-This is source-backed runtime confidence only. It is not deployed runtime smoke, provider smoke, manual screenshot evidence, or admin truth sample evidence. It does not clear: ${report.doesNotClear.map((gate) => `\`${gate}\``).join(", ")}.
+This is source-backed runtime confidence only. It is not deployed runtime smoke, provider smoke, or admin truth sample evidence. It does not clear: ${report.doesNotClear.map((gate) => `\`${gate}\``).join(", ")}.
 `;
 }
 

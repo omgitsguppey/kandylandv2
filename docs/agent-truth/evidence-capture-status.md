@@ -2,18 +2,18 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-06-19T07:55:38.596Z
+Generated: 2026-06-19T14:31:24.882Z
 
-Latest code version: `0659a3764bcb3ada363f4a30e741d6e59743781f`
+Latest code version: `fbc3a07e813b938bea6c96792ccb9e54d8596734`
 
 ## Summary
 
-- Manual screenshot evidence: `missing`.
+- UI surface coverage evidence: `complete`.
 - Provider smoke evidence: `missing`.
 - Runtime smoke evidence: `complete`.
 - Admin truth sample evidence: `stale`.
 - Templates created: 4.
-- Complete artifacts: 2.
+- Complete artifacts: 3.
 - Strict mode ready: yes.
 - Beta exit review can start: no.
 - Operator revenue smoke: `operator_confirmed_revenue_smoke`.
@@ -28,19 +28,19 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 ## Evidence Folders
 
-- `agent/evidence/manual-screenshot-qa` - missing; template `agent/evidence/manual-screenshot-qa/evidence.template.json`.
+- `agent/state` - complete; template `docs/agent-truth/ui-visual-smoke-minimal.md`.
 - `agent/evidence/provider-smoke` - missing; template `agent/evidence/provider-smoke/evidence.template.json`.
 - `agent/evidence/runtime-smoke` - complete; template `agent/evidence/runtime-smoke/evidence.template.json`.
 - `agent/evidence/admin-truth-sample` - stale; template `agent/evidence/admin-truth-sample/evidence.template.json`.
 
 ## Missing Evidence
 
-- manual screenshot evidence is missing.
 - provider smoke evidence is missing.
 - admin truth sample evidence is stale.
 
 ## Source-Ready Evidence
 
+- UI surface coverage is source-checked; visual review is optional follow-up only after a source-reported UI issue.
 - runtime watch-time source lane is source-ready but still needs deployed playback proof.
 - live runtime evidence bridge: live_runtime_evidence_bridge=not_observed_but_expected; live_activity_confirmed=0; aggregate_activity_confirmed=0; source_ready_waiting_for_activity=0; not_observed_but_expected=7; runtime_export_required=3; provider_required=2; admin_truth_source_required=1; billing_required=1; source_missing=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json
 
@@ -50,17 +50,16 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 ## Formal-Missing Evidence
 
-- manual screenshot evidence is missing.
 - provider smoke evidence is missing.
 - admin truth sample evidence is stale.
 - provider smoke remains formal-missing until a formal provider/app artifact is attached.
-- live runtime evidence does not clear provider, admin, billing, manual visual, or exact-user proof lanes.
+- live runtime evidence does not clear provider, admin, billing, or exact-user proof lanes.
 
 ## Refresh Plan
 
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:current-beta-exit-status`.
+- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
@@ -71,24 +70,23 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 ## Next Exact Steps
 
-1. Copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated JSON artifact and attach screenshots under agent/evidence/manual-screenshot-qa/screenshots/.
+1. Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui before manual viewing; fix any source-reported UI surface gaps.
 2. Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.
 3. Run npm run capture:truthful-evidence to generate deployed runtime smoke evidence without provider/payment calls.
 4. Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.
 5. Drop privacy-safe daily aggregate activity export at agent/evidence/live-runtime-activity/recent-activity.export.json.
-6. Run EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence once manual screenshot evidence is expected to be complete.
-7. Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.
-8. Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.
-9. Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin truth evidence is expected to be complete.
-10. Run npm run check:beta-evidence-lane-prep to see every source-to-proof lane with checklist, validator, and launch impact.
-11. Refresh generated status with npm run check:evidence-capture-status.
-12. Refresh generated status with npm run check:current-beta-exit-status.
-13. Refresh generated status with npm run score:beta && npm run check:beta-score.
-14. Refresh generated status with npm run check:beta-evidence-gap-map.
-15. Refresh generated status with npm run check:beta-evidence-lane-prep.
-16. Refresh generated status with npm run check:operator-revenue-smoke.
-17. Refresh generated status with npm run check:final-telemetry-closure-lock.
-18. Refresh generated status with npm run check:mobile-ui-final-lock.
-19. Refresh generated status with npm run check:creator-settings-control-plane.
-20. Refresh generated status with npm run check:creator-drop-status-metrics.
+6. Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.
+7. Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.
+8. Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin truth evidence is expected to be complete.
+9. Run npm run check:beta-evidence-lane-prep to see every source-to-proof lane with checklist, validator, and launch impact.
+10. Refresh generated status with npm run check:evidence-capture-status.
+11. Refresh generated status with npm run check:current-beta-exit-status.
+12. Refresh generated status with npm run score:beta && npm run check:beta-score.
+13. Refresh generated status with npm run check:beta-evidence-gap-map.
+14. Refresh generated status with npm run check:beta-evidence-lane-prep.
+15. Refresh generated status with npm run check:operator-revenue-smoke.
+16. Refresh generated status with npm run check:final-telemetry-closure-lock.
+17. Refresh generated status with npm run check:mobile-ui-final-lock.
+18. Refresh generated status with npm run check:creator-settings-control-plane.
+19. Refresh generated status with npm run check:creator-drop-status-metrics.
 

@@ -150,15 +150,28 @@ export type PublicBetaScoreExplanation = {
 
 export type PublicBetaOperatorFinalVisualSurface = {
   surfaceId: string;
-  status: "operator_final_pending" | "operator_confirmed_outside_codex" | "screenshot_attached" | "not_required";
+  status:
+    | "source_surface_checked"
+    | "source_surface_gap"
+    | "operator_final_pending"
+    | "operator_confirmed_outside_codex"
+    | "screenshot_attached"
+    | "not_required";
   needsOperatorReview: boolean;
 };
 
 export type PublicBetaOperatorFinalChecks = {
   uiVisualSurfaces: {
-    status: "operator_final_pending" | "operator_confirmed_outside_codex" | "screenshot_attached" | "not_required";
+    status:
+      | "source_surface_checked"
+      | "source_surface_gap"
+      | "operator_final_pending"
+      | "operator_confirmed_outside_codex"
+      | "screenshot_attached"
+      | "not_required";
     needsOperatorReview: boolean;
-    passedInCodex: false;
+    passedInCodex: boolean;
+    sourceChecksPassed: boolean;
     note: string;
     sourcePath: string;
     surfaces: PublicBetaOperatorFinalVisualSurface[];
@@ -441,7 +454,7 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
 function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   if (gate.id === "targetedBehaviorTests") {
     if (gate.status === "Source validation only") {
-      return `${gate.status}: ${gate.label} - Source behavior passed; formal runtime, provider, admin, and screenshot proof stay separate.`;
+      return `${gate.status}: ${gate.label} - Source behavior passed; formal runtime, provider, and admin proof stay separate.`;
     }
     if (gate.status === "Stale evidence") {
       return `${gate.status}: ${gate.label} - Refresh the targeted source validator evidence.`;
@@ -577,7 +590,7 @@ function buildScoreExplanation(input: {
     evidenceScoreMeaning: `Evidence score ${input.evidenceScore}/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score ${input.healthScore}/100 currently maps to launch gate ${input.launchGateStatus}.`,
     missingEvidenceCaps: input.evidenceCapDetails,
     staleReportHandling: "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
-    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Visual confirmation handled outside Codex as an operator-final checklist.",
+    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Deterministic UI surface coverage runs before any optional browser or screenshot review.",
     betaExitBlockedBy: blockedBy,
   };
 }
@@ -594,7 +607,11 @@ function buildOperatorFinalChecks(visualManualEvidence?: PublicBetaEvidenceArtif
   const pendingSurfaceIds = readEvidenceListValue(visualManualEvidence, "uiVisualSmoke.missingSurfaces");
   const statusText = String(visualManualEvidence?.status ?? "operator_final_pending");
   const status: PublicBetaOperatorFinalVisualSurface["status"] =
-    statusText === "operator_confirmed_outside_codex"
+    statusText === "source_surface_checks_current" || statusText === "source_surface_checked"
+      ? "source_surface_checked"
+      : statusText === "source_surface_checks_failed" || statusText === "source_surface_gap"
+        ? "source_surface_gap"
+        : statusText === "operator_confirmed_outside_codex"
       ? "operator_confirmed_outside_codex"
       : statusText === "screenshot_attached"
         ? "screenshot_attached"
@@ -603,19 +620,21 @@ function buildOperatorFinalChecks(visualManualEvidence?: PublicBetaEvidenceArtif
           : "operator_final_pending";
   const surfaceIds = requiredSurfaceIds.length > 0 ? requiredSurfaceIds : pendingSurfaceIds;
   const pendingSet = new Set(pendingSurfaceIds);
-  const needsOperatorReview = status === "operator_final_pending" || pendingSurfaceIds.length > 0;
+  const sourceChecksPassed = visualManualEvidence?.passed === true || status === "source_surface_checked" || status === "not_required";
+  const needsOperatorReview = status === "source_surface_gap" || status === "operator_final_pending" || pendingSurfaceIds.length > 0;
 
   return {
     uiVisualSurfaces: {
-      status: needsOperatorReview ? "operator_final_pending" : status,
+      status: needsOperatorReview ? status : "source_surface_checked",
       needsOperatorReview,
-      passedInCodex: false,
-      note: "visual confirmation handled outside Codex; this checklist tracks changed UI surfaces for operator-final review and does not block Codex source/debug scoring.",
+      passedInCodex: sourceChecksPassed,
+      sourceChecksPassed,
+      note: "deterministic UI surface coverage runs before browser viewing; screenshots are optional only to reproduce a source-reported UI issue and do not clear provider/runtime/admin truth.",
       sourcePath: visualManualEvidence?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
       surfaces: surfaceIds.map((surfaceId) => ({
         surfaceId,
-        status: pendingSet.has(surfaceId) ? "operator_final_pending" : status,
-        needsOperatorReview: pendingSet.size === 0 ? needsOperatorReview : pendingSet.has(surfaceId),
+        status: pendingSet.has(surfaceId) ? "source_surface_gap" : status,
+        needsOperatorReview: pendingSet.has(surfaceId),
       })),
     },
   };
@@ -1137,7 +1156,7 @@ export function buildPublicBetaEvidenceGates(input: {
   });
   const algorithmicCoverageEvidence = [
     `nonUiAlgorithmicCoverageScore=${algorithmicEvidencePolicy.nonUiAlgorithmicCoverageScore}`,
-    `manualScreenshotBlocksNonUi=${algorithmicEvidencePolicy.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByManualScreenshot}`,
+    `uiSourceCoverageBlocksNonUi=${algorithmicEvidencePolicy.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage}`,
     "uiVisualOperatorFinalChecklist=outside_codex_score",
     `deployedRuntimeSmokeCleared=${algorithmicEvidencePolicy.formalGateImpact.deployedRuntimeSmokeCleared}`,
     `formalProviderGateCleared=${algorithmicEvidencePolicy.formalGateImpact.formalProviderGateCleared}`,
@@ -1246,7 +1265,7 @@ export function buildPublicBetaEvidenceGates(input: {
       label: "Algorithmic non-UI evidence coverage",
       weight: 0,
       status: algorithmicEvidencePolicy.overallStatus === "algorithmic_evidence_policy_ready" ? "Ready" : "Needs review",
-      detail: "Non-UI runtime, telemetry, admin source, provider signal, cost, and refresh confidence are scored separately from UI screenshot evidence.",
+      detail: "Non-UI runtime, telemetry, admin source, provider signal, cost, and refresh confidence are scored separately from deterministic UI surface coverage.",
       evidence: algorithmicCoverageEvidence,
       recommendedAction: "Use algorithmic evidence for non-UI confidence while keeping visual, provider, runtime, and admin formal gates explicit.",
       quality: {
@@ -1647,8 +1666,8 @@ function buildLaunchClearance(input: {
       },
       manualVisualEvidence: {
         cleared: evidenceArtifactPassed(visualManual),
-        status: String(evidenceArtifactStatus(visualManual, "operator_final_pending")),
-        source: visualManual?.path ?? "agent/state/manual-screenshot-evidence.generated.json",
+        status: String(evidenceArtifactStatus(visualManual, "source_surface_checks_current")),
+        source: visualManual?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
       },
       paymentSourceOfFunds: {
         cleared: false,
@@ -1765,7 +1784,7 @@ export function buildPublicBetaScoreReport(
       weight: PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.evidenceCompleteness,
       score: evidenceCompletenessScore,
       reasons: [
-        "UI visual review is an operator-final checklist outside Codex score gates.",
+        "Deterministic UI surface coverage is source-owned and runs before any visual review.",
         "Quiet future activity does not reduce evidence completeness.",
         ...nonUiRequiredExitGates.map((gate) => `${gate.label} evidenceCredit=${gate.evidenceCredit}`),
       ],
@@ -1838,7 +1857,7 @@ export function buildPublicBetaScoreReport(
     "Source-ready evidence earns source health credit without becoming runtime proof.",
     "Future activity placeholders and source-ready lanes waiting for first real user events do not reduce score.",
     "Debug signal score impact is counted from actionable groups, not raw quiet catalog rows.",
-    "UI visual confirmation is handled outside Codex as an operator-final checklist and does not block source/debug/beta scoring.",
+    "Deterministic UI surface coverage runs before browser viewing; screenshots are optional only to reproduce source-reported UI issues.",
     "Formal provider, deployed runtime, and admin truth artifacts remain required for launch readiness.",
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes.",

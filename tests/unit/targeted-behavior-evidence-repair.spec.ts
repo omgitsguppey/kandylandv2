@@ -37,7 +37,7 @@ describe("targeted behavior evidence repair", () => {
           artifactPath: "agent/state/creator-settings-control-plane.generated.json",
           surfaces: ["creator_settings"],
           proves: "old creator settings lane",
-          doesNotProve: "manual_screenshot provider_smoke runtime_smoke admin_truth_sample",
+          doesNotProve: "provider_smoke runtime_smoke admin_truth_sample",
           blocker: "stale head",
         },
       ],
@@ -51,7 +51,8 @@ describe("targeted behavior evidence repair", () => {
     expect(report.currentValidators.some((validator) => validator.id === "creator-monetization-readiness-lock")).toBe(true);
     expect(report.currentValidators.some((validator) => validator.status === "in_flight")).toBe(true);
     expect(report.formalEvidenceImpact).toBe("source_behavior_only");
-    expect(report.doesNotClear).toEqual(expect.arrayContaining(["manual_screenshot", "provider_smoke", "runtime_smoke", "admin_truth_sample"]));
+    expect(report.doesNotClear).toEqual(expect.arrayContaining(["provider_smoke", "runtime_smoke", "admin_truth_sample"]));
+    expect(report.doesNotClear).not.toContain("manual_screenshot");
     expect(validateTargetedBehaviorEvidenceRepairReport(report)).toEqual([]);
   });
 

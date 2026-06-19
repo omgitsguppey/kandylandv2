@@ -1,12 +1,12 @@
 # Beta Evidence Lane Prep
 
-Generated: 2026-06-19T08:03:34.954Z
+Generated: 2026-06-19T14:36:37.229Z
 
 ## Summary
 
 - Lane count: 8
-- Formal-missing lanes: 3
-- Source-ready lanes: operator_confirmed_revenue_smoke, runtime_watch_time_proof
+- Formal-missing lanes: 2
+- Source-ready lanes: ui_surface_coverage, operator_confirmed_revenue_smoke, runtime_watch_time_proof
 - Operator-confirmed lanes: operator_confirmed_revenue_smoke
 - Beta exit ready: false
 
@@ -14,7 +14,7 @@ A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is s
 
 ## Lanes
 
-- manual_screenshot_qa: formal_missing; folder: `agent/evidence/manual-screenshot-qa`; template: `agent/evidence/manual-screenshot-qa/evidence.template.json`; checklist: `docs/agent-truth/manual-screenshot-qa-checklist.md`; validator: `EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence`; next: Attach dated screenshot evidence using the manual screenshot QA template.
+- ui_surface_coverage: source_surface_checked; folder: `agent/state`; template: `agent/state/ui-visual-smoke-minimal.generated.json`; checklist: `docs/agent-truth/ui-visual-smoke-minimal.md`; validator: `npm run check:ui-visual-smoke-minimal`; next: Run npm run check:ui-visual-smoke-minimal and fix any source-reported UI surface gap.
 - provider_smoke: formal_missing; folder: `agent/evidence/provider-smoke`; template: `agent/evidence/provider-smoke/evidence.template.json`; checklist: `docs/agent-truth/provider-smoke-evidence-checklist.md`; validator: `EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence`; next: Attach redacted formal provider/app proof only if the operator chooses to clear provider smoke.
 - operator_confirmed_revenue_smoke: operator_confirmed; folder: `agent/state`; template: `agent/state/operator-revenue-smoke.generated.json`; checklist: `docs/agent-truth/operator-revenue-smoke.md`; validator: `npm run check:operator-revenue-smoke`; next: Keep this acknowledged as real product signal; formal provider/app proof is optional for acknowledging the sale.
 - runtime_smoke: formal_complete; folder: `agent/evidence/runtime-smoke`; template: `agent/evidence/runtime-smoke/evidence.template.json`; checklist: `docs/agent-truth/runtime-smoke-evidence-checklist.md`; validator: `EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence`; next: Attach deployed runtime smoke proof using the runtime smoke template.
@@ -25,16 +25,14 @@ A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is s
 
 ## Stale Supporting Reports
 
-- agent/state/public-beta-score.generated.json: No refresh needed.
-- agent/state/current-beta-exit-status.generated.json: No refresh needed.
-- agent/state/evidence-capture-status.generated.json: No refresh needed.
 - agent/state/source-truth-authority-map.generated.json: No refresh needed.
 - agent/state/final-telemetry-closure-lock.generated.json: No refresh needed.
 - agent/state/mobile-ui-final-lock.generated.json: No refresh needed.
-- agent/state/overnight-final-integration-lock.generated.json: No refresh needed.
+- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 - agent/state/creator-settings-control-plane.generated.json: No refresh needed.
 - agent/state/creator-drop-status-metrics.generated.json: No refresh needed.
 - agent/state/operator-revenue-smoke.generated.json: No refresh needed.
+- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
 - agent/state/beta-evidence-lane-prep.generated.json: No refresh needed.
 - agent/state/beta-freshness-language.generated.json: No refresh needed.
 - agent/state/final-pr-stale-cleanup.generated.json: No refresh needed.

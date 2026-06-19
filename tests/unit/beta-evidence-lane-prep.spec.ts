@@ -11,7 +11,7 @@ describe("beta evidence lane prep", () => {
       currentHead: "head",
       generatedAtUtc: "2026-05-20T22:00:00.000Z",
       evidenceCaptureSummary: {
-        manualScreenshotEvidence: "missing",
+        uiSurfaceCoverageEvidence: "complete",
         providerSmokeEvidence: "missing",
         runtimeSmokeEvidence: "missing",
         adminTruthSampleEvidence: "missing",
@@ -37,7 +37,7 @@ describe("beta evidence lane prep", () => {
 
     const laneIds = report.lanes.map((lane) => lane.id);
     expect(laneIds).toEqual([
-      "manual_screenshot_qa",
+      "ui_surface_coverage",
       "provider_smoke",
       "operator_confirmed_revenue_smoke",
       "runtime_smoke",
@@ -101,7 +101,7 @@ describe("beta evidence lane prep", () => {
     };
 
     expect(validateBetaEvidenceLanePrepReport(report, "head")).toEqual(expect.arrayContaining([
-      "manual_screenshot_qa must include folder, template, checklist, validator, status enum, score impact, launch gate impact, and next action.",
+      "ui_surface_coverage must include folder, template, checklist, validator, status enum, score impact, launch gate impact, and next action.",
       "stale report agent/state/operator-revenue-smoke.generated.json must include a refresh action.",
     ]));
   });

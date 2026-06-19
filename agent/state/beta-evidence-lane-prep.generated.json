@@ -1,38 +1,38 @@
 {
-  "generatedAtUtc": "2026-06-19T08:03:34.954Z",
+  "generatedAtUtc": "2026-06-19T14:36:37.229Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "1c6b084a8027aa23095cb799bfde8808d006be69",
+  "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
   "summary": {
     "laneCount": 8,
-    "formalMissingCount": 3,
-    "sourceReadyCount": 2,
+    "formalMissingCount": 2,
+    "sourceReadyCount": 3,
     "operatorConfirmedCount": 1,
     "betaExitReady": false,
     "providerSmokeGateCleared": false,
     "p0Count": 0,
-    "p1Count": 3,
-    "p2Count": 17
+    "p1Count": 2,
+    "p2Count": 15
   },
   "lanes": [
     {
-      "id": "manual_screenshot_qa",
-      "label": "Manual screenshot QA",
-      "folder": "agent/evidence/manual-screenshot-qa",
-      "template": "agent/evidence/manual-screenshot-qa/evidence.template.json",
-      "checklist": "docs/agent-truth/manual-screenshot-qa-checklist.md",
-      "validatorCommand": "EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence",
-      "status": "formal_missing",
+      "id": "ui_surface_coverage",
+      "label": "UI surface coverage",
+      "folder": "agent/state",
+      "template": "agent/state/ui-visual-smoke-minimal.generated.json",
+      "checklist": "docs/agent-truth/ui-visual-smoke-minimal.md",
+      "validatorCommand": "npm run check:ui-visual-smoke-minimal",
+      "status": "source_surface_checked",
       "statusEnum": [
-        "formal_missing",
-        "formal_complete"
+        "source_surface_gap",
+        "source_surface_checked"
       ],
       "requiredForBetaExit": true,
-      "sourceReady": false,
-      "completeAsProductSignal": false,
+      "sourceReady": true,
+      "completeAsProductSignal": true,
       "clearsFormalProviderGate": false,
-      "scoreImpact": "Raises manual confidence and evidence completeness after real screenshots are attached.",
-      "launchGateImpact": "Required for beta exit; source-only UI validation does not clear manual evidence.",
-      "nextAction": "Attach dated screenshot evidence using the manual screenshot QA template."
+      "scoreImpact": "Raises UI confidence when deterministic source coverage can find disconnected surfaces before visual review.",
+      "launchGateImpact": "Required for beta exit as source coverage; screenshots are optional only to reproduce a source-reported UI issue.",
+      "nextAction": "Run npm run check:ui-visual-smoke-minimal and fix any source-reported UI surface gap."
     },
     {
       "id": "provider_smoke",
@@ -176,6 +176,7 @@
     }
   ],
   "sourceReadyLanes": [
+    "ui_surface_coverage",
     "operator_confirmed_revenue_smoke",
     "runtime_watch_time_proof"
   ],
@@ -183,7 +184,6 @@
     "operator_confirmed_revenue_smoke"
   ],
   "formalMissingLanes": [
-    "manual_screenshot_qa",
     "provider_smoke",
     "admin_truth_sample"
   ],
@@ -191,213 +191,201 @@
   "refreshPlan": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run score:beta && npm run check:beta-score"
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:evidence-capture-status"
     },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:source-truth-authority-map"
     },
     {
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:final-telemetry-closure-lock"
     },
     {
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:mobile-ui-final-lock"
     },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "same_commit_snapshot",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
       "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:creator-settings-control-plane"
     },
     {
       "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:creator-drop-status-metrics"
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "status": "current",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
       "refreshCommand": "npm run check:beta-evidence-gap-map"
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-freshness-language"
     },
     {
       "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:final-pr-stale-cleanup"
     },
     {
       "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:overnight-wiring-integrity"
     },
     {
       "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:existing-algorithm-refinement"
     },
     {
       "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
     },
     {
       "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:global-marquee-truncated-titles"
     }
   ],
   "staleReports": [
     {
-      "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "same_commit_snapshot",
-      "nextAction": "No refresh needed.",
-      "refreshCommand": "npm run score:beta && npm run check:beta-score"
-    },
-    {
-      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "same_commit_snapshot",
-      "nextAction": "No refresh needed.",
-      "refreshCommand": "npm run check:current-beta-exit-status"
-    },
-    {
-      "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "same_commit_snapshot",
-      "nextAction": "No refresh needed.",
-      "refreshCommand": "npm run check:evidence-capture-status"
-    },
-    {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:source-truth-authority-map"
     },
     {
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:final-telemetry-closure-lock"
     },
     {
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:mobile-ui-final-lock"
     },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "same_commit_snapshot",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
       "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:creator-settings-control-plane"
     },
     {
       "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:creator-drop-status-metrics"
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {
+      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+      "refreshCommand": "npm run check:beta-evidence-gap-map"
+    },
+    {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-freshness-language"
     },
     {
       "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:final-pr-stale-cleanup"
     },
     {
       "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:overnight-wiring-integrity"
     },
     {
       "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:existing-algorithm-refinement"
     },
     {
       "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
     },
     {
       "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:global-marquee-truncated-titles"
     }

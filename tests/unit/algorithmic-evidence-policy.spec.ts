@@ -63,14 +63,14 @@ const operatorRevenueSmoke = {
 } satisfies PublicBetaEvidenceArtifact;
 
 describe("algorithmic evidence policy", () => {
-  it("keeps the UI visual gate manual while freeing non-UI algorithmic evidence from screenshot blocking", () => {
+  it("keeps UI source coverage separate while freeing non-UI algorithmic evidence from visual artifact blocking", () => {
     const report = buildAlgorithmicEvidencePolicyReport({
       uiChanged: true,
       visualManualEvidence: {
         path: "agent/state/manual-smoke-evidence.generated.json",
         status: "missing_formal_evidence",
         passed: false,
-        detail: "No manual screenshot evidence.",
+        detail: "No UI source coverage evidence.",
         evidence: ["visualManualArtifactStatus=missing_formal_evidence"],
       },
       debugRuntimeEvidence: sourceReadyDebugRuntime,
@@ -82,9 +82,9 @@ describe("algorithmic evidence policy", () => {
       refreshQueueSourcePath: "agent/state/self-healing-refresh-queue.generated.json",
     });
 
-    expect(report.manualEvidenceScope.visualUiGate.requiresVisualOrOperatorEvidence).toBe(true);
+    expect(report.manualEvidenceScope.visualUiGate.requiresSourceSurfaceCoverage).toBe(true);
     expect(report.manualEvidenceScope.visualUiGate.canClearFromAlgorithmicEvidence).toBe(false);
-    expect(report.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByManualScreenshot).toBe(false);
+    expect(report.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage).toBe(false);
     expect(report.nonUiAlgorithmicCoverageScore).toBeGreaterThan(70);
     expect(report.formalGateImpact.uiVisualGateCleared).toBe(false);
     expect(validateAlgorithmicEvidencePolicyReport(report)).toEqual([]);
@@ -109,7 +109,7 @@ describe("algorithmic evidence policy", () => {
     expect(report.coverage.every((item) => item.distinction.length > 0)).toBe(true);
   });
 
-  it("does not let manual screenshots block non-UI beta health dimensions", () => {
+  it("does not let UI source coverage gaps block non-UI beta health dimensions", () => {
     const report = buildPublicBetaScoreReport([], {
       commandBudget: buildPublicBetaCommandBudget(),
       evidence: {
@@ -122,7 +122,7 @@ describe("algorithmic evidence policy", () => {
           path: "agent/state/manual-smoke-evidence.generated.json",
           status: "missing_formal_evidence",
           passed: false,
-          detail: "No manual screenshot evidence.",
+          detail: "No UI source coverage evidence.",
           evidence: ["visualManualArtifactStatus=missing_formal_evidence"],
         },
         providerSmokeEvidence: {
@@ -152,12 +152,10 @@ describe("algorithmic evidence policy", () => {
       },
     });
 
-    expect(report.readinessStatus).toBe("Visual QA required");
-    expect(report.launchBlockers).toEqual(expect.arrayContaining([
-      expect.stringContaining("Visual"),
-    ]));
+    expect(report.readinessStatus).toBe("External proof required");
+    expect(report.launchBlockers.join("\n")).not.toContain("Visual QA required");
     expect(report.runtimeHealthScore).toBeGreaterThan(55);
     expect(report.evidenceCompletenessScore).toBeGreaterThan(50);
-    expect(report.nuancedScoreExplanation.join("\n")).toContain("UI-only");
+    expect(report.nuancedScoreExplanation.join("\n")).toContain("Deterministic UI surface coverage runs before browser viewing");
   });
 });

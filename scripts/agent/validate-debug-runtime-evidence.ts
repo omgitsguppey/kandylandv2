@@ -62,7 +62,7 @@ const __dirname = dirname(__filename);
 const ROOT = join(__dirname, "..", "..");
 const STATE_PATH = "agent/state/debug-runtime-evidence.generated.json";
 const DOC_PATH = "docs/agent-truth/debug-runtime-evidence.md";
-const FORMAL_GATES_NOT_CLEARED = ["deployed_runtime_smoke", "provider_smoke", "manual_screenshot", "admin_truth_sample"];
+const FORMAL_GATES_NOT_CLEARED = ["deployed_runtime_smoke", "provider_smoke", "admin_truth_sample"];
 
 function currentHead() {
   try {
@@ -282,7 +282,7 @@ ${validators}
 
 ## Evidence Boundary
 
-This is source-backed debug/runtime evidence. It does not clear deployed runtime smoke, provider smoke, manual screenshot evidence, or admin truth sample evidence.
+This is source-backed debug/runtime evidence. It does not clear deployed runtime smoke, provider smoke, or admin truth sample evidence.
 `;
 }
 

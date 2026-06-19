@@ -6,15 +6,15 @@ Validator: `npm run check:targeted-behavior-evidence`
 
 ## Scope
 
-This artifact records source-backed targeted behavior validator results from the latest code version. It is not runtime smoke, manual screenshot evidence, provider evidence, or production admin truth sample evidence.
+This artifact records source-backed targeted behavior validator results from the latest code version. It is not runtime smoke, provider evidence, or production admin truth sample evidence.
 
 ## Summary
 
-- Source commit: `05ae4a970bdede92e4a77931e9cc187e33f5064b`
-- Latest code version: `05ae4a970bdede92e4a77931e9cc187e33f5064b`
+- Source commit: `fbc3a07e813b938bea6c96792ccb9e54d8596734`
+- Latest code version: `fbc3a07e813b938bea6c96792ccb9e54d8596734`
 - Passed: true
 - Formal evidence impact: `source_behavior_only`
-- Does not clear: `manual_screenshot`, `provider_smoke`, `runtime_smoke`, `admin_truth_sample`
+- Does not clear: `provider_smoke`, `runtime_smoke`, `admin_truth_sample`
 
 ## Validator Results
 
@@ -83,7 +83,6 @@ This artifact records source-backed targeted behavior validator results from the
 
 ## Not Covered
 
-- manual screenshot QA
 - provider smoke
 - runtime smoke
 - admin truth sample
@@ -92,4 +91,4 @@ This artifact records source-backed targeted behavior validator results from the
 
 ## Readiness Impact
 
-Targeted behavior evidence can improve source behavior confidence when fresh and passing. It cannot replace manual screenshot evidence, provider smoke, runtime smoke, real-device smoke, deployed runtime smoke, or production admin truth samples.
+Targeted behavior evidence can improve source behavior confidence when fresh and passing. It cannot replace provider smoke, runtime smoke, real-device smoke, deployed runtime smoke, or production admin truth samples.

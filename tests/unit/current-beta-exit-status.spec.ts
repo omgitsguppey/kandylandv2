@@ -12,24 +12,24 @@ function proofLanesFor(
 ): CurrentBetaExitProofLane[] {
   return [
     {
-      id: "manualScreenshotQa",
-      label: "Manual screenshot QA",
+      id: "uiSurfaceCoverage",
+      label: "UI surface coverage",
       truthState: summary.visualEvidenceStatus.startsWith("stale_")
-        ? "manual_evidence_required"
-        : summary.visualEvidenceStatus.includes("source_only")
-          ? "source_only_not_formal"
-          : "manual_evidence_required",
+        ? "stale_evidence"
+        : summary.visualEvidenceStatus.includes("source_surface_checks_current")
+          ? "source_ui_surface_current"
+          : "source_evidence_required",
       actionState: summary.visualEvidenceStatus.startsWith("stale_")
         ? "refresh_stale_evidence"
-        : summary.visualEvidenceStatus.includes("source_only")
-          ? "source_only_cannot_clear"
-          : "attach_manual_evidence",
+        : summary.visualEvidenceStatus.includes("source_surface_checks_current")
+          ? "gate_cleared"
+          : "run_source_ui_checks",
       sourceStatus: summary.visualEvidenceStatus,
       sourcePath: "agent/state/ui-visual-smoke-minimal.generated.json",
-      captureStatus: "missing",
+      captureStatus: summary.visualEvidenceStatus.includes("source_surface_checks_current") ? "complete" : "missing",
       sourceCommit: "head",
-      canClearGate: false,
-      nextAction: "Attach real manual screenshot QA evidence before treating visual proof as current.",
+      canClearGate: summary.visualEvidenceStatus.includes("source_surface_checks_current"),
+      nextAction: "Run deterministic UI surface coverage checks before manual viewing.",
     },
     {
       id: "providerSmoke",
@@ -118,7 +118,7 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       userCreatorP1: 0,
       economyP0: 0,
       economyP1: 0,
-      visualEvidenceStatus: "source_only_screenshotEvidenceAttached_false",
+      visualEvidenceStatus: "source_surface_checks_current",
       providerSmokeStatus: "missing_formal_evidence",
       operatorRevenueSmokeStatus: "operator_confirmed_revenue_smoke",
       operatorRevenueSmokeAmountUsd: 50,
@@ -172,16 +172,16 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
     refreshedArtifacts: [],
     remainingBlockers: [
       {
-        id: "visual_manual_smoke_missing",
+        id: "provider-smoke",
         severity: "P1",
-        status: "visual_qa_required",
-        evidence: ["screenshotEvidenceAttached=false"],
-        nextAction: "Attach targeted screenshot evidence.",
+        status: "missing_formal_evidence",
+        evidence: ["agent/state/provider-smoke-evidence.generated.json"],
+        nextAction: "Attach targeted provider evidence.",
       },
     ],
     deferredOwnerReview: [],
     nextExactSteps: [
-      "Use docs/agent-truth/manual-screenshot-qa-checklist.md.",
+      "Use docs/agent-truth/ui-visual-smoke-minimal.md.",
       "Use docs/agent-truth/provider-smoke-evidence-checklist.md.",
       "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
       "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",
@@ -207,16 +207,17 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
 }
 
 describe("current beta exit status validator", () => {
-  it("blocks beta exit when visual evidence is missing", () => {
+  it("blocks beta exit when UI surface coverage is missing", () => {
     const report = reportFixture({
       summary: {
         ...reportFixture().summary,
+        visualEvidenceStatus: "source_surface_checks_failed",
         betaExitReviewState: "ready_for_review",
       },
     });
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
-      "betaExitReviewState must not be ready_for_review while visual/provider/runtime evidence is missing.",
+      "betaExitReviewState must not be ready_for_review while UI surface/provider/runtime evidence is missing.",
     );
   });
 
@@ -224,14 +225,14 @@ describe("current beta exit status validator", () => {
     const report = reportFixture({
       summary: {
         ...reportFixture().summary,
-        visualEvidenceStatus: "formal_screenshot_evidence_attached",
+        visualEvidenceStatus: "source_surface_checks_current",
         runtimeSmokeStatus: "formal_runtime_smoke_passed",
         betaExitReviewState: "ready_for_review",
       },
     });
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
-      "betaExitReviewState must not be ready_for_review while visual/provider/runtime evidence is missing.",
+      "betaExitReviewState must not be ready_for_review while UI surface/provider/runtime evidence is missing.",
     );
   });
 
@@ -239,21 +240,21 @@ describe("current beta exit status validator", () => {
     const report = reportFixture({
       summary: {
         ...reportFixture().summary,
-        visualEvidenceStatus: "formal_screenshot_evidence_attached",
+        visualEvidenceStatus: "source_surface_checks_current",
         providerSmokeStatus: "formal_provider_smoke_passed",
         betaExitReviewState: "ready_for_review",
       },
     });
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
-      "betaExitReviewState must not be ready_for_review while visual/provider/runtime evidence is missing.",
+      "betaExitReviewState must not be ready_for_review while UI surface/provider/runtime evidence is missing.",
     );
   });
 
-  it("describes screenshot QA with a source-derived proof lane state", () => {
+  it("describes UI surface coverage with a source-derived proof lane state", () => {
     const report = reportFixture();
 
-    expect(report.summary.proofLanes.find((lane) => lane.id === "manualScreenshotQa")?.actionState).toBe("source_only_cannot_clear");
+    expect(report.summary.proofLanes.find((lane) => lane.id === "uiSurfaceCoverage")?.actionState).toBe("gate_cleared");
     expect(validateCurrentBetaExitStatusReport(report, "head")).toEqual([]);
   });
 
@@ -359,7 +360,7 @@ describe("current beta exit status validator", () => {
     });
 
     expect(report.summary.proofLanes).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: "manualScreenshotQa", truthState: "manual_evidence_required", actionState: "refresh_stale_evidence" }),
+      expect.objectContaining({ id: "uiSurfaceCoverage", truthState: "stale_evidence", actionState: "refresh_stale_evidence" }),
       expect.objectContaining({ id: "providerSmoke", truthState: "external_evidence_required", actionState: "refresh_stale_evidence" }),
       expect.objectContaining({ id: "runtimeSmoke", truthState: "external_evidence_required", actionState: "refresh_stale_evidence" }),
       expect.objectContaining({ id: "adminTruthSample", truthState: "admin_truth_source_required", actionState: "refresh_stale_evidence" }),
@@ -463,18 +464,18 @@ describe("current beta exit status validator", () => {
 
   it("requires next steps to point at the evidence readiness checklists", () => {
     const report = reportFixture({
-      nextExactSteps: ["Run targeted manual screenshot QA."],
+      nextExactSteps: ["Run targeted UI source coverage checks."],
     });
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
-      "nextExactSteps must reference docs/agent-truth/manual-screenshot-qa-checklist.md.",
+      "nextExactSteps must reference docs/agent-truth/ui-visual-smoke-minimal.md.",
     );
   });
 
   it("requires next steps to point at evidence capture status", () => {
     const report = reportFixture({
       nextExactSteps: [
-        "Use docs/agent-truth/manual-screenshot-qa-checklist.md.",
+        "Use docs/agent-truth/ui-visual-smoke-minimal.md.",
         "Use docs/agent-truth/provider-smoke-evidence-checklist.md.",
         "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
         "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",
@@ -511,7 +512,7 @@ describe("current beta exit status validator", () => {
     const report = reportFixture({
       nextExactSteps: [
         "Refresh this report from the latest code version before using beta readiness.",
-        "Use docs/agent-truth/manual-screenshot-qa-checklist.md.",
+        "Use docs/agent-truth/ui-visual-smoke-minimal.md.",
         "Use docs/agent-truth/provider-smoke-evidence-checklist.md.",
         "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
         "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",

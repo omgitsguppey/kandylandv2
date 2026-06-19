@@ -45,7 +45,7 @@ const baseEvidence = {
 };
 
 describe("Codex visual gate removal", () => {
-  it("keeps UI visual review as an operator-final checklist instead of a Codex score gate", () => {
+  it("keeps UI source coverage as a deterministic gate instead of requiring screenshots", () => {
     const visualReport = buildUiVisualSmokeMinimalReport({
       currentHead: "abc123",
       generatedAtUtc: "2026-05-21T12:00:00.000Z",
@@ -61,17 +61,18 @@ describe("Codex visual gate removal", () => {
     expect(report.evidenceGates.some((gate) => gate.id === "visualManualSmoke")).toBe(false);
     expect(report.launchBlockers.join("\n")).not.toMatch(/visual|screenshot|manual smoke/iu);
     expect(report.evidenceCapsApplied.join("\n")).not.toMatch(/Visual QA required|UI visual\/manual/iu);
-    expect(report.operatorFinalChecks.uiVisualSurfaces.needsOperatorReview).toBe(true);
-    expect(report.operatorFinalChecks.uiVisualSurfaces.status).toBe("operator_final_pending");
-    expect(report.operatorFinalChecks.uiVisualSurfaces.note).toContain("visual confirmation handled outside Codex");
+    expect(report.operatorFinalChecks.uiVisualSurfaces.needsOperatorReview).toBe(false);
+    expect(report.operatorFinalChecks.uiVisualSurfaces.sourceChecksPassed).toBe(true);
+    expect(report.operatorFinalChecks.uiVisualSurfaces.status).toBe("source_surface_checked");
+    expect(report.operatorFinalChecks.uiVisualSurfaces.note).toContain("source-reported UI issue");
     expect(report.operatorFinalChecks.uiVisualSurfaces.surfaces).toHaveLength(9);
     expect(report.operatorFinalChecks.uiVisualSurfaces.surfaces[0]).toEqual(expect.objectContaining({
       surfaceId: "user_dashboard_mobile",
-      status: "operator_final_pending",
+      status: "source_surface_checked",
     }));
   });
 
-  it("does not fake visual proof or clear runtime/provider/admin gates", () => {
+  it("does not let UI source coverage clear runtime/provider/admin gates", () => {
     const visualReport = buildUiVisualSmokeMinimalReport();
     const report = buildPublicBetaScoreReport([], {
       commandBudget: buildPublicBetaCommandBudget(),
@@ -81,13 +82,13 @@ describe("Codex visual gate removal", () => {
       },
     });
 
-    expect(report.operatorFinalChecks.uiVisualSurfaces.passedInCodex).toBe(false);
+    expect(report.operatorFinalChecks.uiVisualSurfaces.passedInCodex).toBe(true);
     expect(report.operatorFinalChecks.uiVisualSurfaces.surfaces.every((surface) =>
-      surface.status === "operator_final_pending" || surface.status === "not_required"
+      surface.status === "source_surface_checked" || surface.status === "not_required"
     )).toBe(true);
     expect(report.launchBlockers).toEqual(expect.arrayContaining([
-      "Runtime/provider smoke: Runtime unverified",
-      "Admin truth/sample evidence: Unknown evidence",
+      "Runtime/provider smoke: External proof required",
+      "Admin truth/sample evidence: External proof required",
     ]));
     expect(report.scoreExplanation.sourcePassConfidence).toContain("provider, runtime, admin truth");
     expect(report.scoreExplanation.sourcePassConfidence).not.toContain("visual");

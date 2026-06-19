@@ -17,13 +17,14 @@ const STATE_PATH = "agent/state/targeted-behavior-evidence-repair.generated.json
 const DOC_PATH = "docs/agent-truth/targeted-behavior-evidence-repair.md";
 const TARGETED_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
 
-const DOES_NOT_CLEAR = ["manual_screenshot", "provider_smoke", "runtime_smoke", "admin_truth_sample"] as const;
+const DOES_NOT_CLEAR = ["provider_smoke", "runtime_smoke", "admin_truth_sample"] as const;
 
 export type TargetedBehaviorEvidenceRepairDirtyClassification =
   | "current_generated_artifact_to_commit"
   | "stale_generated_artifact_to_regenerate"
   | "obsolete_targeted_behavior_artifact_to_retire"
   | "failed_validator_to_repair"
+  | "source_evidence_gate_repair"
   | "in_flight_artifact_to_leave_alone"
   | "unrelated_agent_context_file_to_ignore"
   | "real_source_change_needs_review"
@@ -165,6 +166,11 @@ export function classifyTargetedBehaviorEvidenceRepairDirtyFile(filePath: string
   if (normalized === "scripts/agent/validate-targeted-behavior-evidence.ts") return "failed_validator_to_repair";
   if (normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts") return "failed_validator_to_repair";
   if (
+    /^scripts\/agent\/(score-public-beta-readiness|validate-(algorithmic-evidence-policy|beta-evidence-gap-map|beta-evidence-lane-prep|codex-visual-gate-removal|current-beta-exit-status|debug-runtime-evidence|evidence-capture-status|new-additions-score-coverage|public-beta-score|regression-risk-high-blast-refresh|source-backed-runtime-confidence|ui-visual-smoke-minimal))\.ts$/u.test(normalized)
+    || /^src\/lib\/(agent-score|evidence)\//u.test(normalized)
+    || /^tests\/unit\/(admin-debug-control-tower(-component)?|algorithmic-evidence-policy|beta-evidence-gap-map|beta-evidence-lane-prep|codex-visual-gate-removal|current-beta-exit-status|evidence-capture-status|new-additions-score-coverage|public-beta-score|targeted-behavior-evidence|ui-visual-smoke-minimal)\.spec\.tsx?$/u.test(normalized)
+  ) return "source_evidence_gate_repair";
+  if (
     normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
     || normalized === "scripts/agent/validate-final-parity-telemetry-lock.ts"
     || normalized === "scripts/agent/validate-media-discovery-score-lock.ts"
@@ -273,7 +279,7 @@ export function buildTargetedBehaviorEvidenceRepairReport(input: {
   const targetedBehaviorScoreAfter = status === "pass" ? 20 : currentValidators.some((validator) => validator.status === "pass") ? 10 : 0;
   const limitations = [
     "source behavior only",
-    "does not clear manual screenshot evidence",
+    "does not clear provider/runtime/admin truth evidence",
     "does not clear provider smoke",
     "does not clear deployed runtime smoke",
     "does not clear production admin truth sample evidence",

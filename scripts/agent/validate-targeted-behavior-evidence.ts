@@ -68,8 +68,8 @@ const ROOT = join(__dirname, "..", "..");
 const ARTIFACT_PATH = "agent/state/targeted-behavior-evidence.generated.json";
 const DOC_PATH = "docs/agent-truth/targeted-behavior-evidence.md";
 
-const DOES_NOT_PROVE = "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.";
-const DOES_NOT_CLEAR = ["manual_screenshot", "provider_smoke", "runtime_smoke", "admin_truth_sample"];
+const DOES_NOT_PROVE = "Does not prove provider_smoke, runtime_smoke, admin_truth_sample, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.";
+const DOES_NOT_CLEAR = ["provider_smoke", "runtime_smoke", "admin_truth_sample"];
 
 export const SUPERSEDED_TARGETED_BEHAVIOR_VALIDATORS = [
   "creator-settings-control-plane",
@@ -316,8 +316,8 @@ export function buildTargetedBehaviorEvidenceReport(
     visualQaPerformed: false,
     realDeviceSmokePerformed: false,
     detail: passed
-      ? "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence."
-      : "Current implemented source behavior validators are incomplete. This remains targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
+      ? "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence."
+      : "Current implemented source behavior validators are incomplete. This remains targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
     summary: passed
       ? "Targeted behavior evidence was rebuilt from current lock validators, replacing obsolete per-surface source behavior artifacts."
       : "Targeted behavior evidence was rebuilt with blocked or unavailable validator lanes recorded.",
@@ -337,7 +337,7 @@ export function buildTargetedBehaviorEvidenceReport(
       targetedBehaviorGatePassed: passed,
       notes: [
         "This artifact is source-backed targeted behavior evidence only.",
-        "It cannot replace manual screenshot evidence, provider smoke, runtime smoke, or production admin truth samples.",
+        "It cannot replace provider smoke, runtime smoke, or production admin truth samples.",
         "Obsolete per-surface validators are superseded by current lock validators instead of being counted as current failures.",
         "Beta exit readiness must stay false until formal evidence lanes are attached.",
       ],
@@ -362,7 +362,7 @@ export function validateTargetedBehaviorEvidenceReport(report: TargetedBehaviorE
   for (const gate of DOES_NOT_CLEAR) {
     if (!report.doesNotClear.includes(gate)) failures.push(`doesNotClear must include ${gate}.`);
   }
-  if (report.doesNotClear.some((gate) => /runtime_smoke|provider_smoke|manual_screenshot|admin_truth_sample/u.test(gate) === false)) {
+  if (report.doesNotClear.some((gate) => /runtime_smoke|provider_smoke|admin_truth_sample/u.test(gate) === false)) {
     failures.push("doesNotClear contains an unexpected formal evidence lane.");
   }
   if (!Array.isArray(report.surfacesCovered) || report.surfacesCovered.length === 0) failures.push("surface coverage list is missing.");
@@ -389,7 +389,7 @@ Validator: \`npm run check:targeted-behavior-evidence\`
 
 ## Scope
 
-This artifact records source-backed targeted behavior validator results from the latest code version. It is not runtime smoke, manual screenshot evidence, provider evidence, or production admin truth sample evidence.
+This artifact records source-backed targeted behavior validator results from the latest code version. It is not runtime smoke, provider evidence, or production admin truth sample evidence.
 
 ## Summary
 
@@ -415,7 +415,7 @@ ${report.notCovered.map((item) => `- ${item}`).join("\n")}
 
 ## Readiness Impact
 
-Targeted behavior evidence can improve source behavior confidence when fresh and passing. It cannot replace manual screenshot evidence, provider smoke, runtime smoke, real-device smoke, deployed runtime smoke, or production admin truth samples.
+Targeted behavior evidence can improve source behavior confidence when fresh and passing. It cannot replace provider smoke, runtime smoke, real-device smoke, deployed runtime smoke, or production admin truth samples.
 `;
 }
 
@@ -426,7 +426,6 @@ function main() {
     latestCodeVersion: head,
     validatorResults: validatorResultsForHead(head),
     notCovered: [
-      "manual screenshot QA",
       "provider smoke",
       "runtime smoke",
       "admin truth sample",

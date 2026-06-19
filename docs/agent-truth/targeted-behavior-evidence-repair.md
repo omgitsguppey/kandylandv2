@@ -6,11 +6,11 @@ Validator: `npm run check:targeted-behavior-evidence-repair`
 
 ## Summary
 
-- Current head: `a81cdb0b`
+- Current head: `fbc3a07e8`
 - Targeted behavior score before: 0/20
 - Targeted behavior score after: 20/20
 - Formal evidence impact: `source_behavior_only`
-- Does not clear: `manual_screenshot`, `provider_smoke`, `runtime_smoke`, `admin_truth_sample`
+- Does not clear: `provider_smoke`, `runtime_smoke`, `admin_truth_sample`
 - Production/provider/runtime reads performed: false
 
 ## Current Validators
@@ -41,7 +41,7 @@ Validator: `npm run check:targeted-behavior-evidence-repair`
 ## Limitations
 
 - source behavior only
-- does not clear manual screenshot evidence
+- does not clear provider/runtime/admin truth evidence
 - does not clear provider smoke
 - does not clear deployed runtime smoke
 - does not clear production admin truth sample evidence

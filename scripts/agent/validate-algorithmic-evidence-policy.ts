@@ -130,7 +130,7 @@ function writeDoc(root: string, report: ReturnType<typeof buildAlgorithmicEviden
     "",
     `Status: ${report.overallStatus}`,
     "",
-    "Manual screenshot evidence is an operator-final checklist outside Codex. It must not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
+    "Deterministic UI surface coverage is source-owned. Screenshots are optional follow-up evidence only after a source-reported UI issue and must not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
     "",
     "## Coverage",
     "",
@@ -139,7 +139,7 @@ function writeDoc(root: string, report: ReturnType<typeof buildAlgorithmicEviden
     "",
     "## Formal Gates",
     "",
-    `- UI visual confirmation handled outside Codex: ${!report.formalGateImpact.uiVisualGateCleared}`,
+    `- UI surface coverage clears only the UI source gate: ${report.formalGateImpact.uiVisualGateCleared}`,
     `- Deployed runtime smoke cleared: ${report.formalGateImpact.deployedRuntimeSmokeCleared}`,
     `- Formal provider gate cleared: ${report.formalGateImpact.formalProviderGateCleared}`,
     `- Formal admin runtime sample cleared: ${report.formalGateImpact.formalAdminRuntimeSampleCleared}`,
@@ -160,9 +160,9 @@ function main() {
   const report = buildAlgorithmicEvidencePolicyReport({
     visualManualEvidence: readArtifact(
       root,
-      "agent/state/manual-smoke-evidence.generated.json",
-      "missing_formal_evidence",
-      "No valid visual/manual evidence artifact was supplied.",
+      "agent/state/ui-visual-smoke-minimal.generated.json",
+      "source_surface_checks_failed",
+      "No valid UI source coverage artifact was supplied.",
     ),
     runtimeSmokeEvidence: readArtifact(
       root,
@@ -225,9 +225,9 @@ function main() {
     evidence: {
       visualManualEvidence: readArtifact(
         root,
-        "agent/state/manual-smoke-evidence.generated.json",
-        "missing_formal_evidence",
-        "No valid visual/manual evidence artifact was supplied.",
+        "agent/state/ui-visual-smoke-minimal.generated.json",
+        "source_surface_checks_failed",
+        "No valid UI source coverage artifact was supplied.",
       ),
       providerSmokeEvidence: readProviderSmoke(root),
       runtimeSmokeEvidence: readArtifact(
@@ -279,15 +279,15 @@ function main() {
 
   const visualGate = scoreReport.evidenceGates.find((gate) => gate.id === "visualManualSmoke");
   if (scoreReport.runtimeHealthScore <= 55) {
-    failures.push("manual screenshot gate still appears to block non-UI runtime confidence.");
+    failures.push("UI source coverage still appears to block non-UI runtime confidence.");
   }
   if (visualGate) {
-    failures.push("score report must not include visual/manual evidence as a Codex score gate.");
+    failures.push("score report must not include UI visual evidence as a Codex score gate.");
   }
-  if (!scoreReport.operatorFinalChecks?.uiVisualSurfaces?.note.includes("visual confirmation handled outside Codex")) {
-    failures.push("score report must show visual/manual evidence as operator-final outside Codex.");
+  if (!scoreReport.operatorFinalChecks?.uiVisualSurfaces?.note.includes("source-reported UI issue")) {
+    failures.push("score report must show screenshots as optional reproduction evidence after source UI findings.");
   }
-  if (!scoreReport.nuancedScoreExplanation.join("\n").includes("operator-final checklist")) {
+  if (!scoreReport.nuancedScoreExplanation.join("\n").includes("Deterministic UI surface coverage")) {
     failures.push("score report hides partial-vs-formal evidence distinction.");
   }
   if (report.formalGateImpact.formalProviderGateCleared && report.providerConfidence.confidence !== "formal") {

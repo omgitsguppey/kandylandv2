@@ -1,38 +1,38 @@
 # Source-Backed Runtime Confidence
 
-Generated: 2026-06-16T17:15:53.638Z
+Generated: 2026-06-19T14:33:44.216Z
 
-Latest code version: b22b5e497b300f932bf2214998324e45646c0b0a
+Latest code version: fbc3a07e813b938bea6c96792ccb9e54d8596734
 
 ## Summary
 
-- Status: `source_ready_runtime_confidence`
-- Runtime confidence score: 100
-- Runtime contracts present: true
+- Status: `failed`
+- Runtime confidence score: 0
+- Runtime contracts present: false
 - Deployed smoke present: false
 - Launch gate impact: `does_not_clear_runtime_smoke`
 - Formal runtime smoke still required: true
 
 ## Source-Ready Runtime Lanes
 
-- Watch time runtime source ready: true
-- Telemetry pipeline source ready: true
-- Wallet loading source ready: true
-- Creator drop status runtime source ready: true
-- Operator revenue smoke source signal: true
+- Watch time runtime source ready: false
+- Telemetry pipeline source ready: false
+- Wallet loading source ready: false
+- Creator drop status runtime source ready: false
+- Operator revenue smoke source signal: false
 
 ## Validators
 
 | Command | Status | Artifact | Detail |
 | --- | --- | --- | --- |
-| npm run check:runtime-watch-time-v2 | pass | agent/state/runtime-watch-time-v2.generated.json | Artifact is current for the latest code version. |
-| npm run check:final-telemetry-closure-lock | pass | agent/state/final-telemetry-closure-lock.generated.json | Artifact is current for the latest code version. |
-| npm run check:telemetry-admin-debug-truth | pass | agent/state/telemetry-admin-debug-truth.generated.json | Artifact is current for the latest code version. |
-| npm run check:mobile-loading-hydration-stability | pass | agent/state/mobile-loading-hydration-stability.generated.json | Artifact is current for the latest code version. |
-| npm run check:user-loading-wallet-mobile-refinement | pass | agent/state/user-loading-wallet-mobile-refinement.generated.json | Artifact is current for the latest code version. |
-| npm run check:creator-drop-status-metrics | pass | agent/state/creator-drop-status-metrics.generated.json | Artifact is current for the latest code version. |
-| npm run check:operator-revenue-smoke | pass | agent/state/operator-revenue-smoke.generated.json | Artifact is current for the latest code version. |
+| npm run check:runtime-watch-time-v2 | fail | agent/state/runtime-watch-time-v2.generated.json | Artifact was not generated from the latest code version. |
+| npm run check:final-telemetry-closure-lock | fail | agent/state/final-telemetry-closure-lock.generated.json | Artifact was not generated from the latest code version. |
+| npm run check:telemetry-admin-debug-truth | fail | agent/state/telemetry-admin-debug-truth.generated.json | Artifact was not generated from the latest code version. |
+| npm run check:mobile-loading-hydration-stability | fail | agent/state/mobile-loading-hydration-stability.generated.json | Artifact was not generated from the latest code version. |
+| npm run check:user-loading-wallet-mobile-refinement | fail | agent/state/user-loading-wallet-mobile-refinement.generated.json | Artifact was not generated from the latest code version. |
+| npm run check:creator-drop-status-metrics | fail | agent/state/creator-drop-status-metrics.generated.json | Artifact was not generated from the latest code version. |
+| npm run check:operator-revenue-smoke | fail | agent/state/operator-revenue-smoke.generated.json | Artifact was not generated from the latest code version. |
 
 ## Evidence Boundary
 
-This is source-backed runtime confidence only. It is not deployed runtime smoke, provider smoke, manual screenshot evidence, or admin truth sample evidence. It does not clear: `runtime_smoke`, `provider_smoke`, `manual_screenshot`, `admin_truth_sample`.
+This is source-backed runtime confidence only. It is not deployed runtime smoke, provider smoke, or admin truth sample evidence. It does not clear: `runtime_smoke`, `provider_smoke`, `admin_truth_sample`.

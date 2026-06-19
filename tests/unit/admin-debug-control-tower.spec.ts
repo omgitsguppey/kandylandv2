@@ -138,7 +138,7 @@ describe("admin debug control tower model", () => {
             readinessStatus: "External proof required",
             readinessStatusReason: "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed.",
             evidenceCapDetails: [
-                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
+                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
                 "Stale evidence: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing.",
                 "Stale evidence: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
                 "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",

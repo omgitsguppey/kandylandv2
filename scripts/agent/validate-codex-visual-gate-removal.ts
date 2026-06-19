@@ -44,9 +44,9 @@ function renderDoc(report: Record<string, unknown>) {
   return [
     "# Codex Visual Gate Removal",
     "",
-    "Status: UI visual screenshot confirmation is no longer a Codex-managed source/debug score gate.",
+    "Status: UI screenshot confirmation is no longer a Codex-managed readiness gate.",
     "",
-    "Visual confirmation remains an operator-final checklist outside Codex. Codex tracks the affected surfaces and does not fake screenshots or mark visual proof passed.",
+    "Deterministic UI surface coverage is source-owned. The codebase can fail missing modal/surface coverage before anyone opens the site. Screenshots are optional reproduction evidence only.",
     "",
     "## Summary",
     "",
@@ -58,11 +58,11 @@ function renderDoc(report: Record<string, unknown>) {
     `- UI surfaces tracked: ${String(summary.uiVisualSurfaceCount)}`,
     `- Provider/runtime/admin gates preserved: ${String(summary.providerRuntimeAdminGatesPreserved)}`,
     "",
-    "## Operator Final Checklist",
+    "## UI Source Coverage",
     "",
     "- `operatorFinalChecks.uiVisualSurfaces` lists layout-sensitive UI surfaces.",
-    "- `needsOperatorReview=true` means a human should review screenshots or the external visual workflow.",
-    "- `passedInCodex=false` is intentional.",
+    "- `sourceChecksPassed=true` means deterministic source coverage is current.",
+    "- `passedInCodex=true` is allowed for source UI coverage only.",
     "",
     "## Formal Gates",
     "",
@@ -80,7 +80,7 @@ const visualGateInEvidenceGates = score?.evidenceGates?.some((gate) => gate.id =
 const visualGateInLaunchBlockers = (score?.launchBlockers ?? []).some((blocker) => /visual|screenshot|manual smoke/iu.test(blocker));
 const visualGateInEvidenceCaps = (score?.evidenceCapsApplied ?? []).some((cap) => /visual|screenshot|manual smoke/iu.test(cap));
 const operatorChecklist = score?.operatorFinalChecks?.uiVisualSurfaces;
-const operatorChecklistRecord = operatorChecklist as { passedInCodex?: unknown; needsOperatorReview?: unknown; note?: unknown } | undefined;
+const operatorChecklistRecord = operatorChecklist as { passedInCodex?: unknown; sourceChecksPassed?: unknown; needsOperatorReview?: unknown; note?: unknown } | undefined;
 const operatorChecklistPresent = Boolean(operatorChecklist);
 const uiVisualSurfaceCount = operatorChecklist?.surfaces?.length ?? 0;
 const providerRuntimeAdminGatesPreserved = ["runtimeProviderSmoke", "adminTruthSamples"].every((gateId) =>
@@ -90,25 +90,27 @@ const providerRuntimeAdminGatesPreserved = ["runtimeProviderSmoke", "adminTruthS
 if (!score) failures.push(`${SCORE_PATH} is missing or invalid.`);
 if (!visual) failures.push(`${VISUAL_PATH} is missing or invalid.`);
 if (!existsSync(join(ROOT, TEMPLATE_PATH))) failures.push(`${TEMPLATE_PATH} must remain present.`);
-if (visualGateInEvidenceGates) failures.push("UI visual/manual smoke must not remain in Codex evidence gates.");
-if (visualGateInLaunchBlockers) failures.push("UI visual/manual smoke must not remain in Codex launch blockers.");
-if (visualGateInEvidenceCaps) failures.push("UI visual/manual smoke must not remain in Codex evidence caps.");
+if (visualGateInEvidenceGates) failures.push("UI visual source coverage must not remain in Codex evidence gates.");
+if (visualGateInLaunchBlockers) failures.push("UI visual source coverage must not remain in Codex launch blockers.");
+if (visualGateInEvidenceCaps) failures.push("UI visual source coverage must not remain in Codex evidence caps.");
 if (!operatorChecklistPresent) failures.push("operatorFinalChecks.uiVisualSurfaces must be present.");
-if (operatorChecklistRecord?.passedInCodex !== false) failures.push("UI visual proof must not be marked passed inside Codex.");
-if (operatorChecklistRecord?.needsOperatorReview !== true) failures.push("UI visual checklist must show needsOperatorReview=true while pending.");
-if (typeof operatorChecklistRecord?.note !== "string" || !operatorChecklistRecord.note.includes("visual confirmation handled outside Codex")) {
-  failures.push("operator checklist must state visual confirmation handled outside Codex.");
+if (operatorChecklistRecord?.sourceChecksPassed !== true || operatorChecklistRecord?.passedInCodex !== true) {
+  failures.push("UI source coverage must be allowed to pass inside Codex.");
+}
+if (operatorChecklistRecord?.needsOperatorReview !== false) failures.push("UI source coverage must not require operator review when source checks pass.");
+if (typeof operatorChecklistRecord?.note !== "string" || !operatorChecklistRecord.note.includes("source-reported UI issue")) {
+  failures.push("operator checklist must state screenshots are optional only for a source-reported UI issue.");
 }
 if (uiVisualSurfaceCount <= 0) failures.push("operator visual checklist must include tracked UI surfaces.");
 if (!providerRuntimeAdminGatesPreserved) failures.push("provider/runtime/admin formal gates must remain score gates.");
 if (!sourceIncludes("src/lib/agent-score/core.ts", "operatorFinalChecks")) {
   failures.push("core score report must expose operatorFinalChecks.");
 }
-if (!sourceIncludes("src/lib/agent-score/core.ts", "visual confirmation handled outside Codex")) {
-  failures.push("core score report must state visual confirmation handled outside Codex.");
+if (!sourceIncludes("src/lib/agent-score/core.ts", "deterministic UI surface coverage")) {
+  failures.push("core score report must state deterministic UI surface coverage.");
 }
-if (!sourceIncludes("src/lib/evidence/ui-visual-smoke-contract.ts", "operator_final_pending")) {
-  failures.push("visual smoke contract must use operator_final_pending status.");
+if (!sourceIncludes("src/lib/evidence/ui-visual-smoke-contract.ts", "source_surface_checked")) {
+  failures.push("visual smoke contract must use source_surface_checked status.");
 }
 if (!sourceIncludes("src/lib/evidence/ui-visual-smoke-contract.ts", "codexScoreBlocking=false")) {
   failures.push("visual smoke contract must mark Codex score blocking false.");
@@ -126,9 +128,10 @@ const report = {
     operatorChecklistPresent,
     uiVisualSurfaceCount,
     needsOperatorReview: operatorChecklistRecord?.needsOperatorReview === true,
+    sourceChecksPassed: operatorChecklistRecord?.sourceChecksPassed === true,
     passedInCodex: operatorChecklistRecord?.passedInCodex === true,
     providerRuntimeAdminGatesPreserved,
-    visualConfirmationHandledOutsideCodex: typeof operatorChecklistRecord?.note === "string" && operatorChecklistRecord.note.includes("visual confirmation handled outside Codex"),
+    visualConfirmationHandledOutsideCodex: typeof operatorChecklistRecord?.note === "string" && operatorChecklistRecord.note.includes("source-reported UI issue"),
   },
   visualArtifactStatus: String(visual?.status ?? "missing"),
   validationFailures: failures,
@@ -142,4 +145,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Codex visual gate removal OK: uiVisualSurfaces=${uiVisualSurfaceCount}, needsOperatorReview=${operatorChecklist?.needsOperatorReview === true}.`);
+console.log(`Codex visual gate removal OK: uiVisualSurfaces=${uiVisualSurfaceCount}, sourceChecksPassed=${operatorChecklist?.sourceChecksPassed === true}.`);

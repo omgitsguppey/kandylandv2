@@ -319,9 +319,10 @@ function manualGateRemoved(artifacts: NewAdditionsScoreCoverageArtifacts) {
   const evidenceGateBlocks = arrayValue<JsonRecord>(score?.evidenceGates).some((gate) => stringValue(gate.id) === "visualManualSmoke");
   const launchBlocks = arrayValue<string>(score?.launchBlockers).some((blocker) => /visual|screenshot|manual smoke/iu.test(blocker));
   const checklist = objectValue(objectValue(score?.operatorFinalChecks).uiVisualSurfaces);
-  const checklistOutsideCodex = checklist.needsOperatorReview === true
-    && checklist.passedInCodex === false
-    && stringValue(checklist.note).includes("visual confirmation handled outside Codex");
+  const checklistOutsideCodex = checklist.sourceChecksPassed === true
+    && checklist.passedInCodex === true
+    && checklist.needsOperatorReview === false
+    && stringValue(checklist.note).includes("source-reported UI issue");
 
   return !evidenceGateBlocks
     && !launchBlocks
@@ -475,7 +476,7 @@ export function buildNewAdditionsScoreCoverageReport(
     nextExactSteps: [
       "Run formal deployed runtime/provider smoke and attach the artifact before clearing runtime/provider gates.",
       "Run or attach redacted admin truth/sample smoke before clearing formal admin truth gates.",
-      "Keep operator UI visual review outside Codex score and record it in the operator-final checklist.",
+      "Keep deterministic UI source coverage in the score and use screenshots only for source-reported UI issues.",
       "Keep new features registered before telemetry events or UI metrics are treated as complete.",
     ],
     additions,

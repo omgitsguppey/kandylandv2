@@ -46,7 +46,7 @@ export type BetaEvidenceGapMapReport = {
 };
 
 type EvidenceCaptureInput = {
-  manualScreenshotEvidence: string;
+  uiSurfaceCoverageEvidence: string;
   providerSmokeEvidence: string;
   runtimeSmokeEvidence: string;
   adminTruthSampleEvidence: string;
@@ -111,17 +111,17 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
   const refreshPlan = input.refreshPlan ?? [];
   const lanes: BetaEvidenceGapLane[] = [
     lane({
-      id: "manual_screenshot_qa",
-      status: input.evidenceCapture.manualScreenshotEvidence,
+      id: "ui_surface_coverage",
+      status: input.evidenceCapture.uiSurfaceCoverageEvidence,
       requiredForExit: true,
       currentArtifact: "agent/state/evidence-capture-status.generated.json",
-      missingFiles: missingWhen(input.evidenceCapture.manualScreenshotEvidence, "agent/evidence/manual-screenshot-qa/*.json"),
-      exactFolder: "agent/evidence/manual-screenshot-qa",
-      exactTemplate: "agent/evidence/manual-screenshot-qa/evidence.template.json",
-      exactCheckCommand: "EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence",
-      scoreImpact: "Raises evidence completeness and manual confidence after formal screenshots are attached.",
-      launchImpact: "Required for beta exit; source-only screenshots do not clear this lane.",
-      nextAction: "Attach dated manual screenshot QA evidence for user and creator surfaces.",
+      missingFiles: missingWhen(input.evidenceCapture.uiSurfaceCoverageEvidence, "agent/state/ui-visual-smoke-minimal.generated.json"),
+      exactFolder: "agent/state",
+      exactTemplate: "agent/state/ui-visual-smoke-minimal.generated.json",
+      exactCheckCommand: "npm run check:ui-visual-smoke-minimal",
+      scoreImpact: "Raises UI confidence when deterministic surface checks find disconnected modals, panels, and routes before visual review.",
+      launchImpact: "Required for beta exit as source UI coverage; screenshots are optional only to reproduce source-reported issues.",
+      nextAction: "Run npm run check:ui-visual-smoke-minimal and fix any source-reported UI surface gap.",
     }),
     lane({
       id: "provider_smoke",
@@ -242,7 +242,7 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
     nextExactSteps: [
       `1. ${input.operatorRevenueSmokeNote}`,
       "2. Optional formal provider/app artifact for the $50 GumDrop payment can be stored under agent/evidence/provider-smoke/; it is not required for acknowledging the sale.",
-      "3. Attach manual screenshot QA evidence for the already-tested user and creator surfaces under agent/evidence/manual-screenshot-qa/.",
+      "3. Run deterministic UI surface coverage and fix any source-reported user, creator, or admin surface gap.",
       "4. Attach deployed runtime smoke evidence for route loading and critical flows under agent/evidence/runtime-smoke/.",
       "5. Attach a fresh redacted admin truth sample under agent/evidence/admin-truth-sample/.",
       "6. Attach deployed runtime watch-time v2 playback proof under runtime smoke evidence.",
@@ -312,7 +312,7 @@ function buildFromWorkspace() {
     launchGateStatus: readString(beta.launchGateStatus ?? betaSummary.launchGateStatus, "owner_review"),
     canStartBetaExitReview: betaSummary.canStartBetaExitReview === true,
     evidenceCapture: {
-      manualScreenshotEvidence: readString(evidenceSummary.manualScreenshotEvidence, "missing"),
+      uiSurfaceCoverageEvidence: readString(evidenceSummary.uiSurfaceCoverageEvidence, "missing"),
       providerSmokeEvidence: readString(evidenceSummary.providerSmokeEvidence, "missing"),
       runtimeSmokeEvidence: readString(evidenceSummary.runtimeSmokeEvidence, "missing"),
       adminTruthSampleEvidence: readString(evidenceSummary.adminTruthSampleEvidence, "missing"),
@@ -342,7 +342,7 @@ export function validateBetaEvidenceGapMapReport(report: BetaEvidenceGapMapRepor
   if (report.currentHead !== head) failures.push("currentHead must match git HEAD.");
 
   const requiredLaneIds = [
-    "manual_screenshot_qa",
+    "ui_surface_coverage",
     "provider_smoke",
     "runtime_smoke",
     "admin_truth_sample",

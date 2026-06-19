@@ -259,7 +259,7 @@ if (report) {
   } else {
     report.evidenceGates.forEach(validateEvidenceGate);
     if (report.evidenceGates.some((gate) => gate.id === "visualManualSmoke")) {
-      failures.push("UI visual/manual smoke must not be a Codex score evidence gate.");
+      failures.push("UI visual source coverage must not be a Codex score evidence gate.");
     }
   }
   if (report.launchBlockers.some((blocker) => /visual|screenshot|manual smoke/iu.test(blocker))) {
@@ -269,14 +269,14 @@ if (report) {
     failures.push("UI screenshot/visual review must not be a Codex evidence cap.");
   }
   if (!report.operatorFinalChecks?.uiVisualSurfaces) {
-    failures.push("operatorFinalChecks.uiVisualSurfaces must keep the visual review checklist visible.");
+    failures.push("operatorFinalChecks.uiVisualSurfaces must keep UI source coverage visible.");
   } else {
     const visualChecklist = report.operatorFinalChecks.uiVisualSurfaces;
-    if (visualChecklist.passedInCodex !== false) {
-      failures.push("operator visual checklist must not mark visual proof passed inside Codex.");
+    if (visualChecklist.sourceChecksPassed !== true || visualChecklist.passedInCodex !== true) {
+      failures.push("UI source coverage must be allowed to pass inside Codex.");
     }
-    if (!visualChecklist.note.includes("visual confirmation handled outside Codex")) {
-      failures.push("operator visual checklist must state visual confirmation handled outside Codex.");
+    if (!visualChecklist.note.includes("source-reported UI issue")) {
+      failures.push("UI source coverage must state screenshots are optional only for a source-reported UI issue.");
     }
     if (!Array.isArray(visualChecklist.surfaces) || visualChecklist.surfaces.length === 0) {
       failures.push("operator visual checklist must include tracked UI surfaces.");

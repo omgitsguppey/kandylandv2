@@ -268,17 +268,17 @@ describe("public beta scoring math", () => {
         expect(report.readinessStatus).not.toBe("Ready");
     });
 
-    it("keeps missing visual evidence in the operator-final checklist", () => {
+    it("keeps missing UI source coverage from clearing the UI lane", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
                 ...freshEvidence,
                 visualManualEvidence: {
-                    path: "agent/state/manual-smoke-evidence.generated.json",
-                    status: "missing_formal_evidence",
+                    path: "agent/state/ui-visual-smoke-minimal.generated.json",
+                    status: "source_surface_checks_failed",
                     passed: false,
-                    detail: "No valid visual/manual evidence artifact was supplied.",
-                    evidence: ["visualManualArtifactStatus=missing_formal_evidence"],
+                    detail: "UI surface source coverage found gaps.",
+                    evidence: ["uiVisualSmoke.status=source_surface_checks_failed", "uiVisualSmoke.missingSurfaces=admin_debug_summary_mobile"],
                 },
             },
         });
@@ -381,7 +381,7 @@ describe("public beta scoring math", () => {
                 ...freshEvidence,
                 targetedBehaviorEvidence: {
                     ...freshEvidence.targetedBehaviorEvidence,
-                    detail: "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
+                    detail: "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
                     evidence: [
                         "targetedBehavior.status=passed",
                         "formalEvidenceImpact=source_behavior_only",
@@ -394,12 +394,12 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.status).toBe("Source validation only");
         expect(targetedGate?.evidenceQuality).toBe("source_ready");
         expect(targetedGate?.runtimeCredit).toBe(0);
-        expect(targetedGate?.detail).toContain("does not prove manual screenshot");
+        expect(targetedGate?.detail).toContain("does not prove provider smoke");
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
         ]));
-        expect(report.evidenceCapDetails.join("\n")).not.toContain("does not prove manual screenshot");
-        expect(targetedGate?.detail).toContain("does not prove manual screenshot");
+        expect(report.evidenceCapDetails.join("\n")).not.toContain("does not prove visual review");
+        expect(targetedGate?.detail).toContain("does not prove provider smoke");
     });
 
     it("does not score stale formal smoke and admin artifacts as current proof", () => {
@@ -535,7 +535,7 @@ describe("public beta scoring math", () => {
                     path: "agent/state/manual-smoke-evidence.generated.json",
                     status: "missing_formal_evidence",
                     passed: false,
-                    detail: "No valid visual/manual evidence artifact was supplied.",
+                    detail: "No valid UI source coverage artifact was supplied.",
                     evidence: ["visualManualArtifactStatus=missing_formal_evidence"],
                 },
                 providerSmokeEvidence: missingProviderSmokeEvidence,

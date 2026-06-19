@@ -4,7 +4,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { evaluateAdminTruthSampleEvidence } from "./validate-admin-truth-sample-evidence";
-import { evaluateManualScreenshotEvidence } from "./validate-manual-screenshot-evidence";
 import { evaluateProviderSmokeEvidence } from "./validate-provider-smoke-evidence";
 import { evaluateRuntimeSmokeEvidence } from "./validate-runtime-smoke-evidence";
 import {
@@ -18,7 +17,7 @@ import {
 type EvidenceStatus = "missing" | "incomplete" | "complete" | "stale";
 
 type EvidenceLaneStatuses = {
-  manualScreenshotEvidence: EvidenceStatus;
+  uiSurfaceCoverageEvidence: EvidenceStatus;
   providerSmokeEvidence: EvidenceStatus;
   runtimeSmokeEvidence: EvidenceStatus;
   adminTruthSampleEvidence: EvidenceStatus;
@@ -93,7 +92,7 @@ const liveEvidenceGatePath = join(repoRoot, "agent/state/live-evidence-gate-repl
 const expectedDailyActivityImportPath = "agent/evidence/live-runtime-activity/recent-activity.export.json";
 
 const laneLabels: Record<keyof EvidenceLaneStatuses, string> = {
-  manualScreenshotEvidence: "manual screenshot evidence",
+  uiSurfaceCoverageEvidence: "UI surface coverage evidence",
   providerSmokeEvidence: "provider smoke evidence",
   runtimeSmokeEvidence: "runtime smoke evidence",
   adminTruthSampleEvidence: "admin truth sample evidence",
@@ -240,6 +239,30 @@ function readArtifactInput(relativePath: string, head: string, generatedAtUtc: s
   };
 }
 
+function evaluateUiSurfaceCoverageEvidence(head: string): {
+  status: EvidenceStatus;
+  templateExists: boolean;
+  completeArtifacts: string[];
+} {
+  const artifactPath = "agent/state/ui-visual-smoke-minimal.generated.json";
+  const fullPath = join(repoRoot, artifactPath);
+  if (!existsSync(fullPath)) {
+    return { status: "missing", templateExists: false, completeArtifacts: [] };
+  }
+  const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
+  const artifactHead = readString(parsed.currentHead ?? parsed.sourceCommit);
+  const validationFailures = Array.isArray(parsed.validationFailures)
+    ? parsed.validationFailures.filter(Boolean)
+    : [];
+  if (artifactHead && artifactHead !== head) {
+    return { status: "stale", templateExists: true, completeArtifacts: [] };
+  }
+  if (parsed.passed === true && parsed.status === "source_surface_checks_current" && validationFailures.length === 0) {
+    return { status: "complete", templateExists: true, completeArtifacts: [artifactPath] };
+  }
+  return { status: "incomplete", templateExists: true, completeArtifacts: [] };
+}
+
 export function buildEvidenceCaptureStatusReport(options: BuildOptions): EvidenceCaptureStatusReport {
   const canStartBetaExitReview = allLanesComplete(options.laneStatuses) && options.currentBetaExitCanStart;
   const missingEvidence = (Object.entries(options.laneStatuses) as Array<[keyof EvidenceLaneStatuses, EvidenceStatus]>)
@@ -251,6 +274,9 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
   const operatorRevenueSmoke = options.operatorRevenueSmoke ?? defaultOperatorRevenueSmoke();
   const liveRuntimeEvidence = normalizeLiveRuntimeEvidence(options.liveRuntimeEvidence);
   const sourceReadyEvidence = [
+    options.laneStatuses.uiSurfaceCoverageEvidence === "complete"
+      ? "UI surface coverage is source-checked; visual review is optional follow-up only after a source-reported UI issue."
+      : "UI surface coverage needs deterministic source validation before manual viewing.",
     "runtime watch-time source lane is source-ready but still needs deployed playback proof.",
     `live runtime evidence bridge: ${liveRuntimeEvidence.statusSummary}`,
   ];
@@ -261,7 +287,6 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     "provider",
     ...(options.laneStatuses.adminTruthSampleEvidence === "complete" ? [] : ["admin"]),
     "billing",
-    "manual visual",
     "exact-user",
   ];
   const formalMissingEvidence = [
@@ -300,10 +325,10 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     },
     evidenceFolders: [
       {
-        lane: "manualScreenshotEvidence",
-        folder: "agent/evidence/manual-screenshot-qa",
-        templatePath: "agent/evidence/manual-screenshot-qa/evidence.template.json",
-        status: options.laneStatuses.manualScreenshotEvidence,
+        lane: "uiSurfaceCoverageEvidence",
+        folder: "agent/state",
+        templatePath: "docs/agent-truth/ui-visual-smoke-minimal.md",
+        status: options.laneStatuses.uiSurfaceCoverageEvidence,
       },
       {
         lane: "providerSmokeEvidence",
@@ -330,12 +355,11 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     missingEvidence,
     completeEvidence,
     nextExactSteps: [
-      "Copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated JSON artifact and attach screenshots under agent/evidence/manual-screenshot-qa/screenshots/.",
+      "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui before manual viewing; fix any source-reported UI surface gaps.",
       "Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.",
       "Run npm run capture:truthful-evidence to generate deployed runtime smoke evidence without provider/payment calls.",
       "Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.",
       `Drop privacy-safe daily aggregate activity export at ${liveRuntimeEvidence.expectedImportPath}.`,
-      "Run EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence once manual screenshot evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin truth evidence is expected to be complete.",
@@ -368,11 +392,11 @@ export function validateEvidenceCaptureStatusReport(
     failures.push("completeArtifacts must not be negative.");
   }
   if (report.summary.templatesCreated < 4) {
-    failures.push("templatesCreated must include all four evidence templates.");
+    failures.push("templatesCreated must include provider/runtime/admin evidence templates and the UI source coverage artifact.");
   }
 
   const lanes: EvidenceLaneStatuses = {
-    manualScreenshotEvidence: report.summary.manualScreenshotEvidence,
+    uiSurfaceCoverageEvidence: report.summary.uiSurfaceCoverageEvidence,
     providerSmokeEvidence: report.summary.providerSmokeEvidence,
     runtimeSmokeEvidence: report.summary.runtimeSmokeEvidence,
     adminTruthSampleEvidence: report.summary.adminTruthSampleEvidence,
@@ -400,7 +424,7 @@ export function validateEvidenceCaptureStatusReport(
   if (!Array.isArray(report.formalMissingEvidence) || !report.formalMissingEvidence.some((entry) => /provider smoke remains formal-missing/iu.test(entry))) {
     failures.push("formalMissingEvidence must keep provider smoke separate from operator confirmation.");
   }
-  if (!report.formalMissingEvidence.some((entry) => /does not clear provider, .*billing, manual visual, .*exact-user proof/iu.test(entry))) {
+  if (!report.formalMissingEvidence.some((entry) => /does not clear provider, .*billing, .*exact-user proof/iu.test(entry))) {
     failures.push("formalMissingEvidence must keep live activity separate from protected proof lanes.");
   }
   const operatorRevenueSmoke = report.summary.operatorRevenueSmoke;
@@ -433,7 +457,7 @@ export function validateEvidenceCaptureStatusReport(
     failures.push("exactRefreshCommands must include evidence capture refresh command.");
   }
   for (const folder of [
-    "agent/evidence/manual-screenshot-qa",
+    "agent/state",
     "agent/evidence/provider-smoke",
     "agent/evidence/runtime-smoke",
     "agent/evidence/admin-truth-sample",
@@ -447,24 +471,25 @@ export function validateEvidenceCaptureStatusReport(
 }
 
 function buildFromWorkspace() {
-  const manual = evaluateManualScreenshotEvidence();
+  const head = currentHead();
+  const uiSurfaceCoverage = evaluateUiSurfaceCoverageEvidence(head);
   const provider = evaluateProviderSmokeEvidence();
   const runtime = evaluateRuntimeSmokeEvidence();
   const admin = evaluateAdminTruthSampleEvidence();
   const laneStatuses: EvidenceLaneStatuses = {
-    manualScreenshotEvidence: manual.status,
+    uiSurfaceCoverageEvidence: uiSurfaceCoverage.status,
     providerSmokeEvidence: provider.status,
     runtimeSmokeEvidence: runtime.status,
     adminTruthSampleEvidence: admin.status,
   };
-  const templatesCreated = [manual, provider, runtime, admin].filter((lane) => lane.templateExists).length;
-  const completeArtifacts = [manual, provider, runtime, admin].reduce(
+  const templatesCreated = [uiSurfaceCoverage, provider, runtime, admin].filter((lane) => lane.templateExists).length;
+  const completeArtifacts = [uiSurfaceCoverage, provider, runtime, admin].reduce(
     (count, lane) => count + lane.completeArtifacts.length,
     0,
   );
 
   return buildEvidenceCaptureStatusReport({
-    currentHead: currentHead(),
+    currentHead: head,
     generatedAtUtc: new Date().toISOString(),
     laneStatuses,
     templatesCreated,
@@ -487,7 +512,7 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     "",
     "## Summary",
     "",
-    `- Manual screenshot evidence: \`${report.summary.manualScreenshotEvidence}\`.`,
+    `- UI surface coverage evidence: \`${report.summary.uiSurfaceCoverageEvidence}\`.`,
     `- Provider smoke evidence: \`${report.summary.providerSmokeEvidence}\`.`,
     `- Runtime smoke evidence: \`${report.summary.runtimeSmokeEvidence}\`.`,
     `- Admin truth sample evidence: \`${report.summary.adminTruthSampleEvidence}\`.`,
@@ -552,7 +577,7 @@ function main() {
   }
 
   console.log(
-    `Evidence capture status passed. manual=${report.summary.manualScreenshotEvidence} ` +
+    `Evidence capture status passed. uiSurfaceCoverage=${report.summary.uiSurfaceCoverageEvidence} ` +
       `provider=${report.summary.providerSmokeEvidence} runtime=${report.summary.runtimeSmokeEvidence} ` +
       `admin=${report.summary.adminTruthSampleEvidence} betaExit=${report.summary.canStartBetaExitReview}`,
   );

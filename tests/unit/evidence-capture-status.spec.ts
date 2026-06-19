@@ -11,7 +11,7 @@ describe("evidence capture status", () => {
       currentHead: "head",
       generatedAtUtc: "2026-05-17T05:30:00.000Z",
       laneStatuses: {
-        manualScreenshotEvidence: "missing",
+        uiSurfaceCoverageEvidence: "complete",
         providerSmokeEvidence: "missing",
         runtimeSmokeEvidence: "missing",
         adminTruthSampleEvidence: "missing",
@@ -23,7 +23,7 @@ describe("evidence capture status", () => {
 
     expect(report.summary.canStartBetaExitReview).toBe(false);
     expect(report.summary.completeArtifacts).toBe(0);
-    expect(report.missingEvidence).toHaveLength(4);
+    expect(report.missingEvidence).toHaveLength(3);
     expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
   });
 
@@ -32,7 +32,7 @@ describe("evidence capture status", () => {
       currentHead: "head",
       generatedAtUtc: "2026-05-17T05:30:00.000Z",
       laneStatuses: {
-        manualScreenshotEvidence: "missing",
+        uiSurfaceCoverageEvidence: "complete",
         providerSmokeEvidence: "missing",
         runtimeSmokeEvidence: "missing",
         adminTruthSampleEvidence: "missing",
@@ -51,7 +51,7 @@ describe("evidence capture status", () => {
       "live runtime evidence bridge: live_runtime_evidence_bridge=aggregate_activity_confirmed; aggregate_activity_confirmed=2; provider_required=2; admin_truth_source_required=1; billing_required=1; dailyActivityImport=present:agent/evidence/live-runtime-activity/recent-activity.export.json",
     );
     expect(report.formalMissingEvidence).toContain(
-      "live runtime evidence does not clear provider, admin, billing, manual visual, or exact-user proof lanes.",
+      "live runtime evidence does not clear provider, admin, billing, or exact-user proof lanes.",
     );
     expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
   });
@@ -61,7 +61,7 @@ describe("evidence capture status", () => {
       currentHead: "head",
       generatedAtUtc: "2026-05-17T05:30:00.000Z",
       laneStatuses: {
-        manualScreenshotEvidence: "missing",
+        uiSurfaceCoverageEvidence: "complete",
         providerSmokeEvidence: "missing",
         runtimeSmokeEvidence: "complete",
         adminTruthSampleEvidence: "complete",
@@ -72,10 +72,10 @@ describe("evidence capture status", () => {
     });
 
     expect(report.formalMissingEvidence).toContain(
-      "live runtime evidence does not clear provider, billing, manual visual, or exact-user proof lanes.",
+      "live runtime evidence does not clear provider, billing, or exact-user proof lanes.",
     );
     expect(report.formalMissingEvidence).not.toContain(
-      "live runtime evidence does not clear provider, admin, billing, manual visual, or exact-user proof lanes.",
+      "live runtime evidence does not clear provider, admin, billing, or exact-user proof lanes.",
     );
     expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
   });
@@ -85,7 +85,7 @@ describe("evidence capture status", () => {
       currentHead: "head",
       generatedAtUtc: "2026-05-17T05:30:00.000Z",
       laneStatuses: {
-        manualScreenshotEvidence: "complete",
+        uiSurfaceCoverageEvidence: "complete",
         providerSmokeEvidence: "complete",
         runtimeSmokeEvidence: "complete",
         adminTruthSampleEvidence: "missing",
@@ -106,7 +106,7 @@ describe("evidence capture status", () => {
       currentHead: "old-head",
       generatedAtUtc: "2026-05-17T05:30:00.000Z",
       laneStatuses: {
-        manualScreenshotEvidence: "missing",
+        uiSurfaceCoverageEvidence: "complete",
         providerSmokeEvidence: "missing",
         runtimeSmokeEvidence: "missing",
         adminTruthSampleEvidence: "missing",

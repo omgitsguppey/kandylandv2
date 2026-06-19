@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-06-03T04:39:26.532Z",
+  "generatedAtUtc": "2026-06-19T14:34:16.445Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "manualEvidenceScope": {
     "visualUiGate": {
-      "requiresVisualOrOperatorEvidence": true,
+      "requiresSourceSurfaceCoverage": true,
       "canClearFromAlgorithmicEvidence": false,
       "status": "missing",
-      "sourcePath": "agent/state/manual-smoke-evidence.generated.json",
-      "nextAction": "Track layout-sensitive UI surfaces for operator-final review; visual confirmation handled outside Codex."
+      "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
+      "nextAction": "Run UI source coverage, admin browser surface smoke, and device UI checks before manual viewing."
     },
     "nonUiAlgorithmicEvidence": {
-      "blockedByManualScreenshot": false,
+      "blockedByUiSourceCoverage": false,
       "coveredCategories": [
         "runtime_source_gate",
         "telemetry_gate",
@@ -20,17 +20,17 @@
         "cost_gate",
         "refresh_gate"
       ],
-      "score": 64.5,
-      "note": "Manual screenshot evidence is operator-final outside Codex and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
+      "score": 66.5,
+      "note": "UI visual artifacts are optional reproduction evidence only after source-reported UI issues and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
     }
   },
   "runtimeSourceConfidence": {
     "category": "runtime_source_gate",
     "label": "Runtime source confidence",
     "confidence": "partial",
-    "score": 100,
+    "score": 92,
     "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
-    "sourceStatus": "source_ready_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;source_ready_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
+    "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;failed;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
     "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
     "formalGateCleared": false,
     "nextAction": "Attach deployed runtime smoke before clearing the formal runtime gate."
@@ -72,7 +72,7 @@
     "category": "cost_gate",
     "label": "Cost source confidence",
     "confidence": "partial",
-    "score": 25,
+    "score": 45,
     "sourcePath": "agent/state/score-80-cost-readiness.generated.json",
     "sourceStatus": "source_cost_readiness_present",
     "distinction": "source cost readiness can improve cost confidence; external billing review remains separate",
@@ -90,7 +90,7 @@
     "formalGateCleared": false,
     "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
   },
-  "nonUiAlgorithmicCoverageScore": 64.5,
+  "nonUiAlgorithmicCoverageScore": 66.5,
   "formalGateImpact": {
     "uiVisualGateCleared": false,
     "deployedRuntimeSmokeCleared": false,
@@ -107,9 +107,9 @@
       "category": "runtime_source_gate",
       "label": "Runtime source confidence",
       "confidence": "partial",
-      "score": 100,
+      "score": 92,
       "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
-      "sourceStatus": "source_ready_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;source_ready_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
+      "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;failed;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
       "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
       "formalGateCleared": false,
       "nextAction": "Attach deployed runtime smoke before clearing the formal runtime gate."
@@ -151,7 +151,7 @@
       "category": "cost_gate",
       "label": "Cost source confidence",
       "confidence": "partial",
-      "score": 25,
+      "score": 45,
       "sourcePath": "agent/state/score-80-cost-readiness.generated.json",
       "sourceStatus": "source_cost_readiness_present",
       "distinction": "source cost readiness can improve cost confidence; external billing review remains separate",
@@ -171,14 +171,14 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
   "scoreProbe": {
-    "runtimeHealthScore": 96.8,
-    "evidenceCompletenessScore": 76.8,
-    "readinessStatus": "Unknown evidence",
+    "runtimeHealthScore": 71.2,
+    "evidenceCompletenessScore": 38.4,
+    "readinessStatus": "External proof required",
     "launchBlockers": [
-      "Runtime/provider smoke: Runtime unverified",
-      "Admin truth/sample evidence: Ready with smoke required",
+      "Runtime/provider smoke: External proof required",
+      "Admin truth/sample evidence: External proof required",
       "Report freshness and PR integrity: Unknown evidence"
     ]
   }

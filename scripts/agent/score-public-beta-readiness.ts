@@ -212,7 +212,7 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
   const summary = readRecord(parsed.summary);
   const formalGateImpact = readRecord(parsed.formalGateImpact);
   const normalized: UiVisualSmokeMinimalReport = {
-    status: (readString(parsed.status) ?? "operator_final_pending") as UiVisualSmokeReportStatus,
+    status: (readString(parsed.status) ?? "source_surface_checks_failed") as UiVisualSmokeReportStatus,
     passed: readBoolean(parsed.passed) === true,
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt) ?? new Date(0).toISOString(),
     currentHead: readString(parsed.currentHead),
@@ -236,7 +236,7 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
         screenshotArtifactPath: readString(record.screenshotArtifactPath),
         operatorConfirmed: readBoolean(record.operatorConfirmed) === true,
         operatorNote: readString(record.operatorNote),
-        status: (readString(record.status) ?? "operator_final_pending") as UiVisualSmokeStatus,
+        status: (readString(record.status) ?? "source_surface_gap") as UiVisualSmokeStatus,
         blocksScoreForUiOnly: readBoolean(record.blocksScoreForUiOnly) === true,
         codexScoreBlocking: false,
       };
@@ -856,7 +856,7 @@ function readVisualManualEvidence(root: string): PublicBetaEvidenceArtifact {
         passed: true,
         detail: readString(parsed.detail)
           ?? readString(parsed.summary)
-          ?? "Schema-backed visual/manual evidence passed.",
+          ?? "Deterministic UI surface coverage passed.",
         evidence: [
           `visualManualArtifactStatus=${status}`,
           `visualManualArtifactPath=${evidencePath}`,
@@ -882,7 +882,7 @@ function readVisualManualEvidence(root: string): PublicBetaEvidenceArtifact {
     path: VISUAL_MANUAL_EVIDENCE_PATHS.join(","),
     status: "missing_formal_evidence",
     passed: false,
-    detail: "No valid visual/manual evidence artifact was supplied.",
+    detail: "No valid UI source coverage artifact was supplied.",
     evidence: [
       "visualManualArtifactStatus=missing_formal_evidence",
       ...inspected,

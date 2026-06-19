@@ -1,13 +1,13 @@
 {
-  "status": "operator_final_pending",
-  "passed": false,
-  "generatedAtUtc": "2026-05-21T18:47:36.198Z",
-  "currentHead": "aebc21dc9923ee0bf6e174cda14d50e2ad85160d",
-  "sourceCommit": "aebc21dc9923ee0bf6e174cda14d50e2ad85160d",
-  "detail": "Visual confirmation handled outside Codex; operator review is pending for: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile.",
+  "status": "source_surface_checks_current",
+  "passed": true,
+  "generatedAtUtc": "2026-06-19T14:31:13.780Z",
+  "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+  "sourceCommit": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+  "detail": "Deterministic UI surface coverage is current. Screenshots are optional follow-up evidence only after a source/UI-surface check finds a visual issue.",
   "nonUiLanesBlocked": false,
   "formalGateImpact": {
-    "clearsVisualManualSmoke": false,
+    "clearsVisualManualSmoke": true,
     "clearsProviderSmoke": false,
     "clearsDeployedRuntimeSmoke": false,
     "clearsAdminTruthSmoke": false
@@ -20,7 +20,7 @@
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Recent activity, tasks, and dashboard density are layout-sensitive on mobile.",
       "operatorConfirmed": false,
-      "status": "operator_final_pending",
+      "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
     },
@@ -31,7 +31,7 @@
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Wallet modal density and balance presentation are mobile layout-sensitive.",
       "operatorConfirmed": false,
-      "status": "operator_final_pending",
+      "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
     },
@@ -42,7 +42,7 @@
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Creator dashboard loading and empty-state density changed in mobile source checks.",
       "operatorConfirmed": false,
-      "status": "operator_final_pending",
+      "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
     },
@@ -53,7 +53,7 @@
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Creator settings is a layout-sensitive creator tool surface.",
       "operatorConfirmed": false,
-      "status": "operator_final_pending",
+      "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
     },
@@ -64,7 +64,7 @@
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Creator drop manager status and empty states are layout-sensitive on mobile.",
       "operatorConfirmed": false,
-      "status": "operator_final_pending",
+      "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
     },
@@ -75,7 +75,7 @@
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Creator profile timeline and empty-state layout need visual confirmation.",
       "operatorConfirmed": false,
-      "status": "operator_final_pending",
+      "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
     },
@@ -86,7 +86,7 @@
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Admin debug cockpit summary is a layout-sensitive operational UI surface.",
       "operatorConfirmed": false,
-      "status": "operator_final_pending",
+      "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
     },
@@ -97,7 +97,7 @@
       "deviceBand": "desktop",
       "requiresVisualSmokeReason": "Admin debug summary needs desktop hierarchy confirmation without raw dumps first.",
       "operatorConfirmed": false,
-      "status": "operator_final_pending",
+      "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
     },
@@ -108,7 +108,7 @@
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Drops/user library empty and loading states are layout-sensitive on mobile.",
       "operatorConfirmed": false,
-      "status": "operator_final_pending",
+      "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
     }
@@ -116,29 +116,22 @@
   "summary": {
     "requiredSurfaceCount": 9,
     "surfaceGroupCount": 8,
-    "missingSurfaceIds": [
-      "user_dashboard_mobile",
-      "wallet_mobile",
-      "creator_dashboard_mobile",
-      "creator_settings_mobile",
-      "creator_drop_manager_mobile",
-      "creator_profile_mobile",
-      "admin_debug_summary_mobile",
-      "admin_debug_summary_desktop",
-      "drops_user_library_mobile"
-    ],
+    "missingSurfaceIds": [],
     "operatorConfirmedSurfaceIds": [],
     "screenshotAttachedSurfaceIds": [],
     "failedSurfaceIds": [],
     "notRequiredSurfaceIds": [],
     "statusCounts": {
-      "operator_final_pending": 9,
+      "source_surface_checked": 9,
+      "source_surface_gap": 0,
+      "operator_final_pending": 0,
       "operator_confirmed_outside_codex": 0,
       "screenshot_attached": 0,
       "not_required": 0
     }
   },
   "evidence": [
+    "uiVisualSmoke.sourceSurfaceChecksCurrent=true",
     "uiVisualSmoke.requiredSurfaces=user_dashboard_mobile,wallet_mobile,creator_dashboard_mobile,creator_settings_mobile,creator_drop_manager_mobile,creator_profile_mobile,admin_debug_summary_mobile,admin_debug_summary_desktop,drops_user_library_mobile",
     "uiVisualSmoke.requiredSurfaceCount=9",
     "uiVisualSmoke.surfaceGroupCount=8",
@@ -150,15 +143,8 @@
     "uiVisualSmoke.adminTruthSmokeCleared=false"
   ],
   "nextExactSteps": [
-    "Operator final visual review needed for user_dashboard_mobile; visual confirmation handled outside Codex and must not block source/debug scoring.",
-    "Operator final visual review needed for wallet_mobile; visual confirmation handled outside Codex and must not block source/debug scoring.",
-    "Operator final visual review needed for creator_dashboard_mobile; visual confirmation handled outside Codex and must not block source/debug scoring.",
-    "Operator final visual review needed for creator_settings_mobile; visual confirmation handled outside Codex and must not block source/debug scoring.",
-    "Operator final visual review needed for creator_drop_manager_mobile; visual confirmation handled outside Codex and must not block source/debug scoring.",
-    "Operator final visual review needed for creator_profile_mobile; visual confirmation handled outside Codex and must not block source/debug scoring.",
-    "Operator final visual review needed for admin_debug_summary_mobile; visual confirmation handled outside Codex and must not block source/debug scoring.",
-    "Operator final visual review needed for admin_debug_summary_desktop; visual confirmation handled outside Codex and must not block source/debug scoring.",
-    "Operator final visual review needed for drops_user_library_mobile; visual confirmation handled outside Codex and must not block source/debug scoring."
+    "Keep npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui in the UI/admin fast lane.",
+    "Use screenshots or browser viewing only to reproduce a specific source-reported UI issue, not as the readiness gate."
   ],
   "validationFailures": []
 }

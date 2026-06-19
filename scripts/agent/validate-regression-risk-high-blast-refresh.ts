@@ -394,7 +394,7 @@ function writeTargetedBehaviorEvidence(report: ReturnType<typeof buildRegression
     bigQueryCallsPerformed: false,
     visualQaPerformed: false,
     realDeviceSmokePerformed: false,
-    detail: "Targeted behavior evidence was rebuilt from current high-blast validators. It is source behavior evidence only and does not clear formal runtime, provider, visual, or admin truth gates.",
+    detail: "Targeted behavior evidence was rebuilt from current high-blast validators. It is source behavior evidence only and does not clear formal runtime, provider, or admin truth gates.",
     summary: "High-blast analytics, debug, chat, task, settings, wallet, admin, score, and cost validators were refreshed or explicitly classified.",
     validatorResults: report.laneResults.map((lane) => ({
       id: lane.laneId,
@@ -404,19 +404,19 @@ function writeTargetedBehaviorEvidence(report: ReturnType<typeof buildRegression
       currentHead: lane.currentHead,
       surfaces: lane.scoreDimensionsAffected,
       proves: "Current high-blast source validator coverage for regression risk scoring.",
-      doesNotProve: "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
+      doesNotProve: "Does not prove provider_smoke, runtime_smoke, admin_truth_sample, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       blocker: lane.blocker,
     })),
     commands: report.laneResults.map((lane) => ({
       command: lane.command,
       status: laneIsCovered(lane) ? "pass" : "fail",
       proves: "Current high-blast source validator coverage for regression risk scoring.",
-      doesNotProve: "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
+      doesNotProve: "Does not prove provider_smoke, runtime_smoke, admin_truth_sample, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
     })),
     surfacesCovered: surfaces,
-    notCovered: ["manual screenshot QA", "provider smoke", "runtime smoke", "admin truth sample", "real-device smoke", "deployed runtime smoke"],
+    notCovered: ["provider smoke", "runtime smoke", "admin truth sample", "real-device smoke", "deployed runtime smoke"],
     formalEvidenceImpact: "source_behavior_only",
-    doesNotClear: ["manual_screenshot", "provider_smoke", "runtime_smoke", "admin_truth_sample"],
+    doesNotClear: ["provider_smoke", "runtime_smoke", "admin_truth_sample"],
     evidence: [
       `validatorCount=${report.laneResults.length}`,
       `coveredValidators=${report.laneResults.filter(laneIsCovered).length}`,
@@ -441,7 +441,7 @@ Generated: ${targeted.generatedAtUtc}
 
 Status: \`${targeted.status}\`
 
-This artifact was rebuilt by \`npm run check:regression-risk-high-blast-refresh\` from high-blast source validators. It does not clear manual screenshot, provider smoke, runtime smoke, real-device smoke, deployed runtime smoke, or production admin truth sample gates.
+This artifact was rebuilt by \`npm run check:regression-risk-high-blast-refresh\` from high-blast source validators. It does not clear provider smoke, runtime smoke, real-device smoke, deployed runtime smoke, or production admin truth sample gates.
 `);
 }
 

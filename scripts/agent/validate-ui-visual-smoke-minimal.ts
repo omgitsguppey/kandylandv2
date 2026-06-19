@@ -9,6 +9,7 @@ import {
   type UiVisualSmokeMinimalReport,
   type UiVisualSmokeSurfaceEvidence,
 } from "../../src/lib/evidence/ui-visual-smoke-contract";
+import { checkUiSurfaceCoverage } from "./check-ui-surface-coverage";
 
 const ROOT = process.cwd();
 const ARTIFACT_PATH = "agent/state/ui-visual-smoke-minimal.generated.json";
@@ -81,11 +82,21 @@ function assertScoreIntegration() {
   if (!scorer.includes("uiVisualSmoke.requiredSurfaces")) {
     failures.push("score report does not expose exact UI visual smoke surfaces");
   }
-  if (!core.includes("operator-final checklist") || !core.includes("Non-UI runtime")) {
-    failures.push("score report does not keep visual/manual smoke scoped outside non-UI evidence");
+  if (!core.includes("deterministic UI surface coverage") || !core.includes("Non-UI runtime")) {
+    failures.push("score report does not keep deterministic UI surface coverage scoped outside non-UI evidence");
   }
-  if (!core.includes("operatorFinalChecks") || !core.includes("visual confirmation handled outside Codex")) {
-    failures.push("score report does not expose UI visual smoke as an operator-final checklist outside Codex");
+  if (!core.includes("operatorFinalChecks") || !core.includes("source-reported UI issue")) {
+    failures.push("score report does not expose UI source coverage as the pre-browser proof lane");
+  }
+  return failures;
+}
+
+function assertDeterministicUiSourceCoverage() {
+  const failures: string[] = [];
+  try {
+    checkUiSurfaceCoverage();
+  } catch (error) {
+    failures.push((error as Error).message);
   }
   return failures;
 }
@@ -111,19 +122,19 @@ function assertChangedUiSurfacesCovered() {
 
 function renderDoc(report: UiVisualSmokeMinimalReport) {
   return [
-    "# UI Visual Smoke Minimal Lane",
+    "# UI Surface Coverage Gate",
     "",
-    "Status: minimal UI-only visual smoke evidence lane. It defines the exact layout-sensitive surfaces that need screenshot or operator visual confirmation.",
+    "Status: deterministic source-owned UI surface coverage lane.",
     "",
-    "This lane does not provide proof by itself. Missing evidence stays missing until an artifact exists.",
+    "This lane lets the codebase tell on itself before any manual viewing. Screenshots are optional follow-up evidence only when a source/UI-surface check identifies a visual issue to reproduce.",
     "",
     "## Summary",
     "",
     `- Status: ${report.status}`,
-    `- Passed in Codex: ${report.passed}`,
+    `- Source checks passed: ${report.passed}`,
     `- Required surface-device targets: ${report.summary.requiredSurfaceCount}`,
     `- Surface groups: ${report.summary.surfaceGroupCount}`,
-    `- Operator-final pending surfaces: ${report.summary.missingSurfaceIds.join(", ") || "none"}`,
+    `- Source gap surfaces: ${report.summary.missingSurfaceIds.join(", ") || "none"}`,
     `- Non-UI lanes blocked: ${report.nonUiLanesBlocked}`,
     `- Clears provider smoke: ${report.formalGateImpact.clearsProviderSmoke}`,
     `- Clears deployed runtime smoke: ${report.formalGateImpact.clearsDeployedRuntimeSmoke}`,
@@ -133,17 +144,23 @@ function renderDoc(report: UiVisualSmokeMinimalReport) {
     ...report.surfaces.map((surface) =>
       `- ${surface.surfaceId}: route=${surface.route}; device=${surface.deviceBand}; status=${surface.status}; codexScoreBlocking=${surface.codexScoreBlocking}; reason=${surface.requiresVisualSmokeReason}`),
     "",
-    "## Excluded By Default",
+    "## Deterministic Checks",
     "",
-    "- Chat",
-    "- Top nav",
-    "- Bottom nav",
-    "- Non-UI telemetry/admin/cost/source/provider/runtime lanes",
+    "- `npm run check:ui:coverage`",
+    "- `npm run check:admin-browser-surface-smoke`",
+    "- `npm run check:device-ui`",
+    "",
+    "## Not Cleared By This Lane",
+    "",
+    "- Provider proof",
+    "- Deployed runtime smoke",
+    "- Production admin truth samples",
+    "- Payment or GumDrop treasury truth",
     "",
     "## Template",
     "",
     `- Template path: ${TEMPLATE_PATH}`,
-    "- The template is not evidence and does not clear provider, runtime, admin, or Codex score gates.",
+    "- The template is optional context only. It is not required to clear UI source coverage and does not clear provider, runtime, admin, or payment gates.",
     "",
     "## Next Exact Steps",
     "",
@@ -162,6 +179,7 @@ const failures = [
   ...validateUiVisualSmokeMinimalReport(report, { templateExists: existsSync(join(ROOT, TEMPLATE_PATH)) }),
   ...assertScoreIntegration(),
   ...assertChangedUiSurfacesCovered(),
+  ...assertDeterministicUiSourceCoverage(),
 ];
 const output = { ...report, validationFailures: failures };
 
@@ -174,5 +192,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `UI visual smoke minimal lane OK: status=${report.status}, requiredSurfaces=${report.summary.requiredSurfaceCount}, missing=${report.summary.missingSurfaceIds.length}.`,
+  `UI surface coverage gate OK: status=${report.status}, requiredSurfaces=${report.summary.requiredSurfaceCount}, sourceGaps=${report.summary.missingSurfaceIds.length}.`,
 );
