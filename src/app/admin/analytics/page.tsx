@@ -268,8 +268,7 @@ function formatAdminAnalyticsSourceNote(note: string) {
   return note
     .replace("No verified snapshot-first realtime payload is available yet.", "Collecting activity.")
     .replace(/^Snapshot refresh [^.]+\.\s*/u, "")
-    .replaceAll("Live updates are delayed", "Cached snapshot")
-    .replaceAll("Live updates delayed", "Cached snapshot")
+    .replace(/Live updates (?:are )?delayed/gu, "Cached snapshot")
     .replaceAll("Realtime analytics", "Current activity")
     .replaceAll("realtime payload", "current activity snapshot")
     .replaceAll("Historical analytics", "Historical snapshot");
