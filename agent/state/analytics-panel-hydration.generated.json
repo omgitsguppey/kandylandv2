@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T02:41:19.403Z",
-  "currentHead": "50a408ece3d6f11ca96e0ee5554d779e113b281f",
+  "generatedAtUtc": "2026-06-19T02:45:40.340Z",
+  "currentHead": "dce9a0375029cb24b4b79f2dbb5b3707cb31e3ea",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -418,14 +418,18 @@
   "dirtyFileSummary": {
     "total": 13,
     "byClassification": {
-      "stale_generated_artifact_to_regenerate": 5,
-      "analytics_panel_hydration_artifact_expected": 4,
+      "stale_generated_artifact_to_regenerate": 7,
+      "analytics_panel_hydration_artifact_expected": 2,
       "launch_analytics_recovery_artifact_expected": 2,
       "source_agreement_failure_artifact_expected": 1,
       "documentation_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
+      {
+        "path": "agent/state/admin-analytics-realtime-hot-cache.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
       {
         "path": "agent/state/analytics-legacy-history-reconciliation.generated.json",
         "classification": "stale_generated_artifact_to_regenerate"
@@ -451,11 +455,7 @@
         "classification": "source_agreement_failure_artifact_expected"
       },
       {
-        "path": "docs/agent-truth/analytics-legacy-history-reconciliation.md",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
+        "path": "docs/agent-truth/admin-analytics-realtime-hot-cache.md",
         "classification": "stale_generated_artifact_to_regenerate"
       }
     ],
