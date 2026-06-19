@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-19T10:43:05.305Z
-Current head: 131ddd85186fbb6ca22f9b5cf4451eb7656929c4
+Generated: 2026-06-19T11:30:49.138Z
+Current head: 263395717993a2094b709bf9f67e6c6389dc1ead
 Status: source_agreement_failed
 
 ## Source Order
@@ -84,15 +84,15 @@ Status: source_agreement_failed
   - 2026-05-02: present ga4; missing first_party, historical_snapshot, legacy_support; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
   - 2026-05-03: present ga4, legacy_support; missing first_party, historical_snapshot; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
 - Blocked consumers: 9
-  - Analytics overview: source_missing; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
-  - Analytics charts: source_missing; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
-  - Device mix: second_source_only; Next: Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes.
-  - Region demand: second_source_only; Next: Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes.
-  - Top paths: second_source_only; Next: Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes.
-  - Insight cards: source_missing; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
-  - Source health: chart_promotion_blocked; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
-  - Debug source agreement: chart_promotion_blocked; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
-  - Public beta evidence: chart_promotion_blocked; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
+  - Analytics overview: source_missing; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
+  - Analytics charts: source_missing; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
+  - Device mix: second_source_only; Next: Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth.
+  - Region demand: second_source_only; Next: Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth.
+  - Top paths: second_source_only; Next: Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth.
+  - Insight cards: source_missing; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
+  - Source health: chart_promotion_blocked; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
+  - Debug source agreement: chart_promotion_blocked; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
+  - Public beta evidence: chart_promotion_blocked; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
 - Count delta details: 0
 - Exact next steps: Run the existing all-range historical analytics route or approved local export path to produce first-party day buckets. | Compare GA4 only as second-source evidence for sessions, views, devices, regions, top paths, and acquisition-style checks. | Keep fallback historical and legacy support rows archive/evidence-only until first-party materialization or dedupe proves the day. | Promote admin charts only after sourceAgreementStatus is pass and first-party product truth covers the bounded window.
 - Next action: Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.
@@ -137,12 +137,12 @@ Status: source_agreement_failed
 - Source-agreement blocked consumers: 9
 - Source-agreement source missing: 3
 - Source-agreement second-source only: 3
-- Source-agreement chart promotion held: 3
+- Source-agreement charts waiting for proof: 3
 - Source-agreement consumer mismatch: 0
 
 ## Next Steps
 
-- Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party day buckets before chart promotion.
+- Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party day buckets before charts can be treated as canonical.
 - Compare GA4 day buckets only as second-source evidence; do not average or overwrite first-party product metrics.
 - Keep missing days labeled source missing until a bounded source window proves zero.
 - Repair source agreement before treating admin charts as canonical launch-history truth.

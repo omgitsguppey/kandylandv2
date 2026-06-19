@@ -614,6 +614,13 @@ function normalizePublicBetaCapDetailForAdminModel(detail: string) {
     return detail;
 }
 
+function publicBetaEvidenceGateEvidence(detail: string) {
+    return normalizePublicBetaCapDetailForAdminModel(detail)
+        .replace(/^(unknown evidence|stale evidence|runtime unverified):\s*/iu, "")
+        .trim()
+        .slice(0, 220);
+}
+
 function normalizePublicBetaReadinessStatusForAdminModel(status: string, reason: string, capDetails: string[]) {
     const combined = [status, reason, ...capDetails].filter(Boolean).join(" ");
     if (/runtime\/provider smoke|provider smoke|runtime smoke|admin truth|sample evidence|truth sample|external proof|proof required/iu.test(combined)) return "External proof required";
@@ -632,6 +639,7 @@ function normalizePublicBetaEvidenceGateFinding(
 ): AdminDebugFindingCard {
     const normalized = stripEvidenceGatePrefix(detail);
     const lower = normalized.toLowerCase();
+    const evidenceDetail = publicBetaEvidenceGateEvidence(detail);
 
     if (lower.includes("targeted behavior tests")) {
         return {
@@ -644,7 +652,7 @@ function normalizePublicBetaEvidenceGateFinding(
             filePath: relativePath,
             humanReadableWarning: "Implemented behavior checks passed, but runtime, provider, screenshot, and admin truth proof still need formal evidence.",
             suggestedValidator: definition.command,
-            evidence: [detail.slice(0, 220)],
+            evidence: [evidenceDetail],
             truthState: "unknown",
         };
     }
@@ -667,7 +675,7 @@ function normalizePublicBetaEvidenceGateFinding(
             filePath: relativePath,
             humanReadableWarning: `Attach redacted provider proof.${runtimeContext}${operatorContext}`,
             suggestedValidator: definition.command,
-            evidence: [detail.slice(0, 220)],
+            evidence: [evidenceDetail],
             truthState: "unknown",
         };
     }
@@ -683,7 +691,7 @@ function normalizePublicBetaEvidenceGateFinding(
             filePath: relativePath,
             humanReadableWarning: "Attach a fresh redacted production admin truth sample before clearing this formal evidence gate.",
             suggestedValidator: definition.command,
-            evidence: [detail.slice(0, 220)],
+            evidence: [evidenceDetail],
             truthState: "unknown",
         };
     }
@@ -702,7 +710,7 @@ function normalizePublicBetaEvidenceGateFinding(
                 ? `${count} required generated reports are outside the freshness window.`
                 : "Required generated reports are outside the freshness window.",
             suggestedValidator: definition.command,
-            evidence: [detail.slice(0, 220)],
+            evidence: [evidenceDetail],
             truthState: "stale",
         };
     }
@@ -717,7 +725,7 @@ function normalizePublicBetaEvidenceGateFinding(
         filePath: relativePath,
         humanReadableWarning: normalized || "Public beta evidence gate needs review.",
         suggestedValidator: definition.command,
-        evidence: [detail.slice(0, 220)],
+        evidence: [evidenceDetail],
         truthState: "unknown",
     };
 }

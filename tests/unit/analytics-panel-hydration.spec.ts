@@ -260,6 +260,12 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("Legacy, historical snapshot, and GA4 evidence can explain gaps or seed manual review only.");
   });
 
+  it("does not treat optimized task context churn as an analytics artifact to commit", () => {
+    const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
+
+    expect(source).toContain('agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore"');
+  });
+
   it("keeps launch recovery day rows actionable instead of top-level-only", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
 

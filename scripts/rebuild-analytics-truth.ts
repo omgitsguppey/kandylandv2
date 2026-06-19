@@ -143,7 +143,7 @@ function launchCoverageInputNextAction(input: ReturnType<typeof readLaunchCovera
     ? acceptedPaths.join(" or ")
     : "agent/evidence/launch-analytics/launch-history-coverage.local.json or agent/evidence/launch-analytics/launch-history-coverage.export.json"
 
-  return `Attach approved launch-history coverage at ${pathList}, or attach a redacted admin truth sample with launchHistoryCoverage day rows. Then run npm run check:analytics-panel-hydration before promoting launch analytics charts.`
+  return `Attach approved launch-history coverage at ${pathList}, or attach a redacted admin truth sample with launchHistoryCoverage day rows. Then run npm run check:analytics-panel-hydration before treating launch analytics charts as canonical.`
 }
 
 function launchRecoveryEvidenceFreshness(status: string) {

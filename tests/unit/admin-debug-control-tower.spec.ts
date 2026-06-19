@@ -161,6 +161,8 @@ describe("admin debug control tower model", () => {
         ]));
         expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Unknown evidence:");
         expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Stale evidence:");
+        expect(publicBeta?.topFindings.flatMap((finding) => finding.evidence).join(" ")).not.toContain("Unknown evidence:");
+        expect(publicBeta?.topFindings.flatMap((finding) => finding.evidence).join(" ")).not.toContain("Stale evidence:");
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
             expect.stringContaining("External proof required: Runtime/provider smoke"),

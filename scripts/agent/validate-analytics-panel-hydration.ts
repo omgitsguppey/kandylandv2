@@ -98,7 +98,7 @@ function changedFiles() {
 
 function classifyDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
-  if (normalized === "agent/context/optimized-task-context.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === REPORT_PATH) return "analytics_panel_hydration_artifact_expected";
   if (normalized === DOC_PATH) return "analytics_panel_hydration_artifact_expected";
   if (normalized === "src/lib/admin-analytics/panel-hydration-contract.ts") return "real_source_change_needs_review";
@@ -141,6 +141,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "tests/unit/data-validation-ui-semantic-cleanup.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/data-validation-copy-consistency.spec.ts") return "test_artifact_expected";
   if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/admin-debug-control-tower.ts") return "admin_debug_truth_display_source_expected";
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/release-readiness/automated-truth-reconciliation.ts") return "real_source_change_needs_review";
@@ -199,6 +200,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "agent/evidence/launch-analytics/README.md") return "launch_analytics_recovery_artifact_expected";
   if (normalized === "agent/evidence/launch-analytics/launch-history-coverage.template.json") return "launch_analytics_recovery_artifact_expected";
   if (normalized === "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/admin-debug-control-tower.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/admin-debug-control-tower-component.spec.tsx") return "test_artifact_expected";
   if (normalized === "agent/state/source-agreement-failure-detail.generated.json") return "retired_duplicate_source_agreement_lane_expected";
   if (normalized === "scripts/agent/validate-source-agreement-failure-detail.ts") return "retired_duplicate_source_agreement_lane_expected";
@@ -669,7 +671,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       ? "Launch-history day buckets exist, but source agreement failed; keep coverage partial until first-party and second-source lanes agree."
     : launchCoverageState === "partial"
       ? "Some launch-history day buckets are missing from all local source evidence."
-      : "Every expected launch day is first-party backed and source agreement passed; source agreement still controls canonical chart promotion.";
+      : "Every expected launch day is first-party backed and source agreement passed; source agreement still controls when charts can be treated as canonical.";
   const staleEvidence = sourceAgreementHead !== null && sourceAgreementHead !== input.currentHead;
   const status = expectedDays.length === 0
     ? "source_evidence_missing"
@@ -707,7 +709,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     secondSourceCount: asNumber(entry.secondSourceCount, 0),
     deltaPct: asNumber(entry.deltaPct, 0),
     classifications: asStringArray(entry.classifications),
-    nextAction: typeof entry.nextAction === "string" ? entry.nextAction : "Review source count delta before chart promotion.",
+    nextAction: typeof entry.nextAction === "string" ? entry.nextAction : "Review source count delta before treating charts as canonical.",
   }));
   const sourceInventory = [
     {
@@ -1002,7 +1004,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       sourceAgreementConsumerMismatchConsumers: sourceAgreementDisplayStateCounts.consumer_source_mismatch ?? 0,
     },
     nextExactSteps: [
-      "Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party day buckets before chart promotion.",
+      "Use /api/admin/analytics/historical with range=all to hydrate launchHistoryCoverage from first-party day buckets before charts can be treated as canonical.",
       "Compare GA4 day buckets only as second-source evidence; do not average or overwrite first-party product metrics.",
       "Keep missing days labeled source missing until a bounded source window proves zero.",
       "Repair source agreement before treating admin charts as canonical launch-history truth.",
@@ -1331,7 +1333,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Source-agreement blocked consumers: ${report.adminPanelConnection.sourceAgreementBlockedConsumers}`,
     `- Source-agreement source missing: ${report.adminPanelConnection.sourceAgreementSourceMissingConsumers}`,
     `- Source-agreement second-source only: ${report.adminPanelConnection.sourceAgreementSecondSourceConsumers}`,
-    `- Source-agreement chart promotion held: ${report.adminPanelConnection.sourceAgreementChartPromotionBlockedConsumers}`,
+    `- Source-agreement charts waiting for proof: ${report.adminPanelConnection.sourceAgreementChartPromotionBlockedConsumers}`,
     `- Source-agreement consumer mismatch: ${report.adminPanelConnection.sourceAgreementConsumerMismatchConsumers}`,
     "",
     "## Next Steps",

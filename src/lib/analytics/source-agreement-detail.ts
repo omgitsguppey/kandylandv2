@@ -328,15 +328,15 @@ function buildBlockedConsumerDetails(
     const blockingOwner = sourceAgreementStatus === "pass"
       ? "none"
       : secondSourceOnly
-        ? "GA4/external evidence lane, with first-party promotion blocked"
+        ? "GA4/external evidence lane, waiting for first-party agreement"
         : hasMaterializerGap
           ? "analytics_event_facts materialization"
           : "source agreement comparison";
     const nextAction = sourceAgreementStatus === "pass"
       ? "Keep this panel connected to the verified source window."
       : secondSourceOnly
-        ? "Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes."
-        : "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.";
+        ? "Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth."
+        : "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.";
 
     return {
       consumer,
