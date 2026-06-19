@@ -59,6 +59,7 @@ export type AdminAnalyticsPanelFreshness = "fresh" | "stale" | "unknown";
 export type AdminAnalyticsPanelDisplayState =
   | "show_value"
   | "show_collecting"
+  | "show_no_recent_activity"
   | "show_stale"
   | "show_not_connected"
   | "show_external_required"

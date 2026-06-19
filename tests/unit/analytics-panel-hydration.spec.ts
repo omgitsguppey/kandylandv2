@@ -90,7 +90,7 @@ describe("analytics panel hydration", () => {
     expect(panel.canDisplayZero).toBe(false);
   });
 
-  it("keeps expected but unobserved panels actionable without calling them source-missing", () => {
+  it("keeps expected but unobserved panels visible without calling them disconnected", () => {
     const panel = resolvePanelHydration({
       panelId: "drop_opens",
       eventLivenessAudit: {
@@ -104,8 +104,9 @@ describe("analytics panel hydration", () => {
     });
 
     expect(panel.hydrationStatus).toBe("not_observed_but_expected");
-    expect(panel.liveEvidenceContribution).toBe("actionable_gap");
-    expect(panel.userSafeDisplayState).toBe("show_not_connected");
+    expect(panel.liveEvidenceContribution).toBe("source_exists_collecting");
+    expect(panel.userSafeDisplayState).toBe("show_no_recent_activity");
+    expect(panel.nextExactAction).toContain("no recent activity");
   });
 
   it("keeps external provider payment panels external-required", () => {
