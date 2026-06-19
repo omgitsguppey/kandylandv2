@@ -17,8 +17,9 @@ describe("AdminTruthBadge", () => {
     const markup = renderBadge("unavailable");
 
     expect(markup).toContain('data-admin-truth-state="unavailable"');
-    expect(markup).toContain("NO SOURCE");
+    expect(markup).toContain("No source");
     expect(markup).not.toContain(">UNAVAILABLE<");
+    expect(markup).not.toContain(">NO SOURCE<");
   });
 
   it("preserves usable evidence markers for states that can expose values", () => {

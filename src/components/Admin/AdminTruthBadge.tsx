@@ -40,7 +40,7 @@ export function AdminTruthBadge({
       data-admin-truth-has-usable-value={exposesUsableValue ? "true" : "false"}
       data-admin-truth-pending-initial-load={pendingInitialLoad && !exposesUsableValue ? "true" : "false"}
       className={cn(
-        "inline-flex rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
+        "inline-flex rounded-md border px-2 py-1 text-[10px] font-semibold normal-case tracking-normal",
         LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
         getAdminTruthStateClasses(state),
         className,

@@ -281,21 +281,21 @@ export function getAdminTruthStateBadgeLabel(
   },
 ) {
   if (state === "unavailable" && options?.pendingInitialLoad && !options.hasUsableValue) {
-    return "WAIT";
+    return "Waiting";
   }
 
-  if (state === "live") return "LIVE";
-  if (state === "cached") return "CACHED";
-  if (state === "refreshing") return "REFRESHING";
-  if (state === "stale") return "STALE";
-  if (state === "degraded") return "DEGRADED";
-  if (state === "failed") return "FAILED";
-  if (state === "delayed") return "DELAYED";
-  if (state === "privacy_limited") return "PRIVACY";
-  if (state === "legacy_fallback") return "LEGACY";
-  if (state === "blocked") return "BLOCKED";
-  if (state === "review") return "REVIEW";
-  return "NO SOURCE";
+  if (state === "live") return "Live";
+  if (state === "cached") return "Cached";
+  if (state === "refreshing") return "Refreshing";
+  if (state === "stale") return "Refresh due";
+  if (state === "degraded") return "Review";
+  if (state === "failed") return "Failed";
+  if (state === "delayed") return "Delayed";
+  if (state === "privacy_limited") return "Privacy";
+  if (state === "legacy_fallback") return "Legacy";
+  if (state === "blocked") return "Blocked";
+  if (state === "review") return "Review";
+  return "No source";
 }
 
 export function getAdminTruthStateDescription(state: AdminTruthState) {

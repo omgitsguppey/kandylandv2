@@ -40,7 +40,7 @@ export function AdminStatusBadge({
       title={title ?? `${getAdminStatusExplanation(state)} Debug: ${ADMIN_SURFACE_STATE_DETAIL[state]}`}
       aria-label={accessibleLabel}
       className={cn(
-        "inline-flex rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
+        "inline-flex rounded-md border px-2 py-1 text-[10px] font-semibold normal-case tracking-normal",
         LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
         STATE_STYLES[state],
         className,
