@@ -29,9 +29,9 @@ const reportPath = join(repoRoot, "agent", "state", "settings-creator-dashboard-
 
 const files = {
   userSettingsContract: join(repoRoot, "src", "lib", "settings", "user-settings-contract.ts"),
-  creatorSettingsContract: join(repoRoot, "src", "lib", "creator-dashboard", "creator-settings-contract.ts"),
+  creatorSettingsContract: join(repoRoot, "src", "lib", "creator", "dashboard", "creator-settings-contract.ts"),
   surfacePolicy: join(repoRoot, "src", "lib", "settings", "settings-surface-policy.ts"),
-  legacyRegistry: join(repoRoot, "src", "lib", "creator-dashboard", "creator-settings-legacy-registry.ts"),
+  legacyRegistry: join(repoRoot, "src", "lib", "creator", "dashboard", "creator-settings-legacy-registry.ts"),
   userSettingsPage: join(repoRoot, "src", "components", "Settings", "UserSettingsPage.tsx"),
   creatorDashboardHub: join(repoRoot, "src", "components", "Creators", "CreatorDashboardSettingsHub.tsx"),
   creatorDashboardLanding: join(repoRoot, "src", "components", "Dashboard", "CreatorWorkspacePanel.tsx"),
