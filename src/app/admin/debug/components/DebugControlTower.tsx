@@ -159,7 +159,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                         data-debug-visible-summary="single-triage-strip"
                         data-debug-report-source="agent/state/public-beta-score.generated.json"
                     >
-                        {canonicalBetaCapSummary.summary || `${blockerReports.length} report item${blockerReports.length === 1 ? "" : "s"}`}, {model.liveIssues.length} current issues, and {visibleReports} evidence rows. {publicBetaReadinessReason}
+                        {canonicalBetaCapSummary.summary || `${blockerReports.length} report item${blockerReports.length === 1 ? "" : "s"}`}, {model.liveIssues.length} current issues, and {visibleReports} evidence rows.
                     </p>
                 ) : null}
             </div>
@@ -198,7 +198,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                         <section className="rounded-md border border-white/10 bg-black/25 p-3" data-debug-report-source="triage-summary">
                             <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div>
-                                    <h3 className="font-bold text-white">Items to clear</h3>
+                                    <h3 className="font-bold text-white">Proof and refresh work</h3>
                                     <p className="text-xs text-gray-400">{publicBetaReadinessReason}</p>
                                     <p className="mt-1 text-[11px] text-gray-500">
                                         {publicBetaReadinessStatusLabel} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"} | source {model.canonicalPublicBetaSourceDrift}
