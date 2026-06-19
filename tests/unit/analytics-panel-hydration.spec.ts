@@ -246,6 +246,9 @@ describe("analytics panel hydration", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
 
     expect(source).toContain("compactLegacyRecoverySummary");
+    expect(source).toContain("classifyGeneratedArtifactFromGit");
+    expect(source).toContain("legacyRecoveryOwnedSourcePaths");
+    expect(source).toContain("current_by_impact");
     expect(source).toContain("analytics-legacy-purgatory-queue.generated.json");
     expect(source).toContain("currentTotalsEligibleCount");
     expect(source).toContain("productTruthEligibleCount");

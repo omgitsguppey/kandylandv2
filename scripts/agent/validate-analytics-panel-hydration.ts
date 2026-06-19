@@ -6,6 +6,7 @@ import {
   buildAnalyticsPanelHydrationReport,
   validateAnalyticsPanelHydrationReport,
 } from "@/lib/admin-analytics/panel-hydration-resolver";
+import { classifyGeneratedArtifactFromGit } from "@/lib/agent-score/generated-artifact-version-policy";
 import { classifySourceAgreementCoverage } from "@/lib/analytics/source-agreement-detail";
 import { buildLivePanelEvidenceReport } from "@/lib/release-readiness/live-panel-evidence-resolver";
 import { validateSourceAgreementFailureDetail } from "./debug-cockpit-batch29-analytics-source-hierarchy-shared";
@@ -245,11 +246,56 @@ const LEGACY_RECOVERY_INPUTS = [
   "agent/state/analytics-legacy-source-inventory.generated.json",
 ] as const;
 
+function legacyRecoveryOwnedSourcePaths(path: (typeof LEGACY_RECOVERY_INPUTS)[number]) {
+  if (
+    path === "agent/state/analytics-legacy-history-reconciliation.generated.json"
+    || path === "agent/state/analytics-legacy-purgatory-queue.generated.json"
+  ) {
+    return [
+      "scripts/agent/validate-analytics-legacy-history-reconciliation.ts",
+      "scripts/analytics/map-legacy-events.ts",
+      "src/lib/analytics/legacy-event-mapping.ts",
+      "src/lib/analytics/legacy-history-reconciler.ts",
+      "src/lib/analytics/legacy-recovery-contract.ts",
+      "agent/state/analytics-legacy-mapping-report.generated.json",
+    ];
+  }
+
+  if (path === "agent/state/analytics-legacy-recovery-reconciliation.generated.json") {
+    return [
+      "scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts",
+      "scripts/analytics/inventory-legacy-sources.ts",
+      "scripts/analytics/map-legacy-events.ts",
+      "src/lib/analytics/legacy-event-mapping.ts",
+      "src/lib/analytics/legacy-recovery-contract.ts",
+      "src/lib/analytics/legacy-recovery-reconciler.ts",
+      "agent/state/analytics-legacy-mapping-report.generated.json",
+      "agent/state/analytics-legacy-source-inventory.generated.json",
+    ];
+  }
+
+  return [
+    "scripts/analytics/inventory-legacy-sources.ts",
+    "src/lib/analytics/legacy-recovery-contract.ts",
+  ];
+}
+
+function legacyRecoveryFreshnessState(input: {
+  reportHead: string | null;
+  artifactVersionStatus: string;
+}) {
+  if (input.reportHead === null) return "historical_evidence_only";
+  if (input.artifactVersionStatus === "current_head") return "current";
+  if (input.artifactVersionStatus === "same_commit_snapshot") return "same_commit_snapshot";
+  if (input.artifactVersionStatus === "current_by_impact") return "current_by_impact";
+  return "stale_source_version";
+}
+
 function legacyNumber(record: Record<string, unknown>, key: string, fallback = 0) {
   return asNumber(record[key], fallback);
 }
 
-function compactLegacyRecoverySummary(currentHead: string) {
+function compactLegacyRecoverySummary() {
   const history = readJson("agent/state/analytics-legacy-history-reconciliation.generated.json");
   const purgatory = readJson("agent/state/analytics-legacy-purgatory-queue.generated.json");
   const recovery = readJson("agent/state/analytics-legacy-recovery-reconciliation.generated.json");
@@ -262,18 +308,25 @@ function compactLegacyRecoverySummary(currentHead: string) {
   const reports = LEGACY_RECOVERY_INPUTS.map((path) => {
     const report = readJson(path);
     const reportHead = typeof report?.currentHead === "string" ? report.currentHead : null;
-    const freshnessState = reportHead === null
-      ? "historical_evidence_only"
-      : reportHead !== currentHead
-        ? "stale_source_version"
-        : "current";
+    const version = classifyGeneratedArtifactFromGit({
+      cwd: ROOT,
+      artifactPath: path,
+      artifactHead: reportHead ?? undefined,
+      ownedSourcePaths: legacyRecoveryOwnedSourcePaths(path),
+    });
+    const freshnessState = legacyRecoveryFreshnessState({
+      reportHead,
+      artifactVersionStatus: version.status,
+    });
     return {
       path,
       reportKey: typeof report?.reportKey === "string" ? report.reportKey : path.replace(/^agent\/state\//u, "").replace(/\.generated\.json$/u, ""),
       generatedAtUtc: typeof report?.generatedAtUtc === "string" ? report.generatedAtUtc : typeof report?.generatedAt === "string" ? report.generatedAt : null,
       currentHead: reportHead,
+      artifactVersionStatus: version.status,
+      versionReason: version.reason,
       freshnessState,
-      staleRelativeToCurrentHead: freshnessState === "stale_source_version",
+      staleRelativeToCurrentHead: version.needsRefresh && freshnessState !== "historical_evidence_only",
     };
   });
   const manualReviewRequired = legacyNumber(purgatorySummary, "manualReviewRequired", queueRows.length);
@@ -467,7 +520,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   currentHead: string;
   panelReport: ReturnType<typeof buildAnalyticsPanelHydrationReport>;
 }) {
-  const legacyRecovery = compactLegacyRecoverySummary(input.currentHead);
+  const legacyRecovery = compactLegacyRecoverySummary();
   const sourceAgreementReport = readJson("agent/state/source-agreement-failure-detail.generated.json");
   const sourceAgreementHead = typeof sourceAgreementReport?.currentHead === "string" ? sourceAgreementReport.currentHead : null;
   const sourceAgreementDetail = asRecord(sourceAgreementReport?.detail);

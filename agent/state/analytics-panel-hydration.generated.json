@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T09:25:52.916Z",
-  "currentHead": "90eb55e4dc78d49afac1c66067d52121a5c3a4c9",
+  "generatedAtUtc": "2026-06-19T09:43:25.582Z",
+  "currentHead": "c5e09f0f8153ce9edb82587e2658d6bc73fab06a",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,50 +365,32 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 10,
+    "total": 4,
     "byClassification": {
-      "stale_generated_artifact_to_regenerate": 4,
-      "analytics_panel_hydration_artifact_expected": 2,
-      "launch_analytics_recovery_artifact_expected": 2,
       "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 1
+      "documentation_artifact_expected": 1,
+      "analytics_panel_hydration_artifact_expected": 2
     },
     "unsafeUnknown": [],
     "sample": [
-      {
-        "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/analytics-legacy-source-inventory.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/analytics-panel-hydration.generated.json",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "agent/state/generated-report-authority.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/launch-analytics-recovery.generated.json",
-        "classification": "launch_analytics_recovery_artifact_expected"
-      },
       {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
       },
       {
-        "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
-        "classification": "stale_generated_artifact_to_regenerate"
+        "path": "docs/agent-truth/source-agreement-failure-detail.md",
+        "classification": "documentation_artifact_expected"
       },
       {
-        "path": "docs/agent-truth/analytics-panel-hydration.md",
+        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "tests/unit/analytics-panel-hydration.spec.ts",
         "classification": "analytics_panel_hydration_artifact_expected"
       }
     ],
-    "sampleTruncated": true
+    "sampleTruncated": false
   },
   "nextExactSteps": [
     "Connect safe lastSeen/materialized summaries for source-missing panels.",
