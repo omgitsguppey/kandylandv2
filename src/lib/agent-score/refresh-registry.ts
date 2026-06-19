@@ -26,6 +26,7 @@ export type RefreshArtifactRegistryEntry = {
   owner: "beta" | "evidence" | "telemetry" | "mobile" | "creator" | "repo";
   maxAgeHours: number;
   userFacingLabel: string;
+  ownedSourcePaths?: string[];
 };
 
 export const DEFAULT_REFRESH_MAX_AGE_HOURS = 24;
@@ -39,6 +40,10 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "beta",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Public beta score",
+    ownedSourcePaths: [
+      "scripts/agent/score-public-beta-readiness.ts",
+      "scripts/agent/validate-public-beta-score.ts",
+    ],
   },
   {
     key: "current-beta-exit-status",
@@ -48,6 +53,10 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "beta",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Current beta exit status",
+    ownedSourcePaths: [
+      "scripts/agent/validate-current-beta-exit-status.ts",
+      "agent/state/public-beta-score.generated.json",
+    ],
   },
   {
     key: "evidence-capture-status",
@@ -57,6 +66,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "evidence",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Evidence capture status",
+    ownedSourcePaths: ["scripts/agent/validate-evidence-capture-status.ts"],
   },
   {
     key: "source-truth-authority-map",
@@ -66,6 +76,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "evidence",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Source truth authority map",
+    ownedSourcePaths: ["scripts/agent/validate-source-truth-authority-map.ts"],
   },
   {
     key: "final-telemetry-closure-lock",
@@ -75,6 +86,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "telemetry",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Telemetry closure lock",
+    ownedSourcePaths: ["scripts/agent/validate-final-telemetry-closure-lock.ts"],
   },
   {
     key: "mobile-ui-final-lock",
@@ -84,6 +96,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "mobile",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Mobile UI final lock",
+    ownedSourcePaths: ["scripts/agent/validate-mobile-ui-final-lock.ts"],
   },
   {
     key: "overnight-final-integration-lock",
@@ -93,6 +106,10 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "repo",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Overnight final integration lock",
+    ownedSourcePaths: [
+      "scripts/agent/validate-overnight-final-integration-lock.ts",
+      "agent/state/public-beta-score.generated.json",
+    ],
   },
   {
     key: "creator-settings-control-plane",
@@ -102,6 +119,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "creator",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Creator settings control plane",
+    ownedSourcePaths: ["scripts/agent/validate-creator-settings-control-plane.ts"],
   },
   {
     key: "creator-drop-status-metrics",
@@ -111,6 +129,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "creator",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Creator drop status metrics",
+    ownedSourcePaths: ["scripts/agent/validate-creator-drop-status-metrics.ts"],
   },
   {
     key: "operator-revenue-smoke",
@@ -120,6 +139,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "evidence",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Operator revenue smoke",
+    ownedSourcePaths: ["scripts/agent/validate-operator-revenue-smoke.ts"],
   },
   {
     key: "beta-evidence-gap-map",
@@ -129,6 +149,11 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "evidence",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Beta evidence gap map",
+    ownedSourcePaths: [
+      "scripts/agent/validate-beta-evidence-gap-map.ts",
+      "agent/state/public-beta-score.generated.json",
+      "agent/state/current-beta-exit-status.generated.json",
+    ],
   },
   {
     key: "beta-evidence-lane-prep",
@@ -138,6 +163,11 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "evidence",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Beta evidence lane prep",
+    ownedSourcePaths: [
+      "scripts/agent/validate-beta-evidence-lane-prep.ts",
+      "agent/state/evidence-capture-status.generated.json",
+      "agent/state/operator-revenue-smoke.generated.json",
+    ],
   },
   {
     key: "beta-freshness-language",
@@ -147,6 +177,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "beta",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Beta freshness language",
+    ownedSourcePaths: ["scripts/agent/validate-beta-freshness-language.ts"],
   },
   {
     key: "final-pr-stale-cleanup",
@@ -156,6 +187,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "repo",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Final PR stale cleanup",
+    ownedSourcePaths: ["scripts/agent/validate-final-pr-stale-cleanup.ts"],
   },
   {
     key: "overnight-wiring-integrity",
@@ -165,6 +197,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "repo",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Overnight wiring integrity",
+    ownedSourcePaths: ["scripts/agent/validate-overnight-wiring-integrity.ts"],
   },
   {
     key: "existing-algorithm-refinement",
@@ -174,6 +207,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "repo",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Existing algorithm refinement",
+    ownedSourcePaths: ["scripts/agent/validate-existing-algorithm-refinement.ts"],
   },
   {
     key: "user-loading-wallet-mobile-refinement",
@@ -183,6 +217,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "mobile",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "User loading and wallet mobile refinement",
+    ownedSourcePaths: ["scripts/agent/validate-user-loading-wallet-mobile-refinement.ts"],
   },
   {
     key: "global-marquee-truncated-titles",
@@ -192,6 +227,7 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "mobile",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Global marquee title rollout",
+    ownedSourcePaths: ["scripts/agent/validate-global-marquee-truncated-titles.ts"],
   },
 ];
 

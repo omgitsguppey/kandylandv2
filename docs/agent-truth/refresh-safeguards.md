@@ -1,6 +1,6 @@
 # Refresh Safeguards
 
-Generated: 2026-06-19T08:07:45.015Z
+Generated: 2026-06-19T08:15:49.973Z
 
 ## Summary
 
@@ -8,7 +8,7 @@ Generated beta, evidence, telemetry, mobile, and creator reports now have an exa
 
 ## Stale Artifacts
 
-- No stale registered artifacts were found in this run.
+- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:overnight-final-integration-lock`
 
 ## Refresh Commands
 

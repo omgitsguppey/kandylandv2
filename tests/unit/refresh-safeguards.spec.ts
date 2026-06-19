@@ -49,6 +49,31 @@ describe("refresh safeguards", () => {
     expect(staleByAge.message).not.toMatch(/\bHEAD\b|currentHead/u);
   });
 
+  it("keeps older registered reports current by impact only when owned source inputs are unchanged", () => {
+    const currentByImpact = getArtifactRefreshStatus({
+      artifactPath: "agent/state/creator-drop-status-metrics.generated.json",
+      generatedAtUtc: "2026-05-20T12:00:00.000Z",
+      sourceCommit: "old",
+      currentCodeVersion: "new",
+      changedFilesSinceArtifactHead: ["scripts/agent/validate-refresh-safeguards.ts"],
+      nowUtc: "2026-05-20T13:00:00.000Z",
+    });
+    const staleOwnedSource = getArtifactRefreshStatus({
+      artifactPath: "agent/state/creator-drop-status-metrics.generated.json",
+      generatedAtUtc: "2026-05-20T12:00:00.000Z",
+      sourceCommit: "old",
+      currentCodeVersion: "new",
+      changedFilesSinceArtifactHead: ["scripts/agent/validate-creator-drop-status-metrics.ts"],
+      nowUtc: "2026-05-20T13:00:00.000Z",
+    });
+
+    expect(currentByImpact.status).toBe("current_by_impact");
+    expect(currentByImpact.needsRefresh).toBe(false);
+    expect(currentByImpact.message).toContain("owned source inputs did not change");
+    expect(staleOwnedSource.status).toBe("stale_source_version");
+    expect(staleOwnedSource.needsRefresh).toBe(true);
+  });
+
   it("builds refresh plans with commands and no raw Git jargon in user-facing messages", () => {
     const plan = buildRefreshPlan([
       {

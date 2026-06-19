@@ -74,6 +74,7 @@ function statusFromInput(
   if (input.exists === false) return "missing" as const;
   if (!registryEntry) return "unregistered" as const;
   if (input.currentCodeVersion) {
+    const hasImpactContext = Array.isArray(input.changedFilesSinceArtifactHead);
     const version = classifyGeneratedArtifactVersion({
       artifactPath: input.artifactPath,
       artifactHead: input.sourceCommit ?? input.currentHead,
@@ -81,7 +82,9 @@ function statusFromInput(
       parentHead: input.parentHead,
       changedFilesInHead: input.changedFilesInHead,
       changedFilesSinceArtifactHead: input.changedFilesSinceArtifactHead,
-      ownedSourcePaths: input.ownedSourcePaths,
+      ownedSourcePaths: hasImpactContext
+        ? input.ownedSourcePaths ?? registryEntry.ownedSourcePaths
+        : undefined,
     });
     if (version.status !== "current_head") {
       return version.status === "same_commit_snapshot" || version.status === "current_by_impact"
