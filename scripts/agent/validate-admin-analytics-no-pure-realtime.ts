@@ -33,7 +33,7 @@ const stateHook = readRequired("src/app/admin/analytics/hooks/useAdminAnalyticsS
 const livePulseModel = readRequired("src/lib/admin-analytics-live-pulse.ts");
 const debugRoute = readRequired("src/app/api/admin/debug/route.ts");
 const realtimeRoute = readRequired("src/app/api/admin/analytics/realtime/route.ts");
-const auditReport = readRequired("agent/state/admin-analytics-realtime-dependency-audit.generated.json");
+const hotCacheReport = readRequired("agent/state/admin-analytics-realtime-hot-cache.generated.json");
 const auditDoc = readRequired("docs/agent-truth/admin-analytics-realtime-to-hot-cache-audit.md");
 const hotCacheDoc = readRequired("docs/agent-truth/admin-analytics-hot-cache.md");
 const truthDoc = readRequired("docs/agent-truth/analytics-truth-layer-v2.md");
@@ -69,20 +69,27 @@ for (const moduleKey of [
   "live_interaction_stream",
   "data_health_summary",
 ]) {
-  requireIncludes(auditReport, `"moduleKey": "${moduleKey}"`, "Realtime dependency audit report");
+  requireIncludes(auditDoc, `\`${moduleKey}\``, "Realtime-to-hot-cache audit doc");
 }
 
-for (const auditField of [
-  "current primary source",
-  "realtimeDependencyFound",
-  "realtimeBlocksFirstRender",
-  "missingRealtimeCausesUnavailable",
-  "cacheFallbackPathFound",
-  "manualRefreshPathFound",
-  "fakeZeroRisk",
-  "fixedInThisPass",
+for (const hotCacheField of [
+  "retired_snapshot_first",
+  "snapshot_first_route_default",
+  "defaultTruthPolicy",
+  "retiredHookPath",
+  "productionReadsRun",
 ]) {
-  requireIncludes(auditReport, auditField, "Realtime dependency audit report");
+  requireIncludes(hotCacheReport, hotCacheField, "Admin Analytics realtime hot-cache report");
+}
+
+for (const auditDocField of [
+  "verified snapshot",
+  "Missing raw realtime does not make a module unavailable",
+  "No fake zero",
+  "Module Source Order",
+  "raw client listener hook retired",
+]) {
+  requireIncludes(auditDoc, auditDocField, "Realtime-to-hot-cache audit doc");
 }
 
 for (const codeNeedle of [
@@ -211,8 +218,12 @@ for (const snapshotLaneNeedle of [
   requireIncludes(stateHook + livePulseModel, snapshotLaneNeedle, "Admin Analytics snapshot-first realtime policy");
 }
 
-if (!/realtimeBlocksFirstRender"\s*:\s*false/.test(auditReport)) {
-  failures.push("Realtime dependency audit must record realtimeBlocksFirstRender=false for fixed modules.");
+if (!/"productionReadsRun"\s*:\s*false/.test(hotCacheReport)) {
+  failures.push("Admin Analytics hot-cache report must remain source-safe and avoid production reads.");
+}
+
+if (!/"migrationStatus"\s*:\s*"retired_snapshot_first"/.test(hotCacheReport)) {
+  failures.push("Admin Analytics hot-cache report must record retired snapshot-first listener state.");
 }
 
 if (failures.length > 0) {

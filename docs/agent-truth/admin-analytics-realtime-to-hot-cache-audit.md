@@ -41,7 +41,7 @@ The fix adds `resolveAdminAnalyticsDisplayState` and applies it to Activity Snap
 - The retired raw Firestore listener hook is no longer preserved as source coverage.
 - Surface detail empty state no longer exposes presence-row jargon.
 - Admin Debug metadata now documents display source, snapshot availability, realtime listener state, fallback snapshot use, fake-zero prevention, and lane failures.
-- `agent/state/admin-analytics-realtime-dependency-audit.generated.json` records the module-by-module audit.
+- The module-by-module audit now lives in this compact doc. `agent/state/admin-analytics-realtime-hot-cache.generated.json` records the current retired-listener and snapshot-first evidence.
 
 ## Remains
 
