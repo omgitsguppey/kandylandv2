@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 const ROOT = process.cwd();
-const EXPECTED_OPERATOR_BADGES = ["LIVE", "SNAP", "REVIEW", "DELAYED", "WAIT", "ERROR"];
+const EXPECTED_OPERATOR_BADGES = ["Current", "Cached", "Review", "Refresh due", "Collecting", "No source", "Failed"];
 const BANNED_VISIBLE_COPY = [
   "identified event realtime lane",
   "guest batch realtime lane",
