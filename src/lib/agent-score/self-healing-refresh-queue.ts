@@ -60,6 +60,8 @@ export interface SelfHealingRefreshQueueReport {
   validationFailures: string[];
 }
 
+type FormalEvidenceKind = "runtime" | "provider" | "admin_truth" | "visual_manual" | "generic";
+
 const FORMAL_EVIDENCE_PATTERN = /\battach formal|formal provider|formal runtime|manual screenshot|admin truth sample|provider smoke|runtime smoke|visual\/manual/i;
 const FORBIDDEN_COMMAND_PATTERN = /\b(firebase deploy|gcloud|deploy|production read|paypal|provider call)\b/i;
 
@@ -81,45 +83,67 @@ function ownerForArtifact(artifact: string, fallback: SelfHealingRefreshQueueOwn
   return OWNER_BY_ARTIFACT.find(([pattern]) => pattern.test(artifact))?.[1] ?? fallback;
 }
 
+function normalizeFormalEvidenceText(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[-_/]+/gu, " ")
+    .replace(/\s+/gu, " ")
+    .trim();
+}
+
+function formalEvidenceKind(value: string): FormalEvidenceKind | null {
+  const normalized = normalizeFormalEvidenceText(value);
+  if (!normalized) return null;
+  if (/\b(visual manual smoke|manual screenshot|manual ui proof|screenshot proof)\b/u.test(normalized)) return "visual_manual";
+  if (/\b(admin truth sample evidence|admin truth sample|admin sample required|truth sample)\b/u.test(normalized)) return "admin_truth";
+  if (/\b(provider smoke evidence|provider smoke|formal provider|external proof|required provider)\b/u.test(normalized)) return "provider";
+  if (/\b(runtime smoke evidence|runtime smoke|debug runtime evidence|deployed runtime|formal runtime)\b/u.test(normalized)) return "runtime";
+  if (FORMAL_EVIDENCE_PATTERN.test(value)) return "generic";
+  return null;
+}
+
 function isFormalEvidenceRefresh(command: string, artifact: string, status = "") {
-  return FORMAL_EVIDENCE_PATTERN.test(`${command} ${artifact} ${status}`);
+  return formalEvidenceKind(`${command} ${artifact} ${status}`) !== null;
 }
 
 function formalEvidenceBlockedReason(artifact: string) {
-  if (artifact === "debug_runtime_evidence") {
+  const kind = formalEvidenceKind(artifact);
+  if (kind === "runtime") {
     return "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.";
   }
-  if (artifact === "runtime_provider_smoke") {
+  if (kind === "provider") {
     return "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.";
   }
-  if (artifact === "admin_truth_sample_evidence") {
+  if (kind === "admin_truth") {
     return "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.";
   }
-  if (artifact === "visual_manual_smoke") {
+  if (kind === "visual_manual") {
     return "blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.";
   }
   return "blocked_formal_evidence: formal artifact required; source queue cannot generate proof.";
 }
 
 function formalEvidenceStaleReason(artifact: string) {
-  if (artifact === "debug_runtime_evidence") return "Deployed runtime proof required";
-  if (artifact === "runtime_provider_smoke") return "External proof required";
-  if (artifact === "admin_truth_sample_evidence") return "Admin sample required";
-  if (artifact === "visual_manual_smoke") return "Manual UI proof required";
+  const kind = formalEvidenceKind(artifact);
+  if (kind === "runtime") return "Deployed runtime proof required";
+  if (kind === "provider") return "External proof required";
+  if (kind === "admin_truth") return "Admin sample required";
+  if (kind === "visual_manual") return "Manual UI proof required";
   return "Formal proof required";
 }
 
 function formalEvidenceExpectedOutcome(artifact: string) {
-  if (artifact === "debug_runtime_evidence") {
+  const kind = formalEvidenceKind(artifact);
+  if (kind === "runtime") {
     return "Remain blocked until a human attaches the deployed runtime smoke artifact.";
   }
-  if (artifact === "runtime_provider_smoke") {
+  if (kind === "provider") {
     return "Remain blocked until a human attaches the formal provider smoke artifact.";
   }
-  if (artifact === "admin_truth_sample_evidence") {
+  if (kind === "admin_truth") {
     return "Remain blocked until a human attaches the admin truth sample artifact.";
   }
-  if (artifact === "visual_manual_smoke") {
+  if (kind === "visual_manual") {
     return "Remain blocked until a human attaches the visual/manual smoke artifact.";
   }
   return "Remain blocked until a human attaches the required formal artifact.";

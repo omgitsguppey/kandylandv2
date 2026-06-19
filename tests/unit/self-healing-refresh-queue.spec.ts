@@ -90,6 +90,59 @@ describe("self-healing refresh queue", () => {
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
   });
 
+  it("blocks hyphenated formal proof artifact paths from automatic refresh", () => {
+    const report = buildSelfHealingRefreshQueue({
+      refreshPlan: [],
+      scoreImpactArtifacts: [
+        {
+          id: "agent/state/provider-smoke-evidence.generated.json",
+          status: "stale",
+          pointImpact: 4,
+          refreshCommand: "npm run check:provider-smoke-evidence",
+        },
+        {
+          id: "agent/state/runtime-smoke-evidence.generated.json",
+          status: "stale",
+          pointImpact: 3,
+          refreshCommand: "npm run check:runtime-smoke-evidence",
+        },
+        {
+          id: "agent/state/admin-truth-sample-evidence.generated.json",
+          status: "stale",
+          pointImpact: 2,
+          refreshCommand: "npm run check:admin-truth-sample-evidence",
+        },
+      ],
+    });
+
+    expect(report.queue).toEqual([
+      expect.objectContaining({
+        artifact: "agent/state/provider-smoke-evidence.generated.json",
+        staleReason: "External proof required",
+        canRunAutomatically: false,
+        blockedReason: expect.stringContaining("formal provider smoke artifact required"),
+      }),
+      expect.objectContaining({
+        artifact: "agent/state/runtime-smoke-evidence.generated.json",
+        staleReason: "Deployed runtime proof required",
+        canRunAutomatically: false,
+        blockedReason: expect.stringContaining("deployed runtime smoke artifact required"),
+      }),
+      expect.objectContaining({
+        artifact: "agent/state/admin-truth-sample-evidence.generated.json",
+        staleReason: "Admin sample required",
+        canRunAutomatically: false,
+        blockedReason: expect.stringContaining("admin truth sample artifact required"),
+      }),
+    ]);
+    expect(report.summary).toMatchObject({
+      total: 3,
+      automatic: 0,
+      blocked: 3,
+    });
+    expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
+  });
+
   it("uses registered refresh commands for score-impact artifacts that omit commands", () => {
     const report = buildSelfHealingRefreshQueue({
       refreshPlan: [],
