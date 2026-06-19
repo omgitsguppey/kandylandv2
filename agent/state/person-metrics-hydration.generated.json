@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-06-19T07:20:29.213Z",
+  "generatedAtUtc": "2026-06-19T08:39:35.213Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4973,14 +4973,22 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "f23b583fec4353f6993835f7f039be3d4fbbe827",
+  "currentHead": "1166af25b72f5c189b76cc2970a8248eb8625e61",
   "dirtyFiles": [
+    {
+      "path": "agent/state/analytics-legacy-history-reconciliation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/analytics-legacy-purgatory-queue.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
     {
       "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/event-translation-bridge.generated.json",
+      "path": "agent/state/ga4-recovery-truth.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -4988,19 +4996,19 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/person-metrics-hydration.generated.json",
+      "path": "agent/state/source-agreement-failure-detail.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/source-agreement-failure-detail.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/analytics-legacy-history-reconciliation.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/analytics-panel-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/event-translation-bridge.md",
+      "path": "docs/agent-truth/ga4-recovery-truth.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -5008,16 +5016,8 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "scripts/rebuild-analytics-truth.ts",
-      "classification": "real_source_change_needs_review"
     }
   ],
   "activeOldLogic": [],

@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-19T07:20:29.008Z
+Generated: 2026-06-19T08:39:35.116Z
 Status: pass
-Current head: f23b583fec4353f6993835f7f039be3d4fbbe827
+Current head: 1166af25b72f5c189b76cc2970a8248eb8625e61
 
 ## Contract
 
@@ -53,17 +53,17 @@ Current head: f23b583fec4353f6993835f7f039be3d4fbbe827
 
 ## Dirty Files
 
+- agent/state/analytics-legacy-history-reconciliation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-legacy-purgatory-queue.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/ga4-recovery-truth.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-legacy-history-reconciliation.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/ga4-recovery-truth.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
-- scripts/rebuild-analytics-truth.ts: real_source_change_needs_review
 
 ## Validation Failures
 
