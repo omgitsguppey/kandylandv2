@@ -888,7 +888,7 @@ function readCanonicalPublicBetaScore(rootDir: string | null | undefined, repoCu
             ? `Report freshness and PR integrity: Canonical public beta score artifact source metadata is stale. ${rawReadinessReason}`
             : rawReadinessReason);
         const canonicalReadinessStatus = normalizePublicBetaReadinessStatusForAdminModel(
-            commitState.sourceDrift === "stale" ? "Stale evidence" : rawReadinessStatus,
+            commitState.sourceDrift === "stale" ? "Report refresh needed" : rawReadinessStatus,
             canonicalReadinessReason,
             canonicalCapDetails,
         );
