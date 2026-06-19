@@ -982,6 +982,11 @@ function buildLaunchAnalyticsRecoveryReport(input: {
         expectedRangeSource: publicLaunchRangeSource(coverageWindowKind),
         coverageWindowKind,
         allLaunchRangeProven,
+        formalRangeStartDayKey: formalLaunchRange.launchStartDayKey,
+        formalRangeEndDayKey: formalLaunchRange.expectedThroughDayKey,
+        formalExpectedDayCount: formalLaunchRange.expectedDayCount,
+        evidenceDayCount: formalLaunchRange.localEvidenceDayCount,
+        unprovenRanges: formalLaunchRange.unprovenRanges,
         reason: allLaunchRangeProofReason,
       },
       rangeStartDayKey: expectedDays[0] ?? null,
@@ -1156,6 +1161,24 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   }
   if (!report.launchHistoryCoverage.rangeProof.coverageWindowKind) {
     failures.push("launch recovery must label whether source agreement coverage is fixture/local/export evidence.");
+  }
+  if (report.launchHistoryCoverage.rangeProof.formalRangeStartDayKey !== report.formalLaunchRange.launchStartDayKey) {
+    failures.push("launch range proof must expose the formal launch start day.");
+  }
+  if (report.launchHistoryCoverage.rangeProof.formalRangeEndDayKey !== report.formalLaunchRange.expectedThroughDayKey) {
+    failures.push("launch range proof must expose the formal launch end day.");
+  }
+  if (report.launchHistoryCoverage.rangeProof.formalExpectedDayCount !== report.formalLaunchRange.expectedDayCount) {
+    failures.push("launch range proof must expose the formal expected day count.");
+  }
+  if (report.launchHistoryCoverage.rangeProof.evidenceDayCount !== report.formalLaunchRange.localEvidenceDayCount) {
+    failures.push("launch range proof must expose the bounded evidence day count.");
+  }
+  if (
+    JSON.stringify(report.launchHistoryCoverage.rangeProof.unprovenRanges)
+    !== JSON.stringify(report.formalLaunchRange.unprovenRanges)
+  ) {
+    failures.push("launch range proof unproven ranges must match formalLaunchRange.");
   }
   if (!report.formalLaunchRange || report.formalLaunchRange.launchStartDayKey !== LAUNCH_ANALYTICS_FIRST_DAY_KEY) {
     failures.push("launch recovery must expose formalLaunchRange from the canonical launch start day.");
