@@ -456,7 +456,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
-                    {livePulseModel.refreshState === "refreshing" ? "Refreshing" : "Ready"}
+                    {livePulseModel.refreshState === "refreshing"
+                      ? "Refreshing"
+                      : livePulseModel.refreshState === "refresh_due"
+                        ? "Refresh due"
+                        : "Ready"}
                   </span>
                   <AdminStatusBadge
                     state={livePulseTruthState}

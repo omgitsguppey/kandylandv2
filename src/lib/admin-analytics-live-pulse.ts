@@ -53,7 +53,7 @@ export type AdminAnalyticsLivePulseIdentity = {
 export type AdminAnalyticsLivePulseModel = {
   generatedAtUtc: string;
   mode: "live" | "snapshot" | "delayed_snapshot" | "estimated" | "unavailable";
-  refreshState: "ready" | "refreshing" | "failed" | "stale";
+  refreshState: "ready" | "refreshing" | "failed" | "refresh_due";
   livePulseEnabled: boolean;
   selectedWindow: "30m";
   canonicalPresenceSource: LivePulseSource;
@@ -297,7 +297,7 @@ function resolveGuestSnapshotDisplay(snapshot?: GuestAnalyticsSnapshot | null): 
       state: "stale",
       count: snapshot.uniqueAnonymousVisitorCount,
       sourceLabel: snapshot.sourceCollectionsUsed.join(", ") || "guest snapshot",
-      reason: "Guest snapshot stale",
+      reason: "Guest snapshot refresh due",
       sampleEvidence,
     };
   }
@@ -445,7 +445,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
       : input.feedStatus === "failed"
         ? "failed"
         : mode === "delayed_snapshot"
-          ? "stale"
+          ? "refresh_due"
           : "ready";
   const topWarning = mode === "delayed_snapshot"
     ? "Last verified data."
@@ -453,7 +453,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   const topWarningDetail = guestSnapshotDisplay.state === "unavailable"
     ? guestSnapshotDisplay.reason
     : guestSnapshotDisplay.state === "stale"
-      ? "Guest snapshot stale. Showing last verified guest sample."
+      ? "Guest snapshot refresh due. Showing last verified guest sample."
       : guestSnapshotDisplay.state === "needs_review"
         ? guestSnapshotDisplay.reason
         : guestEstimateState === "estimated" && !guestSnapshotDisplay.sampleEvidence

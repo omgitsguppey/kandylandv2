@@ -170,6 +170,7 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     expect(model.latestVerifiedSnapshotExists).toBe(true);
     expect(model.realtimeBlocksFirstRender).toBe(false);
     expect(model.fallbackSnapshotUsed).toBe(true);
+    expect(model.refreshState).toBe("refresh_due");
     expect(model.laneFailures).toEqual(["listener failed"]);
   });
 
@@ -228,6 +229,30 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     expect(model.guestSnapshotTruthState).toBe("unavailable");
     expect(model.guestMixLabel).toBe("Auth 0 · Guest unavailable");
     expect(model.topWarningDetail).toBe("No guest analytics batches were materialized in the realtime source window.");
+  });
+
+  it("labels expired guest snapshots as refresh due instead of broken stale truth", () => {
+    const nowMs = 1_771_000_000_000;
+    const model = buildAdminAnalyticsLivePulseModel({
+      activeUsers: [],
+      surfaceMix: [],
+      liveSeries: [],
+      feedStatus: "snapshot",
+      feedDetail: "Snapshot available.",
+      truthState: "cached",
+      activeUsersTruthState: "cached",
+      nowMs,
+      liveLoading: false,
+      guestAnalyticsSnapshot: guestSnapshot({
+        guestTruthState: "stale",
+        uniqueAnonymousVisitorCount: 4,
+        notes: ["Guest window is outside the refresh target."],
+      }),
+    });
+
+    expect(model.guestSnapshotTruthState).toBe("stale");
+    expect(model.guestSnapshotReason).toBe("Guest snapshot refresh due");
+    expect(model.topWarningDetail).toBe("Guest snapshot refresh due. Showing last verified guest sample.");
   });
   it("keeps detailed source doctrine out of primary Activity Snapshot copy", () => {
     const source = readFileSync(
