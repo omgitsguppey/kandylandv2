@@ -89,7 +89,6 @@ function readRealUsageConfidenceCalibration(): RuntimeSmokeSubstituteInput["real
     formalGateImpact: {
       clearsDeployedRuntime: booleanValue(formalGateImpact.clearsDeployedRuntime),
       clearsFormalProvider: booleanValue(formalGateImpact.clearsFormalProvider),
-      clearsManualVisual: booleanValue(formalGateImpact.clearsManualVisual),
     },
   };
 }
@@ -138,14 +137,13 @@ function renderDoc(report: RuntimeSmokeSubstituteMatrixReport) {
     `- Source-proven rows: ${report.currentProofSummary.sourceProvenRows}`,
     `- Telemetry-proven rows: ${report.currentProofSummary.telemetryProvenRows}`,
     `- Debug-proven rows: ${report.currentProofSummary.debugProvenRows}`,
-    `- Manual UI rows: ${report.currentProofSummary.manualUiRows}`,
     `- Formal runtime rows: ${report.currentProofSummary.formalRuntimeRequiredRows}`,
     `- Deployed runtime gate cleared: ${report.formalGateImpact.clearsDeployedRuntime}`,
     "",
     "## Rows",
     "",
     ...Object.values(report.rows).map((row) =>
-      `- ${row.id}: proof=${row.currentProofLevel}; types=${row.proofTypes.join(",")}; manualUI=${row.requiresManualUI}; formalRuntime=${row.requiresFormalRuntime}; score=${row.scoreImpactEstimate}; next=${row.nextAction}`),
+      `- ${row.id}: proof=${row.currentProofLevel}; types=${row.proofTypes.join(",")}; formalRuntime=${row.requiresFormalRuntime}; score=${row.scoreImpactEstimate}; next=${row.nextAction}`),
     "",
     "## Formal Gates",
     "",
@@ -186,5 +184,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Runtime smoke substitute matrix OK: runtimeCredit=${report.matrixRuntimeHealthCredit}, manualUiRows=${report.currentProofSummary.manualUiRows}, formalRuntimeRows=${report.currentProofSummary.formalRuntimeRequiredRows}.`,
+  `Runtime smoke substitute matrix OK: runtimeCredit=${report.matrixRuntimeHealthCredit}, formalRuntimeRows=${report.currentProofSummary.formalRuntimeRequiredRows}.`,
 );

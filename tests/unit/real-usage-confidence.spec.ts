@@ -47,13 +47,11 @@ describe("real usage confidence engine", () => {
     expect(report.formalGateImpact).toMatchObject({
       clearsFormalProvider: false,
       clearsDeployedRuntime: false,
-      clearsManualVisual: false,
     });
     expect(report.limits).toEqual(
       expect.arrayContaining([
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual",
       ]),
     );
     expect(report.signals.purchase_flow_seen).toMatchObject({
@@ -106,7 +104,6 @@ describe("real usage confidence engine", () => {
       formalGateImpact: {
         clearsFormalProvider: true,
         clearsDeployedRuntime: false,
-        clearsManualVisual: false,
       },
       ignoredUnknownUsage: [],
       signals: {
@@ -138,7 +135,7 @@ describe("real usage confidence engine", () => {
         ignoredUnknownUsage: 0,
         confidenceScore: 80,
       },
-      nextAction: "Attach formal provider/runtime/manual evidence separately.",
+      nextAction: "Attach formal provider/runtime evidence separately.",
     };
 
     expect(validateRealUsageConfidenceReport(invalid)).toEqual(

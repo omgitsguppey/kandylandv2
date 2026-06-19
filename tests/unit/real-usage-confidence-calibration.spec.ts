@@ -16,7 +16,6 @@ function input(overrides: Partial<RealUsageConfidenceCalibrationInput> = {}): Re
       formalGateImpact: {
         clearsFormalProvider: false,
         clearsDeployedRuntime: false,
-        clearsManualVisual: false,
       },
       signals: {
         purchase_flow_seen: {
@@ -93,7 +92,6 @@ describe("real usage confidence calibration", () => {
     expect(report.formalGateImpact).toEqual({
       clearsFormalProvider: false,
       clearsDeployedRuntime: false,
-      clearsManualVisual: false,
     });
     expect(report.perFlowConfidence.wallet_refill.confidenceClass).toBe("observed_operator_confirmed");
     expect(report.perFlowConfidence.wallet_refill.observedCount).toBe(1);

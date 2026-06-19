@@ -81,7 +81,10 @@ function classifyChangedFile(path: string): Score80ChangedFile {
   let classification: Score80ChangedFileClassification = "unsafe_unknown";
   let reason = "";
 
-  if (/^agent\/state\/.*\.generated\.json$/u.test(normalized)) {
+  if (normalized === "debug-output.json" || normalized === "git_diff.txt" || normalized === "git_log_output.txt") {
+    classification = "deleted_obsolete_log";
+    reason = "Deleted obsolete root log dump; logs do not belong in committed source truth.";
+  } else if (/^agent\/state\/.*\.generated\.json$/u.test(normalized)) {
     classification = "current_generated_artifact_to_commit";
     reason = "Generated score/debug evidence artifact refreshed by requested validators.";
   } else if (normalized === "CHANGELOG.md" || normalized === "public/kandydrops-release-notes.json" || normalized.startsWith("src/lib/release-notes/")) {
@@ -90,6 +93,9 @@ function classifyChangedFile(path: string): Score80ChangedFile {
   } else if (normalized.startsWith("docs/agent-truth/") && normalized.endsWith(".md")) {
     classification = "documentation_artifact_expected";
     reason = "Generated agent-truth documentation refreshed by requested score/debug validators.";
+  } else if (normalized === "EVERY_FILE_FUNCTION_CHECKLIST.md") {
+    classification = "documentation_artifact_expected";
+    reason = "Removed obsolete root log dump entries from the file checklist.";
   } else if (normalized.startsWith("agent/evidence/ui-visual-smoke/")) {
     classification = "documentation_artifact_expected";
     reason = "Operator-final UI visual review template/checklist retained outside Codex score gates.";
@@ -105,6 +111,11 @@ function classifyChangedFile(path: string): Score80ChangedFile {
     || normalized === "tests/unit/post-economy-creator-flow-qa.spec.ts"
     || normalized === "tests/unit/purchase-modal.spec.tsx"
     || normalized === "tests/unit/public-beta-score.spec.ts"
+    || normalized === "tests/unit/final-behavioral-privacy-telemetry-lock.spec.ts"
+    || normalized === "tests/unit/final-beta-exit-gate-readiness.spec.ts"
+    || normalized === "tests/unit/real-usage-confidence-calibration.spec.ts"
+    || normalized === "tests/unit/real-usage-confidence.spec.ts"
+    || normalized === "tests/unit/runtime-smoke-substitute-matrix.spec.ts"
     || normalized === "tests/unit/regression-risk-high-blast-refresh.spec.ts") {
     classification = "test_artifact_expected";
     reason = "Dedicated score/evidence unit coverage for this batch.";
@@ -116,7 +127,11 @@ function classifyChangedFile(path: string): Score80ChangedFile {
     || normalized === "src/lib/agent-score/evidence-quality.ts"
     || normalized === "src/lib/agent-score/formal-evidence-bridge.ts"
     || normalized === "src/lib/agent-score/regression-risk-refresh-plan.ts"
+    || normalized === "src/lib/analytics/real-usage-confidence-calibration.ts"
+    || normalized === "src/lib/analytics/real-usage-confidence-engine.ts"
     || normalized === "src/lib/evidence/ui-visual-smoke-contract.ts"
+    || normalized === "src/lib/release-readiness/automated-truth-reconciliation.ts"
+    || normalized === "src/lib/runtime/runtime-smoke-substitute-matrix.ts"
     || normalized === "package.json") {
     classification = "real_source_change_needs_review";
     reason = "Scoped score/evidence source wiring required for this cleanup batch.";
@@ -252,7 +267,6 @@ function renderDoc(report: Score80ReconciliationLockReport) {
     `- Cost risk: ${report.dimensions.costRisk}`,
     `- Regression risk: ${report.dimensions.regressionRisk}`,
     "",
-    ...section("Manual Only", report.remainingManualOnlyItems),
     ...section("Algorithmic", report.remainingAlgorithmicItems),
     ...section("Runtime Required", report.remainingRuntimeRequiredItems),
     ...section("Provider Required", report.remainingProviderRequiredItems),
@@ -265,7 +279,6 @@ function renderDoc(report: Score80ReconciliationLockReport) {
     "",
     `- Clears deployed runtime: ${report.formalGateImpact.clearsDeployedRuntime}`,
     `- Clears formal provider: ${report.formalGateImpact.clearsFormalProvider}`,
-    `- Clears manual visual: ${report.formalGateImpact.clearsManualVisual}`,
     `- Clears formal admin truth: ${report.formalGateImpact.clearsFormalAdminTruth}`,
     "",
     "## Dirty File Classification",
@@ -309,13 +322,11 @@ const input: Score80ReconciliationInput = {
     p2Count: numberValue(aiTriage?.p2Count),
   },
   runtimeMatrix: {
-    manualUiRows: numberValue(record(runtimeMatrix?.currentProofSummary).manualUiRows),
     formalRuntimeRequiredRows: numberValue(record(runtimeMatrix?.currentProofSummary).formalRuntimeRequiredRows),
     deployedRuntimeSmokeStillRequired: booleanValue(runtimeMatrix?.deployedRuntimeSmokeStillRequired, true),
     formalGateImpact: {
       clearsDeployedRuntime: booleanValue(runtimeFormalGateImpact.clearsDeployedRuntime),
       clearsFormalProvider: booleanValue(runtimeFormalGateImpact.clearsFormalProvider),
-      clearsManualVisual: booleanValue(runtimeFormalGateImpact.clearsManualVisual),
     },
   },
   realUsageConfidence: {
@@ -324,7 +335,6 @@ const input: Score80ReconciliationInput = {
     formalGateImpact: {
       clearsFormalProvider: booleanValue(realUsageFormalGateImpact.clearsFormalProvider),
       clearsDeployedRuntime: booleanValue(realUsageFormalGateImpact.clearsDeployedRuntime),
-      clearsManualVisual: booleanValue(realUsageFormalGateImpact.clearsManualVisual),
     },
   },
   refreshQueue: countQueueEntries(refreshQueue),

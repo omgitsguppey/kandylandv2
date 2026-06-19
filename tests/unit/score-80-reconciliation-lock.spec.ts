@@ -29,13 +29,11 @@ function buildReport() {
       p2Count: 57,
     },
     runtimeMatrix: {
-      manualUiRows: 1,
       formalRuntimeRequiredRows: 10,
       deployedRuntimeSmokeStillRequired: true,
       formalGateImpact: {
         clearsDeployedRuntime: false,
         clearsFormalProvider: false,
-        clearsManualVisual: false,
       },
     },
     realUsageConfidence: {
@@ -44,7 +42,6 @@ function buildReport() {
       formalGateImpact: {
         clearsFormalProvider: false,
         clearsDeployedRuntime: false,
-        clearsManualVisual: false,
       },
     },
     refreshQueue: {
@@ -75,13 +72,12 @@ function buildReport() {
 }
 
 describe("score 80 reconciliation lock", () => {
-  it("separates manual-only proof from algorithmic, runtime, provider, and admin proof", () => {
+  it("separates algorithmic, runtime, provider, and admin proof", () => {
     const report = buildReport();
 
     expect(report.previousScore).toBe(77.76);
     expect(report.currentScore).toBe(77.76);
     expect(report.distanceTo80).toBe(2.24);
-    expect(report.remainingManualOnlyItems).toHaveLength(0);
     expect(report.remainingAlgorithmicItems.length).toBeGreaterThan(0);
     expect(report.remainingRuntimeRequiredItems.length).toBeGreaterThan(0);
     expect(report.remainingProviderRequiredItems.length).toBeGreaterThan(0);
@@ -95,7 +91,6 @@ describe("score 80 reconciliation lock", () => {
     expect(report.canStartBetaExitReview).toBe(false);
     expect(report.formalGateImpact.clearsDeployedRuntime).toBe(false);
     expect(report.formalGateImpact.clearsFormalProvider).toBe(false);
-    expect(report.formalGateImpact.clearsManualVisual).toBe(false);
     expect(report.topNextActions[0]?.rank).toBe(1);
     expect(report.topNextActions[0]?.proofType).toBe("runtime_required");
   });
@@ -128,32 +123,6 @@ describe("score 80 reconciliation lock", () => {
     expect(report.formalGateImpact.clearsFormalProvider).toBe(false);
     expect(report.formalGateImpact.clearsDeployedRuntime).toBe(false);
     expect(report.formalGateImpact.clearsFormalAdminTruth).toBe(false);
-  });
-
-  it("fails if non-UI algorithmic requirements are mislabeled manual-only", () => {
-    const report = buildReport();
-    const invalid: Score80ReconciliationLockReport = {
-      ...report,
-      remainingManualOnlyItems: [
-        ...report.remainingManualOnlyItems,
-        {
-          id: "telemetry_ingest_manual_mislabel",
-          label: "Telemetry ingest",
-          proofType: "manual_only",
-          scoreDimension: "runtimeHealth",
-          scoreImpactEstimate: 1.8,
-          justification: "Telemetry source lane was mislabeled as manual-only.",
-          requiresManualUI: false,
-          nextAction: "Run telemetry closure validator.",
-        },
-      ],
-    };
-
-    expect(validateScore80ReconciliationLock(invalid)).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining("manual-only item telemetry_ingest_manual_mislabel lacks UI/manual justification"),
-      ]),
-    );
   });
 
   it("fails if formal gates are falsely cleared, score drops lack a reason, or changed files are unclassified", () => {

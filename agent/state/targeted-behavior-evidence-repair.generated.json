@@ -1,7 +1,7 @@
 {
   "reportKey": "targeted-behavior-evidence-repair",
-  "generatedAtUtc": "2026-06-19T14:33:29.274Z",
-  "currentHead": "fbc3a07e8",
+  "generatedAtUtc": "2026-06-19T16:15:06.491Z",
+  "currentHead": "036a189a9",
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -198,7 +198,7 @@
         "feature_activity"
       ],
       "replacementFor": [],
-      "artifactHead": "150f93852f2029bd14694ddfe9fd65ec917c1897"
+      "artifactHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
     },
     {
       "id": "person-metrics-hydration",
@@ -212,7 +212,7 @@
         "analytics"
       ],
       "replacementFor": [],
-      "artifactHead": "150f93852f2029bd14694ddfe9fd65ec917c1897"
+      "artifactHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
     },
     {
       "id": "surface-state-parity",
@@ -275,7 +275,47 @@
   ],
   "dirtyFiles": [
     {
-      "path": "agent/state/evidence-capture-status.generated.json",
+      "path": "EVERY_FILE_FUNCTION_CHECKLIST.md",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "agent/index/repo-inventory.json",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "agent/index/retrieval-index.json",
+      "classification": "source_evidence_gate_repair"
+    },
+    {
+      "path": "agent/state/codex-visual-gate-removal.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-behavioral-privacy-telemetry-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-beta-exit-gate-readiness.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/real-usage-confidence-calibration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/real-usage-confidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-80-reconciliation-lock.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -283,15 +323,35 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/targeted-behavior-evidence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/ui-visual-smoke-minimal.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/evidence-capture-status.md",
+      "path": "debug-output.json",
+      "classification": "deleted_obsolete_log"
+    },
+    {
+      "path": "docs/agent-truth/final-behavioral-privacy-telemetry-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-beta-exit-gate-readiness.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/real-usage-confidence-calibration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/real-usage-confidence.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -299,59 +359,31 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/targeted-behavior-evidence.md",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "git_diff.txt",
+      "classification": "deleted_obsolete_log"
     },
     {
-      "path": "docs/agent-truth/ui-visual-smoke-minimal.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "git_log_output.txt",
+      "classification": "deleted_obsolete_log"
     },
     {
-      "path": "scripts/agent/score-public-beta-readiness.ts",
+      "path": "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
-      "path": "scripts/agent/validate-algorithmic-evidence-policy.ts",
+      "path": "scripts/agent/validate-final-beta-exit-gate-readiness.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
-      "path": "scripts/agent/validate-beta-evidence-gap-map.ts",
+      "path": "scripts/agent/validate-real-usage-confidence-calibration.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
-      "path": "scripts/agent/validate-beta-evidence-lane-prep.ts",
+      "path": "scripts/agent/validate-runtime-smoke-substitute-matrix.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
-      "path": "scripts/agent/validate-codex-visual-gate-removal.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-current-beta-exit-status.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-debug-runtime-evidence.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-evidence-capture-status.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-new-additions-score-coverage.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-public-beta-score.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "scripts/agent/validate-source-backed-runtime-confidence.ts",
+      "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
@@ -359,85 +391,53 @@
       "classification": "failed_validator_to_repair"
     },
     {
-      "path": "scripts/agent/validate-targeted-behavior-evidence.ts",
-      "classification": "failed_validator_to_repair"
-    },
-    {
-      "path": "scripts/agent/validate-ui-visual-smoke-minimal.ts",
+      "path": "src/lib/agent-score/score-80-reconciliation-lock.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
-      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
+      "path": "src/lib/analytics/real-usage-confidence-calibration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/real-usage-confidence-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-readiness/automated-truth-reconciliation.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/runtime/runtime-smoke-substitute-matrix.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/final-behavioral-privacy-telemetry-lock.spec.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
-      "path": "src/lib/agent-score/core.ts",
+      "path": "tests/unit/final-beta-exit-gate-readiness.spec.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
-      "path": "src/lib/agent-score/self-healing-refresh-queue.ts",
+      "path": "tests/unit/real-usage-confidence-calibration.spec.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
-      "path": "src/lib/evidence/ui-visual-smoke-contract.ts",
+      "path": "tests/unit/real-usage-confidence.spec.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
-      "path": "tests/unit/admin-debug-control-tower-component.spec.tsx",
+      "path": "tests/unit/runtime-smoke-substitute-matrix.spec.ts",
       "classification": "source_evidence_gate_repair"
     },
     {
-      "path": "tests/unit/admin-debug-control-tower.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/algorithmic-evidence-policy.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/beta-evidence-gap-map.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/beta-evidence-lane-prep.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/codex-visual-gate-removal.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/current-beta-exit-status.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/evidence-capture-status.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/new-additions-score-coverage.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/public-beta-score.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/targeted-behavior-evidence-repair.spec.ts",
-      "classification": "failed_validator_to_repair"
-    },
-    {
-      "path": "tests/unit/targeted-behavior-evidence.spec.ts",
-      "classification": "source_evidence_gate_repair"
-    },
-    {
-      "path": "tests/unit/ui-visual-smoke-minimal.spec.ts",
+      "path": "tests/unit/score-80-reconciliation-lock.spec.ts",
       "classification": "source_evidence_gate_repair"
     }
   ],
   "remainingGaps": [],
   "nextExactSteps": [
-    "Keep formal runtime, provider, admin truth, and manual visual gates separate from targeted source behavior evidence."
+    "Keep formal runtime, provider, and admin truth gates separate from targeted source behavior evidence."
   ],
   "evidence": [
     "currentValidatorInventoryCount=14",

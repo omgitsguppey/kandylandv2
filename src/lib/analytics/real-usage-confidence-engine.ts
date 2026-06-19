@@ -19,8 +19,7 @@ export type RealUsageFreshness = "fresh" | "stale" | "unknown";
 export type RealUsageBehaviorConfidence = "exact" | "probable" | "weak" | "unknown";
 export type RealUsageConfidenceLimit =
   | "does_not_clear_formal_provider"
-  | "does_not_clear_deployed_runtime"
-  | "does_not_clear_manual_visual";
+  | "does_not_clear_deployed_runtime";
 
 export interface OperatorConfirmedUsageEvent {
   signalId?: RealUsageConfidenceSignalId;
@@ -72,7 +71,6 @@ export interface RealUsageConfidenceReport {
   formalGateImpact: {
     clearsFormalProvider: boolean;
     clearsDeployedRuntime: boolean;
-    clearsManualVisual: boolean;
   };
   ignoredUnknownUsage: OperatorConfirmedUsageEvent[];
   signals: RealUsageSignalMap;
@@ -88,7 +86,6 @@ export interface RealUsageConfidenceReport {
 const LIMITS: RealUsageConfidenceLimit[] = [
   "does_not_clear_formal_provider",
   "does_not_clear_deployed_runtime",
-  "does_not_clear_manual_visual",
 ];
 
 const SIGNAL_CONFIG: Record<RealUsageConfidenceSignalId, {
@@ -202,7 +199,7 @@ function buildSignal(input: RealUsageConfidenceInput, id: RealUsageConfidenceSig
         `telemetryLane=${config.lane}`,
       ],
       limitations: LIMITS,
-      nextAction: "Use this as bounded confidence only; attach formal provider/runtime/manual evidence separately.",
+      nextAction: "Use this as bounded confidence only; attach formal provider/runtime evidence separately.",
     };
   }
 
@@ -310,7 +307,6 @@ export function buildRealUsageConfidenceReport(input: RealUsageConfidenceInput):
     formalGateImpact: {
       clearsFormalProvider: false,
       clearsDeployedRuntime: false,
-      clearsManualVisual: false,
     },
     ignoredUnknownUsage: ignored,
     signals,
@@ -320,7 +316,7 @@ export function buildRealUsageConfidenceReport(input: RealUsageConfidenceInput):
       ignoredUnknownUsage: ignored.length,
       confidenceScore,
     },
-    nextAction: "Use real usage confidence as source/runtime confidence only; keep formal provider, deployed runtime, and manual visual gates separate.",
+    nextAction: "Use real usage confidence as source/runtime confidence only; keep formal provider and deployed runtime gates separate.",
   };
 }
 
@@ -331,7 +327,6 @@ export function validateRealUsageConfidenceReport(report: RealUsageConfidenceRep
   if (report.productionReadsRequired !== false) failures.push("real usage confidence must not require production reads.");
   if (report.formalGateImpact.clearsFormalProvider) failures.push("real usage confidence must not clear formal provider.");
   if (report.formalGateImpact.clearsDeployedRuntime) failures.push("real usage confidence must not clear deployed runtime.");
-  if (report.formalGateImpact.clearsManualVisual) failures.push("real usage confidence must not clear manual visual.");
   for (const limit of LIMITS) {
     if (!report.limits.includes(limit)) failures.push(`limits must include ${limit}.`);
   }

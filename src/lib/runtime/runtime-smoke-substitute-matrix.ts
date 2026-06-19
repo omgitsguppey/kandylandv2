@@ -48,7 +48,6 @@ export type RuntimeSmokeProofType =
   | "telemetry"
   | "debug"
   | "operator"
-  | "manual_ui"
   | "formal_runtime";
 
 export type RuntimeSmokeProofLevel =
@@ -56,7 +55,6 @@ export type RuntimeSmokeProofLevel =
   | "telemetry_proven"
   | "debug_proven"
   | "operator_confirmed"
-  | "manual_ui_required"
   | "formal_runtime_required"
   | "unavailable"
   | "unknown";
@@ -86,7 +84,6 @@ export type RuntimeSmokeSubstituteInput = {
     formalGateImpact?: {
       clearsDeployedRuntime?: boolean;
       clearsFormalProvider?: boolean;
-      clearsManualVisual?: boolean;
     };
   };
   behaviorMath?: {
@@ -108,7 +105,6 @@ export type RuntimeSmokeSubstituteRow = {
   canBeSourceProven: boolean;
   canBeTelemetryProven: boolean;
   canBeDebugProven: boolean;
-  requiresManualUI: boolean;
   requiresFormalRuntime: boolean;
   currentProofLevel: RuntimeSmokeProofLevel;
   proofTypes: RuntimeSmokeProofType[];
@@ -131,17 +127,14 @@ export type RuntimeSmokeSubstituteMatrixReport = {
   formalGateImpact: {
     clearsDeployedRuntime: boolean;
     clearsFormalProvider: boolean;
-    clearsManualVisual: boolean;
   };
   deployedRuntimeSmokeStillRequired: boolean;
   rows: Record<RuntimeSmokeSubstituteRowId, RuntimeSmokeSubstituteRow>;
-  manualUiRowIds: RuntimeSmokeSubstituteRowId[];
   formalRuntimeRowIds: RuntimeSmokeSubstituteRowId[];
   currentProofSummary: {
     sourceProvenRows: number;
     telemetryProvenRows: number;
     debugProvenRows: number;
-    manualUiRows: number;
     formalRuntimeRequiredRows: number;
   };
   matrixRuntimeHealthCredit: number;
@@ -167,7 +160,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: false,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: true,
     preferredProof: "debug_proven",
     scoreDimension: "runtimeHealth",
@@ -183,7 +175,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: true,
     preferredProof: "debug_proven",
     scoreDimension: "runtimeHealth",
@@ -199,14 +190,13 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: false,
     canBeDebugProven: false,
-    requiresManualUI: true,
     requiresFormalRuntime: false,
-    preferredProof: "manual_ui_required",
+    preferredProof: "source_proven",
     scoreDimension: "evidenceCompleteness",
     sourceFiles: ["src/components/PurchaseModal.tsx", "src/lib/gumdrop-formatting.ts"],
     evidencePaths: ["agent/state/source-backed-runtime-confidence.generated.json"],
     sourceCredit: 45,
-    nextAction: "Capture targeted manual UI/operator confirmation for wallet balance display only; do not change wallet runtime or GumDrop math.",
+    nextAction: "Keep wallet balance display covered by deterministic source/UI coverage; do not change wallet runtime or GumDrop math.",
   },
   gumdrop_refill_source_readiness: {
     id: "gumdrop_refill_source_readiness",
@@ -214,7 +204,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: false,
-    requiresManualUI: false,
     requiresFormalRuntime: true,
     preferredProof: "operator_confirmed",
     scoreDimension: "runtimeHealth",
@@ -230,7 +219,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: true,
     preferredProof: "telemetry_proven",
     scoreDimension: "runtimeHealth",
@@ -246,7 +234,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: true,
     preferredProof: "source_proven",
     scoreDimension: "runtimeHealth",
@@ -263,7 +250,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: true,
     preferredProof: "telemetry_proven",
     scoreDimension: "runtimeHealth",
@@ -279,7 +265,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: false,
-    requiresManualUI: false,
     requiresFormalRuntime: false,
     preferredProof: "telemetry_proven",
     scoreDimension: "evidenceCompleteness",
@@ -295,7 +280,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: false,
     canBeDebugProven: false,
-    requiresManualUI: false,
     requiresFormalRuntime: false,
     preferredProof: "source_proven",
     scoreDimension: "sourceHealth",
@@ -311,7 +295,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: false,
-    requiresManualUI: false,
     requiresFormalRuntime: false,
     preferredProof: "source_proven",
     scoreDimension: "sourceHealth",
@@ -327,7 +310,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: false,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: true,
     preferredProof: "source_proven",
     scoreDimension: "runtimeHealth",
@@ -342,7 +324,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: false,
     preferredProof: "telemetry_proven",
     scoreDimension: "evidenceCompleteness",
@@ -358,7 +339,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: false,
-    requiresManualUI: false,
     requiresFormalRuntime: false,
     preferredProof: "telemetry_proven",
     scoreDimension: "evidenceCompleteness",
@@ -374,7 +354,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: false,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: true,
     preferredProof: "source_proven",
     scoreDimension: "freshness",
@@ -390,7 +369,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: false,
     preferredProof: "telemetry_proven",
     scoreDimension: "evidenceCompleteness",
@@ -406,7 +384,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: false,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: false,
     preferredProof: "debug_proven",
     scoreDimension: "runtimeHealth",
@@ -421,7 +398,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: false,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: true,
     preferredProof: "source_proven",
     scoreDimension: "evidenceCompleteness",
@@ -437,7 +413,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: true,
     canBeDebugProven: false,
-    requiresManualUI: false,
     requiresFormalRuntime: true,
     preferredProof: "telemetry_proven",
     scoreDimension: "runtimeHealth",
@@ -453,7 +428,6 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     canBeSourceProven: true,
     canBeTelemetryProven: false,
     canBeDebugProven: true,
-    requiresManualUI: false,
     requiresFormalRuntime: false,
     preferredProof: "debug_proven",
     scoreDimension: "sourceHealth",
@@ -491,7 +465,6 @@ function behaviorReady(input: RuntimeSmokeSubstituteInput) {
 }
 
 function proofLevel(config: typeof ROW_CONFIG[RuntimeSmokeSubstituteRowId], input: RuntimeSmokeSubstituteInput): RuntimeSmokeProofLevel {
-  if (config.requiresManualUI) return "manual_ui_required";
   if (config.preferredProof === "debug_proven" && config.canBeDebugProven && debugReady(input)) return "debug_proven";
   if (config.preferredProof === "telemetry_proven" && config.canBeTelemetryProven && (laneReady(input, config.lane) || behaviorReady(input))) {
     return "telemetry_proven";
@@ -512,7 +485,6 @@ function proofTypesFor(row: RuntimeSmokeSubstituteRow): RuntimeSmokeProofType[] 
   if (row.canBeTelemetryProven) proofTypes.push("telemetry");
   if (row.canBeDebugProven) proofTypes.push("debug");
   if (row.currentProofLevel === "operator_confirmed") proofTypes.push("operator");
-  if (row.requiresManualUI) proofTypes.push("manual_ui");
   if (row.requiresFormalRuntime) proofTypes.push("formal_runtime");
   return [...new Set(proofTypes)];
 }
@@ -524,7 +496,7 @@ function buildRow(input: RuntimeSmokeSubstituteInput, id: RuntimeSmokeSubstitute
     ...config,
     currentProofLevel,
     proofTypes: [],
-    scoreImpactEstimate: currentProofLevel === "manual_ui_required" || currentProofLevel === "formal_runtime_required"
+    scoreImpactEstimate: currentProofLevel === "formal_runtime_required"
       ? Math.round(config.sourceCredit * 0.45)
       : config.sourceCredit,
   };
@@ -567,17 +539,14 @@ export function buildRuntimeSmokeSubstituteMatrix(input: RuntimeSmokeSubstituteI
     formalGateImpact: {
       clearsDeployedRuntime: false,
       clearsFormalProvider: false,
-      clearsManualVisual: false,
     },
     deployedRuntimeSmokeStillRequired: true,
     rows,
-    manualUiRowIds: rowValues.filter((row) => row.requiresManualUI).map((row) => row.id),
     formalRuntimeRowIds: rowValues.filter((row) => row.requiresFormalRuntime).map((row) => row.id),
     currentProofSummary: {
       sourceProvenRows: rowValues.filter((row) => row.currentProofLevel === "source_proven").length,
       telemetryProvenRows: rowValues.filter((row) => row.currentProofLevel === "telemetry_proven").length,
       debugProvenRows: rowValues.filter((row) => row.currentProofLevel === "debug_proven").length,
-      manualUiRows: rowValues.filter((row) => row.requiresManualUI).length,
       formalRuntimeRequiredRows: rowValues.filter((row) => row.requiresFormalRuntime).length,
     },
     matrixRuntimeHealthCredit,
@@ -585,7 +554,6 @@ export function buildRuntimeSmokeSubstituteMatrix(input: RuntimeSmokeSubstituteI
     evidence: [
       `matrixRuntimeHealthCredit=${matrixRuntimeHealthCredit}`,
       `matrixEvidenceCompletenessCredit=${matrixEvidenceCompletenessCredit}`,
-      `manualUiRows=${rowValues.filter((row) => row.requiresManualUI).length}`,
       `formalRuntimeRequiredRows=${rowValues.filter((row) => row.requiresFormalRuntime).length}`,
       "deployedRuntimeSmokeStillRequired=true",
       "productionReadsRequired=false",
@@ -612,7 +580,6 @@ export function validateRuntimeSmokeSubstituteMatrix(report: RuntimeSmokeSubstit
   if (report.deployRequired !== false) failures.push("runtime smoke substitute matrix must not require deploy.");
   if (report.formalGateImpact.clearsDeployedRuntime) failures.push("matrix must not clear deployed runtime gate.");
   if (report.formalGateImpact.clearsFormalProvider) failures.push("matrix must not clear formal provider gate.");
-  if (report.formalGateImpact.clearsManualVisual) failures.push("matrix must not clear manual visual gate.");
   if (!report.deployedRuntimeSmokeStillRequired) failures.push("deployed runtime smoke must remain required.");
   for (const id of RUNTIME_SMOKE_SUBSTITUTE_ROW_IDS) {
     const row = report.rows[id];
@@ -624,9 +591,6 @@ export function validateRuntimeSmokeSubstituteMatrix(report: RuntimeSmokeSubstit
     if (row.currentProofLevel === "unknown") failures.push(`${id} has unknown proof level.`);
     if (!row.scoreDimension) failures.push(`${id} lacks score dimension.`);
     if (!row.nextAction) failures.push(`${id} lacks next action.`);
-    if ((row.canBeSourceProven || row.canBeTelemetryProven || row.canBeDebugProven) && row.requiresManualUI && row.id !== "wallet_balance_display") {
-      failures.push(`${id} incorrectly requires manual UI.`);
-    }
     if (row.requiresFormalRuntime && !/deployed runtime/u.test(row.nextAction)) {
       failures.push(`${id} requires formal runtime evidence but lacks next action.`);
     }

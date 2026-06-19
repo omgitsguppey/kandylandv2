@@ -29,6 +29,7 @@ export type TargetedBehaviorEvidenceRepairDirtyClassification =
   | "unrelated_agent_context_file_to_ignore"
   | "real_source_change_needs_review"
   | "release_artifact_expected"
+  | "deleted_obsolete_log"
   | "unsafe_unknown";
 
 export type TargetedBehaviorRepairValidator = {
@@ -165,11 +166,24 @@ export function classifyTargetedBehaviorEvidenceRepairDirtyFile(filePath: string
   ) return "current_generated_artifact_to_commit";
   if (normalized === "scripts/agent/validate-targeted-behavior-evidence.ts") return "failed_validator_to_repair";
   if (normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts") return "failed_validator_to_repair";
+  if (normalized === "EVERY_FILE_FUNCTION_CHECKLIST.md") return "source_evidence_gate_repair";
+  if (normalized === "agent/index/repo-inventory.json" || normalized === "agent/index/retrieval-index.json") {
+    return "source_evidence_gate_repair";
+  }
   if (
     /^scripts\/agent\/(score-public-beta-readiness|validate-(algorithmic-evidence-policy|beta-evidence-gap-map|beta-evidence-lane-prep|codex-visual-gate-removal|current-beta-exit-status|debug-runtime-evidence|evidence-capture-status|new-additions-score-coverage|public-beta-score|regression-risk-high-blast-refresh|source-backed-runtime-confidence|ui-visual-smoke-minimal))\.ts$/u.test(normalized)
     || /^src\/lib\/(agent-score|evidence)\//u.test(normalized)
     || /^tests\/unit\/(admin-debug-control-tower(-component)?|algorithmic-evidence-policy|beta-evidence-gap-map|beta-evidence-lane-prep|codex-visual-gate-removal|current-beta-exit-status|evidence-capture-status|new-additions-score-coverage|public-beta-score|targeted-behavior-evidence|ui-visual-smoke-minimal)\.spec\.tsx?$/u.test(normalized)
   ) return "source_evidence_gate_repair";
+  if (/^scripts\/agent\/validate-(final-behavioral-privacy-telemetry-lock|final-beta-exit-gate-readiness|real-usage-confidence-calibration|runtime-smoke-substitute-matrix|score-80-reconciliation-lock)\.ts$/u.test(normalized)) {
+    return "source_evidence_gate_repair";
+  }
+  if (/^tests\/unit\/(final-behavioral-privacy-telemetry-lock|final-beta-exit-gate-readiness|real-usage-confidence-calibration|real-usage-confidence|runtime-smoke-substitute-matrix|score-80-reconciliation-lock)\.spec\.tsx?$/u.test(normalized)) {
+    return "source_evidence_gate_repair";
+  }
+  if (normalized === "debug-output.json" || normalized === "git_diff.txt" || normalized === "git_log_output.txt") {
+    return "deleted_obsolete_log";
+  }
   if (
     normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
     || normalized === "scripts/agent/validate-final-parity-telemetry-lock.ts"
@@ -319,7 +333,7 @@ export function buildTargetedBehaviorEvidenceRepairReport(input: {
     dirtyFiles,
     remainingGaps,
     nextExactSteps: remainingGaps.length === 0
-      ? ["Keep formal runtime, provider, admin truth, and manual visual gates separate from targeted source behavior evidence."]
+      ? ["Keep formal runtime, provider, and admin truth gates separate from targeted source behavior evidence."]
       : ["Repair the listed targeted behavior validator blockers without promoting source evidence to formal runtime proof."],
     evidence: [
       `currentValidatorInventoryCount=${currentValidators.length}`,

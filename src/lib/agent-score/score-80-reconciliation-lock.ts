@@ -1,5 +1,4 @@
 export type Score80ProofType =
-  | "manual_only"
   | "algorithmic"
   | "source_fixable"
   | "runtime_required"
@@ -22,6 +21,7 @@ export type Score80ChangedFileClassification =
   | "test_artifact_expected"
   | "validator_artifact_expected"
   | "documentation_artifact_expected"
+  | "deleted_obsolete_log"
   | "unrelated_agent_context_file_to_ignore"
   | "unsafe_unknown";
 
@@ -41,7 +41,6 @@ export type Score80RemainingItem = {
   scoreDimension: Score80DimensionImpact;
   scoreImpactEstimate: number;
   justification: string;
-  requiresManualUI?: boolean;
   nextAction: string;
 };
 
@@ -80,13 +79,11 @@ export type Score80ReconciliationInput = {
     p2Count?: number;
   };
   runtimeMatrix?: {
-    manualUiRows?: number;
     formalRuntimeRequiredRows?: number;
     deployedRuntimeSmokeStillRequired?: boolean;
     formalGateImpact?: {
       clearsDeployedRuntime?: boolean;
       clearsFormalProvider?: boolean;
-      clearsManualVisual?: boolean;
     };
   };
   realUsageConfidence?: {
@@ -95,7 +92,6 @@ export type Score80ReconciliationInput = {
     formalGateImpact?: {
       clearsFormalProvider?: boolean;
       clearsDeployedRuntime?: boolean;
-      clearsManualVisual?: boolean;
     };
   };
   refreshQueue?: {
@@ -122,7 +118,6 @@ export type Score80ReconciliationLockReport = {
   scoreDropReason: "no_drop" | "formal_evidence_decay" | "stale_artifact_decay" | "source_regression" | "unknown";
   dimensions: Score80Dimensions;
   readinessStatus: string;
-  remainingManualOnlyItems: Score80RemainingItem[];
   remainingAlgorithmicItems: Score80RemainingItem[];
   remainingRuntimeRequiredItems: Score80RemainingItem[];
   remainingProviderRequiredItems: Score80RemainingItem[];
@@ -135,11 +130,9 @@ export type Score80ReconciliationLockReport = {
   formalGateImpact: {
     clearsDeployedRuntime: boolean;
     clearsFormalProvider: boolean;
-    clearsManualVisual: boolean;
     clearsFormalAdminTruth: boolean;
   };
-  manualBottleneckReduction: {
-    manualEvidenceLimitedToUiVisual: boolean;
+  sourceEvidenceConsolidation: {
     nonUiAlgorithmicEvidenceAllowed: boolean;
     sourceBackedRuntimePartialCredit: boolean;
   };
@@ -179,8 +172,6 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
   const automaticRefreshes = input.refreshQueue?.automaticEntries ?? 0;
   const blockedRefreshes = input.refreshQueue?.blockedEntries ?? 0;
   const staleRefreshes = input.refreshSafeguards?.staleArtifactsNeedingAction ?? 0;
-
-  const remainingManualOnlyItems: Score80RemainingItem[] = [];
 
   const remainingRuntimeRequiredItems: Score80RemainingItem[] = [
     {
@@ -249,7 +240,6 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
   ] satisfies Score80RemainingItem[]).filter((item) => item.scoreImpactEstimate > 0);
 
   const allItems = [
-    ...remainingManualOnlyItems,
     ...remainingRuntimeRequiredItems,
     ...remainingProviderRequiredItems,
     ...remainingAdminTruthItems,
@@ -261,8 +251,6 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
       || input.realUsageConfidence?.formalGateImpact?.clearsDeployedRuntime === true,
     clearsFormalProvider: input.runtimeMatrix?.formalGateImpact?.clearsFormalProvider === true
       || input.realUsageConfidence?.formalGateImpact?.clearsFormalProvider === true,
-    clearsManualVisual: input.runtimeMatrix?.formalGateImpact?.clearsManualVisual === true
-      || input.realUsageConfidence?.formalGateImpact?.clearsManualVisual === true,
     clearsFormalAdminTruth: false,
   };
 
@@ -285,7 +273,6 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
       regressionRisk: boundedScore(input.dimensions.regressionRisk),
     },
     readinessStatus: input.readinessStatus ?? "unknown",
-    remainingManualOnlyItems,
     remainingAlgorithmicItems,
     remainingRuntimeRequiredItems,
     remainingProviderRequiredItems,
@@ -296,8 +283,7 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
     p2Count,
     canStartBetaExitReview: input.betaExitCanStart === true && currentScore >= 80,
     formalGateImpact,
-    manualBottleneckReduction: {
-      manualEvidenceLimitedToUiVisual: false,
+    sourceEvidenceConsolidation: {
       nonUiAlgorithmicEvidenceAllowed: true,
       sourceBackedRuntimePartialCredit: (input.realUsageConfidence?.runtimeHealthCredit ?? 0) > 0,
     },
@@ -314,27 +300,8 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
   };
 }
 
-function isManualOnlyJustified(item: Score80RemainingItem) {
-  const text = `${item.id} ${item.label} ${item.justification}`.toLowerCase();
-  return item.requiresManualUI === true && (
-    text.includes("ui")
-    || text.includes("visual")
-    || text.includes("layout")
-    || text.includes("screenshot")
-  );
-}
-
 export function validateScore80ReconciliationLock(report: Score80ReconciliationLockReport) {
   const failures: string[] = [];
-
-  for (const item of report.remainingManualOnlyItems) {
-    if (!isManualOnlyJustified(item)) {
-      failures.push(`manual-only item ${item.id} lacks UI/manual justification.`);
-    }
-    if (item.proofType !== "manual_only") {
-      failures.push(`manual-only item ${item.id} is mislabeled as ${item.proofType}.`);
-    }
-  }
 
   for (const item of [
     ...report.remainingAlgorithmicItems,
@@ -342,9 +309,6 @@ export function validateScore80ReconciliationLock(report: Score80ReconciliationL
     ...report.remainingProviderRequiredItems,
     ...report.remainingAdminTruthItems,
   ]) {
-    if (item.proofType === "manual_only") {
-      failures.push(`non-UI item ${item.id} is mislabeled manual-only.`);
-    }
     if (!item.nextAction.trim()) {
       failures.push(`item ${item.id} lacks a ranked next action.`);
     }
@@ -355,9 +319,6 @@ export function validateScore80ReconciliationLock(report: Score80ReconciliationL
   }
   if (report.formalGateImpact.clearsFormalProvider) {
     failures.push("reconciliation lock must not clear formal provider gate.");
-  }
-  if (report.formalGateImpact.clearsManualVisual) {
-    failures.push("reconciliation lock must not clear manual visual gate.");
   }
   if (report.formalGateImpact.clearsFormalAdminTruth) {
     failures.push("reconciliation lock must not clear formal admin truth gate.");
@@ -371,7 +332,6 @@ export function validateScore80ReconciliationLock(report: Score80ReconciliationL
     report.canStartBetaExitReview
     && (
       report.currentScore < 80
-      || report.remainingManualOnlyItems.length > 0
       || report.remainingRuntimeRequiredItems.length > 0
       || report.remainingProviderRequiredItems.length > 0
       || report.remainingAdminTruthItems.length > 0

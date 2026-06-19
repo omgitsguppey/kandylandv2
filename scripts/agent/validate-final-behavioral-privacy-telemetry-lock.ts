@@ -52,7 +52,7 @@ export type FinalBehavioralPrivacyTelemetryLockReport = {
   fullBehavioralStatus: "full_behavioral_enabled" | "blocked";
   legacyRecoveryStatus: Status;
   futureFeatureTelemetryStatus: Status;
-  remainingManualOnlyItems: string[];
+  remainingExternalEvidenceItems: string[];
   scoreBefore: number;
   scoreAfter: number;
   nextExactSteps: string[];
@@ -169,9 +169,9 @@ function renderDoc(report: FinalBehavioralPrivacyTelemetryLockReport) {
     `- Score before: ${report.scoreBefore}`,
     `- Score after: ${report.scoreAfter}`,
     "",
-    "## Remaining Manual Only Items",
+    "## Remaining External Evidence Items",
     "",
-    ...report.remainingManualOnlyItems.map((item) => `- ${item}`),
+    ...report.remainingExternalEvidenceItems.map((item) => `- ${item}`),
     "",
     "## Next Exact Steps",
     "",
@@ -262,7 +262,7 @@ export function buildFinalBehavioralPrivacyTelemetryLock(
   const nextExactSteps = options.overrides?.nextExactSteps ?? [
     "Keep minimal analytics mapped to product_usage_minimal and performance_analytics only; do not promote it to behavioral personalization.",
     "Register new feature events in src/lib/telemetry-catalog.ts and src/lib/behavioral/behavior-feature-registry.ts before any tracker emits them.",
-    "Attach UI visual/manual smoke evidence for layout-sensitive surfaces before clearing the visual gate.",
+    "Keep deterministic UI source coverage current; use visual reproduction only after a source-reported UI issue.",
     "Attach deployed runtime/provider smoke artifacts before clearing runtime or provider gates.",
     "Attach redacted admin truth sample evidence before clearing formal admin truth/sample gates.",
   ];
@@ -294,8 +294,7 @@ export function buildFinalBehavioralPrivacyTelemetryLock(
       ? "full_behavioral_enabled" : "blocked",
     legacyRecoveryStatus: statusFromArtifact(legacy),
     futureFeatureTelemetryStatus: futureFeatureContractPresent ? "pass" : "fail",
-    remainingManualOnlyItems: [
-      "UI visual/manual smoke",
+    remainingExternalEvidenceItems: [
       "Runtime/provider smoke",
       "Admin truth/sample evidence",
     ],

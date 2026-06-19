@@ -6,14 +6,14 @@ Validator: `npm run check:final-beta-exit-gate-readiness`
 
 ## Summary
 
-- Current head: `cb7808a6a33fdfdf673d852503bb771ceb4fd207`
+- Current head: `036a189a959f392c6eeec496ce112825d50864bb`
 - Score: 76.88 -> 76.88
 - Launch gate status: `owner_review`
 - Beta exit ready: false
 - Dimensions above 80: sourceHealth, freshness, regressionRisk
 - Dimensions below 80: runtimeHealth, evidenceCompleteness, costRisk, overallHealthScore
 - Open PRs remaining: 0
-- Stale artifacts remaining: 4
+- Stale artifacts remaining: 5
 - Formal evidence remaining: formal_provider_smoke, deployed_runtime_smoke, production_admin_truth_sample
 - Production reads/provider calls/deploys performed: false
 
@@ -48,6 +48,7 @@ Validator: `npm run check:final-beta-exit-gate-readiness`
 | Artifact | Status | Classification | Next action |
 | --- | --- | --- | --- |
 | agent/state/final-telemetry-closure-lock.generated.json | stale_source_version | refresh_required | Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock |
+| agent/state/overnight-final-integration-lock.generated.json | stale_source_version | refresh_required | Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock |
 | agent/state/beta-evidence-gap-map.generated.json | stale_source_version | refresh_required | Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map |
 | agent/state/beta-evidence-lane-prep.generated.json | stale_source_version | refresh_required | Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep |
 | agent/state/user-loading-wallet-mobile-refinement.generated.json | stale_source_version | refresh_required | User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement |
@@ -70,21 +71,46 @@ Validator: `npm run check:final-beta-exit-gate-readiness`
 
 | File | Classification |
 | --- | --- |
-| agent/state/blocked-refresh-queue-resolver.generated.json | score_evidence_artifact |
+| EVERY_FILE_FUNCTION_CHECKLIST.md | score_evidence_artifact |
+| agent/index/repo-inventory.json | score_evidence_artifact |
+| agent/index/retrieval-index.json | score_evidence_artifact |
+| agent/state/codex-visual-gate-removal.generated.json | score_evidence_artifact |
+| agent/state/final-behavioral-privacy-telemetry-lock.generated.json | score_evidence_artifact |
 | agent/state/final-beta-exit-gate-readiness.generated.json | current_generated_artifact_to_commit |
-| agent/state/final-morning-beta-lock.generated.json | score_evidence_artifact |
 | agent/state/public-beta-score.generated.json | score_evidence_artifact |
-| docs/agent-truth/blocked-refresh-queue-resolver.md | score_evidence_artifact |
+| agent/state/real-usage-confidence-calibration.generated.json | score_evidence_artifact |
+| agent/state/real-usage-confidence.generated.json | score_evidence_artifact |
+| agent/state/runtime-smoke-substitute-matrix.generated.json | score_evidence_artifact |
+| agent/state/score-80-reconciliation-lock.generated.json | score_evidence_artifact |
+| agent/state/targeted-behavior-evidence-repair.generated.json | score_evidence_artifact |
+| agent/state/ui-visual-smoke-minimal.generated.json | score_evidence_artifact |
+| debug-output.json | deleted_obsolete_log |
+| docs/agent-truth/final-behavioral-privacy-telemetry-lock.md | score_evidence_artifact |
 | docs/agent-truth/final-beta-exit-gate-readiness.md | current_generated_artifact_to_commit |
-| docs/agent-truth/final-morning-beta-lock.md | score_evidence_artifact |
-| scripts/agent/validate-blocked-refresh-queue-resolver.ts | final_gate_validator |
-| scripts/agent/validate-evidence-freshness-index.ts | final_gate_validator |
+| docs/agent-truth/real-usage-confidence-calibration.md | score_evidence_artifact |
+| docs/agent-truth/real-usage-confidence.md | score_evidence_artifact |
+| docs/agent-truth/runtime-smoke-substitute-matrix.md | score_evidence_artifact |
+| docs/agent-truth/score-80-reconciliation-lock.md | score_evidence_artifact |
+| docs/agent-truth/targeted-behavior-evidence-repair.md | score_evidence_artifact |
+| git_diff.txt | deleted_obsolete_log |
+| git_log_output.txt | deleted_obsolete_log |
+| scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts | final_gate_validator |
 | scripts/agent/validate-final-beta-exit-gate-readiness.ts | final_gate_validator |
-| scripts/agent/validate-final-morning-beta-lock.ts | final_gate_validator |
-| scripts/agent/validate-overnight-final-integration-lock.ts | final_gate_validator |
-| scripts/agent/validate-score-80-path-lock.ts | final_gate_validator |
-| scripts/agent/validate-score-80-refresh-queue-execution.ts | final_gate_validator |
-| tests/unit/targeted-behavior-evidence-repair.spec.ts | final_gate_test |
+| scripts/agent/validate-real-usage-confidence-calibration.ts | final_gate_validator |
+| scripts/agent/validate-runtime-smoke-substitute-matrix.ts | final_gate_validator |
+| scripts/agent/validate-score-80-reconciliation-lock.ts | final_gate_validator |
+| scripts/agent/validate-targeted-behavior-evidence-repair.ts | final_gate_validator |
+| src/lib/agent-score/score-80-reconciliation-lock.ts | evidence_boundary_source_change |
+| src/lib/analytics/real-usage-confidence-calibration.ts | evidence_boundary_source_change |
+| src/lib/analytics/real-usage-confidence-engine.ts | evidence_boundary_source_change |
+| src/lib/release-readiness/automated-truth-reconciliation.ts | evidence_boundary_source_change |
+| src/lib/runtime/runtime-smoke-substitute-matrix.ts | evidence_boundary_source_change |
+| tests/unit/final-behavioral-privacy-telemetry-lock.spec.ts | final_gate_test |
+| tests/unit/final-beta-exit-gate-readiness.spec.ts | final_gate_test |
+| tests/unit/real-usage-confidence-calibration.spec.ts | final_gate_test |
+| tests/unit/real-usage-confidence.spec.ts | final_gate_test |
+| tests/unit/runtime-smoke-substitute-matrix.spec.ts | final_gate_test |
+| tests/unit/score-80-reconciliation-lock.spec.ts | final_gate_test |
 
 ## Next Exact Steps
 
@@ -96,13 +122,14 @@ Validator: `npm run check:final-beta-exit-gate-readiness`
 - Admin truth/sample evidence: Attach a redacted production admin truth sample; source wiring and debug labels do not clear the formal admin gate.
 - Report freshness and PR integrity: Review, merge, port, or close the classified open PRs before treating PR integrity as closed.
 - agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock
+- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep
 - agent/state/user-loading-wallet-mobile-refinement.generated.json: User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement
 - cloudRun: cloudRun: Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof.
 - cloudSqlDataConnect: cloudSqlDataConnect: Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console.
 - geminiCloudAssistVertex: geminiCloudAssistVertex: Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited.
-- operator_final_visual_review: Complete manual visual review outside Codex score blocking.
+- ui_source_coverage: Keep deterministic UI source coverage current; use visual reproduction only after a source-reported UI issue.
 
 ## Boundary
 

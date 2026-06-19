@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T15:26:01.174Z",
+  "generatedAtUtc": "2026-06-19T16:14:12.921Z",
   "reportKey": "final-beta-exit-gate-readiness",
-  "currentHead": "cb7808a6a33fdfdf673d852503bb771ceb4fd207",
+  "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
   "status": "pass",
   "scoreBefore": 76.88,
   "scoreAfter": 76.88,
@@ -98,6 +98,13 @@
       "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock"
     },
     {
+      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
+      "status": "stale_source_version",
+      "classification": "refresh_required",
+      "refreshCommand": "npm run check:overnight-final-integration-lock",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock"
+    },
+    {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
       "status": "stale_source_version",
       "classification": "refresh_required",
@@ -159,17 +166,34 @@
     "Admin truth/sample evidence: Attach a redacted production admin truth sample; source wiring and debug labels do not clear the formal admin gate.",
     "Report freshness and PR integrity: Review, merge, port, or close the classified open PRs before treating PR integrity as closed.",
     "agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
+    "agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
     "agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
     "agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
     "agent/state/user-loading-wallet-mobile-refinement.generated.json: User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
     "cloudRun: cloudRun: Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof.",
     "cloudSqlDataConnect: cloudSqlDataConnect: Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console.",
     "geminiCloudAssistVertex: geminiCloudAssistVertex: Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited.",
-    "operator_final_visual_review: Complete manual visual review outside Codex score blocking."
+    "ui_source_coverage: Keep deterministic UI source coverage current; use visual reproduction only after a source-reported UI issue."
   ],
   "dirtyFiles": [
     {
-      "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
+      "path": "EVERY_FILE_FUNCTION_CHECKLIST.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/index/repo-inventory.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/index/retrieval-index.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/codex-visual-gate-removal.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/final-behavioral-privacy-telemetry-lock.generated.json",
       "classification": "score_evidence_artifact"
     },
     {
@@ -177,15 +201,39 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/final-morning-beta-lock.generated.json",
-      "classification": "score_evidence_artifact"
-    },
-    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "score_evidence_artifact"
     },
     {
-      "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
+      "path": "agent/state/real-usage-confidence-calibration.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/real-usage-confidence.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/score-80-reconciliation-lock.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "debug-output.json",
+      "classification": "deleted_obsolete_log"
+    },
+    {
+      "path": "docs/agent-truth/final-behavioral-privacy-telemetry-lock.md",
       "classification": "score_evidence_artifact"
     },
     {
@@ -193,15 +241,35 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/final-morning-beta-lock.md",
+      "path": "docs/agent-truth/real-usage-confidence-calibration.md",
       "classification": "score_evidence_artifact"
     },
     {
-      "path": "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
-      "classification": "final_gate_validator"
+      "path": "docs/agent-truth/real-usage-confidence.md",
+      "classification": "score_evidence_artifact"
     },
     {
-      "path": "scripts/agent/validate-evidence-freshness-index.ts",
+      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "git_diff.txt",
+      "classification": "deleted_obsolete_log"
+    },
+    {
+      "path": "git_log_output.txt",
+      "classification": "deleted_obsolete_log"
+    },
+    {
+      "path": "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
       "classification": "final_gate_validator"
     },
     {
@@ -209,33 +277,73 @@
       "classification": "final_gate_validator"
     },
     {
-      "path": "scripts/agent/validate-final-morning-beta-lock.ts",
+      "path": "scripts/agent/validate-real-usage-confidence-calibration.ts",
       "classification": "final_gate_validator"
     },
     {
-      "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
+      "path": "scripts/agent/validate-runtime-smoke-substitute-matrix.ts",
       "classification": "final_gate_validator"
     },
     {
-      "path": "scripts/agent/validate-score-80-path-lock.ts",
+      "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
       "classification": "final_gate_validator"
     },
     {
-      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
+      "path": "scripts/agent/validate-targeted-behavior-evidence-repair.ts",
       "classification": "final_gate_validator"
     },
     {
-      "path": "tests/unit/targeted-behavior-evidence-repair.spec.ts",
+      "path": "src/lib/agent-score/score-80-reconciliation-lock.ts",
+      "classification": "evidence_boundary_source_change"
+    },
+    {
+      "path": "src/lib/analytics/real-usage-confidence-calibration.ts",
+      "classification": "evidence_boundary_source_change"
+    },
+    {
+      "path": "src/lib/analytics/real-usage-confidence-engine.ts",
+      "classification": "evidence_boundary_source_change"
+    },
+    {
+      "path": "src/lib/release-readiness/automated-truth-reconciliation.ts",
+      "classification": "evidence_boundary_source_change"
+    },
+    {
+      "path": "src/lib/runtime/runtime-smoke-substitute-matrix.ts",
+      "classification": "evidence_boundary_source_change"
+    },
+    {
+      "path": "tests/unit/final-behavioral-privacy-telemetry-lock.spec.ts",
+      "classification": "final_gate_test"
+    },
+    {
+      "path": "tests/unit/final-beta-exit-gate-readiness.spec.ts",
+      "classification": "final_gate_test"
+    },
+    {
+      "path": "tests/unit/real-usage-confidence-calibration.spec.ts",
+      "classification": "final_gate_test"
+    },
+    {
+      "path": "tests/unit/real-usage-confidence.spec.ts",
+      "classification": "final_gate_test"
+    },
+    {
+      "path": "tests/unit/runtime-smoke-substitute-matrix.spec.ts",
+      "classification": "final_gate_test"
+    },
+    {
+      "path": "tests/unit/score-80-reconciliation-lock.spec.ts",
       "classification": "final_gate_test"
     }
   ],
   "evidence": [
-    "currentHead=cb7808a6a33fdfdf673d852503bb771ceb4fd207",
-    "scoreArtifactHead=cb7808a6a33fdfdf673d852503bb771ceb4fd207",
+    "currentHead=036a189a959f392c6eeec496ce112825d50864bb",
+    "scoreArtifactHead=036a189a959f392c6eeec496ce112825d50864bb",
     "healthScore=76.88",
     "launchGateStatus=owner_review",
     "openPrCount=0",
-    "staleArtifactCount=4",
+    "staleArtifactCount=5",
     "formalEvidenceRemaining=3",
     "productionReadsPerformed=false",
     "providerCallsPerformed=false",

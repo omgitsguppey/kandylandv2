@@ -6705,30 +6705,6 @@
       "do_not_use_as_primary_truth": false
     },
     {
-      "stable_id": "file__debug-output-json",
-      "source_type": "file",
-      "source_id": "file__debug-output-json",
-      "searchable_terms": [
-        "debug-output.json",
-        "root_misc",
-        "misc"
-      ],
-      "surface_tags": [
-        "misc",
-        "root_misc"
-      ],
-      "helper_tags": [],
-      "risk_tags": [],
-      "recency": "1777176365204:da39a3ee5e6b",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "warm",
-      "exclusion_tags": [],
-      "do_not_use_as_primary_truth": false
-    },
-    {
       "stable_id": "file__docs__adr__0000-template-md",
       "source_type": "file",
       "source_id": "file__docs__adr__0000-template-md",
@@ -12527,54 +12503,6 @@
         "broad_signoff"
       ],
       "recency": "1776476312222:9714def21ce6",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "warm",
-      "exclusion_tags": [],
-      "do_not_use_as_primary_truth": false
-    },
-    {
-      "stable_id": "file__git_diff-txt",
-      "source_type": "file",
-      "source_id": "file__git_diff-txt",
-      "searchable_terms": [
-        "git_diff.txt",
-        "root_misc",
-        "misc"
-      ],
-      "surface_tags": [
-        "misc",
-        "root_misc"
-      ],
-      "helper_tags": [],
-      "risk_tags": [],
-      "recency": "1777248505949:6382f07eb23a",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "warm",
-      "exclusion_tags": [],
-      "do_not_use_as_primary_truth": false
-    },
-    {
-      "stable_id": "file__git_log_output-txt",
-      "source_type": "file",
-      "source_id": "file__git_log_output-txt",
-      "searchable_terms": [
-        "git_log_output.txt",
-        "root_misc",
-        "misc"
-      ],
-      "surface_tags": [
-        "misc",
-        "root_misc"
-      ],
-      "helper_tags": [],
-      "risk_tags": [],
-      "recency": "1777244832720:9dc4343b350e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"

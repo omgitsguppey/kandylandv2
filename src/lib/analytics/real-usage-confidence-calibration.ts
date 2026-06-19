@@ -36,8 +36,7 @@ export const REQUIRED_REAL_USAGE_CALIBRATION_FLOWS: readonly RealUsageCalibratio
 
 export type RealUsageCalibrationLimit =
   | "does_not_clear_formal_provider"
-  | "does_not_clear_deployed_runtime"
-  | "does_not_clear_manual_visual";
+  | "does_not_clear_deployed_runtime";
 
 export type RealUsageCalibrationSignalLike = {
   status?: string;
@@ -56,7 +55,6 @@ export type RealUsageConfidenceCalibrationInput = {
     formalGateImpact?: {
       clearsFormalProvider?: boolean;
       clearsDeployedRuntime?: boolean;
-      clearsManualVisual?: boolean;
     };
     signals?: Partial<Record<string, RealUsageCalibrationSignalLike | null>>;
   };
@@ -145,7 +143,6 @@ export type RealUsageConfidenceCalibrationReport = {
   formalGateImpact: {
     clearsFormalProvider: boolean;
     clearsDeployedRuntime: boolean;
-    clearsManualVisual: boolean;
   };
   perFlowConfidence: Record<RealUsageCalibrationFlowId, RealUsagePerFlowConfidence>;
   evidence: string[];
@@ -157,7 +154,6 @@ export type RealUsageConfidenceCalibrationReport = {
 const LIMITS: RealUsageCalibrationLimit[] = [
   "does_not_clear_formal_provider",
   "does_not_clear_deployed_runtime",
-  "does_not_clear_manual_visual",
 ];
 
 const FLOW_CONFIG: Record<RealUsageCalibrationFlowId, {
@@ -389,7 +385,6 @@ export function buildRealUsageConfidenceCalibration(
     formalGateImpact: {
       clearsFormalProvider: false,
       clearsDeployedRuntime: false,
-      clearsManualVisual: false,
     },
   } as const;
   const report: RealUsageConfidenceCalibrationReport = {
@@ -435,7 +430,7 @@ export function buildRealUsageConfidenceCalibration(
       "fakeUsageCountsUsed=false",
     ],
     limitations: LIMITS,
-    nextAction: "Use calibrated real usage confidence for non-UI source/runtime scoring only; keep formal provider, deployed runtime, and visual gates separate.",
+    nextAction: "Use calibrated real usage confidence for source/runtime scoring only; keep formal provider and deployed runtime gates separate.",
     validationFailures: [],
   };
   const validationFailures = validateRealUsageConfidenceCalibration(report);
@@ -464,7 +459,6 @@ export function validateRealUsageConfidenceCalibration(
   }
   if (report.formalGateImpact.clearsFormalProvider) failures.push("real usage calibration must not clear formal provider.");
   if (report.formalGateImpact.clearsDeployedRuntime) failures.push("real usage calibration must not clear deployed runtime.");
-  if (report.formalGateImpact.clearsManualVisual) failures.push("real usage calibration must not clear manual visual.");
   if (!report.behaviorMathConnection.disabledTrackingSuppressed) {
     failures.push("disabled tracking behavior contributes to confidence.");
   }

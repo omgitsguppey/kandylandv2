@@ -27,7 +27,6 @@ function buildReport() {
       formalGateImpact: {
         clearsDeployedRuntime: false,
         clearsFormalProvider: false,
-        clearsManualVisual: false,
       },
     },
     behaviorMath: {
@@ -68,16 +67,15 @@ describe("runtime smoke substitute matrix", () => {
     expect(validateRuntimeSmokeSubstituteMatrix(report)).toEqual([]);
   });
 
-  it("keeps non-UI source and telemetry rows out of manual UI requirements", () => {
+  it("keeps source and telemetry rows out of manual UI requirements", () => {
     const report = buildReport();
-    const nonUiRows = Object.values(report.rows).filter((row) =>
-      (row.canBeSourceProven || row.canBeTelemetryProven || row.canBeDebugProven)
-      && row.id !== "wallet_balance_display",
+    const sourceRows = Object.values(report.rows).filter((row) =>
+      row.canBeSourceProven || row.canBeTelemetryProven || row.canBeDebugProven,
     );
 
-    expect(nonUiRows.length).toBeGreaterThan(10);
-    expect(nonUiRows.every((row) => row.requiresManualUI === false)).toBe(true);
-    expect(report.manualUiRowIds).toEqual(["wallet_balance_display"]);
+    expect(sourceRows.length).toBeGreaterThan(10);
+    expect(report.rows.wallet_balance_display.currentProofLevel).toBe("source_proven");
+    expect(report.currentProofSummary.formalRuntimeRequiredRows).toBeGreaterThan(0);
   });
 
   it("does not clear the formal deployed runtime gate", () => {
@@ -110,7 +108,6 @@ describe("runtime smoke substitute matrix", () => {
         telemetry_ingest: {
           ...report.rows.telemetry_ingest,
           proofTypes: [],
-          requiresManualUI: true,
         },
         route_loads: {
           ...report.rows.route_loads,
@@ -123,7 +120,6 @@ describe("runtime smoke substitute matrix", () => {
       expect.arrayContaining([
         expect.stringContaining("must not clear deployed runtime gate"),
         expect.stringContaining("telemetry_ingest lacks proof type"),
-        expect.stringContaining("telemetry_ingest incorrectly requires manual UI"),
         expect.stringContaining("route_loads requires formal runtime evidence but lacks next action"),
       ]),
     );

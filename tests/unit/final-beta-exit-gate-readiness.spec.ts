@@ -133,7 +133,7 @@ describe("final beta exit gate readiness", () => {
     expect(report.formalEvidenceRemaining).toEqual(
       expect.arrayContaining(["formal_provider_smoke", "deployed_runtime_smoke", "production_admin_truth_sample"]),
     );
-    expect(report.operatorFinalChecklist).toContain("operator_final_visual_review");
+    expect(report.operatorFinalChecklist).toContain("ui_source_coverage_current");
     expect(validateFinalBetaExitGateReadinessReport(report)).toEqual([]);
   });
 

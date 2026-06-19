@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-23T06:57:53.442Z",
+  "generatedAtUtc": "2026-06-19T16:04:53.299Z",
   "reportKey": "final-behavioral-privacy-telemetry-lock",
-  "currentHead": "a817e6e36f47ff3ecc71cd643737f18dc70558a3",
+  "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
   "overallStatus": "locked_with_formal_gates_remaining",
   "consentContractStatus": "pass",
   "cookieBannerStatus": "pass",
@@ -13,17 +13,16 @@
   "fullBehavioralStatus": "full_behavioral_enabled",
   "legacyRecoveryStatus": "pass",
   "futureFeatureTelemetryStatus": "pass",
-  "remainingManualOnlyItems": [
-    "UI visual/manual smoke",
+  "remainingExternalEvidenceItems": [
     "Runtime/provider smoke",
     "Admin truth/sample evidence"
   ],
-  "scoreBefore": 63.15,
-  "scoreAfter": 63.15,
+  "scoreBefore": 76.88,
+  "scoreAfter": 76.88,
   "nextExactSteps": [
     "Keep minimal analytics mapped to product_usage_minimal and performance_analytics only; do not promote it to behavioral personalization.",
     "Register new feature events in src/lib/telemetry-catalog.ts and src/lib/behavioral/behavior-feature-registry.ts before any tracker emits them.",
-    "Attach UI visual/manual smoke evidence for layout-sensitive surfaces before clearing the visual gate.",
+    "Keep deterministic UI source coverage current; use visual reproduction only after a source-reported UI issue.",
     "Attach deployed runtime/provider smoke artifacts before clearing runtime or provider gates.",
     "Attach redacted admin truth sample evidence before clearing formal admin truth/sample gates."
   ],
@@ -40,10 +39,10 @@
   "protectedChanges": [],
   "sourceArtifacts": {
     "consentContract": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
-    "cookieBanner": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
+    "cookieBanner": "beb9906be12b167fbcb2ccd7d0b876b6e842c562",
     "identityHandoff": "48e96ae3bca16d624a145c72406a633940050652",
-    "behaviorMath": "2026-05-21T19:15:45.407Z",
-    "legacyRecovery": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
+    "behaviorMath": "2026-06-11T22:32:40.552Z",
+    "legacyRecovery": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
     "futureTelemetry": "edd31cbee1e569fa059397c4782dd9f608c02fe9"
   },
   "validationFailures": []

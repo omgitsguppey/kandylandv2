@@ -25,8 +25,7 @@ describe("final behavioral privacy telemetry lock", () => {
     expect(report.fullBehavioralStatus).toBe("full_behavioral_enabled");
     expect(report.legacyRecoveryStatus).toBe("pass");
     expect(report.futureFeatureTelemetryStatus).toBe("pass");
-    expect(report.remainingManualOnlyItems).toEqual(expect.arrayContaining([
-      "UI visual/manual smoke",
+    expect(report.remainingExternalEvidenceItems).toEqual(expect.arrayContaining([
       "Runtime/provider smoke",
       "Admin truth/sample evidence",
     ]));

@@ -1687,11 +1687,6 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 - [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
 - [ ] Pending detailed function-level audit.
 
-### `debug-output.json`
-
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
-
 ### `docs/agent-truth/admin-activity.md`
 
 - [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
@@ -1868,16 +1863,6 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 - [ ] Pending detailed function-level audit.
 
 ### `functions/tsconfig.json`
-
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
-
-### `git_diff.txt`
-
-- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
-- [ ] Pending detailed function-level audit.
-
-### `git_log_output.txt`
 
 - [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
 - [ ] Pending detailed function-level audit.

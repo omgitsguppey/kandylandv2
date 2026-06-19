@@ -1076,7 +1076,7 @@ Validator: \`${TRUTH_RECONCILIATION_OUTPUTS[kind].checkScript}\`
 
 ## Evidence Boundary
 
-This is an automated source/artifact/package-script/import-shape audit. It does not run production reads, provider calls, deployment, manual visual QA, payment runtime, or GumDrop math changes. Formal provider/runtime/admin/manual gates remain unproven unless explicitly attached as formal artifacts.
+This is an automated source/artifact/package-script/import-shape audit. It does not run production reads, provider calls, deployment, payment runtime, or GumDrop math changes. Formal provider/runtime/admin evidence gates remain unproven unless explicitly attached as formal artifacts.
 
 ## Report
 

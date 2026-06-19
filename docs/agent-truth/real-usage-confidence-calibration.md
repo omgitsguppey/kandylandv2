@@ -11,7 +11,6 @@ Status: source-only calibration for non-UI beta confidence. It does not read pro
 - Operator-confirmed $50 sale recognized: true
 - Formal provider gate cleared: false
 - Deployed runtime gate cleared: false
-- Manual visual gate cleared: false
 
 ## Behavior Math Connection
 
@@ -40,8 +39,7 @@ Status: source-only calibration for non-UI beta confidence. It does not read pro
 
 - does_not_clear_formal_provider
 - does_not_clear_deployed_runtime
-- does_not_clear_manual_visual
 
 ## Next Action
 
-Use calibrated real usage confidence for non-UI source/runtime scoring only; keep formal provider, deployed runtime, and visual gates separate.
+Use calibrated real usage confidence for source/runtime scoring only; keep formal provider and deployed runtime gates separate.

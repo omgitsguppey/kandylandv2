@@ -192,14 +192,23 @@ export function classifyFinalGateDirtyFile(filePath: string): DirtyFileClassific
     return "current_generated_artifact_to_commit";
   }
   if (normalized === "scripts/agent/validate-final-beta-exit-gate-readiness.ts") return "final_gate_validator";
-  if (normalized.startsWith("scripts/agent/validate-") && /screenshot|evidence|beta|score-80|final|overnight|blocked-refresh|creator-surface|analytics-semantics|debug-backlog|user-creator|user-loading-wallet/iu.test(normalized)) {
+  if (normalized.startsWith("scripts/agent/validate-") && /screenshot|evidence|beta|score-80|final|overnight|blocked-refresh|creator-surface|analytics-semantics|debug-backlog|user-creator|user-loading-wallet|real-usage|runtime-smoke/iu.test(normalized)) {
     return "final_gate_validator";
   }
-  if (normalized.startsWith("tests/unit/") && /evidence|beta|score|blocked-refresh|debug-backlog|morning|overnight|ai-critic|final-phase/iu.test(normalized)) {
+  if (normalized.startsWith("tests/unit/") && /evidence|beta|score|blocked-refresh|debug-backlog|morning|overnight|ai-critic|final-phase|real-usage|runtime-smoke|final-behavioral|final-beta/iu.test(normalized)) {
     return "final_gate_test";
   }
   if (normalized === "package.json") return "package_script_wiring";
-  if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(normalized)) return "deleted_obsolete_log";
+  if (normalized === "EVERY_FILE_FUNCTION_CHECKLIST.md") return "score_evidence_artifact";
+  if (normalized === "agent/index/repo-inventory.json" || normalized === "agent/index/retrieval-index.json") {
+    return "score_evidence_artifact";
+  }
+  if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(normalized)
+    || normalized === "debug-output.json"
+    || normalized === "git_diff.txt"
+    || normalized === "git_log_output.txt") {
+    return "deleted_obsolete_log";
+  }
   if (
     normalized === "src/app/admin/debug/components/DebugOperatorCockpit.tsx"
     || normalized === "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts"
@@ -207,7 +216,12 @@ export function classifyFinalGateDirtyFile(filePath: string): DirtyFileClassific
     || normalized === "src/lib/debug/ai-critic-p1-triage.ts"
     || normalized === "src/lib/debug/recovery-playbooks.ts"
     || normalized === "src/lib/release-readiness/live-evidence-resolver.ts"
+    || normalized === "src/lib/release-readiness/automated-truth-reconciliation.ts"
     || normalized === "src/lib/admin-debug-control-tower.ts"
+    || normalized === "src/lib/agent-score/score-80-reconciliation-lock.ts"
+    || normalized === "src/lib/analytics/real-usage-confidence-calibration.ts"
+    || normalized === "src/lib/analytics/real-usage-confidence-engine.ts"
+    || normalized === "src/lib/runtime/runtime-smoke-substitute-matrix.ts"
   ) {
     return "evidence_boundary_source_change";
   }
@@ -375,7 +389,7 @@ export function buildFinalBetaExitGateReadinessReport(input: BuildInput = {}): F
     ...openPrsRemaining.map((pr) => `PR #${pr.number}: ${pr.nextAction}`),
     ...staleArtifactsRemaining.map((artifact) => `${artifact.artifactPath}: ${artifact.nextAction}`),
     ...costRemaining.map((lane) => `${lane.lane}: ${lane.nextAction}`),
-    "operator_final_visual_review: Complete manual visual review outside Codex score blocking.",
+    "ui_source_coverage: Keep deterministic UI source coverage current; use visual reproduction only after a source-reported UI issue.",
   ].filter((step) => step.trim().length > 0);
   const betaExitReady = stringValue(publicBetaScore.launchGateStatus) === "ready"
     && formalRemaining.length === 0

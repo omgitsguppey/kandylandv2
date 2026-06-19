@@ -1,8 +1,8 @@
 {
   "reportKey": "real-usage-confidence-calibration",
-  "generatedAtUtc": "2026-06-01T00:01:19.861Z",
-  "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-  "sourceCommit": "9795630e505231581241589fe40debd01b23d9b0",
+  "generatedAtUtc": "2026-06-19T16:01:13.548Z",
+  "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
+  "sourceCommit": "036a189a959f392c6eeec496ce112825d50864bb",
   "status": "source_ready_real_usage_confidence_calibrated",
   "detail": "Real usage confidence is calibrated from operator-confirmed usage, behavior math, identity transfer, telemetry closure, and source-ready paths without clearing formal gates.",
   "productionReadsRequired": false,
@@ -34,8 +34,7 @@
   },
   "formalGateImpact": {
     "clearsFormalProvider": false,
-    "clearsDeployedRuntime": false,
-    "clearsManualVisual": false
+    "clearsDeployedRuntime": false
   },
   "perFlowConfidence": {
     "wallet_refill": {
@@ -62,8 +61,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Keep the operator-confirmed revenue signal separate from formal provider smoke."
     },
@@ -91,8 +89,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Keep ledger/materializer source readiness as confidence only."
     },
@@ -120,8 +117,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Use source-backed dashboard telemetry as non-visual confidence."
     },
@@ -149,8 +145,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Use creator dashboard source readiness as non-visual confidence."
     },
@@ -174,8 +169,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Attach operator or telemetry evidence before treating creator settings as observed."
     },
@@ -203,8 +197,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Keep creator drop manager confidence tied to source telemetry and admin status metrics."
     },
@@ -228,8 +221,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Recover March 1 legacy profile/timeline records through dry-run mapping before counting them."
     },
@@ -257,8 +249,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Keep broadcast as source-ready until a concrete observed event is confirmed."
     },
@@ -286,8 +277,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Keep Fan Pass source readiness separate from subscription/payment runtime proof."
     },
@@ -311,8 +301,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Use behavior math confidence for non-payment drop-open evidence only."
     },
@@ -336,8 +325,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Keep watch confidence tied to watch-session rollups, not page-open time."
     }
@@ -354,9 +342,8 @@
   ],
   "limitations": [
     "does_not_clear_formal_provider",
-    "does_not_clear_deployed_runtime",
-    "does_not_clear_manual_visual"
+    "does_not_clear_deployed_runtime"
   ],
-  "nextAction": "Use calibrated real usage confidence for non-UI source/runtime scoring only; keep formal provider, deployed runtime, and visual gates separate.",
+  "nextAction": "Use calibrated real usage confidence for source/runtime scoring only; keep formal provider and deployed runtime gates separate.",
   "validationFailures": []
 }

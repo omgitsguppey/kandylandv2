@@ -15,11 +15,10 @@ Status: source-only confidence engine. It does not read production data, call pr
 
 - does_not_clear_formal_provider
 - does_not_clear_deployed_runtime
-- does_not_clear_manual_visual
 
 ## Signals
 
-- purchase_flow_seen: observed; contribution=30; source=agent/state/operator-revenue-smoke.generated.json; next=Use this as bounded confidence only; attach formal provider/runtime/manual evidence separately.
+- purchase_flow_seen: observed; contribution=30; source=agent/state/operator-revenue-smoke.generated.json; next=Use this as bounded confidence only; attach formal provider/runtime evidence separately.
 - gumdrop_credit_flow_seen: source_ready; contribution=10; source=src/lib/analytics/materialization-contract.ts; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
 - user_dashboard_seen: source_ready; contribution=8; source=src/lib/analytics/telemetry-dependency-graph.ts; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
 - creator_dashboard_seen: source_ready; contribution=8; source=agent/state/creator-drop-status-metrics.generated.json; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
@@ -30,4 +29,4 @@ Status: source-only confidence engine. It does not read production data, call pr
 
 ## Next Action
 
-Use real usage confidence as source/runtime confidence only; keep formal provider, deployed runtime, and manual visual gates separate.
+Use real usage confidence as source/runtime confidence only; keep formal provider and deployed runtime gates separate.

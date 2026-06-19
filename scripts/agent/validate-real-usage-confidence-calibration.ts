@@ -109,7 +109,6 @@ function readRealUsageConfidence(): RealUsageConfidenceCalibrationInput["realUsa
     formalGateImpact: {
       clearsFormalProvider: booleanValue(gateImpact.clearsFormalProvider),
       clearsDeployedRuntime: booleanValue(gateImpact.clearsDeployedRuntime),
-      clearsManualVisual: booleanValue(gateImpact.clearsManualVisual),
     },
     signals,
   };
@@ -157,7 +156,6 @@ function renderDoc(report: RealUsageConfidenceCalibrationReport) {
     `- Operator-confirmed $50 sale recognized: ${report.operatorConfirmedRevenueSmoke.recognized}`,
     `- Formal provider gate cleared: ${report.formalGateImpact.clearsFormalProvider}`,
     `- Deployed runtime gate cleared: ${report.formalGateImpact.clearsDeployedRuntime}`,
-    `- Manual visual gate cleared: ${report.formalGateImpact.clearsManualVisual}`,
     "",
     "## Behavior Math Connection",
     "",

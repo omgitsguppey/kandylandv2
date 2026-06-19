@@ -4096,22 +4096,6 @@
       "last_modified_or_hash": "1778207960687:253ff0e343ce"
     },
     {
-      "stable_id": "file__debug-output-json",
-      "path": "debug-output.json",
-      "file_class": "root_misc",
-      "surface_category": "misc",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": false,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1777176365204:da39a3ee5e6b"
-    },
-    {
       "stable_id": "file__docs__adr__0000-template-md",
       "path": "docs/adr/0000-template.md",
       "file_class": "other",
@@ -7918,38 +7902,6 @@
       "dataconnect_related": false,
       "functions_related": true,
       "last_modified_or_hash": "1776476312222:9714def21ce6"
-    },
-    {
-      "stable_id": "file__git_diff-txt",
-      "path": "git_diff.txt",
-      "file_class": "root_misc",
-      "surface_category": "misc",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": false,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1777248505949:6382f07eb23a"
-    },
-    {
-      "stable_id": "file__git_log_output-txt",
-      "path": "git_log_output.txt",
-      "file_class": "root_misc",
-      "surface_category": "misc",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": false,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1777244832720:9dc4343b350e"
     },
     {
       "stable_id": "file__knip-json",

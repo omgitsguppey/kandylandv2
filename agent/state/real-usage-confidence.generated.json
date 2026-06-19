@@ -1,8 +1,8 @@
 {
   "reportKey": "real-usage-confidence",
-  "generatedAtUtc": "2026-06-01T00:00:55.634Z",
-  "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-  "sourceCommit": "9795630e505231581241589fe40debd01b23d9b0",
+  "generatedAtUtc": "2026-06-19T16:01:04.591Z",
+  "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
+  "sourceCommit": "036a189a959f392c6eeec496ce112825d50864bb",
   "status": "source_ready_real_usage_confidence",
   "passed": true,
   "productionReadsRequired": false,
@@ -26,13 +26,11 @@
   ],
   "limits": [
     "does_not_clear_formal_provider",
-    "does_not_clear_deployed_runtime",
-    "does_not_clear_manual_visual"
+    "does_not_clear_deployed_runtime"
   ],
   "formalGateImpact": {
     "clearsFormalProvider": false,
-    "clearsDeployedRuntime": false,
-    "clearsManualVisual": false
+    "clearsDeployedRuntime": false
   },
   "ignoredUnknownUsage": [],
   "signals": {
@@ -54,10 +52,9 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use this as bounded confidence only; attach formal provider/runtime/manual evidence separately."
+      "nextAction": "Use this as bounded confidence only; attach formal provider/runtime evidence separately."
     },
     "gumdrop_credit_flow_seen": {
       "id": "gumdrop_credit_flow_seen",
@@ -77,8 +74,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
     },
@@ -100,8 +96,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
     },
@@ -123,8 +118,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
     },
@@ -146,8 +140,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
     },
@@ -169,8 +162,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
     },
@@ -192,8 +184,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
     },
@@ -215,8 +206,7 @@
       ],
       "limitations": [
         "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
+        "does_not_clear_deployed_runtime"
       ],
       "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
     }
@@ -227,5 +217,5 @@
     "ignoredUnknownUsage": 0,
     "confidenceScore": 92
   },
-  "nextAction": "Use real usage confidence as source/runtime confidence only; keep formal provider, deployed runtime, and manual visual gates separate."
+  "nextAction": "Use real usage confidence as source/runtime confidence only; keep formal provider and deployed runtime gates separate."
 }

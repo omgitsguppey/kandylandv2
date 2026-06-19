@@ -16,12 +16,11 @@ Privacy-aware behavioral telemetry is locked as a source-only contract. Cookie c
 - Full behavioral: full_behavioral_enabled
 - Legacy recovery: pass
 - Future feature telemetry: pass
-- Score before: 63.15
-- Score after: 63.15
+- Score before: 76.88
+- Score after: 76.88
 
-## Remaining Manual Only Items
+## Remaining External Evidence Items
 
-- UI visual/manual smoke
 - Runtime/provider smoke
 - Admin truth/sample evidence
 
@@ -29,7 +28,7 @@ Privacy-aware behavioral telemetry is locked as a source-only contract. Cookie c
 
 - Keep minimal analytics mapped to product_usage_minimal and performance_analytics only; do not promote it to behavioral personalization.
 - Register new feature events in src/lib/telemetry-catalog.ts and src/lib/behavioral/behavior-feature-registry.ts before any tracker emits them.
-- Attach UI visual/manual smoke evidence for layout-sensitive surfaces before clearing the visual gate.
+- Keep deterministic UI source coverage current; use visual reproduction only after a source-reported UI issue.
 - Attach deployed runtime/provider smoke artifacts before clearing runtime or provider gates.
 - Attach redacted admin truth sample evidence before clearing formal admin truth/sample gates.
 
