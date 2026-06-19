@@ -90,6 +90,30 @@ describe("self-healing refresh queue", () => {
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
   });
 
+  it("normalizes legacy screenshot proof commands into UI source coverage", () => {
+    const report = buildSelfHealingRefreshQueue({
+      refreshPlan: [],
+      scoreImpactArtifacts: [
+        {
+          id: "agent/state/ui-visual-smoke-minimal.generated.json",
+          status: "blocked_formal_evidence: targeted visual/manual screenshot required",
+          pointImpact: 2,
+          refreshCommand: "Attach manual screenshot evidence, then run npm run check:evidence-capture-status",
+        },
+      ],
+    });
+
+    expect(report.queue[0]).toMatchObject({
+      artifact: "agent/state/ui-visual-smoke-minimal.generated.json",
+      staleReason: "UI source coverage required",
+      refreshCommand: "npm run check:ui-visual-smoke-minimal",
+      canRunAutomatically: true,
+      blockedReason: "",
+    });
+    expect(JSON.stringify(report)).not.toContain("manual screenshot");
+    expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
+  });
+
   it("blocks hyphenated formal proof artifact paths from automatic refresh", () => {
     const report = buildSelfHealingRefreshQueue({
       refreshPlan: [],

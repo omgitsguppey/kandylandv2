@@ -63,7 +63,9 @@ export interface SelfHealingRefreshQueueReport {
 type FormalEvidenceKind = "runtime" | "provider" | "admin_truth" | "generic";
 
 const FORMAL_EVIDENCE_PATTERN = /\battach formal|formal provider|formal runtime|admin truth sample|provider smoke|runtime smoke/i;
+const LEGACY_SCREENSHOT_EVIDENCE_PATTERN = /\b(manual screenshot|screenshot evidence|visual\/manual screenshot|targeted visual\/manual|operator screenshot)\b/i;
 const FORBIDDEN_COMMAND_PATTERN = /\b(firebase deploy|gcloud|deploy|production read|paypal|provider call)\b/i;
+const UI_SOURCE_COVERAGE_REFRESH_COMMAND = "npm run check:ui-visual-smoke-minimal";
 
 const OWNER_BY_ARTIFACT: Array<[RegExp, SelfHealingRefreshQueueOwner]> = [
   [/runtime|provider/i, "runtime"],
@@ -103,6 +105,23 @@ function formalEvidenceKind(value: string): FormalEvidenceKind | null {
 
 function isFormalEvidenceRefresh(command: string, artifact: string, status = "") {
   return formalEvidenceKind(`${command} ${artifact} ${status}`) !== null;
+}
+
+function isLegacyScreenshotEvidenceText(value: string) {
+  return LEGACY_SCREENSHOT_EVIDENCE_PATTERN.test(value);
+}
+
+function normalizeRefreshCommand(command: string, artifact: string, status = "") {
+  return isLegacyScreenshotEvidenceText(`${command} ${artifact} ${status}`)
+    ? UI_SOURCE_COVERAGE_REFRESH_COMMAND
+    : command;
+}
+
+function normalizeStaleReason(status: string | undefined, command: string, artifact: string) {
+  if (isLegacyScreenshotEvidenceText(`${command} ${artifact} ${status ?? ""}`)) {
+    return "UI source coverage required";
+  }
+  return status ?? "score_impact";
 }
 
 function formalEvidenceBlockedReason(artifact: string) {
@@ -157,11 +176,11 @@ function buildRefreshPlanEntries(
     .filter((entry) => entry.needsRefresh)
     .map((entry) => {
       const impact = impacts.get(entry.artifactPath) ?? impacts.get(entry.reportKey ?? "");
-      const command = entry.refreshCommand ?? "";
+      const command = normalizeRefreshCommand(entry.refreshCommand ?? "", entry.artifactPath, entry.status);
       const formal = isFormalEvidenceRefresh(command, entry.artifactPath, entry.status);
       return {
         artifact: entry.artifactPath,
-        staleReason: formal ? formalEvidenceStaleReason(entry.artifactPath) : entry.status,
+        staleReason: formal ? formalEvidenceStaleReason(entry.artifactPath) : normalizeStaleReason(entry.status, command, entry.artifactPath),
         refreshCommand: command,
         scoreImpactEstimate: round(impact?.pointImpact ?? (entry.status === "stale_source_version" ? 1 : 0.5)),
         owner: entry.owner,
@@ -195,11 +214,11 @@ function buildScoreImpactEntries(
 
   return [...uniqueItems.values()]
     .map((item) => {
-      const command = item.refreshCommand ?? getRegisteredRefreshCommand(item.id) ?? "";
+      const command = normalizeRefreshCommand(item.refreshCommand ?? getRegisteredRefreshCommand(item.id) ?? "", item.id, item.status);
       const formal = isFormalEvidenceRefresh(command, item.id, item.status);
       return {
         artifact: item.id,
-        staleReason: formal ? formalEvidenceStaleReason(item.id) : item.status ?? "score_impact",
+        staleReason: formal ? formalEvidenceStaleReason(item.id) : normalizeStaleReason(item.status, command, item.id),
         refreshCommand: command,
         scoreImpactEstimate: round(item.pointImpact ?? 0),
         owner: ownerForArtifact(item.id),
@@ -213,7 +232,9 @@ function buildScoreImpactEntries(
               ? ""
               : "No registered refresh command.",
         source: "score_impact",
-        expectedOutcome: formal
+        expectedOutcome: isLegacyScreenshotEvidenceText(`${item.refreshCommand ?? ""} ${item.id} ${item.status ?? ""}`)
+          ? "Run deterministic UI source coverage and fix any source-reported UI surface gap; screenshots are optional reproduction evidence only."
+          : formal
           ? formalEvidenceExpectedOutcome(item.id)
           : "Refresh score-impact artifact and reduce freshness/regression drag if validation passes.",
       };

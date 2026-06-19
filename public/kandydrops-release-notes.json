@@ -1,11 +1,58 @@
 {
-  "currentVersion": "1.6.8",
-  "betaReleaseCounter": 608,
+  "currentVersion": "1.6.9",
+  "betaReleaseCounter": 609,
   "channel": "beta",
-  "generatedAt": "2026-06-19T16:51:37.510Z",
-  "generatedAtUtc": "2026-06-19T16:51:37.510Z",
-  "lastCommitSha": "1fb8629efe28ef390f48ccf6733f22b6afc174e8",
+  "generatedAt": "2026-06-19T17:03:11.426Z",
+  "generatedAtUtc": "2026-06-19T17:03:11.426Z",
+  "lastCommitSha": "3fb36238eb26f30b7d2223695c39364033d04b03",
   "notes": [
+    {
+      "version": "1.6.9",
+      "previousVersion": "1.6.8",
+      "betaReleaseCounter": 609,
+      "previousBetaReleaseCounter": 608,
+      "commitSha": "3fb36238eb26f30b7d2223695c39364033d04b03",
+      "commitTitle": "repo intelligence: refresh UI source evidence release notes",
+      "commitCount": 1,
+      "commitShas": [
+        "3fb36238eb26f30b7d2223695c39364033d04b03"
+      ],
+      "committedAt": "2026-06-19T16:54:02.000Z",
+      "generatedAt": "2026-06-19T17:03:11.423Z",
+      "committedAtUtc": "2026-06-19T16:54:02.000Z",
+      "generatedAtUtc": "2026-06-19T17:03:11.423Z",
+      "updatedAtUtc": "2026-06-19T17:03:11.423Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/codex-visual-gate-removal.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
+        "agent/state/operator-final-qa-packet.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/ui-visual-smoke-minimal.generated.json",
+        "agent/state/user-creator-visual-confirmation.generated.json",
+        "docs/agent-truth/evidence-capture-status.md",
+        "docs/agent-truth/operator-final-qa-packet.md",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "sourceCommit": "3fb36238eb26f30b7d2223695c39364033d04b03"
+    },
     {
       "version": "1.6.8",
       "previousVersion": "1.6.7",
@@ -1796,61 +1843,6 @@
         "src/components/Admin/CreateDropModal.tsx"
       ],
       "sourceCommit": "470a3623e547c6f5f32d0f87ef98745c49fc7574"
-    },
-    {
-      "version": "1.5.84",
-      "previousVersion": "1.5.83",
-      "betaReleaseCounter": 584,
-      "previousBetaReleaseCounter": 583,
-      "commitSha": "7c0de649892079e85dbc8884035baf6602656fcb",
-      "commitTitle": "fix(admin): simplify surface actions",
-      "commitCount": 2,
-      "commitShas": [
-        "5d2504fb030e5ef22a7e91f0f10b349297488326",
-        "7c0de649892079e85dbc8884035baf6602656fcb"
-      ],
-      "committedAt": "2026-06-18T00:39:28.000Z",
-      "generatedAt": "2026-06-18T00:41:45.267Z",
-      "committedAtUtc": "2026-06-18T00:39:28.000Z",
-      "generatedAtUtc": "2026-06-18T00:41:45.267Z",
-      "updatedAtUtc": "2026-06-18T00:41:45.267Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "drops-viewer",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/admin-surface-modal-replacement.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/admin-surface-modal-replacement.md",
-        "public/kandydrops-release-notes.json",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/admin/drops/page.tsx",
-        "src/components/Admin/CreateDropModal.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-analytics-page.spec.tsx",
-        "tests/unit/admin-drops-fixture-boundary.spec.ts",
-        "tests/unit/create-drop-modal-upload-block.spec.tsx"
-      ],
-      "sourceCommit": "7c0de649892079e85dbc8884035baf6602656fcb"
     }
   ]
 }

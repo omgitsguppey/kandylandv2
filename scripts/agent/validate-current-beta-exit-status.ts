@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import type { ArtifactRefreshStatus } from "../../src/lib/agent-score/refresh-safeguards";
 import {
+  classifyGeneratedArtifactFromGit,
   classifyGeneratedArtifactVersion,
   isGeneratedArtifactCurrent,
   readGeneratedArtifactGitContext,
@@ -179,6 +180,12 @@ const currentBetaExitOwnedInputPaths = [
   runtimeSmokeEvidenceRelativePath,
   adminTruthSampleEvidenceRelativePath,
 ] as const;
+const uiSurfaceCoverageOwnedInputPaths = [
+  "scripts/agent/validate-ui-visual-smoke-minimal.ts",
+  "scripts/agent/check-ui-surface-coverage.ts",
+  "src/lib/evidence/ui-visual-smoke-contract.ts",
+  "agent/evidence/ui-visual-smoke/template.json",
+] as const;
 
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
@@ -313,10 +320,24 @@ export function formalEvidenceStatus(
   head: string,
   fallback: string,
   staleStatus: string,
+  options?: { artifactPath: string; ownedSourcePaths: readonly string[] },
 ) {
   if (!artifact) return fallback;
   const artifactHead = stringValue(artifact.currentHead ?? artifact.sourceCommit, "");
-  if (artifactHead && artifactHead !== head) return staleStatus;
+  if (artifactHead && artifactHead !== head) {
+    if (options) {
+      const version = classifyGeneratedArtifactFromGit({
+        cwd: repoRoot,
+        artifactPath: options.artifactPath,
+        artifactHead,
+        ownedSourcePaths: [...options.ownedSourcePaths],
+      });
+      if (isGeneratedArtifactCurrent(version)) {
+        return stringValue(artifact.overallStatus ?? artifact.status, fallback);
+      }
+    }
+    return staleStatus;
+  }
   return stringValue(artifact.overallStatus ?? artifact.status, fallback);
 }
 
@@ -329,6 +350,18 @@ function artifactCommit(artifact: Record<string, unknown> | null) {
 function artifactIsStale(artifact: Record<string, unknown> | null, head: string) {
   const commit = artifactCommit(artifact);
   return Boolean(commit && commit !== head);
+}
+
+function uiSurfaceCoverageIsCurrentByImpact(artifact: Record<string, unknown> | null) {
+  const commit = artifactCommit(artifact);
+  if (!commit) return false;
+  const version = classifyGeneratedArtifactFromGit({
+    cwd: repoRoot,
+    artifactPath: uiSurfaceCoverageRelativePath,
+    artifactHead: commit,
+    ownedSourcePaths: [...uiSurfaceCoverageOwnedInputPaths],
+  });
+  return isGeneratedArtifactCurrent(version);
 }
 
 function formalStatusPassed(id: CurrentBetaExitProofLaneId, status: string) {
@@ -347,7 +380,10 @@ function proofTruthStateFor(input: {
 }): CurrentBetaExitProofTruthState {
   const artifactStatus = stringValue(input.artifact?.overallStatus ?? input.artifact?.status, input.sourceStatus);
   const hasFormalPassingStatus = formalStatusPassed(input.id, input.sourceStatus) || formalStatusPassed(input.id, artifactStatus);
-  const isStaleSource = artifactIsStale(input.artifact, input.head) || /^stale_/iu.test(input.sourceStatus);
+  const isStaleSource = (
+    artifactIsStale(input.artifact, input.head)
+    && !(input.id === "uiSurfaceCoverage" && uiSurfaceCoverageIsCurrentByImpact(input.artifact))
+  ) || /^stale_/iu.test(input.sourceStatus);
 
   if (input.id === "uiSurfaceCoverage") {
     if (isStaleSource) return "stale_evidence";
@@ -511,7 +547,10 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
   const providerSmokeStatus = formalEvidenceStatus(provider, head, report.summary.providerSmokeStatus, "stale_provider_smoke_evidence");
   const runtimeSmokeStatus = formalEvidenceStatus(runtime, head, report.summary.runtimeSmokeStatus, "stale_runtime_smoke_evidence");
   const adminTruthSampleStatus = formalEvidenceStatus(admin, head, report.summary.adminTruthSampleStatus, "stale_admin_truth_sample_evidence");
-  const visualEvidenceStatus = formalEvidenceStatus(uiSurfaceCoverage, head, report.summary.visualEvidenceStatus, "stale_visual_evidence");
+  const visualEvidenceStatus = formalEvidenceStatus(uiSurfaceCoverage, head, report.summary.visualEvidenceStatus, "stale_visual_evidence", {
+    artifactPath: uiSurfaceCoverageRelativePath,
+    ownedSourcePaths: uiSurfaceCoverageOwnedInputPaths,
+  });
   const proofLanes = buildProofLanes({
     head,
     visualEvidenceStatus,

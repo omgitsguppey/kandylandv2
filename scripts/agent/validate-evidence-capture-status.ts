@@ -13,6 +13,10 @@ import {
   type ArtifactRefreshStatus,
   type RefreshArtifactInput,
 } from "../../src/lib/agent-score/refresh-safeguards";
+import {
+  classifyGeneratedArtifactFromGit,
+  isGeneratedArtifactCurrent,
+} from "../../src/lib/agent-score/generated-artifact-version-policy";
 
 type EvidenceStatus = "missing" | "incomplete" | "complete" | "stale";
 
@@ -90,6 +94,13 @@ const currentBetaExitPath = join(repoRoot, "agent/state/current-beta-exit-status
 const operatorRevenueSmokePath = join(repoRoot, "agent/state/operator-revenue-smoke.generated.json");
 const liveEvidenceGatePath = join(repoRoot, "agent/state/live-evidence-gate-replacement.generated.json");
 const expectedDailyActivityImportPath = "agent/evidence/live-runtime-activity/recent-activity.export.json";
+const uiSurfaceCoverageArtifactPath = "agent/state/ui-visual-smoke-minimal.generated.json";
+const uiSurfaceCoverageOwnedInputPaths = [
+  "scripts/agent/validate-ui-visual-smoke-minimal.ts",
+  "scripts/agent/check-ui-surface-coverage.ts",
+  "src/lib/evidence/ui-visual-smoke-contract.ts",
+  "agent/evidence/ui-visual-smoke/template.json",
+] as const;
 
 const laneLabels: Record<keyof EvidenceLaneStatuses, string> = {
   uiSurfaceCoverageEvidence: "UI surface coverage evidence",
@@ -244,8 +255,7 @@ function evaluateUiSurfaceCoverageEvidence(head: string): {
   templateExists: boolean;
   completeArtifacts: string[];
 } {
-  const artifactPath = "agent/state/ui-visual-smoke-minimal.generated.json";
-  const fullPath = join(repoRoot, artifactPath);
+  const fullPath = join(repoRoot, uiSurfaceCoverageArtifactPath);
   if (!existsSync(fullPath)) {
     return { status: "missing", templateExists: false, completeArtifacts: [] };
   }
@@ -255,10 +265,24 @@ function evaluateUiSurfaceCoverageEvidence(head: string): {
     ? parsed.validationFailures.filter(Boolean)
     : [];
   if (artifactHead && artifactHead !== head) {
+    const version = classifyGeneratedArtifactFromGit({
+      cwd: repoRoot,
+      artifactPath: uiSurfaceCoverageArtifactPath,
+      artifactHead,
+      ownedSourcePaths: [...uiSurfaceCoverageOwnedInputPaths],
+    });
+    if (
+      isGeneratedArtifactCurrent(version)
+      && parsed.passed === true
+      && parsed.status === "source_surface_checks_current"
+      && validationFailures.length === 0
+    ) {
+      return { status: "complete", templateExists: true, completeArtifacts: [uiSurfaceCoverageArtifactPath] };
+    }
     return { status: "stale", templateExists: true, completeArtifacts: [] };
   }
   if (parsed.passed === true && parsed.status === "source_surface_checks_current" && validationFailures.length === 0) {
-    return { status: "complete", templateExists: true, completeArtifacts: [artifactPath] };
+    return { status: "complete", templateExists: true, completeArtifacts: [uiSurfaceCoverageArtifactPath] };
   }
   return { status: "incomplete", templateExists: true, completeArtifacts: [] };
 }

@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-19T12:58:54.372Z",
+  "generatedAtUtc": "2026-06-19T17:09:44.539Z",
   "reportKey": "self-healing-refresh-queue",
-  "currentHead": "3674695560b4949a742011b459500ee11f8eb3b2",
-  "sourceCommit": "3674695560b4949a742011b459500ee11f8eb3b2",
+  "currentHead": "3fb36238eb26f30b7d2223695c39364033d04b03",
+  "sourceCommit": "3fb36238eb26f30b7d2223695c39364033d04b03",
   "overallStatus": "pass",
   "queue": [
     {
@@ -42,24 +42,36 @@
       "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
     },
     {
+      "artifact": "agent/state/beta-evidence-lane-prep.generated.json",
+      "staleReason": "stale_source_version",
+      "refreshCommand": "npm run check:beta-evidence-lane-prep",
+      "scoreImpactEstimate": 1.6,
+      "owner": "evidence",
+      "dependencyOrder": 4,
+      "canRunAutomatically": true,
+      "blockedReason": "",
+      "source": "refresh_plan",
+      "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
+    },
+    {
       "artifact": "agent/state/admin-truth.generated.json",
       "staleReason": "missing",
       "refreshCommand": "npm run check:admin-truth",
       "scoreImpactEstimate": 1,
       "owner": "admin",
-      "dependencyOrder": 4,
+      "dependencyOrder": 5,
       "canRunAutomatically": true,
       "blockedReason": "",
       "source": "score_impact",
       "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
     },
     {
-      "artifact": "agent/state/current-beta-exit-status.generated.json",
+      "artifact": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
       "staleReason": "stale_source_version",
-      "refreshCommand": "npm run check:current-beta-exit-status",
+      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "scoreImpactEstimate": 1,
-      "owner": "beta",
-      "dependencyOrder": 5,
+      "owner": "mobile",
+      "dependencyOrder": 6,
       "canRunAutomatically": true,
       "blockedReason": "",
       "source": "refresh_plan",
@@ -71,7 +83,7 @@
       "refreshCommand": "npm run check:analytics-rewire-phase-one",
       "scoreImpactEstimate": 1,
       "owner": "repo",
-      "dependencyOrder": 6,
+      "dependencyOrder": 7,
       "canRunAutomatically": true,
       "blockedReason": "",
       "source": "score_impact",
@@ -83,7 +95,7 @@
       "refreshCommand": "npm run check:content-protection",
       "scoreImpactEstimate": 1,
       "owner": "repo",
-      "dependencyOrder": 7,
+      "dependencyOrder": 8,
       "canRunAutomatically": true,
       "blockedReason": "",
       "source": "score_impact",
@@ -95,7 +107,7 @@
       "refreshCommand": "npm run check:targeted-behavior-evidence",
       "scoreImpactEstimate": 1,
       "owner": "repo",
-      "dependencyOrder": 8,
+      "dependencyOrder": 9,
       "canRunAutomatically": true,
       "blockedReason": "",
       "source": "score_impact",
@@ -107,41 +119,29 @@
       "refreshCommand": "npm run check:user-facing-feature-connection-audit",
       "scoreImpactEstimate": 1,
       "owner": "repo",
-      "dependencyOrder": 9,
+      "dependencyOrder": 10,
       "canRunAutomatically": true,
       "blockedReason": "",
       "source": "score_impact",
       "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
     },
     {
-      "artifact": "debug_runtime_evidence",
-      "staleReason": "Deployed runtime proof required",
-      "refreshCommand": "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status",
-      "scoreImpactEstimate": 16.33,
-      "owner": "runtime",
-      "dependencyOrder": 10,
-      "canRunAutomatically": false,
-      "blockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
-      "source": "score_impact",
-      "expectedOutcome": "Remain blocked until a human attaches the deployed runtime smoke artifact."
-    },
-    {
-      "artifact": "runtime_provider_smoke",
-      "staleReason": "External proof required",
-      "refreshCommand": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
-      "scoreImpactEstimate": 16.33,
-      "owner": "runtime",
+      "artifact": "agent/state/final-telemetry-closure-lock.generated.json",
+      "staleReason": "stale_source_version",
+      "refreshCommand": "npm run check:final-telemetry-closure-lock",
+      "scoreImpactEstimate": 1,
+      "owner": "telemetry",
       "dependencyOrder": 11,
-      "canRunAutomatically": false,
-      "blockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
-      "source": "score_impact",
-      "expectedOutcome": "Remain blocked until a human attaches the formal provider smoke artifact."
+      "canRunAutomatically": true,
+      "blockedReason": "",
+      "source": "refresh_plan",
+      "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
     },
     {
       "artifact": "admin_truth_sample_evidence",
       "staleReason": "Admin sample required",
       "refreshCommand": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
-      "scoreImpactEstimate": 12,
+      "scoreImpactEstimate": 8.32,
       "owner": "admin",
       "dependencyOrder": 12,
       "canRunAutomatically": false,
@@ -150,16 +150,16 @@
       "expectedOutcome": "Remain blocked until a human attaches the admin truth sample artifact."
     },
     {
-      "artifact": "visual_manual_smoke",
-      "staleReason": "Manual UI proof required",
-      "refreshCommand": "Attach manual screenshot evidence, then run npm run check:evidence-capture-status",
-      "scoreImpactEstimate": 12,
-      "owner": "manual",
+      "artifact": "runtime_provider_smoke",
+      "staleReason": "External proof required",
+      "refreshCommand": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+      "scoreImpactEstimate": 5.76,
+      "owner": "runtime",
       "dependencyOrder": 13,
       "canRunAutomatically": false,
-      "blockedReason": "blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.",
+      "blockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
       "source": "score_impact",
-      "expectedOutcome": "Remain blocked until a human attaches the visual/manual smoke artifact."
+      "expectedOutcome": "Remain blocked until a human attaches the formal provider smoke artifact."
     },
     {
       "artifact": "agent/state/provider-smoke-evidence.generated.json",
@@ -196,25 +196,13 @@
       "blockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
       "source": "score_impact",
       "expectedOutcome": "Remain blocked until a human attaches the deployed runtime smoke artifact."
-    },
-    {
-      "artifact": "agent/state/debug-runtime-evidence.generated.json",
-      "staleReason": "Deployed runtime proof required",
-      "refreshCommand": "npm run check:debug-runtime-evidence",
-      "scoreImpactEstimate": 0.01,
-      "owner": "runtime",
-      "dependencyOrder": 17,
-      "canRunAutomatically": false,
-      "blockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
-      "source": "score_impact",
-      "expectedOutcome": "Remain blocked until a human attaches the deployed runtime smoke artifact."
     }
   ],
   "summary": {
-    "total": 17,
-    "automatic": 9,
-    "blocked": 8,
-    "totalScoreImpactEstimate": 84.47
+    "total": 16,
+    "automatic": 11,
+    "blocked": 5,
+    "totalScoreImpactEstimate": 44.48
   },
   "integration": {
     "betaScoreRefreshPlan": true,
