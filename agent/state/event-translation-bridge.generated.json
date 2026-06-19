@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-19T04:06:52.445Z",
-  "currentHead": "544dde648898688d18b51de064d4843b67f57c81",
+  "generatedAtUtc": "2026-06-19T04:32:08.339Z",
+  "currentHead": "1d528701f1d1e1b6e1a4bffb75d235523528382d",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5437,8 +5437,16 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/launch-analytics-recovery.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
@@ -5449,8 +5457,16 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
       "path": "docs/agent-truth/launch-analytics-recovery.md",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",

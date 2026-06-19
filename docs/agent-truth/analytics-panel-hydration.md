@@ -1,7 +1,7 @@
 # Analytics Panel Hydration
 
-Generated: 2026-06-19T04:11:02.036Z
-Current head: 45fc635bc14d3d407f3a1e4ee25d1cb07a0b686c
+Generated: 2026-06-19T04:32:08.465Z
+Current head: 1d528701f1d1e1b6e1a4bffb75d235523528382d
 
 ## Summary
 
@@ -31,24 +31,20 @@ Current head: 45fc635bc14d3d407f3a1e4ee25d1cb07a0b686c
 ## Live Evidence
 
 - Contributes live evidence: new_users_signups, creator_follows, drops_live, unlocks, watch_time, completion_rate, auth_attempts_failures, search_queries, search_zero_results_clicks, support_account_actions
-- Collecting with source: unwraps, package_selections, checkout_starts
-- Blocked: traffic_overview, active_users, returning_users, guest_to_user_handoff, creator_count, creator_profile_views, drop_opens, wallet_opens, reward_gd_grants, task_starts, task_completions, task_rewards, chat_opens, chat_messages, chat_blocks_errors, notification_prompts, notification_tokens, notification_intents, session_restores, media_uploads_access_blocks, journey_funnel, realtime_health
+- Collecting with source: traffic_overview, active_users, returning_users, guest_to_user_handoff, creator_count, creator_profile_views, drop_opens, unwraps, wallet_opens, package_selections, checkout_starts, reward_gd_grants, task_starts, task_completions, task_rewards, chat_opens, chat_messages, chat_blocks_errors, notification_prompts, notification_tokens, notification_intents, session_restores, media_uploads_access_blocks, journey_funnel, realtime_health
+- Blocked: none
 - Runtime evidence required: error_rate_4xx, debug_backlog
 - Admin truth source required: none
 - External required: payment_approvals, payment_failures, gumdrop_balances, cost_risk
 
 ## Top Hydration Failures
 
-- Traffic overview: not_observed_but_expected; next=Verify analytics_event_facts with bounded recent summaries before treating Traffic overview as hydrated or zero.
-- Active users: not_observed_but_expected; next=Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Active users as hydrated or zero.
-- Returning users: not_observed_but_expected; next=Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Returning users as hydrated or zero.
-- Guest-to-user handoff: not_observed_but_expected; next=Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Guest-to-user handoff as hydrated or zero.
-- Creator count: not_observed_but_expected; next=Verify settings surfaces and settings route telemetry with bounded recent summaries before treating Creator count as hydrated or zero.
-- Creator profile views: not_observed_but_expected; next=Verify analytics_event_facts and creator relationship funnel telemetry with bounded recent summaries before treating Creator profile views as hydrated or zero.
-- Drop opens: not_observed_but_expected; next=Verify analytics_event_facts with bounded recent summaries before treating Drop opens as hydrated or zero.
-- Wallet opens: not_observed_but_expected; next=Verify wallet UI telemetry with bounded recent summaries before treating Wallet opens as hydrated or zero.
 - Payment approvals: provider_gated; next=Attach redacted external evidence for server purchase verification facts; do not use screenshots as backend proof.
 - Payment failures: provider_gated; next=Attach redacted external evidence for payment failure telemetry; do not use screenshots as backend proof.
+- GumDrop balances: protected_payment_required; next=Attach redacted external evidence for wallet source ledger plus protected payment/provider proof; do not use screenshots as backend proof.
+- Error rate/4xx: runtime_evidence_required; next=Attach bounded route/debug runtime evidence for admin debug summary; do not use screenshots as backend proof.
+- Cost risk: external_required; next=Attach redacted external evidence for cost guard summaries plus external billing review; do not use screenshots as backend proof.
+- Debug backlog: runtime_evidence_required; next=Attach bounded route/debug runtime evidence for debug backlog summary; do not use screenshots as backend proof.
 
 ## Debug Lane
 
