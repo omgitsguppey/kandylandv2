@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-19T09:15:38.932Z
+Generated: 2026-06-19T10:10:31.397Z
 Status: pass
-Current head: 034ca83f8156a0077b6495043e22f6f3dc68c1aa
+Current head: a9c93ffc3df91844e11b3e5b4be49f3bdfee5d31
 
 ## Contract
 
@@ -53,8 +53,29 @@ Current head: 034ca83f8156a0077b6495043e22f6f3dc68c1aa
 
 ## Dirty Files
 
+- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/beta-evidence-gap-map.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/generated-report-authority.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/overnight-final-integration-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
 - agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/beta-evidence-gap-map.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/overnight-final-integration-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
+- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
+- scripts/agent/validate-beta-evidence-gap-map.ts: validator_artifact_expected
+- scripts/agent/validate-overnight-final-integration-lock.ts: validator_artifact_expected
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- tests/unit/beta-evidence-gap-map.spec.ts: test_artifact_expected
+- tests/unit/overnight-final-integration-lock.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

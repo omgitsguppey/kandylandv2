@@ -1015,7 +1015,17 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "tests/unit/source-agreement-failure-detail.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts") return "test_artifact_expected";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-beta-evidence-gap-map.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-overnight-final-integration-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/beta-evidence-gap-map.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/overnight-final-integration-lock.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/beta-evidence-gap-map.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/overnight-final-integration-lock.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/generated-report-authority.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/beta-evidence-gap-map.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/overnight-final-integration-lock.md") return "documentation_artifact_expected";
   if (/^src\/lib\/admin-analytics\/panel-hydration-(contract|registry|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";

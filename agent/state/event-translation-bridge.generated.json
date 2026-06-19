@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-19T09:15:38.932Z",
-  "currentHead": "034ca83f8156a0077b6495043e22f6f3dc68c1aa",
+  "generatedAtUtc": "2026-06-19T10:10:31.397Z",
+  "currentHead": "a9c93ffc3df91844e11b3e5b4be49f3bdfee5d31",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5433,12 +5433,96 @@
   "gaps": [],
   "dirtyFiles": [
     {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/generated-report-authority.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/launch-analytics-recovery.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/launch-analytics-recovery.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-beta-evidence-gap-map.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/beta-evidence-gap-map.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/overnight-final-integration-lock.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "validationFailures": [],

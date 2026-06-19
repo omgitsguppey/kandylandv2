@@ -65,6 +65,42 @@ describe("overnight final integration lock", () => {
     expect(validateOvernightFinalIntegrationLockReport(report)).toContain("critical overnight dependency missing without status or next action.");
   });
 
+  it("allows stale creator drop metrics only as a visible remaining risk", () => {
+    const report = buildOvernightFinalIntegrationLockReport({
+      generatedAtUtc: "2026-05-20T12:00:00.000Z",
+      currentHead: "head",
+      changedFiles: [],
+      untrackedFiles: [],
+      dependencyStatus: readyDependencies.map((dependency) =>
+        dependency.id === "creator-drop-status-metrics"
+          ? {
+            ...dependency,
+            status: "stale",
+            detail: "creator drop metrics artifact is stale.",
+            nextAction: "Run npm run check:creator-drop-status-metrics.",
+          }
+          : dependency,
+      ),
+      prCleanupActions: [],
+      openPrs: [],
+      betaScore: 41.92,
+      betaStatus: "Stale evidence",
+      betaEvidenceReady: false,
+      mobileScaleSweepFindings: [],
+      fixesApplied: [],
+      smallScaleFixes: [],
+    });
+
+    expect(report.summary.creatorDropStatusMetricsStatus).toBe("stale");
+    expect(report.remainingRisks).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "creator-drop-status-metrics",
+        severity: "P2",
+      }),
+    ]));
+    expect(validateOvernightFinalIntegrationLockReport(report)).toEqual([]);
+  });
+
   it("fails when chat or navigation files changed", () => {
     const report = buildOvernightFinalIntegrationLockReport({
       generatedAtUtc: "2026-05-20T12:00:00.000Z",

@@ -31,6 +31,24 @@ function reportFixture(overrides: Partial<BetaEvidenceGapMapReport> = {}): BetaE
         reason: "Report was generated before the latest code changes.",
       },
     ],
+    refreshPlan: [
+      {
+        artifactPath: "agent/state/source-truth-authority-map.generated.json",
+        reportKey: "source-truth-authority-map",
+        label: "Source truth authority map",
+        status: "current",
+        needsRefresh: false,
+        generatedAtUtc: "2026-05-19T18:30:00.000Z",
+        ageHours: 0,
+        refreshCommand: "npm run check:source-truth-authority-map",
+        message: "Source truth authority map is current for the latest code version.",
+        nextAction: "No refresh needed.",
+        formalEvidenceGateCanClear: true,
+        owner: "evidence",
+        maxAgeHours: 24,
+      },
+    ],
+    exactRefreshCommands: ["npm run check:source-truth-authority-map"],
   });
 
   return {
@@ -115,7 +133,17 @@ describe("beta evidence gap map", () => {
   });
 
   it("requires stale artifact inventory and ordered next exact steps", () => {
-    const report = reportFixture({ staleArtifacts: [], nextExactSteps: [] });
+    const report = reportFixture({
+      staleArtifacts: [],
+      refreshPlan: [
+        {
+          ...reportFixture().refreshPlan[0],
+          needsRefresh: true,
+          status: "stale_source_version",
+        },
+      ],
+      nextExactSteps: [],
+    });
     const failures = validateBetaEvidenceGapMapReport(report, "head");
 
     expect(failures).toContain("staleArtifacts must list reports that need refresh or prove none are stale.");

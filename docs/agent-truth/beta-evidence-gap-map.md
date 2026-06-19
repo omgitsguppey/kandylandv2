@@ -1,7 +1,7 @@
 # Beta Evidence Gap Map
 
-Generated: 2026-06-19T08:20:42.712Z
-Latest code version: 86c0ad80fec83f4cb24d2dcd8bcfac84d7ad94e8
+Generated: 2026-06-19T10:09:43.466Z
+Latest code version: a9c93ffc3df91844e11b3e5b4be49f3bdfee5d31
 
 ## Summary
 
@@ -37,40 +37,21 @@ Latest code version: 86c0ad80fec83f4cb24d2dcd8bcfac84d7ad94e8
 
 ## Stale Artifacts
 
-- agent/state/public-beta-score.generated.json: Report was generated before the latest code changes.
-- agent/state/current-beta-exit-status.generated.json: Report was generated before the latest code changes.
-- agent/state/evidence-capture-status.generated.json: Report was generated before the latest code changes.
-- agent/state/source-truth-authority-map.generated.json: Report was generated before the latest code changes.
-- agent/state/final-telemetry-closure-lock.generated.json: Report was generated before the latest code changes.
-- agent/state/mobile-ui-final-lock.generated.json: Report was generated before the latest code changes.
-- agent/state/overnight-final-integration-lock.generated.json: Report was generated before the latest code changes.
-- agent/state/creator-settings-control-plane.generated.json: Report was generated before the latest code changes.
-- agent/state/creator-drop-status-metrics.generated.json: Report was generated before the latest code changes.
-- agent/state/operator-revenue-smoke.generated.json: Report was generated before the latest code changes.
-- agent/state/beta-evidence-gap-map.generated.json: Report was generated before the latest code changes.
-- agent/state/beta-evidence-lane-prep.generated.json: Report was generated before the latest code changes.
-- agent/state/beta-freshness-language.generated.json: Report was generated before the latest code changes.
-- agent/state/final-pr-stale-cleanup.generated.json: Report was generated before the latest code changes.
-- agent/state/overnight-wiring-integrity.generated.json: Report was generated before the latest code changes.
-- agent/state/existing-algorithm-refinement.generated.json: Report was generated before the latest code changes.
-- agent/state/user-loading-wallet-mobile-refinement.generated.json: Report was generated before the latest code changes.
-- agent/state/global-marquee-truncated-titles.generated.json: Report was generated before the latest code changes.
-- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
-- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
+- None detected.
 
 ## Refresh Plan
 
-- agent/state/public-beta-score.generated.json: Public beta score is current as a same-commit generated report snapshot. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current as a same-commit generated report snapshot. Command: `npm run check:current-beta-exit-status`.
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current because its owned source inputs did not change. Command: `npm run check:evidence-capture-status`.
 - agent/state/source-truth-authority-map.generated.json: Source truth authority map is current because its owned source inputs did not change. Command: `npm run check:source-truth-authority-map`.
 - agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock is current because its owned source inputs did not change. Command: `npm run check:final-telemetry-closure-lock`.
 - agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock is current because its owned source inputs did not change. Command: `npm run check:mobile-ui-final-lock`.
-- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:overnight-final-integration-lock`.
+- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock is current for the latest code version. Command: `npm run check:overnight-final-integration-lock`.
 - agent/state/creator-settings-control-plane.generated.json: Creator settings control plane is current because its owned source inputs did not change. Command: `npm run check:creator-settings-control-plane`.
 - agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics is current because its owned source inputs did not change. Command: `npm run check:creator-drop-status-metrics`.
 - agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke is current because its owned source inputs did not change. Command: `npm run check:operator-revenue-smoke`.
-- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
+- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map is current for the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep is current because its owned source inputs did not change. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/beta-freshness-language.generated.json: Beta freshness language is current because its owned source inputs did not change. Command: `npm run check:beta-freshness-language`.
 - agent/state/final-pr-stale-cleanup.generated.json: Final PR stale cleanup is current because its owned source inputs did not change. Command: `npm run check:final-pr-stale-cleanup`.

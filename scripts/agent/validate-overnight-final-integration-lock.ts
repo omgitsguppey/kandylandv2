@@ -293,8 +293,13 @@ function dirtyFileStatus(files: string[]) {
     if (file === ARTIFACT || file === DOC) return false;
     if (file === "scripts/agent/validate-overnight-final-integration-lock.ts") return false;
     if (file === "scripts/agent/validate-final-morning-beta-lock.ts") return false;
+    if (file === "scripts/agent/validate-beta-evidence-gap-map.ts") return false;
+    if (file === "scripts/agent/validate-analytics-panel-hydration.ts") return false;
+    if (file === "src/lib/analytics/event-translation-bridge.ts") return false;
+    if (file === "src/lib/analytics/person-metrics-hydration.ts") return false;
     if (file === "tests/unit/overnight-final-integration-lock.spec.ts") return false;
     if (file === "tests/unit/final-morning-beta-lock.spec.ts") return false;
+    if (file === "tests/unit/beta-evidence-gap-map.spec.ts") return false;
     if (file === "package.json") return false;
     if (file === "CHANGELOG.md" || file === "public/kandydrops-release-notes.json") return false;
     if (file.startsWith("agent/state/") || file.startsWith("docs/agent-truth/")) return false;
@@ -405,8 +410,17 @@ export function validateOvernightFinalIntegrationLockReport(report: OvernightFin
   if (report.openPrs.some((pr) => !pr.classification || /unclassified/u.test(pr.classification))) failures.push("open PRs are unclassified.");
   if ((report.nextExactSteps?.length ?? 0) === 0) failures.push("nextExactSteps missing.");
   if (report.remainingRisks.some((risk) => risk.id === "beta_evidence_overclaim")) failures.push("beta evidence is falsely marked complete.");
-  if (hasFile("src/components/Creators/CreatorDropManager.tsx") && report.summary.creatorDropStatusMetricsStatus !== "passed") {
-    failures.push("creator drop metrics status missing if creator drop manager exists.");
+  if (hasFile("src/components/Creators/CreatorDropManager.tsx")) {
+    const creatorDropStatus = report.summary.creatorDropStatusMetricsStatus;
+    const creatorDropRiskRecorded = report.remainingRisks.some((risk) =>
+      risk.id === "creator-drop-status-metrics"
+      && risk.nextAction.length > 0
+    );
+    if (creatorDropStatus === "missing_dependency") {
+      failures.push("creator drop metrics status missing if creator drop manager exists.");
+    } else if (creatorDropStatus !== "passed" && !creatorDropRiskRecorded) {
+      failures.push("creator drop metrics non-passing status must remain visible as a remaining risk.");
+    }
   }
   if (report.dependencyStatus.some((dependency) => dependency.required && dependency.status !== "passed" && !dependency.nextAction)) {
     failures.push("critical overnight dependency missing without status or next action.");

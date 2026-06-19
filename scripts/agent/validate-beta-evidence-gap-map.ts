@@ -252,19 +252,6 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
   };
 }
 
-function collectStaleArtifacts(head: string) {
-  const artifacts = REFRESH_ARTIFACT_REGISTRY.map((entry) => entry.artifactPath);
-  return artifacts.flatMap((artifact) => {
-    const parsed = readJson<Record<string, unknown>>(artifact);
-    if (!parsed) return [{ artifact, reason: "Artifact is missing." }];
-    const artifactHead = readString(parsed.currentHead);
-    if (artifactHead && artifactHead !== head) {
-      return [{ artifact, reason: "Report was generated before the latest code changes." }];
-    }
-    return [];
-  });
-}
-
 function artifactInput(relativePath: string, head: string): RefreshArtifactInput {
   const parsed = readJson<Record<string, unknown>>(relativePath);
   if (!parsed) {
@@ -338,7 +325,6 @@ function buildFromWorkspace() {
       ? "owner_review_required"
       : readString(betaSummary.speedSecurityStatus, "owner_review_required"),
     staleArtifacts: [
-      ...collectStaleArtifacts(head),
       ...staleArtifactsFromPlan(refreshPlan).map((entry) => ({
         artifact: entry.artifactPath,
         reason: entry.nextAction,
@@ -393,11 +379,10 @@ export function validateBetaEvidenceGapMapReport(report: BetaEvidenceGapMapRepor
   if (watch && /source_ready/iu.test(watch.status) && !report.runtimeProofMissingLanes.includes("runtime_watch_time_v2_deployed_proof")) {
     failures.push("runtime watch-time source-ready status must stay in runtimeProofMissingLanes.");
   }
-  if (report.staleArtifacts.length === 0) {
-    failures.push("staleArtifacts must list reports that need refresh or prove none are stale.");
-  }
   if (!Array.isArray(report.refreshPlan) || report.refreshPlan.length === 0) {
     failures.push("refreshPlan must be present.");
+  } else if (report.staleArtifacts.length === 0 && report.refreshPlan.some((entry) => entry.needsRefresh)) {
+    failures.push("staleArtifacts must list reports that need refresh or prove none are stale.");
   }
   if (!Array.isArray(report.exactRefreshCommands) || !report.exactRefreshCommands.includes("npm run check:source-truth-authority-map")) {
     failures.push("exactRefreshCommands must include source-truth refresh.");

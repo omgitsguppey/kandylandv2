@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T09:43:25.582Z",
-  "currentHead": "c5e09f0f8153ce9edb82587e2658d6bc73fab06a",
+  "generatedAtUtc": "2026-06-19T10:10:28.984Z",
+  "currentHead": "a9c93ffc3df91844e11b3e5b4be49f3bdfee5d31",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,32 +365,54 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 4,
+    "total": 23,
     "byClassification": {
+      "analytics_panel_hydration_artifact_expected": 3,
+      "current_generated_artifact_to_commit": 4,
+      "stale_generated_artifact_to_regenerate": 2,
+      "launch_analytics_recovery_artifact_expected": 2,
       "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 1,
-      "analytics_panel_hydration_artifact_expected": 2
+      "documentation_artifact_expected": 5,
+      "validator_artifact_expected": 2,
+      "real_source_change_needs_review": 2,
+      "test_artifact_expected": 2
     },
     "unsafeUnknown": [],
     "sample": [
       {
-        "path": "agent/state/source-agreement-failure-detail.generated.json",
-        "classification": "source_agreement_failure_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/source-agreement-failure-detail.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+        "path": "agent/state/analytics-panel-hydration.generated.json",
         "classification": "analytics_panel_hydration_artifact_expected"
       },
       {
-        "path": "tests/unit/analytics-panel-hydration.spec.ts",
-        "classification": "analytics_panel_hydration_artifact_expected"
+        "path": "agent/state/beta-evidence-gap-map.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
+        "path": "agent/state/event-translation-bridge.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
+        "path": "agent/state/generated-report-authority.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/launch-analytics-recovery.generated.json",
+        "classification": "launch_analytics_recovery_artifact_expected"
+      },
+      {
+        "path": "agent/state/overnight-final-integration-lock.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
+        "path": "agent/state/person-metrics-hydration.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
+        "path": "agent/state/public-beta-score.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
       }
     ],
-    "sampleTruncated": false
+    "sampleTruncated": true
   },
   "nextExactSteps": [
     "Connect safe lastSeen/materialized summaries for source-missing panels.",
