@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T07:12:44.557Z",
+  "generatedAtUtc": "2026-06-19T07:56:53.258Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "74d431bea3803401956e4aaa9615f3d9228bf2ee",
+  "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
   "summary": {
     "laneCount": 8,
     "formalMissingCount": 3,
@@ -11,7 +11,7 @@
     "providerSmokeGateCleared": false,
     "p0Count": 0,
     "p1Count": 3,
-    "p2Count": 14
+    "p2Count": 7
   },
   "lanes": [
     {
@@ -191,8 +191,8 @@
   "refreshPlan": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run score:beta && npm run check:beta-score"
     },
     {
@@ -203,8 +203,8 @@
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:evidence-capture-status"
     },
     {
@@ -221,32 +221,32 @@
     },
     {
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:mobile-ui-final-lock"
     },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:creator-settings-control-plane"
     },
     {
       "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:creator-drop-status-metrics"
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {
@@ -299,48 +299,6 @@
     }
   ],
   "staleReports": [
-    {
-      "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score",
-      "refreshCommand": "npm run score:beta && npm run check:beta-score"
-    },
-    {
-      "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-      "refreshCommand": "npm run check:evidence-capture-status"
-    },
-    {
-      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
-      "refreshCommand": "npm run check:mobile-ui-final-lock"
-    },
-    {
-      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
-      "refreshCommand": "npm run check:overnight-final-integration-lock"
-    },
-    {
-      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
-      "refreshCommand": "npm run check:creator-settings-control-plane"
-    },
-    {
-      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-      "refreshCommand": "npm run check:creator-drop-status-metrics"
-    },
-    {
-      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "refreshCommand": "npm run check:operator-revenue-smoke"
-    },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
       "status": "stale_source_version",

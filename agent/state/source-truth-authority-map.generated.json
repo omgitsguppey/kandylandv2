@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T07:12:44.108Z",
+  "generatedAtUtc": "2026-06-19T07:55:42.485Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "74d431bea3803401956e4aaa9615f3d9228bf2ee",
+  "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,19 +323,19 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "74d431bea3803401956e4aaa9615f3d9228bf2ee",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "c0db559c7f2bd5ebbc7fbc24159be3051bbd36c7",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "74d431bea3803401956e4aaa9615f3d9228bf2ee",
+      "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
       "status": "current",
       "action": "Artifact currentHead matches git HEAD."
     },
@@ -347,9 +347,9 @@
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "1341f6d52f5e848c3d81bc39039e3f8333bb66e7",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",

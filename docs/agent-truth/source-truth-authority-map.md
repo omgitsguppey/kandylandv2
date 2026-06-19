@@ -3,8 +3,8 @@
 Artifact: `agent/state/source-truth-authority-map.generated.json`
 Validator: `npm run check:source-truth-authority-map`
 
-Generated: 2026-06-19T07:12:44.108Z
-Current source head: `74d431bea3803401956e4aaa9615f3d9228bf2ee`
+Generated: 2026-06-19T07:55:42.485Z
+Current source head: `0659a3764bcb3ada363f4a30e741d6e59743781f`
 
 ## Summary
 
@@ -70,11 +70,11 @@ None of these cost lanes should be marked pass without evidence. P0/P1 cost or 4
 
 ## Current Head Inventory
 
-- agent/state/source-truth-authority-map.generated.json: `stale` (225f9e53f18b60edc7399c1ea258c0b9bacfae84) - Refresh through the lane validator before treating as current evidence.
-- agent/state/public-beta-score.generated.json: `stale` (c0db559c7f2bd5ebbc7fbc24159be3051bbd36c7) - Refresh through the lane validator before treating as current evidence.
-- agent/state/current-beta-exit-status.generated.json: `current` (74d431bea3803401956e4aaa9615f3d9228bf2ee) - Artifact currentHead matches git HEAD.
+- agent/state/source-truth-authority-map.generated.json: `stale` (74d431bea3803401956e4aaa9615f3d9228bf2ee) - Refresh through the lane validator before treating as current evidence.
+- agent/state/public-beta-score.generated.json: `current` (0659a3764bcb3ada363f4a30e741d6e59743781f) - Artifact currentHead matches git HEAD.
+- agent/state/current-beta-exit-status.generated.json: `current` (0659a3764bcb3ada363f4a30e741d6e59743781f) - Artifact currentHead matches git HEAD.
 - agent/state/final-phase-cleanup-lock.generated.json: `stale` (d0994c9ace05575a22d679cdfc37f8a5877f66d8) - Refresh through the lane validator before treating as current evidence.
-- agent/state/evidence-capture-status.generated.json: `stale` (1341f6d52f5e848c3d81bc39039e3f8333bb66e7) - Refresh through the lane validator before treating as current evidence.
+- agent/state/evidence-capture-status.generated.json: `current` (0659a3764bcb3ada363f4a30e741d6e59743781f) - Artifact currentHead matches git HEAD.
 - agent/state/user-creator-ui-parity.generated.json: `stale` (2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78) - Refresh through the lane validator before treating as current evidence.
 - agent/state/gumdrop-economy-accuracy.generated.json: `stale` (9b25961f85707ab4e0f5d8346b10b667ae0b75a4) - Refresh through the lane validator before treating as current evidence.
 - agent/state/creator-experience-simplification.generated.json: `stale` (2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78) - Refresh through the lane validator before treating as current evidence.
