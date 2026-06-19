@@ -398,6 +398,8 @@ describe("public beta scoring math", () => {
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
         ]));
+        expect(report.evidenceCapDetails.join("\n")).not.toContain("does not prove manual screenshot");
+        expect(targetedGate?.detail).toContain("does not prove manual screenshot");
     });
 
     it("does not score stale formal smoke and admin artifacts", () => {
@@ -538,10 +540,14 @@ describe("public beta scoring math", () => {
 
         expect(report.evidenceCapDetails.length).toBeGreaterThanOrEqual(3);
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            expect.stringContaining("Targeted behavior tests - No formal targeted behavior evidence artifact was supplied."),
-            expect.stringContaining("Runtime/provider smoke - Provider smoke:"),
-            expect.stringContaining("Admin truth/sample evidence - No fresh admin truth sample."),
+            expect.stringContaining("Targeted behavior tests - Attach targeted source validator evidence."),
+            expect.stringContaining("Runtime/provider smoke - Attach formal provider proof"),
+            expect.stringContaining("Admin truth/sample evidence - Attach a redacted production admin truth sample."),
         ]));
+        expect(report.evidenceCapDetails.join("\n")).not.toContain("Operator reported PayPal");
+        expect(report.evidenceCapDetails.join("\n")).not.toContain("No fresh admin truth sample.");
+        expect(report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke")?.detail).toContain("Provider smoke:");
+        expect(report.evidenceGates.find((gate) => gate.id === "adminTruthSamples")?.detail).toContain("No fresh admin truth sample.");
     });
 
     it("does not use final launch report text as provider smoke truth", () => {

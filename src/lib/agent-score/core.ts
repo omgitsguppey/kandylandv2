@@ -438,6 +438,47 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
   }
 }
 
+function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
+  if (gate.id === "targetedBehaviorTests") {
+    if (gate.status === "Source validation only") {
+      return `${gate.status}: ${gate.label} - Source behavior passed; formal runtime, provider, admin, and screenshot proof stay separate.`;
+    }
+    if (gate.status === "Stale evidence") {
+      return `${gate.status}: ${gate.label} - Refresh the targeted source validator evidence.`;
+    }
+    if (gate.status === "Unknown evidence") {
+      return `${gate.status}: ${gate.label} - Attach targeted source validator evidence.`;
+    }
+  }
+
+  if (gate.id === "runtimeProviderSmoke") {
+    if (gate.status === "External proof required") {
+      return `${gate.status}: ${gate.label} - Attach formal provider proof and keep deployed runtime smoke current.`;
+    }
+    if (gate.status === "Stale evidence") {
+      return `${gate.status}: ${gate.label} - Refresh formal provider and deployed runtime smoke evidence.`;
+    }
+    if (gate.status === "Runtime unverified" || gate.status === "Ready with smoke required") {
+      return `${gate.status}: ${gate.label} - Deployed runtime/provider proof is still required.`;
+    }
+  }
+
+  if (gate.id === "adminTruthSamples") {
+    if (gate.status === "External proof required" || gate.status === "Unknown evidence") {
+      return `${gate.status}: ${gate.label} - Attach a redacted production admin truth sample.`;
+    }
+    if (gate.status === "Stale evidence") {
+      return `${gate.status}: ${gate.label} - Refresh the redacted admin truth sample.`;
+    }
+  }
+
+  if (gate.id === "freshnessIntegrity" && gate.status === "Stale evidence") {
+    return `${gate.status}: ${gate.label} - Refresh generated reports that are outside the freshness window.`;
+  }
+
+  return `${gate.status}: ${gate.label} - ${normalizeTechnicalFreshnessTerms(gate.recommendedAction || gate.detail)}`;
+}
+
 export function evidenceArtifactPassed(
   artifact: PublicBetaEvidenceArtifact | undefined,
   fallbackBoolean?: boolean,
@@ -1304,13 +1345,14 @@ export function buildPublicBetaEvidenceGates(input: {
     .map((gate) => `${gate.status}: ${gate.label}`);
   const evidenceCapDetails = gates
     .filter((gate) => gate.status !== "Ready")
-    .map((gate) => `${gate.status}: ${gate.label} - ${gate.detail}`);
+    .map(summarizeEvidenceGateForCap);
   const readinessCap = capForReadinessStatus(readinessStatus);
+  const readinessGate = gates.find((gate) => gate.status === readinessStatus);
 
   return {
     evidenceScore,
     readinessStatus,
-    readinessStatusReason: gates.find((gate) => gate.status === readinessStatus)?.detail ?? "Evidence gates passed.",
+    readinessStatusReason: readinessGate ? summarizeEvidenceGateForCap(readinessGate) : "Evidence gates passed.",
     evidenceGates: gates,
     evidenceCapsApplied: caps,
     evidenceCapDetails,
