@@ -60,7 +60,7 @@ describe("source agreement failure detail", () => {
     const detail = buildLaunchAnalyticsSourceAgreementFailureDetail();
     const adminAnalyticsConsumers = detail.blockedConsumerDetails.filter((entry) => entry.consumer.startsWith("admin_analytics_"));
 
-    expect(adminAnalyticsConsumers).toHaveLength(6);
+    expect(adminAnalyticsConsumers).toHaveLength(7);
     expect(detail.blockedConsumerDetails).toEqual(expect.arrayContaining([
       expect.objectContaining({
         consumer: "admin_analytics_overview",
@@ -80,6 +80,10 @@ describe("source agreement failure detail", () => {
       expect.objectContaining({
         consumer: "admin_analytics_top_paths",
         allowedDisplayState: "second_source_only",
+      }),
+      expect.objectContaining({
+        consumer: "admin_analytics_source_health",
+        allowedDisplayState: "chart_promotion_blocked",
       }),
       expect.objectContaining({
         consumer: "debug_data_validation",

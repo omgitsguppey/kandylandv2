@@ -128,6 +128,7 @@ export const LAUNCH_ANALYTICS_DEFAULT_BLOCKED_CONSUMERS = [
   "admin_analytics_region_demand",
   "admin_analytics_top_paths",
   "admin_analytics_insight_cards",
+  "admin_analytics_source_health",
   "debug_data_validation",
   "public_beta_score_evidence",
 ] as const;
@@ -290,6 +291,7 @@ function labelForBlockedConsumer(consumer: string) {
     admin_analytics_region_demand: "Region demand",
     admin_analytics_top_paths: "Top paths",
     admin_analytics_insight_cards: "Insight cards",
+    admin_analytics_source_health: "Source health",
     debug_data_validation: "Debug source agreement",
     public_beta_score_evidence: "Public beta evidence",
   };
@@ -320,7 +322,7 @@ function buildBlockedConsumerDetails(
       ? "connected"
       : secondSourceOnly
         ? "second_source_only"
-        : consumer === "public_beta_score_evidence" || consumer === "debug_data_validation"
+        : consumer === "public_beta_score_evidence" || consumer === "debug_data_validation" || consumer === "admin_analytics_source_health"
           ? "chart_promotion_blocked"
           : "source_missing";
     const blockingOwner = sourceAgreementStatus === "pass"

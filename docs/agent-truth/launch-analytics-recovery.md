@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-19T00:22:28.809Z
-Current head: 93e129b86408c28bd6e0c8fe202ae3e26eae6a16
+Generated: 2026-06-19T00:53:14.535Z
+Current head: fb4066d747bb737c0372fb98fcd45f2e65be5656
 Status: source_agreement_failed
 
 ## Source Order
@@ -83,13 +83,14 @@ Status: source_agreement_failed
 - Per-day disagreement details: 2
   - 2026-05-02: present ga4; missing first_party, historical_snapshot, legacy_support; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
   - 2026-05-03: present ga4, legacy_support; missing first_party, historical_snapshot; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
-- Blocked consumers: 8
+- Blocked consumers: 9
   - Analytics overview: source_missing; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
   - Analytics charts: source_missing; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
   - Device mix: second_source_only; Next: Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes.
   - Region demand: second_source_only; Next: Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes.
   - Top paths: second_source_only; Next: Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes.
   - Insight cards: source_missing; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
+  - Source health: chart_promotion_blocked; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
   - Debug source agreement: chart_promotion_blocked; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
   - Public beta evidence: chart_promotion_blocked; Next: Show source missing or chart promotion blocked until first-party day buckets and source agreement pass.
 - Count delta details: 0

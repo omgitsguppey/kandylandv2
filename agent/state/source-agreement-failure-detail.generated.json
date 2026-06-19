@@ -1,7 +1,7 @@
 {
   "reportKey": "source-agreement-failure-detail",
-  "generatedAtUtc": "2026-06-19T00:22:28.685Z",
-  "currentHead": "93e129b86408c28bd6e0c8fe202ae3e26eae6a16",
+  "generatedAtUtc": "2026-06-19T00:53:14.294Z",
+  "currentHead": "fb4066d747bb737c0372fb98fcd45f2e65be5656",
   "inputMode": "fixture_only_local_window",
   "inputPath": null,
   "launchCoverageEvidence": {
@@ -185,6 +185,7 @@
       "admin_analytics_region_demand",
       "admin_analytics_top_paths",
       "admin_analytics_insight_cards",
+      "admin_analytics_source_health",
       "debug_data_validation",
       "public_beta_score_evidence"
     ],
@@ -234,6 +235,14 @@
         "label": "Insight cards",
         "currentState": "materializer_missing",
         "allowedDisplayState": "source_missing",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "admin_analytics_source_health",
+        "label": "Source health",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "chart_promotion_blocked",
         "blockingOwner": "analytics_event_facts materialization",
         "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
       },

@@ -1074,7 +1074,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
       `  - ${String(entry.dayKey)}: present ${asStringArray(entry.sourcesPresent).join(", ") || "none"}; missing ${asStringArray(entry.sourcesMissing).join(", ") || "none"}; lane ${String(entry.recoveryLane ?? "review")}; owner ${String(entry.blockingOwner ?? "source agreement")}; ${String(entry.likelyRootCause ?? "review source mismatch")}`,
     ),
     `- Blocked consumers: ${report.sourceAgreement.blockedConsumerDetails.length}${report.sourceAgreement.blockedConsumerDetailsTruncated ? " (truncated)" : ""}`,
-    ...report.sourceAgreement.blockedConsumerDetails.slice(0, 8).map((entry) =>
+    ...report.sourceAgreement.blockedConsumerDetails.map((entry) =>
       `  - ${String(entry.label ?? entry.consumer)}: ${String(entry.allowedDisplayState ?? "review")}; Next: ${String(entry.nextAction ?? "repair source agreement")}`,
     ),
     `- Count delta details: ${report.sourceAgreement.perDayMetricDeltas.length}${report.sourceAgreement.perDayMetricDeltasTruncated ? " (truncated)" : ""}`,

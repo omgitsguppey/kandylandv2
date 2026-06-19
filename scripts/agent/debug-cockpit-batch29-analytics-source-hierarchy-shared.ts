@@ -520,6 +520,10 @@ export function validateSourceAgreementFailureDetail() {
     entry.consumer === "admin_analytics_overview"
     && (entry.allowedDisplayState === "source_missing" || entry.allowedDisplayState === "connected")
   ), failures, "first-party-owned admin analytics panels lack source-missing display state.");
+  expectPass(detail.blockedConsumerDetails.some((entry) =>
+    entry.consumer === "admin_analytics_source_health"
+    && entry.allowedDisplayState === "chart_promotion_blocked"
+  ), failures, "source health consumer is not held behind source agreement/chart promotion.");
   expectPass(detail.sourceTruthPolicy.firstPartyPrimary && detail.sourceTruthPolicy.ga4SecondSourceOnly && detail.sourceTruthPolicy.missingIsNotZero, failures, "source truth policy missing.");
   expectPass(!/^retry$/iu.test(detail.nextAction), failures, "next action generic retry only.");
   runValidation("source-agreement-failure-detail", { inputMode, inputPath, launchCoverageEvidence, detail }, failures, [
