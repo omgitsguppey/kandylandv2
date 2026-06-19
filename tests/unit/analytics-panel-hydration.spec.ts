@@ -228,6 +228,12 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("launchSourceGateCanClear");
     expect(source).toContain('canClearSourceGate: launchSourceGateCanClear');
     expect(source).toContain("all-launch range proof exists");
+    expect(source).toContain("LAUNCH_ANALYTICS_FIRST_DAY_KEY");
+    expect(source).toContain("formalLaunchRange");
+    expect(source).toContain('state: allLaunchRangeProven ? "all_launch_range_proven" : "formal_proof_missing"');
+    expect(source).toContain("localEvidenceDayCount");
+    expect(source).toContain("unprovenRanges");
+    expect(source).toContain("formal launch range must list unproven ranges");
     expect(source).toContain("GA4, historical snapshots, and legacy support remain evidence-only");
     expect(source).toContain('productTruthRole: "primary_product_truth"');
     expect(source).toContain('productTruthRole: "second_source_evidence_only"');

@@ -133,6 +133,8 @@ export const LAUNCH_ANALYTICS_DEFAULT_BLOCKED_CONSUMERS = [
   "public_beta_score_evidence",
 ] as const;
 
+export const LAUNCH_ANALYTICS_FIRST_DAY_KEY = "2026-05-01";
+
 export function classifySourceAgreementCoverage(input: SourceAgreementCoverageClassificationInput) {
   const classifications = new Set<SourceAgreementFailureClassification>();
   const ga4Days = new Set(input.ga4Days);
@@ -350,9 +352,9 @@ function buildBlockedConsumerDetails(
 }
 
 export const LAUNCH_ANALYTICS_SOURCE_AGREEMENT_COVERAGE: Record<string, string[]> = {
-  first_party: ["2026-05-01"],
-  ga4: ["2026-05-01", "2026-05-02", "2026-05-03"],
-  historical_snapshot: ["2026-05-01"],
+  first_party: [LAUNCH_ANALYTICS_FIRST_DAY_KEY],
+  ga4: [LAUNCH_ANALYTICS_FIRST_DAY_KEY, "2026-05-02", "2026-05-03"],
+  historical_snapshot: [LAUNCH_ANALYTICS_FIRST_DAY_KEY],
   legacy_support: ["2026-05-03"],
 };
 

@@ -7,7 +7,10 @@ import {
   validateAnalyticsPanelHydrationReport,
 } from "@/lib/admin-analytics/panel-hydration-resolver";
 import { classifyGeneratedArtifactFromGit } from "@/lib/agent-score/generated-artifact-version-policy";
-import { classifySourceAgreementCoverage } from "@/lib/analytics/source-agreement-detail";
+import {
+  LAUNCH_ANALYTICS_FIRST_DAY_KEY,
+  classifySourceAgreementCoverage,
+} from "@/lib/analytics/source-agreement-detail";
 import { buildLivePanelEvidenceReport } from "@/lib/release-readiness/live-panel-evidence-resolver";
 import { buildLaunchSourceAgreementDetail } from "./debug-cockpit-batch29-analytics-source-hierarchy-shared";
 
@@ -84,6 +87,23 @@ function collapseDayRanges(days: string[]) {
 
   if (start) ranges.push(start === previous ? start : `${start}..${previous}`);
   return ranges;
+}
+
+function dayKeyFromIso(value: string) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return new Date().toISOString().slice(0, 10);
+  return parsed.toISOString().slice(0, 10);
+}
+
+function inclusiveDayCount(startDayKey: string, endDayKey: string) {
+  const start = Date.parse(`${startDayKey}T00:00:00.000Z`);
+  const end = Date.parse(`${endDayKey}T00:00:00.000Z`);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return 0;
+  return Math.floor((end - start) / 86_400_000) + 1;
+}
+
+function rangeLabel(startDayKey: string, endDayKey: string) {
+  return startDayKey === endDayKey ? startDayKey : `${startDayKey}..${endDayKey}`;
 }
 
 function changedFiles() {
@@ -834,6 +854,23 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   const coverageWindowKind = typeof sourceAgreementDetail.coverageWindowKind === "string"
     ? sourceAgreementDetail.coverageWindowKind
     : "local_source_window";
+  const formalLaunchEndDayKey = allLaunchRangeProven && expectedDays.length > 0
+    ? expectedDays[expectedDays.length - 1]
+    : dayKeyFromIso(input.generatedAtUtc);
+  const formalLaunchExpectedDayCount = inclusiveDayCount(LAUNCH_ANALYTICS_FIRST_DAY_KEY, formalLaunchEndDayKey);
+  const formalLaunchRange = {
+    launchStartDayKey: LAUNCH_ANALYTICS_FIRST_DAY_KEY,
+    expectedThroughDayKey: formalLaunchEndDayKey,
+    expectedDayCount: formalLaunchExpectedDayCount,
+    localEvidenceDayCount: expectedDays.length,
+    approvedCoverageDayCount: allLaunchRangeProven ? expectedDays.length : 0,
+    localEvidenceRanges: collapseDayRanges(expectedDays),
+    unprovenRanges: allLaunchRangeProven ? [] : [rangeLabel(LAUNCH_ANALYTICS_FIRST_DAY_KEY, formalLaunchEndDayKey)],
+    state: allLaunchRangeProven ? "all_launch_range_proven" : "formal_proof_missing",
+    reason: allLaunchRangeProven
+      ? "Approved launch-history evidence declares the all-launch range and supplies matching day rows."
+      : "Current evidence only covers the local source window; approved all-launch export or admin truth sample is still required.",
+  };
   const allLaunchRangeProofReason = allLaunchRangeProven
     ? coverageWindowKind === "all_range_historical_export"
       ? "The source-agreement detail includes explicit all-launch range proof from an approved all-range historical export."
@@ -910,6 +947,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       ],
       sourceInventory,
     },
+    formalLaunchRange,
     evidenceProvenance: {
       launchCoverageInput: input.sourceAgreementResult.inputPath ?? "in_process_source_agreement_detail",
       panelHydrationInput: "agent/state/analytics-panel-hydration.generated.json",
@@ -1069,6 +1107,7 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
     || report.launchHistoryCoverage.firstPartyCoverage.state !== "available"
     || report.sourceAgreement.state !== "pass"
     || report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== true
+    || report.formalLaunchRange.state !== "all_launch_range_proven"
     || report.launchHistoryCoverage.staleInputEvidence
   )) {
     failures.push("launch recovery cannot clear source gate until first-party coverage is available, source agreement passes, all-launch range proof exists, and evidence is current.");
@@ -1108,6 +1147,21 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   }
   if (!report.launchHistoryCoverage.rangeProof.coverageWindowKind) {
     failures.push("launch recovery must label whether source agreement coverage is fixture/local/export evidence.");
+  }
+  if (!report.formalLaunchRange || report.formalLaunchRange.launchStartDayKey !== LAUNCH_ANALYTICS_FIRST_DAY_KEY) {
+    failures.push("launch recovery must expose formalLaunchRange from the canonical launch start day.");
+  }
+  if (report.formalLaunchRange.expectedDayCount < report.formalLaunchRange.localEvidenceDayCount) {
+    failures.push("formal launch range expected days cannot be smaller than local evidence days.");
+  }
+  if (report.formalLaunchRange.state === "formal_proof_missing" && report.formalLaunchRange.unprovenRanges.length === 0) {
+    failures.push("formal launch range must list unproven ranges when all-launch proof is missing.");
+  }
+  if (report.formalLaunchRange.state === "all_launch_range_proven" && report.formalLaunchRange.approvedCoverageDayCount !== report.formalLaunchRange.expectedDayCount) {
+    failures.push("formal launch range proof must cover every expected launch day before clearing source truth.");
+  }
+  if (report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== (report.formalLaunchRange.state === "all_launch_range_proven")) {
+    failures.push("formal launch range state must agree with launchHistoryCoverage range proof.");
   }
   if (report.launchHistoryCoverage.rangeProof.coverageWindowKind === "fixture_only_local_window" && report.evidenceProvenance.usableLaunchCoverageInputFound) {
     failures.push("fixture-only launch recovery cannot claim a usable local coverage input.");
@@ -1244,6 +1298,14 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     "",
     "## Launch Coverage",
     "",
+    `- Formal range: ${report.formalLaunchRange.launchStartDayKey} to ${report.formalLaunchRange.expectedThroughDayKey}`,
+    `- Formal range state: ${report.formalLaunchRange.state}`,
+    `- Formal expected days: ${report.formalLaunchRange.expectedDayCount}`,
+    `- Local evidence days: ${report.formalLaunchRange.localEvidenceDayCount}`,
+    `- Approved coverage days: ${report.formalLaunchRange.approvedCoverageDayCount}`,
+    `- Local evidence ranges: ${report.formalLaunchRange.localEvidenceRanges.join(", ") || "none"}`,
+    `- Unproven formal ranges: ${report.formalLaunchRange.unprovenRanges.join(", ") || "none"}`,
+    `- Formal range reason: ${report.formalLaunchRange.reason}`,
     `- Range: ${report.launchHistoryCoverage.rangeStartDayKey ?? "unknown"} to ${report.launchHistoryCoverage.rangeEndDayKey ?? "unknown"}`,
     `- Range proof: ${report.launchHistoryCoverage.rangeProof.allLaunchRangeProven ? "all launch range proven" : report.launchHistoryCoverage.rangeProof.expectedRangeSource}`,
     `- Coverage window: ${report.launchHistoryCoverage.rangeProof.coverageWindowKind}`,

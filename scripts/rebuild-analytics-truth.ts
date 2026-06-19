@@ -96,6 +96,10 @@ function readBoolean(value: unknown, fallback = false) {
   return typeof value === "boolean" ? value : fallback
 }
 
+function readNumber(value: unknown, fallback = 0) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback
+}
+
 function readCurrentHead() {
   try {
     return execFileSync("git", ["rev-parse", "HEAD"], {cwd: process.cwd(), encoding: "utf8"}).trim()
@@ -185,6 +189,7 @@ function readLaunchRecoveryDryRunSummary() {
     const evidenceProvenance = asRecord(report.evidenceProvenance)
     const rangeProof = asRecord(asRecord(report.launchHistoryCoverage).rangeProof)
     const firstPartyCoverage = asRecord(asRecord(report.launchHistoryCoverage).firstPartyCoverage)
+    const formalLaunchRange = asRecord(report.formalLaunchRange)
     const sourceAgreement = asRecord(report.sourceAgreement)
     const sourceTruthPolicy = Object.keys(asRecord(report.sourceTruthPolicy)).length > 0
       ? asRecord(report.sourceTruthPolicy)
@@ -218,6 +223,18 @@ function readLaunchRecoveryDryRunSummary() {
         coverageWindowKind: readString(rangeProof.coverageWindowKind, "unknown"),
         allLaunchRangeProven: readBoolean(rangeProof.allLaunchRangeProven, false),
         reason: readString(rangeProof.reason, "No range proof reason was supplied."),
+      },
+      formalLaunchRange: {
+        state: readString(formalLaunchRange.state, "unknown"),
+        launchStartDayKey: readString(formalLaunchRange.launchStartDayKey, "unknown"),
+        expectedThroughDayKey: readString(formalLaunchRange.expectedThroughDayKey, "unknown"),
+        expectedDayCount: readNumber(formalLaunchRange.expectedDayCount, 0),
+        localEvidenceDayCount: readNumber(formalLaunchRange.localEvidenceDayCount, 0),
+        approvedCoverageDayCount: readNumber(formalLaunchRange.approvedCoverageDayCount, 0),
+        unprovenRanges: Array.isArray(formalLaunchRange.unprovenRanges)
+          ? formalLaunchRange.unprovenRanges.filter((entry): entry is string => typeof entry === "string").slice(0, 5)
+          : [],
+        reason: readString(formalLaunchRange.reason, "Formal all-launch range proof was not supplied."),
       },
       launchCoverageInputs,
       firstPartyCoverage: {

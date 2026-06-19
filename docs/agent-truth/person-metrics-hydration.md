@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-19T10:43:36.613Z
+Generated: 2026-06-19T11:41:50.387Z
 Status: pass
-Current head: 131ddd85186fbb6ca22f9b5cf4451eb7656929c4
+Current head: cf087be24c677f36d37fa31ed9c8a047113318c9
 
 ## Contract
 
@@ -73,25 +73,12 @@ Current head: 131ddd85186fbb6ca22f9b5cf4451eb7656929c4
 ## Dirty Files
 
 - agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json: current_generated_artifact_to_commit
-- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/launch-analytics-recovery.generated.json: current_generated_artifact_to_commit
-- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/source-agreement-failure-detail.generated.json: retired_duplicate_source_agreement_lane_expected
 - docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
-- docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md: documentation_artifact_expected
-- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
 - docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
-- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- docs/agent-truth/source-agreement-failure-detail.md: retired_duplicate_source_agreement_lane_expected
-- package.json: real_source_change_needs_review
-- scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts: validator_artifact_expected
-- scripts/agent/validate-admin-debug-control-tower.ts: validator_artifact_expected
 - scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- scripts/agent/validate-source-agreement-failure-detail.ts: retired_duplicate_source_agreement_lane_expected
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/release-readiness/automated-truth-reconciliation.ts: validator_artifact_expected
+- scripts/rebuild-analytics-truth.ts: real_source_change_needs_review
+- src/lib/analytics/source-agreement-detail.ts: real_source_change_needs_review
 - tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
 
 ## Active Old Logic
