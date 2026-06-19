@@ -220,8 +220,18 @@ function readLaunchRecoveryDryRunSummary() {
       canClearAdminTruthGate: readBoolean(report.canClearAdminTruthGate, false),
       sourceGateReason: readString(report.sourceGateReason, "Launch recovery source gate status was not explained."),
       rangeProof: {
+        expectedRangeSource: readString(rangeProof.expectedRangeSource, "unknown"),
         coverageWindowKind: readString(rangeProof.coverageWindowKind, "unknown"),
         allLaunchRangeProven: readBoolean(rangeProof.allLaunchRangeProven, false),
+        formalRangeStartDayKey: readString(rangeProof.formalRangeStartDayKey, readString(formalLaunchRange.launchStartDayKey, "unknown")),
+        formalRangeEndDayKey: readString(rangeProof.formalRangeEndDayKey, readString(formalLaunchRange.expectedThroughDayKey, "unknown")),
+        formalExpectedDayCount: readNumber(rangeProof.formalExpectedDayCount, readNumber(formalLaunchRange.expectedDayCount, 0)),
+        evidenceDayCount: readNumber(rangeProof.evidenceDayCount, readNumber(formalLaunchRange.localEvidenceDayCount, 0)),
+        unprovenRanges: Array.isArray(rangeProof.unprovenRanges)
+          ? rangeProof.unprovenRanges.filter((entry): entry is string => typeof entry === "string").slice(0, 5)
+          : Array.isArray(formalLaunchRange.unprovenRanges)
+            ? formalLaunchRange.unprovenRanges.filter((entry): entry is string => typeof entry === "string").slice(0, 5)
+            : [],
         reason: readString(rangeProof.reason, "No range proof reason was supplied."),
       },
       formalLaunchRange: {

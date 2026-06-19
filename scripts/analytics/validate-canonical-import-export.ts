@@ -57,6 +57,12 @@ requireIncludes(rebuildAnalyticsTruth, "artifactCurrent", "Analytics truth rebui
 requireIncludes(rebuildAnalyticsTruth, "same_commit_snapshot", "Analytics truth rebuild");
 requireIncludes(rebuildAnalyticsTruth, "stale_generated_snapshot", "Analytics truth rebuild");
 requireIncludes(rebuildAnalyticsTruth, "npm run check:analytics-panel-hydration", "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "expectedRangeSource", "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "formalRangeStartDayKey", "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "formalRangeEndDayKey", "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "formalExpectedDayCount", "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "evidenceDayCount", "Analytics truth rebuild");
+requireIncludes(rebuildAnalyticsTruth, "unprovenRanges", "Analytics truth rebuild");
 
 requireIncludes(rebuildBehavioral, 'runFunctionsCommand("rebuild:analytics-truth")', "Behavioral rebuild");
 requireIncludes(rebuildBehavioral, 'KD_ANALYTICS_IMPORT_SCHEMA_VALIDATION_REQUIRED: "true"', "Behavioral rebuild");
