@@ -1,7 +1,7 @@
 {
   "reportKey": "operator-final-qa-packet",
-  "generatedAtUtc": "2026-06-19T16:42:59.057Z",
-  "currentHead": "880b720a2125ff78f08570ca18e4325c6e2f2b70",
+  "generatedAtUtc": "2026-06-19T16:51:57.353Z",
+  "currentHead": "1fb8629efe28ef390f48ccf6733f22b6afc174e8",
   "outsideCodexScoreGate": true,
   "surfaces": [
     {
