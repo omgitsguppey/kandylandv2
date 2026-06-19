@@ -1522,8 +1522,17 @@ export function useAdminAnalyticsState() {
           : hasOverviewTransactionFallbackValue ? "degraded"
           : historicalLoading ? "loading" : "failed";
   const launchRangeProof = launchHistoryCoverage?.rangeProof;
+  const launchFormalExpectedDayCount = launchRangeProof?.formalExpectedDayCount ?? launchHistoryCoverage?.expectedDayCount ?? 0;
+  const launchEvidenceDayCount = launchRangeProof?.evidenceDayCount ?? launchHistoryCoverage?.expectedDayCount ?? 0;
+  const launchUsesFormalDenominator = Boolean(
+    launchHistoryCoverage &&
+    !launchRangeProof?.allLaunchRangeProven &&
+    launchFormalExpectedDayCount > launchHistoryCoverage.expectedDayCount,
+  );
   const launchCoverageWindowLabel = launchRangeProof?.allLaunchRangeProven
     ? "launch days"
+    : launchUsesFormalDenominator
+      ? `launch days (evidence window ${launchEvidenceDayCount})`
     : launchRangeProof?.coverageWindowKind === "fixture_only_local_window" ||
       launchRangeProof?.coverageWindowKind === "local_source_window"
       ? "local evidence days"
@@ -1540,7 +1549,7 @@ export function useAdminAnalyticsState() {
   const launchFirstPartyCoverage = launchHistoryCoverage?.firstPartyCoverage;
   const launchFirstPartyCoverageLabel =
     launchHistoryCoverage && launchFirstPartyCoverage?.state !== "available"
-      ? ` - first-party ${launchFirstPartyCoverage?.coveredDayCount ?? launchSourceCounts?.firstParty ?? 0}/${launchHistoryCoverage.expectedDayCount}`
+      ? ` - first-party ${launchFirstPartyCoverage?.coveredDayCount ?? launchSourceCounts?.firstParty ?? 0}/${launchEvidenceDayCount} evidence days`
       : "";
   const launchRecoverySourceLabel = launchSourceCounts
     ? launchSourceCounts.firstParty > 0 && launchSourceCounts.ga4 > 0
@@ -1571,7 +1580,7 @@ export function useAdminAnalyticsState() {
     sourceLabel: launchRecoverySourceLabel,
     confidenceLabel: launchRecoveryConfidenceLabel,
     coverageLabel: launchHistoryCoverage
-      ? `${launchHistoryCoverage.recoveredDayCount}/${launchHistoryCoverage.expectedDayCount} ${launchCoverageWindowLabel}${launchFirstPartyCoverageLabel}`
+      ? `${launchHistoryCoverage.recoveredDayCount}/${launchUsesFormalDenominator ? launchFormalExpectedDayCount : launchHistoryCoverage.expectedDayCount} ${launchCoverageWindowLabel}${launchFirstPartyCoverageLabel}`
       : "Coverage waiting",
     missingRangeCount: launchFirstPartyCoverage?.missingRanges.length ?? launchHistoryCoverage?.missingRanges.length ?? 0,
     sourceAgreementState,

@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-19T11:41:50.387Z
+Generated: 2026-06-19T12:01:47.927Z
 Status: pass
-Current head: cf087be24c677f36d37fa31ed9c8a047113318c9
+Current head: eda9e007e4f81d0324b3ce2f2ff6b3a0992e25e4
 
 ## Contract
 
@@ -72,14 +72,11 @@ Current head: cf087be24c677f36d37fa31ed9c8a047113318c9
 
 ## Dirty Files
 
-- agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/launch-analytics-recovery.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
-- docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
-- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- scripts/rebuild-analytics-truth.ts: real_source_change_needs_review
-- src/lib/analytics/source-agreement-detail.ts: real_source_change_needs_review
-- tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
+- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx: real_source_change_needs_review
+- src/lib/server/admin-analytics-historical-validation.ts: real_source_change_needs_review
+- src/types/admin-analytics.ts: real_source_change_needs_review
+- tests/unit/admin-analytics-page.spec.tsx: test_artifact_expected
+- tests/unit/admin-data-validation.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 

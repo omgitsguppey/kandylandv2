@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T11:49:46.932Z",
-  "currentHead": "c0c9a8ba72f3c6102414f4aa6a049b01f9a8f98c",
+  "generatedAtUtc": "2026-06-19T12:01:47.282Z",
+  "currentHead": "eda9e007e4f81d0324b3ce2f2ff6b3a0992e25e4",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,10 +365,34 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 0,
-    "byClassification": {},
+    "total": 5,
+    "byClassification": {
+      "real_source_change_needs_review": 3,
+      "test_artifact_expected": 2
+    },
     "unsafeUnknown": [],
-    "sample": [],
+    "sample": [
+      {
+        "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "classification": "real_source_change_needs_review"
+      },
+      {
+        "path": "src/lib/server/admin-analytics-historical-validation.ts",
+        "classification": "real_source_change_needs_review"
+      },
+      {
+        "path": "src/types/admin-analytics.ts",
+        "classification": "real_source_change_needs_review"
+      },
+      {
+        "path": "tests/unit/admin-analytics-page.spec.tsx",
+        "classification": "test_artifact_expected"
+      },
+      {
+        "path": "tests/unit/admin-data-validation.spec.ts",
+        "classification": "test_artifact_expected"
+      }
+    ],
     "sampleTruncated": false
   },
   "nextExactSteps": [

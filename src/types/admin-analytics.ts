@@ -869,6 +869,11 @@ export interface AnalyticsSourceHealth {
         | "local_source_window"
         | "unknown";
       allLaunchRangeProven: boolean;
+      formalRangeStartDayKey: string | null;
+      formalRangeEndDayKey: string | null;
+      formalExpectedDayCount: number;
+      evidenceDayCount: number;
+      unprovenRanges: string[];
       reason: string;
     };
     rangeStartDayKey: string | null;

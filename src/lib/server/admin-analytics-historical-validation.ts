@@ -5,6 +5,7 @@ import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
 import { classifyTaskOnboardingParity } from "@/lib/analytics/task-onboarding-parity-semantics";
 import { buildTelemetryParityPassGate } from "@/lib/analytics/telemetry-parity-pass-gate";
 import {
+  LAUNCH_ANALYTICS_FIRST_DAY_KEY,
   classifySourceAgreementCoverage,
   type SourceAgreementFailureClassification,
 } from "@/lib/analytics/source-agreement-detail";
@@ -86,6 +87,11 @@ export interface AnalyticsSourceHealth {
         | "local_source_window"
         | "unknown";
       allLaunchRangeProven: boolean;
+      formalRangeStartDayKey: string | null;
+      formalRangeEndDayKey: string | null;
+      formalExpectedDayCount: number;
+      evidenceDayCount: number;
+      unprovenRanges: string[];
       reason: string;
     };
     rangeStartDayKey: string | null;
@@ -194,6 +200,17 @@ function collapseDayRanges(days: string[]) {
 
   if (start) ranges.push(start === previous ? start : `${start}..${previous}`);
   return ranges;
+}
+
+function dayKeyFromUtcMs(ms: number) {
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
+function inclusiveDayCount(startDayKey: string, endDayKey: string) {
+  const start = Date.parse(`${startDayKey}T00:00:00.000Z`);
+  const end = Date.parse(`${endDayKey}T00:00:00.000Z`);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return 0;
+  return Math.floor((end - start) / 86_400_000) + 1;
 }
 
 function buildLaunchHistoryDayCoverage(input: {
@@ -571,6 +588,20 @@ function buildAnalyticsSourceHealth(input: {
     : rawExpectedDays;
   const preLaunchIgnoredDayCount = Math.max(0, rawExpectedDays.length - expectedDays.length);
   const launchStartBoundaryProven = input.selectedRange !== "all" || preLaunchIgnoredDayCount === 0;
+  const formalRangeEndDayKey = input.selectedRange === "all"
+    ? [
+        dayKeyFromUtcMs(input.generatedAtMs),
+        rawExpectedDays[rawExpectedDays.length - 1],
+        expectedDays[expectedDays.length - 1],
+      ]
+        .filter((dayKey): dayKey is string => typeof dayKey === "string" && dayKey.trim().length > 0)
+        .sort()
+        .at(-1) ?? null
+    : expectedDays[expectedDays.length - 1] ?? null;
+  const formalExpectedDayCount = input.selectedRange === "all" && formalRangeEndDayKey
+    ? inclusiveDayCount(LAUNCH_ANALYTICS_FIRST_DAY_KEY, formalRangeEndDayKey)
+    : expectedDays.length;
+  const formalLaunchRangeIncomplete = input.selectedRange === "all" && expectedDays.length < formalExpectedDayCount;
   const expectedDaySet = new Set(expectedDays);
   const unionPresentDays = new Set<string>(observedExpectedDays.filter((dayKey) => expectedDaySet.has(dayKey)));
 
@@ -643,7 +674,7 @@ function buildAnalyticsSourceHealth(input: {
   const chartReadinessState: AnalyticsSourceHealth["chartReadiness"]["state"] =
     expectedDays.length === 0
       ? "unavailable"
-      : input.selectedRange === "all" && !launchStartBoundaryProven
+      : input.selectedRange === "all" && (!launchStartBoundaryProven || formalLaunchRangeIncomplete)
         ? "partial"
       : recentGapDays.length > 0
         ? "gap_detected"
@@ -655,8 +686,10 @@ function buildAnalyticsSourceHealth(input: {
   const chartReadinessReason =
     chartReadinessState === "gap_detected"
       ? gapReason
-      : input.selectedRange === "all" && !launchStartBoundaryProven
-        ? "All-time historical route evidence starts at the first recovered source day. Attach launch-start proof or an approved all-launch export before treating this as complete launch history."
+      : input.selectedRange === "all" && (!launchStartBoundaryProven || formalLaunchRangeIncomplete)
+        ? formalLaunchRangeIncomplete
+          ? `All-time historical route evidence covers ${expectedDays.length} of ${formalExpectedDayCount} formal launch day(s). Attach launch-start proof or an approved all-launch export before treating this as complete launch history.`
+          : "All-time historical route evidence starts at the first recovered source day. Attach launch-start proof or an approved all-launch export before treating this as complete launch history."
       : chartReadinessState === "source_disagreement"
         ? "Chart buckets are available, but source lanes do not agree across first-party, GA4, historical snapshot, and legacy support. Keep this chart out of canonical promotion until the mismatched source lane is repaired."
       : chartReadinessState === "partial"
@@ -683,20 +716,33 @@ function buildAnalyticsSourceHealth(input: {
   const duplicateRangeDays = launchHistoryDays
     .filter((day) => day.duplicateSourceCount > 0)
     .map((day) => day.dayKey);
+  const allLaunchRangeProven =
+    launchStartBoundaryProven &&
+    expectedDays.length >= formalExpectedDayCount &&
+    unionPresentDays.size > 0 &&
+    missingDays.length === 0 &&
+    firstPartyCoverageState === "available" &&
+    sourceAgreementState === "pass";
   const launchHistoryCoverage: AnalyticsSourceHealth["launchHistoryCoverage"] = input.selectedRange === "all"
     ? {
         rangeProof: {
           expectedRangeSource: "all_range_historical_route",
           coverageWindowKind: "all_range_historical_route",
-          allLaunchRangeProven:
-            launchStartBoundaryProven &&
-            unionPresentDays.size > 0 &&
-            missingDays.length === 0 &&
-            firstPartyCoverageState === "available" &&
-            sourceAgreementState === "pass",
+          allLaunchRangeProven,
+          formalRangeStartDayKey: LAUNCH_ANALYTICS_FIRST_DAY_KEY,
+          formalRangeEndDayKey,
+          formalExpectedDayCount,
+          evidenceDayCount: expectedDays.length,
+          unprovenRanges: allLaunchRangeProven
+            ? []
+            : formalRangeEndDayKey
+              ? [`${LAUNCH_ANALYTICS_FIRST_DAY_KEY}..${formalRangeEndDayKey}`]
+              : [LAUNCH_ANALYTICS_FIRST_DAY_KEY],
           reason:
             !launchStartBoundaryProven
               ? `All-time historical route coverage starts at the first recovered source day (${firstRecoveredDayKey}); ${preLaunchIgnoredDayCount} earlier expected day(s) still need launch-start proof or an approved all-launch export.`
+              : formalExpectedDayCount > expectedDays.length
+                ? `All-time historical route evidence covers ${expectedDays.length} of ${formalExpectedDayCount} formal launch day(s). Attach launch-start proof or an approved all-launch export before treating this as complete launch history.`
               : unionPresentDays.size > 0 &&
                 missingDays.length === 0 &&
                 firstPartyCoverageState === "available" &&

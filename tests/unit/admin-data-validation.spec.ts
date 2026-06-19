@@ -301,6 +301,11 @@ describe("buildHistoricalValidationSummary", () => {
         expectedRangeSource: "all_range_historical_route",
         coverageWindowKind: "all_range_historical_route",
         allLaunchRangeProven: false,
+        formalRangeStartDayKey: "2026-05-01",
+        formalRangeEndDayKey: "2026-05-03",
+        formalExpectedDayCount: 3,
+        evidenceDayCount: 3,
+        unprovenRanges: ["2026-05-01..2026-05-03"],
       },
       firstRecoveredDayKey: "2026-05-01",
       lastRecoveredDayKey: "2026-05-03",
@@ -314,6 +319,39 @@ describe("buildHistoricalValidationSummary", () => {
     expect(summary.analyticsSourceHealth.continuity.missingDays).toEqual([]);
     expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("partial");
     expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("first recovered source day");
+  });
+
+  it("keeps formal launch range proof separate from local source evidence windows", () => {
+    const sourceDays = [
+      "2026-05-01",
+      "2026-05-02",
+      "2026-05-03",
+    ];
+    const summary = build({
+      selectedRange: "all",
+      generatedAtMs: Date.parse("2026-05-05T12:00:00.000Z"),
+      gaPresentDayKeys: sourceDays,
+      snapshotPresentDayKeys: sourceDays,
+      legacyPresentDayKeys: sourceDays,
+      expectedDayKeys: sourceDays,
+      recentWindowDayKeys: sourceDays,
+    });
+
+    expect(summary.analyticsSourceHealth.launchHistoryCoverage).toMatchObject({
+      expectedDayCount: 3,
+      recoveredDayCount: 3,
+      rangeProof: {
+        allLaunchRangeProven: false,
+        formalRangeStartDayKey: "2026-05-01",
+        formalRangeEndDayKey: "2026-05-05",
+        formalExpectedDayCount: 5,
+        evidenceDayCount: 3,
+        unprovenRanges: ["2026-05-01..2026-05-05"],
+      },
+    });
+    expect(summary.analyticsSourceHealth.launchHistoryCoverage?.rangeProof.reason).toContain("3 of 5 formal launch day");
+    expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("partial");
+    expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("3 of 5 formal launch day");
   });
 
   it("keeps per-day launch recovery source labels without promoting GA4 to product truth", () => {
