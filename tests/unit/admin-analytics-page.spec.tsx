@@ -602,11 +602,11 @@ describe("AdminAnalyticsPage", () => {
     expect(sourceNotes?.getAttribute("title")).not.toContain("No current activity snapshot has loaded yet.");
     expect(sourceNotes?.getAttribute("title")).not.toContain("Collecting activity");
     expect(sourceNotes?.getAttribute("title")).not.toContain("Realtime analytics");
-    expect(container.textContent).toContain("3/11 connected");
+    expect(container.textContent).not.toContain("3/11 connected");
     expect(container.textContent).not.toContain("3 source details");
-    expect(container.textContent).toContain("5 collecting");
     expect(container.textContent).toContain("2 source gaps");
     expect(container.textContent).toContain("1 external proof required");
+    expect(container.textContent).toContain("5 collecting activity");
     expect(container.textContent).not.toMatch(/evidence gate|source note/u);
     expect(container.textContent).not.toContain("3 need source");
     expect(container.textContent).toContain("2 collecting");

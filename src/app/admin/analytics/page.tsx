@@ -513,13 +513,15 @@ export default function AdminAnalyticsPage() {
   const panelRecoveryActions = panelHydrationSummary?.topNextActions ?? [];
   const showPanelRecovery = Boolean(panelHydrationSummary) && (panelRecoveryTruthItems.length > 0 || connectedPanelCount < totalPanelCount);
   const panelRecoveryReviewCount = panelRecoveryNeedsEvidenceCount > 0 && panelRecoverySourceGapCount === 0 && panelRecoveryEvidenceGateCount === 0 ? panelRecoveryNeedsEvidenceCount : 0;
-  const sourceRecoverySummary = [
-    showPanelRecovery ? `${connectedPanelCount}/${totalPanelCount} connected` : null,
-    panelRecoveryWaitingCount > 0 ? `${panelRecoveryWaitingCount} collecting` : null,
+  const sourceRecoverySummaryParts = [
     panelRecoverySourceGapCount > 0 ? formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap") : null,
     panelRecoveryEvidenceGateCount > 0 ? `${panelRecoveryEvidenceGateCount} external proof required` : null,
+    panelRecoveryWaitingCount > 0 ? `${panelRecoveryWaitingCount} collecting activity` : null,
     panelRecoveryReviewCount > 0 ? `${panelRecoveryReviewCount} needs review` : null,
-  ].filter((item): item is string => Boolean(item)).join(" - ");
+  ].filter((item): item is string => Boolean(item));
+  const sourceRecoverySummary = sourceRecoverySummaryParts.length > 0
+    ? sourceRecoverySummaryParts.join(" - ")
+    : showPanelRecovery ? `${connectedPanelCount}/${totalPanelCount} connected` : "";
 
   if (needsSetup) {
     return (
