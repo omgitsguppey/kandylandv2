@@ -70,14 +70,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     : livePulseTruthState;
   const realtimeCacheHint = livePulseModel.primaryDisplaySource === "verified_snapshot"
     ? livePulseModel.latestVerifiedSnapshotExists
-      ? "Last verified data"
+      ? "Cached snapshot"
       : "No verified activity snapshot yet"
     : liveResponse?.liveTruthLabel === "stale"
-      ? "Last verified data"
+      ? "Cached snapshot"
       : liveResponse?.cacheState === "fresh"
         ? "Updated"
       : liveResponse?.liveTruthLabel === "fallback"
-        ? "Last verified data"
+        ? "Cached snapshot"
         : "Current activity";
   const compactLiveMetricClass = "rounded-[1rem] p-2 min-h-[4.75rem]";
   const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";
@@ -133,7 +133,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       : livePulseModel.mode === "unavailable"
         ? "No verified snapshot yet"
         : livePulseModel.latestVerifiedSnapshotExists
-          ? "Last verified data"
+          ? "Cached snapshot"
           : "No verified snapshot yet";
   const livePulseCompactIssueLine =
     livePulseModel.guestSnapshotTruthState === "unavailable"

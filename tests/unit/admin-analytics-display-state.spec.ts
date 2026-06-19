@@ -45,7 +45,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(state.shouldRenderSnapshot).toBe(true);
     expect(state.shouldShowUnavailable).toBe(false);
     expect(state.sourceMode).toBe("verified_cache");
-    expect(state.visibleMessage).toBe("Last verified data.");
+    expect(state.visibleMessage).toBe("Cached snapshot.");
     expect(state.realtimeBlocksFirstRender).toBe(false);
   });
 
@@ -68,7 +68,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
 
     expect(state.shouldRenderSnapshot).toBe(true);
     expect(state.truthState).toBe("refreshing");
-    expect(state.visibleMessage).toBe("Refreshing. Last verified data.");
+    expect(state.visibleMessage).toBe("Refreshing cached snapshot.");
   });
 
   it("shows unavailable when neither snapshot nor realtime data exists", () => {
@@ -308,7 +308,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
 
     expect(state.sourceMode).toBe("stale_cache");
     expect(state.truthState).toBe("verified");
-    expect(state.visibleMessage).toBe("Last verified data.");
+    expect(state.visibleMessage).toBe("Cached snapshot.");
   });
 
   it("does not promote refresh-due cache metadata to stale truth", () => {
@@ -330,7 +330,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
 
     expect(state.sourceMode).toBe("stale_cache");
     expect(state.truthState).toBe("verified");
-    expect(state.visibleMessage).toBe("Last verified data.");
+    expect(state.visibleMessage).toBe("Cached snapshot.");
   });
 
   it("preserves cached realtime route labels through snapshot-first admin state", () => {

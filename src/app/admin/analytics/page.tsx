@@ -268,8 +268,8 @@ function formatAdminAnalyticsSourceNote(note: string) {
   return note
     .replace("No verified snapshot-first realtime payload is available yet.", "Collecting activity.")
     .replace(/^Snapshot refresh [^.]+\.\s*/u, "")
-    .replaceAll("Live updates are delayed", "Last verified data")
-    .replaceAll("Live updates delayed", "Last verified data")
+    .replaceAll("Live updates are delayed", "Cached snapshot")
+    .replaceAll("Live updates delayed", "Cached snapshot")
     .replaceAll("Realtime analytics", "Current activity")
     .replaceAll("realtime payload", "current activity snapshot")
     .replaceAll("Historical analytics", "Historical snapshot");
@@ -285,6 +285,8 @@ function formatAdminAnalyticsSourceStatusItem(note: string) {
   const genericVerifiedSnapshotCopy =
     normalized === "last verified data." ||
     normalized === "last verified data" ||
+    normalized === "cached snapshot." ||
+    normalized === "cached snapshot" ||
     normalized.includes("showing last verified data") ||
     normalized === "verified snapshot shown." ||
     normalized === "verified snapshot shown" ||

@@ -462,7 +462,7 @@ function compactHistoricalOverviewSnapshot(
     cacheAgeMs: response.generatedAtMs
       ? Math.max(0, Date.now() - response.generatedAtMs)
       : response.cacheAgeMs,
-    cacheSourceLabel: "Last verified data",
+    cacheSourceLabel: "Cached snapshot",
     cacheRevalidating: true,
     devices: response.devices,
     funnel: response.funnel,
@@ -698,7 +698,7 @@ function buildAdminAnalyticsOverviewDisplayMetric(input: {
       ? input.unavailableLine ?? "Unavailable"
       : displayState === "loading"
         ? "No verified snapshot yet."
-        : formatOverviewGeneratedAtLine(input.generatedAtUtc, input.nowMs, "Last verified data"));
+        : formatOverviewGeneratedAtLine(input.generatedAtUtc, input.nowMs, "Cached snapshot"));
 
   return {
     id: input.id,
@@ -1496,10 +1496,10 @@ export function useAdminAnalyticsState() {
       : liveRealtime.feedStatus === "partial"
         ? "Current activity partial"
         : liveRealtime.feedStatus === "failed"
-          ? "Last verified data"
+          ? "Cached snapshot"
           : isBackgroundSyncing
             ? "Refreshing"
-            : "Last verified data";
+            : "Cached snapshot";
 
   const historicalOverviewIssues = historicalOverviewResponse?.issues ?? [];
   const historicalEstimationReason =
@@ -2026,7 +2026,7 @@ export function useAdminAnalyticsState() {
             : "No verified snapshot yet."
           : effectiveLiveResponse?.generatedAtMs
             ? `Updated ${formatRelativeTime(effectiveLiveResponse.generatedAtMs, nowMs)}`
-            : "Last verified data",
+            : "Cached snapshot",
       unavailableLine: "No verified activity source yet.",
       loading: liveLoading && liveActivePrimaryValue === null,
       badgeLabel: liveActiveTruthState ? ANALYTICS_OVERVIEW_BADGE_LABELS[liveActiveTruthState] : undefined,

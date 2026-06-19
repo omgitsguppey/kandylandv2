@@ -406,7 +406,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     (entry) => entry.lastServerConfirmedAtMs !== null,
   );
   const visibleCopy = input.displayState?.visibleMessage ?? (input.feedStatus === "snapshot"
-    ? "Last verified data."
+    ? "Cached snapshot."
     : input.feedStatus === "failed"
       ? "No verified snapshot yet."
       : graphSourceMismatch
@@ -448,12 +448,12 @@ export function buildAdminAnalyticsLivePulseModel(input: {
           ? "refresh_due"
           : "ready";
   const topWarning = mode === "delayed_snapshot"
-    ? "Last verified data."
+    ? "Cached snapshot."
     : visibleCopy;
   const topWarningDetail = guestSnapshotDisplay.state === "unavailable"
     ? guestSnapshotDisplay.reason
     : guestSnapshotDisplay.state === "stale"
-      ? "Guest snapshot refresh due. Showing last verified guest sample."
+      ? "Guest snapshot refresh due. Showing cached guest sample."
       : guestSnapshotDisplay.state === "needs_review"
         ? guestSnapshotDisplay.reason
         : guestEstimateState === "estimated" && !guestSnapshotDisplay.sampleEvidence

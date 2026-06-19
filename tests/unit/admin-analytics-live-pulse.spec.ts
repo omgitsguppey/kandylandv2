@@ -153,7 +153,7 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
         shouldRenderSnapshot: true,
         shouldRenderRealtimeUpgrade: false,
         shouldShowUnavailable: false,
-        visibleMessage: "Last verified data.",
+        visibleMessage: "Cached snapshot.",
         debugReason: "snapshot exists",
         refreshAvailable: true,
         fakeZeroPrevented: false,
@@ -164,7 +164,7 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     });
 
     expect(model.livePulseEnabled).toBe(true);
-    expect(model.visibleCopy).toBe("Last verified data.");
+    expect(model.visibleCopy).toBe("Cached snapshot.");
     expect(model.presenceSourceStatus).toBe("fallback");
     expect(model.primaryDisplaySource).toBe("verified_snapshot");
     expect(model.latestVerifiedSnapshotExists).toBe(true);
@@ -252,7 +252,7 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
 
     expect(model.guestSnapshotTruthState).toBe("stale");
     expect(model.guestSnapshotReason).toBe("Guest snapshot refresh due");
-    expect(model.topWarningDetail).toBe("Guest snapshot refresh due. Showing last verified guest sample.");
+    expect(model.topWarningDetail).toBe("Guest snapshot refresh due. Showing cached guest sample.");
   });
   it("keeps detailed source doctrine out of primary Activity Snapshot copy", () => {
     const source = readFileSync(
