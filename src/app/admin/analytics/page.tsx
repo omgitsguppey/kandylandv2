@@ -149,7 +149,7 @@ function formatSourceHierarchyCount(count: number, singular: string, plural = `$
 function labelForSourceHierarchyDisplayState(state: AdminAnalyticsConsumerDisplayState) {
   switch (state) {
     case "second_source_only":
-      return "GA4-only views";
+      return "second-source views";
     case "chart_promotion_blocked":
       return "chart promotion held";
     case "consumer_source_mismatch":
