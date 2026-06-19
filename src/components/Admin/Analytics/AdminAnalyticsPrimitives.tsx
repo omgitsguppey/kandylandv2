@@ -173,10 +173,10 @@ export function SectionCard({
                         <button
                             type="button"
                             onClick={() => setExpanded((prev) => !prev)}
-                            className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
+                            className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
                             aria-expanded={expanded}
                         >
-                            {expanded ? "Collapse" : "Expand"}
+                            {expanded ? "Hide" : "Details"}
                         </button>
                     ) : null}
                 </div>

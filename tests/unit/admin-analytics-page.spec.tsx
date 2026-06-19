@@ -10,6 +10,10 @@ const ANALYTICS_STATE_SOURCE = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
   "utf-8",
 );
+const ANALYTICS_PRIMITIVES_SOURCE = readFileSync(
+  join(process.cwd(), "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx"),
+  "utf-8",
+);
 
 const mockState = vi.hoisted(() => {
   const icon = () => null;
@@ -308,6 +312,11 @@ describe("AdminAnalyticsPage", () => {
     expect(ANALYTICS_STATE_SOURCE).toContain("unknownDeviceUsers");
     expect(ANALYTICS_STATE_SOURCE).toContain("classifiedDeviceUsers > 0");
     expect(ANALYTICS_STATE_SOURCE).not.toContain("? totalDeviceUsers > 0");
+  });
+
+  it("uses compact natural disclosure copy for analytics drilldowns", () => {
+    expect(ANALYTICS_PRIMITIVES_SOURCE).toContain('{expanded ? "Hide" : "Details"}');
+    expect(ANALYTICS_PRIMITIVES_SOURCE).not.toContain('{expanded ? "Collapse" : "Expand"}');
   });
 
   it("calls the clear-all handler from admin analytics state", async () => {
