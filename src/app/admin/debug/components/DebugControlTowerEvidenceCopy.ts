@@ -23,7 +23,7 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
         return {
             state: "source_only",
             label: "Source-only evidence",
-            detail: "Implemented behavior checks passed. Runtime, provider, admin truth, and screenshot proof still need formal evidence.",
+            detail: "Implemented behavior checks passed. Runtime smoke, provider smoke, admin samples, and UI visual checks stay separate.",
         };
     }
 
@@ -81,7 +81,7 @@ export function summarizePublicBetaCapDisplays(displays: PublicBetaCapDisplay[])
     const summary = [
         externalProofCount ? `${externalProofCount} formal proof gate${externalProofCount === 1 ? "" : "s"}` : null,
         refreshCount ? `${refreshCount} refresh item${refreshCount === 1 ? "" : "s"}` : null,
-        sourceOnlyCount ? `${sourceOnlyCount} source-only item${sourceOnlyCount === 1 ? "" : "s"}` : null,
+        sourceOnlyCount ? `${sourceOnlyCount} source check${sourceOnlyCount === 1 ? "" : "s"}` : null,
         reviewCount ? `${reviewCount} review item${reviewCount === 1 ? "" : "s"}` : null,
     ].filter(Boolean).join(", ");
 

@@ -95,7 +95,7 @@ describe("resolveReportDisplay", () => {
     expect(display.statusLabel).toBe("Source checks only");
     expect(display.findingLabel).toBe("1 evidence gate");
     expect(display.badgeLabel).toBe("Review");
-    expect(display.sourceDetail).toBe("Source validators passed; runtime, provider, admin truth, and visual proof stay separate.");
+    expect(display.sourceDetail).toBe("Source validators passed; runtime smoke, provider smoke, admin samples, and UI visual checks stay separate.");
   });
 
   it("shows evidence-gate-only failures as proof gates even when the producer omits evidenceGateCount", () => {
