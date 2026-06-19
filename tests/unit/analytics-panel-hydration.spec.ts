@@ -229,6 +229,8 @@ describe("analytics panel hydration", () => {
     expect(source).toContain('canClearSourceGate: launchSourceGateCanClear');
     expect(source).toContain("all-launch range proof exists");
     expect(source).toContain("LAUNCH_ANALYTICS_FIRST_DAY_KEY");
+    expect(source).toContain("publicLaunchRangeSource");
+    expect(source).toContain('if (coverageWindowKind === "caller_supplied_expected_days" || coverageWindowKind === "local_source_window") return "local_source_window"');
     expect(source).toContain("formalLaunchRange");
     expect(source).toContain('state: allLaunchRangeProven ? "all_launch_range_proven" : "formal_proof_missing"');
     expect(source).toContain("localEvidenceDayCount");

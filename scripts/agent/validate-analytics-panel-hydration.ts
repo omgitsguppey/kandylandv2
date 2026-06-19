@@ -106,6 +106,17 @@ function rangeLabel(startDayKey: string, endDayKey: string) {
   return startDayKey === endDayKey ? startDayKey : `${startDayKey}..${endDayKey}`;
 }
 
+function publicLaunchRangeSource(
+  coverageWindowKind: string,
+): "all_range_historical_route" | "all_range_historical_export" | "admin_truth_sample" | "fixture_only_local_window" | "local_source_window" | "unknown" {
+  if (coverageWindowKind === "all_range_historical_export" || coverageWindowKind === "admin_truth_sample" || coverageWindowKind === "fixture_only_local_window") {
+    return coverageWindowKind;
+  }
+  if (coverageWindowKind === "all_range_historical_route") return "all_range_historical_route";
+  if (coverageWindowKind === "caller_supplied_expected_days" || coverageWindowKind === "local_source_window") return "local_source_window";
+  return "unknown";
+}
+
 function changedFiles() {
   const files = new Set<string>();
   for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
@@ -968,9 +979,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     },
     launchHistoryCoverage: {
       rangeProof: {
-        expectedRangeSource: typeof sourceAgreementDetail.expectedRangeSource === "string"
-          ? sourceAgreementDetail.expectedRangeSource
-          : "union_of_local_source_days",
+        expectedRangeSource: publicLaunchRangeSource(coverageWindowKind),
         coverageWindowKind,
         allLaunchRangeProven,
         reason: allLaunchRangeProofReason,
