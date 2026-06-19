@@ -87,9 +87,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   );
   const verifiedSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot");
   const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
-  const guestEstimateSourceTruthLabel = formatAdminAnalyticsSourceTruthLabel(
-    audienceSnapshotModel.guestEstimateMetadata.sourceTruth,
-  );
   const returnCadenceSourceTruthLabel = formatAdminAnalyticsSourceTruthLabel(
     returnCadenceModel.sourceTruth,
   );
@@ -330,39 +327,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   dictionaryTooltip="Site engagement rate and average session duration. This is not first-party watch or activity quality."
                 />
               </div>
-
-              <details className="mt-3 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300" data-product-surface-integrity-debug-detail>
-                <summary className="cursor-pointer list-none font-semibold text-white">Source notes</summary>
-                <div className="mt-2 grid gap-2.5 lg:grid-cols-3">
-                  <div>
-                    <p className="font-semibold text-white">Guest estimate</p>
-                    <p>Label: {vendorEvidenceLabel}</p>
-                    <p title={audienceSnapshotModel.guestEstimateMetadata.sourceTruth}>
-                      Source: {guestEstimateSourceTruthLabel}
-                    </p>
-                    <p>Formula: {audienceSnapshotModel.guestEstimateMetadata.formula ?? "No formula source"}</p>
-                    <p>Freshness: {audienceSnapshotModel.guestEstimateMetadata.freshnessState}</p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">First-party continuity</p>
-                    <p>
-                      Last seen: {audienceSnapshotModel.firstParty.lastSeenAtUtc
-                        ? formatRelativeTime(Date.parse(audienceSnapshotModel.firstParty.lastSeenAtUtc), nowMs)
-                        : noSnapshotLabel}
-                    </p>
-                    <p>
-                      Missing days: {audienceSnapshotModel.continuity.missingDays.length === 0
-                        ? "None"
-                        : audienceSnapshotModel.continuity.missingDays.join(", ")}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">Recovery</p>
-                    <p>{audienceSnapshotModel.recovery.explanation}</p>
-                    <p>Estimated share: {audienceSnapshotModel.recovery.estimatedSharePct}%</p>
-                  </div>
-                </div>
-              </details>
 
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
                 {audienceSnapshotModel.chartSeries.map((series) => (

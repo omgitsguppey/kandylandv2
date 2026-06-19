@@ -83,12 +83,14 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).toContain("formatAdminAnalyticsSourceStateLabel");
     expect(source).toContain("formatAdminAnalyticsSourceTruthLabel");
     expect(source).toContain("audienceSourceStateLabel");
-    expect(source).toContain("guestEstimateSourceTruthLabel");
     expect(source).toContain("returnCadenceSourceTruthLabel");
-    expect(source).toContain("title={audienceSnapshotModel.guestEstimateMetadata.sourceTruth}");
     expect(source).toContain("title={returnCadenceModel.sourceTruth}");
     expect(source).toContain("title={item.sourceTruth}");
     expect(source).toContain("title={row.sourceTruth}");
+    expect(source).not.toContain("Source notes");
+    expect(source).not.toContain("Guest estimate</p>");
+    expect(source).not.toContain("First-party continuity");
+    expect(source).not.toContain("data-product-surface-integrity-debug-detail");
     expect(source).not.toContain("Source: {audienceSnapshotModel.sourceState}");
     expect(source).not.toContain("Source: {audienceSnapshotModel.guestEstimateMetadata.sourceTruth}");
     expect(source).not.toContain("<td className=\"px-3 py-2\">{returnCadenceModel.sourceTruth}</td>");
