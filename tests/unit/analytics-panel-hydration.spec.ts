@@ -232,6 +232,15 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("launch recovery source inventory entries require productTruthRole and promotionRule.");
   });
 
+  it("allows approved all-range export proof without treating it as formal admin truth", () => {
+    const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
+
+    expect(source).toContain('"all_range_historical_export"');
+    expect(source).toContain("approved all-range historical export");
+    expect(source).toContain("formal admin truth sample or approved all-range historical export");
+    expect(source).toContain("canClearAdminTruthGate: false");
+  });
+
   it("surfaces legacy purgatory in launch recovery without making it product truth", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
 

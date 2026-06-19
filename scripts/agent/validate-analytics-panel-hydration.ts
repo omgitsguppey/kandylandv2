@@ -762,6 +762,18 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     },
   ];
   const allLaunchRangeProven = sourceAgreementDetail.allLaunchRangeProven === true;
+  const coverageWindowKind = typeof sourceAgreementDetail.coverageWindowKind === "string"
+    ? sourceAgreementDetail.coverageWindowKind
+    : "local_source_window";
+  const allLaunchRangeProofReason = allLaunchRangeProven
+    ? coverageWindowKind === "all_range_historical_export"
+      ? "The source-agreement detail includes explicit all-launch range proof from an approved all-range historical export."
+      : coverageWindowKind === "admin_truth_sample"
+        ? "The source-agreement detail includes explicit all-launch range proof from a formal admin truth sample."
+        : "The source-agreement detail includes explicit all-launch range proof from an approved all-launch source."
+    : coverageWindowKind.includes("fixture")
+      ? "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export."
+      : "The local source-agreement evidence proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.";
   const launchSourceGateCanClear =
     expectedDays.length > 0
     && !staleEvidence
@@ -846,15 +858,9 @@ function buildLaunchAnalyticsRecoveryReport(input: {
         expectedRangeSource: typeof sourceAgreementDetail.expectedRangeSource === "string"
           ? sourceAgreementDetail.expectedRangeSource
           : "union_of_local_source_days",
-        coverageWindowKind: typeof sourceAgreementDetail.coverageWindowKind === "string"
-          ? sourceAgreementDetail.coverageWindowKind
-          : "local_source_window",
+        coverageWindowKind,
         allLaunchRangeProven,
-        reason: allLaunchRangeProven
-          ? "The source-agreement detail includes explicit all-launch range proof from a formal admin truth sample."
-          : typeof sourceAgreementDetail.coverageWindowKind === "string" && sourceAgreementDetail.coverageWindowKind.includes("fixture")
-          ? "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export."
-          : "The local source-agreement evidence proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.",
+        reason: allLaunchRangeProofReason,
       },
       rangeStartDayKey: expectedDays[0] ?? null,
       rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
@@ -1016,9 +1022,9 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   }
   if (
     report.launchHistoryCoverage.rangeProof.allLaunchRangeProven === true
-    && report.launchHistoryCoverage.rangeProof.coverageWindowKind !== "admin_truth_sample"
+    && !["admin_truth_sample", "all_range_historical_export"].includes(report.launchHistoryCoverage.rangeProof.coverageWindowKind)
   ) {
-    failures.push("launch recovery all-launch proof must come from a formal admin truth sample.");
+    failures.push("launch recovery all-launch proof must come from a formal admin truth sample or approved all-range historical export.");
   }
   if (!report.launchHistoryCoverage.rangeProof.coverageWindowKind) {
     failures.push("launch recovery must label whether source agreement coverage is fixture/local/export evidence.");
