@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-19T12:01:47.804Z
+Generated: 2026-06-19T13:01:51.943Z
 Status: pass
-Current head: eda9e007e4f81d0324b3ce2f2ff6b3a0992e25e4
+Current head: 3840197f6cafa8ea5a7615c5171cf2bcf2e802f5
 
 ## Contract
 
@@ -53,11 +53,7 @@ Current head: eda9e007e4f81d0324b3ce2f2ff6b3a0992e25e4
 
 ## Dirty Files
 
-- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx: real_source_change_needs_review
-- src/lib/server/admin-analytics-historical-validation.ts: real_source_change_needs_review
-- src/types/admin-analytics.ts: real_source_change_needs_review
-- tests/unit/admin-analytics-page.spec.tsx: test_artifact_expected
-- tests/unit/admin-data-validation.spec.ts: test_artifact_expected
+- none
 
 ## Validation Failures
 
