@@ -1,7 +1,7 @@
 # Final Telemetry Closure Lock
 
-Generated: 2026-06-16T17:15:19.659Z
-Current code version: b22b5e497b300f932bf2214998324e45646c0b0a
+Generated: 2026-06-19T07:12:44.170Z
+Current code version: 74d431bea3803401956e4aaa9615f3d9228bf2ee
 
 ## Summary
 
@@ -50,7 +50,9 @@ Current code version: b22b5e497b300f932bf2214998324e45646c0b0a
 
 ## Missing Evidence
 
-- provider-smoke: operator_reported_not_formal_provider_smoke; next: Attach formal provider smoke evidence before beta exit review.
+- provider-smoke: stale_provider_smoke_evidence; next: Attach formal provider smoke evidence before beta exit review.
+- runtime-smoke: stale_runtime_smoke_evidence; next: Attach deployed runtime smoke evidence before beta exit review.
+- admin-truth-sample: stale_admin_truth_sample_evidence; next: Attach fresh admin truth sample evidence before beta exit review.
 
 ## Disabled Telemetry Behavior
 

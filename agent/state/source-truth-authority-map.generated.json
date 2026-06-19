@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-03T02:39:17.434Z",
+  "generatedAtUtc": "2026-06-19T07:12:44.108Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "currentHead": "74d431bea3803401956e4aaa9615f3d9228bf2ee",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,21 +323,21 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "currentHead": "c0db559c7f2bd5ebbc7fbc24159be3051bbd36c7",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "b43d0551abc2035a1b413d58dff68e10f4e82074",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "74d431bea3803401956e4aaa9615f3d9228bf2ee",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/final-phase-cleanup-lock.generated.json",
@@ -347,39 +347,39 @@
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "currentHead": "1341f6d52f5e848c3d81bc39039e3f8333bb66e7",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+      "currentHead": "2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "currentHead": "9b25961f85707ab4e0f5d8346b10b667ae0b75a4",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/creator-experience-simplification.generated.json",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "currentHead": "2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/post-economy-creator-flow-qa.generated.json",
       "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
       "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/speed-security-hardening.generated.json",
@@ -425,15 +425,15 @@
     },
     {
       "artifact": "agent/state/repo-spring-cleaning-rewire.generated.json",
-      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "status": "not_required",
       "action": "Retired/archive artifact does not block beta score."
     },
     {
       "artifact": "agent/state/debug-panel-output-triage.generated.json",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "currentHead": "26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
     }
   ],
   "fixesApplied": [

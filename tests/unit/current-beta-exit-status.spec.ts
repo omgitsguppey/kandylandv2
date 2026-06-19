@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  refreshPlanWithCurrentArtifactVersions,
   validateCurrentBetaExitStatusReport,
   type CurrentBetaExitProofLane,
   type CurrentBetaExitStatusReport,
@@ -254,6 +255,91 @@ describe("current beta exit status validator", () => {
 
     expect(report.summary.proofLanes.find((lane) => lane.id === "manualScreenshotQa")?.actionState).toBe("source_only_cannot_clear");
     expect(validateCurrentBetaExitStatusReport(report, "head")).toEqual([]);
+  });
+
+  it("refreshes report freshness rows when a dependency artifact now matches the current code version", () => {
+    const refreshed = refreshPlanWithCurrentArtifactVersions({
+      head: "current-head",
+      generatedAtUtc: "2026-06-19T12:00:00.000Z",
+      refreshPlan: [
+        {
+          artifactPath: "agent/state/current-beta-exit-status.generated.json",
+          reportKey: "current-beta-exit-status",
+          label: "Current beta exit status",
+          status: "stale_source_version",
+          needsRefresh: true,
+          generatedAtUtc: "2026-06-18T12:00:00.000Z",
+          ageHours: 24,
+          refreshCommand: "npm run check:current-beta-exit-status",
+          message: "Current beta exit status was generated from an older code version.",
+          nextAction: "Refresh this report.",
+          formalEvidenceGateCanClear: false,
+          owner: "beta",
+          maxAgeHours: 24,
+        },
+        {
+          artifactPath: "agent/state/beta-evidence-gap-map.generated.json",
+          reportKey: "beta-evidence-gap-map",
+          label: "Beta evidence gap map",
+          status: "stale_source_version",
+          needsRefresh: true,
+          generatedAtUtc: "2026-06-18T12:00:00.000Z",
+          ageHours: 24,
+          refreshCommand: "npm run check:beta-evidence-gap-map",
+          message: "Beta evidence gap map was generated from an older code version.",
+          nextAction: "Refresh this report.",
+          formalEvidenceGateCanClear: false,
+          owner: "evidence",
+          maxAgeHours: 24,
+        },
+        {
+          artifactPath: "agent/state/provider-smoke-evidence.generated.json",
+          reportKey: "provider-smoke-evidence",
+          label: "Provider smoke evidence",
+          status: "stale_source_version",
+          needsRefresh: true,
+          generatedAtUtc: "2026-06-18T12:00:00.000Z",
+          ageHours: 24,
+          refreshCommand: "npm run check:provider-smoke-evidence",
+          message: "Provider smoke evidence was generated from an older code version.",
+          nextAction: "Attach provider evidence.",
+          formalEvidenceGateCanClear: false,
+          owner: "evidence",
+          maxAgeHours: 24,
+        },
+      ],
+      readArtifact: (artifactPath) => {
+        if (artifactPath === "agent/state/beta-evidence-gap-map.generated.json") {
+          return {
+            currentHead: "current-head",
+            generatedAtUtc: "2026-06-19T11:30:00.000Z",
+          };
+        }
+        if (artifactPath === "agent/state/provider-smoke-evidence.generated.json") {
+          return {
+            currentHead: "old-head",
+            generatedAtUtc: "2026-06-18T12:00:00.000Z",
+          };
+        }
+        return null;
+      },
+    });
+
+    expect(refreshed.find((entry) => entry.artifactPath === "agent/state/current-beta-exit-status.generated.json")).toMatchObject({
+      status: "current",
+      needsRefresh: false,
+      nextAction: "No refresh needed.",
+    });
+    expect(refreshed.find((entry) => entry.artifactPath === "agent/state/beta-evidence-gap-map.generated.json")).toMatchObject({
+      status: "current",
+      needsRefresh: false,
+      nextAction: "No refresh needed.",
+    });
+    expect(refreshed.find((entry) => entry.artifactPath === "agent/state/provider-smoke-evidence.generated.json")).toMatchObject({
+      status: "stale_source_version",
+      needsRefresh: true,
+      formalEvidenceGateCanClear: false,
+    });
   });
 
   it("classifies stale formal proof lanes by required source action", () => {

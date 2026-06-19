@@ -237,6 +237,57 @@ function readJson(relativePath: string): Record<string, unknown> | null {
   return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, unknown> : null;
 }
 
+function hoursBetween(startUtc: string | undefined, endUtc: string) {
+  if (!startUtc) return undefined;
+  const start = Date.parse(startUtc);
+  const end = Date.parse(endUtc);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return undefined;
+  return Math.max(0, (end - start) / (60 * 60 * 1000));
+}
+
+export function refreshPlanWithCurrentArtifactVersions(input: {
+  refreshPlan: ArtifactRefreshStatus[];
+  head: string;
+  generatedAtUtc: string;
+  readArtifact?: (artifactPath: string) => Record<string, unknown> | null;
+}) {
+  const readArtifact = input.readArtifact ?? readJson;
+
+  return input.refreshPlan.map((entry) => {
+    const artifact = entry.artifactPath === reportRelativePath ? null : readArtifact(entry.artifactPath);
+    const artifactHead = entry.artifactPath === reportRelativePath
+      ? input.head
+      : stringValue(artifact?.currentHead ?? artifact?.sourceCommit, "");
+
+    if (artifactHead !== input.head) {
+      return entry;
+    }
+
+    const artifactGeneratedAt = entry.artifactPath === reportRelativePath
+      ? input.generatedAtUtc
+      : stringValue(artifact?.generatedAtUtc ?? artifact?.generatedAt, input.generatedAtUtc);
+
+    return {
+      ...entry,
+      status: "current" as const,
+      needsRefresh: false,
+      generatedAtUtc: artifactGeneratedAt,
+      ageHours: hoursBetween(artifactGeneratedAt, input.generatedAtUtc) ?? 0,
+      message: `${entry.label} is current for the latest code version.`,
+      nextAction: "No refresh needed.",
+      formalEvidenceGateCanClear: true,
+    };
+  });
+}
+
+function hasRefreshPlanEntriesNowCurrent(report: CurrentBetaExitStatusReport, head: string) {
+  return report.refreshPlan.some((entry) => {
+    if (!entry.needsRefresh || entry.artifactPath === reportRelativePath) return false;
+    const artifact = readJson(entry.artifactPath);
+    return stringValue(artifact?.currentHead ?? artifact?.sourceCommit, "") === head;
+  });
+}
+
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
@@ -516,26 +567,19 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
       nextAction: "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof.",
     }]),
   ];
-  const refreshPlan = report.refreshPlan.map((entry) =>
-    entry.artifactPath === reportRelativePath
-      ? {
-        ...entry,
-        status: "current" as const,
-        needsRefresh: false,
-        generatedAtUtc,
-        ageHours: 0,
-        message: "Current beta exit status is current for the latest code version.",
-        nextAction: "No refresh needed.",
-      }
-      : entry,
-  );
+  const refreshPlan = refreshPlanWithCurrentArtifactVersions({
+    refreshPlan: report.refreshPlan,
+    head,
+    generatedAtUtc,
+  });
   return {
     ...report,
     generatedAtUtc,
     currentHead: head,
     summary,
     refreshPlan,
-    staleArtifacts: report.staleArtifacts.filter((entry) => entry.artifactPath !== reportRelativePath),
+    staleArtifacts: report.staleArtifacts.filter((entry) =>
+      refreshPlan.some((planEntry) => planEntry.artifactPath === entry.artifactPath && planEntry.needsRefresh)),
     remainingBlockers,
     refreshedArtifacts: Array.from(new Set([...report.refreshedArtifacts, reportRelativePath])),
     checksRun: report.checksRun.map((check) =>
@@ -826,7 +870,7 @@ function main() {
       changedFilesSinceArtifactHead: versionContext.changedFilesSinceArtifactHead,
       ownedSourcePaths: [...currentBetaExitOwnedInputPaths],
     });
-    if (forceRefresh || !isGeneratedArtifactCurrent(version)) {
+    if (forceRefresh || !isGeneratedArtifactCurrent(version) || hasRefreshPlanEntriesNowCurrent(report, head)) {
       report = refreshReportFromCurrentArtifacts(report, head);
       writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
     }
