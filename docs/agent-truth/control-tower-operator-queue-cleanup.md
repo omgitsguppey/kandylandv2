@@ -4,7 +4,7 @@ Generated Control Tower cleanup evidence. Formal gates remain visible but are no
 
 ```json
 {
-  "currentHead": "5c126a7df36e39be20ab55b40ce5d14c04779fb5",
+  "currentHead": "2f9486ad65b037994ac7c6da4e9ddeb2cca63f95",
   "scoreImpactQueueBefore": [
     "runtime_provider_smoke",
     "debug_runtime_evidence",

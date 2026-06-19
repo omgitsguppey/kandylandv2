@@ -4,9 +4,9 @@ Generated Control Tower cleanup evidence. Formal gates remain visible but are no
 
 ```json
 {
-  "generatedAtUtc": "2026-05-24T17:35:24.498Z",
+  "generatedAtUtc": "2026-06-19T05:23:46.818Z",
   "reportKey": "control-tower-formal-gate-display",
-  "currentHead": "5c126a7df36e39be20ab55b40ce5d14c04779fb5",
+  "currentHead": "2f9486ad65b037994ac7c6da4e9ddeb2cca63f95",
   "gates": {
     "runtimeProvider": {
       "gateId": "runtime_provider_smoke",
