@@ -457,11 +457,11 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
   const evidence = readJson("agent/state/evidence-capture-status.generated.json");
   const operatorSmoke = operatorRevenueSmokeSummary();
   const captureSummary = at<JsonObject>(evidence, ["summary"], {});
-  const manualVisual = readJson("agent/state/ui-visual-smoke-minimal.generated.json");
+  const uiSurfaceCoverage = readJson("agent/state/ui-visual-smoke-minimal.generated.json");
   const provider = readJson("agent/state/provider-smoke-evidence.generated.json");
   const runtime = readJson("agent/state/runtime-smoke-evidence.generated.json");
   const admin = readJson("agent/state/admin-truth-sample-evidence.generated.json");
-  const visualEvidenceStatus = formalEvidenceStatus(manualVisual, report.currentHead, "source_only_screenshotEvidenceAttached_false", "stale_visual_evidence");
+  const visualEvidenceStatus = formalEvidenceStatus(uiSurfaceCoverage, report.currentHead, "source_only_screenshotEvidenceAttached_false", "stale_visual_evidence");
   const providerSmokeStatus = formalEvidenceStatus(provider, report.currentHead, "missing_formal_evidence", "stale_provider_smoke_evidence");
   const runtimeSmokeStatus = formalEvidenceStatus(runtime, report.currentHead, "runtime_unverified", "stale_runtime_smoke_evidence");
   const adminTruthSampleStatus = formalEvidenceStatus(admin, report.currentHead, "missing_or_unknown", "stale_admin_truth_sample_evidence");
@@ -472,7 +472,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
     runtimeSmokeStatus,
     adminTruthSampleStatus,
     captureSummary,
-    manualVisual,
+    uiSurfaceCoverage,
     provider,
     runtime,
     admin,

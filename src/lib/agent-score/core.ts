@@ -199,7 +199,7 @@ export type PublicBetaLaunchClearance = {
     providerSmoke: { cleared: boolean; status: string; source: string };
     deployedRuntimeSmoke: { cleared: boolean; status: string; source: string };
     adminTruthSample: { cleared: boolean; status: string; source: string };
-    manualVisualEvidence: { cleared: boolean; status: string; source: string };
+    uiSurfaceCoverage: { cleared: boolean; status: string; source: string };
     paymentSourceOfFunds: { cleared: false; status: "protected_not_evaluated_in_source_model"; source: string };
   };
 };
@@ -214,7 +214,7 @@ export type PublicBetaEvidenceInput = {
   realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
   realUsageConfidenceCalibrationEvidence?: PublicBetaEvidenceArtifact;
   behaviorMathEvidence?: PublicBetaEvidenceArtifact;
-  visualManualEvidence?: PublicBetaEvidenceArtifact;
+  uiSurfaceCoverageEvidence?: PublicBetaEvidenceArtifact;
   providerSmokeEvidence?: PublicBetaEvidenceArtifact;
   runtimeSmokeEvidence?: PublicBetaEvidenceArtifact;
   adminTruthSampleEvidence?: PublicBetaEvidenceArtifact;
@@ -602,10 +602,10 @@ function readEvidenceListValue(artifact: PublicBetaEvidenceArtifact | undefined,
   return entry.slice(prefix.length).split(",").map((item) => item.trim()).filter(Boolean);
 }
 
-function buildOperatorFinalChecks(visualManualEvidence?: PublicBetaEvidenceArtifact): PublicBetaOperatorFinalChecks {
-  const requiredSurfaceIds = readEvidenceListValue(visualManualEvidence, "uiVisualSmoke.requiredSurfaces");
-  const pendingSurfaceIds = readEvidenceListValue(visualManualEvidence, "uiVisualSmoke.missingSurfaces");
-  const statusText = String(visualManualEvidence?.status ?? "operator_final_pending");
+function buildOperatorFinalChecks(uiSurfaceCoverageEvidence?: PublicBetaEvidenceArtifact): PublicBetaOperatorFinalChecks {
+  const requiredSurfaceIds = readEvidenceListValue(uiSurfaceCoverageEvidence, "uiVisualSmoke.requiredSurfaces");
+  const pendingSurfaceIds = readEvidenceListValue(uiSurfaceCoverageEvidence, "uiVisualSmoke.missingSurfaces");
+  const statusText = String(uiSurfaceCoverageEvidence?.status ?? "operator_final_pending");
   const status: PublicBetaOperatorFinalVisualSurface["status"] =
     statusText === "source_surface_checks_current" || statusText === "source_surface_checked"
       ? "source_surface_checked"
@@ -620,7 +620,7 @@ function buildOperatorFinalChecks(visualManualEvidence?: PublicBetaEvidenceArtif
           : "operator_final_pending";
   const surfaceIds = requiredSurfaceIds.length > 0 ? requiredSurfaceIds : pendingSurfaceIds;
   const pendingSet = new Set(pendingSurfaceIds);
-  const sourceChecksPassed = visualManualEvidence?.passed === true || status === "source_surface_checked" || status === "not_required";
+  const sourceChecksPassed = uiSurfaceCoverageEvidence?.passed === true || status === "source_surface_checked" || status === "not_required";
   const needsOperatorReview = status === "source_surface_gap" || status === "operator_final_pending" || pendingSurfaceIds.length > 0;
 
   return {
@@ -630,7 +630,7 @@ function buildOperatorFinalChecks(visualManualEvidence?: PublicBetaEvidenceArtif
       passedInCodex: sourceChecksPassed,
       sourceChecksPassed,
       note: "deterministic UI surface coverage runs before browser viewing; screenshots are optional only to reproduce a source-reported UI issue and do not clear provider/runtime/admin truth.",
-      sourcePath: visualManualEvidence?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
+      sourcePath: uiSurfaceCoverageEvidence?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
       surfaces: surfaceIds.map((surfaceId) => ({
         surfaceId,
         status: pendingSet.has(surfaceId) ? "source_surface_gap" : status,
@@ -1140,7 +1140,7 @@ export function buildPublicBetaEvidenceGates(input: {
     ? evidenceArtifactEvidence(evidence.debugRuntimeEvidenceArtifact)
     : [];
   const algorithmicEvidencePolicy = buildAlgorithmicEvidencePolicyReport({
-    visualManualEvidence: evidence.visualManualEvidence,
+    uiSurfaceCoverageEvidence: evidence.uiSurfaceCoverageEvidence,
     runtimeSmokeEvidence: evidence.runtimeSmokeEvidence,
     providerSmokeEvidence: evidence.providerSmokeEvidence,
     debugRuntimeEvidence: evidence.debugRuntimeEvidenceArtifact,
@@ -1156,7 +1156,7 @@ export function buildPublicBetaEvidenceGates(input: {
   });
   const algorithmicCoverageEvidence = [
     `nonUiAlgorithmicCoverageScore=${algorithmicEvidencePolicy.nonUiAlgorithmicCoverageScore}`,
-    `uiSourceCoverageBlocksNonUi=${algorithmicEvidencePolicy.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage}`,
+    `uiSourceCoverageBlocksNonUi=${algorithmicEvidencePolicy.uiSurfaceCoverageScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage}`,
     "uiVisualOperatorFinalChecklist=outside_codex_score",
     `deployedRuntimeSmokeCleared=${algorithmicEvidencePolicy.formalGateImpact.deployedRuntimeSmokeCleared}`,
     `formalProviderGateCleared=${algorithmicEvidencePolicy.formalGateImpact.formalProviderGateCleared}`,
@@ -1644,7 +1644,7 @@ function buildLaunchClearance(input: {
   const providerSmoke = evidence.providerSmokeEvidence;
   const runtimeSmoke = evidence.runtimeSmokeEvidence;
   const adminTruth = evidence.adminTruthSampleEvidence;
-  const visualManual = evidence.visualManualEvidence;
+  const uiSurfaceCoverage = evidence.uiSurfaceCoverageEvidence;
   return {
     status: input.launchGateStatus,
     blockers: input.launchBlockers,
@@ -1664,10 +1664,10 @@ function buildLaunchClearance(input: {
         status: String(evidenceArtifactStatus(adminTruth, "missing_or_unknown")),
         source: adminTruth?.path ?? "agent/state/admin-truth-sample-evidence.generated.json",
       },
-      manualVisualEvidence: {
-        cleared: evidenceArtifactPassed(visualManual),
-        status: String(evidenceArtifactStatus(visualManual, "source_surface_checks_current")),
-        source: visualManual?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
+      uiSurfaceCoverage: {
+        cleared: evidenceArtifactPassed(uiSurfaceCoverage),
+        status: String(evidenceArtifactStatus(uiSurfaceCoverage, "source_surface_checks_current")),
+        source: uiSurfaceCoverage?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
       },
       paymentSourceOfFunds: {
         cleared: false,
@@ -1717,6 +1717,7 @@ export function buildPublicBetaScoreReport(
     hasCritical: criticalAutoFail,
     evidence: options.evidence,
   });
+  const uiSurfaceCoverageEvidence = options.evidence?.uiSurfaceCoverageEvidence;
   const costReadiness = options.evidence?.costReadiness ?? DEFAULT_COST_READINESS;
   const costScore = scoreCostReadiness(costReadiness);
   const nonEventScorePolicy = options.evidence?.nonEventScorePolicy ?? summarizeNonEventScorePolicy();
@@ -1744,7 +1745,7 @@ export function buildPublicBetaScoreReport(
     ...requiredExitGates,
     ...evidenceReadiness.evidenceGates.filter((gate) => gate.id === "formalEvidenceBridge"),
   ];
-  const operatorFinalChecks = buildOperatorFinalChecks(options.evidence?.visualManualEvidence);
+  const operatorFinalChecks = buildOperatorFinalChecks(uiSurfaceCoverageEvidence);
   const sourceHealthScore = roundScore(clamp((scannerScore * 0.7) + (average(sourceGates.map((gate) => gate.sourceCredit)) * 0.3), 0, 100));
   const runtimeHealthScore = average(runtimeRequiredGates.map((gate) => gate.runtimeCredit));
   const evidenceCompletenessScore = average(nonUiRequiredExitGates.map((gate) => gate.evidenceCredit));

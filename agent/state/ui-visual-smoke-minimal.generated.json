@@ -1,13 +1,13 @@
 {
   "status": "source_surface_checks_current",
   "passed": true,
-  "generatedAtUtc": "2026-06-19T15:19:21.104Z",
-  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-  "sourceCommit": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "generatedAtUtc": "2026-06-19T15:43:52.885Z",
+  "currentHead": "6814557860101ba2db6006ff37bbd670d9c8c0f0",
+  "sourceCommit": "6814557860101ba2db6006ff37bbd670d9c8c0f0",
   "detail": "Deterministic UI surface coverage is current. Screenshots are optional follow-up evidence only after a source/UI-surface check finds a visual issue.",
   "nonUiLanesBlocked": false,
   "formalGateImpact": {
-    "clearsVisualManualSmoke": true,
+    "clearsUiSurfaceCoverage": true,
     "clearsProviderSmoke": false,
     "clearsDeployedRuntimeSmoke": false,
     "clearsAdminTruthSmoke": false

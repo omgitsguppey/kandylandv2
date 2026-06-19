@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-06-19T14:34:16.445Z",
+  "generatedAtUtc": "2026-06-19T15:43:53.342Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
-  "manualEvidenceScope": {
-    "visualUiGate": {
+  "uiSurfaceCoverageScope": {
+    "uiSurfaceCoverageGate": {
       "requiresSourceSurfaceCoverage": true,
       "canClearFromAlgorithmicEvidence": false,
       "status": "missing",
@@ -171,7 +171,7 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+  "currentHead": "6814557860101ba2db6006ff37bbd670d9c8c0f0",
   "scoreProbe": {
     "runtimeHealthScore": 71.2,
     "evidenceCompletenessScore": 38.4,

@@ -1,8 +1,8 @@
 # Current Beta Exit Status
 
-Generated: 2026-06-19T15:00:59.242Z
+Generated: 2026-06-19T15:45:19.546Z
 
-Latest code version: e947d82891dfc7957cb4b9b9972d6378605a927d
+Latest code version: 6814557860101ba2db6006ff37bbd670d9c8c0f0
 
 ## Summary
 
@@ -16,7 +16,7 @@ Latest code version: e947d82891dfc7957cb4b9b9972d6378605a927d
 - Runtime smoke: stale_runtime_smoke_evidence
 - Admin truth sample: stale_admin_truth_sample_evidence
 - Cloud Run cost readiness: cost_review_required
-- Cloud SQL cost readiness: not_detected_in_repo
+- Cloud SQL cost readiness: owner_review_external_billing_required
 - Gemini/Cloud Assist cost readiness: cost_review_required
 - Route 4xx readiness: source_inventory_complete
 - Error handling source readiness: error_handling_source_complete
@@ -35,7 +35,7 @@ Latest code version: e947d82891dfc7957cb4b9b9972d6378605a927d
 ## Refresh Plan
 
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.

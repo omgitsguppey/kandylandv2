@@ -1,8 +1,8 @@
 # Overnight Beta Readiness Lock
 
-Generated: 2026-06-19T15:00:59.242Z
+Generated: 2026-06-19T15:45:19.546Z
 
-Latest code version: e947d82891dfc7957cb4b9b9972d6378605a927d
+Latest code version: 6814557860101ba2db6006ff37bbd670d9c8c0f0
 
 ## Status
 
@@ -12,7 +12,7 @@ Latest code version: e947d82891dfc7957cb4b9b9972d6378605a927d
 - Source truth status: passed; active=12; supporting=6; retiredLaunchArtifacts=3
 - Cost/4xx status: passed; p0=0; p1=0; p2=7; route4xx=3
 - Cloud Run cost status: cost_review_required
-- Cloud SQL cost status: not_detected_in_repo
+- Cloud SQL cost status: owner_review_external_billing_required
 - Gemini/Cloud Assist cost status: cost_review_required
 - Evidence status: uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3
 - Speed/security status: 52/beta-risk; findings=83; critical=0; p2BacklogVisible=true

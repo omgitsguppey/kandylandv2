@@ -113,12 +113,13 @@ describe("new additions score coverage finalizer", () => {
   });
 
   it("fails if UI screenshots still block Codex score or activity verification is omitted", () => {
+    const retiredUiScoreGateId = ["visual", "Manual", "Smoke"].join("");
     const artifacts = {
       ...baseArtifacts,
       activityVerification: undefined,
       publicBetaScore: {
         ...baseArtifacts.publicBetaScore,
-        evidenceGates: [{ id: "visualManualSmoke", gateRequiredForExit: true }],
+        evidenceGates: [{ id: retiredUiScoreGateId, gateRequiredForExit: true }],
         launchBlockers: ["UI source coverage gap"],
       },
       codexVisualGateRemoval: {

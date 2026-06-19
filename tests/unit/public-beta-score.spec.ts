@@ -43,12 +43,12 @@ const freshEvidence = {
         evidence: ["targetedBehavior.status=passed"],
         generatedAtUtc: freshGeneratedAtUtc,
     },
-    visualManualEvidence: {
-        path: "agent/state/manual-smoke-evidence.generated.json",
-        status: "passed",
+    uiSurfaceCoverageEvidence: {
+        path: "agent/state/ui-visual-smoke-minimal.generated.json",
+        status: "source_surface_checks_current",
         passed: true,
-        detail: "Manual visual smoke passed.",
-        evidence: ["visualManual.status=passed"],
+        detail: "Deterministic UI surface coverage passed.",
+        evidence: ["uiVisualSmoke.status=source_surface_checks_current"],
         generatedAtUtc: freshGeneratedAtUtc,
     },
     providerSmokeEvidence: {
@@ -111,7 +111,7 @@ const missingProviderSmokeEvidence = {
     path: "agent/state/provider-smoke-evidence.generated.json",
     status: "missing_formal_evidence",
     passed: false,
-    detail: "Operator reported PayPal refill was tested but no screenshot/log attached.",
+    detail: "Operator reported PayPal refill was tested but no formal provider artifact was attached.",
     evidence: ["providerArtifactStatus=missing_formal_evidence", "paypalRefillSmoke.status=operator_reported_not_formal_provider_smoke"],
 };
 
@@ -273,7 +273,7 @@ describe("public beta scoring math", () => {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
                 ...freshEvidence,
-                visualManualEvidence: {
+                uiSurfaceCoverageEvidence: {
                     path: "agent/state/ui-visual-smoke-minimal.generated.json",
                     status: "source_surface_checks_failed",
                     passed: false,
@@ -284,7 +284,7 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.operatorFinalChecks.uiVisualSurfaces.needsOperatorReview).toBe(true);
-        expect(report.launchClearance.formalGates.manualVisualEvidence.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.uiSurfaceCoverage.cleared).toBe(false);
     });
 
     it("classifies missing provider smoke as external proof required", () => {
@@ -531,12 +531,12 @@ describe("public beta scoring math", () => {
             evidence: {
                 ...freshEvidence,
                 targetedBehaviorEvidence: missingTargetedBehaviorEvidence,
-                visualManualEvidence: {
-                    path: "agent/state/manual-smoke-evidence.generated.json",
-                    status: "missing_formal_evidence",
+                uiSurfaceCoverageEvidence: {
+                    path: "agent/state/ui-visual-smoke-minimal.generated.json",
+                    status: "source_surface_checks_failed",
                     passed: false,
                     detail: "No valid UI source coverage artifact was supplied.",
-                    evidence: ["visualManualArtifactStatus=missing_formal_evidence"],
+                    evidence: ["uiSurfaceCoverageArtifactStatus=source_surface_checks_failed"],
                 },
                 providerSmokeEvidence: missingProviderSmokeEvidence,
                 runtimeSmokeEvidence: runtimeUnverifiedEvidence,

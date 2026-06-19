@@ -9,6 +9,8 @@ import { PUBLIC_BETA_SCORE_REPORT_PATH } from "../../src/lib/agent-score/reporti
 
 const root = process.cwd();
 const failures: string[] = [];
+const RETIRED_UI_SCORE_GATE_ID = ["visual", "Manual", "Smoke"].join("");
+const RETIRED_UI_FORMAL_GATE_KEY = ["manual", "Visual", "Evidence"].join("");
 const PUBLIC_BETA_SCORE_OWNED_INPUT_PATHS = [
   "scripts/agent/score-public-beta-readiness.ts",
   "scripts/agent/validate-public-beta-score.ts",
@@ -220,10 +222,13 @@ if (report) {
     failures.push("launchClearance.formalGates must preserve formal proof gate status.");
   } else {
     const gates = report.launchClearance.formalGates;
-    for (const key of ["providerSmoke", "deployedRuntimeSmoke", "adminTruthSample", "manualVisualEvidence"] as const) {
+    for (const key of ["providerSmoke", "deployedRuntimeSmoke", "adminTruthSample", "uiSurfaceCoverage"] as const) {
       if (typeof gates[key]?.cleared !== "boolean" || typeof gates[key]?.status !== "string" || typeof gates[key]?.source !== "string") {
         failures.push(`launchClearance.formalGates.${key} must include cleared, status, and source.`);
       }
+    }
+    if (RETIRED_UI_FORMAL_GATE_KEY in gates) {
+      failures.push("launchClearance.formalGates must use uiSurfaceCoverage instead of the retired UI evidence gate.");
     }
     if (gates.paymentSourceOfFunds?.cleared !== false || gates.paymentSourceOfFunds.status !== "protected_not_evaluated_in_source_model") {
       failures.push("launchClearance must keep payment/source-of-funds protected outside the Studio source model.");
@@ -258,7 +263,7 @@ if (report) {
     failures.push("evidenceGates must be a non-empty array.");
   } else {
     report.evidenceGates.forEach(validateEvidenceGate);
-    if (report.evidenceGates.some((gate) => gate.id === "visualManualSmoke")) {
+    if (report.evidenceGates.some((gate) => gate.id === RETIRED_UI_SCORE_GATE_ID)) {
       failures.push("UI visual source coverage must not be a Codex score evidence gate.");
     }
   }

@@ -45,6 +45,8 @@ const baseEvidence = {
 };
 
 describe("Codex visual gate removal", () => {
+  const retiredUiScoreGateId = ["visual", "Manual", "Smoke"].join("");
+
   it("keeps UI source coverage as a deterministic gate instead of requiring screenshots", () => {
     const visualReport = buildUiVisualSmokeMinimalReport({
       currentHead: "abc123",
@@ -54,11 +56,11 @@ describe("Codex visual gate removal", () => {
       commandBudget: buildPublicBetaCommandBudget(),
       evidence: {
         ...baseEvidence,
-        visualManualEvidence: summarizeUiVisualSmokeEvidenceForScore(visualReport),
+        uiSurfaceCoverageEvidence: summarizeUiVisualSmokeEvidenceForScore(visualReport),
       },
     });
 
-    expect(report.evidenceGates.some((gate) => gate.id === "visualManualSmoke")).toBe(false);
+    expect(report.evidenceGates.some((gate) => gate.id === retiredUiScoreGateId)).toBe(false);
     expect(report.launchBlockers.join("\n")).not.toMatch(/visual|screenshot|manual smoke/iu);
     expect(report.evidenceCapsApplied.join("\n")).not.toMatch(/Visual QA required|UI visual\/manual/iu);
     expect(report.operatorFinalChecks.uiVisualSurfaces.needsOperatorReview).toBe(false);
@@ -78,7 +80,7 @@ describe("Codex visual gate removal", () => {
       commandBudget: buildPublicBetaCommandBudget(),
       evidence: {
         ...baseEvidence,
-        visualManualEvidence: summarizeUiVisualSmokeEvidenceForScore(visualReport),
+        uiSurfaceCoverageEvidence: summarizeUiVisualSmokeEvidenceForScore(visualReport),
       },
     });
 

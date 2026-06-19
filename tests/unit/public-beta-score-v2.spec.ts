@@ -26,12 +26,12 @@ const formalPassedEvidence = {
     generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
   },
-  visualManualEvidence: {
-    path: "agent/state/manual-smoke-evidence.generated.json",
-    status: "passed",
+  uiSurfaceCoverageEvidence: {
+    path: "agent/state/ui-visual-smoke-minimal.generated.json",
+    status: "source_surface_checks_current",
     passed: true,
-    detail: "Formal manual visual evidence attached.",
-    evidence: ["manualSmoke=passed"],
+    detail: "Deterministic UI surface coverage passed.",
+    evidence: ["uiVisualSmoke.status=source_surface_checks_current"],
     generatedAtUtc: freshGeneratedAtUtc,
     sourceCommit: "head",
   },

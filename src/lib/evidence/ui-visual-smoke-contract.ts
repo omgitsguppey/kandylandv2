@@ -39,7 +39,7 @@ export type UiVisualSmokeMinimalReport = {
   detail: string;
   nonUiLanesBlocked: boolean;
   formalGateImpact: {
-    clearsVisualManualSmoke: boolean;
+    clearsUiSurfaceCoverage: boolean;
     clearsProviderSmoke: boolean;
     clearsDeployedRuntimeSmoke: boolean;
     clearsAdminTruthSmoke: boolean;
@@ -221,7 +221,7 @@ export function buildUiVisualSmokeMinimalReport(
       : `Deterministic UI surface coverage found source gaps: ${missingSurfaceIds.join(", ")}.`,
     nonUiLanesBlocked: false,
     formalGateImpact: {
-      clearsVisualManualSmoke: passed,
+      clearsUiSurfaceCoverage: passed,
       clearsProviderSmoke: false,
       clearsDeployedRuntimeSmoke: false,
       clearsAdminTruthSmoke: false,

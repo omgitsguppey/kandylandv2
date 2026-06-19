@@ -64,12 +64,6 @@ const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.
 const REGRESSION_RISK_REFRESH_PATH = "agent/state/regression-risk-high-blast-refresh.generated.json";
 const UI_VISUAL_SMOKE_MINIMAL_PATH = "agent/state/ui-visual-smoke-minimal.generated.json";
 const UI_VISUAL_SMOKE_REQUIRED_SURFACES_EVIDENCE_KEY = "uiVisualSmoke.requiredSurfaces";
-const VISUAL_MANUAL_EVIDENCE_PATHS = [
-  UI_VISUAL_SMOKE_MINIMAL_PATH,
-  "agent/state/manual-smoke-evidence.generated.json",
-  "agent/state/visual-smoke-evidence.generated.json",
-  "agent/state/screenshot-evidence.generated.json",
-] as const;
 
 function parseJsonObject(source: string): Record<string, unknown> {
   try {
@@ -220,7 +214,7 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
     detail: readString(parsed.detail) ?? "UI-only visual smoke evidence artifact was found.",
     nonUiLanesBlocked: readBoolean(parsed.nonUiLanesBlocked) === true,
     formalGateImpact: {
-      clearsVisualManualSmoke: readBoolean(formalGateImpact.clearsVisualManualSmoke) === true,
+      clearsUiSurfaceCoverage: readBoolean(formalGateImpact.clearsUiSurfaceCoverage) === true,
       clearsProviderSmoke: readBoolean(formalGateImpact.clearsProviderSmoke) === true,
       clearsDeployedRuntimeSmoke: readBoolean(formalGateImpact.clearsDeployedRuntimeSmoke) === true,
       clearsAdminTruthSmoke: readBoolean(formalGateImpact.clearsAdminTruthSmoke) === true,
@@ -826,65 +820,33 @@ function readDebugRuntimeOrEventTranslationEvidence(root: string): PublicBetaEvi
   return readEventTranslationBridgeEvidence(root) ?? debugRuntime;
 }
 
-function readVisualManualEvidence(root: string): PublicBetaEvidenceArtifact {
+function readUiSurfaceCoverageEvidence(root: string): PublicBetaEvidenceArtifact {
   const inspected: string[] = [];
-  let structuredMissingArtifact: PublicBetaEvidenceArtifact | undefined;
-  for (const evidencePath of VISUAL_MANUAL_EVIDENCE_PATHS) {
+  for (const evidencePath of [UI_VISUAL_SMOKE_MINIMAL_PATH] as const) {
     const parsed = readJsonFile(root, evidencePath);
     if (!parsed) {
       inspected.push(`${evidencePath}:missing`);
       continue;
     }
 
-    if (evidencePath === UI_VISUAL_SMOKE_MINIMAL_PATH) {
-      const artifact = readUiVisualSmokeMinimalEvidence(root, evidencePath, parsed);
-      inspected.push(`${evidencePath}:status=${artifact.status}:passed=${artifact.passed}`);
-      if (artifact.passed) {
-        return artifact;
-      }
-      structuredMissingArtifact = artifact;
-      continue;
-    }
-
-    const status = readString(parsed.status) ?? readString(parsed.overallStatus) ?? "missing_or_unknown";
-    const passed = (status === "passed" || status === "usable") && readBoolean(parsed.passed) !== false;
-    inspected.push(`${evidencePath}:status=${status}:passed=${passed}`);
-    if (passed) {
-      return {
-        path: evidencePath,
-        status,
-        passed: true,
-        detail: readString(parsed.detail)
-          ?? readString(parsed.summary)
-          ?? "Deterministic UI surface coverage passed.",
-        evidence: [
-          `visualManualArtifactStatus=${status}`,
-          `visualManualArtifactPath=${evidencePath}`,
-          ...evidenceLinesFromArray(parsed.evidence, "visualManualEvidence"),
-        ],
-        generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
-        sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
-      };
-    }
-  }
-
-  if (structuredMissingArtifact) {
+    const artifact = readUiVisualSmokeMinimalEvidence(root, evidencePath, parsed);
+    inspected.push(`${evidencePath}:status=${artifact.status}:passed=${artifact.passed}`);
     return {
-      ...structuredMissingArtifact,
+      ...artifact,
       evidence: [
-        ...structuredMissingArtifact.evidence,
+        ...artifact.evidence,
         ...inspected,
       ],
     };
   }
 
   return {
-    path: VISUAL_MANUAL_EVIDENCE_PATHS.join(","),
-    status: "missing_formal_evidence",
+    path: UI_VISUAL_SMOKE_MINIMAL_PATH,
+    status: "missing_or_unknown",
     passed: false,
     detail: "No valid UI source coverage artifact was supplied.",
     evidence: [
-      "visualManualArtifactStatus=missing_formal_evidence",
+      "uiSurfaceCoverageArtifactStatus=missing_or_unknown",
       ...inspected,
     ],
   };
@@ -912,7 +874,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
       realUsageConfidenceEvidence: readRealUsageConfidenceEvidence(root),
       realUsageConfidenceCalibrationEvidence: readRealUsageConfidenceCalibrationEvidence(root),
       behaviorMathEvidence: readBehaviorMathEvidence(root),
-      visualManualEvidence: readVisualManualEvidence(root),
+      uiSurfaceCoverageEvidence: readUiSurfaceCoverageEvidence(root),
       providerSmokeEvidence: readProviderSmokeEvidence(root),
       runtimeSmokeEvidence: readRuntimeSmokeEvidence(root),
       adminTruthSampleEvidence: readAdminTruthSampleEvidence(root),

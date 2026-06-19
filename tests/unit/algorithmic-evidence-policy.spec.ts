@@ -66,12 +66,12 @@ describe("algorithmic evidence policy", () => {
   it("keeps UI source coverage separate while freeing non-UI algorithmic evidence from visual artifact blocking", () => {
     const report = buildAlgorithmicEvidencePolicyReport({
       uiChanged: true,
-      visualManualEvidence: {
-        path: "agent/state/manual-smoke-evidence.generated.json",
-        status: "missing_formal_evidence",
+      uiSurfaceCoverageEvidence: {
+        path: "agent/state/ui-visual-smoke-minimal.generated.json",
+        status: "source_surface_checks_failed",
         passed: false,
         detail: "No UI source coverage evidence.",
-        evidence: ["visualManualArtifactStatus=missing_formal_evidence"],
+        evidence: ["uiSurfaceCoverageArtifactStatus=source_surface_checks_failed"],
       },
       debugRuntimeEvidence: sourceReadyDebugRuntime,
       realUsageConfidenceEvidence: realUsageConfidence,
@@ -82,9 +82,9 @@ describe("algorithmic evidence policy", () => {
       refreshQueueSourcePath: "agent/state/self-healing-refresh-queue.generated.json",
     });
 
-    expect(report.manualEvidenceScope.visualUiGate.requiresSourceSurfaceCoverage).toBe(true);
-    expect(report.manualEvidenceScope.visualUiGate.canClearFromAlgorithmicEvidence).toBe(false);
-    expect(report.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage).toBe(false);
+    expect(report.uiSurfaceCoverageScope.uiSurfaceCoverageGate.requiresSourceSurfaceCoverage).toBe(true);
+    expect(report.uiSurfaceCoverageScope.uiSurfaceCoverageGate.canClearFromAlgorithmicEvidence).toBe(false);
+    expect(report.uiSurfaceCoverageScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage).toBe(false);
     expect(report.nonUiAlgorithmicCoverageScore).toBeGreaterThan(70);
     expect(report.formalGateImpact.uiVisualGateCleared).toBe(false);
     expect(validateAlgorithmicEvidencePolicyReport(report)).toEqual([]);
@@ -118,12 +118,12 @@ describe("algorithmic evidence policy", () => {
           generatedAt: new Date().toISOString(),
           freshness: "fresh" as const,
         }],
-        visualManualEvidence: {
-          path: "agent/state/manual-smoke-evidence.generated.json",
-          status: "missing_formal_evidence",
+        uiSurfaceCoverageEvidence: {
+          path: "agent/state/ui-visual-smoke-minimal.generated.json",
+          status: "source_surface_checks_failed",
           passed: false,
           detail: "No UI source coverage evidence.",
-          evidence: ["visualManualArtifactStatus=missing_formal_evidence"],
+          evidence: ["uiSurfaceCoverageArtifactStatus=source_surface_checks_failed"],
         },
         providerSmokeEvidence: {
           path: "agent/state/provider-smoke-evidence.generated.json",

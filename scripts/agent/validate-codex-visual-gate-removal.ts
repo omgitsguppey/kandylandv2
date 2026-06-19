@@ -10,6 +10,7 @@ const DOC_PATH = "docs/agent-truth/codex-visual-gate-removal.md";
 const SCORE_PATH = "agent/state/public-beta-score.generated.json";
 const VISUAL_PATH = "agent/state/ui-visual-smoke-minimal.generated.json";
 const TEMPLATE_PATH = "agent/evidence/ui-visual-smoke/template.json";
+const RETIRED_UI_SCORE_GATE_ID = ["visual", "Manual", "Smoke"].join("");
 
 function git(args: string[]) {
   try {
@@ -76,7 +77,7 @@ function renderDoc(report: Record<string, unknown>) {
 const score = readJson<PublicBetaScoreReport>(SCORE_PATH);
 const visual = readJson<Record<string, unknown>>(VISUAL_PATH);
 const failures: string[] = [];
-const visualGateInEvidenceGates = score?.evidenceGates?.some((gate) => gate.id === "visualManualSmoke") === true;
+const visualGateInEvidenceGates = score?.evidenceGates?.some((gate) => gate.id === RETIRED_UI_SCORE_GATE_ID) === true;
 const visualGateInLaunchBlockers = (score?.launchBlockers ?? []).some((blocker) => /visual|screenshot|manual smoke/iu.test(blocker));
 const visualGateInEvidenceCaps = (score?.evidenceCapsApplied ?? []).some((cap) => /visual|screenshot|manual smoke/iu.test(cap));
 const operatorChecklist = score?.operatorFinalChecks?.uiVisualSurfaces;

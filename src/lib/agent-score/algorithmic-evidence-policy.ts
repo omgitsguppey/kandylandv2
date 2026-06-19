@@ -34,7 +34,7 @@ export type AlgorithmicEvidenceCoverageItem = {
 
 export type AlgorithmicEvidencePolicyInput = {
   uiChanged?: boolean;
-  visualManualEvidence?: PublicBetaEvidenceArtifact;
+  uiSurfaceCoverageEvidence?: PublicBetaEvidenceArtifact;
   runtimeSmokeEvidence?: PublicBetaEvidenceArtifact;
   providerSmokeEvidence?: PublicBetaEvidenceArtifact;
   debugRuntimeEvidence?: PublicBetaEvidenceArtifact;
@@ -55,8 +55,8 @@ export type AlgorithmicEvidencePolicyReport = {
   generatedAtUtc: string;
   reportKey: "algorithmic-evidence-policy";
   overallStatus: "algorithmic_evidence_policy_ready" | "algorithmic_evidence_policy_blocked";
-  manualEvidenceScope: {
-    visualUiGate: {
+  uiSurfaceCoverageScope: {
+    uiSurfaceCoverageGate: {
       requiresSourceSurfaceCoverage: boolean;
       canClearFromAlgorithmicEvidence: boolean;
       status: AlgorithmicEvidenceConfidence;
@@ -141,7 +141,8 @@ function scoreCostReadinessSource(costReadiness?: PublicBetaCostReadiness) {
 export function buildAlgorithmicEvidencePolicyReport(
   input: AlgorithmicEvidencePolicyInput,
 ): AlgorithmicEvidencePolicyReport {
-  const uiVisualGateCleared = evidenceArtifactHasFormalPass(input.visualManualEvidence);
+  const uiSurfaceCoverageEvidence = input.uiSurfaceCoverageEvidence;
+  const uiSurfaceCoverageGateCleared = evidenceArtifactHasFormalPass(uiSurfaceCoverageEvidence);
   const deployedRuntimeSmokeCleared = evidenceArtifactHasFormalPass(input.runtimeSmokeEvidence);
   const formalProviderGateCleared = evidenceArtifactHasFormalPass(input.providerSmokeEvidence);
   const formalAdminRuntimeSampleCleared = evidenceArtifactHasFormalPass(input.adminTruthSampleEvidence);
@@ -294,13 +295,13 @@ export function buildAlgorithmicEvidencePolicyReport(
     ...(formalProviderGateCleared ? [] : ["Provider smoke requires a formal provider artifact."]),
     ...(formalAdminRuntimeSampleCleared ? [] : ["Admin truth sample requires a formal runtime/sample artifact."]),
   ];
-  const manualEvidenceScope = {
-    visualUiGate: {
-      requiresSourceSurfaceCoverage: input.uiChanged === true || !uiVisualGateCleared,
-      canClearFromAlgorithmicEvidence: uiVisualGateCleared,
-      status: confidenceFromScore(uiVisualGateCleared ? 100 : 0, uiVisualGateCleared),
-      sourcePath: pathOf(input.visualManualEvidence),
-      nextAction: uiVisualGateCleared
+  const uiSurfaceCoverageScope = {
+    uiSurfaceCoverageGate: {
+      requiresSourceSurfaceCoverage: input.uiChanged === true || !uiSurfaceCoverageGateCleared,
+      canClearFromAlgorithmicEvidence: uiSurfaceCoverageGateCleared,
+      status: confidenceFromScore(uiSurfaceCoverageGateCleared ? 100 : 0, uiSurfaceCoverageGateCleared),
+      sourcePath: pathOf(uiSurfaceCoverageEvidence),
+      nextAction: uiSurfaceCoverageGateCleared
         ? "Deterministic UI surface coverage is current; screenshots are optional only after source-reported UI issues."
         : "Run UI source coverage, admin browser surface smoke, and device UI checks before manual viewing.",
     },
@@ -317,7 +318,7 @@ export function buildAlgorithmicEvidencePolicyReport(
     generatedAtUtc: new Date().toISOString(),
     reportKey: "algorithmic-evidence-policy",
     overallStatus: "algorithmic_evidence_policy_ready",
-    manualEvidenceScope,
+    uiSurfaceCoverageScope,
     runtimeSourceConfidence,
     telemetryConfidence,
     adminTruthConfidence,
@@ -326,7 +327,7 @@ export function buildAlgorithmicEvidencePolicyReport(
     refreshConfidence,
     nonUiAlgorithmicCoverageScore,
     formalGateImpact: {
-      uiVisualGateCleared,
+      uiVisualGateCleared: uiSurfaceCoverageGateCleared,
       deployedRuntimeSmokeCleared,
       formalProviderGateCleared,
       formalAdminRuntimeSampleCleared,
@@ -347,10 +348,10 @@ export function buildAlgorithmicEvidencePolicyReport(
 
 export function validateAlgorithmicEvidencePolicyReport(report: AlgorithmicEvidencePolicyReport) {
   const failures: string[] = [];
-  if (report.formalGateImpact.uiVisualGateCleared && report.manualEvidenceScope.visualUiGate.canClearFromAlgorithmicEvidence !== true) {
+  if (report.formalGateImpact.uiVisualGateCleared && report.uiSurfaceCoverageScope.uiSurfaceCoverageGate.canClearFromAlgorithmicEvidence !== true) {
     failures.push("UI source coverage must clear the UI source gate when deterministic UI evidence is current.");
   }
-  if (report.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage !== false) {
+  if (report.uiSurfaceCoverageScope.nonUiAlgorithmicEvidence.blockedByUiSourceCoverage !== false) {
     failures.push("UI source coverage must not block non-UI algorithmic evidence.");
   }
   if (report.providerConfidence.confidence === "partial" && report.formalGateImpact.formalProviderGateCleared) {

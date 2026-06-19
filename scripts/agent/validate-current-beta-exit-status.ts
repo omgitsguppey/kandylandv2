@@ -434,7 +434,7 @@ export function buildProofLanes(input: {
   runtimeSmokeStatus: string;
   adminTruthSampleStatus: string;
   captureSummary: Record<string, unknown>;
-  manualVisual: Record<string, unknown> | null;
+  uiSurfaceCoverage: Record<string, unknown> | null;
   provider: Record<string, unknown> | null;
   runtime: Record<string, unknown> | null;
   admin: Record<string, unknown> | null;
@@ -446,7 +446,7 @@ export function buildProofLanes(input: {
       sourceStatus: input.visualEvidenceStatus,
       sourcePath: uiSurfaceCoverageRelativePath,
       captureStatus: stringValue(input.captureSummary.uiSurfaceCoverageEvidence, "missing"),
-      artifact: input.manualVisual,
+      artifact: input.uiSurfaceCoverage,
       head: input.head,
       nextAction: "Run deterministic UI surface coverage, admin browser surface smoke, and device UI checks before manual viewing.",
     }),
@@ -501,7 +501,7 @@ export function betaExitReviewStateFor(input: {
 function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, head: string): CurrentBetaExitStatusReport {
   const beta = readJson("agent/state/public-beta-score.generated.json");
   const evidenceCapture = readEvidenceCaptureStatus();
-  const manualVisual = readJson(uiSurfaceCoverageRelativePath);
+  const uiSurfaceCoverage = readJson(uiSurfaceCoverageRelativePath);
   const provider = readJson(providerSmokeEvidenceRelativePath);
   const runtime = readJson(runtimeSmokeEvidenceRelativePath);
   const admin = readJson(adminTruthSampleEvidenceRelativePath);
@@ -511,7 +511,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
   const providerSmokeStatus = formalEvidenceStatus(provider, head, report.summary.providerSmokeStatus, "stale_provider_smoke_evidence");
   const runtimeSmokeStatus = formalEvidenceStatus(runtime, head, report.summary.runtimeSmokeStatus, "stale_runtime_smoke_evidence");
   const adminTruthSampleStatus = formalEvidenceStatus(admin, head, report.summary.adminTruthSampleStatus, "stale_admin_truth_sample_evidence");
-  const visualEvidenceStatus = formalEvidenceStatus(manualVisual, head, report.summary.visualEvidenceStatus, "stale_visual_evidence");
+  const visualEvidenceStatus = formalEvidenceStatus(uiSurfaceCoverage, head, report.summary.visualEvidenceStatus, "stale_visual_evidence");
   const proofLanes = buildProofLanes({
     head,
     visualEvidenceStatus,
@@ -519,7 +519,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     runtimeSmokeStatus,
     adminTruthSampleStatus,
     captureSummary,
-    manualVisual,
+    uiSurfaceCoverage,
     provider,
     runtime,
     admin,

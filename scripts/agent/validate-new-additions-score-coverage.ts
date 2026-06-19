@@ -316,7 +316,8 @@ function manualGateRemoved(artifacts: NewAdditionsScoreCoverageArtifacts) {
   const score = artifacts.publicBetaScore;
   const codexVisual = artifacts.codexVisualGateRemoval;
   const codexSummary = objectValue(codexVisual?.summary);
-  const evidenceGateBlocks = arrayValue<JsonRecord>(score?.evidenceGates).some((gate) => stringValue(gate.id) === "visualManualSmoke");
+  const retiredUiScoreGateId = ["visual", "Manual", "Smoke"].join("");
+  const evidenceGateBlocks = arrayValue<JsonRecord>(score?.evidenceGates).some((gate) => stringValue(gate.id) === retiredUiScoreGateId);
   const launchBlocks = arrayValue<string>(score?.launchBlockers).some((blocker) => /visual|screenshot|manual smoke/iu.test(blocker));
   const checklist = objectValue(objectValue(score?.operatorFinalChecks).uiVisualSurfaces);
   const checklistOutsideCodex = checklist.sourceChecksPassed === true

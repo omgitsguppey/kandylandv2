@@ -229,8 +229,8 @@ function buildScoreIngestionFindings(root: string) {
       evidenceFileExists: false,
       scoreReadsIt: true,
       scoreTrustsItCorrectly: false,
-      scoreGateAffected: "visualManualSmoke",
-      recommendedFix: "Require a formal visual evidence schema before scoring visual/manual smoke.",
+      scoreGateAffected: "retired_ui_score_gate",
+      recommendedFix: "Use deterministic UI source coverage first; route screenshots only to optional reproduction evidence.",
     });
   }
 

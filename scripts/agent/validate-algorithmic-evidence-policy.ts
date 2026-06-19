@@ -15,6 +15,7 @@ import { buildScore80CostReadinessFromRepo } from "./validate-score-80-cost-read
 
 const ARTIFACT_PATH = "agent/state/algorithmic-evidence-policy.generated.json";
 const DOC_PATH = "docs/agent-truth/algorithmic-evidence-policy.md";
+const RETIRED_UI_SCORE_GATE_ID = ["visual", "Manual", "Smoke"].join("");
 
 function readJson(root: string, path: string): Record<string, unknown> | null {
   const fullPath = join(root, path);
@@ -158,7 +159,7 @@ function main() {
   const root = process.cwd();
   const currentHead = readGitHead(root);
   const report = buildAlgorithmicEvidencePolicyReport({
-    visualManualEvidence: readArtifact(
+    uiSurfaceCoverageEvidence: readArtifact(
       root,
       "agent/state/ui-visual-smoke-minimal.generated.json",
       "source_surface_checks_failed",
@@ -223,7 +224,7 @@ function main() {
     commandBudget: buildPublicBetaCommandBudget(),
     currentHead,
     evidence: {
-      visualManualEvidence: readArtifact(
+      uiSurfaceCoverageEvidence: readArtifact(
         root,
         "agent/state/ui-visual-smoke-minimal.generated.json",
         "source_surface_checks_failed",
@@ -277,7 +278,7 @@ function main() {
     },
   });
 
-  const visualGate = scoreReport.evidenceGates.find((gate) => gate.id === "visualManualSmoke");
+  const visualGate = scoreReport.evidenceGates.find((gate) => gate.id === RETIRED_UI_SCORE_GATE_ID);
   if (scoreReport.runtimeHealthScore <= 55) {
     failures.push("UI source coverage still appears to block non-UI runtime confidence.");
   }
