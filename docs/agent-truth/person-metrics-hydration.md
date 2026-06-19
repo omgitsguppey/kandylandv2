@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-19T04:49:37.649Z
+Generated: 2026-06-19T05:17:35.657Z
 Status: pass
-Current head: 343fe21c2f5c75dd383d43532c80f64322c9b58f
+Current head: 2a993b3a01dd4717aa93f378e7fd85a916a2fa13
 
 ## Contract
 
@@ -72,29 +72,8 @@ Current head: 343fe21c2f5c75dd383d43532c80f64322c9b58f
 
 ## Dirty Files
 
-- agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/analytics-validation-semantics.generated.json: current_generated_artifact_to_commit
-- agent/state/data-validation-ui-semantic-cleanup.generated.json: current_generated_artifact_to_commit
-- agent/state/debug-cockpit-batch28-bug-validation.generated.json: current_generated_artifact_to_commit
-- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/launch-analytics-recovery.generated.json: current_generated_artifact_to_commit
-- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/source-agreement-failure-detail.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
-- docs/agent-truth/analytics-validation-semantics.md: documentation_artifact_expected
-- docs/agent-truth/data-validation-ui-semantic-cleanup.md: documentation_artifact_expected
-- docs/agent-truth/debug-cockpit-batch28-bug-validation.md: documentation_artifact_expected
-- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
-- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: documentation_artifact_expected
-- scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts: retired_duplicate_source_agreement_lane_expected
-- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/analytics/validation-readiness-contract.ts: source_agreement_failure_classification_required
-- tests/unit/analytics-validation-semantics.spec.ts: test_artifact_expected
-- tests/unit/data-validation-ui-semantic-cleanup.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 

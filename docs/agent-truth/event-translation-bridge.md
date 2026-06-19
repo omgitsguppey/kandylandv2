@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-19T04:49:37.735Z
+Generated: 2026-06-19T05:17:35.488Z
 Status: pass
-Current head: 343fe21c2f5c75dd383d43532c80f64322c9b58f
+Current head: 2a993b3a01dd4717aa93f378e7fd85a916a2fa13
 
 ## Contract
 
@@ -53,29 +53,8 @@ Current head: 343fe21c2f5c75dd383d43532c80f64322c9b58f
 
 ## Dirty Files
 
-- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/analytics-validation-semantics.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/data-validation-ui-semantic-cleanup.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-cockpit-batch28-bug-validation.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/analytics-validation-semantics.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/data-validation-ui-semantic-cleanup.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-cockpit-batch28-bug-validation.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
-- scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts: retired_duplicate_source_agreement_lane_expected
-- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/analytics/validation-readiness-contract.ts: source_agreement_failure_classification_required
-- tests/unit/analytics-validation-semantics.spec.ts: test_artifact_expected
-- tests/unit/data-validation-ui-semantic-cleanup.spec.ts: test_artifact_expected
 
 ## Validation Failures
 
