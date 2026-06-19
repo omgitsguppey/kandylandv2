@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-19T06:25:32.636Z
+Generated: 2026-06-19T07:20:29.213Z
 Status: pass
-Current head: f6cdf660bab8aaae7a44a78bd26c89bdda4d2b13
+Current head: f23b583fec4353f6993835f7f039be3d4fbbe827
 
 ## Contract
 
@@ -82,8 +82,7 @@ Current head: f6cdf660bab8aaae7a44a78bd26c89bdda4d2b13
 - docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: documentation_artifact_expected
-- src/lib/analytics/source-agreement-detail.ts: real_source_change_needs_review
-- tests/unit/source-agreement-failure-detail.spec.ts: test_artifact_expected
+- scripts/rebuild-analytics-truth.ts: real_source_change_needs_review
 
 ## Active Old Logic
 

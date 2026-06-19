@@ -133,6 +133,19 @@ function readLaunchCoverageInputCandidates(evidenceProvenance: Record<string, un
   }
 }
 
+function launchCoverageInputNextAction(input: ReturnType<typeof readLaunchCoverageInputCandidates>) {
+  if (input.usableInputFound) return null
+
+  const acceptedPaths = input.candidates
+    .filter((entry) => entry.path.includes("agent/evidence/launch-analytics/launch-history-coverage"))
+    .map((entry) => entry.path)
+  const pathList = acceptedPaths.length > 0
+    ? acceptedPaths.join(" or ")
+    : "agent/evidence/launch-analytics/launch-history-coverage.local.json or agent/evidence/launch-analytics/launch-history-coverage.export.json"
+
+  return `Attach approved launch-history coverage at ${pathList}, or attach a redacted admin truth sample with launchHistoryCoverage day rows. Then run npm run check:analytics-panel-hydration before promoting launch analytics charts.`
+}
+
 function launchRecoveryEvidenceFreshness(status: string) {
   if (status === "current_head") return "current"
   if (status === "same_commit_snapshot") return "same_commit_snapshot"
@@ -176,6 +189,12 @@ function readLaunchRecoveryDryRunSummary() {
     const sourceTruthPolicy = Object.keys(asRecord(report.sourceTruthPolicy)).length > 0
       ? asRecord(report.sourceTruthPolicy)
       : asRecord(sourceAgreement.sourceTruthPolicy)
+    const launchCoverageInputs = readLaunchCoverageInputCandidates(evidenceProvenance)
+    const reportNextAction = readString(
+      report.nextAction,
+      readString(sourceAgreement.nextAction, "Review launch analytics recovery evidence before importing analytics truth."),
+    )
+    const nextAction = launchCoverageInputNextAction(launchCoverageInputs) ?? reportNextAction
     return {
       artifactPath: LAUNCH_RECOVERY_REPORT_PATH,
       status: readString(report.status, "unknown"),
@@ -200,7 +219,7 @@ function readLaunchRecoveryDryRunSummary() {
         allLaunchRangeProven: readBoolean(rangeProof.allLaunchRangeProven, false),
         reason: readString(rangeProof.reason, "No range proof reason was supplied."),
       },
-      launchCoverageInputs: readLaunchCoverageInputCandidates(evidenceProvenance),
+      launchCoverageInputs,
       firstPartyCoverage: {
         state: readString(firstPartyCoverage.state, "unknown"),
         canPromoteProductTruth: readBoolean(firstPartyCoverage.canPromoteProductTruth, false),
@@ -214,10 +233,7 @@ function readLaunchRecoveryDryRunSummary() {
         classifications: Array.isArray(sourceAgreement.classifications) ? sourceAgreement.classifications.slice(0, 8) : [],
       },
       sourceTruthPolicy,
-      nextAction: readString(
-        report.nextAction,
-        readString(sourceAgreement.nextAction, "Review launch analytics recovery evidence before importing analytics truth."),
-      ) + (artifactCurrent ? "" : " Refresh launch recovery evidence with npm run check:analytics-panel-hydration before treating this dry-run summary as current."),
+      nextAction: nextAction + (artifactCurrent ? "" : " Refresh launch recovery evidence with npm run check:analytics-panel-hydration before treating this dry-run summary as current."),
     }
   } catch (error) {
     return {
