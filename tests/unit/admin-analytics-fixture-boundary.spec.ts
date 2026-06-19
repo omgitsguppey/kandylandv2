@@ -71,7 +71,7 @@ describe("admin analytics local fixture boundary", () => {
     expect(historicalRouteSource).toContain("shouldHydrateDefaultLaunchHistoryFromSources");
     expect(historicalRouteSource).toContain("hydrating launch history from bounded canonical source collections");
     expect(hookSource).toContain("Launch history hydrating; showing verified snapshots");
-    expect(hookSource).toContain("Launch history hydrating; showing 30D transaction fallback");
+    expect(hookSource).toContain("Launch history hydrating; using confirmed transactions");
     expect(hookSource).toContain("Hydrating launch history from source evidence");
     expect(hookSource).toContain("Hydrating launch history");
     expect(hookSource).not.toContain("Waiting for first analytics snapshot");

@@ -1589,7 +1589,7 @@ export function useAdminAnalyticsState() {
         : historicalLoading && hasOverviewSnapshotFirstValue
           ? "Launch history hydrating; showing verified snapshots"
         : historicalLoading && hasOverviewTransactionFallbackValue
-          ? "Launch history hydrating; showing 30D transaction fallback"
+          ? "Launch history hydrating; using confirmed transactions"
         : historicalLoading && range === ADMIN_ANALYTICS_DEFAULT_RANGE
           ? "Hydrating launch history from source evidence"
         : historicalLoading
@@ -1675,8 +1675,8 @@ export function useAdminAnalyticsState() {
   const purchasesFallbackAvailable =
     overviewFallbackPurchasesValue !== null && overviewFallbackPurchasesDisplay !== null;
   const sharedFallbackExplanation = analyticsSnapshotPending
-    ? "Analytics snapshot pending; showing canonical fallback truth."
-    : "Current activity snapshot missing; showing canonical fallback truth.";
+    ? "Analytics snapshot pending; using confirmed source data."
+    : "Current activity snapshot missing; using confirmed source data.";
   const historicalOverviewWaitingLabel = historicalLoading ? "Hydrating" : "No snapshot yet";
   const overviewUnavailableDisplay = "No snapshot yet";
 
@@ -1728,8 +1728,8 @@ export function useAdminAnalyticsState() {
         freshnessState: mapOverviewFreshnessState(overviewRevenueMetric?.freshnessState),
         windowLabel: "30D",
         generatedAtUtc: toOverviewGeneratedAtUtc(adminOverviewResponse),
-        explanation: `${sharedFallbackExplanation} Fallback source: server-confirmed transactions.`,
-        hint: "Fallback source: server-confirmed transactions",
+        explanation: `${sharedFallbackExplanation} Source: server-confirmed transactions.`,
+        hint: "Source: server-confirmed transactions",
         warnings: ["analytics_snapshot_pending"],
       }
       : {
@@ -1743,7 +1743,7 @@ export function useAdminAnalyticsState() {
         freshnessState: "unknown",
         windowLabel: range.toUpperCase(),
         generatedAtUtc: null,
-        explanation: "No verified revenue snapshot or accepted commerce fallback is available.",
+        explanation: "No verified revenue snapshot or confirmed transaction source is available.",
         hint: historicalLoading ? "No verified snapshot yet." : "No verified revenue snapshot.",
         warnings: ["missing_revenue_snapshot"],
       };
@@ -1798,8 +1798,8 @@ export function useAdminAnalyticsState() {
         freshnessState: mapOverviewFreshnessState(overviewPurchasesMetric?.freshnessState),
         windowLabel: "30D",
         generatedAtUtc: toOverviewGeneratedAtUtc(adminOverviewResponse),
-        explanation: `${sharedFallbackExplanation} Fallback source: completed transactions.`,
-        hint: "Checkout starts unavailable - Fallback source: completed transactions",
+        explanation: `${sharedFallbackExplanation} Source: completed transactions.`,
+        hint: "Checkout starts unavailable - source: completed transactions",
         warnings: ["analytics_snapshot_pending", "checkout_starts_unavailable"],
       }
       : {
@@ -1813,7 +1813,7 @@ export function useAdminAnalyticsState() {
         freshnessState: "unknown",
         windowLabel: range.toUpperCase(),
         generatedAtUtc: null,
-        explanation: "No verified purchase snapshot or accepted transaction fallback is available.",
+        explanation: "No verified purchase snapshot or confirmed transaction source is available.",
         hint: historicalLoading ? "No verified snapshot yet." : "No verified purchase snapshot.",
         warnings: ["missing_purchase_snapshot"],
       };
@@ -2170,7 +2170,7 @@ export function useAdminAnalyticsState() {
       fullStatusLabel: metricKey === "liveActive"
         ? liveRealtime.feedDetail
         : valueSource === "server_transaction_fallback"
-          ? "Analytics snapshot pending; fallback source: server-confirmed transactions"
+          ? "Analytics snapshot pending; source: server-confirmed transactions"
           : historicalOverviewSourceLabel,
       fromCache: metricKey === "liveActive" ? null : historicalOverviewResponse?.cacheState !== undefined,
       serverConfirmed: metricKey === "liveActive"
@@ -2477,7 +2477,7 @@ export function useAdminAnalyticsState() {
     : hasOverviewSnapshotFirstValue
       ? "Verified snapshot ready"
       : hasOverviewTransactionFallbackValue
-        ? "30D fallback ready"
+        ? "Confirmed transactions ready"
         : historicalLoading
           ? "Hydrating launch history"
           : "Awaiting launch snapshot";
