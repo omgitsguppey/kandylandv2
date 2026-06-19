@@ -295,9 +295,13 @@ function proofTruthStateFor(input: {
   const isStaleSource = artifactIsStale(input.artifact, input.head) || /^stale_/iu.test(input.sourceStatus);
 
   if (hasFormalPassingStatus) {
-    return isStaleSource || input.captureStatus !== "complete"
-      ? "stale_evidence"
-      : "current_formal_evidence";
+    if (!isStaleSource && input.captureStatus === "complete") {
+      return "current_formal_evidence";
+    }
+    if (input.id === "manualScreenshotQa") return "manual_evidence_required";
+    if (input.id === "adminTruthSample") return "admin_truth_source_required";
+    if (input.id === "providerSmoke" || input.id === "runtimeSmoke") return "external_evidence_required";
+    return "stale_evidence";
   }
   if (/source_only/iu.test(input.sourceStatus)) {
     return "source_only_not_formal";
@@ -323,10 +327,16 @@ function proofTruthStateFor(input: {
 function proofActionStateFor(
   id: CurrentBetaExitProofLaneId,
   truthState: CurrentBetaExitProofTruthState,
+  sourceStatus = "",
 ): CurrentBetaExitProofActionState {
   if (truthState === "current_formal_evidence") return "gate_cleared";
   if (truthState === "stale_evidence") return "refresh_stale_evidence";
   if (truthState === "source_only_not_formal") return "source_only_cannot_clear";
+  if (/^stale_/iu.test(sourceStatus) && (
+    truthState === "manual_evidence_required"
+    || truthState === "external_evidence_required"
+    || truthState === "admin_truth_source_required"
+  )) return "refresh_stale_evidence";
   if (truthState === "manual_evidence_required") return "attach_manual_evidence";
   if (truthState === "admin_truth_source_required") return "attach_admin_truth_sample";
   if (truthState === "external_evidence_required") return "attach_external_evidence";
@@ -348,7 +358,7 @@ function buildProofLane(input: {
     id: input.id,
     label: input.label,
     truthState,
-    actionState: proofActionStateFor(input.id, truthState),
+    actionState: proofActionStateFor(input.id, truthState, input.sourceStatus),
     sourceStatus: input.sourceStatus,
     sourcePath: input.sourcePath,
     captureStatus: input.captureStatus,
@@ -666,8 +676,8 @@ export function validateCurrentBetaExitStatusReport(
     if (lane.canClearGate && lane.truthState !== "current_formal_evidence") {
       failures.push(`${lane.id} proof lane canClearGate must only be true for current_formal_evidence.`);
     }
-    if (lane.actionState !== proofActionStateFor(lane.id, lane.truthState)) {
-      failures.push(`${lane.id} proof lane actionState must be derived from truthState.`);
+    if (lane.actionState !== proofActionStateFor(lane.id, lane.truthState, lane.sourceStatus)) {
+      failures.push(`${lane.id} proof lane actionState must be derived from truthState and sourceStatus.`);
     }
     if (lane.truthState === "current_formal_evidence" && !formalStatusPassed(lane.id, lane.sourceStatus)) {
       failures.push(`${lane.id} current_formal_evidence must come from a formal passed source status.`);

@@ -14,7 +14,7 @@ function proofLanesFor(
       id: "manualScreenshotQa",
       label: "Manual screenshot QA",
       truthState: summary.visualEvidenceStatus.startsWith("stale_")
-        ? "stale_evidence"
+        ? "manual_evidence_required"
         : summary.visualEvidenceStatus.includes("source_only")
           ? "source_only_not_formal"
           : "manual_evidence_required",
@@ -34,7 +34,7 @@ function proofLanesFor(
       id: "providerSmoke",
       label: "Provider smoke",
       truthState: summary.providerSmokeStatus.startsWith("stale_")
-        ? "stale_evidence"
+        ? "external_evidence_required"
         : summary.providerSmokeStatus.includes("formal_provider_smoke_passed")
           ? "current_formal_evidence"
           : "external_evidence_required",
@@ -54,7 +54,7 @@ function proofLanesFor(
       id: "runtimeSmoke",
       label: "Runtime smoke",
       truthState: summary.runtimeSmokeStatus.startsWith("stale_")
-        ? "stale_evidence"
+        ? "external_evidence_required"
         : summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed")
           ? "current_formal_evidence"
           : "external_evidence_required",
@@ -74,7 +74,7 @@ function proofLanesFor(
       id: "adminTruthSample",
       label: "Admin truth sample",
       truthState: summary.adminTruthSampleStatus.startsWith("stale_")
-        ? "stale_evidence"
+        ? "admin_truth_source_required"
         : summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed")
           ? "current_formal_evidence"
           : "admin_truth_source_required",
@@ -256,6 +256,30 @@ describe("current beta exit status validator", () => {
     expect(validateCurrentBetaExitStatusReport(report, "head")).toEqual([]);
   });
 
+  it("classifies stale formal proof lanes by required source action", () => {
+    const { proofLanes: _proofLanes, ...summaryWithoutProofLanes } = reportFixture().summary;
+    const staleSummary = {
+      ...summaryWithoutProofLanes,
+      visualEvidenceStatus: "stale_visual_evidence",
+      providerSmokeStatus: "stale_provider_smoke_evidence",
+      runtimeSmokeStatus: "stale_runtime_smoke_evidence",
+      adminTruthSampleStatus: "stale_admin_truth_sample_evidence",
+    };
+    const report = reportFixture({
+      summary: {
+        ...staleSummary,
+        proofLanes: proofLanesFor(staleSummary),
+      },
+    });
+
+    expect(report.summary.proofLanes).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "manualScreenshotQa", truthState: "manual_evidence_required", actionState: "refresh_stale_evidence" }),
+      expect.objectContaining({ id: "providerSmoke", truthState: "external_evidence_required", actionState: "refresh_stale_evidence" }),
+      expect.objectContaining({ id: "runtimeSmoke", truthState: "external_evidence_required", actionState: "refresh_stale_evidence" }),
+      expect.objectContaining({ id: "adminTruthSample", truthState: "admin_truth_source_required", actionState: "refresh_stale_evidence" }),
+    ]));
+  });
+
   it("requires source-derived proof lane truth states instead of bare proof booleans", () => {
     const report = reportFixture({
       summary: {
@@ -379,7 +403,9 @@ describe("current beta exit status validator", () => {
   it("fails when currentHead is not an accepted generated artifact version", () => {
     const report = reportFixture({ currentHead: "old-head" });
 
-    expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
+    expect(validateCurrentBetaExitStatusReport(report, "head", {
+      changedFilesSinceArtifactHead: ["scripts/agent/validate-current-beta-exit-status.ts"],
+    })).toContain(
       "report currentHead must match git HEAD (head) or an accepted generated artifact version.",
     );
   });
