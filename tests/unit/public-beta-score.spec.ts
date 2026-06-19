@@ -402,7 +402,7 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.detail).toContain("does not prove manual screenshot");
     });
 
-    it("does not score stale formal smoke and admin artifacts", () => {
+    it("does not score stale formal smoke and admin artifacts as current proof", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
@@ -423,8 +423,12 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.evidenceGates).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: "runtimeProviderSmoke", status: "Stale evidence", score: 0 }),
-            expect.objectContaining({ id: "adminTruthSamples", status: "Stale evidence", score: 0 }),
+            expect.objectContaining({ id: "runtimeProviderSmoke", status: "External proof required", score: 0 }),
+            expect.objectContaining({ id: "adminTruthSamples", status: "External proof required", score: 0 }),
+        ]));
+        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+            "External proof required: Runtime/provider smoke - Refresh formal provider proof and deployed runtime smoke evidence.",
+            "External proof required: Admin truth/sample evidence - Refresh the redacted production admin truth sample.",
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
@@ -452,9 +456,11 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.evidenceGates).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: "runtimeProviderSmoke", status: "Ready with smoke required", score: 0 }),
-            expect.objectContaining({ id: "adminTruthSamples", status: "Unknown evidence", score: 0 }),
+            expect.objectContaining({ id: "runtimeProviderSmoke", status: "External proof required", score: 0 }),
+            expect.objectContaining({ id: "adminTruthSamples", status: "External proof required", score: 0 }),
         ]));
+        expect(report.evidenceCapDetails.join("\n")).toContain("External proof required: Runtime/provider smoke");
+        expect(report.evidenceCapDetails.join("\n")).toContain("External proof required: Admin truth/sample evidence");
     });
 
     it("keeps missing_or_unknown admin truth from passing", () => {

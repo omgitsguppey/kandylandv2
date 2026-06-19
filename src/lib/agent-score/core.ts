@@ -453,6 +453,9 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
 
   if (gate.id === "runtimeProviderSmoke") {
     if (gate.status === "External proof required") {
+      if (gate.freshness === "stale" || gate.freshness === "head_mismatch") {
+        return `${gate.status}: ${gate.label} - Refresh formal provider proof and deployed runtime smoke evidence.`;
+      }
       return `${gate.status}: ${gate.label} - Attach formal provider proof and keep deployed runtime smoke current.`;
     }
     if (gate.status === "Stale evidence") {
@@ -465,6 +468,9 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
 
   if (gate.id === "adminTruthSamples") {
     if (gate.status === "External proof required" || gate.status === "Unknown evidence") {
+      if (gate.status === "External proof required" && (gate.freshness === "stale" || gate.freshness === "head_mismatch")) {
+        return `${gate.status}: ${gate.label} - Refresh the redacted production admin truth sample.`;
+      }
       return `${gate.status}: ${gate.label} - Attach a redacted production admin truth sample.`;
     }
     if (gate.status === "Stale evidence") {
@@ -807,8 +813,9 @@ export function buildPublicBetaEvidenceGates(input: {
   const runtimeProviderSmokePassed = providerSmokePassed && runtimeSmokePassed;
   const providerNeedsFormalProof = /missing_formal_evidence|operator_reported_not_formal_provider_smoke|tracked_not_passing|missing_or_unknown/iu.test(providerSmokeStatus);
   const runtimeNeedsFormalProof = /runtime_unverified|missing_formal_evidence|tracked_not_passing|missing_or_unknown/iu.test(runtimeSmokeStatus);
+  const runtimeProviderSmokeFreshnessUnknown = providerQuality.freshness === "unknown" || runtimeQuality.freshness === "unknown";
   let runtimeProviderSmokeStatus: PublicBetaReadinessStatus = "Ready with smoke required";
-  if (runtimeProviderSmokePassed) {
+  if (runtimeProviderSmokePassed && !runtimeProviderSmokeFreshnessUnknown) {
     runtimeProviderSmokeStatus = "Ready";
   } else if (providerQuality.quality === "failed" || runtimeQuality.quality === "failed") {
     runtimeProviderSmokeStatus = "Needs review";
@@ -820,7 +827,9 @@ export function buildPublicBetaEvidenceGates(input: {
     || providerQuality.freshness === "head_mismatch"
     || runtimeQuality.freshness === "head_mismatch"
   ) {
-    runtimeProviderSmokeStatus = "Stale evidence";
+    runtimeProviderSmokeStatus = "External proof required";
+  } else if (runtimeProviderSmokeFreshnessUnknown) {
+    runtimeProviderSmokeStatus = "External proof required";
   } else if (runtimeSmokeStatus === "runtime_unverified") {
     runtimeProviderSmokeStatus = "Runtime unverified";
   }
@@ -1039,8 +1048,9 @@ export function buildPublicBetaEvidenceGates(input: {
       ? adminBaseQuality.reason
       : "Admin source evidence earns partial bridge confidence but does not clear the production admin truth sample gate.",
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
+  const adminTruthSampleFreshnessUnknown = adminBaseQuality.freshness === "unknown";
   let adminTruthSampleStatusLabel: PublicBetaReadinessStatus = "Unknown evidence";
-  if (adminTruthSamplePassed) {
+  if (adminTruthSamplePassed && !adminTruthSampleFreshnessUnknown) {
     adminTruthSampleStatusLabel = "Ready";
   } else if (adminBaseQuality.quality === "failed") {
     adminTruthSampleStatusLabel = "Needs review";
@@ -1049,7 +1059,9 @@ export function buildPublicBetaEvidenceGates(input: {
   } else if (adminBaseQuality.quality === "source_ready" || adminBridgeCredit > 0 || adminSourceConfidence > 0) {
     adminTruthSampleStatusLabel = "External proof required";
   } else if (adminBaseQuality.freshness === "stale" || adminBaseQuality.freshness === "head_mismatch") {
-    adminTruthSampleStatusLabel = "Stale evidence";
+    adminTruthSampleStatusLabel = "External proof required";
+  } else if (adminTruthSampleFreshnessUnknown) {
+    adminTruthSampleStatusLabel = "External proof required";
   }
 
   const sourceSafetyQuality = {
