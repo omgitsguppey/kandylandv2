@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T06:17:44.109Z",
-  "currentHead": "78a3e5745d9bb791b13d1a13441b8665874d9bb5",
+  "generatedAtUtc": "2026-06-19T06:20:19.709Z",
+  "currentHead": "9a30db56bcc87a743a4380de95eeba020a0b2cfa",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,18 +365,13 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 3,
+    "total": 2,
     "byClassification": {
-      "stale_generated_artifact_to_regenerate": 1,
       "source_agreement_failure_artifact_expected": 1,
       "documentation_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
-      {
-        "path": "agent/state/public-beta-score.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
       {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
