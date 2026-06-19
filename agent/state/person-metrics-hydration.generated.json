@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-06-19T05:17:35.657Z",
+  "generatedAtUtc": "2026-06-19T05:41:48.827Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4973,11 +4973,31 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "2a993b3a01dd4717aa93f378e7fd85a916a2fa13",
+  "currentHead": "ae05fc292df0430263d46068b724f2ad0dc87067",
   "dirtyFiles": [
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/launch-analytics-recovery.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
     {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/launch-analytics-recovery.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
