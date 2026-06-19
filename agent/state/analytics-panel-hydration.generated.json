@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T11:41:27.129Z",
-  "currentHead": "cf087be24c677f36d37fa31ed9c8a047113318c9",
+  "generatedAtUtc": "2026-06-19T11:47:53.420Z",
+  "currentHead": "6aa61cc5caafac1bb9bf12fb4de01c01f5109c09",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,31 +365,10 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 4,
-    "byClassification": {
-      "analytics_panel_hydration_artifact_expected": 2,
-      "real_source_change_needs_review": 1,
-      "source_agreement_failure_classification_required": 1
-    },
+    "total": 0,
+    "byClassification": {},
     "unsafeUnknown": [],
-    "sample": [
-      {
-        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "scripts/rebuild-analytics-truth.ts",
-        "classification": "real_source_change_needs_review"
-      },
-      {
-        "path": "src/lib/analytics/source-agreement-detail.ts",
-        "classification": "source_agreement_failure_classification_required"
-      },
-      {
-        "path": "tests/unit/analytics-panel-hydration.spec.ts",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      }
-    ],
+    "sample": [],
     "sampleTruncated": false
   },
   "nextExactSteps": [
