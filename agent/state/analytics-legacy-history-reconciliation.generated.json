@@ -192,9 +192,9 @@
     "currentTotalsEligibleCount": 0,
     "overwritesCurrentTruth": false
   },
-  "generatedAtUtc": "2026-06-19T02:45:29.650Z",
+  "generatedAtUtc": "2026-06-19T07:29:32.469Z",
   "reportKey": "analytics-legacy-history-reconciliation",
-  "currentHead": "dce9a0375029cb24b4b79f2dbb5b3707cb31e3ea",
+  "currentHead": "35882cb4d032e57d3c81f22f9618fe93eadcaca5",
   "sourceCleanupFindings": [
     {
       "source": "analytics_event_facts",

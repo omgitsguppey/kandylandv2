@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-18T15:52:25.595Z",
+  "generatedAtUtc": "2026-06-19T07:29:32.322Z",
   "reportKey": "ga4-recovery-truth",
-  "currentHead": "d1530d4f8e554148e839170837e2a14647a91511",
+  "currentHead": "35882cb4d032e57d3c81f22f9618fe93eadcaca5",
   "summary": {
     "ga4Status": "config_missing",
     "clientGa4Configured": false,
