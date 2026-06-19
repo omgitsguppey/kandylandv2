@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-06-19T10:10:31.364Z",
+  "generatedAtUtc": "2026-06-19T10:43:36.613Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4973,14 +4973,14 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "a9c93ffc3df91844e11b3e5b4be49f3bdfee5d31",
+  "currentHead": "131ddd85186fbb6ca22f9b5cf4451eb7656929c4",
   "dirtyFiles": [
     {
       "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "path": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -4988,15 +4988,7 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/generated-report-authority.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/overnight-final-integration-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -5004,19 +4996,15 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "classification": "retired_duplicate_source_agreement_lane_expected"
     },
     {
       "path": "docs/agent-truth/analytics-panel-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "path": "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -5028,28 +5016,32 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/overnight-final-integration-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
-      "classification": "documentation_artifact_expected"
+      "classification": "retired_duplicate_source_agreement_lane_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "classification": "validator_artifact_expected"
     },
     {
       "path": "scripts/agent/validate-analytics-panel-hydration.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-beta-evidence-gap-map.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/validate-source-agreement-failure-detail.ts",
+      "classification": "retired_duplicate_source_agreement_lane_expected"
     },
     {
       "path": "src/lib/analytics/event-translation-bridge.ts",
@@ -5060,11 +5052,11 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/beta-evidence-gap-map.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "src/lib/release-readiness/automated-truth-reconciliation.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "tests/unit/overnight-final-integration-lock.spec.ts",
+      "path": "tests/unit/analytics-panel-hydration.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

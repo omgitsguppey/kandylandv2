@@ -9,7 +9,7 @@ import {
 import { classifyGeneratedArtifactFromGit } from "@/lib/agent-score/generated-artifact-version-policy";
 import { classifySourceAgreementCoverage } from "@/lib/analytics/source-agreement-detail";
 import { buildLivePanelEvidenceReport } from "@/lib/release-readiness/live-panel-evidence-resolver";
-import { validateSourceAgreementFailureDetail } from "./debug-cockpit-batch29-analytics-source-hierarchy-shared";
+import { buildLaunchSourceAgreementDetail } from "./debug-cockpit-batch29-analytics-source-hierarchy-shared";
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/analytics-panel-hydration.generated.json";
@@ -200,9 +200,10 @@ function classifyDirtyFile(path: string) {
   if (normalized === "agent/evidence/launch-analytics/launch-history-coverage.template.json") return "launch_analytics_recovery_artifact_expected";
   if (normalized === "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/admin-debug-control-tower-component.spec.tsx") return "test_artifact_expected";
-  if (normalized === "agent/state/source-agreement-failure-detail.generated.json") return "source_agreement_failure_artifact_expected";
+  if (normalized === "agent/state/source-agreement-failure-detail.generated.json") return "retired_duplicate_source_agreement_lane_expected";
+  if (normalized === "scripts/agent/validate-source-agreement-failure-detail.ts") return "retired_duplicate_source_agreement_lane_expected";
   if (normalized === "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json") return "source_agreement_failure_artifact_expected";
-  if (normalized === "docs/agent-truth/source-agreement-failure-detail.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/source-agreement-failure-detail.md") return "retired_duplicate_source_agreement_lane_expected";
   if (normalized === "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md") return "documentation_artifact_expected";
   if (normalized === LAUNCH_RECOVERY_REPORT_PATH) return "launch_analytics_recovery_artifact_expected";
   if (normalized === LAUNCH_RECOVERY_DOC_PATH) return "launch_analytics_recovery_artifact_expected";
@@ -527,12 +528,12 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   generatedAtUtc: string;
   currentHead: string;
   panelReport: ReturnType<typeof buildAnalyticsPanelHydrationReport>;
+  sourceAgreementResult: ReturnType<typeof buildLaunchSourceAgreementDetail>;
 }) {
   const legacyRecovery = compactLegacyRecoverySummary();
-  const sourceAgreementReport = readJson("agent/state/source-agreement-failure-detail.generated.json");
-  const sourceAgreementHead = typeof sourceAgreementReport?.currentHead === "string" ? sourceAgreementReport.currentHead : null;
-  const sourceAgreementDetail = asRecord(sourceAgreementReport?.detail);
-  const sourceAgreementEvidence = asRecord(sourceAgreementReport?.launchCoverageEvidence);
+  const sourceAgreementHead = input.currentHead;
+  const sourceAgreementDetail = asRecord(input.sourceAgreementResult.detail);
+  const sourceAgreementEvidence = asRecord(input.sourceAgreementResult.launchCoverageEvidence);
   const coverageRows = Array.isArray(sourceAgreementDetail.perSourceCoverage)
     ? sourceAgreementDetail.perSourceCoverage.map((entry) => asRecord(entry))
     : [];
@@ -908,11 +909,11 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       sourceInventory,
     },
     evidenceProvenance: {
-      launchCoverageInput: "agent/state/source-agreement-failure-detail.generated.json",
+      launchCoverageInput: input.sourceAgreementResult.inputPath ?? "in_process_source_agreement_detail",
       panelHydrationInput: "agent/state/analytics-panel-hydration.generated.json",
       sourceAgreementInputHead: sourceAgreementHead,
-      sourceAgreementInputMode: typeof sourceAgreementReport?.inputMode === "string" ? sourceAgreementReport.inputMode : "unknown",
-      sourceAgreementInputPath: typeof sourceAgreementReport?.inputPath === "string" ? sourceAgreementReport.inputPath : null,
+      sourceAgreementInputMode: input.sourceAgreementResult.inputMode,
+      sourceAgreementInputPath: input.sourceAgreementResult.inputPath,
       usableLaunchCoverageInputFound: sourceAgreementEvidence.usableInputFound === true,
       candidateLaunchCoverageInputPaths: asStringArray(sourceAgreementEvidence.candidateInputPaths),
       candidateLaunchCoverageInputStatuses: asRecordArray(sourceAgreementEvidence.candidateInputStatuses).map((entry) => ({
@@ -1341,7 +1342,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
 }
 
 function main() {
-  validateSourceAgreementFailureDetail();
+  const sourceAgreementResult = buildLaunchSourceAgreementDetail();
 
   const generatedAtUtc = new Date().toISOString();
   const currentHead = run("git", ["rev-parse", "HEAD"]) || "unknown";
@@ -1367,7 +1368,12 @@ function main() {
 
   write(REPORT_PATH, `${JSON.stringify(compactReport(report, livePanelEvidence, validationFailures), null, 2)}\n`);
   write(DOC_PATH, renderDoc(finalReport));
-  const launchRecoveryReport = buildLaunchAnalyticsRecoveryReport({ generatedAtUtc, currentHead, panelReport: report });
+  const launchRecoveryReport = buildLaunchAnalyticsRecoveryReport({
+    generatedAtUtc,
+    currentHead,
+    panelReport: report,
+    sourceAgreementResult,
+  });
   const launchRecoveryValidationFailures = validateLaunchAnalyticsRecoveryReport(launchRecoveryReport);
   const finalLaunchRecoveryReport = {
     ...launchRecoveryReport,

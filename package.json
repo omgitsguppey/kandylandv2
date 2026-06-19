@@ -523,7 +523,6 @@
         "check:ga4-availability-semantics": "tsx scripts/agent/validate-ga4-availability-semantics.ts",
         "check:admin-analytics-source-hierarchy": "tsx scripts/agent/validate-admin-analytics-source-hierarchy.ts",
         "check:data-validation-copy-consistency": "tsx scripts/agent/validate-data-validation-copy-consistency.ts",
-        "check:source-agreement-failure-detail": "tsx scripts/agent/validate-source-agreement-failure-detail.ts",
         "check:debug-cockpit-batch29-analytics-source-hierarchy": "tsx scripts/agent/validate-debug-cockpit-batch29-analytics-source-hierarchy.ts",
         "check:telemetry-parity-pass-gate": "tsx scripts/agent/validate-telemetry-parity-pass-gate.ts",
         "check:refresh-diagnostics-failure-clusters": "tsx scripts/agent/validate-refresh-diagnostics-failure-clusters.ts",

@@ -294,12 +294,28 @@ function loadLaunchHistoryCoverageExport() {
   return null;
 }
 
-function buildLaunchSourceAgreementDetail() {
+export function buildLaunchSourceAgreementDetail() {
   const localExport = loadLaunchHistoryCoverageExport();
+  const inputMode = localExport
+    ? localExport.proofMode === "admin_truth_sample"
+      ? "admin_truth_sample"
+      : "local_export"
+    : "fixture_only_local_window";
+  const inputPath = localExport?.filePath ?? null;
+  const launchCoverageEvidence = {
+    inputMode,
+    inputPath,
+    usableInputFound: Boolean(inputPath),
+    candidateInputPaths: launchHistoryCoverageExportPaths(),
+    candidateInputStatuses: launchHistoryCoverageInputStatuses(),
+    adminTruthSampleRequiresLaunchHistoryCoverage: true,
+  };
+
   if (localExport) {
     return {
-      inputMode: "local_export",
-      inputPath: localExport.filePath,
+      inputMode,
+      inputPath,
+      launchCoverageEvidence,
       detail: buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
         proofMode: localExport.proofMode,
         launchHistoryCoverage: localExport.coverage,
@@ -310,8 +326,9 @@ function buildLaunchSourceAgreementDetail() {
   }
 
   return {
-    inputMode: "fixture_only_local_window",
-    inputPath: null,
+    inputMode,
+    inputPath,
+    launchCoverageEvidence,
     detail: buildLaunchAnalyticsSourceAgreementFailureDetail({
       comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
       tolerance: { reviewDeltaPct: 10, failDeltaPct: 25 },
@@ -389,10 +406,15 @@ function dirtyClassifications() {
             : filePath.includes("admin-analytics-source-hierarchy") ? "analytics_tab_source_truth_mismatch_required"
               : filePath.includes("data-validation-copy-consistency") ? "validation_copy_contradiction_required"
                 : filePath.includes("public-beta-score") || filePath.includes("current-beta-exit-status") || filePath.includes("overnight-beta-readiness-lock") ? "current_generated_artifact_to_commit"
-                : filePath.includes("source-agreement-failure-detail") || filePath.includes("source-agreement-detail") ? "source_agreement_failure_classification_required"
+                : /^agent\/state\/source-agreement-failure-detail\.generated\.json$/u.test(filePath)
+                  || /^docs\/agent-truth\/source-agreement-failure-detail\.md$/u.test(filePath)
+                  || /^scripts\/agent\/validate-source-agreement-failure-detail\.ts$/u.test(filePath)
+                  ? "retired_duplicate_source_agreement_lane_expected"
+                  : filePath.includes("source-agreement-detail") ? "source_agreement_failure_classification_required"
                   : filePath.includes("debug-cockpit-batch29") ? "validator_artifact_expected"
                     : filePath.includes("debug-cockpit-batch28-bug-validation") ? "analytics_source_hierarchy_fix_required"
                     : filePath === "package.json" ? "validator_artifact_expected"
+                    : filePath === "src/lib/release-readiness/automated-truth-reconciliation.ts" ? "validator_artifact_expected"
                     : filePath.startsWith("tests/unit/") ? "test_artifact_expected"
                       : filePath.startsWith("scripts/agent/") ? "validator_artifact_expected"
                         : filePath.startsWith("docs/agent-truth/") ? "documentation_artifact_expected"
@@ -515,77 +537,6 @@ export function validateDataValidationCopyConsistency() {
   runValidation("data-validation-copy-consistency", { row }, failures, [
     "Failed validation rows no longer use passed or clear copy.",
     "Technical evidence names passed dimensions and the failed source agreement dimension.",
-  ]);
-}
-
-export function validateSourceAgreementFailureDetail() {
-  const failures: string[] = [];
-  const { detail, inputMode, inputPath } = buildLaunchSourceAgreementDetail();
-  const candidateInputStatuses = launchHistoryCoverageInputStatuses();
-  const launchCoverageEvidence = {
-    inputMode,
-    inputPath,
-    usableInputFound: Boolean(inputPath),
-    candidateInputPaths: launchHistoryCoverageExportPaths(),
-    candidateInputStatuses,
-    adminTruthSampleRequiresLaunchHistoryCoverage: true,
-  };
-  expectPass(detail.comparedSources.includes("first_party") && detail.comparedSources.length === 4, failures, "source agreement failed but first-party compared source is missing.");
-  expectPass(["failed", "review", "pass", "not_enough_sources"].includes(detail.sourceAgreementStatus), failures, "source agreement detail lacks explicit status.");
-  expectPass(Boolean(detail.rangeStartDayKey && detail.rangeEndDayKey), failures, "source agreement detail lacks launch evidence range.");
-  expectPass(["union_of_local_source_days", "caller_supplied_expected_days"].includes(detail.expectedRangeSource), failures, "source agreement detail does not identify local evidence range source.");
-  expectPass(
-    detail.allLaunchRangeProven === false
-      || (detail.sourceAgreementStatus === "pass" && (
-        detail.coverageWindowKind === "admin_truth_sample"
-        || detail.coverageWindowKind === "all_range_historical_export"
-      )),
-    failures,
-    "source agreement detail can be mistaken for all-launch proof.",
-  );
-  if (inputMode === "fixture_only_local_window") {
-    expectPass(detail.sourceAgreementStatus === "failed", failures, "fixture source agreement detail must remain failed until first-party coverage is recovered.");
-    expectPass(detail.rangeStartDayKey === "2026-05-01" && detail.rangeEndDayKey === "2026-05-03", failures, "fixture source agreement detail lacks launch evidence range.");
-    expectPass(detail.coverageWindowKind === "fixture_only_local_window", failures, "fixture source agreement detail can be mistaken for all-launch proof.");
-    expectPass(detail.disagreementCount > 0 && detail.maxDeltaPct > 25, failures, "fixture maxDeltaPct/disagreementCount missing.");
-    expectPass(!launchCoverageEvidence.usableInputFound, failures, "fixture mode cannot claim a usable launch coverage input.");
-    expectPass(launchCoverageEvidence.candidateInputPaths.includes("agent/evidence/launch-analytics/launch-history-coverage.local.json"), failures, "local launch coverage export path is not advertised.");
-    expectPass(candidateInputStatuses.some((entry) => entry.state === "missing"), failures, "missing launch coverage input paths are not classified.");
-    expectPass(candidateInputStatuses.some((entry) => entry.state === "present_without_launch_history_coverage"), failures, "admin truth samples without launchHistoryCoverage are not classified.");
-    expectPass(candidateInputStatuses.every((entry) => entry.state !== "usable_launch_history_coverage"), failures, "fixture mode cannot classify any input as usable coverage.");
-  }
-  expectPass(detail.disagreements.some((entry) =>
-    entry.dayKey === "2026-05-02"
-    && entry.primarySourceState === "first_party_missing"
-    && entry.secondSourceState === "ga4_present"
-    && entry.classifications.includes("missing_materializer"),
-  ) || inputMode === "local_export", failures, "per-day GA4/first-party source disagreement missing.");
-  expectPass(detail.disagreements.every((entry) =>
-    entry.primarySourceState === "first_party_present"
-    || (entry.recoveryLane && entry.blockingOwner && entry.proofRequired.length > 0 && entry.productTruthEligible === false),
-  ), failures, "first-party-missing disagreements lack owner/proof/product-truth boundary.");
-  expectPass(detail.toleranceThresholds.failDeltaPct === 25, failures, "tolerance thresholds missing.");
-  expectPass(detail.blockedConsumers.includes("admin_analytics_charts"), failures, "blocked consumers missing.");
-  expectPass(detail.blockedConsumerDetails.some((entry) =>
-    entry.consumer === "admin_analytics_device_mix"
-    && entry.allowedDisplayState === "second_source_only"
-  ), failures, "GA4-owned blocked consumers do not remain second-source only.");
-  expectPass(detail.blockedConsumerDetails.some((entry) =>
-    entry.consumer === "admin_analytics_overview"
-    && (entry.allowedDisplayState === "source_missing" || entry.allowedDisplayState === "connected")
-  ), failures, "first-party-owned admin analytics panels lack source-missing display state.");
-  expectPass(detail.blockedConsumerDetails.some((entry) =>
-    entry.consumer === "admin_analytics_source_health"
-    && entry.allowedDisplayState === "chart_promotion_blocked"
-  ), failures, "source health consumer is not held behind source agreement/chart promotion.");
-  expectPass(detail.sourceTruthPolicy.firstPartyPrimary && detail.sourceTruthPolicy.ga4SecondSourceOnly && detail.sourceTruthPolicy.missingIsNotZero, failures, "source truth policy missing.");
-  expectPass(!/^retry$/iu.test(detail.nextAction), failures, "next action generic retry only.");
-  runValidation("source-agreement-failure-detail", { inputMode, inputPath, launchCoverageEvidence, detail }, failures, [
-    "Source agreement failures include compared sources, coverage deltas, per-day disagreement details, tolerance, blocked consumers, and next actions.",
-    inputPath
-      ? `Using local launch coverage export: ${inputPath}.`
-      : "No usable local launch coverage export or launch-history admin truth sample found; present samples without launchHistoryCoverage remain evidence-only.",
-    "The detail helper uses existing evidence only and does not call GA4.",
   ]);
 }
 

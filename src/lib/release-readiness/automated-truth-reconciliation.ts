@@ -446,13 +446,13 @@ export function classifyTruthReconciliationDirtyFile(path: string) {
   if (/^agent\/state\/(activity-verification-engine|evidence-capture-status|formal-evidence-bridge|live-evidence-gate-replacement|real-usage-confidence|real-usage-confidence-calibration|runtime-smoke-harness|runtime-smoke-substitute-matrix)\.generated\.json$/u.test(normalized)) {
     return "current_generated_artifact_to_commit";
   }
-  if (/^agent\/state\/(analytics-panel-hydration|launch-analytics-recovery|source-agreement-failure-detail)\.generated\.json$/u.test(normalized)) {
+  if (/^agent\/state\/(analytics-panel-hydration|launch-analytics-recovery)\.generated\.json$/u.test(normalized)) {
     return "current_generated_artifact_to_commit";
   }
   if (/^docs\/agent-truth\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|final-current-head-score-refresh|final-release-exit-readiness-packet|overnight-beta-readiness-lock)\.md$/u.test(normalized)) {
     return "release_artifact_expected";
   }
-  if (/^docs\/agent-truth\/(analytics-panel-hydration|launch-analytics-recovery|source-agreement-failure-detail)\.md$/u.test(normalized)) {
+  if (/^docs\/agent-truth\/(analytics-panel-hydration|launch-analytics-recovery)\.md$/u.test(normalized)) {
     return "release_artifact_expected";
   }
   if (/^docs\/agent-truth\/(activity-verification-engine|current-beta-exit-status|evidence-capture-status|formal-evidence-bridge|live-evidence-gate-replacement|real-usage-confidence|real-usage-confidence-calibration|runtime-smoke-harness|runtime-smoke-substitute-matrix)\.md$/u.test(normalized)) {

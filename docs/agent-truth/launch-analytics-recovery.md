@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-19T10:23:33.380Z
-Current head: 36831a4021411471e003a1499767de094dec085e
+Generated: 2026-06-19T10:43:05.305Z
+Current head: 131ddd85186fbb6ca22f9b5cf4451eb7656929c4
 Status: source_agreement_failed
 
 ## Source Order
@@ -12,7 +12,7 @@ Status: source_agreement_failed
 
 ## Evidence Provenance
 
-- Launch coverage input: agent/state/source-agreement-failure-detail.generated.json
+- Launch coverage input: in_process_source_agreement_detail
 - Launch coverage input mode: fixture_only_local_window
 - Usable launch coverage input found: no
 - Candidate local/export inputs: agent/evidence/launch-analytics/launch-history-coverage.local.json, agent/evidence/launch-analytics/launch-history-coverage.export.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json

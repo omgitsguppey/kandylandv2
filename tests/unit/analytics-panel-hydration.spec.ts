@@ -201,13 +201,15 @@ describe("analytics panel hydration", () => {
     expect(livePanelEvidence.liveEvidencePanelIds).toContain("traffic_overview");
   });
 
-  it("refreshes source agreement before launch recovery consumes it", () => {
+  it("builds launch recovery from source agreement in-process instead of a generated report hop", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
-    const refreshIndex = source.indexOf("validateSourceAgreementFailureDetail();");
-    const panelIndex = source.indexOf("buildAnalyticsPanelHydrationReport({");
+    const agreementIndex = source.indexOf("buildLaunchSourceAgreementDetail();");
+    const recoveryIndex = source.indexOf("buildLaunchAnalyticsRecoveryReport({");
 
-    expect(refreshIndex).toBeGreaterThanOrEqual(0);
-    expect(panelIndex).toBeGreaterThan(refreshIndex);
+    expect(agreementIndex).toBeGreaterThanOrEqual(0);
+    expect(recoveryIndex).toBeGreaterThan(agreementIndex);
+    expect(source).not.toContain('readJson("agent/state/source-agreement-failure-detail.generated.json")');
+    expect(source).not.toContain("validateSourceAgreementFailureDetail();");
   });
 
   it("uses the canonical source-agreement classifier instead of local drift logic", () => {

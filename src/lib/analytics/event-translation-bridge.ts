@@ -761,10 +761,12 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "docs/agent-truth/launch-analytics-recovery.md") return "documentation_artifact_expected";
   if (normalized === "agent/evidence/admin-truth-sample/README.md") return "admin_truth_sample_launch_coverage_evidence_expected";
   if (normalized === "agent/evidence/admin-truth-sample/evidence.template.json") return "admin_truth_sample_launch_coverage_evidence_expected";
-  if (normalized === "agent/state/source-agreement-failure-detail.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/source-agreement-failure-detail.generated.json") return "retired_duplicate_source_agreement_lane_expected";
   if (normalized === "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json") return "current_generated_artifact_to_commit";
-  if (normalized === "docs/agent-truth/source-agreement-failure-detail.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/source-agreement-failure-detail.md") return "retired_duplicate_source_agreement_lane_expected";
   if (normalized === "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-source-agreement-failure-detail.ts") return "retired_duplicate_source_agreement_lane_expected";
+  if (normalized === "src/lib/release-readiness/automated-truth-reconciliation.ts") return "validator_artifact_expected";
   if (normalized === "src/lib/analytics/legacy-recovery-reconciler.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/analytics-legacy-recovery-reconciliation.spec.ts") return "test_artifact_expected";
