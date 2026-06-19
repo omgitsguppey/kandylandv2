@@ -536,7 +536,7 @@ export function DebugAdvancedDataValidation() {
                                             <summary className="cursor-pointer font-semibold text-gray-100">Technical evidence</summary>
                                             <div className="mt-2 space-y-1">
                                                 <p>{check.technicalEvidence || check.fullDetails || "No technical evidence recorded."}</p>
-                                                <p className="text-gray-500">Source notes: {check.sourceDetails || "not recorded"}</p>
+                                                <p className="text-gray-500">Source: {check.sourceDetails || "not recorded"}</p>
                                             </div>
                                         </details>
                                     </div>
