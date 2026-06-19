@@ -83,7 +83,7 @@ export function AdminModuleVerificationCard({
                         <span className="text-gray-200">
                         Last verified data available
                         {verification.verificationState === "fallback" && (
-                                <span className="ml-2 text-[10px] text-orange-300">Fallback labeled</span>
+                                <span className="ml-2 text-[10px] text-orange-300">Source labeled</span>
                         )}
                         </span>
                     </div>
