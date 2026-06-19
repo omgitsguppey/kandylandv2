@@ -1,13 +1,13 @@
 # Current Beta Exit Status
 
-Generated: 2026-06-19T15:45:19.546Z
+Generated: 2026-06-19T18:05:53.604Z
 
-Latest code version: 6814557860101ba2db6006ff37bbd670d9c8c0f0
+Latest code version: 79598a740b349732332b6e1751ca9d8f5b3933dc
 
 ## Summary
 
-- Beta version: 1.6.6
-- Beta score: 76.88
+- Beta version: 1.6.9
+- Beta score: 70.79
 - Beta status: External proof required
 - Visual evidence: source_surface_checks_current
 - Provider smoke: stale_provider_smoke_evidence
@@ -36,7 +36,7 @@ Latest code version: 6814557860101ba2db6006ff37bbd670d9c8c0f0
 
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
 - agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
-- agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
+- agent/state/evidence-capture-status.generated.json: Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:evidence-capture-status`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:source-truth-authority-map`.
@@ -48,14 +48,16 @@ Latest code version: 6814557860101ba2db6006ff37bbd670d9c8c0f0
 
 ## Remaining Blockers
 
+- P1 ui_source_coverage_stale: Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction.
 - P1 provider_smoke_evidence_missing: Attach redacted provider smoke evidence; source checks cannot create provider proof.
+- P1 runtime_smoke_evidence_stale: Attach deployed runtime smoke evidence for required user and creator routes.
 - P1 admin_truth_sample_evidence_missing: Attach a redacted admin truth sample artifact with source freshness.
 - P2 speed_security_owner_review_backlog: Keep speed/security P2 cost and route hardening backlog visible.
 
 ## Next Exact Steps
 
-- First evidence lane: deterministic UI source coverage. Use docs/agent-truth/ui-visual-smoke-minimal.md and npm run check:ui-visual-smoke-minimal before manual viewing.
-- UI route/flow source targets are owned by agent/state/ui-visual-smoke-minimal.generated.json; fix source-reported gaps before optional browser or screenshot reproduction.
+- First evidence lane: deterministic UI source coverage. Use docs/agent-truth/ui-visual-smoke-minimal.md and npm run check:ui-visual-smoke-minimal before optional browser reproduction.
+- UI route/flow source targets are owned by agent/state/ui-visual-smoke-minimal.generated.json; fix source-reported gaps before optional browser reproduction.
 - Second lane after UI source coverage: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.
 - Revenue smoke note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
 - Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.

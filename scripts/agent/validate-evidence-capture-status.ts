@@ -99,7 +99,6 @@ const uiSurfaceCoverageOwnedInputPaths = [
   "scripts/agent/validate-ui-visual-smoke-minimal.ts",
   "scripts/agent/check-ui-surface-coverage.ts",
   "src/lib/evidence/ui-visual-smoke-contract.ts",
-  "agent/evidence/ui-visual-smoke/template.json",
 ] as const;
 const evidenceCaptureOwnedInputPaths = [
   "scripts/agent/validate-evidence-capture-status.ts",
@@ -112,7 +111,6 @@ const evidenceCaptureOwnedInputPaths = [
   "src/lib/agent-score/refresh-registry.ts",
   "src/lib/agent-score/refresh-safeguards.ts",
   "src/lib/evidence/ui-visual-smoke-contract.ts",
-  "agent/evidence/ui-visual-smoke/template.json",
 ] as const;
 let currentCommitContext: { parentHead: string | null; changedFilesInHead: string[] } | null = null;
 
@@ -352,7 +350,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
   const sourceReadyEvidence = [
     options.laneStatuses.uiSurfaceCoverageEvidence === "complete"
       ? "UI surface coverage is source-checked; visual review is optional follow-up only after a source-reported UI issue."
-      : "UI surface coverage needs deterministic source validation before manual viewing.",
+      : "UI surface coverage needs deterministic source validation before optional browser reproduction.",
     "runtime watch-time source lane is source-ready but still needs deployed playback proof.",
     `live runtime evidence bridge: ${liveRuntimeEvidence.statusSummary}`,
   ];
@@ -431,7 +429,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     missingEvidence,
     completeEvidence,
     nextExactSteps: [
-      "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui before manual viewing; fix any source-reported UI surface gaps.",
+      "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui; fix any source-reported UI surface gaps before optional browser reproduction.",
       "Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.",
       "Run npm run capture:truthful-evidence to generate deployed runtime smoke evidence without provider/payment calls.",
       "Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.",

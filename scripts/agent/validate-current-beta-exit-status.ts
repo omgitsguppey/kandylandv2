@@ -184,7 +184,6 @@ const uiSurfaceCoverageOwnedInputPaths = [
   "scripts/agent/validate-ui-visual-smoke-minimal.ts",
   "scripts/agent/check-ui-surface-coverage.ts",
   "src/lib/evidence/ui-visual-smoke-contract.ts",
-  "agent/evidence/ui-visual-smoke/template.json",
 ] as const;
 
 function currentHead() {
@@ -484,7 +483,7 @@ export function buildProofLanes(input: {
       captureStatus: stringValue(input.captureSummary.uiSurfaceCoverageEvidence, "missing"),
       artifact: input.uiSurfaceCoverage,
       head: input.head,
-      nextAction: "Run deterministic UI surface coverage, admin browser surface smoke, and device UI checks before manual viewing.",
+      nextAction: "Run deterministic UI surface coverage, admin browser surface smoke, and device UI checks before optional browser reproduction.",
     }),
     buildProofLane({
       id: "providerSmoke",
@@ -619,7 +618,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
       severity: "P1" as const,
       status: summary.visualEvidenceStatus,
       evidence: [uiSurfaceCoverageRelativePath],
-      nextAction: "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui; fix source-reported UI gaps before manual viewing.",
+      nextAction: "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui; fix source-reported UI gaps before optional browser reproduction.",
     }]),
     ...(summary.providerSmokeStatus === "formal_provider_smoke_passed" ? [] : [{
       id: "provider-smoke",
@@ -644,7 +643,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
       refreshPlan.some((planEntry) => planEntry.artifactPath === entry.artifactPath && planEntry.needsRefresh)),
     remainingBlockers,
     nextExactSteps: [
-      "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui before manual viewing; fix any source-reported UI surface issue.",
+      "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui; fix any source-reported UI surface issue before optional browser reproduction.",
       "Use docs/agent-truth/ui-visual-smoke-minimal.md as the deterministic UI source coverage lane.",
       "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider proof.",
       "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed runtime smoke proof.",

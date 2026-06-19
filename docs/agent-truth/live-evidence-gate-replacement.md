@@ -5,8 +5,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Summary
 
-- Generated: `2026-06-17T01:16:12.829Z`
-- Current head: `42216dcbe460b441ad9af1c376971f3a932ec5dc`
+- Generated: `2026-06-19T18:04:27.418Z`
+- Current head: `79598a740b349732332b6e1751ca9d8f5b3933dc`
 - Status: `pass`
 
 ## Report
@@ -14,17 +14,15 @@ Validator: `npm run check:live-evidence-gate-replacement`
 ```json
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-06-17T01:16:12.829Z",
-  "currentHead": "42216dcbe460b441ad9af1c376971f3a932ec5dc",
+  "generatedAtUtc": "2026-06-19T18:04:27.418Z",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "broadManualGatesBefore": [
-    "operator-final visual QA",
     "manual production smoke",
     "admin truth/sample evidence",
     "runtime/provider smoke",
     "external billing review"
   ],
   "broadManualGatesAfter": [
-    "visual-only operator QA",
     "external provider proof",
     "external billing review",
     "source_missing live evidence lanes"
@@ -35,7 +33,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "beforeClass": "broad_manual",
       "afterClass": "live_route_health_evidence",
       "status": "source_missing_live_evidence",
-      "replacement": "split into live route/runtime evidence, live product journey evidence, external provider evidence, and visual-only QA",
+      "replacement": "split into live route/runtime evidence, live product journey evidence, external provider evidence, and source UI coverage",
       "reason": "A single manual smoke gate is too broad; each product system must use its live evidence source or be marked source_missing.",
       "blocksBetaExit": true
     },
@@ -44,7 +42,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "beforeClass": "mixed_manual_formal",
       "afterClass": "live_admin_truth_evidence",
       "status": "source_missing_live_evidence",
-      "replacement": "redacted live admin truth summary or redaction packet; screenshots are not evidence for admin truth",
+      "replacement": "redacted live admin truth summary or redaction packet; browser reproduction is not evidence for admin truth",
       "reason": "Admin truth must come from redacted summaries or source_missing classification.",
       "blocksBetaExit": true
     },
@@ -58,17 +56,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "blocksBetaExit": true
     }
   ],
-  "visualOnlyManualGatesRemaining": [
-    {
-      "gate": "operator-final visual QA",
-      "beforeClass": "broad_manual",
-      "afterClass": "visual_operator_evidence",
-      "status": "visual_only_manual",
-      "replacement": "visual layout QA only: nav overlap, clipping, readable text, responsive layout, and visual loading/empty/error states",
-      "reason": "Screenshots cannot prove backend, runtime, payment, telemetry, or journey behavior.",
-      "blocksBetaExit": true
-    }
-  ],
+  "visualOnlyManualGatesRemaining": [],
   "externalProviderGatesRemaining": [
     {
       "gate": "runtime/provider smoke",
@@ -112,8 +100,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -140,9 +128,9 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "freshness": 1
       },
       "betaExitImpact": "blocks_until_live_source_connected",
-      "fallbackIfMissing": "source_missing auth liveness must replace manual screenshot proof",
-      "reason": "No clearing live evidence source was found. source_missing auth liveness must replace manual screenshot proof.",
-      "nextExactAction": "Add or attach recent auth event facts or redacted session restore summary; classify missing lanes as source_missing, not manual screenshot blockers."
+      "fallbackIfMissing": "source_missing auth liveness must replace visual proof shortcuts",
+      "reason": "No clearing live evidence source was found. source_missing auth liveness must replace visual proof shortcuts.",
+      "nextExactAction": "Add or attach recent auth event facts or redacted session restore summary; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "wallet_payment_gumdrop_ledger",
@@ -156,16 +144,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "ledger_summary",
           "clearsLiveGate": false,
           "sourceStatus": "operator_confirmed",
-          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-          "generatedAtUtc": "2026-06-01T00:00:55.634Z"
+          "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
+          "generatedAtUtc": "2026-06-19T16:01:04.591Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "provider_required",
@@ -207,8 +195,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -253,7 +241,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "classify live drop liveness as source_missing instead of asking screenshots to prove watch/unlock behavior",
       "reason": "No clearing live evidence source was found. classify live drop liveness as source_missing instead of asking screenshots to prove watch/unlock behavior.",
-      "nextExactAction": "Add or attach drop event facts, watch summaries, and journey summaries; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach drop event facts, watch summaries, and journey summaries; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "creator_profile_discovery_follow",
@@ -267,8 +255,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
@@ -304,7 +292,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source_missing creator liveness remains a live evidence blocker, not a visual QA item",
       "reason": "No clearing live evidence source was found. source_missing creator liveness remains a live evidence blocker, not a visual QA item.",
-      "nextExactAction": "Add or attach creator profile/follow/discovery event facts; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach creator profile/follow/discovery event facts; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "creator_monetization_fan_pass_entitlements",
@@ -318,16 +306,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "ledger_summary",
           "clearsLiveGate": false,
           "sourceStatus": "operator_confirmed",
-          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-          "generatedAtUtc": "2026-06-01T00:00:55.634Z"
+          "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
+          "generatedAtUtc": "2026-06-19T16:01:04.591Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "provider_required",
@@ -369,16 +357,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "815177718fc1610590762fdae5d76b3ae390a2ae",
-          "generatedAtUtc": "2026-06-03T22:38:14.305Z"
+          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -405,7 +393,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "redacted chat live evidence source is required; screenshots prove layout only",
       "reason": "No clearing live evidence source was found. redacted chat live evidence source is required; screenshots prove layout only.",
-      "nextExactAction": "Add or attach chat event facts and redacted error summaries; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach chat event facts and redacted error summaries; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "daily_tasks_reward_reset",
@@ -419,8 +407,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -455,7 +443,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "task reward proof stays in event/ledger summaries, not screenshots",
       "reason": "No clearing live evidence source was found. task reward proof stays in event/ledger summaries, not screenshots.",
-      "nextExactAction": "Add or attach daily task event facts and reward ledger summary; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach daily task event facts and reward ledger summary; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "notifications_pwa_permission_token_intent",
@@ -477,8 +465,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -505,7 +493,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "operator visual QA only checks prompt layout, not token registration truth",
       "reason": "No clearing live evidence source was found. operator visual QA only checks prompt layout, not token registration truth.",
-      "nextExactAction": "Add or attach notification prompt/token/intent summaries with raw tokens redacted; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach notification prompt/token/intent summaries with raw tokens redacted; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "account_settings_delete_export_support",
@@ -519,8 +507,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
@@ -555,7 +543,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "screenshots do not prove support/account action backend behavior",
       "reason": "No clearing live evidence source was found. screenshots do not prove support/account action backend behavior.",
-      "nextExactAction": "Add or attach account/support action summaries with PII redacted; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach account/support action summaries with PII redacted; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "media_upload_access",
@@ -569,8 +557,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "815177718fc1610590762fdae5d76b3ae390a2ae",
-          "generatedAtUtc": "2026-06-03T22:38:14.305Z"
+          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
         },
         {
           "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
@@ -605,7 +593,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source contract can guide checks but cannot clear live media evidence",
       "reason": "No clearing live evidence source was found. source contract can guide checks but cannot clear live media evidence.",
-      "nextExactAction": "Add or attach media upload/access block summaries without private URLs; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach media upload/access block summaries without private URLs; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "search_discovery",
@@ -619,8 +607,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
@@ -655,7 +643,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source_missing search liveness remains a live evidence issue",
       "reason": "No clearing live evidence source was found. source_missing search liveness remains a live evidence issue.",
-      "nextExactAction": "Add or attach search/discovery event facts; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach search/discovery event facts; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "admin_debug_user_management",
@@ -677,8 +665,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "815177718fc1610590762fdae5d76b3ae390a2ae",
-          "generatedAtUtc": "2026-06-03T22:38:14.305Z"
+          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "admin_truth_source_required",
@@ -705,7 +693,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "admin truth remains source_missing/formal_missing unless a redacted summary is attached",
       "reason": "No clearing live evidence source was found. admin truth remains source_missing/formal_missing unless a redacted summary is attached.",
-      "nextExactAction": "Add or attach redacted admin truth summary or admin debug snapshot; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach redacted admin truth summary or admin debug snapshot; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "route_runtime_error_health",
@@ -727,8 +715,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "815177718fc1610590762fdae5d76b3ae390a2ae",
-          "generatedAtUtc": "2026-06-03T22:38:14.305Z"
+          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
@@ -830,8 +818,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -858,9 +846,9 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "freshness": 1
       },
       "betaExitImpact": "blocks_until_live_source_connected",
-      "fallbackIfMissing": "source_missing auth liveness must replace manual screenshot proof",
-      "reason": "No clearing live evidence source was found. source_missing auth liveness must replace manual screenshot proof.",
-      "nextExactAction": "Add or attach recent auth event facts or redacted session restore summary; classify missing lanes as source_missing, not manual screenshot blockers."
+      "fallbackIfMissing": "source_missing auth liveness must replace visual proof shortcuts",
+      "reason": "No clearing live evidence source was found. source_missing auth liveness must replace visual proof shortcuts.",
+      "nextExactAction": "Add or attach recent auth event facts or redacted session restore summary; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "drops_open_unlock_unwrap_watch",
@@ -874,8 +862,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -920,7 +908,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "classify live drop liveness as source_missing instead of asking screenshots to prove watch/unlock behavior",
       "reason": "No clearing live evidence source was found. classify live drop liveness as source_missing instead of asking screenshots to prove watch/unlock behavior.",
-      "nextExactAction": "Add or attach drop event facts, watch summaries, and journey summaries; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach drop event facts, watch summaries, and journey summaries; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "creator_profile_discovery_follow",
@@ -934,8 +922,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
@@ -971,7 +959,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source_missing creator liveness remains a live evidence blocker, not a visual QA item",
       "reason": "No clearing live evidence source was found. source_missing creator liveness remains a live evidence blocker, not a visual QA item.",
-      "nextExactAction": "Add or attach creator profile/follow/discovery event facts; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach creator profile/follow/discovery event facts; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "chat_open_thread_message_block_error",
@@ -985,16 +973,16 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "815177718fc1610590762fdae5d76b3ae390a2ae",
-          "generatedAtUtc": "2026-06-03T22:38:14.305Z"
+          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -1021,7 +1009,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "redacted chat live evidence source is required; screenshots prove layout only",
       "reason": "No clearing live evidence source was found. redacted chat live evidence source is required; screenshots prove layout only.",
-      "nextExactAction": "Add or attach chat event facts and redacted error summaries; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach chat event facts and redacted error summaries; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "daily_tasks_reward_reset",
@@ -1035,8 +1023,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -1071,7 +1059,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "task reward proof stays in event/ledger summaries, not screenshots",
       "reason": "No clearing live evidence source was found. task reward proof stays in event/ledger summaries, not screenshots.",
-      "nextExactAction": "Add or attach daily task event facts and reward ledger summary; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach daily task event facts and reward ledger summary; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "notifications_pwa_permission_token_intent",
@@ -1093,8 +1081,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -1121,7 +1109,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "operator visual QA only checks prompt layout, not token registration truth",
       "reason": "No clearing live evidence source was found. operator visual QA only checks prompt layout, not token registration truth.",
-      "nextExactAction": "Add or attach notification prompt/token/intent summaries with raw tokens redacted; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach notification prompt/token/intent summaries with raw tokens redacted; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "account_settings_delete_export_support",
@@ -1135,8 +1123,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
@@ -1171,7 +1159,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "screenshots do not prove support/account action backend behavior",
       "reason": "No clearing live evidence source was found. screenshots do not prove support/account action backend behavior.",
-      "nextExactAction": "Add or attach account/support action summaries with PII redacted; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach account/support action summaries with PII redacted; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "media_upload_access",
@@ -1185,8 +1173,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "815177718fc1610590762fdae5d76b3ae390a2ae",
-          "generatedAtUtc": "2026-06-03T22:38:14.305Z"
+          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
         },
         {
           "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
@@ -1221,7 +1209,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source contract can guide checks but cannot clear live media evidence",
       "reason": "No clearing live evidence source was found. source contract can guide checks but cannot clear live media evidence.",
-      "nextExactAction": "Add or attach media upload/access block summaries without private URLs; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach media upload/access block summaries without private URLs; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "search_discovery",
@@ -1235,8 +1223,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "f31aba5c8ab9d78af0e62ede79ef647570072394",
-          "generatedAtUtc": "2026-06-16T18:46:27.603Z"
+          "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+          "generatedAtUtc": "2026-06-19T14:47:30.353Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
@@ -1271,7 +1259,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source_missing search liveness remains a live evidence issue",
       "reason": "No clearing live evidence source was found. source_missing search liveness remains a live evidence issue.",
-      "nextExactAction": "Add or attach search/discovery event facts; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach search/discovery event facts; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "admin_debug_user_management",
@@ -1293,8 +1281,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "815177718fc1610590762fdae5d76b3ae390a2ae",
-          "generatedAtUtc": "2026-06-03T22:38:14.305Z"
+          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "admin_truth_source_required",
@@ -1321,7 +1309,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "admin truth remains source_missing/formal_missing unless a redacted summary is attached",
       "reason": "No clearing live evidence source was found. admin truth remains source_missing/formal_missing unless a redacted summary is attached.",
-      "nextExactAction": "Add or attach redacted admin truth summary or admin debug snapshot; classify missing lanes as source_missing, not manual screenshot blockers."
+      "nextExactAction": "Add or attach redacted admin truth summary or admin debug snapshot; classify missing lanes as source_missing, not visual proof blockers."
     },
     {
       "systemId": "route_runtime_error_health",
@@ -1343,8 +1331,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "815177718fc1610590762fdae5d76b3ae390a2ae",
-          "generatedAtUtc": "2026-06-03T22:38:14.305Z"
+          "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+          "generatedAtUtc": "2026-06-19T14:34:02.017Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
@@ -1393,15 +1381,14 @@ Validator: `npm run check:live-evidence-gate-replacement`
     "Route runtime/error health: runtime_export_required",
     "Cost/runtime/4xx summaries: billing_required",
     "external provider proof",
-    "external billing review",
-    "visual-only operator QA"
+    "external billing review"
   ],
   "nextExactSteps": [
     "Connect safe lastSeen/live event summaries for source_missing product systems.",
     "Attach redacted deployed route/runtime evidence for route health.",
     "Attach redacted provider/payment proof for PayPal/provider flows.",
     "Attach external billing review for cost lanes.",
-    "Limit operator screenshots to layout, clipping, readability, responsive, and visual state checks."
+    "Keep deterministic UI source coverage current; use browser reproduction only for source-reported issues."
   ],
   "validationFailures": [],
   "status": "pass",
@@ -1421,7 +1408,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or operator-final visual QA unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a formal artifact for that category.
 
 ## Validation
 

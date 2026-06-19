@@ -5,8 +5,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
 
 ## Summary
 
-- Generated: `2026-06-01T04:50:14.428Z`
-- Current head: `c525024240902c3f2ca716c01015c3cb6b25997b`
+- Generated: `2026-06-19T18:08:31.766Z`
+- Current head: `79598a740b349732332b6e1751ca9d8f5b3933dc`
 - Status: `pass`
 
 ## Report
@@ -14,34 +14,34 @@ Validator: `npm run check:final-release-exit-readiness-packet`
 ```json
 {
   "reportKey": "final-release-exit-readiness-packet",
-  "generatedAtUtc": "2026-06-01T04:50:14.428Z",
-  "currentHead": "c525024240902c3f2ca716c01015c3cb6b25997b",
-  "scoreBefore": 78.03,
-  "scoreAfter": 78.03,
+  "generatedAtUtc": "2026-06-19T18:08:31.766Z",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "scoreBefore": 70.79,
+  "scoreAfter": 70.79,
   "scoreDimensions": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 71.2,
+    "evidenceCompleteness": 43.4,
     "freshness": 75.63,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 78.03
+    "regressionRisk": 94,
+    "overallHealthScore": 70.79
   },
   "betaExitReady": false,
   "launchGateStatus": "owner_review",
   "launchBlockers": [
-    "Runtime/provider smoke: Runtime unverified",
-    "Admin truth/sample evidence: Ready with smoke required",
+    "Runtime/provider smoke: External proof required",
+    "Admin truth/sample evidence: External proof required",
     "Report freshness and PR integrity: Stale evidence"
   ],
   "blockerClassifications": [
     {
-      "blocker": "Runtime/provider smoke: Runtime unverified",
+      "blocker": "Runtime/provider smoke: External proof required",
       "classification": "split_live_runtime_and_external_provider_required",
       "nextExactAction": "Attach deployed live route/runtime evidence where available and formal provider proof for provider flows."
     },
     {
-      "blocker": "Admin truth/sample evidence: Ready with smoke required",
+      "blocker": "Admin truth/sample evidence: External proof required",
       "classification": "live_admin_truth_or_redacted_sample_required",
       "nextExactAction": "Attach a redacted live admin truth summary or classify the source as source_missing."
     },
@@ -82,7 +82,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
       "nextExactAction": "Connect redacted live route/runtime summaries for source_missing product systems.",
-      "whatItDoesNotProve": "Source-safe route harnesses and screenshots do not prove deployed runtime behavior."
+      "whatItDoesNotProve": "Source-safe route harnesses and browser reproduction do not prove deployed runtime behavior."
     },
     {
       "category": "external provider proof",
@@ -101,15 +101,15 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "owner": "operator/admin owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach a redacted live admin truth summary or keep admin truth source_missing; screenshots cannot clear this gate.",
-      "whatItDoesNotProve": "Admin source schema and screenshots do not prove production admin truth."
+      "nextExactAction": "Attach a redacted live admin truth summary or keep admin truth source_missing; browser reproduction cannot clear this gate.",
+      "whatItDoesNotProve": "Admin source schema and browser reproduction do not prove production admin truth."
     },
     {
       "category": "debug/runtime evidence",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
-      "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
-      "generatedAtUtc": "2026-05-25T05:51:35.791Z",
+      "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+      "generatedAtUtc": "2026-06-19T14:34:02.017Z",
       "owner": "debug/runtime evidence owner",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
@@ -132,8 +132,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "category": "evidence bridge",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
-      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-      "generatedAtUtc": "2026-06-01T00:01:19.662Z",
+      "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
+      "generatedAtUtc": "2026-06-03T18:49:48.720Z",
       "owner": "evidence bridge owner",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
@@ -162,23 +162,23 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     },
     {
       "category": "PR integrity",
-      "status": "formal_passed",
+      "status": "external_review_required",
       "artifactPath": "agent/state/open-pr-dependency-hygiene.generated.json",
       "owner": "repo maintainer",
-      "blocksBetaExit": false,
+      "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "No open PR action remains.",
+      "nextExactAction": "Review, cherry-pick, defer, or close every classified open PR.",
       "whatItDoesNotProve": "Classifying an open PR does not merge, test, or close it."
     },
     {
-      "category": "operator-final visual QA",
-      "status": "operator_final_pending",
+      "category": "UI source coverage",
+      "status": "source_confidence_only",
       "artifactPath": "agent/state/operator-final-qa-packet.generated.json",
-      "owner": "operator",
-      "blocksBetaExit": true,
+      "owner": "UI source coverage",
+      "blocksBetaExit": false,
       "blocksScoreOnly": false,
-      "nextExactAction": "Operator captures final screenshots only for nav overlap, clipping, unreadable text, responsive layout, and visual loading/empty/error states.",
-      "whatItDoesNotProve": "Visual QA does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys."
+      "nextExactAction": "Run deterministic UI source coverage first; use browser viewing only to reproduce a source-reported UI issue.",
+      "whatItDoesNotProve": "UI source coverage does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys."
     },
     {
       "category": "external billing review",
@@ -204,13 +204,13 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     ]
   },
   "openPrDependencyStatus": {
-    "openPrCount": 0,
+    "openPrCount": 14,
     "unclassifiedOpenPrCount": 0,
-    "securityPrCount": 0,
+    "securityPrCount": 3,
     "dependencyPrCount": 0
   },
   "operatorFinalQaPacket": {
-    "status": "operator_pending",
+    "status": "source_checked",
     "surfaceCount": 16
   },
   "rollbackIncidentReadiness": {
@@ -219,18 +219,17 @@ Validator: `npm run check:final-release-exit-readiness-packet`
   },
   "releaseNotesIntegrity": {
     "status": "pass",
-    "currentVersion": "1.5.30"
+    "currentVersion": "1.6.9"
   },
   "liveEvidenceGateReplacement": {
     "status": "split_ready",
     "broadManualGatesAfter": [
-      "visual-only operator QA",
       "external provider proof",
       "external billing review",
       "source_missing live evidence lanes"
     ],
     "sourceMissingLiveEvidenceCount": 11,
-    "visualOnlyManualGateCount": 1,
+    "visualOnlyManualGateCount": 0,
     "externalProviderGateCount": 1,
     "externalBillingGateCount": 1
   },
@@ -240,7 +239,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     "nextExactAction": "Complete external billing review; source guards alone cannot lift costRisk above formal review."
   },
   "evidenceCompletenessStatus": {
-    "score": 69.6,
+    "score": 43.4,
     "status": "below80_requires_formal_evidence",
     "nextExactAction": "Attach missing formal runtime/provider/admin evidence."
   },
@@ -250,37 +249,344 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     "nextExactAction": "Refresh stale required artifacts through their owning validators."
   },
   "remainingManualItems": [
-    "visual-only operator QA",
     "source_missing live evidence lanes",
-    "external billing review"
+    "external billing review",
+    "open PR owner review"
   ],
   "remainingFormalEvidence": [
     "live route/runtime evidence",
     "external provider proof",
     "admin live truth/redacted sample evidence",
     "cost review",
-    "operator-final visual QA",
+    "PR integrity",
     "external billing review"
   ],
   "remainingCostReview": [
     "external billing review"
   ],
-  "remainingOpenPrs": [],
+  "remainingOpenPrs": [
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "sentinel-fix-open-redirect-1347886065350832927",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 319,
+      "title": "🛡️ Sentinel: [High] Fix Open Redirect via Protocol-Relative URLs",
+      "updatedAt": "2026-06-01T14:58:58Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/319",
+      "classification": "security_pr_to_cherry_pick",
+      "dependencyRiskClass": "security_required",
+      "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
+      "nextExactAction": "Review PR #319, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "palette-a11y-authmodal-2654982951851685462",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 318,
+      "title": "🎨 Palette: Add aria-busy to AuthModal buttons",
+      "updatedAt": "2026-06-01T14:01:48Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/318",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #318 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "perf-roi-reduce-consolidations-14067805062270801467",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 317,
+      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
+      "updatedAt": "2026-06-01T06:20:22Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/317",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #317 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "audit-package-metadata-truth-1497740664267124516",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 316,
+      "title": "💸 Audit package metadata and source-of-funds truth",
+      "updatedAt": "2026-06-01T05:42:18Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/316",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #316 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "bolt/admin-debug-map-opt-213346278194803363",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 315,
+      "title": "⚡ Bolt: Replace array .find() with Map lookup in admin rollout payload generation",
+      "updatedAt": "2026-05-31T14:51:12Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/315",
+      "classification": "performance_pr_to_merge",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Small performance PR is useful, but must not supersede current source or import scratch work.",
+      "nextExactAction": "Review PR #315 against current source and cherry-pick only the isolated performance change if tests stay green.",
+      "blocksBetaExit": false
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "fix/telemetry-duplicate-emitters-11649125212719485327",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 314,
+      "title": "🧾 Clean canonical event drift at source",
+      "updatedAt": "2026-05-31T06:23:35Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/314",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #314 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "palette-admin-drop-actions-aria-6574278176871202437",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 313,
+      "title": "🎨 Palette: Add ARIA labels to Admin Drop actions",
+      "updatedAt": "2026-05-30T14:03:52Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/313",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #313 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "jules-14704806215188152015-93bcc93b",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 312,
+      "title": "⚡ Harden realtime truth for user-facing runtime surfaces",
+      "updatedAt": "2026-05-30T05:48:15Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/312",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #312 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "sentinel-fix-insecure-logging-13242051404096887413",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 311,
+      "title": "🛡️ Sentinel: [Medium] Fix insecure error logging exposing stack traces in API routes",
+      "updatedAt": "2026-05-29T14:56:53Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/311",
+      "classification": "security_pr_to_cherry_pick",
+      "dependencyRiskClass": "security_required",
+      "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
+      "nextExactAction": "Review PR #311, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "palette-a11y-loading-spinners-11159933451978649122",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 309,
+      "title": "🎨 Palette: Improve accessibility of loading states in creator components",
+      "updatedAt": "2026-05-28T14:06:27Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/309",
+      "classification": "accessibility_pr_to_merge",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Small accessibility PR is useful, but still needs current-source review before landing.",
+      "nextExactAction": "Review PR #309 against current source and cherry-pick only the isolated accessibility improvement if it is still relevant.",
+      "blocksBetaExit": false
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "fix-package-metadata-drift-15126715638404472047",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 308,
+      "title": "💸 Audit package metadata and source-of-funds truth",
+      "updatedAt": "2026-05-28T05:32:22Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/308",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #308 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "fix/audit-blocked-monoliths-4925370503856207553",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 307,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "updatedAt": "2026-05-28T05:30:58Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/307",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Governance/product-scope PR overlaps release readiness and needs human ordering rather than automatic merge.",
+      "nextExactAction": "Manually review PR #307; defer or close if superseded by current release-readiness and hardening artifacts.",
+      "blocksBetaExit": false
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "jules-3371789224141227862-63440648",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 306,
+      "title": "🛡️ Sentinel: [MEDIUM] Replace console.warn with secure recordRouteWarning in creator settings API",
+      "updatedAt": "2026-05-27T15:25:12Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/306",
+      "classification": "security_pr_to_cherry_pick",
+      "dependencyRiskClass": "security_required",
+      "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
+      "nextExactAction": "Review PR #306, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "palette-aria-busy-14300042610281216085",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 305,
+      "title": "🎨 Palette: Add aria-busy to async buttons",
+      "updatedAt": "2026-05-27T13:59:22Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/305",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #305 before beta-exit signoff.",
+      "blocksBetaExit": true
+    }
+  ],
   "nextExactSteps": [
     "Connect redacted live evidence sources for source_missing product systems.",
     "Attach formal provider proof for external PayPal/provider flows.",
     "Attach redacted live admin truth summary or production admin truth sample evidence.",
     "Complete external billing review.",
-    "Keep open PR list empty or explicitly deferred before beta-exit signoff.",
-    "Operator completes final visual-only QA packet for layout and responsive checks."
+    "Review/cherry-pick/defer/close all open PRs.",
+    "Keep deterministic UI source coverage current; use optional visual reproduction only for source-reported UI issues."
   ],
-  "validationFailures": []
+  "validationFailures": [],
+  "status": "pass",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "doesNotProve": [
+    "Does not prove deployed runtime behavior.",
+    "Does not prove provider smoke success.",
+    "Does not prove current admin truth samples.",
+    "Does not prove external billing or GitHub PR state unless an opt-in fresh evidence artifact says so."
+  ]
 }
 ```
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or operator-final visual QA unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a formal artifact for that category.
 
 ## Validation
 

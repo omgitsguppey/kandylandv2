@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import {
@@ -7,15 +7,12 @@ import {
   buildUiVisualSmokeMinimalReport,
   validateUiVisualSmokeMinimalReport,
   type UiVisualSmokeMinimalReport,
-  type UiVisualSmokeSurfaceEvidence,
 } from "../../src/lib/evidence/ui-visual-smoke-contract";
 import { checkUiSurfaceCoverage } from "./check-ui-surface-coverage";
 
 const ROOT = process.cwd();
 const ARTIFACT_PATH = "agent/state/ui-visual-smoke-minimal.generated.json";
 const DOC_PATH = "docs/agent-truth/ui-visual-smoke-minimal.md";
-const TEMPLATE_PATH = "agent/evidence/ui-visual-smoke/template.json";
-const OPTIONAL_EVIDENCE_PATH = "agent/evidence/ui-visual-smoke/evidence.json";
 
 function git(args: string[]) {
   try {
@@ -23,47 +20,6 @@ function git(args: string[]) {
   } catch {
     return "";
   }
-}
-
-function readJson(path: string): Record<string, unknown> | null {
-  const fullPath = join(ROOT, path);
-  if (!existsSync(fullPath)) return null;
-  try {
-    const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as unknown;
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? parsed as Record<string, unknown>
-      : null;
-  } catch {
-    return null;
-  }
-}
-
-function readString(value: unknown) {
-  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
-}
-
-function readBoolean(value: unknown) {
-  return typeof value === "boolean" ? value : undefined;
-}
-
-function readEvidenceSurfaces() {
-  const parsed = readJson(OPTIONAL_EVIDENCE_PATH);
-  if (!parsed || !Array.isArray(parsed.surfaces)) return undefined;
-  return parsed.surfaces
-    .filter((surface): surface is Partial<UiVisualSmokeSurfaceEvidence> =>
-      Boolean(surface) && typeof surface === "object" && !Array.isArray(surface),
-    )
-    .map((surface) => ({
-      ...surface,
-      surfaceId: readString(surface.surfaceId),
-      surfaceGroup: readString(surface.surfaceGroup),
-      route: readString(surface.route),
-      requiresVisualSmokeReason: readString(surface.requiresVisualSmokeReason),
-      screenshotArtifactPath: readString(surface.screenshotArtifactPath),
-      operatorConfirmed: readBoolean(surface.operatorConfirmed),
-      operatorNote: readString(surface.operatorNote),
-      blocksScoreForUiOnly: readBoolean(surface.blocksScoreForUiOnly),
-    }));
 }
 
 function write(path: string, value: string) {
@@ -126,7 +82,7 @@ function renderDoc(report: UiVisualSmokeMinimalReport) {
     "",
     "Status: deterministic source-owned UI surface coverage lane.",
     "",
-    "This lane lets the codebase tell on itself before any manual viewing. Screenshots are optional follow-up evidence only when a source/UI-surface check identifies a visual issue to reproduce.",
+    "This lane lets the codebase tell on itself before optional browser reproduction. Browser checks are follow-up only when a source/UI-surface check identifies a visual issue to reproduce.",
     "",
     "## Summary",
     "",
@@ -157,11 +113,6 @@ function renderDoc(report: UiVisualSmokeMinimalReport) {
     "- Production admin truth samples",
     "- Payment or GumDrop treasury truth",
     "",
-    "## Template",
-    "",
-    `- Template path: ${TEMPLATE_PATH}`,
-    "- The template is optional context only. It is not required to clear UI source coverage and does not clear provider, runtime, admin, or payment gates.",
-    "",
     "## Next Exact Steps",
     "",
     ...report.nextExactSteps.map((step) => `- ${step}`),
@@ -173,10 +124,9 @@ const currentHead = git(["rev-parse", "HEAD"]);
 const report = buildUiVisualSmokeMinimalReport({
   currentHead,
   generatedAtUtc: new Date().toISOString(),
-  surfaces: readEvidenceSurfaces(),
 });
 const failures = [
-  ...validateUiVisualSmokeMinimalReport(report, { templateExists: existsSync(join(ROOT, TEMPLATE_PATH)) }),
+  ...validateUiVisualSmokeMinimalReport(report),
   ...assertScoreIntegration(),
   ...assertChangedUiSurfacesCovered(),
   ...assertDeterministicUiSourceCoverage(),

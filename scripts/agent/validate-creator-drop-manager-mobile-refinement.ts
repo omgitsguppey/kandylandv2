@@ -236,7 +236,7 @@ export function buildCreatorDropManagerMobileRefinementReport(): Report {
     ],
     prCleanupActions: [],
     nextFixOrder: [
-      "Attach manual mobile screenshot evidence for /dashboard/creator/drops after deployment.",
+      "Run deterministic UI source coverage for /dashboard/creator/drops; use browser reproduction only if it reports a concrete mobile drop-manager issue.",
       "Consider admin queue density refinements if pending creator submissions increase.",
     ],
   };

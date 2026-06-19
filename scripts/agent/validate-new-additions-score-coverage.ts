@@ -258,6 +258,39 @@ function changedFiles() {
 }
 
 function classifyDirtyFile(path: string): DirtyFileClassification {
+  const retiredVisualEvidencePaths = new Set([
+    "agent/evidence/admin-browser-surface-smoke/evidence.json",
+    "agent/evidence/admin-browser-surface-smoke/template.json",
+    "agent/evidence/ui-visual-smoke/README.md",
+    "agent/evidence/ui-visual-smoke/template.json",
+  ]);
+  const validatorPaths = new Set([
+    "scripts/agent/score-public-beta-readiness.ts",
+    "scripts/agent/validate-admin-browser-surface-smoke.ts",
+    "scripts/agent/validate-admin-debug-control-tower.ts",
+    "scripts/agent/validate-codex-visual-gate-removal.ts",
+    "scripts/agent/validate-current-beta-exit-status.ts",
+    "scripts/agent/validate-evidence-capture-status.ts",
+    "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+    "scripts/agent/validate-score-80-reconciliation-lock.ts",
+    "scripts/agent/validate-ui-visual-smoke-minimal.ts",
+  ]);
+  const sourcePaths = new Set([
+    "src/lib/agent-score/algorithmic-evidence-policy.ts",
+    "src/lib/agent-score/core.ts",
+    "src/lib/evidence/admin-browser-surface-smoke-contract.ts",
+    "src/lib/evidence/ui-visual-smoke-contract.ts",
+  ]);
+  const testPaths = new Set([
+    "tests/unit/admin-browser-surface-smoke.spec.ts",
+    "tests/unit/current-beta-exit-status.spec.ts",
+    "tests/unit/ui-visual-smoke-minimal.spec.ts",
+  ]);
+
+  if (retiredVisualEvidencePaths.has(path)) return "documentation_artifact_expected";
+  if (validatorPaths.has(path)) return "validator_artifact_expected";
+  if (sourcePaths.has(path)) return "real_source_change_needs_review";
+  if (testPaths.has(path)) return "test_artifact_expected";
   if (/^agent\/state\/.+\.generated\.json$/u.test(path)) return "current_generated_artifact_to_commit";
   if (/^agent\/context\/.+\.generated\.json$/u.test(path)) return "unrelated_agent_context_file_to_ignore";
   if (/^docs\/agent-truth\/.+\.md$/u.test(path)) return "documentation_artifact_expected";

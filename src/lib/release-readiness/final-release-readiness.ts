@@ -28,8 +28,7 @@ export type EvidenceStatus =
   | "formal_missing"
   | "stale"
   | "in_flight"
-  | "not_required"
-  | "operator_final_pending";
+  | "not_required";
 
 export type ArtifactFreshnessStatus =
   | "current"
@@ -151,7 +150,7 @@ export type OperatorQaSurface = {
   route: string;
   role: string;
   device: Array<"mobile" | "tablet" | "desktop">;
-  screenshotRequired: boolean;
+  browserReproductionRequired: boolean;
   checks: string[];
   status: "source_checked" | "operator_confirmed" | "failed" | "not_required";
   nextExactAction: string;
@@ -758,7 +757,7 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
       nextExactAction: sourceMissingLiveEvidenceCount > 0
         ? "Connect redacted live route/runtime summaries for source_missing product systems."
         : "Attach deployed route/runtime summary evidence before clearing this gate.",
-      whatItDoesNotProve: "Source-safe route harnesses and screenshots do not prove deployed runtime behavior.",
+      whatItDoesNotProve: "Source-safe route harnesses and browser reproduction do not prove deployed runtime behavior.",
     },
     {
       category: "external provider proof",
@@ -777,8 +776,8 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
       owner: "operator/admin owner",
       blocksBetaExit: true,
       blocksScoreOnly: false,
-      nextExactAction: "Attach a redacted live admin truth summary or keep admin truth source_missing; screenshots cannot clear this gate.",
-      whatItDoesNotProve: "Admin source schema and screenshots do not prove production admin truth.",
+      nextExactAction: "Attach a redacted live admin truth summary or keep admin truth source_missing; browser reproduction cannot clear this gate.",
+      whatItDoesNotProve: "Admin source schema and browser reproduction do not prove production admin truth.",
     },
     {
       category: "debug/runtime evidence",
@@ -853,7 +852,7 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
       owner: "UI source coverage",
       blocksBetaExit: false,
       blocksScoreOnly: false,
-      nextExactAction: "Run deterministic UI source coverage first; use browser viewing or screenshots only to reproduce a source-reported UI issue.",
+      nextExactAction: "Run deterministic UI source coverage first; use browser viewing only to reproduce a source-reported UI issue.",
       whatItDoesNotProve: "UI source coverage does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys.",
     },
     {
@@ -914,10 +913,10 @@ function operatorSurfaces(): OperatorQaSurface[] {
     route: route as string,
     role: role as string,
     device: device as Array<"mobile" | "tablet" | "desktop">,
-    screenshotRequired: false,
+    browserReproductionRequired: false,
     checks,
     status: "source_checked" as const,
-    nextExactAction: `Keep ${surfaceId} in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.`,
+    nextExactAction: `Keep ${surfaceId} in deterministic UI source coverage; use browser reproduction only for source-reported issues.`,
     notes: "Outside Codex score gates; source coverage owns the first-pass UI issue detection.",
   }));
 }
@@ -1462,7 +1461,6 @@ export function buildFinalReleaseExitReadinessPacketReport(context: ReleaseReadi
       nextExactAction: freshnessScore < 80 ? "Refresh stale required artifacts through their owning validators." : "Keep current-head artifacts fresh after this commit.",
     },
     remainingManualItems: [
-      "visual-only operator QA",
       "source_missing live evidence lanes",
       "external billing review",
       ...(context.openPrs.length > 0 ? ["open PR owner review"] : []),
@@ -1495,7 +1493,7 @@ export function validateFinalReleaseExitReadinessPacketReport(report: FinalRelea
   if (!report.adminTruthRedactionPacket) failures.push("admin truth packet missing.");
   if (!report.liveEvidenceGateReplacement) failures.push("live evidence gate replacement missing.");
   if (report.remainingManualItems.some((item) => /manual production smoke/iu.test(item))) failures.push("manual production smoke remains broad instead of split by evidence class.");
-  if (report.remainingManualItems.some((item) => /operator-final visual QA/iu.test(item))) failures.push("retired manual UI gate detected; use UI source coverage with optional reproduction only.");
+  if (report.remainingManualItems.some((item) => /\b(ui|visual|browser)\b/iu.test(item))) failures.push("UI reproduction must not remain a manual beta-exit item; use source coverage with optional reproduction only.");
   if (report.releaseNotesIntegrity.status !== "pass") failures.push("release notes stale.");
   if (report.costRiskStatus.score < 80 && !report.costRiskStatus.nextExactAction) failures.push("cost risk below80 lacks exact reason/action.");
   if (report.evidenceCompletenessStatus.score < 80 && !report.evidenceCompletenessStatus.nextExactAction) failures.push("evidence completeness below80 lacks exact reason/action.");

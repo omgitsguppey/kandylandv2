@@ -184,7 +184,7 @@ export function buildCreatorFanPassCrmBroadcastReport(): CreatorFanPassCrmBroadc
     ],
     prCleanupActions: [],
     nextFixOrder: [
-      "Attach mobile screenshot evidence for Fan Pass CRM after deployment.",
+      "Run deterministic UI source coverage for Fan Pass CRM; use browser reproduction only if it reports a concrete CRM issue.",
       "Add selectable Fan Pass subscriber or segment audiences only after route delivery semantics are implemented.",
     ],
   };

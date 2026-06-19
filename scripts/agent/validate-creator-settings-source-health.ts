@@ -196,7 +196,7 @@ export function buildCreatorSettingsSourceHealthReport(): CreatorSettingsSourceH
     ],
     nextFixOrder: [
       "Manually verify Zaylani creator settings now return HTTP 200 with partial evidence rather than a platform error.",
-      "Attach screenshot evidence for /dashboard/creator and /dashboard/creator/settings after source health is confirmed.",
+      "Run deterministic UI source coverage for /dashboard/creator and /dashboard/creator/settings after source health is confirmed; use browser reproduction only for concrete source-reported issues.",
     ],
   };
 }

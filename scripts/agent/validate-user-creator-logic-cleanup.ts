@@ -250,7 +250,7 @@ export function buildUserCreatorLogicCleanupReport(): UserCreatorLogicCleanupRep
     nextFixOrder: [
       "Keep future creator dashboard additions inside focused creator-workspace modules instead of growing CreatorWorkspacePanel.",
       "Handle admin analytics/debug monolith cleanup in a separate admin-scoped pass.",
-      "Attach mobile screenshot evidence for creator and user dashboard route boundaries after deployment.",
+      "Run deterministic UI source coverage for creator and user dashboard route boundaries; use browser reproduction only for concrete source-reported issues.",
     ],
   };
 }

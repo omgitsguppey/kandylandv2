@@ -5,8 +5,8 @@ Validator: `npm run check:operator-final-qa-packet`
 
 ## Summary
 
-- Generated: `2026-06-19T16:51:57.353Z`
-- Current head: `1fb8629efe28ef390f48ccf6733f22b6afc174e8`
+- Generated: `2026-06-19T18:01:20.797Z`
+- Current head: `79598a740b349732332b6e1751ca9d8f5b3933dc`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:operator-final-qa-packet`
 ```json
 {
   "reportKey": "operator-final-qa-packet",
-  "generatedAtUtc": "2026-06-19T16:51:57.353Z",
-  "currentHead": "1fb8629efe28ef390f48ccf6733f22b6afc174e8",
+  "generatedAtUtc": "2026-06-19T18:01:20.797Z",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "outsideCodexScoreGate": true,
   "surfaces": [
     {
@@ -26,7 +26,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -38,7 +38,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep homepage in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep homepage in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -49,7 +49,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -61,7 +61,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep signup-login in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep signup-login in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -72,7 +72,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -84,7 +84,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep user-dashboard in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep user-dashboard in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -95,7 +95,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -107,7 +107,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep wallet-purchase-modal in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep wallet-purchase-modal in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -118,7 +118,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -130,7 +130,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep drops-library in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep drops-library in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -141,7 +141,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -153,7 +153,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep drop-detail-unlock-unwrap-watch in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep drop-detail-unlock-unwrap-watch in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -164,7 +164,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -176,7 +176,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep creator-profile in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep creator-profile in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -187,7 +187,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -199,7 +199,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep creator-dashboard in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep creator-dashboard in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -210,7 +210,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -222,7 +222,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep creator-settings in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep creator-settings in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -233,7 +233,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -245,7 +245,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep creator-drop-manager in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep creator-drop-manager in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -256,7 +256,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -268,7 +268,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep chat in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep chat in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -279,7 +279,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -291,7 +291,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep daily-tasks in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep daily-tasks in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -302,7 +302,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -314,7 +314,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep account-settings-support in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep account-settings-support in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -324,7 +324,7 @@ Validator: `npm run check:operator-final-qa-packet`
       "device": [
         "mobile"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -336,7 +336,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep notifications-pwa-prompt in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep notifications-pwa-prompt in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -347,7 +347,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -359,7 +359,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep admin-debug in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep admin-debug in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     },
     {
@@ -370,7 +370,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "mobile",
         "desktop"
       ],
-      "screenshotRequired": false,
+      "browserReproductionRequired": false,
       "checks": [
         "no nav overlap",
         "no clipped CTA",
@@ -382,7 +382,7 @@ Validator: `npm run check:operator-final-qa-packet`
         "telemetry/debug lane source-ready"
       ],
       "status": "source_checked",
-      "nextExactAction": "Keep user-management in deterministic UI source coverage; use screenshots only to reproduce a source-reported issue.",
+      "nextExactAction": "Keep user-management in deterministic UI source coverage; use browser reproduction only for source-reported issues.",
       "notes": "Outside Codex score gates; source coverage owns the first-pass UI issue detection."
     }
   ],

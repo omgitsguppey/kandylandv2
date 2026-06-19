@@ -275,7 +275,7 @@ function classifyBlockedEntry(entry: QueueEntryInput): ResolvedBlockedRefreshQue
       owner: entry.owner,
       scoreImpactEstimate: entry.scoreImpactEstimate,
       classification: uiSourceCoverage ? "failed_validator" : "blocked_formal_evidence",
-      originalBlockedReason: entry.blockedReason,
+      originalBlockedReason: uiSourceCoverage ? exact.reason : entry.blockedReason,
       resolvedBlockedReason: exact.reason,
       nextAction: exact.action,
       canRunAutomatically: entry.canRunAutomatically,
@@ -289,7 +289,7 @@ function classifyBlockedEntry(entry: QueueEntryInput): ResolvedBlockedRefreshQue
       owner: entry.owner,
       scoreImpactEstimate: entry.scoreImpactEstimate,
       classification: "failed_validator",
-      originalBlockedReason: entry.blockedReason,
+      originalBlockedReason: "source_validation_required: deterministic UI source coverage must report the issue before optional visual reproduction.",
       resolvedBlockedReason: "source_validation_required: deterministic UI source coverage must report the issue before optional visual reproduction.",
       nextAction: entry.refreshCommand || "Run npm run check:ui-visual-smoke-minimal and fix any source-reported UI surface gap.",
       canRunAutomatically: entry.canRunAutomatically,
@@ -297,7 +297,7 @@ function classifyBlockedEntry(entry: QueueEntryInput): ResolvedBlockedRefreshQue
       scoreTreatment: "resolved_source_refreshable",
     };
   }
-  if (/manual|screenshot|operator confirmation|visual/u.test(text)) {
+  if (/manual|operator confirmation/u.test(text)) {
     return {
       artifact: entry.artifact,
       owner: entry.owner,

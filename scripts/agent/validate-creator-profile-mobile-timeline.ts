@@ -200,7 +200,7 @@ function buildReport(): CreatorProfileMobileTimelineReport {
     ],
     nextFixOrder: [
       "Add richer media previews to timeline cards after a shared compact Drop card variant exists.",
-      "Add browser screenshot evidence for the creator profile mobile timeline in a separate visual QA pass.",
+      "Run deterministic UI source coverage for the creator profile mobile timeline; use browser reproduction only if it reports a concrete timeline issue.",
     ],
   };
 

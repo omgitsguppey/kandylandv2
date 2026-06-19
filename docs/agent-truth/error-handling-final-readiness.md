@@ -27,9 +27,9 @@ Bug report rewards remain reward-source GumDrops only. The route records `reward
 
 ## Remaining Blockers
 
-The error phase is source-complete, but beta exit is still blocked by missing manual screenshot QA, provider smoke, runtime smoke, and admin truth sample evidence.
+The error phase is source-complete, but beta exit is still blocked by provider smoke, runtime smoke, admin truth sample evidence, and any UI issue that deterministic source coverage reports.
 
 ## Next
 
-- Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.
+- Browser reproduction can focus on source-reported product behavior issues because user/creator raw error leaks are source-blocked.
 - Attach formal evidence artifacts before beta exit review.

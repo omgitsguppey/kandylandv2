@@ -234,7 +234,7 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
     ],
     prCleanupActions: [],
     nextFixOrder: [
-      "Attach mobile screenshot evidence for /dashboard/creator and account nav after deployment.",
+      "Run deterministic UI source coverage for /dashboard/creator and account nav; use browser reproduction only if it reports a concrete navigation issue.",
       "Keep future creator dashboard additions route-scoped and update this consolidation validator when adding new creator nav destinations.",
     ],
   };

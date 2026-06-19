@@ -30,7 +30,7 @@ export type CreatorDashboardRoleBoundaryReport = {
     p1Count: number;
     p2Count: number;
   };
-  screenshotSymptoms: Finding[];
+  sourceReportedSymptoms: Finding[];
   routeFindings: Finding[];
   moduleFindings: Finding[];
   doctrineChanges: Finding[];
@@ -103,8 +103,8 @@ export function buildCreatorDashboardRoleBoundaryReport(): CreatorDashboardRoleB
     && doc.includes("Normal users must still see user dashboard modules")
     && !/creator dashboard includes user dashboard below it/iu.test(`${doc}\n${creatorRoutingDoc}`);
 
-  const screenshotSymptoms: Finding[] = [
-    finding("screenshot-user-modules-after-creator-crm", "p1", "/dashboard or /dashboard/creator mobile screenshot", "Mobile screenshot showed user dashboard modules below Creator Dashboard CRM."),
+  const sourceReportedSymptoms: Finding[] = [
+    finding("source-user-modules-after-creator-crm", "p1", "/dashboard or /dashboard/creator source coverage", "Source coverage caught user dashboard modules below Creator Dashboard CRM."),
   ];
   const routeFindings: Finding[] = [
     finding("dashboard-client-stack-leak", "p1", "src/app/dashboard/DashboardClient.tsx", "Leak source was /dashboard rendering CreatorWorkspacePanel before the normal user dashboard grid; creator-role /dashboard now redirects to /dashboard/creator."),
@@ -120,7 +120,7 @@ export function buildCreatorDashboardRoleBoundaryReport(): CreatorDashboardRoleB
   const doctrineChanges: Finding[] = [
     finding("role-boundary-doctrine", "p1", "docs/agent-truth/creator-dashboard-role-boundary.md", "Doctrine locks creator and user dashboard bodies as separate route scopes.", staleDoctrineRemoved ? "fixed" : "blocked"),
   ];
-  const allFindings = [...screenshotSymptoms, ...routeFindings, ...moduleFindings, ...doctrineChanges];
+  const allFindings = [...sourceReportedSymptoms, ...routeFindings, ...moduleFindings, ...doctrineChanges];
 
   return {
     generatedAtUtc: new Date().toISOString(),
@@ -138,7 +138,7 @@ export function buildCreatorDashboardRoleBoundaryReport(): CreatorDashboardRoleB
       p1Count: countSeverity(allFindings, "p1"),
       p2Count: countSeverity(allFindings, "p2"),
     },
-    screenshotSymptoms,
+    sourceReportedSymptoms,
     routeFindings,
     moduleFindings,
     doctrineChanges,
@@ -151,7 +151,7 @@ export function buildCreatorDashboardRoleBoundaryReport(): CreatorDashboardRoleB
     ],
     prCleanupActions: [],
     nextFixOrder: [
-      "Attach mobile screenshot evidence for /dashboard/creator after deployment.",
+      "Run deterministic UI source coverage for /dashboard/creator; use browser reproduction only if it reports a concrete route-boundary issue.",
       "If creators need a full user dashboard shortcut later, add an explicit route or role switcher instead of stacking both dashboards.",
     ],
   };

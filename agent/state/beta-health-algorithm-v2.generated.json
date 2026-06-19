@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-01T04:56:06.179Z",
+  "generatedAtUtc": "2026-06-19T18:13:37.594Z",
   "reportKey": "beta-health-algorithm-v2",
-  "currentHead": "c525024240902c3f2ca716c01015c3cb6b25997b",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "summary": {
     "scoreVersion": "beta_health_v2",
     "binaryEvidenceGatesRemoved": true,
@@ -62,7 +62,7 @@
     "open_pr_count_end_pending_final_check"
   ],
   "nextFixOrder": [
-    "Attach formal manual screenshot evidence.",
+    "Run deterministic UI source coverage and use visual reproduction only for source-reported issues.",
     "Attach formal provider smoke evidence.",
     "Attach deployed runtime smoke evidence.",
     "Attach admin truth sample evidence.",

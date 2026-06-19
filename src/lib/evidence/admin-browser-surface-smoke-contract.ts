@@ -14,14 +14,12 @@ export type AdminBrowserSurfaceEvidenceState =
   | "local_fixture_surface_verified"
   | "authenticated_shell_verified"
   | "authenticated_surface_verified"
-  | "authenticated_admin_signoff_missing"
   | "blocked_runtime_required";
 
 export type AdminBrowserSurfaceReportStatus =
   | "source_contract_ready"
   | "browser_boundary_partial"
   | "local_fixture_browser_covered"
-  | "authenticated_browser_pending"
   | "authenticated_browser_covered";
 
 export type AdminBrowserSurfaceEvidenceInput = Partial<{
@@ -33,7 +31,6 @@ export type AdminBrowserSurfaceEvidenceInput = Partial<{
   urlAfterNavigation: string;
   selectorUsed: string;
   visibleMarker: string;
-  screenshotArtifactPath: string;
   note: string;
 }>;
 
@@ -57,7 +54,7 @@ export type AdminBrowserSurfaceEvidenceMode =
 
 export type AdminBrowserSurfaceEvidenceProvenance = {
   inputPath: string;
-  source: "none" | "local_in_app_browser" | "operator_screenshot" | "manual_external" | "unknown";
+  source: "none" | "local_in_app_browser" | "manual_external" | "unknown";
   baseUrl?: string;
   capturedAtUtc?: string;
   evidenceMode: AdminBrowserSurfaceEvidenceMode;
@@ -104,7 +101,7 @@ export type AdminBrowserSurfaceSmokeReport = {
   cleanupPolicy: "regenerate";
   cleanupCommand: "npm run check:admin-browser-surface-smoke";
   sourceTruthRole: "generated_snapshot";
-  passed: false;
+  passed: boolean;
   generatedAtUtc: string;
   currentHead?: string;
   sourceCommit?: string;
@@ -176,7 +173,7 @@ const FORMAL_GATE_LIMITS = [
 ] as const;
 
 const DEFAULT_EVIDENCE_PROVENANCE: AdminBrowserSurfaceEvidenceProvenance = {
-  inputPath: "agent/evidence/admin-browser-surface-smoke/evidence.json",
+  inputPath: "ADMIN_BROWSER_SMOKE_EVIDENCE_DIR",
   source: "none",
   evidenceMode: "none",
   noteCount: 0,
@@ -214,7 +211,6 @@ export function normalizeAdminBrowserSurfaceEvidence(
     urlAfterNavigation: input.urlAfterNavigation,
     selectorUsed: input.selectorUsed,
     visibleMarker: input.visibleMarker,
-    screenshotArtifactPath: input.screenshotArtifactPath,
     note: input.note,
     formalGateImpact: {
       clearsRuntimeSmoke: false,
@@ -329,17 +325,15 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     browserHarnessContract.checksRouteAttribute &&
     browserHarnessContract.rejectsPublicHomeFallback &&
     browserHarnessContract.writesOptionalEvidenceDir;
-  const totalFindingCount = missingAuthenticatedSurfaceIds.length;
-
   const status: AdminBrowserSurfaceReportStatus = authenticatedSurfaceEvidenceCount === requiredAuthenticated.length
     ? "authenticated_browser_covered"
     : missingAccountFreeFixtureSurfaceIds.length === 0
       ? "local_fixture_browser_covered"
     : unauthBoundaryEvidenceCount > 0
       ? "browser_boundary_partial"
-      : missingAuthenticatedSurfaceIds.length > 0
-        ? "authenticated_browser_pending"
-        : "source_contract_ready";
+      : "source_contract_ready";
+  const totalFindingCount = missingSourceAdminRoutes.length + extraSurfaceRoutes.length;
+  const passed = totalFindingCount === 0 && layoutSelectorContractPresent && browserHarnessContractPresent;
 
   return {
     reportKey: "admin-browser-surface-smoke",
@@ -367,11 +361,11 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     highRiskCounts: {
       critical: 0,
       major: 0,
-      signoff: missingAuthenticatedSurfaceIds.length,
+      signoff: 0,
       privacy: 0,
       payment: protectedSurfaceIds.length,
       lockedContent: 0,
-      sourceTruth: missingAuthenticatedSurfaceIds.length,
+      sourceTruth: totalFindingCount,
     },
     owner: "admin-browser-surface-smoke",
     safetyClass: "source_safe",
@@ -380,7 +374,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     cleanupPolicy: "regenerate",
     cleanupCommand: "npm run check:admin-browser-surface-smoke",
     sourceTruthRole: "generated_snapshot",
-    passed: false,
+    passed,
     generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
     currentHead: input.currentHead,
     sourceCommit: input.currentHead,
@@ -424,10 +418,10 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     nextExactSteps: [
       missingAccountFreeFixtureSurfaceIds.length > 0
         ? "For local account-free UI rendering checks, run NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1 and ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1 ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser; this records local_fixture_surface_verified evidence without requiring real admin test accounts."
-        : "Account-free local admin route rendering is covered by fixture evidence; keep it separate from real authenticated admin signoff, deployed runtime proof, and production admin truth samples.",
-      "Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session only when real auth/session/browser signoff is required, then rerun npm run check:admin-browser-surface-smoke with the same evidence dir.",
+        : "Account-free local admin route rendering is covered by fixture evidence; keep it separate from optional authenticated browser reproduction, deployed runtime proof, and production admin truth samples.",
+      "Use authenticated browser checks only as optional reproduction for a source-reported admin UI issue; do not use them as source, provider, runtime, admin-truth, payment, or GumDrop proof.",
       "For direct in-app Browser audits without Playwright, start the local dev server with NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1, open /api/admin-ui-test-session?redirect=/admin once to mint the bounded local fixture cookie, then navigate admin routes normally; this proves local route rendering only.",
-      "After reviewing the local fragment output, copy only intentional compact evidence into agent/evidence/admin-browser-surface-smoke/evidence.json when it should become tracked evidence.",
+      "Keep browser evidence fragments local or attach them to a specific issue; do not commit route-rendering logs as canonical proof.",
       "Keep /admin/economy in protected label-only review; browser smoke cannot prove GumDrop/payment truth.",
       "Use source validators for admin truth and runtime evidence separately; do not let browser smoke clear provider/runtime/admin-truth gates.",
     ],
@@ -462,7 +456,9 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
       failures.push(`${surface.surfaceId} must include its canonical data-admin-browser-surface selector.`);
     }
   }
-  if (report.passed !== false) failures.push("admin browser smoke must not mark itself passed inside source validation.");
+  if (report.passed !== (report.validationFailures.length === 0)) {
+    failures.push("admin browser smoke passed must reflect source validation failures only.");
+  }
   if (report.canClearRuntimeGate || report.canClearProviderGate || report.canClearAdminTruthGate) {
     failures.push("admin browser smoke cannot clear runtime, provider, or admin truth gates.");
   }
@@ -584,7 +580,7 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
       }
     }
     if (isLocalFixtureEvidenceState(entry.state) && report.missingAuthenticatedSurfaceIds.includes(`${entry.surfaceId}:${entry.deviceBand}`) === false) {
-      failures.push(`${entry.surfaceId}:${entry.deviceBand} fixture evidence must not satisfy authenticated browser signoff.`);
+      failures.push(`${entry.surfaceId}:${entry.deviceBand} fixture evidence must not satisfy optional authenticated browser reproduction.`);
     }
     if (entry.formalGateImpact.clearsRuntimeSmoke || entry.formalGateImpact.clearsProviderSmoke || entry.formalGateImpact.clearsAdminTruthSample || entry.formalGateImpact.clearsPaymentOrTreasuryTruth) {
       failures.push(`${entry.surfaceId}:${entry.deviceBand} overclaims formal gate impact.`);

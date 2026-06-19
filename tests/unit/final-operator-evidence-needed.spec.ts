@@ -7,6 +7,7 @@ describe("final operator evidence needed", () => {
     const report = buildFinalOperatorEvidenceNeededReport(process.cwd());
     expect(report.betaExitReady).toBe(false);
     expect(report.items.map((item) => item.id)).toContain("formal-provider-smoke");
+    expect(report.items.map((item) => item.id)).not.toContain("operator-final-visual-qa");
     expect(report.items.every((item) => item.acceptableEvidenceFormat.length > 0 && item.whatItDoesNotProve.length > 0)).toBe(true);
     expect(validateFinalOperatorEvidenceNeededReport(report)).toEqual([]);
   });

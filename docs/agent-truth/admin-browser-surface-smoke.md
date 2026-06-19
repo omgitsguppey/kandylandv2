@@ -6,32 +6,32 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 
 ## Summary
 
-- Status: local_fixture_browser_covered
-- Passed in source validation: false
+- Status: source_contract_ready
+- Passed in source validation: true
 - Admin surfaces: 14
 - Route targets: 14
 - Source admin pages: 14
 - Layout selector contract present: true
 - Browser harness contract present: true
 - Required authenticated surface/device checks: 18
-- Evidence entries: 18
+- Evidence entries: 0
 - Authenticated checks present: 0
-- Local fixture checks present: 18
-- Account-free fixture checks covered: 18
-- Account-free fixture checks pending: 0
+- Local fixture checks present: 0
+- Account-free fixture checks covered: 0
+- Account-free fixture checks pending: 18
 - Unauthenticated boundary checks present: 0
 - Unauthenticated redirect checks present: 0
-- Source contract only: 0
+- Source contract only: 18
 - Unauthenticated boundary verified: 0
-- Account-free fixture verified: 18
-- Account-free fixture missing: 0
+- Account-free fixture verified: 0
+- Account-free fixture missing: 18
 - Authenticated admin verified: 0
-- Authenticated admin evidence missing: 18
+- Optional authenticated browser reproduction missing: 18
 - Protected label-only surfaces: 1
-- Evidence source: local_in_app_browser
-- Evidence mode: local_fixture_only
-- Evidence base URL: http://127.0.0.1:3000
-- Evidence captured at: 2026-06-17T07:30:21.357Z
+- Evidence source: none
+- Evidence mode: none
+- Evidence base URL: none
+- Evidence captured at: none
 - Protected surfaces: admin_economy
 
 ## Surfaces
@@ -122,7 +122,24 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 
 ## Missing Account-Free Fixture Evidence
 
-- none
+- admin_overview:mobile
+- admin_overview:desktop
+- admin_analytics:mobile
+- admin_analytics:desktop
+- admin_drops:desktop
+- admin_users:mobile
+- admin_users:desktop
+- admin_user_detail:desktop
+- admin_roster:desktop
+- admin_debug:mobile
+- admin_debug:desktop
+- admin_ai:desktop
+- admin_support:desktop
+- admin_moderation:desktop
+- admin_content:desktop
+- admin_queue:desktop
+- admin_privacy:desktop
+- admin_economy:desktop
 
 ## Does Not Prove
 
@@ -133,9 +150,9 @@ This report is not production admin truth, provider smoke, deployed runtime smok
 
 ## Next Exact Steps
 
-- Account-free local admin route rendering is covered by fixture evidence; keep it separate from real authenticated admin signoff, deployed runtime proof, and production admin truth samples.
-- Run ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_STORAGE_STATE=<path> ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser against an authenticated admin session only when real auth/session/browser signoff is required, then rerun npm run check:admin-browser-surface-smoke with the same evidence dir.
+- For local account-free UI rendering checks, run NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1 and ADMIN_BROWSER_SMOKE=1 ADMIN_BROWSER_SMOKE_FIXTURE_SESSION=1 ADMIN_BROWSER_SMOKE_EVIDENCE_DIR=<tmp-dir> npm run check:admin-browser-surface-smoke:browser; this records local_fixture_surface_verified evidence without requiring real admin test accounts.
+- Use authenticated browser checks only as optional reproduction for a source-reported admin UI issue; do not use them as source, provider, runtime, admin-truth, payment, or GumDrop proof.
 - For direct in-app Browser audits without Playwright, start the local dev server with NEXT_PUBLIC_ENABLE_ADMIN_UI_TEST_SESSION=1, open /api/admin-ui-test-session?redirect=/admin once to mint the bounded local fixture cookie, then navigate admin routes normally; this proves local route rendering only.
-- After reviewing the local fragment output, copy only intentional compact evidence into agent/evidence/admin-browser-surface-smoke/evidence.json when it should become tracked evidence.
+- Keep browser evidence fragments local or attach them to a specific issue; do not commit route-rendering logs as canonical proof.
 - Keep /admin/economy in protected label-only review; browser smoke cannot prove GumDrop/payment truth.
 - Use source validators for admin truth and runtime evidence separately; do not let browser smoke clear provider/runtime/admin-truth gates.

@@ -545,7 +545,7 @@ export function buildFinalPhaseCleanupLockReport(options: {
       "admin-truth-sample-evidence",
       reportSources.adminTruthSampleEvidence.path,
       "Admin truth sample evidence is missing, so source freshness/sample states are not formally confirmed.",
-      "Attach a fresh admin truth screenshot or JSON sample and refresh admin-truth-sample-evidence.generated.json.",
+      "Attach a fresh redacted admin truth JSON/sample packet and refresh admin-truth-sample-evidence.generated.json.",
       reportSources.adminTruthSampleEvidence.ownerLane,
     ));
   }
@@ -614,7 +614,7 @@ export function buildFinalPhaseCleanupLockReport(options: {
       key: "admin_truth_sample_required",
       status: "evidence_missing",
       sourceReport: "admin-truth-sample-evidence",
-      exactNextAction: "Attach a fresh admin truth screenshot or JSON sample with source freshness and sample count.",
+      exactNextAction: "Attach a fresh redacted admin truth JSON/sample packet with source freshness and sample count.",
     });
   }
 
@@ -644,7 +644,7 @@ export function buildFinalPhaseCleanupLockReport(options: {
     visualMissing ? "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps." : null,
     !providerPassed ? "Run formal provider smoke checks and refresh provider-smoke-evidence.generated.json." : null,
     !runtimePassed ? "Run runtime smoke checks and refresh runtime-smoke-evidence.generated.json." : null,
-    !adminSamplePassed ? "Attach a fresh admin truth screenshot or JSON sample and refresh admin-truth-sample-evidence.generated.json." : null,
+    !adminSamplePassed ? "Attach a fresh redacted admin truth JSON/sample packet and refresh admin-truth-sample-evidence.generated.json." : null,
     staleReports.length > 0 ? "Refresh or archive stale generated reports through focused owner validators; do not treat them as live authority." : null,
     speedFindings > 0 ? "Continue focused speed/security guardrail cleanup from the current recommendedFixOrder without touching forbidden surfaces." : null,
   ].filter((entry): entry is string => Boolean(entry));

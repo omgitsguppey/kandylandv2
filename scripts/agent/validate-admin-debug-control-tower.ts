@@ -2610,7 +2610,6 @@ try {
     /^src\/components\/Admin\/AiDropDescriptionGeneratorPanel\.tsx$/u,
     /^agent\/state\/admin-browser-surface-smoke\.generated\.json$/u,
     /^docs\/agent-truth\/admin-browser-surface-smoke\.md$/u,
-    /^agent\/evidence\/admin-browser-surface-smoke\/template\.json$/u,
     /^agent\/state\/admin-surface-modal-replacement\.generated\.json$/u,
     /^docs\/agent-truth\/admin-surface-modal-replacement\.md$/u,
     /^scripts\/agent\/validate-analytics-panel-hydration\.ts$/u,

@@ -45,7 +45,8 @@ describe("live evidence gate replacement", () => {
 
     expect(report.betaExitReadyAfter).toBe(false);
     expect(report.broadManualGatesAfter).not.toContain("manual production smoke");
-    expect(report.visualOnlyManualGatesRemaining[0]?.replacement).toContain("visual layout QA only");
+    expect(report.broadManualGatesAfter).not.toContain("visual-only operator QA");
+    expect(report.visualOnlyManualGatesRemaining).toEqual([]);
     expect(report.externalProviderGatesRemaining.length).toBe(1);
     expect(report.externalBillingGatesRemaining.length).toBe(1);
     expect(report.liveEvidenceBySystem.every((system) => system.freshnessWindowHours > 0)).toBe(true);
@@ -57,10 +58,15 @@ describe("live evidence gate replacement", () => {
   it("fails if visual QA is allowed to prove backend behavior", () => {
     const context = buildReleaseReadinessContext(process.cwd(), { currentHead: "head", openPrs: [], artifacts: [], dirtyFiles: [] });
     const report = buildLiveEvidenceGateReplacementReport(context);
-    report.visualOnlyManualGatesRemaining[0] = {
-      ...report.visualOnlyManualGatesRemaining[0]!,
+    report.visualOnlyManualGatesRemaining.push({
+      gate: "legacy visual gate",
+      beforeClass: "broad_manual",
+      afterClass: "visual_operator_evidence",
+      status: "visual_only_manual",
       replacement: "visual QA proves backend runtime payment behavior",
-    };
+      reason: "legacy test fixture",
+      blocksBetaExit: false,
+    });
 
     expect(validateLiveEvidenceGateReplacementReport(report)).toContain("visual QA claims to prove backend/runtime/payment behavior.");
   });

@@ -1,10 +1,10 @@
 {
   "status": "source_surface_checks_current",
   "passed": true,
-  "generatedAtUtc": "2026-06-19T16:51:33.885Z",
-  "currentHead": "1fb8629efe28ef390f48ccf6733f22b6afc174e8",
-  "sourceCommit": "1fb8629efe28ef390f48ccf6733f22b6afc174e8",
-  "detail": "Deterministic UI surface coverage is current. Screenshots are optional follow-up evidence only after a source/UI-surface check finds a visual issue.",
+  "generatedAtUtc": "2026-06-19T18:05:14.259Z",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "sourceCommit": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "detail": "Deterministic UI surface coverage is current. Browser viewing is optional follow-up only after a source/UI-surface check finds a visual issue.",
   "nonUiLanesBlocked": false,
   "formalGateImpact": {
     "clearsUiSurfaceCoverage": true,
@@ -19,7 +19,6 @@
       "route": "/dashboard",
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Recent activity, tasks, and dashboard density are layout-sensitive on mobile.",
-      "operatorConfirmed": false,
       "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
@@ -30,7 +29,6 @@
       "route": "/dashboard#wallet",
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Wallet modal density and balance presentation are mobile layout-sensitive.",
-      "operatorConfirmed": false,
       "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
@@ -41,7 +39,6 @@
       "route": "/dashboard/creator",
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Creator dashboard loading and empty-state density changed in mobile source checks.",
-      "operatorConfirmed": false,
       "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
@@ -52,7 +49,6 @@
       "route": "/dashboard/creator/settings",
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Creator settings is a layout-sensitive creator tool surface.",
-      "operatorConfirmed": false,
       "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
@@ -63,7 +59,6 @@
       "route": "/dashboard/creator/drops",
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Creator drop manager status and empty states are layout-sensitive on mobile.",
-      "operatorConfirmed": false,
       "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
@@ -74,7 +69,6 @@
       "route": "/creators/[username]",
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Creator profile timeline and empty-state layout need visual confirmation.",
-      "operatorConfirmed": false,
       "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
@@ -85,7 +79,6 @@
       "route": "/admin/debug",
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Admin debug cockpit summary is a layout-sensitive operational UI surface.",
-      "operatorConfirmed": false,
       "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
@@ -96,7 +89,6 @@
       "route": "/admin/debug",
       "deviceBand": "desktop",
       "requiresVisualSmokeReason": "Admin debug summary needs desktop hierarchy confirmation without raw dumps first.",
-      "operatorConfirmed": false,
       "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
@@ -107,7 +99,6 @@
       "route": "/dashboard/library",
       "deviceBand": "mobile",
       "requiresVisualSmokeReason": "Drops/user library empty and loading states are layout-sensitive on mobile.",
-      "operatorConfirmed": false,
       "status": "source_surface_checked",
       "blocksScoreForUiOnly": false,
       "codexScoreBlocking": false
@@ -117,16 +108,11 @@
     "requiredSurfaceCount": 9,
     "surfaceGroupCount": 8,
     "missingSurfaceIds": [],
-    "operatorConfirmedSurfaceIds": [],
-    "screenshotAttachedSurfaceIds": [],
     "failedSurfaceIds": [],
     "notRequiredSurfaceIds": [],
     "statusCounts": {
       "source_surface_checked": 9,
       "source_surface_gap": 0,
-      "operator_final_pending": 0,
-      "operator_confirmed_outside_codex": 0,
-      "screenshot_attached": 0,
       "not_required": 0
     }
   },
@@ -144,7 +130,7 @@
   ],
   "nextExactSteps": [
     "Keep npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui in the UI/admin fast lane.",
-    "Use screenshots or browser viewing only to reproduce a specific source-reported UI issue, not as the readiness gate."
+    "Use browser viewing only to reproduce a specific source-reported UI issue, not as the readiness gate."
   ],
   "validationFailures": []
 }

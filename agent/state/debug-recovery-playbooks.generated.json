@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-21T13:08:36.629Z",
+  "generatedAtUtc": "2026-06-19T18:17:13.962Z",
   "reportKey": "debug-recovery-playbooks",
-  "currentHead": "faa73546e65aeca5b83c99b578cd2ad7c2efd4d7",
-  "sourceCommit": "faa73546e65aeca5b83c99b578cd2ad7c2efd4d7",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "sourceCommit": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "overallStatus": "pass",
   "playbookCount": 12,
   "validationFailures": [],
@@ -112,7 +112,7 @@
       "triggerPatterns": [
         "admin truth/sample evidence unknown",
         "Admin Debug shows missing or unavailable source truth",
-        "beta cap Ready with smoke required: Admin truth/sample evidence"
+        "beta cap formal admin truth sample required"
       ],
       "sourceFiles": [
         "src/lib/admin-debug-control-tower.ts",
@@ -310,7 +310,7 @@
       "triggerPatterns": [
         "mobile residual",
         "hardcoded UI scale",
-        "Visual/manual smoke missing but source mobile lock ready"
+        "UI source coverage reports mobile residuals"
       ],
       "sourceFiles": [
         "src/lib/device-layout-contract.ts",
@@ -330,9 +330,9 @@
       "fixes": [
         "Resolve the exact touched surface and replace hardcoded scale with existing device/layout helpers.",
         "Use density variants when a shared component spans admin, user, and creator surfaces.",
-        "Escalate to manual screenshots only after source readiness is green and explicitly requested."
+        "Use browser reproduction only after source coverage reports a concrete UI issue that needs confirmation."
       ],
-      "evidenceOutcome": "Mobile source residual becomes source-ready or still manual_required; does not clear formal visual/manual smoke.",
+      "evidenceOutcome": "Mobile source residual becomes source-ready or remains source_refresh_required; browser reproduction is optional and does not clear formal runtime/provider/admin truth gates.",
       "scoringImpactEstimate": {
         "dimensions": [
           "evidenceCompleteness",
@@ -457,7 +457,7 @@
       "triggerPatterns": [
         "source-only output claimed as runtime proof",
         "formal gate marked passed without artifact",
-        "provider/manual/runtime smoke claimed from local validator"
+        "provider/runtime smoke claimed from local validator"
       ],
       "sourceFiles": [
         "src/lib/debug/ai-debug-critic.ts",
@@ -476,10 +476,10 @@
       ],
       "fixes": [
         "Downgrade the claim to source-only, operator_reported, source_ready, blocked_manual, or formal_missing.",
-        "Remove any language that says local/static/source validation passed deployed runtime, provider, screenshot, or manual QA.",
+        "Remove any language that says local/static/source validation passed deployed runtime, provider, or admin truth proof.",
         "Require a generated formal artifact path before any formal gate can move to Ready."
       ],
-      "evidenceOutcome": "Evidence claim is corrected to source-only or formal_missing; does not clear formal provider/runtime/manual/admin gates.",
+      "evidenceOutcome": "Evidence claim is corrected to source-only or formal_missing; does not clear formal provider/runtime/admin truth gates.",
       "scoringImpactEstimate": {
         "dimensions": [
           "evidenceCompleteness",
@@ -511,7 +511,7 @@
       ],
       "sourceFiles": [
         "src/lib/creator-settings/creator-settings-contract.ts",
-        "src/lib/creator-dashboard/creator-settings-contract.ts",
+        "src/lib/creator/dashboard/creator-settings-contract.ts",
         "src/app/dashboard/creator/settings/page.tsx",
         "src/app/api/creator/settings/route.ts",
         "agent/state/creator-settings-control-plane.generated.json"
@@ -579,7 +579,7 @@
         "Show missing metrics as collecting or unavailable, never proven zero without source evidence.",
         "Keep admin-only publish, approval, and rotation controls out of creator surfaces."
       ],
-      "evidenceOutcome": "Creator drop status/metrics become source-marked or unavailable; does not clear formal runtime/manual evidence.",
+      "evidenceOutcome": "Creator drop status/metrics become source-marked or unavailable; does not clear formal runtime/admin truth evidence.",
       "scoringImpactEstimate": {
         "dimensions": [
           "sourceHealth",

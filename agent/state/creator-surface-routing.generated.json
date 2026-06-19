@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-23T01:11:53.495Z",
+  "generatedAtUtc": "2026-06-19T18:13:59.778Z",
   "reportKey": "creator-surface-routing",
-  "currentHead": "17353b5ca414da32c9fa3bca2abc005fe483aa2c",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "summary": {
     "baseDashboardRoute": "/dashboard/creator",
     "creatorSettingsRoute": "/dashboard/creator/settings",
@@ -123,7 +123,7 @@
     "Translated base dashboard creator settings load failures through HumanErrorNotice."
   ],
   "nextFixOrder": [
-    "Run manual screenshot QA for /dashboard/creator and /dashboard/creator/settings on mobile.",
+    "Run UI source coverage for /dashboard/creator and /dashboard/creator/settings before optional visual reproduction.",
     "Keep future creator operations links pointed at /dashboard/creator/settings unless a more specific manager route exists."
   ]
 }

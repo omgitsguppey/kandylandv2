@@ -179,7 +179,7 @@ export function buildAnalyticsSemanticsFinalLockReport(
       runtimeEvidenceComplete,
       betaExitReady: betaReady,
       currentBetaStatusMentionsAnalytics,
-      note: "Source-ready analytics semantics do not clear screenshot, provider, runtime, admin truth, or stale-report evidence gates.",
+      note: "Source-ready analytics semantics do not clear UI source coverage gaps, provider, runtime, admin truth, or stale-report evidence gates.",
     },
     cloudRunCostStatus,
     cloudSqlCostStatus,
@@ -206,7 +206,7 @@ export function buildAnalyticsSemanticsFinalLockReport(
       },
     ],
     nextExactSteps: [
-      "Run deterministic UI source coverage before optional browser or screenshot reproduction; keep analytics semantics source-ready only.",
+      "Run deterministic UI source coverage before optional browser reproduction; keep analytics semantics source-ready only.",
       "Wire runtime watch-time v2 into the selected media viewer and capture deployed runtime evidence before claiming live watch-time accuracy.",
       "Refresh provider smoke, runtime smoke, admin truth sample, and beta score artifacts after real evidence is attached.",
     ],

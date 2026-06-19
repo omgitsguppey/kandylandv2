@@ -1,23 +1,29 @@
 # Formal Evidence Status Ledger
 
 Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
+Validator: `npm run check:formal-evidence-status-ledger`
 
-- Generated: `2026-05-27T01:01:54.131Z`
-- Current head: `7747ca78ac19f78c396f9c5c50301347ce492a45`
+## Summary
+
+- Generated: `2026-06-19T18:15:11.599Z`
+- Current head: `79598a740b349732332b6e1751ca9d8f5b3933dc`
+- Status: `pass`
+
+## Report
 
 ```json
 {
   "reportKey": "formal-evidence-status-ledger",
-  "generatedAtUtc": "2026-05-27T01:01:54.131Z",
-  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+  "generatedAtUtc": "2026-06-19T18:15:11.599Z",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "scoreDimensions": {
-    "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "sourceHealth": 91.7,
+    "runtimeHealth": 71.2,
+    "evidenceCompleteness": 43.4,
+    "freshness": 75.63,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "regressionRisk": 94,
+    "overallHealthScore": 70.79
   },
   "categories": [
     {
@@ -50,7 +56,7 @@ Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
       "nextExactAction": "Connect redacted live route/runtime summaries for source_missing product systems.",
-      "whatItDoesNotProve": "Source-safe route harnesses and screenshots do not prove deployed runtime behavior."
+      "whatItDoesNotProve": "Source-safe route harnesses and browser reproduction do not prove deployed runtime behavior."
     },
     {
       "category": "external provider proof",
@@ -69,15 +75,15 @@ Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
       "owner": "operator/admin owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach a redacted live admin truth summary or keep admin truth source_missing; screenshots cannot clear this gate.",
-      "whatItDoesNotProve": "Admin source schema and screenshots do not prove production admin truth."
+      "nextExactAction": "Attach a redacted live admin truth summary or keep admin truth source_missing; browser reproduction cannot clear this gate.",
+      "whatItDoesNotProve": "Admin source schema and browser reproduction do not prove production admin truth."
     },
     {
       "category": "debug/runtime evidence",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
-      "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
-      "generatedAtUtc": "2026-05-25T05:51:35.791Z",
+      "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+      "generatedAtUtc": "2026-06-19T14:34:02.017Z",
       "owner": "debug/runtime evidence owner",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
@@ -88,8 +94,8 @@ Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
       "category": "algorithmic non-UI evidence",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/final-math-normalization-lock.generated.json",
-      "currentHead": "a996b197",
-      "generatedAtUtc": "2026-05-26T12:01:44.102Z",
+      "currentHead": "eb93068b",
+      "generatedAtUtc": "2026-05-27T05:21:28.560Z",
       "owner": "math/source validators",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
@@ -100,8 +106,8 @@ Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
       "category": "evidence bridge",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
-      "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
-      "generatedAtUtc": "2026-05-26T04:41:50.407Z",
+      "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
+      "generatedAtUtc": "2026-06-03T18:49:48.720Z",
       "owner": "evidence bridge owner",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
@@ -130,23 +136,23 @@ Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
     },
     {
       "category": "PR integrity",
-      "status": "formal_passed",
+      "status": "external_review_required",
       "artifactPath": "agent/state/open-pr-dependency-hygiene.generated.json",
       "owner": "repo maintainer",
-      "blocksBetaExit": false,
+      "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "No open PR action remains.",
+      "nextExactAction": "Review, cherry-pick, defer, or close every classified open PR.",
       "whatItDoesNotProve": "Classifying an open PR does not merge, test, or close it."
     },
     {
-      "category": "operator-final visual QA",
-      "status": "operator_final_pending",
+      "category": "UI source coverage",
+      "status": "source_confidence_only",
       "artifactPath": "agent/state/operator-final-qa-packet.generated.json",
-      "owner": "operator",
-      "blocksBetaExit": true,
+      "owner": "UI source coverage",
+      "blocksBetaExit": false,
       "blocksScoreOnly": false,
-      "nextExactAction": "Operator captures final screenshots only for nav overlap, clipping, unreadable text, responsive layout, and visual loading/empty/error states.",
-      "whatItDoesNotProve": "Visual QA does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys."
+      "nextExactAction": "Run deterministic UI source coverage first; use browser viewing only to reproduce a source-reported UI issue.",
+      "whatItDoesNotProve": "UI source coverage does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys."
     },
     {
       "category": "external billing review",
@@ -168,7 +174,7 @@ Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
       "nextExactAction": "Connect redacted live route/runtime summaries for source_missing product systems.",
-      "whatItDoesNotProve": "Source-safe route harnesses and screenshots do not prove deployed runtime behavior."
+      "whatItDoesNotProve": "Source-safe route harnesses and browser reproduction do not prove deployed runtime behavior."
     },
     {
       "category": "external provider proof",
@@ -187,8 +193,8 @@ Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
       "owner": "operator/admin owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach a redacted live admin truth summary or keep admin truth source_missing; screenshots cannot clear this gate.",
-      "whatItDoesNotProve": "Admin source schema and screenshots do not prove production admin truth."
+      "nextExactAction": "Attach a redacted live admin truth summary or keep admin truth source_missing; browser reproduction cannot clear this gate.",
+      "whatItDoesNotProve": "Admin source schema and browser reproduction do not prove production admin truth."
     },
     {
       "category": "cost review",
@@ -201,14 +207,14 @@ Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
       "whatItDoesNotProve": "Source cost guards do not prove provider billing state."
     },
     {
-      "category": "operator-final visual QA",
-      "status": "operator_final_pending",
-      "artifactPath": "agent/state/operator-final-qa-packet.generated.json",
-      "owner": "operator",
+      "category": "PR integrity",
+      "status": "external_review_required",
+      "artifactPath": "agent/state/open-pr-dependency-hygiene.generated.json",
+      "owner": "repo maintainer",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Operator captures final screenshots only for nav overlap, clipping, unreadable text, responsive layout, and visual loading/empty/error states.",
-      "whatItDoesNotProve": "Visual QA does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys."
+      "nextExactAction": "Review, cherry-pick, defer, or close every classified open PR.",
+      "whatItDoesNotProve": "Classifying an open PR does not merge, test, or close it."
     },
     {
       "category": "external billing review",
@@ -221,6 +227,29 @@ Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
       "whatItDoesNotProve": "Cost source contracts do not prove actual provider spend."
     }
   ],
-  "validationFailures": []
+  "validationFailures": [],
+  "status": "pass",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Use the owning release-readiness validator, then attach formal runtime/provider/admin evidence separately."
+  ],
+  "doesNotProve": [
+    "Does not prove deployed runtime behavior.",
+    "Does not prove provider smoke success.",
+    "Does not prove current admin truth samples.",
+    "Does not prove external billing or GitHub PR state unless an opt-in fresh evidence artifact says so."
+  ]
 }
 ```
+
+## Evidence Boundary
+
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a formal artifact for that category.
+
+## Validation
+
+- Pass.

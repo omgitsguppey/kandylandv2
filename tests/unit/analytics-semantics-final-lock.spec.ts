@@ -104,7 +104,7 @@ describe("analytics semantics final lock", () => {
     );
   });
 
-  it("keeps beta exit false without runtime, provider, admin, and screenshot evidence", () => {
+  it("keeps beta exit false without runtime, provider, admin, and UI source coverage evidence", () => {
     const report = buildAnalyticsSemanticsFinalLockReport(inputsFixture());
 
     expect(report.betaScoreImpact.betaExitReady).toBe(false);

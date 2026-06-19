@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T15:03:04.690Z",
+  "generatedAtUtc": "2026-06-19T18:01:19.503Z",
   "reportKey": "analytics-semantics-final-lock",
-  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "guestTrackingStatus": "source_ready_guest_data_remains_guest_until_linked",
   "userTrackingStatus": "source_ready_userId_identityState_session_continuity",
   "guestUserTransferStatus": "source_ready_link_first_no_double_count",
@@ -9,13 +9,13 @@
   "runtimeWatchTimeStatus": "source_ready_runtime_watch_v2_runtime_proof_required",
   "adminAnalyticsReadiness": "source_ready_needs_fresh_admin_truth_sample_before_claiming_live_accuracy",
   "betaScoreImpact": {
-    "betaScore": 76.88,
+    "betaScore": 70.79,
     "betaStatus": "External proof required",
     "analyticsSemanticsSourceReady": true,
     "runtimeEvidenceComplete": false,
     "betaExitReady": false,
     "currentBetaStatusMentionsAnalytics": true,
-    "note": "Source-ready analytics semantics do not clear screenshot, provider, runtime, admin truth, or stale-report evidence gates."
+    "note": "Source-ready analytics semantics do not clear UI source coverage gaps, provider, runtime, admin truth, or stale-report evidence gates."
   },
   "cloudRunCostStatus": "cost_safe_10s_heartbeat_no_request_path_backfill; identity_transfer_bounded_link_first_no_history_fanout; owner_review_cost_backlog_visible",
   "cloudSqlCostStatus": "cloud_sql_agent_context_mirror_detected_no_product_runtime_dependency; cloud_sql_not_detected_in_transfer_runtime; cloud_sql_not_used_by_reconciler; cloud_sql_not_detected_in_runtime_watch_v2",
@@ -42,7 +42,7 @@
     }
   ],
   "nextExactSteps": [
-    "Run deterministic UI source coverage before optional browser or screenshot reproduction; keep analytics semantics source-ready only.",
+    "Run deterministic UI source coverage before optional browser reproduction; keep analytics semantics source-ready only.",
     "Wire runtime watch-time v2 into the selected media viewer and capture deployed runtime evidence before claiming live watch-time accuracy.",
     "Refresh provider smoke, runtime smoke, admin truth sample, and beta score artifacts after real evidence is attached."
   ]

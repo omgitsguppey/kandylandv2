@@ -279,11 +279,11 @@ export function resolvePanelHydration(input: ResolveAnalyticsPanelHydrationInput
       : hydrationStatus === "stale"
         ? `Refresh ${panel.expectedSource} and verify the latest materialized timestamp.`
         : hydrationStatus === "runtime_evidence_required"
-          ? `Attach bounded route/debug runtime evidence for ${panel.expectedSource}; do not use screenshots as backend proof.`
-        : hydrationStatus === "admin_truth_source_required"
-          ? `Attach a redacted admin truth source sample for ${panel.expectedSource}; do not use screenshots as backend proof.`
-        : hydrationStatus === "external_required" || hydrationStatus === "provider_gated" || hydrationStatus === "protected_payment_required"
-          ? `Attach redacted external evidence for ${panel.expectedSource}; do not use screenshots as backend proof.`
+        ? `Attach bounded route/debug runtime evidence for ${panel.expectedSource}; do not use browser reproduction as backend proof.`
+      : hydrationStatus === "admin_truth_source_required"
+        ? `Attach a redacted admin truth source sample for ${panel.expectedSource}; do not use browser reproduction as backend proof.`
+      : hydrationStatus === "external_required" || hydrationStatus === "provider_gated" || hydrationStatus === "protected_payment_required"
+        ? `Attach redacted external evidence for ${panel.expectedSource}; do not use browser reproduction as backend proof.`
           : `Repair ${sourceBreak ?? panel.expectedSource} so ${panel.panelLabel} can hydrate.`;
 
   return {

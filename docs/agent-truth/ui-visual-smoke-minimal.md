@@ -2,7 +2,7 @@
 
 Status: deterministic source-owned UI surface coverage lane.
 
-This lane lets the codebase tell on itself before any manual viewing. Screenshots are optional follow-up evidence only when a source/UI-surface check identifies a visual issue to reproduce.
+This lane lets the codebase tell on itself before optional browser reproduction. Browser checks are follow-up only when a source/UI-surface check identifies a visual issue to reproduce.
 
 ## Summary
 
@@ -40,12 +40,7 @@ This lane lets the codebase tell on itself before any manual viewing. Screenshot
 - Production admin truth samples
 - Payment or GumDrop treasury truth
 
-## Template
-
-- Template path: agent/evidence/ui-visual-smoke/template.json
-- The template is optional context only. It is not required to clear UI source coverage and does not clear provider, runtime, admin, or payment gates.
-
 ## Next Exact Steps
 
 - Keep npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui in the UI/admin fast lane.
-- Use screenshots or browser viewing only to reproduce a specific source-reported UI issue, not as the readiness gate.
+- Use browser viewing only to reproduce a specific source-reported UI issue, not as the readiness gate.

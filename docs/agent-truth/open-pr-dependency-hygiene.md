@@ -323,7 +323,7 @@ Validator: `npm run check:open-pr-dependency-hygiene`
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or operator-final visual QA unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional UI browser reproduction unless the report explicitly includes a formal artifact for that category.
 
 ## Validation
 

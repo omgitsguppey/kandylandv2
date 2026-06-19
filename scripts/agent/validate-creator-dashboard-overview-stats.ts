@@ -194,7 +194,7 @@ export function buildCreatorDashboardOverviewStatsReport(): CreatorDashboardOver
     ],
     prCleanupActions: [],
     nextFixOrder: [
-      "Attach mobile screenshot evidence for /dashboard/creator after deployment.",
+      "Run deterministic UI source coverage for /dashboard/creator; use browser reproduction only if it reports a concrete dashboard stats issue.",
       "Manually confirm Zaylani fan source against live relationship/profile data without production reads from this lane.",
     ],
   };

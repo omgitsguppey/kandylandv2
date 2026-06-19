@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T00:17:12.544Z",
+  "generatedAtUtc": "2026-06-19T18:02:29.426Z",
   "reportKey": "creator-profile-mobile-timeline",
-  "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "summary": {
     "broadcastTimelinePrepDetected": true,
     "timelineContractDetected": true,
@@ -14,10 +14,10 @@
     "pendingDraftExcluded": true,
     "duplicateDropCardAvoided": true,
     "protectedNavChatUntouched": true,
-    "releaseNotesUpdated": true,
+    "releaseNotesUpdated": false,
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 0
+    "p2Count": 1
   },
   "dependencyFindings": [
     {
@@ -31,7 +31,7 @@
       "id": "timeline-contract",
       "severity": "P0",
       "status": "pass",
-      "file": "src/lib/creator-profile/timeline-contract.ts",
+      "file": "src/lib/creator/profile/timeline-contract.ts",
       "summary": "Creator profile timeline contract exists and filters broadcast visibility."
     },
     {
@@ -90,7 +90,7 @@
       "id": "pending-draft-excluded",
       "severity": "P0",
       "status": "pass",
-      "file": "src/lib/creator-profile/timeline-contract.ts",
+      "file": "src/lib/creator/profile/timeline-contract.ts",
       "summary": "Timeline contract excludes pending drops and draft or ineligible broadcasts."
     },
     {
@@ -110,7 +110,7 @@
     {
       "id": "release-notes",
       "severity": "P2",
-      "status": "pass",
+      "status": "fail",
       "file": "public/kandydrops-release-notes.json",
       "summary": "Same-commit public beta release note bullets are present."
     }
@@ -123,6 +123,6 @@
   ],
   "nextFixOrder": [
     "Add richer media previews to timeline cards after a shared compact Drop card variant exists.",
-    "Add browser screenshot evidence for the creator profile mobile timeline in a separate visual QA pass."
+    "Run deterministic UI source coverage for the creator profile mobile timeline; use browser reproduction only if it reports a concrete timeline issue."
   ]
 }

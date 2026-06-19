@@ -1,7 +1,7 @@
 # Final Telemetry Closure Lock
 
-Generated: 2026-06-19T07:55:48.835Z
-Current code version: 0659a3764bcb3ada363f4a30e741d6e59743781f
+Generated: 2026-06-19T18:13:12.649Z
+Current code version: 79598a740b349732332b6e1751ca9d8f5b3933dc
 
 ## Summary
 
@@ -69,5 +69,5 @@ Current code version: 0659a3764bcb3ada363f4a30e741d6e59743781f
 ## Next Exact Steps
 
 1. Add or restore check:client-tracking-toggle-semantics as a dedicated closure artifact if the queued toggle phase did not land.
-2. Attach formal provider smoke, runtime smoke, admin truth sample, and manual screenshot evidence before beta exit review.
+2. Run UI source coverage and attach formal provider smoke, runtime smoke, and admin truth sample evidence before beta exit review.
 3. Collect runtime evidence for watch-time, materializers, BigQuery/cloud export, and GA4 evidence refresh before marking those lanes live.

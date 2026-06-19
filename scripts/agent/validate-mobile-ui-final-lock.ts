@@ -316,7 +316,7 @@ export function buildMobileUiFinalLockReport(inputs: MobileUiFinalLockInputs): M
     nextExactSteps: [
       "Run check:mobile-ui-final-lock before future mobile UI cleanup signoff.",
       "When a future UI pass touches admin, user, or creator screens, run the matching mobile phase check before release notes.",
-      "Escalate to manual mobile screenshots only after source readiness is green and the user requests visual evidence.",
+      "Escalate to browser reproduction only after source readiness is green and the user requests visual evidence.",
     ],
   };
 }

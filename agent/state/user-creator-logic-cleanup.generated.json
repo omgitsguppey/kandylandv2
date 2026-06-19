@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T20:07:34.806Z",
+  "generatedAtUtc": "2026-06-19T18:02:49.607Z",
   "reportKey": "user-creator-logic-cleanup",
-  "currentHead": "dc3ae97ac8edaba50669b0188a12e9f7fa4774f6",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "summary": {
     "conflictsFound": 2,
     "conflictsFixed": 9,
@@ -99,7 +99,7 @@
       "id": "broadcast-audience-consolidated",
       "severity": "p1",
       "file": "src/components/Dashboard/creator-workspace/CreatorBroadcastCard.tsx",
-      "summary": "Broadcast audience copy and marker stay explicit as Fans/all_fans.",
+      "summary": "Broadcast audience copy and marker stay explicit as Followers/followers.",
       "status": "fixed"
     }
   ],
@@ -115,6 +115,6 @@
   "nextFixOrder": [
     "Keep future creator dashboard additions inside focused creator-workspace modules instead of growing CreatorWorkspacePanel.",
     "Handle admin analytics/debug monolith cleanup in a separate admin-scoped pass.",
-    "Attach mobile screenshot evidence for creator and user dashboard route boundaries after deployment."
+    "Run deterministic UI source coverage for creator and user dashboard route boundaries; use browser reproduction only for concrete source-reported issues."
   ]
 }

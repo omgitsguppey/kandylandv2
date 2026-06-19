@@ -125,7 +125,6 @@ export const LIVE_EVIDENCE_PRIVACY_REDACTION_POLICY = [
 ];
 
 export const BROAD_MANUAL_GATES_BEFORE = [
-  "operator-final visual QA",
   "manual production smoke",
   "admin truth/sample evidence",
   "runtime/provider smoke",

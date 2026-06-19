@@ -2,7 +2,7 @@
 
 Status: UI screenshot confirmation is no longer a Codex-managed readiness gate.
 
-Deterministic UI surface coverage is source-owned. The codebase can fail missing modal/surface coverage before anyone opens the site. Screenshots are optional reproduction evidence only.
+Deterministic UI surface coverage is source-owned. The codebase can fail missing modal/surface coverage before anyone opens the site. Browser viewing is optional reproduction only.
 
 ## Summary
 

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T04:50:54.124Z",
+  "generatedAtUtc": "2026-06-19T18:02:08.044Z",
   "reportKey": "creator-fan-pass-crm-broadcast",
-  "currentHead": "7c61feaf8898924149f1cde5dc11278782ef8b9d",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "summary": {
     "subscriberIdentityHydrated": true,
     "rawUserIdsHidden": true,
@@ -87,7 +87,7 @@
   ],
   "prCleanupActions": [],
   "nextFixOrder": [
-    "Attach mobile screenshot evidence for Fan Pass CRM after deployment.",
+    "Run deterministic UI source coverage for Fan Pass CRM; use browser reproduction only if it reports a concrete CRM issue.",
     "Add selectable Fan Pass subscriber or segment audiences only after route delivery semantics are implemented."
   ]
 }

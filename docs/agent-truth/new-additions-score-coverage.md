@@ -6,9 +6,9 @@ This finalizer does not create a new telemetry or scoring system. It verifies th
 
 ## Report
 
-- Generated at UTC: 2026-06-19T15:47:18.201Z
+- Generated at UTC: 2026-06-19T17:49:26.538Z
 - Score before: 74.76
-- Score after: 76.88
+- Score after: 70.79
 - All new additions tracked: true
 - All new additions in score: true
 - Orphaned new additions: 0
@@ -33,6 +33,7 @@ This finalizer does not create a new telemetry or scoring system. It verifies th
 
 - Runtime/provider smoke: External proof required
 - Admin truth/sample evidence: External proof required
+- Report freshness and PR integrity: Stale evidence
 - Deployed runtime smoke: Attach formal deployed runtime smoke evidence; source/debug/telemetry proof remains partial only.
 - Formal provider smoke: Attach redacted formal provider smoke artifact before clearing provider readiness.
 - Refresh stale score-impact artifacts: Run the self-healing refresh queue in dependency order and keep formal evidence gates separate.
@@ -49,7 +50,37 @@ This finalizer does not create a new telemetry or scoring system. It verifies th
 
 ## Dirty File Classification
 
-- None.
+- agent/evidence/admin-browser-surface-smoke/evidence.json: documentation_artifact_expected
+- agent/evidence/admin-browser-surface-smoke/template.json: documentation_artifact_expected
+- agent/evidence/ui-visual-smoke/README.md: documentation_artifact_expected
+- agent/evidence/ui-visual-smoke/template.json: documentation_artifact_expected
+- agent/state/admin-browser-surface-smoke.generated.json: current_generated_artifact_to_commit
+- agent/state/codex-visual-gate-removal.generated.json: current_generated_artifact_to_commit
+- agent/state/new-additions-score-coverage.generated.json: current_generated_artifact_to_commit
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/ui-visual-smoke-minimal.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/admin-browser-surface-smoke.md: documentation_artifact_expected
+- docs/agent-truth/codex-visual-gate-removal.md: documentation_artifact_expected
+- docs/agent-truth/new-additions-score-coverage.md: documentation_artifact_expected
+- docs/agent-truth/ui-visual-smoke-minimal.md: documentation_artifact_expected
+- scripts/agent/score-public-beta-readiness.ts: validator_artifact_expected
+- scripts/agent/validate-admin-browser-surface-smoke.ts: validator_artifact_expected
+- scripts/agent/validate-admin-debug-control-tower.ts: validator_artifact_expected
+- scripts/agent/validate-codex-visual-gate-removal.ts: validator_artifact_expected
+- scripts/agent/validate-current-beta-exit-status.ts: validator_artifact_expected
+- scripts/agent/validate-evidence-capture-status.ts: validator_artifact_expected
+- scripts/agent/validate-new-additions-score-coverage.ts: validator_artifact_expected
+- scripts/agent/validate-overnight-beta-readiness-lock.ts: validator_artifact_expected
+- scripts/agent/validate-score-80-reconciliation-lock.ts: validator_artifact_expected
+- scripts/agent/validate-ui-visual-smoke-minimal.ts: validator_artifact_expected
+- src/lib/agent-score/algorithmic-evidence-policy.ts: real_source_change_needs_review
+- src/lib/agent-score/core.ts: real_source_change_needs_review
+- src/lib/evidence/admin-browser-surface-smoke-contract.ts: real_source_change_needs_review
+- src/lib/evidence/ui-visual-smoke-contract.ts: real_source_change_needs_review
+- tests/unit/admin-browser-surface-smoke.spec.ts: test_artifact_expected
+- tests/unit/current-beta-exit-status.spec.ts: test_artifact_expected
+- tests/unit/new-additions-score-coverage.spec.ts: test_artifact_expected
+- tests/unit/ui-visual-smoke-minimal.spec.ts: test_artifact_expected
 
 ## Open PR Classification
 

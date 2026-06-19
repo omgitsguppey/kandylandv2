@@ -164,7 +164,7 @@ export function buildCreatorPricingWiringReport(): CreatorPricingWiringReport {
     prCleanupActions: ["No open PRs were present for creator pricing wiring."],
     nextFixOrder: allFindings.some((entry) => entry.status === "missing")
       ? allFindings.filter((entry) => entry.status === "missing").map((entry) => entry.id)
-      : ["Capture manual user-facing Fan Pass/request/booking price screenshots before visual beta signoff."],
+    : ["Run deterministic UI source coverage for Fan Pass/request/booking price surfaces; use browser reproduction only for concrete source-reported issues."],
   };
 }
 

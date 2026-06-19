@@ -469,7 +469,7 @@ export function buildFinalOperatorEvidenceNeededReport(root: string): FinalOpera
         id: "formal-provider-smoke",
         owner: "operator",
         exactArtifactRequired: "Redacted provider/payment smoke artifact with timestamp, environment, and non-sensitive transaction/status proof.",
-        acceptableEvidenceFormat: "Markdown or JSON packet with screenshots/log snippets redacted for provider IDs, user IDs, and tokens.",
+        acceptableEvidenceFormat: "Markdown or JSON packet with redacted provider status, request/response summary, or transaction receipt fields.",
         whatItProves: "Provider/payment path works in the intended deployed environment.",
         whatItDoesNotProve: "It does not prove source validators or local mocks are deployed runtime proof.",
         blocksBetaExitReady: true,
@@ -502,23 +502,12 @@ export function buildFinalOperatorEvidenceNeededReport(root: string): FinalOpera
         id: "external-billing-review",
         owner: "operator",
         exactArtifactRequired: "External billing review note for Cloud Run/App Hosting, Firestore, BigQuery/export, Cloud SQL/Data Connect, and AI surfaces.",
-        acceptableEvidenceFormat: "Operator-signed review note with billing console screenshots or exported summaries redacted for account details.",
+        acceptableEvidenceFormat: "Operator-signed review note with exported summaries or billing-console values redacted for account details.",
         whatItProves: "Cost risk has external billing evidence.",
         whatItDoesNotProve: "It does not prove product correctness or runtime smoke.",
         blocksBetaExitReady: true,
         affectsScoreOnly: false,
         nextExactAction: "Complete external billing review and attach redacted evidence.",
-      },
-      {
-        id: "operator-final-visual-qa",
-        owner: "operator",
-        exactArtifactRequired: "Final visual QA packet for major user, creator, and admin surfaces.",
-        acceptableEvidenceFormat: "Checklist with screenshots or recordings and explicit pass/fail notes per surface.",
-        whatItProves: "Human-visible UI is acceptable after source closure.",
-        whatItDoesNotProve: "It does not prove provider or billing status.",
-        blocksBetaExitReady: true,
-        affectsScoreOnly: false,
-        nextExactAction: "Run operator-final visual QA and attach packet.",
       },
       {
         id: "manual-production-smoke",
@@ -545,6 +534,7 @@ export function validateFinalOperatorEvidenceNeededReport(report: FinalOperatorE
     if (!item.exactArtifactRequired || !item.acceptableEvidenceFormat) failures.push(`${item.id} lacks exact artifact format.`);
     if (/source validator|source-only/iu.test(item.whatItProves)) failures.push(`${item.id} mislabels source evidence as formal evidence.`);
     if (/manual review needed$/iu.test(item.nextExactAction.trim())) failures.push(`${item.id} has vague next action.`);
+    if (/\bvisual\b/iu.test(item.id)) failures.push("visual reproduction must not be a required beta-exit evidence item.");
   }
   return failures;
 }

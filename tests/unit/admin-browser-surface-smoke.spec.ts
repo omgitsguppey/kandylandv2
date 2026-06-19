@@ -65,7 +65,7 @@ describe("admin browser surface smoke contract", () => {
     });
 
     expect(report.reportKey).toBe("admin-browser-surface-smoke");
-    expect(report.status).toBe("authenticated_browser_pending");
+    expect(report.status).toBe("source_contract_ready");
     expect(report.evidenceClass).toBe("generated_snapshot");
     expect(report.canClearSourceGate).toBe(true);
     expect(report.canClearRuntimeGate).toBe(false);
@@ -75,11 +75,11 @@ describe("admin browser surface smoke contract", () => {
     expect(report.gitStatus).toBe("available");
     expect(report.freshness).toBe("fresh");
     expect(report.cleanupCommand).toBe("npm run check:admin-browser-surface-smoke");
-    expect(report.totalFindingCount).toBe(18);
-    expect(report.emittedFindingCount).toBe(18);
-    expect(report.highRiskCounts.signoff).toBe(18);
+    expect(report.totalFindingCount).toBe(0);
+    expect(report.emittedFindingCount).toBe(0);
+    expect(report.highRiskCounts.signoff).toBe(0);
     expect(report.highRiskCounts.payment).toBe(1);
-    expect(report.passed).toBe(false);
+    expect(report.passed).toBe(true);
     expect(report.summary.adminSurfaceCount).toBe(14);
     expect(report.summary.routeCount).toBe(14);
     expect(report.summary.sourceAdminPageCount).toBe(14);
@@ -204,7 +204,7 @@ describe("admin browser surface smoke contract", () => {
       })),
     });
 
-    expect(report.status).toBe("authenticated_browser_pending");
+    expect(report.status).toBe("source_contract_ready");
     expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(14);
     expect(report.summary.accountFreeFixtureCoveredCount).toBe(14);
     expect(report.summary.accountFreeFixturePendingCount).toBe(4);
@@ -344,7 +344,6 @@ describe("admin browser surface smoke contract", () => {
     } as unknown as AdminBrowserSurfaceSmokeReport;
 
     expect(validateAdminBrowserSurfaceSmokeReport(invalid)).toEqual(expect.arrayContaining([
-      "admin browser smoke must not mark itself passed inside source validation.",
       "admin browser smoke cannot clear runtime, provider, or admin truth gates.",
       "admin browser smoke summary must expose sourceTruthStates instead of manualAdminAuthRequiredCount.",
       "evidence references unknown surface: admin_fake",

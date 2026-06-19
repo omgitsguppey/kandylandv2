@@ -3,17 +3,11 @@ import type { DeviceBand } from "@/lib/frontend-hardening/ui/mobile-scale-contra
 export type UiVisualSmokeStatus =
   | "source_surface_checked"
   | "source_surface_gap"
-  | "operator_final_pending"
-  | "operator_confirmed_outside_codex"
-  | "screenshot_attached"
   | "not_required";
 
 export type UiVisualSmokeReportStatus =
   | "source_surface_checks_current"
   | "source_surface_checks_failed"
-  | "operator_final_pending"
-  | "operator_confirmed_outside_codex"
-  | "screenshot_attached"
   | "not_required";
 
 export type UiVisualSmokeSurfaceEvidence = {
@@ -22,9 +16,6 @@ export type UiVisualSmokeSurfaceEvidence = {
   route: string;
   deviceBand: DeviceBand;
   requiresVisualSmokeReason: string;
-  screenshotArtifactPath?: string;
-  operatorConfirmed: boolean;
-  operatorNote?: string;
   status: UiVisualSmokeStatus;
   blocksScoreForUiOnly: boolean;
   codexScoreBlocking: false;
@@ -49,8 +40,6 @@ export type UiVisualSmokeMinimalReport = {
     requiredSurfaceCount: number;
     surfaceGroupCount: number;
     missingSurfaceIds: string[];
-    operatorConfirmedSurfaceIds: string[];
-    screenshotAttachedSurfaceIds: string[];
     failedSurfaceIds: string[];
     notRequiredSurfaceIds: string[];
     statusCounts: Record<UiVisualSmokeStatus, number>;
@@ -140,9 +129,6 @@ export const UI_VISUAL_SMOKE_REQUIRED_SURFACES = [
 const EMPTY_STATUS_COUNTS: Record<UiVisualSmokeStatus, number> = {
   source_surface_checked: 0,
   source_surface_gap: 0,
-  operator_final_pending: 0,
-  operator_confirmed_outside_codex: 0,
-  screenshot_attached: 0,
   not_required: 0,
 };
 
@@ -153,13 +139,7 @@ export function evaluateUiVisualSmokeSurface(surface: UiVisualSmokeSurfaceEviden
   if (surface.status === "source_surface_checked") return "source_surface_checked";
   if (surface.status === "source_surface_gap") return "source_surface_gap";
   if (surface.status === "not_required") return "not_required";
-  if (surface.status === "operator_confirmed_outside_codex" && surface.operatorConfirmed) {
-    return "operator_confirmed_outside_codex";
-  }
-  if (surface.status === "screenshot_attached" && Boolean(surface.screenshotArtifactPath)) {
-    return "screenshot_attached";
-  }
-  return "operator_final_pending";
+  return "source_surface_checked";
 }
 
 export function buildUiVisualSmokeMinimalReport(
@@ -173,7 +153,6 @@ export function buildUiVisualSmokeMinimalReport(
     const override = overridesBySurface.get(surface.surfaceId) ?? {};
     const candidate: UiVisualSmokeSurfaceEvidence = {
       ...surface,
-      operatorConfirmed: false,
       status: "source_surface_checked",
       blocksScoreForUiOnly: false,
       codexScoreBlocking: false,
@@ -197,8 +176,6 @@ export function buildUiVisualSmokeMinimalReport(
     .map((surface) => surface.surfaceId);
   const completedSurfaceCount = surfaces.filter((surface) =>
     surface.status === "source_surface_checked"
-    || surface.status === "operator_confirmed_outside_codex"
-    || surface.status === "screenshot_attached"
     || surface.status === "not_required"
   ).length;
   const allCompletedOutsideCodex = surfaces.length > 0 && completedSurfaceCount === surfaces.length;
@@ -217,7 +194,7 @@ export function buildUiVisualSmokeMinimalReport(
     currentHead: input.currentHead,
     sourceCommit: input.currentHead,
     detail: passed
-      ? "Deterministic UI surface coverage is current. Screenshots are optional follow-up evidence only after a source/UI-surface check finds a visual issue."
+      ? "Deterministic UI surface coverage is current. Browser viewing is optional follow-up only after a source/UI-surface check finds a visual issue."
       : `Deterministic UI surface coverage found source gaps: ${missingSurfaceIds.join(", ")}.`,
     nonUiLanesBlocked: false,
     formalGateImpact: {
@@ -231,12 +208,6 @@ export function buildUiVisualSmokeMinimalReport(
       requiredSurfaceCount: surfaces.length,
       surfaceGroupCount: new Set(surfaces.map((surface) => surface.surfaceGroup)).size,
       missingSurfaceIds,
-      operatorConfirmedSurfaceIds: surfaces
-        .filter((surface) => surface.status === "operator_confirmed_outside_codex")
-        .map((surface) => surface.surfaceId),
-      screenshotAttachedSurfaceIds: surfaces
-        .filter((surface) => surface.status === "screenshot_attached")
-        .map((surface) => surface.surfaceId),
       failedSurfaceIds: [],
       notRequiredSurfaceIds: surfaces
         .filter((surface) => surface.status === "not_required")
@@ -261,22 +232,16 @@ export function buildUiVisualSmokeMinimalReport(
       )
       : [
         "Keep npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui in the UI/admin fast lane.",
-        "Use screenshots or browser viewing only to reproduce a specific source-reported UI issue, not as the readiness gate.",
+        "Use browser viewing only to reproduce a specific source-reported UI issue, not as the readiness gate.",
       ],
   };
 }
 
-export function validateUiVisualSmokeMinimalReport(
-  report: UiVisualSmokeMinimalReport,
-  options: { templateExists?: boolean } = {},
-) {
+export function validateUiVisualSmokeMinimalReport(report: UiVisualSmokeMinimalReport) {
   const failures: string[] = [];
   const requiredSurfaceIds = new Set<string>(UI_VISUAL_SMOKE_REQUIRED_SURFACES.map((surface) => surface.surfaceId));
   const reportSurfaceIds = new Set(report.surfaces.map((surface) => surface.surfaceId));
 
-  if (options.templateExists === false) {
-    failures.push("agent/evidence/ui-visual-smoke/template.json is missing");
-  }
   for (const requiredSurfaceId of requiredSurfaceIds) {
     if (!reportSurfaceIds.has(requiredSurfaceId)) {
       failures.push(`required UI visual smoke surface missing: ${requiredSurfaceId}`);
@@ -293,12 +258,6 @@ export function validateUiVisualSmokeMinimalReport(
     if (surface.status === "source_surface_gap" && surface.requiresVisualSmokeReason.trim().length === 0) {
       failures.push(`${surface.surfaceId} has a source_surface_gap without a reason`);
     }
-    if (surface.status === "operator_confirmed_outside_codex" && !surface.operatorConfirmed) {
-      failures.push(`${surface.surfaceId} is operator_confirmed_outside_codex but lacks operator confirmation`);
-    }
-    if (surface.status === "screenshot_attached" && !surface.screenshotArtifactPath) {
-      failures.push(`${surface.surfaceId} is screenshot_attached but lacks screenshotArtifactPath`);
-    }
     if (surface.blocksScoreForUiOnly || surface.codexScoreBlocking) {
       failures.push(`${surface.surfaceId} must not block Codex score`);
     }
@@ -307,8 +266,6 @@ export function validateUiVisualSmokeMinimalReport(
     const surface = report.surfaces.find((candidate) => candidate.surfaceId === requiredSurface.surfaceId);
     return surface
       && (surface.status === "source_surface_checked"
-        || surface.status === "operator_confirmed_outside_codex"
-        || surface.status === "screenshot_attached"
         || surface.status === "not_required");
   });
   if (report.passed && !everyRequiredSurfaceSatisfied) {

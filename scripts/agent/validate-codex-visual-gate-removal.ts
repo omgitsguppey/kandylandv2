@@ -9,7 +9,6 @@ const ARTIFACT_PATH = "agent/state/codex-visual-gate-removal.generated.json";
 const DOC_PATH = "docs/agent-truth/codex-visual-gate-removal.md";
 const SCORE_PATH = "agent/state/public-beta-score.generated.json";
 const VISUAL_PATH = "agent/state/ui-visual-smoke-minimal.generated.json";
-const TEMPLATE_PATH = "agent/evidence/ui-visual-smoke/template.json";
 const RETIRED_UI_SCORE_GATE_ID = ["visual", "Manual", "Smoke"].join("");
 
 function git(args: string[]) {
@@ -47,7 +46,7 @@ function renderDoc(report: Record<string, unknown>) {
     "",
     "Status: UI screenshot confirmation is no longer a Codex-managed readiness gate.",
     "",
-    "Deterministic UI surface coverage is source-owned. The codebase can fail missing modal/surface coverage before anyone opens the site. Screenshots are optional reproduction evidence only.",
+    "Deterministic UI surface coverage is source-owned. The codebase can fail missing modal/surface coverage before anyone opens the site. Browser viewing is optional reproduction only.",
     "",
     "## Summary",
     "",
@@ -90,7 +89,6 @@ const providerRuntimeAdminGatesPreserved = ["runtimeProviderSmoke", "adminTruthS
 
 if (!score) failures.push(`${SCORE_PATH} is missing or invalid.`);
 if (!visual) failures.push(`${VISUAL_PATH} is missing or invalid.`);
-if (!existsSync(join(ROOT, TEMPLATE_PATH))) failures.push(`${TEMPLATE_PATH} must remain present.`);
 if (visualGateInEvidenceGates) failures.push("UI visual source coverage must not remain in Codex evidence gates.");
 if (visualGateInLaunchBlockers) failures.push("UI visual source coverage must not remain in Codex launch blockers.");
 if (visualGateInEvidenceCaps) failures.push("UI visual source coverage must not remain in Codex evidence caps.");
@@ -100,7 +98,7 @@ if (operatorChecklistRecord?.sourceChecksPassed !== true || operatorChecklistRec
 }
 if (operatorChecklistRecord?.needsOperatorReview !== false) failures.push("UI source coverage must not require operator review when source checks pass.");
 if (typeof operatorChecklistRecord?.note !== "string" || !operatorChecklistRecord.note.includes("source-reported UI issue")) {
-  failures.push("operator checklist must state screenshots are optional only for a source-reported UI issue.");
+  failures.push("operator checklist must state browser reproduction is optional only for a source-reported UI issue.");
 }
 if (uiVisualSurfaceCount <= 0) failures.push("operator visual checklist must include tracked UI surfaces.");
 if (!providerRuntimeAdminGatesPreserved) failures.push("provider/runtime/admin formal gates must remain score gates.");

@@ -1,7 +1,7 @@
 # Creator Settings Source Health
 
-Generated: 2026-05-20T04:13:46.673Z
-Current head: 984b3d538b7f19013e297257f62ada0420044e14
+Generated: 2026-06-19T18:02:27.805Z
+Current head: 79598a740b349732332b6e1751ca9d8f5b3933dc
 
 ## Summary
 
@@ -14,5 +14,5 @@ Current head: 984b3d538b7f19013e297257f62ada0420044e14
 ## Next
 
 - Manually verify Zaylani creator settings now return HTTP 200 with partial evidence rather than a platform error.
-- Attach screenshot evidence for /dashboard/creator and /dashboard/creator/settings after source health is confirmed.
+- Run deterministic UI source coverage for /dashboard/creator and /dashboard/creator/settings after source health is confirmed; use browser reproduction only for concrete source-reported issues.
 

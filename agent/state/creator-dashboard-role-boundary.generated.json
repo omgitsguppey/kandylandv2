@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T20:07:34.821Z",
+  "generatedAtUtc": "2026-06-19T18:01:19.166Z",
   "reportKey": "creator-dashboard-role-boundary",
-  "currentHead": "dc3ae97ac8edaba50669b0188a12e9f7fa4774f6",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "summary": {
     "creatorDashboardRouteScoped": true,
     "userModulesRemovedFromCreatorDashboard": true,
@@ -14,12 +14,12 @@
     "p1Count": 0,
     "p2Count": 0
   },
-  "screenshotSymptoms": [
+  "sourceReportedSymptoms": [
     {
-      "id": "screenshot-user-modules-after-creator-crm",
+      "id": "source-user-modules-after-creator-crm",
       "severity": "p1",
-      "file": "/dashboard or /dashboard/creator mobile screenshot",
-      "summary": "Mobile screenshot showed user dashboard modules below Creator Dashboard CRM.",
+      "file": "/dashboard or /dashboard/creator source coverage",
+      "summary": "Source coverage caught user dashboard modules below Creator Dashboard CRM.",
       "status": "fixed"
     }
   ],
@@ -94,7 +94,7 @@
   ],
   "prCleanupActions": [],
   "nextFixOrder": [
-    "Attach mobile screenshot evidence for /dashboard/creator after deployment.",
+    "Run deterministic UI source coverage for /dashboard/creator; use browser reproduction only if it reports a concrete route-boundary issue.",
     "If creators need a full user dashboard shortcut later, add an explicit route or role switcher instead of stacking both dashboards."
   ]
 }

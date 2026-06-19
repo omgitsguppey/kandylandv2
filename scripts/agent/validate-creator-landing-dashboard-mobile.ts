@@ -224,7 +224,7 @@ export function buildCreatorLandingDashboardMobileReport(): CreatorLandingDashbo
     ],
     nextFixOrder: [
       "Keep creator drop submission review evidence attached to the creator drop manager lane.",
-      "Attach manual mobile screenshots for /dashboard/creator and /dashboard/creator/settings.",
+      "Run deterministic UI source coverage for /dashboard/creator and /dashboard/creator/settings; use browser reproduction only for concrete source-reported issues.",
     ],
   };
 }

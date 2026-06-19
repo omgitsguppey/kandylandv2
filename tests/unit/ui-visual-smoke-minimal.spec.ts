@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -35,7 +34,7 @@ describe("UI surface coverage evidence lane", () => {
       "admin_debug_summary_desktop",
       "drops_user_library_mobile",
     ]);
-    expect(validateUiVisualSmokeMinimalReport(report, { templateExists: true })).toEqual([]);
+    expect(validateUiVisualSmokeMinimalReport(report)).toEqual([]);
   });
 
   it("keeps chat and navigation out of the default visual smoke lane", () => {
@@ -62,7 +61,7 @@ describe("UI surface coverage evidence lane", () => {
     ]));
   });
 
-  it("rejects overclaims, non-UI lanes, and protected chat or navigation surfaces", () => {
+  it("rejects source overclaims, non-UI lanes, and protected chat or navigation surfaces", () => {
     const report = buildUiVisualSmokeMinimalReport();
     const invalid: UiVisualSmokeMinimalReport = {
       ...report,
@@ -72,11 +71,6 @@ describe("UI surface coverage evidence lane", () => {
           ...report.surfaces[0],
           status: "source_surface_gap",
           requiresVisualSmokeReason: "",
-        },
-        {
-          ...report.surfaces[1],
-          status: "screenshot_attached",
-          screenshotArtifactPath: undefined,
         },
         {
           ...report.surfaces[2],
@@ -91,19 +85,21 @@ describe("UI surface coverage evidence lane", () => {
       ],
     };
 
-    expect(validateUiVisualSmokeMinimalReport(invalid, { templateExists: false })).toEqual(
+    expect(validateUiVisualSmokeMinimalReport(invalid)).toEqual(
       expect.arrayContaining([
         expect.stringContaining("must not pass while required surfaces are missing"),
         expect.stringContaining("source_surface_gap without a reason"),
-        expect.stringContaining("screenshot_attached but lacks screenshotArtifactPath"),
         expect.stringContaining("non-UI lane"),
         expect.stringContaining("protected chat/nav surface"),
-        expect.stringContaining("template.json is missing"),
       ]),
     );
   });
 
-  it("keeps the optional evidence template as context, not as the gate", () => {
-    expect(existsSync("agent/evidence/ui-visual-smoke/template.json")).toBe(true);
+  it("does not expose screenshot or operator-confirmed statuses as source proof", () => {
+    const serialized = JSON.stringify(buildUiVisualSmokeMinimalReport());
+
+    expect(serialized).not.toContain("screenshot_attached");
+    expect(serialized).not.toContain("operator_confirmed_outside_codex");
+    expect(serialized).not.toContain("screenshotArtifactPath");
   });
 });

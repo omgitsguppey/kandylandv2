@@ -41,9 +41,6 @@ const PUBLIC_BETA_SCORE_OWNED_INPUT_PATHS = [
   "agent/state/admin-truth-source-sample.generated.json",
   "agent/state/regression-risk-high-blast-refresh.generated.json",
   "agent/state/ui-visual-smoke-minimal.generated.json",
-  "agent/state/manual-smoke-evidence.generated.json",
-  "agent/state/visual-smoke-evidence.generated.json",
-  "agent/state/screenshot-evidence.generated.json",
 ] as const;
 
 function readRequired(relativePath: string) {

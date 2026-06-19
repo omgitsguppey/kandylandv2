@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T20:07:44.091Z",
+  "generatedAtUtc": "2026-06-19T18:02:28.250Z",
   "reportKey": "creator-landing-dashboard-mobile",
-  "currentHead": "dc3ae97ac8edaba50669b0188a12e9f7fa4774f6",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "summary": {
     "landingRoute": "/dashboard/creator",
     "createDropRouteState": "creator_submission",
@@ -84,6 +84,6 @@
   ],
   "nextFixOrder": [
     "Keep creator drop submission review evidence attached to the creator drop manager lane.",
-    "Attach manual mobile screenshots for /dashboard/creator and /dashboard/creator/settings."
+    "Run deterministic UI source coverage for /dashboard/creator and /dashboard/creator/settings; use browser reproduction only for concrete source-reported issues."
   ]
 }

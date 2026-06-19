@@ -227,9 +227,6 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
         route: readString(record.route) ?? "unknown_route",
         deviceBand: (readString(record.deviceBand) ?? "mobile") as DeviceBand,
         requiresVisualSmokeReason: readString(record.requiresVisualSmokeReason) ?? "Visual smoke reason missing.",
-        screenshotArtifactPath: readString(record.screenshotArtifactPath),
-        operatorConfirmed: readBoolean(record.operatorConfirmed) === true,
-        operatorNote: readString(record.operatorNote),
         status: (readString(record.status) ?? "source_surface_gap") as UiVisualSmokeStatus,
         blocksScoreForUiOnly: readBoolean(record.blocksScoreForUiOnly) === true,
         codexScoreBlocking: false,
@@ -240,12 +237,6 @@ function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed
       surfaceGroupCount: readNumber(summary.surfaceGroupCount) ?? 0,
       missingSurfaceIds: Array.isArray(summary.missingSurfaceIds)
         ? summary.missingSurfaceIds.filter((value): value is string => typeof value === "string")
-        : [],
-      operatorConfirmedSurfaceIds: Array.isArray(summary.operatorConfirmedSurfaceIds)
-        ? summary.operatorConfirmedSurfaceIds.filter((value): value is string => typeof value === "string")
-        : [],
-      screenshotAttachedSurfaceIds: Array.isArray(summary.screenshotAttachedSurfaceIds)
-        ? summary.screenshotAttachedSurfaceIds.filter((value): value is string => typeof value === "string")
         : [],
       failedSurfaceIds: Array.isArray(summary.failedSurfaceIds)
         ? summary.failedSurfaceIds.filter((value): value is string => typeof value === "string")

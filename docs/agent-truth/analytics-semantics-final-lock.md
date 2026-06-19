@@ -1,7 +1,7 @@
 # Analytics Semantics Final Lock
 
-Generated: 2026-06-19T15:03:04.690Z
-Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
+Generated: 2026-06-19T18:01:19.503Z
+Current head: 79598a740b349732332b6e1751ca9d8f5b3933dc
 
 ## Status
 
@@ -11,7 +11,7 @@ Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
 - Legacy recovery: source_ready_legacy_evidence_until_reconciled
 - Runtime watch time: source_ready_runtime_watch_v2_runtime_proof_required
 - Admin analytics readiness: source_ready_needs_fresh_admin_truth_sample_before_claiming_live_accuracy
-- Beta score impact: score=76.88; status=External proof required; sourceReady=true; runtimeEvidenceComplete=false; betaExitReady=false
+- Beta score impact: score=70.79; status=External proof required; sourceReady=true; runtimeEvidenceComplete=false; betaExitReady=false
 
 ## Cost Lanes
 
@@ -30,6 +30,6 @@ Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
 
 ## Next Exact Steps
 
-1. Run deterministic UI source coverage before optional browser or screenshot reproduction; keep analytics semantics source-ready only.
+1. Run deterministic UI source coverage before optional browser reproduction; keep analytics semantics source-ready only.
 2. Wire runtime watch-time v2 into the selected media viewer and capture deployed runtime evidence before claiming live watch-time accuracy.
 3. Refresh provider smoke, runtime smoke, admin truth sample, and beta score artifacts after real evidence is attached.

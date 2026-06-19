@@ -134,7 +134,7 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
       exactCheckCommand: "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
       scoreImpact: "Raises provider/runtime confidence after redacted provider proof is attached.",
       launchImpact: "Required for beta exit; operator reports alone remain non-passing.",
-      nextAction: "Attach redacted provider smoke proof with request/response or screenshot/log evidence.",
+      nextAction: "Attach redacted provider smoke proof with request/response summary or provider status packet.",
     }),
     lane({
       id: "runtime_smoke",

@@ -75,7 +75,7 @@ Scoring impact: runtimeHealth, evidenceCompleteness; estimated 3 point(s); forma
 ### Admin Truth Unknown Recovery
 
 - ID: `admin_truth_unknown_recovery`
-- Trigger patterns: `admin truth/sample evidence unknown`, `Admin Debug shows missing or unavailable source truth`, `beta cap Ready with smoke required: Admin truth/sample evidence`
+- Trigger patterns: `admin truth/sample evidence unknown`, `Admin Debug shows missing or unavailable source truth`, `beta cap formal admin truth sample required`
 - Source files: `src/lib/admin-debug-control-tower.ts`, `src/lib/admin-debug-summary-cards.ts`, `scripts/agent/validate-admin-truth-source-sample.ts`, `agent/state/admin-truth-source-sample.generated.json`
 
 Commands:
@@ -197,7 +197,7 @@ Scoring impact: evidenceCompleteness, regressionRisk; estimated 2 point(s); form
 ### Mobile Scale Residual Recovery
 
 - ID: `mobile_scale_residual_recovery`
-- Trigger patterns: `mobile residual`, `hardcoded UI scale`, `Visual/manual smoke missing but source mobile lock ready`
+- Trigger patterns: `mobile residual`, `hardcoded UI scale`, `UI source coverage reports mobile residuals`
 - Source files: `src/lib/device-layout-contract.ts`, `src/lib/user-mobile-shell.ts`, `agent/state/mobile-ui-final-lock.generated.json`, `scripts/agent/validate-mobile-ui-final-lock.ts`
 
 Commands:
@@ -212,7 +212,7 @@ Validators:
 Fixes:
 - Resolve the exact touched surface and replace hardcoded scale with existing device/layout helpers.
 - Use density variants when a shared component spans admin, user, and creator surfaces.
-- Escalate to manual screenshots only after source readiness is green and explicitly requested.
+- Use browser reproduction only after source coverage reports a concrete UI issue that needs confirmation.
 
 Forbidden actions:
 - no_production_reads
@@ -221,7 +221,7 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Mobile source residual becomes source-ready or still manual_required; does not clear formal visual/manual smoke.
+Evidence outcome: Mobile source residual becomes source-ready or remains source_refresh_required; browser reproduction is optional and does not clear formal runtime/provider/admin truth gates.
 Scoring impact: evidenceCompleteness, regressionRisk; estimated 2 point(s); formal gates clear=false
 
 ### Cost Owner Review Recovery
@@ -288,7 +288,7 @@ Scoring impact: regressionRisk, sourceHealth; estimated 2 point(s); formal gates
 ### Fake Evidence Recovery
 
 - ID: `fake_evidence_recovery`
-- Trigger patterns: `source-only output claimed as runtime proof`, `formal gate marked passed without artifact`, `provider/manual/runtime smoke claimed from local validator`
+- Trigger patterns: `source-only output claimed as runtime proof`, `formal gate marked passed without artifact`, `provider/runtime smoke claimed from local validator`
 - Source files: `src/lib/debug/ai-debug-critic.ts`, `src/lib/agent-score/evidence-quality.ts`, `src/lib/agent-score/core.ts`, `agent/state/ai-debug-critic.generated.json`
 
 Commands:
@@ -302,7 +302,7 @@ Validators:
 
 Fixes:
 - Downgrade the claim to source-only, operator_reported, source_ready, blocked_manual, or formal_missing.
-- Remove any language that says local/static/source validation passed deployed runtime, provider, screenshot, or manual QA.
+- Remove any language that says local/static/source validation passed deployed runtime, provider, or admin truth proof.
 - Require a generated formal artifact path before any formal gate can move to Ready.
 
 Forbidden actions:
@@ -312,14 +312,14 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Evidence claim is corrected to source-only or formal_missing; does not clear formal provider/runtime/manual/admin gates.
+Evidence outcome: Evidence claim is corrected to source-only or formal_missing; does not clear formal provider/runtime/admin truth gates.
 Scoring impact: evidenceCompleteness, runtimeHealth; estimated 5 point(s); formal gates clear=false
 
 ### Creator Settings Unwired Recovery
 
 - ID: `creator_settings_unwired_recovery`
 - Trigger patterns: `creator settings source health missing`, `creator settings control plane unwired`, `creator settings route unavailable`
-- Source files: `src/lib/creator-settings/creator-settings-contract.ts`, `src/lib/creator-dashboard/creator-settings-contract.ts`, `src/app/dashboard/creator/settings/page.tsx`, `src/app/api/creator/settings/route.ts`, `agent/state/creator-settings-control-plane.generated.json`
+- Source files: `src/lib/creator-settings/creator-settings-contract.ts`, `src/lib/creator/dashboard/creator-settings-contract.ts`, `src/app/dashboard/creator/settings/page.tsx`, `src/app/api/creator/settings/route.ts`, `agent/state/creator-settings-control-plane.generated.json`
 
 Commands:
 - `npm run check:creator-settings-source-health`
@@ -372,5 +372,5 @@ Forbidden actions:
 - no_chat_nav_edits
 - no_formal_gate_clear_without_artifact
 
-Evidence outcome: Creator drop status/metrics become source-marked or unavailable; does not clear formal runtime/manual evidence.
+Evidence outcome: Creator drop status/metrics become source-marked or unavailable; does not clear formal runtime/admin truth evidence.
 Scoring impact: sourceHealth, evidenceCompleteness; estimated 2 point(s); formal gates clear=false

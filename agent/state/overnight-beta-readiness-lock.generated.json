@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T15:45:19.546Z",
-  "currentHead": "6814557860101ba2db6006ff37bbd670d9c8c0f0",
-  "betaScore": 76.88,
+  "generatedAtUtc": "2026-06-19T18:05:53.604Z",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "betaScore": 70.79,
   "betaStatus": "External proof required",
   "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
   "sourceTruthStatus": "passed; active=12; supporting=6; retiredLaunchArtifacts=3",
@@ -13,10 +13,22 @@
   "speedSecurityStatus": "52/beta-risk; findings=83; critical=0; p2BacklogVisible=true",
   "remainingBlockers": [
     {
+      "id": "ui_source_coverage_stale",
+      "severity": "P1",
+      "status": "stale_evidence",
+      "nextAction": "Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction."
+    },
+    {
       "id": "provider_smoke_evidence_missing",
       "severity": "P1",
       "status": "external_evidence_required",
       "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
+    },
+    {
+      "id": "runtime_smoke_evidence_stale",
+      "severity": "P1",
+      "status": "stale_evidence",
+      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
     },
     {
       "id": "admin_truth_sample_evidence_missing",
@@ -84,7 +96,7 @@
     {
       "id": "uiSourceCoverage",
       "label": "UI source coverage",
-      "truthState": "capture_artifact_attached",
+      "truthState": "stale_evidence",
       "sourceStatus": "complete",
       "nextAction": "Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction."
     },
@@ -98,7 +110,7 @@
     {
       "id": "runtimeSmoke",
       "label": "Runtime smoke",
-      "truthState": "capture_artifact_attached",
+      "truthState": "stale_evidence",
       "sourceStatus": "complete",
       "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
     },

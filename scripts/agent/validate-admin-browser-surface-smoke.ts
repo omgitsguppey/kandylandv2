@@ -14,8 +14,6 @@ import {
 const ROOT = process.cwd();
 const ARTIFACT_PATH = "agent/state/admin-browser-surface-smoke.generated.json";
 const DOC_PATH = "docs/agent-truth/admin-browser-surface-smoke.md";
-const TEMPLATE_PATH = "agent/evidence/admin-browser-surface-smoke/template.json";
-const OPTIONAL_EVIDENCE_PATH = "agent/evidence/admin-browser-surface-smoke/evidence.json";
 const OPTIONAL_EVIDENCE_DIR = process.env.ADMIN_BROWSER_SMOKE_EVIDENCE_DIR?.trim();
 const ADMIN_LAYOUT_PATH = "src/app/admin/layout.tsx" as const;
 const BROWSER_SMOKE_SPEC_PATH = "tests/ui-audits/admin-browser-surface-smoke.spec.ts" as const;
@@ -52,32 +50,6 @@ function normalizeEvidenceEntries(entries: unknown[]): AdminBrowserSurfaceEviden
   );
 }
 
-function toEvidenceSource(value: unknown): AdminBrowserSurfaceEvidenceProvenance["source"] {
-  return value === "local_in_app_browser" || value === "operator_screenshot" || value === "manual_external"
-    ? value
-    : "unknown";
-}
-
-function readEvidenceFile() {
-  const parsed = readJson(OPTIONAL_EVIDENCE_PATH);
-  if (!parsed || !Array.isArray(parsed.evidence)) return undefined;
-  const notes = Array.isArray(parsed.notes)
-    ? parsed.notes.filter((note): note is string => typeof note === "string")
-    : [];
-  const evidence = normalizeEvidenceEntries(parsed.evidence);
-  return {
-    evidence,
-    provenance: {
-      inputPath: OPTIONAL_EVIDENCE_PATH,
-      source: toEvidenceSource(parsed.source),
-      baseUrl: typeof parsed.baseUrl === "string" ? parsed.baseUrl : undefined,
-      capturedAtUtc: typeof parsed.capturedAtUtc === "string" ? parsed.capturedAtUtc : undefined,
-      noteCount: notes.length,
-      notes,
-    },
-  };
-}
-
 function readEvidenceFragmentsFromDir() {
   if (!OPTIONAL_EVIDENCE_DIR) return undefined;
   const fullDir = isAbsolute(OPTIONAL_EVIDENCE_DIR) ? OPTIONAL_EVIDENCE_DIR : join(ROOT, OPTIONAL_EVIDENCE_DIR);
@@ -108,22 +80,9 @@ function readEvidenceFragmentsFromDir() {
 }
 
 function readEvidenceInputs() {
-  const evidenceFile = readEvidenceFile();
   const evidenceFragments = readEvidenceFragmentsFromDir();
-  if (!evidenceFragments || evidenceFragments.evidence.length === 0) return evidenceFile;
-  if (!evidenceFile || evidenceFile.evidence.length === 0) return evidenceFragments;
-
-  return {
-    evidence: [...evidenceFile.evidence, ...evidenceFragments.evidence],
-    provenance: {
-      inputPath: `${evidenceFile.provenance.inputPath};${evidenceFragments.provenance.inputPath}`,
-      source: "local_in_app_browser" as const,
-      baseUrl: evidenceFile.provenance.baseUrl,
-      capturedAtUtc: evidenceFragments.provenance.capturedAtUtc ?? evidenceFile.provenance.capturedAtUtc,
-      noteCount: evidenceFile.provenance.noteCount + evidenceFragments.provenance.noteCount,
-      notes: [...evidenceFile.provenance.notes, ...evidenceFragments.provenance.notes].slice(0, 5),
-    },
-  };
+  if (!evidenceFragments || evidenceFragments.evidence.length === 0) return undefined;
+  return evidenceFragments;
 }
 
 function write(path: string, value: string) {
@@ -230,7 +189,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Account-free fixture verified: ${report.summary.sourceTruthStates.accountFreeFixtureVerified}`,
     `- Account-free fixture missing: ${report.summary.sourceTruthStates.accountFreeFixtureMissing}`,
     `- Authenticated admin verified: ${report.summary.sourceTruthStates.authenticatedAdminVerified}`,
-    `- Authenticated admin evidence missing: ${report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing}`,
+    `- Optional authenticated browser reproduction missing: ${report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing}`,
     `- Protected label-only surfaces: ${report.summary.sourceTruthStates.protectedLabelOnly}`,
     `- Evidence source: ${report.evidenceProvenance.source}`,
     `- Evidence mode: ${report.evidenceProvenance.evidenceMode}`,
@@ -307,29 +266,6 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
   ].join("\n");
 }
 
-function writeTemplate() {
-  const surfaces = ADMIN_BROWSER_SURFACE_DEFINITIONS.flatMap((surface) =>
-    surface.deviceBands.map((deviceBand) => ({
-      surfaceId: surface.surfaceId,
-      route: surface.browserSmokePath,
-      deviceBand,
-      state: "authenticated_admin_signoff_missing",
-      checkedAtUtc: "",
-      urlAfterNavigation: "",
-      selectorUsed: surface.authenticatedSelectors[0] ?? "",
-      visibleMarker: "",
-      screenshotArtifactPath: "",
-      note: `Template entry only. Replace after real local browser or operator evidence exists. Expected selectors: ${surface.authenticatedSelectors.join(" | ")}. Expected markers: ${surface.authenticatedVisibleMarkers.join(" | ")}`,
-    })),
-  );
-  write(TEMPLATE_PATH, `${JSON.stringify({
-    schema: "admin_browser_surface_smoke_v1",
-    instructions: "Copy to evidence.json only after local browser checks or operator screenshots exist. This template is not proof.",
-    evidence: surfaces,
-  })}\n`);
-}
-
-writeTemplate();
 const evidenceFile = readEvidenceInputs();
 const report = buildAdminBrowserSurfaceSmokeReport({
   currentHead: git(["rev-parse", "HEAD"]),
@@ -355,5 +291,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Admin browser surface smoke OK: status=${report.status}, surfaces=${report.summary.adminSurfaceCount}, authenticatedAdminEvidenceMissing=${report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing}.`,
+  `Admin browser surface smoke OK: status=${report.status}, surfaces=${report.summary.adminSurfaceCount}, optionalAuthenticatedReproductionMissing=${report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing}.`,
 );

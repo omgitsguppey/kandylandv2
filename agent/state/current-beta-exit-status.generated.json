@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-06-19T17:29:38.693Z",
+  "generatedAtUtc": "2026-06-19T18:05:53.604Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "4378184e3b60bb73623f7b4370ed8d6d4e536505",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "summary": {
-    "betaVersion": "1.6.6",
+    "betaVersion": "1.6.9",
     "betaScore": 70.79,
     "betaStatus": "External proof required",
     "scoreVersion": "beta_health_v2",
@@ -34,7 +34,7 @@
     "runtimeSmokeStatus": "stale_runtime_smoke_evidence",
     "adminTruthSampleStatus": "stale_admin_truth_sample_evidence",
     "cloudRunCostReadiness": "cost_review_required",
-    "cloudSqlCostReadiness": "not_detected_in_repo",
+    "cloudSqlCostReadiness": "owner_review_external_billing_required",
     "geminiCloudAssistCostReadiness": "cost_review_required",
     "route4xxReadiness": "source_inventory_complete",
     "errorHandlingSourceStatus": "error_handling_source_complete",
@@ -52,9 +52,9 @@
         "sourceStatus": "source_surface_checks_current",
         "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "1fb8629efe28ef390f48ccf6733f22b6afc174e8",
+        "sourceCommit": "79598a740b349732332b6e1751ca9d8f5b3933dc",
         "canClearGate": true,
-        "nextAction": "Run deterministic UI surface coverage, admin browser surface smoke, and device UI checks before manual viewing."
+        "nextAction": "Run deterministic UI surface coverage, admin browser surface smoke, and device UI checks before optional browser reproduction."
       },
       {
         "id": "providerSmoke",
@@ -123,7 +123,7 @@
     {
       "command": "npm run check:evidence-capture-status",
       "status": "passed",
-      "evidence": "runtime/admin evidence complete; provider evidence remains missing."
+      "evidence": "templates only; complete evidence remains missing."
     },
     {
       "command": "npm run check:overnight-beta-readiness-lock",
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-19T17:29:38.693Z",
+      "generatedAtUtc": "2026-06-19T18:05:53.604Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -153,8 +153,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-19T15:44:33.283Z",
-      "ageHours": 0.013401111111111112,
+      "generatedAtUtc": "2026-06-19T18:05:13.031Z",
+      "ageHours": 0.011270277777777778,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -166,16 +166,16 @@
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
       "reportKey": "evidence-capture-status",
       "label": "Evidence capture status",
-      "status": "current",
-      "needsRefresh": false,
-      "generatedAtUtc": "2026-06-19T17:15:41.085Z",
-      "ageHours": 0.0487375,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-06-19T17:27:18.603Z",
+      "ageHours": 0.6430558333333334,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Evidence capture status is current for the latest code version.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
@@ -184,7 +184,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T14:38:10.570Z",
-      "ageHours": 0.3801866666666667,
+      "ageHours": 3.461953888888889,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -199,7 +199,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T14:36:37.229Z",
-      "ageHours": 0.4061147222222222,
+      "ageHours": 3.4878819444444447,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -214,7 +214,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:55:42.485Z",
-      "ageHours": 7.087988055555556,
+      "ageHours": 10.169755277777778,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -229,7 +229,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:55:48.835Z",
-      "ageHours": 7.086224166666667,
+      "ageHours": 10.16799138888889,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -244,7 +244,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:55:52.739Z",
-      "ageHours": 7.085139722222222,
+      "ageHours": 10.166906944444445,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -259,7 +259,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:56:20.304Z",
-      "ageHours": 7.077482777777778,
+      "ageHours": 10.15925,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -274,7 +274,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:56:14.715Z",
-      "ageHours": 7.079035277777778,
+      "ageHours": 10.1608025,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -289,7 +289,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:56:42.843Z",
-      "ageHours": 7.071221944444445,
+      "ageHours": 10.152989166666666,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -299,6 +299,14 @@
     }
   ],
   "staleArtifacts": [
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "reportKey": "evidence-capture-status",
+      "status": "stale_source_version",
+      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+      "refreshCommand": "npm run check:evidence-capture-status"
+    },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
       "reportKey": "beta-evidence-gap-map",
@@ -385,10 +393,18 @@
     "agent/state/operator-revenue-smoke.generated.json",
     "agent/state/source-truth-authority-map.generated.json",
     "agent/state/cost-4xx-reduction.generated.json",
-    "agent/state/speed-security-hardening.generated.json",
-    "agent/state/current-beta-exit-status.generated.json"
+    "agent/state/speed-security-hardening.generated.json"
   ],
   "remainingBlockers": [
+    {
+      "id": "ui_source_coverage_stale",
+      "severity": "P1",
+      "status": "stale_evidence",
+      "evidence": [
+        "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3"
+      ],
+      "nextAction": "Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction."
+    },
     {
       "id": "provider_smoke_evidence_missing",
       "severity": "P1",
@@ -397,6 +413,15 @@
         "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3"
       ],
       "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
+    },
+    {
+      "id": "runtime_smoke_evidence_stale",
+      "severity": "P1",
+      "status": "stale_evidence",
+      "evidence": [
+        "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3"
+      ],
+      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
     },
     {
       "id": "admin_truth_sample_evidence_missing",
@@ -415,15 +440,6 @@
         "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3"
       ],
       "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
-    },
-    {
-      "id": "provider-smoke",
-      "severity": "P1",
-      "status": "stale_provider_smoke_evidence",
-      "evidence": [
-        "agent/state/provider-smoke-evidence.generated.json"
-      ],
-      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
     }
   ],
   "deferredOwnerReview": [
@@ -441,12 +457,26 @@
     }
   ],
   "nextExactSteps": [
-    "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui before manual viewing; fix any source-reported UI surface issue.",
-    "Use docs/agent-truth/ui-visual-smoke-minimal.md as the deterministic UI source coverage lane.",
-    "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider proof.",
-    "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed runtime smoke proof.",
-    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted production admin truth samples.",
-    "Reference agent/state/evidence-capture-status.generated.json.",
-    "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked."
+    "First evidence lane: deterministic UI source coverage. Use docs/agent-truth/ui-visual-smoke-minimal.md and npm run check:ui-visual-smoke-minimal before optional browser reproduction.",
+    "UI route/flow source targets are owned by agent/state/ui-visual-smoke-minimal.generated.json; fix source-reported gaps before optional browser reproduction.",
+    "Second lane after UI source coverage: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.",
+    "Revenue smoke note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+    "Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.",
+    "Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.",
+    "Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.",
+    "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
+    "Outdated launch/readiness reports should stay retired until after evidence capture; refresh them only if beta-exit review needs a fresh launch package.",
+    "Run npm run check:overnight-beta-readiness-lock after attaching evidence.",
+    "Refresh generated status with npm run check:current-beta-exit-status.",
+    "Refresh generated status with npm run score:beta && npm run check:beta-score.",
+    "Refresh generated status with npm run check:evidence-capture-status.",
+    "Refresh generated status with npm run check:beta-evidence-gap-map.",
+    "Refresh generated status with npm run check:beta-evidence-lane-prep.",
+    "Refresh generated status with npm run check:source-truth-authority-map.",
+    "Refresh generated status with npm run check:final-telemetry-closure-lock.",
+    "Refresh generated status with npm run check:mobile-ui-final-lock.",
+    "Refresh generated status with npm run check:creator-settings-control-plane.",
+    "Refresh generated status with npm run check:creator-drop-status-metrics.",
+    "Refresh generated status with npm run check:operator-revenue-smoke."
   ]
 }

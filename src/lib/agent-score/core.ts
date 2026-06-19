@@ -153,9 +153,6 @@ export type PublicBetaOperatorFinalVisualSurface = {
   status:
     | "source_surface_checked"
     | "source_surface_gap"
-    | "operator_final_pending"
-    | "operator_confirmed_outside_codex"
-    | "screenshot_attached"
     | "not_required";
   needsOperatorReview: boolean;
 };
@@ -165,9 +162,6 @@ export type PublicBetaOperatorFinalChecks = {
     status:
       | "source_surface_checked"
       | "source_surface_gap"
-      | "operator_final_pending"
-      | "operator_confirmed_outside_codex"
-      | "screenshot_attached"
       | "not_required";
     needsOperatorReview: boolean;
     passedInCodex: boolean;
@@ -590,7 +584,7 @@ function buildScoreExplanation(input: {
     evidenceScoreMeaning: `Evidence score ${input.evidenceScore}/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score ${input.healthScore}/100 currently maps to launch gate ${input.launchGateStatus}.`,
     missingEvidenceCaps: input.evidenceCapDetails,
     staleReportHandling: "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
-    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Deterministic UI surface coverage runs before any optional browser or screenshot review.",
+    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Deterministic UI surface coverage runs before optional browser reproduction.",
     betaExitBlockedBy: blockedBy,
   };
 }
@@ -605,23 +599,19 @@ function readEvidenceListValue(artifact: PublicBetaEvidenceArtifact | undefined,
 function buildOperatorFinalChecks(uiSurfaceCoverageEvidence?: PublicBetaEvidenceArtifact): PublicBetaOperatorFinalChecks {
   const requiredSurfaceIds = readEvidenceListValue(uiSurfaceCoverageEvidence, "uiVisualSmoke.requiredSurfaces");
   const pendingSurfaceIds = readEvidenceListValue(uiSurfaceCoverageEvidence, "uiVisualSmoke.missingSurfaces");
-  const statusText = String(uiSurfaceCoverageEvidence?.status ?? "operator_final_pending");
+  const statusText = String(uiSurfaceCoverageEvidence?.status ?? "source_surface_checks_failed");
   const status: PublicBetaOperatorFinalVisualSurface["status"] =
     statusText === "source_surface_checks_current" || statusText === "source_surface_checked"
       ? "source_surface_checked"
       : statusText === "source_surface_checks_failed" || statusText === "source_surface_gap"
         ? "source_surface_gap"
-        : statusText === "operator_confirmed_outside_codex"
-      ? "operator_confirmed_outside_codex"
-      : statusText === "screenshot_attached"
-        ? "screenshot_attached"
         : statusText === "not_required"
           ? "not_required"
-          : "operator_final_pending";
+          : "source_surface_gap";
   const surfaceIds = requiredSurfaceIds.length > 0 ? requiredSurfaceIds : pendingSurfaceIds;
   const pendingSet = new Set(pendingSurfaceIds);
   const sourceChecksPassed = uiSurfaceCoverageEvidence?.passed === true || status === "source_surface_checked" || status === "not_required";
-  const needsOperatorReview = status === "source_surface_gap" || status === "operator_final_pending" || pendingSurfaceIds.length > 0;
+  const needsOperatorReview = status === "source_surface_gap" || pendingSurfaceIds.length > 0;
 
   return {
     uiVisualSurfaces: {
@@ -629,7 +619,7 @@ function buildOperatorFinalChecks(uiSurfaceCoverageEvidence?: PublicBetaEvidence
       needsOperatorReview,
       passedInCodex: sourceChecksPassed,
       sourceChecksPassed,
-      note: "deterministic UI surface coverage runs before browser viewing; screenshots are optional only to reproduce a source-reported UI issue and do not clear provider/runtime/admin truth.",
+      note: "deterministic UI surface coverage runs before browser viewing; browser checks are optional only to reproduce a source-reported UI issue and do not clear provider/runtime/admin truth.",
       sourcePath: uiSurfaceCoverageEvidence?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
       surfaces: surfaceIds.map((surfaceId) => ({
         surfaceId,

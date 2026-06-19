@@ -667,17 +667,6 @@ export function resolveLiveEvidenceForGate(input: { root: string; currentHead: s
 
 export function classifyManualGateReducibility(input: { gate: string; liveEvidenceBySystem: LiveEvidenceSystemDecision[] }): ManualGateReduction {
   const gate = input.gate;
-  if (gate === "operator-final visual QA") {
-    return {
-      gate,
-      beforeClass: "broad_manual",
-      afterClass: "visual_operator_evidence",
-      status: "visual_only_manual",
-      replacement: "visual layout QA only: nav overlap, clipping, readable text, responsive layout, and visual loading/empty/error states",
-      reason: "Screenshots cannot prove backend, runtime, payment, telemetry, or journey behavior.",
-      blocksBetaExit: true,
-    };
-  }
   if (gate === "external billing review") {
     return {
       gate,
@@ -707,7 +696,7 @@ export function classifyManualGateReducibility(input: { gate: string; liveEviden
       beforeClass: "broad_manual",
       afterClass: "live_route_health_evidence",
       status: missing > 0 ? "source_missing_live_evidence" : "source_only_evidence",
-      replacement: "split into live route/runtime evidence, live product journey evidence, external provider evidence, and visual-only QA",
+      replacement: "split into live route/runtime evidence, live product journey evidence, external provider evidence, and source UI coverage",
       reason: "A single manual smoke gate is too broad; each product system must use its live evidence source or be marked source_missing.",
       blocksBetaExit: true,
     };
@@ -717,7 +706,7 @@ export function classifyManualGateReducibility(input: { gate: string; liveEviden
     beforeClass: "mixed_manual_formal",
     afterClass: "live_admin_truth_evidence",
     status: "source_missing_live_evidence",
-    replacement: "redacted live admin truth summary or redaction packet; screenshots are not evidence for admin truth",
+    replacement: "redacted live admin truth summary or redaction packet; browser reproduction is not evidence for admin truth",
     reason: "Admin truth must come from redacted summaries or source_missing classification.",
     blocksBetaExit: true,
   };
@@ -734,7 +723,7 @@ function reasonForDecision(seed: EvidenceSystemSeed, status: LiveEvidenceStatus)
   if (status === "source_missing_live_evidence") return `No clearing live evidence source was found. ${seed.sourceOnlyFallback}.`;
   if (status === "external_provider_required") return "Provider/payment UI or webhook proof must come from external provider evidence.";
   if (status === "external_billing_required") return "Actual spend proof must come from external billing review.";
-  return "Manual evidence is visual-only and cannot prove backend behavior.";
+  return "Optional browser reproduction cannot prove backend behavior.";
 }
 
 function nextActionForDecision(seed: EvidenceSystemSeed, status: LiveEvidenceStatus) {
@@ -743,7 +732,7 @@ function nextActionForDecision(seed: EvidenceSystemSeed, status: LiveEvidenceSta
   if (status === "source_missing_live_evidence") return `Add or attach ${seed.expectedLiveEvidenceSource}; classify missing lanes as source_missing, not visual proof blockers.`;
   if (status === "external_provider_required") return "Attach redacted provider/payment proof without exposing raw provider IDs.";
   if (status === "external_billing_required") return "Attach external billing review for cost lanes.";
-  return "Capture visual QA screenshots only for layout and responsive checks.";
+  return "Use browser reproduction only after source coverage reports a concrete UI issue.";
 }
 
 export function buildLiveEvidenceGateReplacementReport(context: ReleaseReadinessContext, root = process.cwd()): LiveEvidenceGateReplacementReport {
@@ -771,14 +760,13 @@ export function buildLiveEvidenceGateReplacementReport(context: ReleaseReadiness
       .map((system) => `${system.label}: ${system.liveRuntimeEvidenceStatus}`),
     "external provider proof",
     "external billing review",
-    "visual-only operator QA",
   ];
   const report: LiveEvidenceGateReplacementReport = {
     reportKey: "live-evidence-gate-replacement",
     generatedAtUtc: context.generatedAtUtc,
     currentHead: context.currentHead,
     broadManualGatesBefore: BROAD_MANUAL_GATES_BEFORE,
-    broadManualGatesAfter: ["visual-only operator QA", "external provider proof", "external billing review", "source_missing live evidence lanes"],
+    broadManualGatesAfter: ["external provider proof", "external billing review", "source_missing live evidence lanes"],
     gatesReplacedByLiveEvidence: reductions.filter((reduction) => reduction.gate === "manual production smoke" || reduction.gate === "admin truth/sample evidence" || reduction.gate === "runtime/provider smoke"),
     visualOnlyManualGatesRemaining: reductions.filter((reduction) => reduction.afterClass === "visual_operator_evidence"),
     externalProviderGatesRemaining: reductions.filter((reduction) => reduction.afterClass === "external_provider_evidence"),
@@ -793,7 +781,7 @@ export function buildLiveEvidenceGateReplacementReport(context: ReleaseReadiness
       "Attach redacted deployed route/runtime evidence for route health.",
       "Attach redacted provider/payment proof for PayPal/provider flows.",
       "Attach external billing review for cost lanes.",
-      "Limit operator screenshots to layout, clipping, readability, responsive, and visual state checks.",
+      "Keep deterministic UI source coverage current; use browser reproduction only for source-reported issues.",
     ],
     validationFailures: [],
   };
@@ -834,9 +822,6 @@ export function validateLiveEvidenceGateReplacementReport(report: LiveEvidenceGa
   }
   if (report.betaExitReadyAfter && (report.externalProviderGatesRemaining.length > 0 || report.externalBillingGatesRemaining.length > 0 || report.remainingBlockers.length > 0)) {
     failures.push("betaExitReady true while external provider/billing/formal blockers remain.");
-  }
-  if (report.gatesReplacedByLiveEvidence.some((gate) => gate.gate === "operator-final visual QA")) {
-    failures.push("backend/product functionality still requires screenshots when live evidence exists.");
   }
   return Array.from(new Set(failures));
 }

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T20:07:44.129Z",
+  "generatedAtUtc": "2026-06-19T18:02:07.312Z",
   "reportKey": "creator-dashboard-overview-stats",
-  "currentHead": "dc3ae97ac8edaba50669b0188a12e9f7fa4774f6",
+  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
   "summary": {
     "overviewModuleEnabled": true,
     "oldSeparateStatCardsRemoved": true,
@@ -110,7 +110,7 @@
   ],
   "prCleanupActions": [],
   "nextFixOrder": [
-    "Attach mobile screenshot evidence for /dashboard/creator after deployment.",
+    "Run deterministic UI source coverage for /dashboard/creator; use browser reproduction only if it reports a concrete dashboard stats issue.",
     "Manually confirm Zaylani fan source against live relationship/profile data without production reads from this lane."
   ]
 }

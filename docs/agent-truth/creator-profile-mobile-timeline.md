@@ -1,6 +1,6 @@
 # Creator Profile Mobile Timeline
 
-Generated: 2026-05-21T00:17:12.544Z
+Generated: 2026-06-19T18:02:29.426Z
 
 ## Summary
 
@@ -11,7 +11,7 @@ Generated: 2026-05-21T00:17:12.544Z
 - Timeline feed rendered: true
 - Pending/draft content excluded: true
 - Protected nav/chat untouched: true
-- P0/P1/P2: 0/0/0
+- P0/P1/P2: 0/0/1
 
 ## Fixes Applied
 
@@ -22,4 +22,4 @@ Generated: 2026-05-21T00:17:12.544Z
 ## Next Fix Order
 
 - Add richer media previews to timeline cards after a shared compact Drop card variant exists.
-- Add browser screenshot evidence for the creator profile mobile timeline in a separate visual QA pass.
+- Run deterministic UI source coverage for the creator profile mobile timeline; use browser reproduction only if it reports a concrete timeline issue.

@@ -80,10 +80,70 @@ function classifyChangedFile(path: string): Score80ChangedFile {
   const normalized = path.replace(/\\/gu, "/");
   let classification: Score80ChangedFileClassification = "unsafe_unknown";
   let reason = "";
+  const retiredVisualEvidencePaths = new Set([
+    "agent/evidence/admin-browser-surface-smoke/evidence.json",
+    "agent/evidence/admin-browser-surface-smoke/template.json",
+    "agent/evidence/ui-visual-smoke/README.md",
+    "agent/evidence/ui-visual-smoke/template.json",
+  ]);
+  const validatorPaths = new Set([
+    "scripts/agent/score-public-beta-readiness.ts",
+    "scripts/agent/validate-admin-browser-surface-smoke.ts",
+    "scripts/agent/validate-admin-debug-control-tower.ts",
+    "scripts/agent/validate-analytics-semantics-final-lock.ts",
+    "scripts/agent/validate-beta-evidence-gap-map.ts",
+    "scripts/agent/validate-codex-visual-gate-removal.ts",
+    "scripts/agent/validate-creator-dashboard-overview-stats.ts",
+    "scripts/agent/validate-creator-dashboard-role-boundary.ts",
+    "scripts/agent/validate-creator-drop-manager-mobile-refinement.ts",
+    "scripts/agent/validate-creator-fan-pass-crm-broadcast.ts",
+    "scripts/agent/validate-creator-landing-dashboard-mobile.ts",
+    "scripts/agent/validate-creator-nav-role-consolidation.ts",
+    "scripts/agent/validate-creator-pricing-wiring.ts",
+    "scripts/agent/validate-creator-profile-mobile-timeline.ts",
+    "scripts/agent/validate-creator-settings-source-health.ts",
+    "scripts/agent/validate-current-beta-exit-status.ts",
+    "scripts/agent/validate-evidence-capture-status.ts",
+    "scripts/agent/validate-final-phase-cleanup-lock.ts",
+    "scripts/agent/validate-mobile-loading-hydration-stability.ts",
+    "scripts/agent/validate-mobile-ui-final-lock.ts",
+    "scripts/agent/validate-new-additions-score-coverage.ts",
+    "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+    "scripts/agent/validate-public-beta-score.ts",
+    "scripts/agent/validate-score-80-reconciliation-lock.ts",
+    "scripts/agent/validate-ui-visual-smoke-minimal.ts",
+    "scripts/agent/validate-user-creator-logic-cleanup.ts",
+  ]);
+  const sourcePaths = new Set([
+    "src/lib/admin-analytics/panel-hydration-resolver.ts",
+    "src/lib/agent-score/algorithmic-evidence-policy.ts",
+    "src/lib/agent-score/core.ts",
+    "src/lib/errors/error-dictionary.ts",
+    "src/lib/evidence/admin-browser-surface-smoke-contract.ts",
+    "src/lib/evidence/ui-visual-smoke-contract.ts",
+    "src/lib/release-readiness/final-beta-exit-closure.ts",
+    "src/lib/release-readiness/final-release-readiness.ts",
+    "src/lib/release-readiness/live-evidence-gate-contract.ts",
+    "src/lib/release-readiness/live-evidence-resolver.ts",
+  ]);
+  const testPaths = new Set([
+    "tests/unit/admin-browser-surface-smoke.spec.ts",
+    "tests/unit/analytics-semantics-final-lock.spec.ts",
+    "tests/unit/current-beta-exit-status.spec.ts",
+    "tests/unit/final-operator-evidence-needed.spec.ts",
+    "tests/unit/final-release-exit-readiness-packet.spec.ts",
+    "tests/unit/live-evidence-gate-replacement.spec.ts",
+    "tests/unit/new-additions-score-coverage.spec.ts",
+    "tests/unit/operator-final-qa-packet.spec.ts",
+    "tests/unit/ui-visual-smoke-minimal.spec.ts",
+  ]);
 
   if (normalized === "debug-output.json" || normalized === "git_diff.txt" || normalized === "git_log_output.txt") {
     classification = "deleted_obsolete_log";
     reason = "Deleted obsolete root log dump; logs do not belong in committed source truth.";
+  } else if (retiredVisualEvidencePaths.has(normalized)) {
+    classification = "deleted_obsolete_log";
+    reason = "Deleted obsolete checked-in visual/browser evidence logs and templates; source coverage owns this gate now.";
   } else if (/^agent\/state\/.*\.generated\.json$/u.test(normalized)) {
     classification = "current_generated_artifact_to_commit";
     reason = "Generated score/debug evidence artifact refreshed by requested validators.";
@@ -96,10 +156,7 @@ function classifyChangedFile(path: string): Score80ChangedFile {
   } else if (normalized === "EVERY_FILE_FUNCTION_CHECKLIST.md") {
     classification = "documentation_artifact_expected";
     reason = "Removed obsolete root log dump entries from the file checklist.";
-  } else if (normalized.startsWith("agent/evidence/ui-visual-smoke/")) {
-    classification = "documentation_artifact_expected";
-    reason = "Operator-final UI visual review template/checklist retained outside Codex score gates.";
-  } else if (normalized.startsWith("scripts/agent/") && normalized.endsWith(".ts")) {
+  } else if (validatorPaths.has(normalized) || normalized.startsWith("scripts/agent/") && normalized.endsWith(".ts")) {
     classification = "validator_artifact_expected";
     reason = "Scoped score/evidence validator updated for this score cleanup batch.";
   } else if (normalized === "tests/unit/score-80-reconciliation-lock.spec.ts"
@@ -116,7 +173,8 @@ function classifyChangedFile(path: string): Score80ChangedFile {
     || normalized === "tests/unit/real-usage-confidence-calibration.spec.ts"
     || normalized === "tests/unit/real-usage-confidence.spec.ts"
     || normalized === "tests/unit/runtime-smoke-substitute-matrix.spec.ts"
-    || normalized === "tests/unit/regression-risk-high-blast-refresh.spec.ts") {
+    || normalized === "tests/unit/regression-risk-high-blast-refresh.spec.ts"
+    || testPaths.has(normalized)) {
     classification = "test_artifact_expected";
     reason = "Dedicated score/evidence unit coverage for this batch.";
   } else if (normalized === "src/lib/agent-score/score-80-reconciliation-lock.ts"
@@ -132,7 +190,8 @@ function classifyChangedFile(path: string): Score80ChangedFile {
     || normalized === "src/lib/evidence/ui-visual-smoke-contract.ts"
     || normalized === "src/lib/release-readiness/automated-truth-reconciliation.ts"
     || normalized === "src/lib/runtime/runtime-smoke-substitute-matrix.ts"
-    || normalized === "package.json") {
+    || normalized === "package.json"
+    || sourcePaths.has(normalized)) {
     classification = "real_source_change_needs_review";
     reason = "Scoped score/evidence source wiring required for this cleanup batch.";
   } else if (normalized.startsWith("agent/context/") || normalized.startsWith("agent/index/")) {

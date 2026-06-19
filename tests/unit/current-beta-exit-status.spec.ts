@@ -29,7 +29,7 @@ function proofLanesFor(
       captureStatus: summary.visualEvidenceStatus.includes("source_surface_checks_current") ? "complete" : "missing",
       sourceCommit: "head",
       canClearGate: summary.visualEvidenceStatus.includes("source_surface_checks_current"),
-      nextAction: "Run deterministic UI surface coverage checks before manual viewing.",
+      nextAction: "Run deterministic UI surface coverage checks before optional browser reproduction.",
     },
     {
       id: "providerSmoke",

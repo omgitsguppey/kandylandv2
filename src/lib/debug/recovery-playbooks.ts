@@ -291,7 +291,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       triggerPatterns: [
         "mobile residual",
         "hardcoded UI scale",
-        "Visual/manual smoke missing but source mobile lock ready",
+        "UI source coverage reports mobile residuals",
       ],
       sourceFiles: [
         "src/lib/device-layout-contract.ts",
@@ -311,9 +311,9 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       fixes: [
         "Resolve the exact touched surface and replace hardcoded scale with existing device/layout helpers.",
         "Use density variants when a shared component spans admin, user, and creator surfaces.",
-        "Use browser or screenshot reproduction only after source readiness is green and a concrete UI issue needs confirmation.",
+        "Use browser reproduction only after source coverage reports a concrete UI issue that needs confirmation.",
       ],
-      evidenceOutcome: "Mobile source residual becomes source-ready or still manual_required; does not clear formal visual/manual smoke.",
+      evidenceOutcome: "Mobile source residual becomes source-ready or remains source_refresh_required; browser reproduction is optional and does not clear formal runtime/provider/admin truth gates.",
       scoringImpactEstimate: {
         dimensions: ["evidenceCompleteness", "regressionRisk"],
         estimatedPointImpact: 2,
@@ -399,7 +399,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       triggerPatterns: [
         "source-only output claimed as runtime proof",
         "formal gate marked passed without artifact",
-        "provider/manual/runtime smoke claimed from local validator",
+        "provider/runtime smoke claimed from local validator",
       ],
       sourceFiles: [
         "src/lib/debug/ai-debug-critic.ts",
@@ -418,10 +418,10 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       ],
       fixes: [
         "Downgrade the claim to source-only, operator_reported, source_ready, blocked_manual, or formal_missing.",
-        "Remove any language that says local/static/source validation passed deployed runtime, provider, screenshot, or manual QA.",
+        "Remove any language that says local/static/source validation passed deployed runtime, provider, or admin truth proof.",
         "Require a generated formal artifact path before any formal gate can move to Ready.",
       ],
-      evidenceOutcome: "Evidence claim is corrected to source-only or formal_missing; does not clear formal provider/runtime/manual/admin gates.",
+      evidenceOutcome: "Evidence claim is corrected to source-only or formal_missing; does not clear formal provider/runtime/admin truth gates.",
       scoringImpactEstimate: {
         dimensions: ["evidenceCompleteness", "runtimeHealth"],
         estimatedPointImpact: 5,
@@ -494,7 +494,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
         "Show missing metrics as collecting or unavailable, never proven zero without source evidence.",
         "Keep admin-only publish, approval, and rotation controls out of creator surfaces.",
       ],
-      evidenceOutcome: "Creator drop status/metrics become source-marked or unavailable; does not clear formal runtime/manual evidence.",
+      evidenceOutcome: "Creator drop status/metrics become source-marked or unavailable; does not clear formal runtime/admin truth evidence.",
       scoringImpactEstimate: {
         dimensions: ["sourceHealth", "evidenceCompleteness"],
         estimatedPointImpact: 2,

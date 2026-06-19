@@ -663,7 +663,7 @@ export const HUMAN_ERROR_DICTIONARY = {
     owner: "platform",
     userTitle: "Evidence is not attached yet",
     userMessage: "This is an operator evidence gap, not a product failure. Attach the proof before calling it passed.",
-    operatorMessage: "Evidence artifact is missing, so readiness cannot be marked passed. Attach screenshot, provider, runtime, or admin truth evidence.",
+    operatorMessage: "Evidence artifact is missing, so readiness cannot be marked passed. Attach the required provider, runtime, or admin truth evidence; browser reproduction is optional issue context only.",
     primaryAction: "none",
     bugReportEligible: false,
     rewardEligible: false,

@@ -32,6 +32,7 @@ describe("final release exit readiness packet", () => {
     expect(report.betaExitReady).toBe(false);
     expect(report.remainingFormalEvidence).toEqual(expect.arrayContaining(["live route/runtime evidence", "external provider proof", "admin live truth/redacted sample evidence"]));
     expect(report.remainingManualItems).not.toContain("manual production smoke");
+    expect(report.remainingManualItems).not.toContain("visual-only operator QA");
     expect(report.liveEvidenceGateReplacement.status).toBe("split_ready");
     expect(report.costRiskStatus.status).toBe("below80_external_review_required");
     expect(validateFinalReleaseExitReadinessPacketReport(report)).toEqual([]);

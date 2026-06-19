@@ -271,7 +271,7 @@ export function buildMobileLoadingHydrationStabilityReport(
     nextFixOrder: [
       "Apply loading-state-contract helpers to additional high-risk admin and creator modules as those surfaces are touched.",
       "Keep route-level loading placeholders compact and close to the final module dimensions.",
-      "Escalate runtime screenshot verification only when source validators identify a mobile layout risk that cannot be proven from code.",
+      "Escalate to browser reproduction only when source validators identify a mobile layout risk that cannot be proven from code.",
     ],
     inventory: inputs.inventoryMatches,
   };

@@ -14,7 +14,7 @@ describe("operator final QA packet", () => {
     expect(report.outsideCodexScoreGate).toBe(true);
     expect(report.surfaces.map((surface) => surface.surfaceId)).toEqual(expect.arrayContaining(["homepage", "wallet-purchase-modal", "admin-debug"]));
     expect(report.operatorFinalStatus).toBe("source_checked");
-    expect(report.surfaces.every((surface) => surface.screenshotRequired === false)).toBe(true);
+    expect(report.surfaces.every((surface) => surface.browserReproductionRequired === false)).toBe(true);
     expect(report.surfaces.every((surface) => surface.status === "source_checked")).toBe(true);
     expect(validateOperatorFinalQaPacketReport(report)).toEqual([]);
   });

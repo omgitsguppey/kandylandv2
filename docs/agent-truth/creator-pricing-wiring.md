@@ -1,7 +1,7 @@
 # Creator Pricing Wiring
 
-Generated: 2026-05-26T01:36:00.704Z
-Head: 42bdd44bf02066df05ab2b18dc351681fc93d1cf
+Generated: 2026-06-19T18:02:28.291Z
+Head: 79598a740b349732332b6e1751ca9d8f5b3933dc
 
 ## Summary
 
@@ -23,4 +23,4 @@ Head: 42bdd44bf02066df05ab2b18dc351681fc93d1cf
 
 ## Next Fix Order
 
-- Capture manual user-facing Fan Pass/request/booking price screenshots before visual beta signoff.
+- Run deterministic UI source coverage for Fan Pass/request/booking price surfaces; use browser reproduction only for concrete source-reported issues.
