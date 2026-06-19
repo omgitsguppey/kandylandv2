@@ -232,6 +232,19 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("launch recovery source inventory entries require productTruthRole and promotionRule.");
   });
 
+  it("surfaces legacy purgatory in launch recovery without making it product truth", () => {
+    const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
+
+    expect(source).toContain("compactLegacyRecoverySummary");
+    expect(source).toContain("analytics-legacy-purgatory-queue.generated.json");
+    expect(source).toContain("currentTotalsEligibleCount");
+    expect(source).toContain("productTruthEligibleCount");
+    expect(source).toContain("historical_evidence_only");
+    expect(source).toContain("legacy recovery cannot mark purgatory rows current/product-truth eligible");
+    expect(source).toContain("## Legacy Recovery Queue");
+    expect(source).toContain("Legacy, historical snapshot, and GA4 evidence can explain gaps or seed manual review only.");
+  });
+
   it("keeps launch recovery day rows actionable instead of top-level-only", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
 

@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-19T02:31:15.490Z
+Generated: 2026-06-19T02:41:57.122Z
 Status: pass
-Current head: b3dcd4d41e345030ff017fa1800ba4d0716d1636
+Current head: 50a408ece3d6f11ca96e0ee5554d779e113b281f
 
 ## Contract
 
@@ -53,8 +53,19 @@ Current head: b3dcd4d41e345030ff017fa1800ba4d0716d1636
 
 ## Dirty Files
 
+- agent/state/analytics-legacy-history-reconciliation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-legacy-purgatory-queue.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-legacy-recovery-reconciliation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-legacy-history-reconciliation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-legacy-recovery-reconciliation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
+- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
+- tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

@@ -233,6 +233,104 @@ function scoreDimensions() {
   };
 }
 
+const LEGACY_RECOVERY_INPUTS = [
+  "agent/state/analytics-legacy-history-reconciliation.generated.json",
+  "agent/state/analytics-legacy-purgatory-queue.generated.json",
+  "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
+  "agent/state/analytics-legacy-source-inventory.generated.json",
+] as const;
+
+function legacyNumber(record: Record<string, unknown>, key: string, fallback = 0) {
+  return asNumber(record[key], fallback);
+}
+
+function compactLegacyRecoverySummary(currentHead: string) {
+  const history = readJson("agent/state/analytics-legacy-history-reconciliation.generated.json");
+  const purgatory = readJson("agent/state/analytics-legacy-purgatory-queue.generated.json");
+  const recovery = readJson("agent/state/analytics-legacy-recovery-reconciliation.generated.json");
+  const inventory = readJson("agent/state/analytics-legacy-source-inventory.generated.json");
+  const historySummary = asRecord(history?.summary);
+  const purgatorySummary = asRecord(purgatory?.summary);
+  const recoverySummary = asRecord(recovery?.summary);
+  const inventorySummary = asRecord(inventory?.summary);
+  const queueRows = asRecordArray(purgatory?.queue);
+  const reports = LEGACY_RECOVERY_INPUTS.map((path) => {
+    const report = readJson(path);
+    const reportHead = typeof report?.currentHead === "string" ? report.currentHead : null;
+    const freshnessState = reportHead === null
+      ? "historical_evidence_only"
+      : reportHead !== currentHead
+        ? "stale_source_version"
+        : "current";
+    return {
+      path,
+      reportKey: typeof report?.reportKey === "string" ? report.reportKey : path.replace(/^agent\/state\//u, "").replace(/\.generated\.json$/u, ""),
+      generatedAtUtc: typeof report?.generatedAtUtc === "string" ? report.generatedAtUtc : typeof report?.generatedAt === "string" ? report.generatedAt : null,
+      currentHead: reportHead,
+      freshnessState,
+      staleRelativeToCurrentHead: freshnessState === "stale_source_version",
+    };
+  });
+  const manualReviewRequired = legacyNumber(purgatorySummary, "manualReviewRequired", queueRows.length);
+  const productTruthEligibleCount = legacyNumber(purgatorySummary, "productTruthEligible");
+  const currentTotalsEligibleCount = legacyNumber(historySummary, "currentTotalsEligibleCount");
+  const overwritesCurrentTruth = historySummary.overwritesCurrentTruth === true || recoverySummary.overwritesCurrentTruth === true;
+  const sampleQueue = queueRows.slice(0, 8).map((entry) => ({
+    legacySource: typeof entry.legacySource === "string" ? entry.legacySource : "unknown",
+    legacyId: typeof entry.legacyId === "string" ? entry.legacyId : "unknown",
+    targetTruthLayer: typeof entry.targetTruthLayer === "string" ? entry.targetTruthLayer : "unknown",
+    classification: typeof entry.purgatoryClassification === "string" ? entry.purgatoryClassification : "unknown",
+    identityConfidence: typeof entry.identityConfidence === "string" ? entry.identityConfidence : "unknown",
+    duplicateRisk: typeof entry.duplicateRisk === "string" ? entry.duplicateRisk : "unknown",
+    currentTotalsEligible: entry.currentTotalsEligible === true,
+    manualReviewRequired: entry.manualReviewRequired !== false,
+    suggestedRecoveryAction: typeof entry.suggestedRecoveryAction === "string" ? entry.suggestedRecoveryAction : "manual_review",
+  }));
+
+  return {
+    evidenceClass: "generated_snapshot",
+    productTruthRole: "recovery_evidence_only",
+    productionMutationAllowed: false,
+    currentTotalsEligibleCount,
+    productTruthEligibleCount,
+    overwritesCurrentTruth,
+    staleReportPaths: reports.filter((entry) => entry.staleRelativeToCurrentHead).map((entry) => entry.path),
+    historicalEvidenceOnlyPaths: reports.filter((entry) => entry.freshnessState === "historical_evidence_only").map((entry) => entry.path),
+    reports,
+    sourceInventory: {
+      sourceCount: legacyNumber(inventorySummary, "sourceCount"),
+      backfillableCount: legacyNumber(inventorySummary, "backfillableCount"),
+      directionalCount: legacyNumber(inventorySummary, "directionalCount"),
+      debugOnlyCount: legacyNumber(inventorySummary, "debugOnlyCount"),
+      unavailableCount: legacyNumber(inventorySummary, "unavailableCount"),
+    },
+    reconciliation: {
+      candidateCount: legacyNumber(historySummary, "candidateCount", legacyNumber(recoverySummary, "candidateCount")),
+      exactMatchCount: legacyNumber(historySummary, "exactMatchCount", legacyNumber(recoverySummary, "exactMatchCount")),
+      probableMatchCount: legacyNumber(historySummary, "probableMatchCount"),
+      weakMatchCount: legacyNumber(historySummary, "weakMatchCount"),
+      unknownLegacyCount: legacyNumber(historySummary, "unknownLegacyCount"),
+      highDuplicateRiskCount: legacyNumber(historySummary, "highDuplicateRiskCount", legacyNumber(recoverySummary, "duplicateRiskHighCount")),
+      manualReviewRequired,
+    },
+    purgatoryQueue: {
+      totalCount: queueRows.length,
+      weakMatchCount: legacyNumber(purgatorySummary, "weakMatch"),
+      unknownCount: legacyNumber(purgatorySummary, "unknown"),
+      duplicateCandidateCount: legacyNumber(purgatorySummary, "duplicateCandidate"),
+      manualReviewRequired,
+      sample: sampleQueue,
+      sampleTruncated: queueRows.length > sampleQueue.length,
+    },
+    productTruthBoundary: "Legacy, historical snapshot, and GA4 evidence can explain gaps or seed manual review only. They cannot overwrite analytics_event_facts, wallet, GumDrop, unlock, purchase, creator revenue, or person metric truth.",
+    nextExactSteps: [
+      "Refresh the legacy history reconciliation artifacts when legacy mapping files change.",
+      "Review weak/unknown purgatory rows with identity bridge evidence before any dry-run import candidate is promoted.",
+      "Keep currentTotalsEligibleCount and productTruthEligibleCount at 0 until strict first-party corroboration exists.",
+    ],
+  };
+}
+
 function renderDoc(report: ReturnType<typeof buildAnalyticsPanelHydrationReport>) {
   const failureRows = report.topPanelHydrationFailures.map((panel) =>
     `- ${panel.panelLabel}: ${panel.hydrationStatus}; next=${panel.nextExactAction}`,
@@ -364,6 +462,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   currentHead: string;
   panelReport: ReturnType<typeof buildAnalyticsPanelHydrationReport>;
 }) {
+  const legacyRecovery = compactLegacyRecoverySummary(input.currentHead);
   const sourceAgreementReport = readJson("agent/state/source-agreement-failure-detail.generated.json");
   const sourceAgreementHead = typeof sourceAgreementReport?.currentHead === "string" ? sourceAgreementReport.currentHead : null;
   const sourceAgreementDetail = asRecord(sourceAgreementReport?.detail);
@@ -808,6 +907,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
         ? sourceAgreementDetail.nextAction
         : "Run the all-time historical analytics source path and keep GA4 as second-source evidence.",
     },
+    legacyRecovery,
     adminPanelConnection: {
       totalPanels: input.panelReport.totalPanels,
       hydratedPanels: input.panelReport.hydratedPanels,
@@ -986,9 +1086,24 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (report.sourceAgreement.blockedConsumerDetails.some((entry) => (
     typeof entry.consumer !== "string"
     || typeof entry.allowedDisplayState !== "string"
-    || typeof entry.nextAction !== "string"
+      || typeof entry.nextAction !== "string"
   ))) {
     failures.push("blocked consumer details must include consumer, allowedDisplayState, and nextAction.");
+  }
+  if (report.legacyRecovery.productTruthRole !== "recovery_evidence_only" || report.legacyRecovery.productionMutationAllowed) {
+    failures.push("legacy recovery must remain recovery evidence only with production mutations disabled.");
+  }
+  if (report.legacyRecovery.currentTotalsEligibleCount !== 0 || report.legacyRecovery.productTruthEligibleCount !== 0 || report.legacyRecovery.overwritesCurrentTruth) {
+    failures.push("legacy recovery cannot mark purgatory rows current/product-truth eligible or overwrite current truth.");
+  }
+  if (!Array.isArray(report.legacyRecovery.reports) || report.legacyRecovery.reports.length < LEGACY_RECOVERY_INPUTS.length) {
+    failures.push("legacy recovery summary must include all canonical legacy input artifacts.");
+  }
+  if (report.legacyRecovery.reports.some((entry) => typeof entry.freshnessState !== "string")) {
+    failures.push("legacy recovery reports must classify freshness state.");
+  }
+  if (!report.legacyRecovery.productTruthBoundary.includes("cannot overwrite")) {
+    failures.push("legacy recovery summary must state the product-truth boundary.");
   }
   return failures;
 }
@@ -1083,6 +1198,32 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     ),
     `- Exact next steps: ${asStringArray(report.sourceAgreement.nextExactSteps).join(" | ") || "see next action"}`,
     `- Next action: ${report.sourceAgreement.nextAction}`,
+    "",
+    "## Legacy Recovery Queue",
+    "",
+    `- Role: ${report.legacyRecovery.productTruthRole}`,
+    `- Production mutation allowed: ${report.legacyRecovery.productionMutationAllowed ? "yes" : "no"}`,
+    `- Current totals eligible: ${report.legacyRecovery.currentTotalsEligibleCount}`,
+    `- Product-truth eligible: ${report.legacyRecovery.productTruthEligibleCount}`,
+    `- Overwrites current truth: ${report.legacyRecovery.overwritesCurrentTruth ? "yes" : "no"}`,
+    `- Legacy sources inventoried: ${report.legacyRecovery.sourceInventory.sourceCount}`,
+    `- Backfillable sources: ${report.legacyRecovery.sourceInventory.backfillableCount}`,
+    `- Directional sources: ${report.legacyRecovery.sourceInventory.directionalCount}`,
+    `- Debug-only sources: ${report.legacyRecovery.sourceInventory.debugOnlyCount}`,
+    `- Purgatory rows: ${report.legacyRecovery.purgatoryQueue.totalCount}`,
+    `- Weak matches: ${report.legacyRecovery.purgatoryQueue.weakMatchCount}`,
+    `- Unknown legacy rows: ${report.legacyRecovery.purgatoryQueue.unknownCount}`,
+    `- Manual review required: ${report.legacyRecovery.purgatoryQueue.manualReviewRequired}`,
+    `- Stale legacy report inputs: ${report.legacyRecovery.staleReportPaths.join(", ") || "none"}`,
+    `- Historical evidence-only inputs: ${report.legacyRecovery.historicalEvidenceOnlyPaths.join(", ") || "none"}`,
+    `- Boundary: ${report.legacyRecovery.productTruthBoundary}`,
+    ...report.legacyRecovery.purgatoryQueue.sample.map((entry) =>
+      `  - ${entry.legacySource}/${entry.legacyId}: ${entry.classification}; confidence=${entry.identityConfidence}; currentTotalsEligible=${entry.currentTotalsEligible ? "yes" : "no"}; action=${entry.suggestedRecoveryAction}`,
+    ),
+    report.legacyRecovery.purgatoryQueue.sampleTruncated
+      ? `  - ${report.legacyRecovery.purgatoryQueue.totalCount - report.legacyRecovery.purgatoryQueue.sample.length} additional legacy rows omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.`
+      : "",
+    `- Legacy next steps: ${report.legacyRecovery.nextExactSteps.join(" | ")}`,
     "",
     "## Admin Panel Connection",
     "",

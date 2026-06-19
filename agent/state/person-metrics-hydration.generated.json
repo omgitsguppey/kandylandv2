@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-06-19T02:31:15.549Z",
+  "generatedAtUtc": "2026-06-19T02:41:57.172Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4973,15 +4973,59 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "b3dcd4d41e345030ff017fa1800ba4d0716d1636",
+  "currentHead": "50a408ece3d6f11ca96e0ee5554d779e113b281f",
   "dirtyFiles": [
+    {
+      "path": "agent/state/analytics-legacy-history-reconciliation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/analytics-legacy-purgatory-queue.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/launch-analytics-recovery.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
     {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "docs/agent-truth/analytics-legacy-history-reconciliation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/launch-analytics-recovery.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
       "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "tests/unit/analytics-panel-hydration.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "activeOldLogic": [],

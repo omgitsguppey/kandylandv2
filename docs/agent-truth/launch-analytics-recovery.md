@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-19T02:31:15.727Z
-Current head: b3dcd4d41e345030ff017fa1800ba4d0716d1636
+Generated: 2026-06-19T02:41:19.403Z
+Current head: 50a408ece3d6f11ca96e0ee5554d779e113b281f
 Status: source_agreement_failed
 
 ## Source Order
@@ -96,6 +96,35 @@ Status: source_agreement_failed
 - Count delta details: 0
 - Exact next steps: Run the existing all-range historical analytics route or approved local export path to produce first-party day buckets. | Compare GA4 only as second-source evidence for sessions, views, devices, regions, top paths, and acquisition-style checks. | Keep fallback historical and legacy support rows archive/evidence-only until first-party materialization or dedupe proves the day. | Promote admin charts only after sourceAgreementStatus is pass and first-party product truth covers the bounded window.
 - Next action: Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.
+
+## Legacy Recovery Queue
+
+- Role: recovery_evidence_only
+- Production mutation allowed: no
+- Current totals eligible: 0
+- Product-truth eligible: 0
+- Overwrites current truth: no
+- Legacy sources inventoried: 17
+- Backfillable sources: 9
+- Directional sources: 6
+- Debug-only sources: 2
+- Purgatory rows: 10
+- Weak matches: 7
+- Unknown legacy rows: 3
+- Manual review required: 10
+- Stale legacy report inputs: none
+- Historical evidence-only inputs: agent/state/analytics-legacy-source-inventory.generated.json
+- Boundary: Legacy, historical snapshot, and GA4 evidence can explain gaps or seed manual review only. They cannot overwrite analytics_event_facts, wallet, GumDrop, unlock, purchase, creator revenue, or person metric truth.
+  - analytics_event_facts/fixture_evt_drop_click: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - analytics_guest_batches/fixture_guest_batch: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - transactions/fixture_txn_completed: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - unlocks/fixture_unlock: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - daily_task_events/fixture_task_complete: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - task_lifecycle_logs/fixture_task_start: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - notifications/fixture_notification_read: unknown; confidence=unknown; currentTotalsEligible=no; action=archive_as_debug_evidence
+  - onboarding_steps/fixture_onboarding_step: weak_match; confidence=weak_match; currentTotalsEligible=no; action=manual_review_identity_bridge
+  - 2 additional legacy rows omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.
+- Legacy next steps: Refresh the legacy history reconciliation artifacts when legacy mapping files change. | Review weak/unknown purgatory rows with identity bridge evidence before any dry-run import candidate is promoted. | Keep currentTotalsEligibleCount and productTruthEligibleCount at 0 until strict first-party corroboration exists.
 
 ## Admin Panel Connection
 

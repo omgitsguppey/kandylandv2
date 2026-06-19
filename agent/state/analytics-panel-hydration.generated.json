@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T02:31:15.727Z",
-  "currentHead": "b3dcd4d41e345030ff017fa1800ba4d0716d1636",
+  "generatedAtUtc": "2026-06-19T02:41:19.403Z",
+  "currentHead": "50a408ece3d6f11ca96e0ee5554d779e113b281f",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -416,23 +416,50 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 2,
+    "total": 13,
     "byClassification": {
+      "stale_generated_artifact_to_regenerate": 5,
+      "analytics_panel_hydration_artifact_expected": 4,
+      "launch_analytics_recovery_artifact_expected": 2,
       "source_agreement_failure_artifact_expected": 1,
       "documentation_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
       {
+        "path": "agent/state/analytics-legacy-history-reconciliation.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-legacy-purgatory-queue.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-panel-hydration.generated.json",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "agent/state/launch-analytics-recovery.generated.json",
+        "classification": "launch_analytics_recovery_artifact_expected"
+      },
+      {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
       },
       {
-        "path": "docs/agent-truth/source-agreement-failure-detail.md",
-        "classification": "documentation_artifact_expected"
+        "path": "docs/agent-truth/analytics-legacy-history-reconciliation.md",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
+        "classification": "stale_generated_artifact_to_regenerate"
       }
     ],
-    "sampleTruncated": false
+    "sampleTruncated": true
   },
   "nextExactSteps": [
     "Connect safe lastSeen/materialized summaries for source-missing panels.",
