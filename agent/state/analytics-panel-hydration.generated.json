@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T05:48:42.604Z",
-  "currentHead": "79de472293e89bf6c3b73f85d72ff5134c34b907",
+  "generatedAtUtc": "2026-06-19T05:56:41.639Z",
+  "currentHead": "d891cf59f708ab6e8bd0bfc8458e7b226a3837ff",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,16 +365,25 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 2,
+    "total": 4,
     "byClassification": {
+      "stale_generated_artifact_to_regenerate": 2,
       "source_agreement_failure_artifact_expected": 1,
       "documentation_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
       {
+        "path": "agent/state/admin-analytics-realtime-hot-cache.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
+      },
+      {
+        "path": "docs/agent-truth/admin-analytics-realtime-hot-cache.md",
+        "classification": "stale_generated_artifact_to_regenerate"
       },
       {
         "path": "docs/agent-truth/source-agreement-failure-detail.md",
