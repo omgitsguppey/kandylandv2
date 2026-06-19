@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T14:46:40.801Z",
-  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "generatedAtUtc": "2026-06-19T16:26:45.386Z",
+  "currentHead": "55278aa7f062ac06cfe13c7d19273b49067e6256",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,10 +365,43 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 0,
-    "byClassification": {},
+    "total": 7,
+    "byClassification": {
+      "analytics_panel_hydration_artifact_expected": 2,
+      "real_source_change_needs_review": 3,
+      "test_artifact_expected": 2
+    },
     "unsafeUnknown": [],
-    "sample": [],
+    "sample": [
+      {
+        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "classification": "real_source_change_needs_review"
+      },
+      {
+        "path": "src/lib/server/admin-analytics-historical-validation.ts",
+        "classification": "real_source_change_needs_review"
+      },
+      {
+        "path": "src/types/admin-analytics.ts",
+        "classification": "real_source_change_needs_review"
+      },
+      {
+        "path": "tests/unit/admin-analytics-page.spec.tsx",
+        "classification": "test_artifact_expected"
+      },
+      {
+        "path": "tests/unit/admin-data-validation.spec.ts",
+        "classification": "test_artifact_expected"
+      },
+      {
+        "path": "tests/unit/analytics-panel-hydration.spec.ts",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      }
+    ],
     "sampleTruncated": false
   },
   "nextExactSteps": [

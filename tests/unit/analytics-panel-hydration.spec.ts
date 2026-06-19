@@ -290,6 +290,10 @@ describe("analytics panel hydration", () => {
 
     expect(source).toContain("missingRangesBySource");
     expect(source).toContain("duplicateRanges");
+    expect(source).toContain("productTruthRecoveredDayCount");
+    expect(source).toContain("evidenceObservedDayCount");
+    expect(source).toContain("sourceTruthState");
+    expect(source).toContain("launch day ${day.dayKey} cannot be product-truth recovered without first-party evidence.");
     expect(source).toContain("## Daily Recovery Rows");
     expect(source).toContain("perDayMetricDeltas");
     expect(source).toContain("Count delta details");

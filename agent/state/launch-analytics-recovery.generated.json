@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-19T14:46:40.801Z",
-  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "generatedAtUtc": "2026-06-19T16:26:45.386Z",
+  "currentHead": "55278aa7f062ac06cfe13c7d19273b49067e6256",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -271,6 +271,9 @@
         "dayKey": "2026-05-01",
         "expected": true,
         "recovered": true,
+        "evidenceObserved": true,
+        "productTruthRecovered": true,
+        "sourceTruthState": "mixed_evidence",
         "sourceCounts": {
           "first_party": 1,
           "ga4": 1,
@@ -300,6 +303,9 @@
         "dayKey": "2026-05-02",
         "expected": true,
         "recovered": true,
+        "evidenceObserved": true,
+        "productTruthRecovered": false,
+        "sourceTruthState": "second_source_only",
         "sourceCounts": {
           "first_party": 0,
           "ga4": 1,
@@ -331,6 +337,9 @@
         "dayKey": "2026-05-03",
         "expected": true,
         "recovered": true,
+        "evidenceObserved": true,
+        "productTruthRecovered": false,
+        "sourceTruthState": "second_source_only",
         "sourceCounts": {
           "first_party": 0,
           "ga4": 1,
@@ -362,6 +371,9 @@
         "dayKey": "2026-05-04",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -387,6 +399,9 @@
         "dayKey": "2026-05-05",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -412,6 +427,9 @@
         "dayKey": "2026-05-06",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -437,6 +455,9 @@
         "dayKey": "2026-05-07",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -462,6 +483,9 @@
         "dayKey": "2026-05-08",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -487,6 +511,9 @@
         "dayKey": "2026-05-09",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -512,6 +539,9 @@
         "dayKey": "2026-05-10",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -537,6 +567,9 @@
         "dayKey": "2026-05-11",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -562,6 +595,9 @@
         "dayKey": "2026-05-12",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -587,6 +623,9 @@
         "dayKey": "2026-05-13",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -612,6 +651,9 @@
         "dayKey": "2026-05-14",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -637,6 +679,9 @@
         "dayKey": "2026-05-15",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -662,6 +707,9 @@
         "dayKey": "2026-05-16",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -687,6 +735,9 @@
         "dayKey": "2026-05-17",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -712,6 +763,9 @@
         "dayKey": "2026-05-18",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -737,6 +791,9 @@
         "dayKey": "2026-05-19",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -762,6 +819,9 @@
         "dayKey": "2026-05-20",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -787,6 +847,9 @@
         "dayKey": "2026-05-21",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -812,6 +875,9 @@
         "dayKey": "2026-05-22",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -837,6 +903,9 @@
         "dayKey": "2026-05-23",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -862,6 +931,9 @@
         "dayKey": "2026-05-24",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -887,6 +959,9 @@
         "dayKey": "2026-05-25",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -912,6 +987,9 @@
         "dayKey": "2026-05-26",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -937,6 +1015,9 @@
         "dayKey": "2026-05-27",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -962,6 +1043,9 @@
         "dayKey": "2026-05-28",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -987,6 +1071,9 @@
         "dayKey": "2026-05-29",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1012,6 +1099,9 @@
         "dayKey": "2026-05-30",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1037,6 +1127,9 @@
         "dayKey": "2026-05-31",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1062,6 +1155,9 @@
         "dayKey": "2026-06-01",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1087,6 +1183,9 @@
         "dayKey": "2026-06-02",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1112,6 +1211,9 @@
         "dayKey": "2026-06-03",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1137,6 +1239,9 @@
         "dayKey": "2026-06-04",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1162,6 +1267,9 @@
         "dayKey": "2026-06-05",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1187,6 +1295,9 @@
         "dayKey": "2026-06-06",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1212,6 +1323,9 @@
         "dayKey": "2026-06-07",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1237,6 +1351,9 @@
         "dayKey": "2026-06-08",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1262,6 +1379,9 @@
         "dayKey": "2026-06-09",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1287,6 +1407,9 @@
         "dayKey": "2026-06-10",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1312,6 +1435,9 @@
         "dayKey": "2026-06-11",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1337,6 +1463,9 @@
         "dayKey": "2026-06-12",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1362,6 +1491,9 @@
         "dayKey": "2026-06-13",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1387,6 +1519,9 @@
         "dayKey": "2026-06-14",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1412,6 +1547,9 @@
         "dayKey": "2026-06-15",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1437,6 +1575,9 @@
         "dayKey": "2026-06-16",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1462,6 +1603,9 @@
         "dayKey": "2026-06-17",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1487,6 +1631,9 @@
         "dayKey": "2026-06-18",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1512,6 +1659,9 @@
         "dayKey": "2026-06-19",
         "expected": true,
         "recovered": false,
+        "evidenceObserved": false,
+        "productTruthRecovered": false,
+        "sourceTruthState": "source_missing",
         "formalEvidenceState": "outside_evidence_window",
         "sourceCountsKnown": false,
         "sourceCounts": {
@@ -1539,7 +1689,7 @@
   "evidenceProvenance": {
     "launchCoverageInput": "in_process_source_agreement_detail",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+    "sourceAgreementInputHead": "55278aa7f062ac06cfe13c7d19273b49067e6256",
     "sourceAgreementInputMode": "fixture_only_local_window",
     "sourceAgreementInputPath": null,
     "usableLaunchCoverageInputFound": false,
@@ -1599,6 +1749,10 @@
     "lastRecoveredDayKey": "2026-05-03",
     "expectedDayCount": 3,
     "recoveredDayCount": 3,
+    "evidenceObservedDayCount": 3,
+    "productTruthRecoveredDayCount": 1,
+    "secondSourceOnlyDayCount": 2,
+    "fallbackOnlyDayCount": 0,
     "preLaunchIgnoredDayCount": 0,
     "sourceDayCounts": {
       "firstParty": 1,
@@ -1621,6 +1775,9 @@
         "dayKey": "2026-05-01",
         "expected": true,
         "recovered": true,
+        "evidenceObserved": true,
+        "productTruthRecovered": true,
+        "sourceTruthState": "mixed_evidence",
         "sourceCounts": {
           "first_party": 1,
           "ga4": 1,
@@ -1648,6 +1805,9 @@
         "dayKey": "2026-05-02",
         "expected": true,
         "recovered": true,
+        "evidenceObserved": true,
+        "productTruthRecovered": false,
+        "sourceTruthState": "second_source_only",
         "sourceCounts": {
           "first_party": 0,
           "ga4": 1,
@@ -1677,6 +1837,9 @@
         "dayKey": "2026-05-03",
         "expected": true,
         "recovered": true,
+        "evidenceObserved": true,
+        "productTruthRecovered": false,
+        "sourceTruthState": "second_source_only",
         "sourceCounts": {
           "first_party": 0,
           "ga4": 1,
@@ -1742,7 +1905,7 @@
     "state": "partial",
     "reason": "Launch-history day buckets are only partially first-party backed; GA4, historical snapshots, and legacy support remain evidence-only until first-party product truth covers the range.",
     "staleInputEvidence": false,
-    "sourceAgreementEvidenceHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
+    "sourceAgreementEvidenceHead": "55278aa7f062ac06cfe13c7d19273b49067e6256"
   },
   "sourceAgreement": {
     "comparedSources": [

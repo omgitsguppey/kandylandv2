@@ -613,7 +613,19 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     const hasLegacy = legacySupportCount > 0;
     const hasFallback = hasHistoricalSnapshot || hasLegacy;
     const sourceCount = Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy);
-    const recovered = sourceCount > 0;
+    const evidenceObserved = sourceCount > 0;
+    const productTruthRecovered = hasFirstParty;
+    const recovered = evidenceObserved;
+    const sourceTruthState =
+      hasFirstParty && sourceCount > 1
+        ? "mixed_evidence"
+        : hasFirstParty
+          ? "first_party_recovered"
+          : hasGa4
+            ? "second_source_only"
+            : hasFallback
+              ? "fallback_only"
+              : "source_missing";
     const missingRangesBySource = {
       first_party: hasFirstParty ? [] : [dayKey],
       ga4: hasGa4 ? [] : [dayKey],
@@ -635,6 +647,9 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       dayKey,
       expected: true,
       recovered,
+      evidenceObserved,
+      productTruthRecovered,
+      sourceTruthState,
       sourceCounts: {
         first_party: firstPartyCount,
         ga4: ga4Count,
@@ -894,6 +909,9 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       dayKey,
       expected: true as const,
       recovered: false,
+      evidenceObserved: false,
+      productTruthRecovered: false,
+      sourceTruthState: "source_missing" as const,
       formalEvidenceState: "outside_evidence_window" as const,
       sourceCountsKnown: false,
       sourceCounts: {
@@ -961,6 +979,10 @@ function buildLaunchAnalyticsRecoveryReport(input: {
             ? "Launch history coverage is not fully available for the bounded evidence window."
             : "No launch history evidence window is available.";
   const sourceAgreementBlockedConsumerDetails = asRecordArray(sourceAgreementDetail.blockedConsumerDetails);
+  const evidenceObservedDayCount = dayCoverage.filter((day) => day.evidenceObserved).length;
+  const productTruthRecoveredDayCount = dayCoverage.filter((day) => day.productTruthRecovered).length;
+  const secondSourceOnlyDayCount = dayCoverage.filter((day) => day.sourceTruthState === "second_source_only").length;
+  const fallbackOnlyDayCount = dayCoverage.filter((day) => day.sourceTruthState === "fallback_only").length;
   const sourceAgreementDisplayStateCounts = sourceAgreementBlockedConsumerDetails.reduce<Record<string, number>>((counts, entry) => {
     const state = typeof entry.allowedDisplayState === "string" ? entry.allowedDisplayState : "review";
     counts[state] = (counts[state] ?? 0) + 1;
@@ -1044,6 +1066,10 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       lastRecoveredDayKey: recoveredDays[recoveredDays.length - 1]?.dayKey ?? null,
       expectedDayCount: expectedDays.length,
       recoveredDayCount: recoveredDays.length,
+      evidenceObservedDayCount,
+      productTruthRecoveredDayCount,
+      secondSourceOnlyDayCount,
+      fallbackOnlyDayCount,
       preLaunchIgnoredDayCount: 0,
       sourceDayCounts,
       firstPartyCoverage: {
@@ -1253,6 +1279,9 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
       if (day.recovered || day.confidence !== "unknown" || day.sourceCountsKnown !== false) {
         failures.push(`formal launch day ${day.dayKey} outside evidence window must stay unrecovered and unknown.`);
       }
+      if (day.evidenceObserved !== false || day.productTruthRecovered !== false || day.sourceTruthState !== "source_missing") {
+        failures.push(`formal launch day ${day.dayKey} outside evidence window must stay source_missing with no product truth recovery.`);
+      }
       if (Object.values(day.sourceCounts).some((value) => value !== null)) {
         failures.push(`formal launch day ${day.dayKey} outside evidence window must use null source counts, not zero.`);
       }
@@ -1288,6 +1317,15 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (report.launchHistoryCoverage.recoveredDayCount > 0 && (!report.launchHistoryCoverage.firstRecoveredDayKey || !report.launchHistoryCoverage.lastRecoveredDayKey)) {
     failures.push("launch recovery recovered days require firstRecoveredDayKey and lastRecoveredDayKey.");
   }
+  if (typeof report.launchHistoryCoverage.evidenceObservedDayCount !== "number" || report.launchHistoryCoverage.evidenceObservedDayCount !== report.launchHistoryCoverage.recoveredDayCount) {
+    failures.push("launch recovery must expose evidenceObservedDayCount matching recoveredDayCount so recovered means observed evidence.");
+  }
+  if (
+    typeof report.launchHistoryCoverage.productTruthRecoveredDayCount !== "number"
+    || report.launchHistoryCoverage.productTruthRecoveredDayCount !== report.launchHistoryCoverage.firstPartyCoverage.coveredDayCount
+  ) {
+    failures.push("launch recovery must expose productTruthRecoveredDayCount from first-party coverage.");
+  }
   for (const day of report.launchHistoryCoverage.days) {
     for (const required of ["first_party", "ga4", "historicalSnapshot", "legacySupport"] as const) {
       if (typeof day.sourceCounts[required] !== "number") {
@@ -1304,6 +1342,21 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
     }
     if (day.sourceCounts.first_party === 0 && day.confidence === "verified") {
       failures.push(`launch day ${day.dayKey} cannot be verified without first-party evidence.`);
+    }
+    if (day.sourceCounts.first_party === 0 && day.productTruthRecovered) {
+      failures.push(`launch day ${day.dayKey} cannot be product-truth recovered without first-party evidence.`);
+    }
+    if (day.sourceCounts.first_party === 0 && day.sourceTruthState === "first_party_recovered") {
+      failures.push(`launch day ${day.dayKey} cannot use first_party_recovered without first-party evidence.`);
+    }
+    if (
+      day.sourceCounts.first_party === 0 &&
+      day.recovered &&
+      day.sourceTruthState !== "second_source_only" &&
+      day.sourceTruthState !== "fallback_only" &&
+      day.sourceTruthState !== "source_missing"
+    ) {
+      failures.push(`launch day ${day.dayKey} must label non-first-party recovery as second_source_only or fallback_only.`);
     }
   }
   if (report.sourceAgreement.state === "failed" && (!Array.isArray(report.sourceAgreement.disagreements) || report.sourceAgreement.disagreements.length === 0)) {
@@ -1410,7 +1463,10 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Range proof: ${report.launchHistoryCoverage.rangeProof.allLaunchRangeProven ? "all launch range proven" : report.launchHistoryCoverage.rangeProof.expectedRangeSource}`,
     `- Coverage window: ${report.launchHistoryCoverage.rangeProof.coverageWindowKind}`,
     `- Range proof reason: ${report.launchHistoryCoverage.rangeProof.reason}`,
-    `- Recovered days: ${report.launchHistoryCoverage.recoveredDayCount}/${report.launchHistoryCoverage.expectedDayCount}`,
+    `- Evidence-observed days: ${report.launchHistoryCoverage.evidenceObservedDayCount}/${report.launchHistoryCoverage.expectedDayCount}`,
+    `- Product-truth recovered days: ${report.launchHistoryCoverage.productTruthRecoveredDayCount}/${report.launchHistoryCoverage.expectedDayCount}`,
+    `- Second-source-only days: ${report.launchHistoryCoverage.secondSourceOnlyDayCount}`,
+    `- Fallback-only days: ${report.launchHistoryCoverage.fallbackOnlyDayCount}`,
     `- First recovered day: ${report.launchHistoryCoverage.firstRecoveredDayKey ?? "unknown"}`,
     `- Last recovered day: ${report.launchHistoryCoverage.lastRecoveredDayKey ?? "unknown"}`,
     `- Coverage state: ${report.launchHistoryCoverage.state}`,
@@ -1427,7 +1483,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     "## Formal Launch Day Rows",
     "",
     ...report.formalLaunchRange.dayCoverage.slice(0, 14).map((day) =>
-      `- ${day.dayKey}: state=${day.formalEvidenceState}; recovered=${day.recovered ? "yes" : "no"}; sourceCountsKnown=${day.sourceCountsKnown}; first_party=${day.sourceCounts.first_party ?? "unknown"}, ga4=${day.sourceCounts.ga4 ?? "unknown"}, historicalSnapshot=${day.sourceCounts.historicalSnapshot ?? "unknown"}, legacySupport=${day.sourceCounts.legacySupport ?? "unknown"}; confidence=${day.confidence}; next=${day.nextAction}`,
+      `- ${day.dayKey}: state=${day.formalEvidenceState}; evidenceObserved=${day.evidenceObserved ? "yes" : "no"}; productTruthRecovered=${day.productTruthRecovered ? "yes" : "no"}; sourceTruthState=${day.sourceTruthState}; sourceCountsKnown=${day.sourceCountsKnown}; first_party=${day.sourceCounts.first_party ?? "unknown"}, ga4=${day.sourceCounts.ga4 ?? "unknown"}, historicalSnapshot=${day.sourceCounts.historicalSnapshot ?? "unknown"}, legacySupport=${day.sourceCounts.legacySupport ?? "unknown"}; confidence=${day.confidence}; next=${day.nextAction}`,
     ),
     report.formalLaunchRange.dayCoverage.length > 14
       ? `- ${report.formalLaunchRange.dayCoverage.length - 14} additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.`
@@ -1439,7 +1495,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
       const missingSources = Object.entries(day.missingRangesBySource)
         .filter(([, ranges]) => ranges.length > 0)
         .map(([source, ranges]) => `${source}:${ranges.join(",")}`);
-      return `- ${day.dayKey}: recovered=${day.recovered ? "yes" : "no"}; sourceCounts first_party=${day.sourceCounts.first_party}, ga4=${day.sourceCounts.ga4}, historicalSnapshot=${day.sourceCounts.historicalSnapshot}, legacySupport=${day.sourceCounts.legacySupport}; missing=${missingSources.join(" | ") || "none"}; duplicateRanges=${day.duplicateRanges.join(", ") || "none"}; internalAdminExcluded=${day.internalAdminExcludedCount ?? "unknown"}; confidence=${day.confidence}; next=${day.nextAction}`;
+      return `- ${day.dayKey}: evidenceObserved=${day.evidenceObserved ? "yes" : "no"}; productTruthRecovered=${day.productTruthRecovered ? "yes" : "no"}; sourceTruthState=${day.sourceTruthState}; sourceCounts first_party=${day.sourceCounts.first_party}, ga4=${day.sourceCounts.ga4}, historicalSnapshot=${day.sourceCounts.historicalSnapshot}, legacySupport=${day.sourceCounts.legacySupport}; missing=${missingSources.join(" | ") || "none"}; duplicateRanges=${day.duplicateRanges.join(", ") || "none"}; internalAdminExcluded=${day.internalAdminExcludedCount ?? "unknown"}; confidence=${day.confidence}; next=${day.nextAction}`;
     }),
     report.launchHistoryCoverage.days.length > 14
       ? `- ${report.launchHistoryCoverage.days.length - 14} additional days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.`

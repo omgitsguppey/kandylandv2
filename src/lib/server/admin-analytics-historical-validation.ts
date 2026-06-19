@@ -100,6 +100,10 @@ export interface AnalyticsSourceHealth {
     lastRecoveredDayKey: string | null;
     expectedDayCount: number;
     recoveredDayCount: number;
+    evidenceObservedDayCount?: number;
+    productTruthRecoveredDayCount?: number;
+    secondSourceOnlyDayCount?: number;
+    fallbackOnlyDayCount?: number;
     preLaunchIgnoredDayCount: number;
     sourceDayCounts: {
       firstParty: number;
@@ -121,6 +125,14 @@ export interface AnalyticsSourceHealth {
       dayKey: string;
       expected: true;
       recovered: boolean;
+      evidenceObserved?: boolean;
+      productTruthRecovered?: boolean;
+      sourceTruthState?:
+        | "first_party_recovered"
+        | "mixed_evidence"
+        | "second_source_only"
+        | "fallback_only"
+        | "source_missing";
       sourceCounts: {
         first_party: 0 | 1;
         ga4: 0 | 1;
@@ -168,6 +180,11 @@ export interface AnalyticsSourceHealth {
     reason: string;
   };
 }
+
+type LaunchHistoryDaySourceTruthState = Exclude<
+  NonNullable<AnalyticsSourceHealth["launchHistoryCoverage"]>["days"][number]["sourceTruthState"],
+  undefined
+>;
 
 function collapseDayRanges(days: string[]) {
   const sorted = [...new Set(days)].sort();
@@ -227,7 +244,19 @@ function buildLaunchHistoryDayCoverage(input: {
     const hasLegacy = input.legacyPresentDays.has(dayKey);
     const hasFallback = hasHistoricalSnapshot || hasLegacy;
     const sourceCount = Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy);
-    const recovered = sourceCount > 0;
+    const evidenceObserved = sourceCount > 0;
+    const productTruthRecovered = hasFirstParty;
+    const recovered = evidenceObserved;
+    const sourceTruthState: LaunchHistoryDaySourceTruthState =
+      hasFirstParty && sourceCount > 1
+        ? "mixed_evidence"
+        : hasFirstParty
+          ? "first_party_recovered"
+          : hasGa4
+            ? "second_source_only"
+            : hasFallback
+              ? "fallback_only"
+              : "source_missing";
     const confidence: "verified" | "mixed" | "partial" | "fallback" | "unknown" = hasFirstParty && hasGa4 && !hasFallback
       ? "verified"
       : hasFirstParty && hasFallback
@@ -260,6 +289,9 @@ function buildLaunchHistoryDayCoverage(input: {
       dayKey,
       expected: true as const,
       recovered,
+      evidenceObserved,
+      productTruthRecovered,
+      sourceTruthState,
       sourceCounts: {
         first_party: hasFirstParty ? 1 as const : 0 as const,
         ga4: hasGa4 ? 1 as const : 0 as const,
@@ -716,6 +748,10 @@ function buildAnalyticsSourceHealth(input: {
   const duplicateRangeDays = launchHistoryDays
     .filter((day) => day.duplicateSourceCount > 0)
     .map((day) => day.dayKey);
+  const evidenceObservedDayCount = launchHistoryDays.filter((day) => day.evidenceObserved).length;
+  const productTruthRecoveredDayCount = launchHistoryDays.filter((day) => day.productTruthRecovered).length;
+  const secondSourceOnlyDayCount = launchHistoryDays.filter((day) => day.sourceTruthState === "second_source_only").length;
+  const fallbackOnlyDayCount = launchHistoryDays.filter((day) => day.sourceTruthState === "fallback_only").length;
   const allLaunchRangeProven =
     launchStartBoundaryProven &&
     expectedDays.length >= formalExpectedDayCount &&
@@ -756,6 +792,10 @@ function buildAnalyticsSourceHealth(input: {
         lastRecoveredDayKey,
         expectedDayCount: expectedDays.length,
         recoveredDayCount: unionPresentDays.size,
+        evidenceObservedDayCount,
+        productTruthRecoveredDayCount,
+        secondSourceOnlyDayCount,
+        fallbackOnlyDayCount,
         preLaunchIgnoredDayCount,
         sourceDayCounts: {
           firstParty: firstPartyPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,

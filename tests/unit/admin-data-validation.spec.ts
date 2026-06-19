@@ -311,6 +311,9 @@ describe("buildHistoricalValidationSummary", () => {
       lastRecoveredDayKey: "2026-05-03",
       expectedDayCount: 3,
       recoveredDayCount: 3,
+      evidenceObservedDayCount: 3,
+      productTruthRecoveredDayCount: 3,
+      secondSourceOnlyDayCount: 0,
       preLaunchIgnoredDayCount: 2,
       state: "available",
     });
@@ -340,6 +343,8 @@ describe("buildHistoricalValidationSummary", () => {
     expect(summary.analyticsSourceHealth.launchHistoryCoverage).toMatchObject({
       expectedDayCount: 3,
       recoveredDayCount: 3,
+      evidenceObservedDayCount: 3,
+      productTruthRecoveredDayCount: 3,
       rangeProof: {
         allLaunchRangeProven: false,
         formalRangeStartDayKey: "2026-05-01",
@@ -382,16 +387,28 @@ describe("buildHistoricalValidationSummary", () => {
       missingRanges: ["2026-05-02..2026-05-03"],
       canPromoteProductTruth: false,
     });
+    expect(coverage).toMatchObject({
+      evidenceObservedDayCount: 3,
+      productTruthRecoveredDayCount: 1,
+      secondSourceOnlyDayCount: 2,
+      fallbackOnlyDayCount: 0,
+    });
     expect(coverage?.days).toEqual([
       expect.objectContaining({
         dayKey: "2026-05-01",
         recovered: true,
+        evidenceObserved: true,
+        productTruthRecovered: true,
+        sourceTruthState: "mixed_evidence",
         confidence: "mixed",
         sourceCounts: expect.objectContaining({ first_party: 1, ga4: 1 }),
       }),
       expect.objectContaining({
         dayKey: "2026-05-02",
         recovered: true,
+        evidenceObserved: true,
+        productTruthRecovered: false,
+        sourceTruthState: "second_source_only",
         confidence: "fallback",
         sourceCounts: expect.objectContaining({ first_party: 0, ga4: 1, historicalSnapshot: 1 }),
         nextAction: expect.stringContaining("first-party"),
@@ -399,6 +416,9 @@ describe("buildHistoricalValidationSummary", () => {
       expect.objectContaining({
         dayKey: "2026-05-03",
         recovered: true,
+        evidenceObserved: true,
+        productTruthRecovered: false,
+        sourceTruthState: "second_source_only",
         confidence: "fallback",
         sourceCounts: expect.objectContaining({ first_party: 0, ga4: 1, legacySupport: 1 }),
       }),

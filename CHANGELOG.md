@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.6.7 - 2026-06-19
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+
 ## 1.6.6 - 2026-06-18
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
@@ -138,12 +144,6 @@ Showing the last 25 public updates in pages of 5.
 - Updated Beta readiness evidence so stale or missing launch evidence stays visible.
 
 ## 1.5.83 - 2026-06-18
-- Clearer Admin Analytics source status
-- Clarified when analytics history is recovered from first-party sources.
-- Kept GA4 and legacy analytics labeled as evidence instead of product truth.
-- Improved Admin Analytics source labels so missing data is not shown as zero.
-
-## 1.5.82 - 2026-06-18
 - Clearer Admin Analytics source status
 - Clarified when analytics history is recovered from first-party sources.
 - Kept GA4 and legacy analytics labeled as evidence instead of product truth.

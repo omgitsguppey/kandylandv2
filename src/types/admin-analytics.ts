@@ -882,6 +882,10 @@ export interface AnalyticsSourceHealth {
     lastRecoveredDayKey: string | null;
     expectedDayCount: number;
     recoveredDayCount: number;
+    evidenceObservedDayCount?: number;
+    productTruthRecoveredDayCount?: number;
+    secondSourceOnlyDayCount?: number;
+    fallbackOnlyDayCount?: number;
     preLaunchIgnoredDayCount: number;
     sourceDayCounts: {
       firstParty: number;
@@ -903,6 +907,14 @@ export interface AnalyticsSourceHealth {
       dayKey: string;
       expected: true;
       recovered: boolean;
+      evidenceObserved?: boolean;
+      productTruthRecovered?: boolean;
+      sourceTruthState?:
+        | "first_party_recovered"
+        | "mixed_evidence"
+        | "second_source_only"
+        | "fallback_only"
+        | "source_missing";
       sourceCounts: {
         first_party: 0 | 1;
         ga4: 0 | 1;

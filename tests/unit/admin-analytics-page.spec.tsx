@@ -129,7 +129,7 @@ const mockState = vi.hoisted(() => {
       launchRecoverySummary: {
         sourceLabel: "First-party",
         confidenceLabel: "verified",
-        coverageLabel: "11/11 launch days",
+        coverageLabel: "11/11 product-truth launch days",
         missingRangeCount: 0,
         sourceAgreementState: "pass",
       },
@@ -664,7 +664,7 @@ describe("AdminAnalyticsPage", () => {
 
     expect(container.textContent).toContain("Operations view - 30D Server snapshot");
     expect(container.textContent).toContain("Last updated: Current snapshot");
-    expect(container.textContent).toContain("Coverage: 11/11 launch days");
+    expect(container.textContent).toContain("Coverage: 11/11 product-truth launch days");
     expect(container.textContent).toContain("Launch history is available");
     expect(container.textContent).toContain("Source: First-party");
     expect(container.textContent).toContain("Confidence: Verified");
@@ -684,7 +684,7 @@ describe("AdminAnalyticsPage", () => {
       launchRecoverySummary: {
         sourceLabel: "Mixed",
         confidenceLabel: "review",
-        coverageLabel: "3/50 launch days (evidence window 3) - first-party 1/3 evidence days",
+        coverageLabel: "1/50 product-truth launch days (evidence window 3) - observed 3/3 evidence days",
         missingRangeCount: 1,
         sourceAgreementState: "failed",
       },
@@ -694,7 +694,7 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Coverage: 3/50 launch days (evidence window 3) - first-party 1/3 evidence days");
+    expect(container.textContent).toContain("Coverage: 1/50 product-truth launch days (evidence window 3) - observed 3/3 evidence days");
     expect(container.textContent).toContain("Source: Mixed");
     expect(container.textContent).toContain("Confidence: Review");
     expect(container.textContent).toContain("Launch history shows launch evidence under review");

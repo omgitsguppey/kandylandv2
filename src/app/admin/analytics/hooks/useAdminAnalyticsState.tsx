@@ -1547,9 +1547,18 @@ export function useAdminAnalyticsState() {
       : null;
   const launchSourceCounts = launchHistoryCoverage?.sourceDayCounts;
   const launchFirstPartyCoverage = launchHistoryCoverage?.firstPartyCoverage;
+  const launchProductTruthRecoveredDayCount =
+    launchHistoryCoverage?.productTruthRecoveredDayCount ??
+    launchFirstPartyCoverage?.coveredDayCount ??
+    launchSourceCounts?.firstParty ??
+    0;
+  const launchEvidenceObservedDayCount =
+    launchHistoryCoverage?.evidenceObservedDayCount ??
+    launchHistoryCoverage?.recoveredDayCount ??
+    0;
   const launchFirstPartyCoverageLabel =
     launchHistoryCoverage && launchFirstPartyCoverage?.state !== "available"
-      ? ` - first-party ${launchFirstPartyCoverage?.coveredDayCount ?? launchSourceCounts?.firstParty ?? 0}/${launchEvidenceDayCount} evidence days`
+      ? ` - observed ${launchEvidenceObservedDayCount}/${launchEvidenceDayCount} evidence days`
       : "";
   const launchRecoverySourceLabel = launchSourceCounts
     ? launchSourceCounts.firstParty > 0 && launchSourceCounts.ga4 > 0
@@ -1580,7 +1589,7 @@ export function useAdminAnalyticsState() {
     sourceLabel: launchRecoverySourceLabel,
     confidenceLabel: launchRecoveryConfidenceLabel,
     coverageLabel: launchHistoryCoverage
-      ? `${launchHistoryCoverage.recoveredDayCount}/${launchUsesFormalDenominator ? launchFormalExpectedDayCount : launchHistoryCoverage.expectedDayCount} ${launchCoverageWindowLabel}${launchFirstPartyCoverageLabel}`
+      ? `${launchProductTruthRecoveredDayCount}/${launchUsesFormalDenominator ? launchFormalExpectedDayCount : launchHistoryCoverage.expectedDayCount} product-truth ${launchCoverageWindowLabel}${launchFirstPartyCoverageLabel}`
       : "Coverage waiting",
     missingRangeCount: launchFirstPartyCoverage?.missingRanges.length ?? launchHistoryCoverage?.missingRanges.length ?? 0,
     sourceAgreementState,
