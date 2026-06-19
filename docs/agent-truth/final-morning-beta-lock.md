@@ -1,6 +1,6 @@
 # Final Morning Beta Lock
 
-Generated: 2026-06-19T15:20:00.959Z
+Generated: 2026-06-19T15:25:13.840Z
 
 ## Summary
 
@@ -19,9 +19,13 @@ Generated: 2026-06-19T15:20:00.959Z
 
 ## Stale Artifacts
 
+- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status
+- agent/state/evidence-capture-status.generated.json: Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status
 - agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map
 - agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock
 - agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock
+- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 - agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane
 - agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics
 - agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke

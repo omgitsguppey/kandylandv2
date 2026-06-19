@@ -180,9 +180,6 @@ function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
   if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(path)) {
     return { path, classification: "unrelated_agent_context_file_to_ignore", reason: "Tracked terminal log artifact removed; source validation should not depend on stale logs." };
   }
-  if (/^agent\/evidence\/manual-screenshot-qa\//u.test(path)) {
-    return { path, classification: "validator_artifact_expected", reason: "Retired old manual screenshot evidence template; UI source coverage owns first-pass UI issue detection." };
-  }
   if (/^agent\/state\/.*\.generated\.json$/u.test(path)) {
     return { path, classification: "current_generated_artifact_to_commit", reason: "Generated score/debug evidence artifact refreshed by this resolver." };
   }
@@ -195,10 +192,7 @@ function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
   if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-health-algorithm-v2|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-freshness-index|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|final-phase-cleanup-lock|final-telemetry-closure-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-ui-parity|user-creator-visual-confirmation|user-loading-wallet-mobile-refinement)\.ts$/u.test(path)) {
     return { path, classification: "validator_artifact_expected", reason: "Dedicated validator requested by this batch." };
   }
-  if (path === "scripts/agent/validate-manual-screenshot-evidence.ts") {
-    return { path, classification: "validator_artifact_expected", reason: "Retired duplicate manual screenshot validator; UI source coverage is the canonical source-first gate." };
-  }
-  if (/^tests\/unit\/(ai-critic-p1-triage|beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-freshness-index|evidence-readiness-checklists|final-morning-beta-lock|final-phase-cleanup-lock|overnight-beta-readiness-lock)\.spec\.ts$/u.test(path)) {
+  if (/^tests\/unit\/(ai-critic-p1-triage|beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-freshness-index|evidence-readiness-checklists|final-morning-beta-lock|final-phase-cleanup-lock|overnight-beta-readiness-lock|targeted-behavior-evidence-repair)\.spec\.ts$/u.test(path)) {
     return { path, classification: "test_artifact_expected", reason: "Dedicated unit coverage requested by this batch." };
   }
   if (
@@ -210,7 +204,7 @@ function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
     || path === "src/lib/debug/recovery-playbooks.ts"
     || path === "src/lib/release-readiness/live-evidence-resolver.ts"
   ) {
-    return { path, classification: "real_source_change_needs_review", reason: "Admin/debug copy now routes visual work through UI source coverage instead of manual screenshot proof." };
+    return { path, classification: "real_source_change_needs_review", reason: "Admin/debug copy now routes visual work through UI source coverage instead of visual proof shortcuts." };
   }
   if (path === "src/lib/agent-score/self-healing-refresh-queue.ts" || path === "package.json") {
     return { path, classification: "real_source_change_needs_review", reason: "Scoped queue/source wiring needed to replace generic blocked reasons." };

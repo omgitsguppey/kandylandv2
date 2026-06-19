@@ -52,7 +52,7 @@ describe("targeted behavior evidence repair", () => {
     expect(report.currentValidators.some((validator) => validator.status === "in_flight")).toBe(true);
     expect(report.formalEvidenceImpact).toBe("source_behavior_only");
     expect(report.doesNotClear).toEqual(expect.arrayContaining(["provider_smoke", "runtime_smoke", "admin_truth_sample"]));
-    expect(report.doesNotClear).not.toContain("manual_screenshot");
+    expect(report.doesNotClear).not.toContain("visual_proof_shortcut");
     expect(validateTargetedBehaviorEvidenceRepairReport(report)).toEqual([]);
   });
 

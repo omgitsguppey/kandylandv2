@@ -296,7 +296,6 @@ function dirtyFileStatus(files: string[]) {
     if (file === "scripts/agent/validate-beta-evidence-gap-map.ts") return false;
     if (file === "scripts/agent/validate-analytics-panel-hydration.ts") return false;
     if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|overnight-beta-readiness-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(file)) return false;
-    if (file === "scripts/agent/validate-manual-screenshot-evidence.ts") return false;
     if (file === "src/lib/analytics/event-translation-bridge.ts") return false;
     if (file === "src/lib/analytics/person-metrics-hydration.ts") return false;
     if (file === "src/app/admin/debug/components/DebugOperatorCockpit.tsx") return false;
@@ -308,7 +307,6 @@ function dirtyFileStatus(files: string[]) {
     if (file === "package.json") return false;
     if (file === "CHANGELOG.md" || file === "public/kandydrops-release-notes.json") return false;
     if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(file)) return false;
-    if (file.startsWith("agent/evidence/manual-screenshot-qa/")) return false;
     if (file.startsWith("agent/state/") || file.startsWith("docs/agent-truth/")) return false;
     if (file.startsWith("src/lib/release-notes/")) return false;
     if (file === "agent/context/optimized-task-context.generated.json") return false;

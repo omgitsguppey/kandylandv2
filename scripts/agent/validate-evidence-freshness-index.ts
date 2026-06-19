@@ -184,7 +184,7 @@ function isAdminTruthSourcePath(path: string) {
 }
 
 function isUiSourceCoveragePath(path: string) {
-  return /manual-screenshot|operator-final|visual-manual/iu.test(path);
+  return /operator-final|visual-manual/iu.test(path);
 }
 
 function truthUseFor(classification: FreshnessClassification): EvidenceFreshnessEntry["truthUse"] {

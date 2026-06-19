@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T15:20:00.959Z",
+  "generatedAtUtc": "2026-06-19T15:25:13.840Z",
   "reportKey": "final-morning-beta-lock",
-  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "currentHead": "cb7808a6a33fdfdf673d852503bb771ceb4fd207",
   "summary": {
     "openPrsClassified": true,
     "dirtyFilesClassified": true,
@@ -23,142 +23,7 @@
   "prActions": [],
   "dirtyFileActions": [
     {
-      "path": "agent/evidence/manual-screenshot-qa/README.md",
-      "classification": "retired_manual_screenshot_artifact",
-      "action": "Commit deletion; UI source coverage owns first-pass UI issue detection."
-    },
-    {
-      "path": "agent/evidence/manual-screenshot-qa/evidence.template.json",
-      "classification": "retired_manual_screenshot_artifact",
-      "action": "Commit deletion; UI source coverage owns first-pass UI issue detection."
-    },
-    {
-      "path": "agent/evidence/manual-screenshot-qa/screenshots/.gitkeep",
-      "classification": "retired_manual_screenshot_artifact",
-      "action": "Commit deletion; UI source coverage owns first-pass UI issue detection."
-    },
-    {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/analytics-semantics-final-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/beta-score-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
       "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/debug-backlog-engine.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/evidence-capture-status.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/evidence-freshness-index.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/final-beta-exit-gate-readiness.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/final-cost-audit-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/final-morning-beta-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit as this final morning lock."
-    },
-    {
-      "path": "agent/state/final-phase-cleanup-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/overnight-final-integration-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/score-80-path-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "agent/state/user-creator-visual-confirmation.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/analytics-semantics-final-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/beta-score-cleanup.md",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit refreshed source-only status artifact."
     },
@@ -168,117 +33,7 @@
       "action": "Commit refreshed source-only status artifact."
     },
     {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/debug-backlog-engine.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/evidence-freshness-index.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/final-beta-exit-gate-readiness.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/final-cost-audit-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/final-morning-beta-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit as this final morning lock."
-    },
-    {
-      "path": "docs/agent-truth/launch-analytics-recovery.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/manual-screenshot-qa-checklist.md",
-      "classification": "retired_manual_screenshot_artifact",
-      "action": "Commit deletion; UI source coverage owns first-pass UI issue detection."
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/overnight-final-integration-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/score-80-path-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed source-only status artifact."
-    },
-    {
-      "path": "eslint-errors.log",
-      "classification": "deleted_obsolete_log",
-      "action": "Commit deletion; transient terminal logs must not be source evidence."
-    },
-    {
-      "path": "package.json",
-      "classification": "release_artifact_expected",
-      "action": "Commit same-release-note artifacts with the lock."
-    },
-    {
-      "path": "scripts/agent/validate-analytics-semantics-final-lock.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "scripts/agent/validate-beta-health-algorithm-v2.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "scripts/agent/validate-beta-score-cleanup.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
       "path": "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "scripts/agent/validate-creator-surface-routing.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "scripts/agent/validate-debug-backlog-engine.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     },
@@ -288,17 +43,7 @@
       "action": "Commit scoped validator/helper change after focused checks."
     },
     {
-      "path": "scripts/agent/validate-evidence-readiness-checklists.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
       "path": "scripts/agent/validate-final-beta-exit-gate-readiness.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "scripts/agent/validate-final-cost-audit-lock.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     },
@@ -306,26 +51,6 @@
       "path": "scripts/agent/validate-final-morning-beta-lock.ts",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit as this final morning lock."
-    },
-    {
-      "path": "scripts/agent/validate-final-phase-cleanup-lock.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "scripts/agent/validate-final-telemetry-closure-lock.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "scripts/agent/validate-manual-screenshot-evidence.ts",
-      "classification": "retired_manual_screenshot_artifact",
-      "action": "Commit deletion; UI source coverage owns first-pass UI issue detection."
-    },
-    {
-      "path": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
     },
     {
       "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
@@ -343,117 +68,30 @@
       "action": "Commit scoped validator/helper change after focused checks."
     },
     {
-      "path": "scripts/agent/validate-user-creator-ui-parity.ts",
+      "path": "tests/unit/targeted-behavior-evidence-repair.spec.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "scripts/agent/validate-user-creator-visual-confirmation.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "scripts/agent/validate-user-loading-wallet-mobile-refinement.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts",
-      "classification": "evidence_boundary_source_change",
-      "action": "Commit source-boundary copy that routes visual issues through UI source coverage."
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugOperatorCockpit.tsx",
-      "classification": "evidence_boundary_source_change",
-      "action": "Commit source-boundary copy that routes visual issues through UI source coverage."
-    },
-    {
-      "path": "src/lib/admin-debug-control-tower.ts",
-      "classification": "evidence_boundary_source_change",
-      "action": "Commit source-boundary copy that routes visual issues through UI source coverage."
-    },
-    {
-      "path": "src/lib/debug/ai-critic-p1-triage.ts",
-      "classification": "evidence_boundary_source_change",
-      "action": "Commit source-boundary copy that routes visual issues through UI source coverage."
-    },
-    {
-      "path": "src/lib/debug/debug-backlog-builder.ts",
-      "classification": "evidence_boundary_source_change",
-      "action": "Commit source-boundary copy that routes visual issues through UI source coverage."
-    },
-    {
-      "path": "src/lib/debug/recovery-playbooks.ts",
-      "classification": "evidence_boundary_source_change",
-      "action": "Commit source-boundary copy that routes visual issues through UI source coverage."
-    },
-    {
-      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
-      "classification": "evidence_boundary_source_change",
-      "action": "Commit source-boundary copy that routes visual issues through UI source coverage."
-    },
-    {
-      "path": "test-failures.log",
-      "classification": "deleted_obsolete_log",
-      "action": "Commit deletion; transient terminal logs must not be source evidence."
-    },
-    {
-      "path": "tests/unit/ai-critic-p1-triage.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "tests/unit/beta-score-cleanup.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "tests/unit/blocked-refresh-queue-resolver.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "tests/unit/debug-backlog-engine.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "tests/unit/evidence-artifact-schemas.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "tests/unit/evidence-freshness-index.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "tests/unit/evidence-readiness-checklists.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "tests/unit/final-morning-beta-lock.spec.ts",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit as this final morning lock."
-    },
-    {
-      "path": "tests/unit/final-phase-cleanup-lock.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "tests/unit/overnight-beta-readiness-lock.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "tsc-errors.log",
-      "classification": "deleted_obsolete_log",
-      "action": "Commit deletion; transient terminal logs must not be source evidence."
     }
   ],
   "staleArtifacts": [
+    {
+      "artifactPath": "agent/state/public-beta-score.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score",
+      "refreshCommand": "npm run score:beta && npm run check:beta-score"
+    },
+    {
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "refreshCommand": "npm run check:current-beta-exit-status"
+    },
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+      "refreshCommand": "npm run check:evidence-capture-status"
+    },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
       "status": "stale_source_version",
@@ -471,6 +109,12 @@
       "status": "stale_source_version",
       "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
       "refreshCommand": "npm run check:mobile-ui-final-lock"
+    },
+    {
+      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+      "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
@@ -574,20 +218,20 @@
   "refreshPlan": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "current",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score",
       "refreshCommand": "npm run score:beta && npm run check:beta-score"
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "current",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
       "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "current",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
       "refreshCommand": "npm run check:evidence-capture-status"
     },
     {
@@ -610,8 +254,8 @@
     },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "current",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
       "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {

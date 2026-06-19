@@ -186,18 +186,13 @@ function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
   if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(path)) {
     return { path, classification: "current_generated_artifact_to_commit", reason: "Tracked terminal log artifact removed; source validation should not depend on stale logs." };
   }
-  if (/^agent\/evidence\/manual-screenshot-qa\//u.test(path)) {
-    return { path, classification: "validator_artifact_expected", reason: "Retired old manual screenshot evidence template; UI source coverage owns first-pass UI issue detection." };
-  }
   if (/^agent\/state\/.*\.generated\.json$/u.test(path) || /^agent\/context\/.*\.generated\.json$/u.test(path)) {
     return { path, classification: "current_generated_artifact_to_commit", reason: "Generated artifact refreshed by safe score-impact refresh queue execution." };
   }
   if (/^docs\/agent-truth\//u.test(path)) {
     return { path, classification: "documentation_artifact_expected", reason: "Generated agent-truth documentation refreshed by queue validators." };
   }
-  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)
-    || path === "scripts/agent/validate-manual-screenshot-evidence.ts"
-  ) {
+  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)) {
     return { path, classification: "validator_artifact_expected", reason: "Dedicated queue execution validator requested by this pass." };
   }
   if (/^tests\/unit\/(beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|overnight-beta-readiness-lock|score-80-refresh-queue-execution)\.spec\.ts$/u.test(path)) {

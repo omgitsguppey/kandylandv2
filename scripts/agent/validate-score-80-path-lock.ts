@@ -155,15 +155,10 @@ function classifyDirtyPath(path: string, status: string): DirtyFile {
   if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(path)) {
     return { path, status, classification: "current_generated_artifact_to_commit", action: "Delete stale terminal log artifact." };
   }
-  if (/^agent\/evidence\/manual-screenshot-qa\//u.test(path)) {
-    return { path, status, classification: "current_generated_artifact_to_commit", action: "Retire old manual screenshot evidence template in favor of UI source coverage." };
-  }
   if (path === ARTIFACT_PATH || path === DOC_PATH) {
     return { path, status, classification: "current_generated_artifact_to_commit", action: "Commit score-80 path lock artifact." };
   }
-  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)
-    || path === "scripts/agent/validate-manual-screenshot-evidence.ts"
-  ) {
+  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)) {
     return { path, status, classification: "real_source_change_needs_review", action: "Commit scoped score-80 path lock validator/test." };
   }
   if (/^tests\/unit\/(beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|overnight-beta-readiness-lock)\.spec\.ts$/u.test(path)) {

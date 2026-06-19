@@ -19,7 +19,6 @@ type DirtyFileClassification =
   | "package_script_wiring"
   | "release_artifact_expected"
   | "score_evidence_artifact"
-  | "retired_manual_screenshot_artifact"
   | "deleted_obsolete_log"
   | "evidence_boundary_source_change"
   | "unrelated_agent_context_file_to_ignore"
@@ -201,9 +200,6 @@ export function classifyFinalGateDirtyFile(filePath: string): DirtyFileClassific
   }
   if (normalized === "package.json") return "package_script_wiring";
   if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(normalized)) return "deleted_obsolete_log";
-  if (normalized.startsWith("agent/evidence/manual-screenshot-qa/") || normalized === "docs/agent-truth/manual-screenshot-qa-checklist.md" || normalized === "scripts/agent/validate-manual-screenshot-evidence.ts") {
-    return "retired_manual_screenshot_artifact";
-  }
   if (
     normalized === "src/app/admin/debug/components/DebugOperatorCockpit.tsx"
     || normalized === "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts"

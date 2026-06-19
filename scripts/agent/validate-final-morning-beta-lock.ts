@@ -186,9 +186,6 @@ function classifyDirtyFile(path: string): DirtyFileAction {
   if (path === ARTIFACT || path === DOC || path === "scripts/agent/validate-final-morning-beta-lock.ts" || path === "tests/unit/final-morning-beta-lock.spec.ts") {
     return { path, classification: "current_generated_artifact_to_commit", action: "Commit as this final morning lock." };
   }
-  if (path.startsWith("agent/evidence/manual-screenshot-qa/") || path === "docs/agent-truth/manual-screenshot-qa-checklist.md" || path === "scripts/agent/validate-manual-screenshot-evidence.ts") {
-    return { path, classification: "retired_manual_screenshot_artifact", action: "Commit deletion; UI source coverage owns first-pass UI issue detection." };
-  }
   if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(path)) {
     return { path, classification: "deleted_obsolete_log", action: "Commit deletion; transient terminal logs must not be source evidence." };
   }
