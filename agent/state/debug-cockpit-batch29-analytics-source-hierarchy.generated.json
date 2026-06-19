@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch29-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-19T03:33:25.801Z",
-  "currentHead": "afba5b19654c51bcece9fe858ba5d07e132df9b4",
+  "generatedAtUtc": "2026-06-19T03:36:53.039Z",
+  "currentHead": "8a56ee26aa8b7e6f8b5c5c008a6ecc0677a578da",
   "ga4AvailabilityStatusBefore": "reports_available",
   "ga4AvailabilityStatusAfter": "reports_loaded_empty",
   "chartReadinessStatusBefore": "ready",
@@ -284,32 +284,8 @@
       "classification": "analytics_tab_source_truth_mismatch_required"
     },
     {
-      "filePath": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
-      "classification": "validator_artifact_expected"
-    },
-    {
       "filePath": "docs/agent-truth/admin-analytics-source-hierarchy.md",
       "classification": "analytics_tab_source_truth_mismatch_required"
-    },
-    {
-      "filePath": "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "src/lib/analytics/admin-analytics-source-hierarchy.ts",
-      "classification": "analytics_tab_source_truth_mismatch_required"
-    },
-    {
-      "filePath": "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/admin-analytics-source-hierarchy.spec.ts",
-      "classification": "analytics_tab_source_truth_mismatch_required"
-    },
-    {
-      "filePath": "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts",
-      "classification": "validator_artifact_expected"
     }
   ],
   "openPrClassifications": [],
