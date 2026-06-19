@@ -267,7 +267,7 @@ describe("admin debug control tower model", () => {
 
         expect(publicBeta?.truthState).toBe("stale");
         expect(publicBeta?.sourceDrift).toBe("stale");
-        expect(publicBeta?.topFindings[0]?.title).toContain("source commit needs review");
+        expect(publicBeta?.topFindings[0]?.title).toContain("report refresh needed");
         expect(model.canonicalPublicBetaStatus).toBe("stale");
         expect(model.canonicalPublicBetaReadinessStatus).toBe("Report refresh needed");
         expect(model.canonicalPublicBetaReadinessReason).toContain("source metadata is stale");
@@ -280,7 +280,7 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaTruthState).toBe("stale");
     });
 
-    it("keeps fresh generated snapshots current when only deployed commit metadata moved", () => {
+    it("marks fresh generated snapshots stale when current-head metadata lags the deployed head", () => {
         const root = createTempRoot();
         const previousCommit = process.env.NEXT_PUBLIC_COMMIT_SHA;
         process.env.NEXT_PUBLIC_COMMIT_SHA = "cccccccccccccccccccccccccccccccccccccccc";
@@ -298,11 +298,12 @@ describe("admin debug control tower model", () => {
             const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
             const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
 
-            expect(publicBeta?.truthState).toBe("live");
-            expect(publicBeta?.sourceDrift).toBe("current");
-            expect(publicBeta?.topFindings.some((finding) => finding.title.includes("source commit needs review"))).toBe(false);
-            expect(model.canonicalPublicBetaSourceDrift).toBe("current");
-            expect(model.canonicalPublicBetaTruthState).toBe("live");
+            expect(publicBeta?.truthState).toBe("stale");
+            expect(publicBeta?.sourceDrift).toBe("stale");
+            expect(publicBeta?.topFindings.some((finding) => finding.title.includes("report refresh needed"))).toBe(true);
+            expect(model.canonicalPublicBetaReadinessStatus).toBe("Report refresh needed");
+            expect(model.canonicalPublicBetaSourceDrift).toBe("stale");
+            expect(model.canonicalPublicBetaTruthState).toBe("stale");
         } finally {
             if (previousCommit === undefined) {
                 delete process.env.NEXT_PUBLIC_COMMIT_SHA;

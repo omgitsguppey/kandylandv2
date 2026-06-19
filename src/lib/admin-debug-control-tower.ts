@@ -342,7 +342,7 @@ function readReportCommitState(raw: Record<string, unknown>, repoCurrentHead: st
     const currentHead = normalizeCommit(raw.currentHead);
     const sourceCommitMismatch = Boolean(sourceCommit && currentHead && !commitsMatch(sourceCommit, currentHead));
     const currentHeadLag = Boolean(currentHead && repoCurrentHead && !commitsMatch(currentHead, repoCurrentHead));
-    const sourceDrift: AdminDebugReportCard["sourceDrift"] = sourceCommitMismatch
+    const sourceDrift: AdminDebugReportCard["sourceDrift"] = sourceCommitMismatch || currentHeadLag
         ? "stale"
         : sourceCommit || currentHead
             ? "current"
@@ -378,10 +378,10 @@ function buildSourceDriftFinding(
         reportId: definition.id,
         section: definition.section,
         severity: "moderate",
-        title: `${definition.label} source commit needs review`,
+        title: `${definition.label} report refresh needed`,
         domain: definition.section,
         filePath: relativePath,
-        humanReadableWarning: "Generated report commit metadata does not match the current repo head and cannot be treated as live.",
+        humanReadableWarning: "Generated report metadata does not match the current repo head and cannot be treated as live.",
         suggestedValidator: definition.command,
         evidence,
         truthState: "stale",
