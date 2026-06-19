@@ -1,7 +1,7 @@
 # Analytics Panel Hydration
 
-Generated: 2026-06-19T16:26:45.386Z
-Current head: 55278aa7f062ac06cfe13c7d19273b49067e6256
+Generated: 2026-06-19T18:24:47.422Z
+Current head: 17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1
 
 ## Summary
 
@@ -39,12 +39,12 @@ Current head: 55278aa7f062ac06cfe13c7d19273b49067e6256
 
 ## Top Hydration Failures
 
-- Payment approvals: provider_gated; next=Attach redacted external evidence for server purchase verification facts; do not use screenshots as backend proof.
-- Payment failures: provider_gated; next=Attach redacted external evidence for payment failure telemetry; do not use screenshots as backend proof.
-- GumDrop balances: protected_payment_required; next=Attach redacted external evidence for wallet source ledger plus protected payment/provider proof; do not use screenshots as backend proof.
-- Error rate/4xx: runtime_evidence_required; next=Attach bounded route/debug runtime evidence for admin debug summary; do not use screenshots as backend proof.
-- Cost risk: external_required; next=Attach redacted external evidence for cost guard summaries plus external billing review; do not use screenshots as backend proof.
-- Debug backlog: runtime_evidence_required; next=Attach bounded route/debug runtime evidence for debug backlog summary; do not use screenshots as backend proof.
+- Payment approvals: provider_gated; next=Attach redacted external evidence for server purchase verification facts; do not use browser reproduction as backend proof.
+- Payment failures: provider_gated; next=Attach redacted external evidence for payment failure telemetry; do not use browser reproduction as backend proof.
+- GumDrop balances: protected_payment_required; next=Attach redacted external evidence for wallet source ledger plus protected payment/provider proof; do not use browser reproduction as backend proof.
+- Error rate/4xx: runtime_evidence_required; next=Attach bounded route/debug runtime evidence for admin debug summary; do not use browser reproduction as backend proof.
+- Cost risk: external_required; next=Attach redacted external evidence for cost guard summaries plus external billing review; do not use browser reproduction as backend proof.
+- Debug backlog: runtime_evidence_required; next=Attach bounded route/debug runtime evidence for debug backlog summary; do not use browser reproduction as backend proof.
 
 ## Debug Lane
 

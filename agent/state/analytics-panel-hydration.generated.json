@@ -1,18 +1,18 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T16:26:45.386Z",
-  "currentHead": "55278aa7f062ac06cfe13c7d19273b49067e6256",
+  "generatedAtUtc": "2026-06-19T18:24:47.422Z",
+  "currentHead": "17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
   "scoreDimensions": {
-    "sourceHealth": 99.2,
+    "sourceHealth": 91.7,
     "runtimeHealth": 71.2,
-    "evidenceCompleteness": 58.4,
-    "freshness": 83.75,
+    "evidenceCompleteness": 43.4,
+    "freshness": 75.63,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 76.88
+    "overallHealthScore": 70.79
   },
   "totalPanels": 41,
   "hydratedPanels": 10,
@@ -199,37 +199,37 @@
       "panelId": "payment_approvals",
       "panelLabel": "Payment approvals",
       "hydrationStatus": "provider_gated",
-      "nextExactAction": "Attach redacted external evidence for server purchase verification facts; do not use screenshots as backend proof."
+      "nextExactAction": "Attach redacted external evidence for server purchase verification facts; do not use browser reproduction as backend proof."
     },
     {
       "panelId": "payment_failures",
       "panelLabel": "Payment failures",
       "hydrationStatus": "provider_gated",
-      "nextExactAction": "Attach redacted external evidence for payment failure telemetry; do not use screenshots as backend proof."
+      "nextExactAction": "Attach redacted external evidence for payment failure telemetry; do not use browser reproduction as backend proof."
     },
     {
       "panelId": "gumdrop_balances",
       "panelLabel": "GumDrop balances",
       "hydrationStatus": "protected_payment_required",
-      "nextExactAction": "Attach redacted external evidence for wallet source ledger plus protected payment/provider proof; do not use screenshots as backend proof."
+      "nextExactAction": "Attach redacted external evidence for wallet source ledger plus protected payment/provider proof; do not use browser reproduction as backend proof."
     },
     {
       "panelId": "error_rate_4xx",
       "panelLabel": "Error rate/4xx",
       "hydrationStatus": "runtime_evidence_required",
-      "nextExactAction": "Attach bounded route/debug runtime evidence for admin debug summary; do not use screenshots as backend proof."
+      "nextExactAction": "Attach bounded route/debug runtime evidence for admin debug summary; do not use browser reproduction as backend proof."
     },
     {
       "panelId": "cost_risk",
       "panelLabel": "Cost risk",
       "hydrationStatus": "external_required",
-      "nextExactAction": "Attach redacted external evidence for cost guard summaries plus external billing review; do not use screenshots as backend proof."
+      "nextExactAction": "Attach redacted external evidence for cost guard summaries plus external billing review; do not use browser reproduction as backend proof."
     },
     {
       "panelId": "debug_backlog",
       "panelLabel": "Debug backlog",
       "hydrationStatus": "runtime_evidence_required",
-      "nextExactAction": "Attach bounded route/debug runtime evidence for debug backlog summary; do not use screenshots as backend proof."
+      "nextExactAction": "Attach bounded route/debug runtime evidence for debug backlog summary; do not use browser reproduction as backend proof."
     }
   ],
   "liveEvidenceContribution": {
@@ -356,53 +356,57 @@
     "hiddenByRole": 0,
     "broken": 0,
     "topNextActions": [
-      "Payment approvals: Attach redacted external evidence for server purchase verification facts; do not use screenshots as backend proof.",
-      "Payment failures: Attach redacted external evidence for payment failure telemetry; do not use screenshots as backend proof.",
-      "GumDrop balances: Attach redacted external evidence for wallet source ledger plus protected payment/provider proof; do not use screenshots as backend proof.",
-      "Error rate/4xx: Attach bounded route/debug runtime evidence for admin debug summary; do not use screenshots as backend proof.",
-      "Cost risk: Attach redacted external evidence for cost guard summaries plus external billing review; do not use screenshots as backend proof.",
-      "Debug backlog: Attach bounded route/debug runtime evidence for debug backlog summary; do not use screenshots as backend proof."
+      "Payment approvals: Attach redacted external evidence for server purchase verification facts; do not use browser reproduction as backend proof.",
+      "Payment failures: Attach redacted external evidence for payment failure telemetry; do not use browser reproduction as backend proof.",
+      "GumDrop balances: Attach redacted external evidence for wallet source ledger plus protected payment/provider proof; do not use browser reproduction as backend proof.",
+      "Error rate/4xx: Attach bounded route/debug runtime evidence for admin debug summary; do not use browser reproduction as backend proof.",
+      "Cost risk: Attach redacted external evidence for cost guard summaries plus external billing review; do not use browser reproduction as backend proof.",
+      "Debug backlog: Attach bounded route/debug runtime evidence for debug backlog summary; do not use browser reproduction as backend proof."
     ]
   },
   "dirtyFileSummary": {
-    "total": 7,
+    "total": 10,
     "byClassification": {
-      "analytics_panel_hydration_artifact_expected": 2,
-      "real_source_change_needs_review": 3,
-      "test_artifact_expected": 2
+      "stale_generated_artifact_to_regenerate": 8,
+      "current_generated_artifact_to_commit": 1,
+      "documentation_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
       {
-        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-        "classification": "analytics_panel_hydration_artifact_expected"
+        "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "classification": "real_source_change_needs_review"
+        "path": "agent/state/debug-signal-actionability.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "src/lib/server/admin-analytics-historical-validation.ts",
-        "classification": "real_source_change_needs_review"
+        "path": "agent/state/overnight-final-integration-lock.generated.json",
+        "classification": "current_generated_artifact_to_commit"
       },
       {
-        "path": "src/types/admin-analytics.ts",
-        "classification": "real_source_change_needs_review"
+        "path": "agent/state/score-80-path-lock.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "tests/unit/admin-analytics-page.spec.tsx",
-        "classification": "test_artifact_expected"
+        "path": "agent/state/score-80-refresh-queue-execution.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "tests/unit/admin-data-validation.spec.ts",
-        "classification": "test_artifact_expected"
+        "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
+        "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "tests/unit/analytics-panel-hydration.spec.ts",
-        "classification": "analytics_panel_hydration_artifact_expected"
+        "path": "docs/agent-truth/debug-signal-actionability.md",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "docs/agent-truth/overnight-final-integration-lock.md",
+        "classification": "documentation_artifact_expected"
       }
     ],
-    "sampleTruncated": false
+    "sampleTruncated": true
   },
   "nextExactSteps": [
     "Connect safe lastSeen/materialized summaries for source-missing panels.",

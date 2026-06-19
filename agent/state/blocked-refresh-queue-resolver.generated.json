@@ -1,40 +1,16 @@
 {
-  "generatedAtUtc": "2026-06-19T15:24:56.743Z",
+  "generatedAtUtc": "2026-06-19T18:23:41.787Z",
   "reportKey": "blocked-refresh-queue-resolver",
-  "currentHead": "cb7808a6a33fdfdf673d852503bb771ceb4fd207",
+  "currentHead": "17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1",
   "status": "pass",
-  "oldScore": 78.18,
-  "newScore": 78.18,
-  "blockedCount": 8,
+  "oldScore": 70.79,
+  "newScore": 70.79,
+  "blockedCount": 5,
   "resolvedEntries": [
-    {
-      "artifact": "debug_runtime_evidence",
-      "owner": "runtime",
-      "scoreImpactEstimate": 16.33,
-      "classification": "blocked_formal_evidence",
-      "originalBlockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
-      "resolvedBlockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
-      "nextAction": "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status.",
-      "canRunAutomatically": false,
-      "formalGate": "runtime",
-      "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
-    },
-    {
-      "artifact": "runtime_provider_smoke",
-      "owner": "runtime",
-      "scoreImpactEstimate": 16.33,
-      "classification": "blocked_formal_evidence",
-      "originalBlockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
-      "resolvedBlockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
-      "nextAction": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status.",
-      "canRunAutomatically": false,
-      "formalGate": "provider",
-      "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
-    },
     {
       "artifact": "admin_truth_sample_evidence",
       "owner": "admin",
-      "scoreImpactEstimate": 12,
+      "scoreImpactEstimate": 8.32,
       "classification": "blocked_formal_evidence",
       "originalBlockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
       "resolvedBlockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
@@ -44,16 +20,16 @@
       "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
     },
     {
-      "artifact": "visual_manual_smoke",
-      "owner": "manual",
-      "scoreImpactEstimate": 12,
-      "classification": "failed_validator",
-      "originalBlockedReason": "blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.",
-      "resolvedBlockedReason": "source_validation_required: deterministic UI source coverage must run before optional visual reproduction; screenshots are not required to discover UI issues.",
-      "nextAction": "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps; use screenshots only to reproduce a reported issue.",
+      "artifact": "runtime_provider_smoke",
+      "owner": "runtime",
+      "scoreImpactEstimate": 5.76,
+      "classification": "blocked_formal_evidence",
+      "originalBlockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
+      "resolvedBlockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
+      "nextAction": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status.",
       "canRunAutomatically": false,
-      "formalGate": "none",
-      "scoreTreatment": "resolved_source_refreshable"
+      "formalGate": "provider",
+      "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
     },
     {
       "artifact": "agent/state/provider-smoke-evidence.generated.json",
@@ -90,18 +66,6 @@
       "canRunAutomatically": false,
       "formalGate": "none",
       "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
-    },
-    {
-      "artifact": "agent/state/debug-runtime-evidence.generated.json",
-      "owner": "runtime",
-      "scoreImpactEstimate": 0.01,
-      "classification": "blocked_formal_evidence",
-      "originalBlockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
-      "resolvedBlockedReason": "blocked_formal_evidence: formal artifact required; source queue cannot generate proof.",
-      "nextAction": "npm run check:debug-runtime-evidence",
-      "canRunAutomatically": false,
-      "formalGate": "none",
-      "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
     }
   ],
   "refreshableBlockedEntries": [],
@@ -112,58 +76,7 @@
     "clearsProvider": false,
     "clearsAdminTruth": false
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
-    },
-    {
-      "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Agent-truth documentation for the blocked refresh resolver."
-    },
-    {
-      "path": "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated validator requested by this batch."
-    },
-    {
-      "path": "scripts/agent/validate-evidence-freshness-index.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated validator requested by this batch."
-    },
-    {
-      "path": "scripts/agent/validate-final-beta-exit-gate-readiness.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated validator requested by this batch."
-    },
-    {
-      "path": "scripts/agent/validate-final-morning-beta-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated validator requested by this batch."
-    },
-    {
-      "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated validator requested by this batch."
-    },
-    {
-      "path": "scripts/agent/validate-score-80-path-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated validator requested by this batch."
-    },
-    {
-      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated validator requested by this batch."
-    },
-    {
-      "path": "tests/unit/targeted-behavior-evidence-repair.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated unit coverage requested by this batch."
-    }
-  ],
+  "dirtyFiles": [],
   "openPrs": [
     {
       "number": 278,

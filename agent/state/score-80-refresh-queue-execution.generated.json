@@ -1,16 +1,16 @@
 {
-  "generatedAtUtc": "2026-06-19T15:04:44.550Z",
+  "generatedAtUtc": "2026-06-19T18:24:23.755Z",
   "reportKey": "score-80-refresh-queue-execution",
-  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "currentHead": "17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1",
   "status": "pass",
   "oldScore": 77.76,
-  "newScore": 76.88,
-  "distanceTo80": 3.12,
+  "newScore": 70.79,
+  "distanceTo80": 9.21,
   "queueSummary": {
-    "totalEntries": 17,
-    "automaticEntries": 9,
-    "blockedEntries": 8,
-    "sourceQueueCommandCount": 17
+    "totalEntries": 16,
+    "automaticEntries": 11,
+    "blockedEntries": 5,
+    "sourceQueueCommandCount": 16
   },
   "queueEntriesRun": 15,
   "queueEntriesSkipped": 2,
@@ -298,77 +298,12 @@
   },
   "dirtyFiles": [
     {
-      "path": "agent/evidence/manual-screenshot-qa/README.md",
-      "classification": "validator_artifact_expected",
-      "reason": "Retired old manual screenshot evidence template; UI source coverage owns first-pass UI issue detection."
-    },
-    {
-      "path": "agent/evidence/manual-screenshot-qa/evidence.template.json",
-      "classification": "validator_artifact_expected",
-      "reason": "Retired old manual screenshot evidence template; UI source coverage owns first-pass UI issue detection."
-    },
-    {
-      "path": "agent/evidence/manual-screenshot-qa/screenshots/.gitkeep",
-      "classification": "validator_artifact_expected",
-      "reason": "Retired old manual screenshot evidence template; UI source coverage owns first-pass UI issue detection."
-    },
-    {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/analytics-semantics-final-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
       "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/debug-backlog-engine.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/evidence-capture-status.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/final-cost-audit-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/overnight-final-integration-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
+      "path": "agent/state/debug-signal-actionability.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
     },
@@ -378,77 +313,12 @@
       "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
     },
     {
-      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/analytics-semantics-final-lock.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
       "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
       "classification": "documentation_artifact_expected",
       "reason": "Generated agent-truth documentation refreshed by queue validators."
     },
     {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/debug-backlog-engine.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/final-cost-audit-lock.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/launch-analytics-recovery.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/manual-screenshot-qa-checklist.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/overnight-final-integration-lock.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "path": "docs/agent-truth/debug-signal-actionability.md",
       "classification": "documentation_artifact_expected",
       "reason": "Generated agent-truth documentation refreshed by queue validators."
     },
@@ -456,151 +326,6 @@
       "path": "docs/agent-truth/score-80-path-lock.md",
       "classification": "documentation_artifact_expected",
       "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "eslint-errors.log",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Tracked terminal log artifact removed; source validation should not depend on stale logs."
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped package script wiring for the new validator."
-    },
-    {
-      "path": "scripts/agent/validate-analytics-semantics-final-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-beta-score-cleanup.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-creator-surface-routing.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-debug-backlog-engine.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-evidence-readiness-checklists.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-final-beta-exit-gate-readiness.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-final-cost-audit-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-final-morning-beta-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-manual-screenshot-evidence.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-score-80-path-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "scripts/agent/validate-user-creator-visual-confirmation.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugOperatorCockpit.tsx",
-      "classification": "validator_artifact_expected",
-      "reason": "Admin/debug source wording now routes UI work through source coverage."
-    },
-    {
-      "path": "src/lib/debug/debug-backlog-builder.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Admin/debug source wording now routes UI work through source coverage."
-    },
-    {
-      "path": "test-failures.log",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Tracked terminal log artifact removed; source validation should not depend on stale logs."
-    },
-    {
-      "path": "tests/unit/beta-score-cleanup.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated queue execution unit coverage requested by this pass."
-    },
-    {
-      "path": "tests/unit/blocked-refresh-queue-resolver.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated queue execution unit coverage requested by this pass."
-    },
-    {
-      "path": "tests/unit/debug-backlog-engine.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated queue execution unit coverage requested by this pass."
-    },
-    {
-      "path": "tests/unit/evidence-artifact-schemas.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated queue execution unit coverage requested by this pass."
-    },
-    {
-      "path": "tests/unit/evidence-readiness-checklists.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated queue execution unit coverage requested by this pass."
-    },
-    {
-      "path": "tests/unit/final-morning-beta-lock.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated queue execution unit coverage requested by this pass."
-    },
-    {
-      "path": "tests/unit/overnight-beta-readiness-lock.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated queue execution unit coverage requested by this pass."
-    },
-    {
-      "path": "tsc-errors.log",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Tracked terminal log artifact removed; source validation should not depend on stale logs."
     }
   ],
   "openPrs": [
