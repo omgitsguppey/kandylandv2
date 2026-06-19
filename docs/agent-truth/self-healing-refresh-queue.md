@@ -4,10 +4,10 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 
 ## Summary
 
-- Queue entries: 16
-- Automatic entries: 8
+- Queue entries: 17
+- Automatic entries: 9
 - Blocked entries: 8
-- Estimated score impact: 83.47
+- Estimated score impact: 84.47
 
 ## Queue
 
@@ -51,7 +51,17 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 5. agent/state/analytics-rewire-phase-one.generated.json
+### 5. agent/state/current-beta-exit-status.generated.json
+
+- Owner: beta
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:current-beta-exit-status`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 6. agent/state/analytics-rewire-phase-one.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -61,7 +71,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 6. agent/state/content-protection.generated.json
+### 7. agent/state/content-protection.generated.json
 
 - Owner: repo
 - Stale reason: missing
@@ -71,7 +81,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 7. agent/state/targeted-behavior-evidence.generated.json
+### 8. agent/state/targeted-behavior-evidence.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -81,7 +91,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 8. agent/state/user-facing-feature-connection-audit.generated.json
+### 9. agent/state/user-facing-feature-connection-audit.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -91,7 +101,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 9. debug_runtime_evidence
+### 10. debug_runtime_evidence
 
 - Owner: runtime
 - Stale reason: Deployed runtime proof required
@@ -101,7 +111,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.
 - Expected outcome: Remain blocked until a human attaches the deployed runtime smoke artifact.
 
-### 10. runtime_provider_smoke
+### 11. runtime_provider_smoke
 
 - Owner: runtime
 - Stale reason: External proof required
@@ -111,7 +121,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the formal provider smoke artifact.
 
-### 11. admin_truth_sample_evidence
+### 12. admin_truth_sample_evidence
 
 - Owner: admin
 - Stale reason: Admin sample required
@@ -121,7 +131,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the admin truth sample artifact.
 
-### 12. visual_manual_smoke
+### 13. visual_manual_smoke
 
 - Owner: manual
 - Stale reason: Manual UI proof required
@@ -131,7 +141,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.
 - Expected outcome: Remain blocked until a human attaches the visual/manual smoke artifact.
 
-### 13. agent/state/provider-smoke-evidence.generated.json
+### 14. agent/state/provider-smoke-evidence.generated.json
 
 - Owner: runtime
 - Stale reason: External proof required
@@ -141,7 +151,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the formal provider smoke artifact.
 
-### 14. agent/state/admin-truth-sample-evidence.generated.json
+### 15. agent/state/admin-truth-sample-evidence.generated.json
 
 - Owner: admin
 - Stale reason: Admin sample required
@@ -151,7 +161,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the admin truth sample artifact.
 
-### 15. agent/state/runtime-smoke-evidence.generated.json
+### 16. agent/state/runtime-smoke-evidence.generated.json
 
 - Owner: runtime
 - Stale reason: Deployed runtime proof required
@@ -161,7 +171,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.
 - Expected outcome: Remain blocked until a human attaches the deployed runtime smoke artifact.
 
-### 16. agent/state/debug-runtime-evidence.generated.json
+### 17. agent/state/debug-runtime-evidence.generated.json
 
 - Owner: runtime
 - Stale reason: Deployed runtime proof required
