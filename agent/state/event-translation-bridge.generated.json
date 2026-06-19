@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-19T13:01:51.943Z",
-  "currentHead": "3840197f6cafa8ea5a7615c5171cf2bcf2e802f5",
+  "generatedAtUtc": "2026-06-19T13:21:07.046Z",
+  "currentHead": "150f93852f2029bd14694ddfe9fd65ec917c1897",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
