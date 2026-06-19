@@ -728,9 +728,23 @@ describe("AdminAnalyticsPage", () => {
           "debug_data_validation",
           "admin_analytics_overview",
           "admin_analytics_charts",
+          "admin_analytics_device_mix",
+          "admin_analytics_region_demand",
+          "admin_analytics_top_paths",
           "admin_analytics_insight_cards",
           "admin_analytics_source_health",
           "public_beta_score_evidence",
+        ],
+        consumers: [
+          { consumerId: "debug_data_validation", label: "Debug source agreement", displayState: "chart_promotion_blocked" },
+          { consumerId: "admin_analytics_overview", label: "Analytics overview", displayState: "source_missing" },
+          { consumerId: "admin_analytics_charts", label: "Analytics charts", displayState: "source_missing" },
+          { consumerId: "admin_analytics_device_mix", label: "Device mix", displayState: "second_source_only" },
+          { consumerId: "admin_analytics_region_demand", label: "Region demand", displayState: "second_source_only" },
+          { consumerId: "admin_analytics_top_paths", label: "Top paths", displayState: "second_source_only" },
+          { consumerId: "admin_analytics_insight_cards", label: "Insight cards", displayState: "source_missing" },
+          { consumerId: "admin_analytics_source_health", label: "Source health", displayState: "chart_promotion_blocked" },
+          { consumerId: "public_beta_score_evidence", label: "Public beta evidence", displayState: "chart_promotion_blocked" },
         ],
       },
     };
@@ -740,7 +754,10 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain("Source state: Source agreement failed");
-    expect(container.textContent).toContain("Source agreement failed; 6 analytics views paused until first-party coverage is repaired.");
+    expect(container.textContent).toContain("Source agreement failed; 3 source missing, 3 GA4-only views, 3 chart promotion held.");
+    expect(container.textContent).toContain("source missing: Analytics overview, Analytics charts, Insight cards");
+    expect(container.textContent).toContain("GA4-only views: Device mix, Region demand, Top paths");
+    expect(container.textContent).toContain("chart promotion held: Debug source agreement, Source health, Public beta evidence");
     expect(container.textContent).toContain("Review source details in Debug");
     expect(container.textContent).not.toContain("consumer_source_mismatch");
     expect(container.textContent).not.toContain("source_agreement_failed");

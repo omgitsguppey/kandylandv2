@@ -20,6 +20,16 @@ describe("admin analytics source hierarchy", () => {
       fallbackAllowed: true,
       emptyStateAllowed: true,
       blockerReason: "source_agreement_failed",
+      displayState: "source_missing",
+    });
+    expect(hierarchy.consumers.find((consumer) => consumer.consumerId === "admin_analytics_device_mix")).toMatchObject({
+      sourceUsed: "ga4_external_evidence",
+      blockerReason: "source_agreement_failed",
+      displayState: "second_source_only",
+    });
+    expect(hierarchy.consumers.find((consumer) => consumer.consumerId === "public_beta_score_evidence")).toMatchObject({
+      blockerReason: "source_agreement_failed",
+      displayState: "chart_promotion_blocked",
     });
     expect(JSON.stringify(hierarchy)).not.toContain("source agreement failed");
     expect(JSON.stringify(hierarchy)).toContain("source_agreement_failed");
@@ -39,12 +49,19 @@ describe("admin analytics source hierarchy", () => {
     expect(hierarchy.consumerSourceMismatches).toEqual([
       "admin_analytics_overview",
       "admin_analytics_charts",
+      "admin_analytics_device_mix",
+      "admin_analytics_region_demand",
+      "admin_analytics_top_paths",
       "admin_analytics_insight_cards",
     ]);
     expect(hierarchy.blockedAnalyticsConsumers).toEqual([
       "admin_analytics_overview",
       "admin_analytics_charts",
+      "admin_analytics_device_mix",
+      "admin_analytics_region_demand",
+      "admin_analytics_top_paths",
       "admin_analytics_insight_cards",
     ]);
+    expect(hierarchy.consumers.filter((consumer) => consumer.displayState === "consumer_source_mismatch")).toHaveLength(6);
   });
 });

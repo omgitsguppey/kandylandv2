@@ -19,7 +19,11 @@ import {
   type AnalyticsViewMode,
 } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
-import type { AdminAnalyticsSourceHierarchy } from "@/lib/analytics/admin-analytics-source-hierarchy";
+import type {
+  AdminAnalyticsConsumerDisplayState,
+  AdminAnalyticsSourceHierarchy,
+  AdminAnalyticsSourceHierarchyConsumer,
+} from "@/lib/analytics/admin-analytics-source-hierarchy";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 
 import {
@@ -31,7 +35,7 @@ import { useAdminAnalyticsState } from "./hooks/useAdminAnalyticsState";
 
 type OverviewDisplayState = "ready" | "cached" | "refresh_due" | "partial" | "unavailable" | "loading";
 type AdminAnalyticsSourceHierarchySummary = Pick<AdminAnalyticsSourceHierarchy, "status" | "nextAction"> &
-  Partial<Pick<AdminAnalyticsSourceHierarchy, "consumerSourceMismatches" | "blockedAnalyticsConsumers">>;
+  Partial<Pick<AdminAnalyticsSourceHierarchy, "consumerSourceMismatches" | "blockedAnalyticsConsumers" | "consumers">>;
 
 function mapOverviewDisplayStateToTruthState(displayState: OverviewDisplayState) {
   switch (displayState) {
@@ -142,11 +146,83 @@ function formatSourceHierarchyCount(count: number, singular: string, plural = `$
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
+function labelForSourceHierarchyDisplayState(state: AdminAnalyticsConsumerDisplayState) {
+  switch (state) {
+    case "second_source_only":
+      return "GA4-only views";
+    case "chart_promotion_blocked":
+      return "chart promotion held";
+    case "consumer_source_mismatch":
+      return "source mismatch";
+    case "source_missing":
+      return "source missing";
+    case "connected":
+    default:
+      return "connected";
+  }
+}
+
+function sourceHierarchyStatePriority(state: AdminAnalyticsConsumerDisplayState) {
+  switch (state) {
+    case "source_missing":
+      return 0;
+    case "second_source_only":
+      return 1;
+    case "chart_promotion_blocked":
+      return 2;
+    case "consumer_source_mismatch":
+      return 3;
+    case "connected":
+    default:
+      return 4;
+  }
+}
+
+function groupedSourceHierarchyConsumers(consumers: AdminAnalyticsSourceHierarchyConsumer[] | undefined) {
+  const groups = new Map<AdminAnalyticsConsumerDisplayState, AdminAnalyticsSourceHierarchyConsumer[]>();
+  for (const consumer of consumers ?? []) {
+    if (consumer.displayState === "connected") continue;
+    const existing = groups.get(consumer.displayState) ?? [];
+    existing.push(consumer);
+    groups.set(consumer.displayState, existing);
+  }
+
+  return Array.from(groups.entries())
+    .sort(([a], [b]) => sourceHierarchyStatePriority(a) - sourceHierarchyStatePriority(b));
+}
+
+function formatSourceHierarchyConsumerSummary(consumers: AdminAnalyticsSourceHierarchyConsumer[] | undefined) {
+  const groups = groupedSourceHierarchyConsumers(consumers);
+  if (groups.length === 0) return null;
+
+  return groups
+    .map(([state, entries]) => {
+      const label = labelForSourceHierarchyDisplayState(state);
+      return state === "second_source_only"
+        ? `${entries.length} ${label}`
+        : formatSourceHierarchyCount(entries.length, label, label);
+    })
+    .join(", ");
+}
+
+function formatSourceHierarchyConsumerDetails(consumers: AdminAnalyticsSourceHierarchyConsumer[] | undefined) {
+  return groupedSourceHierarchyConsumers(consumers).map(([state, entries]) => {
+    const label = labelForSourceHierarchyDisplayState(state);
+    const names = entries.map((entry) => entry.label).join(", ");
+    return `${label}: ${names}`;
+  });
+}
+
 function formatSourceHierarchySummary(sourceHierarchy: AdminAnalyticsSourceHierarchySummary) {
   const mismatchCount = sourceHierarchy.consumerSourceMismatches?.length ?? 0;
   const blockedCount = sourceHierarchy.blockedAnalyticsConsumers?.length ?? 0;
+  const consumerSummary = formatSourceHierarchyConsumerSummary(sourceHierarchy.consumers);
 
   if (sourceHierarchy.status === "source_agreement_failed") {
+    if (consumerSummary) {
+      return `Source agreement failed; ${consumerSummary}.`;
+    }
+
     return blockedCount > 0
       ? `Source agreement failed; ${formatSourceHierarchyCount(blockedCount, "analytics view")} paused until first-party coverage is repaired.`
       : "Source agreement failed; repair first-party coverage before promoting charts.";
@@ -244,15 +320,18 @@ export default function AdminAnalyticsPage() {
   };
   const sourceHierarchyStatusLabel = formatAnalyticsShellStateLabel(sourceHierarchy.status);
   const sourceHierarchySummary = formatSourceHierarchySummary(sourceHierarchy);
-  const sourceHierarchyDetailItems = useMemo(() => (
-    sourceHierarchy.status !== "aligned"
+  const sourceHierarchyDetailItems = useMemo(() => {
+    const consumerDetails = formatSourceHierarchyConsumerDetails(sourceHierarchy.consumers);
+    return sourceHierarchy.status !== "aligned"
       ? [
           `Source state: ${sourceHierarchyStatusLabel}`,
           sourceHierarchySummary,
+          ...consumerDetails,
           sourceHierarchy.nextAction,
         ].filter((item): item is string => Boolean(item))
-      : []
-  ), [
+      : [];
+  }, [
+    sourceHierarchy.consumers,
     sourceHierarchy.nextAction,
     sourceHierarchy.status,
     sourceHierarchyStatusLabel,

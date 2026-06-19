@@ -448,10 +448,13 @@ export function validateAdminAnalyticsSourceHierarchy() {
   expectPass(hierarchy.consumerSourceMismatches.length === 0, failures, "source agreement failure is incorrectly reported as a consumer source mismatch.");
   expectPass(JSON.stringify(hierarchy).includes("source_agreement_failed"), failures, "sourceAgreement failed is not surfaced in Analytics tab.");
   expectPass(hierarchy.blockedAnalyticsConsumers.includes("admin_analytics_charts"), failures, "Analytics tab chart readiness ignores source agreement.");
+  expectPass(hierarchy.consumers.some((consumer) => consumer.consumerId === "admin_analytics_device_mix" && consumer.displayState === "second_source_only"), failures, "Device mix is not labeled as GA4 second-source only.");
+  expectPass(hierarchy.consumers.some((consumer) => consumer.consumerId === "admin_analytics_overview" && consumer.displayState === "source_missing"), failures, "Overview source gap is not labeled source missing.");
+  expectPass(hierarchy.consumers.some((consumer) => consumer.consumerId === "public_beta_score_evidence" && consumer.displayState === "chart_promotion_blocked"), failures, "Public beta evidence is not labeled chart-promotion blocked.");
   runValidation("admin-analytics-source-hierarchy", { fixtureEvidence }, failures, [
     "Fixture-only source agreement failure confirms Debug and Admin Analytics use compatible status copy.",
     "This report does not claim current runtime or admin truth.",
-    "Analytics tab source agreement failures stay distinct from local fallback consumer mismatches.",
+    "Analytics tab source agreement failures stay distinct from local fallback consumer mismatches and classify source-missing, GA4-only, and chart-promotion-held views.",
   ]);
 }
 

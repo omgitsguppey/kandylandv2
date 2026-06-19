@@ -1,7 +1,7 @@
 {
   "reportKey": "admin-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-17T19:06:27.439Z",
-  "currentHead": "d6467b058100facddbf73195080fccc863730118",
+  "generatedAtUtc": "2026-06-19T00:39:42.444Z",
+  "currentHead": "bead614bca0607eaee3142fade2790cbb4e41979",
   "fixtureEvidence": {
     "evidenceKind": "source_fixture",
     "scenario": "debug_has_data_analytics_empty_source_agreement_failed",
@@ -28,7 +28,9 @@
           "fallbackAllowed": false,
           "emptyStateAllowed": false,
           "blockerReason": "source_agreement_failed",
-          "nextAction": "Inspect source agreement failure details in Debug."
+          "nextAction": "Review source agreement details in Debug before promoting charts.",
+          "label": "Debug source agreement",
+          "displayState": "chart_promotion_blocked"
         },
         {
           "consumerId": "admin_analytics_overview",
@@ -39,7 +41,9 @@
           "fallbackAllowed": true,
           "emptyStateAllowed": true,
           "blockerReason": "source_agreement_failed",
-          "nextAction": "Show the Analytics tab source blocker instead of generic empty charts."
+          "nextAction": "Show source mismatch details instead of generic empty charts.",
+          "label": "Analytics overview",
+          "displayState": "source_missing"
         },
         {
           "consumerId": "admin_analytics_charts",
@@ -50,7 +54,48 @@
           "fallbackAllowed": true,
           "emptyStateAllowed": true,
           "blockerReason": "source_agreement_failed",
-          "nextAction": "Surface source agreement failed or chart readiness blocked on the chart surface."
+          "nextAction": "Keep charts held until source agreement and chart readiness are clear.",
+          "label": "Analytics charts",
+          "displayState": "source_missing"
+        },
+        {
+          "consumerId": "admin_analytics_device_mix",
+          "sourceUsed": "ga4_external_evidence",
+          "sourceHealthRequired": true,
+          "chartReadinessRequired": true,
+          "sourceAgreementRequired": true,
+          "fallbackAllowed": true,
+          "emptyStateAllowed": true,
+          "blockerReason": "source_agreement_failed",
+          "nextAction": "Show GA4 as second-source device evidence only until first-party coverage agrees.",
+          "label": "Device mix",
+          "displayState": "second_source_only"
+        },
+        {
+          "consumerId": "admin_analytics_region_demand",
+          "sourceUsed": "ga4_external_evidence",
+          "sourceHealthRequired": true,
+          "chartReadinessRequired": true,
+          "sourceAgreementRequired": true,
+          "fallbackAllowed": true,
+          "emptyStateAllowed": true,
+          "blockerReason": "source_agreement_failed",
+          "nextAction": "Show GA4 as second-source region evidence only until first-party coverage agrees.",
+          "label": "Region demand",
+          "displayState": "second_source_only"
+        },
+        {
+          "consumerId": "admin_analytics_top_paths",
+          "sourceUsed": "ga4_external_evidence",
+          "sourceHealthRequired": true,
+          "chartReadinessRequired": true,
+          "sourceAgreementRequired": true,
+          "fallbackAllowed": true,
+          "emptyStateAllowed": true,
+          "blockerReason": "source_agreement_failed",
+          "nextAction": "Show GA4 as second-source path evidence only until first-party coverage agrees.",
+          "label": "Top paths",
+          "displayState": "second_source_only"
         },
         {
           "consumerId": "admin_analytics_insight_cards",
@@ -61,7 +106,9 @@
           "fallbackAllowed": true,
           "emptyStateAllowed": true,
           "blockerReason": "source_agreement_failed",
-          "nextAction": "Label insight cards as source agreement failed instead of clean."
+          "nextAction": "Label insight cards as source mismatch instead of clean.",
+          "label": "Insight cards",
+          "displayState": "source_missing"
         },
         {
           "consumerId": "admin_analytics_source_health",
@@ -72,7 +119,9 @@
           "fallbackAllowed": false,
           "emptyStateAllowed": false,
           "blockerReason": "source_agreement_failed",
-          "nextAction": "Keep chart readiness and source agreement as separate health dimensions."
+          "nextAction": "Keep chart readiness and source agreement as separate health dimensions.",
+          "label": "Source health",
+          "displayState": "chart_promotion_blocked"
         },
         {
           "consumerId": "public_beta_score_evidence",
@@ -83,7 +132,9 @@
           "fallbackAllowed": false,
           "emptyStateAllowed": false,
           "blockerReason": "source_agreement_failed",
-          "nextAction": "Score source agreement as blocked until mismatched evidence is repaired."
+          "nextAction": "Score source agreement as blocked until mismatched evidence is repaired.",
+          "label": "Public beta evidence",
+          "displayState": "chart_promotion_blocked"
         }
       ],
       "consumerSourceMismatches": [],
@@ -91,11 +142,14 @@
         "debug_data_validation",
         "admin_analytics_overview",
         "admin_analytics_charts",
+        "admin_analytics_device_mix",
+        "admin_analytics_region_demand",
+        "admin_analytics_top_paths",
         "admin_analytics_insight_cards",
         "admin_analytics_source_health",
         "public_beta_score_evidence"
       ],
-      "nextAction": "Show source agreement failed in Debug and Analytics tab, then repair the mismatched source lane before canonical chart promotion."
+      "nextAction": "Review source details in Debug and restore first-party/materialized coverage before promoting charts."
     }
   },
   "validationFailures": []

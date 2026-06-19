@@ -2,12 +2,23 @@ export type AdminAnalyticsConsumerId =
   | "debug_data_validation"
   | "admin_analytics_overview"
   | "admin_analytics_charts"
+  | "admin_analytics_device_mix"
+  | "admin_analytics_region_demand"
+  | "admin_analytics_top_paths"
   | "admin_analytics_insight_cards"
   | "admin_analytics_source_health"
   | "public_beta_score_evidence";
 
+export type AdminAnalyticsConsumerDisplayState =
+  | "connected"
+  | "source_missing"
+  | "second_source_only"
+  | "chart_promotion_blocked"
+  | "consumer_source_mismatch";
+
 export type AdminAnalyticsSourceHierarchyConsumer = {
   consumerId: AdminAnalyticsConsumerId;
+  label: string;
   sourceUsed:
     | "admin_analytics_canonical_snapshot"
     | "historical_snapshot"
@@ -21,6 +32,7 @@ export type AdminAnalyticsSourceHierarchyConsumer = {
   fallbackAllowed: boolean;
   emptyStateAllowed: boolean;
   blockerReason: string | null;
+  displayState: AdminAnalyticsConsumerDisplayState;
   nextAction: string;
 };
 
@@ -32,6 +44,60 @@ export type AdminAnalyticsSourceHierarchy = {
   blockedAnalyticsConsumers: AdminAnalyticsConsumerId[];
   nextAction: string;
 };
+
+const CONSUMER_LABELS: Record<AdminAnalyticsConsumerId, string> = {
+  debug_data_validation: "Debug source agreement",
+  admin_analytics_overview: "Analytics overview",
+  admin_analytics_charts: "Analytics charts",
+  admin_analytics_device_mix: "Device mix",
+  admin_analytics_region_demand: "Region demand",
+  admin_analytics_top_paths: "Top paths",
+  admin_analytics_insight_cards: "Insight cards",
+  admin_analytics_source_health: "Source health",
+  public_beta_score_evidence: "Public beta evidence",
+};
+
+const SECOND_SOURCE_CONSUMERS = new Set<AdminAnalyticsConsumerId>([
+  "admin_analytics_device_mix",
+  "admin_analytics_region_demand",
+  "admin_analytics_top_paths",
+]);
+
+const DEBUG_OR_SIGNOFF_CONSUMERS = new Set<AdminAnalyticsConsumerId>([
+  "debug_data_validation",
+  "admin_analytics_source_health",
+  "public_beta_score_evidence",
+]);
+
+function resolveDisplayState(input: {
+  consumerId: AdminAnalyticsConsumerId;
+  blockerReason: string | null;
+  mismatch: boolean;
+}): AdminAnalyticsConsumerDisplayState {
+  if (!input.blockerReason && !input.mismatch) return "connected";
+  if (input.mismatch) return "consumer_source_mismatch";
+  if (input.blockerReason === "source_agreement_failed" && SECOND_SOURCE_CONSUMERS.has(input.consumerId)) {
+    return "second_source_only";
+  }
+  if (DEBUG_OR_SIGNOFF_CONSUMERS.has(input.consumerId)) {
+    return "chart_promotion_blocked";
+  }
+  return "source_missing";
+}
+
+function consumer(input: Omit<AdminAnalyticsSourceHierarchyConsumer, "label" | "displayState"> & { mismatch?: boolean }): AdminAnalyticsSourceHierarchyConsumer {
+  const { mismatch = false, ...consumerInput } = input;
+
+  return {
+    ...consumerInput,
+    label: CONSUMER_LABELS[input.consumerId],
+    displayState: resolveDisplayState({
+      consumerId: input.consumerId,
+      blockerReason: input.blockerReason,
+      mismatch,
+    }),
+  };
+}
 
 export function buildAdminAnalyticsSourceHierarchy(input: {
   sourceAgreementState: "pass" | "review" | "failed" | "not_enough_sources" | "fail";
@@ -56,7 +122,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
     chartBlocker === null;
 
   const consumers: AdminAnalyticsSourceHierarchyConsumer[] = [
-    {
+    consumer({
       consumerId: "debug_data_validation",
       sourceUsed: "historical_snapshot",
       sourceHealthRequired: true,
@@ -66,8 +132,8 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       emptyStateAllowed: false,
       blockerReason: sourceAgreementFailed ? "source_agreement_failed" : null,
       nextAction: sourceAgreementFailed ? "Review source agreement details in Debug before promoting charts." : "No action required.",
-    },
-    {
+    }),
+    consumer({
       consumerId: "admin_analytics_overview",
       sourceUsed: analyticsSource,
       sourceHealthRequired: true,
@@ -81,8 +147,9 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
         : mismatch
           ? "Connect the Analytics tab to the same canonical source health summary as Debug."
           : "No action required.",
-    },
-    {
+      mismatch,
+    }),
+    consumer({
       consumerId: "admin_analytics_charts",
       sourceUsed: analyticsSource,
       sourceHealthRequired: true,
@@ -96,8 +163,57 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
         : mismatch
           ? "Wire chart empty state to the Debug source hierarchy reason."
           : "No action required.",
-    },
-    {
+      mismatch,
+    }),
+    consumer({
+      consumerId: "admin_analytics_device_mix",
+      sourceUsed: sourceAgreementFailed ? "ga4_external_evidence" : analyticsSource,
+      sourceHealthRequired: true,
+      chartReadinessRequired: true,
+      sourceAgreementRequired: true,
+      fallbackAllowed: true,
+      emptyStateAllowed: true,
+      blockerReason: chartBlocker ?? (mismatch ? "consumer_source_mismatch" : null),
+      nextAction: sourceAgreementFailed
+        ? "Show GA4 as second-source device evidence only until first-party coverage agrees."
+        : mismatch
+          ? "Wire device mix to the same source state as the overview."
+          : "No action required.",
+      mismatch,
+    }),
+    consumer({
+      consumerId: "admin_analytics_region_demand",
+      sourceUsed: sourceAgreementFailed ? "ga4_external_evidence" : analyticsSource,
+      sourceHealthRequired: true,
+      chartReadinessRequired: true,
+      sourceAgreementRequired: true,
+      fallbackAllowed: true,
+      emptyStateAllowed: true,
+      blockerReason: chartBlocker ?? (mismatch ? "consumer_source_mismatch" : null),
+      nextAction: sourceAgreementFailed
+        ? "Show GA4 as second-source region evidence only until first-party coverage agrees."
+        : mismatch
+          ? "Wire region demand to the same source state as the overview."
+          : "No action required.",
+      mismatch,
+    }),
+    consumer({
+      consumerId: "admin_analytics_top_paths",
+      sourceUsed: sourceAgreementFailed ? "ga4_external_evidence" : analyticsSource,
+      sourceHealthRequired: true,
+      chartReadinessRequired: true,
+      sourceAgreementRequired: true,
+      fallbackAllowed: true,
+      emptyStateAllowed: true,
+      blockerReason: chartBlocker ?? (mismatch ? "consumer_source_mismatch" : null),
+      nextAction: sourceAgreementFailed
+        ? "Show GA4 as second-source path evidence only until first-party coverage agrees."
+        : mismatch
+          ? "Wire top paths to the same source state as the overview."
+          : "No action required.",
+      mismatch,
+    }),
+    consumer({
       consumerId: "admin_analytics_insight_cards",
       sourceUsed: analyticsSource,
       sourceHealthRequired: true,
@@ -107,8 +223,9 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       emptyStateAllowed: true,
       blockerReason: sourceAgreementFailed ? "source_agreement_failed" : mismatch ? "consumer_source_mismatch" : null,
       nextAction: sourceAgreementFailed ? "Label insight cards as source mismatch instead of clean." : "No action required.",
-    },
-    {
+      mismatch,
+    }),
+    consumer({
       consumerId: "admin_analytics_source_health",
       sourceUsed: "historical_snapshot",
       sourceHealthRequired: true,
@@ -118,8 +235,8 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       emptyStateAllowed: false,
       blockerReason: chartBlocker,
       nextAction: chartBlocker ? "Keep chart readiness and source agreement as separate health dimensions." : "No action required.",
-    },
-    {
+    }),
+    consumer({
       consumerId: "public_beta_score_evidence",
       sourceUsed: "historical_snapshot",
       sourceHealthRequired: true,
@@ -129,7 +246,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       emptyStateAllowed: false,
       blockerReason: sourceAgreementFailed ? "source_agreement_failed" : null,
       nextAction: sourceAgreementFailed ? "Score source agreement as blocked until mismatched evidence is repaired." : "No action required.",
-    },
+    }),
   ];
   const consumerSourceMismatches = mismatch
     ? consumers
