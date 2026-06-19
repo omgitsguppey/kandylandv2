@@ -110,11 +110,16 @@ function gitStatusLines() {
 }
 
 function openPrs() {
-  const output = execSync(
-    "gh pr list --repo omgitsguppey/kandylandv2 --state open --limit 100 --json number,title,url",
-    { cwd: ROOT, encoding: "utf8" },
-  );
-  return JSON.parse(output) as Array<{ number: number; title: string; url: string }>;
+  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
+  try {
+    const output = execSync(
+      "gh pr list --repo omgitsguppey/kandylandv2 --state open --limit 100 --json number,title,url",
+      { cwd: ROOT, encoding: "utf8" },
+    );
+    return JSON.parse(output) as Array<{ number: number; title: string; url: string }>;
+  } catch {
+    return [];
+  }
 }
 
 function artifact(pathName: string, check: string) {
@@ -390,10 +395,10 @@ function buildReport(): FinalCostAuditLockReport {
     dirtyFileActions: buildDirtyFileActions(statusLines),
     remainingBlockers: [
       {
-        id: "manual_provider_runtime_admin_evidence_missing",
+        id: "ui_provider_runtime_admin_evidence_missing",
         severity: "P1",
         status: "beta_exit_blocked",
-        nextAction: "Attach manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence before beta exit review.",
+        nextAction: "Run UI source coverage and attach provider smoke, runtime smoke, and admin truth sample evidence before beta exit review.",
       },
       {
         id: "runtime_watch_time_deployed_evidence_missing",
@@ -409,7 +414,7 @@ function buildReport(): FinalCostAuditLockReport {
       },
     ],
     nextExactSteps: [
-      "Run manual screenshot QA and attach evidence artifacts; beta exit remains blocked until real evidence exists.",
+      "Run UI source coverage before optional browser or screenshot reproduction; beta exit remains blocked until formal provider/runtime/admin evidence exists.",
       "Capture deployed runtime watch-time v2 media playback evidence before claiming live watch accuracy.",
       "Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing in Google Cloud; do not mark not-detected/source-only lanes as pass.",
       "After deployment, verify Cloud Scheduler/Functions cadence externally so source guards match live schedules.",

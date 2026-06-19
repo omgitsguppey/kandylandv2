@@ -1,92 +1,92 @@
 {
-  "generatedAtUtc": "2026-06-18T22:35:53.876Z",
+  "generatedAtUtc": "2026-06-19T15:00:59.353Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "28d80de7a4c1fdcb7a3a4569fed4d0c44acebd0e",
+  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
   "oldScore": 41.92,
-  "newScore": 77.4,
+  "newScore": 76.88,
   "publicBetaStatus": "beta-risk",
   "readinessStatus": "External proof required",
   "summary": {
-    "total": 49,
+    "total": 38,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
       "p1": 11,
-      "p2": 38,
+      "p2": 26,
       "p3": 0,
-      "info": 0
+      "info": 1
     },
     "byStatus": {
-      "open": 39,
+      "open": 28,
       "fixed": 0,
       "deferred": 0,
-      "not_applicable": 0,
-      "blocked_manual": 4,
+      "not_applicable": 1,
+      "blocked_manual": 3,
       "blocked_external": 5,
       "stale_retired": 1
     },
     "bySource": {
       "debug_panel": 11,
-      "beta_score": 6,
+      "beta_score": 7,
       "route_diagnostics": 0,
       "telemetry": 6,
       "admin_truth": 3,
-      "mobile_ui": 1,
+      "mobile_ui": 0,
       "cost": 2,
-      "evidence": 19,
-      "runtime_warning": 1
+      "evidence": 9,
+      "runtime_warning": 0
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 32,
+      "evidence_refresh": 21,
       "stale_retire": 1,
       "algorithm_refine": 0,
       "route_fix": 0,
       "telemetry_closure": 6,
       "cost_guard": 2,
-      "manual_required": 8,
-      "no_action": 0
+      "manual_required": 7,
+      "no_action": 1
     },
-    "open": 39,
+    "open": 28,
     "fixed": 0,
     "deferred": 0,
-    "blockedManual": 4,
+    "blockedManual": 3,
     "blockedExternal": 5,
     "staleRetired": 1,
     "sourceFixable": 8,
-    "evidenceRefreshable": 32,
+    "evidenceRefreshable": 21,
     "sourceTruthStates": {
       "source_backed": 0,
       "source_fixable": 7,
-      "source_refresh_required": 32,
+      "source_refresh_required": 21,
       "runtime_proof_required": 4,
       "provider_or_external_proof_required": 1,
       "admin_truth_source_required": 3,
-      "manual_visual_required": 1,
+      "manual_visual_required": 0,
       "protected_manual_review": 0,
       "stale_evidence_archive": 1,
-      "not_actionable": 0,
+      "not_actionable": 1,
       "unknown_source_state": 0
     },
     "p0P1Open": 11,
-    "p0P1GroupOpen": 7,
-    "p2GroupOpen": 10,
-    "p1P2GroupOpen": 17,
-    "rawP1P2SignalCount": 49,
-    "groupedSignalCount": 17,
-    "defaultVisibleGroups": 17,
+    "p0P1GroupOpen": 6,
+    "p2GroupOpen": 9,
+    "p1P2GroupOpen": 15,
+    "rawP1P2SignalCount": 37,
+    "groupedSignalCount": 16,
+    "defaultVisibleGroups": 16,
     "hiddenByDefaultGroups": 0,
-    "defaultVisible": 49,
+    "defaultVisible": 38,
     "hiddenByDefault": 0,
     "quietFutureActivity": 0,
     "duplicateSignalsCollapsed": 0,
-    "formalGates": 12,
-    "scoreImpacting": 48,
+    "formalGates": 11,
+    "scoreImpacting": 37,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 36,
+      "score_impacting": 26,
       "evidence_required": 1,
-      "formal_gate": 12,
+      "formal_gate": 11,
       "quiet_future_activity": 0,
       "informational": 0,
       "duplicate": 0,
@@ -95,19 +95,19 @@
     }
   },
   "actionabilitySummary": {
-    "totalSignals": 49,
-    "uniqueSignals": 49,
-    "defaultVisibleCount": 49,
+    "totalSignals": 38,
+    "uniqueSignals": 38,
+    "defaultVisibleCount": 38,
     "hiddenByDefaultCount": 0,
     "quietFutureActivityCount": 0,
     "duplicateSignalCount": 0,
-    "formalGateCount": 12,
-    "scoreImpactingCount": 48,
+    "formalGateCount": 11,
+    "scoreImpactingCount": 37,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 36,
+      "score_impacting": 26,
       "evidence_required": 1,
-      "formal_gate": 12,
+      "formal_gate": 11,
       "quiet_future_activity": 0,
       "informational": 0,
       "duplicate": 0,
@@ -135,6 +135,24 @@
         "duplicateChildren": []
       },
       {
+        "signalId": "stale-artifact-visual-manual-smoke",
+        "signalType": "evidence",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 12,
+        "owner": "evidence",
+        "nextAction": "Attach formal evidence before clearing this beta gate.",
+        "sourceFiles": [
+          "visual_manual_smoke"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|attach-formal-evidence-before-clearing-this-beta-gate-",
+        "duplicateChildren": []
+      },
+      {
         "signalId": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
         "signalType": "evidence",
         "severity": "p1",
@@ -150,6 +168,25 @@
         ],
         "defaultVisible": true,
         "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-final-integration-lock-was-generated-from-an-older-code-version-refres",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "beta-cap-source-validation-only-targeted-behavior-tests-0",
+        "signalType": "beta_score",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 58.4,
+        "owner": "beta_score",
+        "nextAction": "Keep targeted behavior checks as source-only evidence; clear runtime, provider, and admin truth gates separately.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|keep-targeted-behavior-checks-as-source-only-evidence-clear-runtime-provider-and",
         "duplicateChildren": []
       },
       {
@@ -573,42 +610,6 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "stale-refresh-plan-agent-state-creator-drop-status-metrics-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-        "sourceFiles": [
-          "agent/state/creator-drop-status-metrics.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-drop-status-metrics-was-generated-from-an-older-code-version-refresh-thi",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-creator-settings-control-plane-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
-        "sourceFiles": [
-          "agent/state/creator-settings-control-plane.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-settings-control-plane-was-generated-from-an-older-code-version-refresh-",
-        "duplicateChildren": []
-      },
-      {
         "signalId": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
         "signalType": "evidence",
         "severity": "p2",
@@ -624,188 +625,6 @@
         ],
         "defaultVisible": true,
         "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-        "sourceFiles": [
-          "agent/state/evidence-capture-status.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|evidence-capture-status-was-generated-from-an-older-code-version-refresh-this-re",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-existing-algorithm-refinement-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
-        "sourceFiles": [
-          "agent/state/existing-algorithm-refinement.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|existing-algorithm-refinement-was-generated-from-an-older-code-version-refresh-t",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-final-telemetry-closure-lock-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
-        "sourceFiles": [
-          "agent/state/final-telemetry-closure-lock.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|telemetry-closure-lock-was-generated-from-an-older-code-version-refresh-this-rep",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-global-marquee-truncated-titles-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
-        "sourceFiles": [
-          "agent/state/global-marquee-truncated-titles.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|global-marquee-title-rollout-was-generated-from-an-older-code-version-refresh-th",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
-        "sourceFiles": [
-          "agent/state/mobile-ui-final-lock.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|mobile-ui-final-lock-was-generated-from-an-older-code-version-refresh-this-repor",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-operator-revenue-smoke-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-        "sourceFiles": [
-          "agent/state/operator-revenue-smoke.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|operator-revenue-smoke-was-generated-from-an-older-code-version-refresh-this-rep",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-overnight-wiring-integrity-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
-        "sourceFiles": [
-          "agent/state/overnight-wiring-integrity.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-wiring-integrity-was-generated-from-an-older-code-version-refresh-this",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-source-truth-authority-map-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
-        "sourceFiles": [
-          "agent/state/source-truth-authority-map.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|source-truth-authority-map-was-generated-from-an-older-code-version-refresh-this",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
-        "sourceFiles": [
-          "agent/state/user-loading-wallet-mobile-refinement.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|user-loading-and-wallet-mobile-refinement-was-generated-from-an-older-code-versi",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "debug-runtime-unknown-evidence",
-        "signalType": "runtime_warning",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "runtimeHealth",
-          "evidenceCompleteness"
-        ],
-        "estimatedPointImpact": 0.01,
-        "owner": "admin_debug",
-        "nextAction": "Use this as source-backed debug/runtime evidence only; attach deployed runtime smoke before clearing runtime gates.",
-        "sourceFiles": [
-          "agent/state/debug-runtime-evidence.generated.json"
-        ],
-        "validator": "npm run check:debug-runtime-evidence",
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|runtime_warning|admin_debug|runtimeHealth,evidenceCompleteness|use-this-as-source-backed-debug-runtime-evidence-only-attach-deployed-runtime-sm",
         "duplicateChildren": []
       },
       {
@@ -828,14 +647,14 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "beta-cap-external-proof-required-runtime-provider-smoke-0",
+        "signalId": "beta-cap-external-proof-required-runtime-provider-smoke-1",
         "signalType": "formal_gate",
         "severity": "p1",
         "actionability": "formal_gate",
         "scoreDimensionsAffected": [
           "runtimeHealth"
         ],
-        "estimatedPointImpact": 72.8,
+        "estimatedPointImpact": 71.2,
         "owner": "provider_evidence",
         "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
         "sourceFiles": [
@@ -847,7 +666,7 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "beta-cap-external-proof-required-admin-truth-sample-evidence-1",
+        "signalId": "beta-cap-external-proof-required-admin-truth-sample-evidence-2",
         "signalType": "formal_gate",
         "severity": "p1",
         "actionability": "formal_gate",
@@ -936,24 +755,6 @@
         ],
         "defaultVisible": true,
         "dedupeKey": "formal_gate|admin_truth|admin_debug|freshness|attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admi",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "formal-evidence-visual-manual-smoke",
-        "signalType": "formal_gate",
-        "severity": "p1",
-        "actionability": "formal_gate",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 12,
-        "owner": "mobile_ui",
-        "nextAction": "Attach targeted manual or screenshot evidence before clearing visual proof.",
-        "sourceFiles": [
-          "visual_manual_smoke"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "formal_gate|mobile_ui|mobile_ui|freshness|attach-targeted-manual-or-screenshot-evidence-before-clearing-visual-proof-",
         "duplicateChildren": []
       },
       {
@@ -1058,7 +859,7 @@
   },
   "backlog": [
     {
-      "id": "beta-cap-external-proof-required-runtime-provider-smoke-0",
+      "id": "beta-cap-external-proof-required-runtime-provider-smoke-1",
       "title": "Runtime and provider proof required",
       "owner": "provider_evidence",
       "surface": "runtime_evidence",
@@ -1069,25 +870,25 @@
       "scoreDimensionImpact": [
         "runtimeHealth"
       ],
-      "scoreImpact": 72.8,
+      "scoreImpact": 71.2,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "agent/state/public-beta-score.generated.json",
       "evidenceStatus": "runtime_unverified",
-      "evidenceReason": "Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke. Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
+      "evidenceReason": "Refresh formal provider proof and deployed runtime smoke evidence.",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "sourceMessage": "Operator-confirmed payment is product context only; formal provider/runtime proof is still required.",
+      "sourceMessage": "Formal provider/runtime proof is still required.",
       "sourceValidator": "npm run check:beta-score",
       "blockedReason": "Formal evidence is required and cannot be generated from source-only validation.",
       "actionability": "formal_gate",
-      "estimatedPointImpact": 72.8,
+      "estimatedPointImpact": 71.2,
       "defaultVisible": true,
       "dedupeKey": "formal_gate|beta_score|provider_evidence|runtimeHealth|attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta",
       "duplicateChildren": []
     },
     {
-      "id": "beta-cap-external-proof-required-admin-truth-sample-evidence-1",
+      "id": "beta-cap-external-proof-required-admin-truth-sample-evidence-2",
       "title": "Admin truth sample required",
       "owner": "admin_debug",
       "surface": "admin_debug",
@@ -1104,7 +905,7 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "formal_missing",
-      "evidenceReason": "Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+      "evidenceReason": "Refresh the redacted production admin truth sample.",
       "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "sourceMessage": "Admin truth sample evidence is required.",
       "sourceValidator": "npm run check:beta-score",
@@ -1229,34 +1030,6 @@
       "duplicateChildren": []
     },
     {
-      "id": "formal-evidence-visual-manual-smoke",
-      "title": "Manual UI proof required",
-      "owner": "mobile_ui",
-      "surface": "mobile_ui",
-      "severity": "p1",
-      "source": "mobile_ui",
-      "status": "blocked_manual",
-      "fixClass": "manual_required",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 12,
-      "sourceFiles": [
-        "visual_manual_smoke"
-      ],
-      "sourceRoute": "visual_manual_smoke",
-      "evidenceStatus": "formal_missing",
-      "evidenceReason": "Attach formal evidence before clearing this beta gate.",
-      "exactNextAction": "Attach targeted manual or screenshot evidence before clearing visual proof.",
-      "sourceMessage": "Manual UI proof is required.",
-      "refreshCommand": "Attach manual screenshot evidence, then run npm run check:evidence-capture-status",
-      "actionability": "formal_gate",
-      "estimatedPointImpact": 12,
-      "defaultVisible": true,
-      "dedupeKey": "formal_gate|mobile_ui|mobile_ui|freshness|attach-targeted-manual-or-screenshot-evidence-before-clearing-visual-proof-",
-      "duplicateChildren": []
-    },
-    {
       "id": "score-drag-evidencecompletenessscore",
       "title": "Score drag: evidenceCompletenessScore",
       "owner": "beta_score",
@@ -1282,6 +1055,34 @@
       "estimatedPointImpact": 12,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+      "duplicateChildren": []
+    },
+    {
+      "id": "stale-artifact-visual-manual-smoke",
+      "title": "Stale artifact: visual_manual_smoke",
+      "owner": "evidence",
+      "surface": "agent_state",
+      "severity": "p1",
+      "source": "evidence",
+      "status": "open",
+      "fixClass": "evidence_refresh",
+      "scoreDimensionImpact": [
+        "freshness"
+      ],
+      "scoreImpact": 12,
+      "sourceFiles": [
+        "visual_manual_smoke"
+      ],
+      "sourceRoute": "visual_manual_smoke",
+      "evidenceStatus": "stale",
+      "evidenceReason": "Visual QA required: Visual/manual smoke",
+      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
+      "sourceMessage": "Attach formal evidence before clearing this beta gate.",
+      "refreshCommand": "Attach manual screenshot evidence, then run npm run check:evidence-capture-status",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 12,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|attach-formal-evidence-before-clearing-this-beta-gate-",
       "duplicateChildren": []
     },
     {
@@ -1691,9 +1492,7 @@
       "estimatedPointImpact": 1.6,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-lane-prep-was-generated-from-an-older-code-version-refresh-this-re",
-      "duplicateChildren": [
-        "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json"
-      ]
+      "duplicateChildren": []
     },
     {
       "id": "stale-artifact-agent-state-beta-freshness-language-generated-json",
@@ -1721,9 +1520,7 @@
       "estimatedPointImpact": 1.4,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-freshness-language-was-generated-from-an-older-code-version-refresh-this-re",
-      "duplicateChildren": [
-        "stale-refresh-plan-agent-state-beta-freshness-language-generated-json"
-      ]
+      "duplicateChildren": []
     },
     {
       "id": "stale-artifact-agent-state-final-pr-stale-cleanup-generated-json",
@@ -1751,9 +1548,7 @@
       "estimatedPointImpact": 1.2,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|evidence|evidence|freshness|final-pr-stale-cleanup-was-generated-from-an-older-code-version-refresh-this-rep",
-      "duplicateChildren": [
-        "stale-refresh-plan-agent-state-final-pr-stale-cleanup-generated-json"
-      ]
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-admin-truth-samples",
@@ -2115,62 +1910,6 @@
       "duplicateChildren": []
     },
     {
-      "id": "stale-refresh-plan-agent-state-creator-drop-status-metrics-generated-json",
-      "title": "Refresh stale artifact: agent/state/creator-drop-status-metrics.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/creator-drop-status-metrics.generated.json"
-      ],
-      "sourceRoute": "agent/state/creator-drop-status-metrics.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-      "sourceMessage": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:creator-drop-status-metrics",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-drop-status-metrics-was-generated-from-an-older-code-version-refresh-thi",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-creator-settings-control-plane-generated-json",
-      "title": "Refresh stale artifact: agent/state/creator-settings-control-plane.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/creator-settings-control-plane.generated.json"
-      ],
-      "sourceRoute": "agent/state/creator-settings-control-plane.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
-      "sourceMessage": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:creator-settings-control-plane",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-settings-control-plane-was-generated-from-an-older-code-version-refresh-",
-      "duplicateChildren": []
-    },
-    {
       "id": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
       "title": "Refresh stale artifact: agent/state/current-beta-exit-status.generated.json",
       "owner": "evidence",
@@ -2196,287 +1935,6 @@
       "estimatedPointImpact": 1,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",
-      "title": "Refresh stale artifact: agent/state/evidence-capture-status.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/evidence-capture-status.generated.json"
-      ],
-      "sourceRoute": "agent/state/evidence-capture-status.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-      "sourceMessage": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:evidence-capture-status",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|evidence-capture-status-was-generated-from-an-older-code-version-refresh-this-re",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-existing-algorithm-refinement-generated-json",
-      "title": "Refresh stale artifact: agent/state/existing-algorithm-refinement.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/existing-algorithm-refinement.generated.json"
-      ],
-      "sourceRoute": "agent/state/existing-algorithm-refinement.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
-      "sourceMessage": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:existing-algorithm-refinement",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|existing-algorithm-refinement-was-generated-from-an-older-code-version-refresh-t",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-final-telemetry-closure-lock-generated-json",
-      "title": "Refresh stale artifact: agent/state/final-telemetry-closure-lock.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/final-telemetry-closure-lock.generated.json"
-      ],
-      "sourceRoute": "agent/state/final-telemetry-closure-lock.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
-      "sourceMessage": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:final-telemetry-closure-lock",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|telemetry-closure-lock-was-generated-from-an-older-code-version-refresh-this-rep",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-global-marquee-truncated-titles-generated-json",
-      "title": "Refresh stale artifact: agent/state/global-marquee-truncated-titles.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/global-marquee-truncated-titles.generated.json"
-      ],
-      "sourceRoute": "agent/state/global-marquee-truncated-titles.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
-      "sourceMessage": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:global-marquee-truncated-titles",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|global-marquee-title-rollout-was-generated-from-an-older-code-version-refresh-th",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
-      "title": "Refresh stale artifact: agent/state/mobile-ui-final-lock.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/mobile-ui-final-lock.generated.json"
-      ],
-      "sourceRoute": "agent/state/mobile-ui-final-lock.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
-      "sourceMessage": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:mobile-ui-final-lock",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|mobile-ui-final-lock-was-generated-from-an-older-code-version-refresh-this-repor",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-operator-revenue-smoke-generated-json",
-      "title": "Refresh stale artifact: agent/state/operator-revenue-smoke.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/operator-revenue-smoke.generated.json"
-      ],
-      "sourceRoute": "agent/state/operator-revenue-smoke.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "sourceMessage": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:operator-revenue-smoke",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|operator-revenue-smoke-was-generated-from-an-older-code-version-refresh-this-rep",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-overnight-wiring-integrity-generated-json",
-      "title": "Refresh stale artifact: agent/state/overnight-wiring-integrity.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/overnight-wiring-integrity.generated.json"
-      ],
-      "sourceRoute": "agent/state/overnight-wiring-integrity.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
-      "sourceMessage": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:overnight-wiring-integrity",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-wiring-integrity-was-generated-from-an-older-code-version-refresh-this",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-source-truth-authority-map-generated-json",
-      "title": "Refresh stale artifact: agent/state/source-truth-authority-map.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/source-truth-authority-map.generated.json"
-      ],
-      "sourceRoute": "agent/state/source-truth-authority-map.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
-      "sourceMessage": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:source-truth-authority-map",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|source-truth-authority-map-was-generated-from-an-older-code-version-refresh-this",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
-      "title": "Refresh stale artifact: agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/user-loading-wallet-mobile-refinement.generated.json"
-      ],
-      "sourceRoute": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
-      "sourceMessage": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|user-loading-and-wallet-mobile-refinement-was-generated-from-an-older-code-versi",
-      "duplicateChildren": []
-    },
-    {
-      "id": "debug-runtime-unknown-evidence",
-      "title": "Debug/runtime evidence still has unknown lanes",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "runtime_warning",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "runtimeHealth",
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 0.01,
-      "sourceFiles": [
-        "agent/state/debug-runtime-evidence.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "unknown",
-      "evidenceReason": "1 unknown debug/runtime evidence lane(s) remain classified as source-backed but not deployed runtime proof.",
-      "exactNextAction": "Use this as source-backed debug/runtime evidence only; attach deployed runtime smoke before clearing runtime gates.",
-      "sourceMessage": "Unknown debug/runtime evidence remains.",
-      "sourceValidator": "npm run check:debug-runtime-evidence",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 0.01,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|runtime_warning|admin_debug|runtimeHealth,evidenceCompleteness|use-this-as-source-backed-debug-runtime-evidence-only-attach-deployed-runtime-sm",
       "duplicateChildren": []
     },
     {
@@ -2506,6 +1964,34 @@
       "defaultVisible": true,
       "dedupeKey": "evidence_required|beta_score|beta_score|sourceHealth|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
       "duplicateChildren": []
+    },
+    {
+      "id": "beta-cap-source-validation-only-targeted-behavior-tests-0",
+      "title": "Source-only behavior evidence",
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "severity": "info",
+      "source": "beta_score",
+      "status": "not_applicable",
+      "fixClass": "no_action",
+      "scoreDimensionImpact": [
+        "evidenceCompleteness"
+      ],
+      "scoreImpact": 58.4,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "sourceRoute": "agent/state/public-beta-score.generated.json",
+      "evidenceStatus": "source_backed",
+      "evidenceReason": "Implemented behavior validators passed. This does not prove runtime, provider, admin truth, or optional visual confirmation evidence.",
+      "exactNextAction": "Keep targeted behavior checks as source-only evidence; clear runtime, provider, and admin truth gates separately.",
+      "sourceMessage": "Source-only behavior evidence is present.",
+      "sourceValidator": "npm run check:beta-score",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 58.4,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|keep-targeted-behavior-checks-as-source-only-evidence-clear-runtime-provider-and",
+      "duplicateChildren": []
     }
   ],
   "fixedThisPass": [
@@ -2519,7 +2005,7 @@
     }
   ],
   "formalGatesStillBlocked": [
-    "manual_screenshot",
+    "ui_source_coverage",
     "provider_smoke",
     "deployed_runtime_smoke",
     "formal_admin_truth_sample"

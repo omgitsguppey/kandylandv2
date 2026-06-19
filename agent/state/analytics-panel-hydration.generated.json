@@ -1,18 +1,18 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T13:21:07.017Z",
-  "currentHead": "150f93852f2029bd14694ddfe9fd65ec917c1897",
+  "generatedAtUtc": "2026-06-19T14:46:40.801Z",
+  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
   "scoreDimensions": {
     "sourceHealth": 99.2,
-    "runtimeHealth": 72.8,
+    "runtimeHealth": 71.2,
     "evidenceCompleteness": 58.4,
     "freshness": 83.75,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 77.2
+    "overallHealthScore": 76.88
   },
   "totalPanels": 41,
   "hydratedPanels": 10,

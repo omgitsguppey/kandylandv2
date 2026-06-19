@@ -31,13 +31,13 @@ function backlogItem(overrides: Partial<DebugBacklogItem>): DebugBacklogItem {
 }
 
 describe("ai critic p1 triage", () => {
-  it("classifies formal/manual gates away from source request changes", () => {
+  it("classifies formal gates away from source request changes while UI coverage remains source-refreshable", () => {
     expect(classifyBacklogAction(backlogItem({
       exactNextAction: "Attach formal deployed runtime smoke evidence.",
     }))).toBe("blocked_formal_evidence");
     expect(classifyBacklogAction(backlogItem({
-      exactNextAction: "Attach targeted manual screenshot evidence.",
-    }))).toBe("needs_operator_ui_confirmation");
+      exactNextAction: "Run UI source coverage before optional visual reproduction.",
+    }))).toBe("needs_refresh");
   });
 
   it("ranks P1/P2 by score impact and keeps P2 deferred while P1 remains", () => {
@@ -53,7 +53,7 @@ describe("ai critic p1 triage", () => {
         backlogItem({
           id: "manual-visual",
           scoreImpact: 51,
-          exactNextAction: "Attach targeted manual screenshot evidence.",
+          exactNextAction: "Run UI source coverage before optional visual reproduction.",
         }),
         backlogItem({
           id: "source-route",

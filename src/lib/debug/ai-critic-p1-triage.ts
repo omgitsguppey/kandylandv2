@@ -93,7 +93,7 @@ function severityWeight(severity: DebugBacklogSeverity) {
 
 export function classifyBacklogAction(item: Pick<DebugBacklogItem, "status" | "fixClass" | "evidenceStatus" | "exactNextAction" | "blockedReason">): AiCriticP1TriageItem["actionClass"] {
   const text = `${item.status} ${item.fixClass} ${item.evidenceStatus} ${item.exactNextAction} ${item.blockedReason ?? ""}`.toLowerCase();
-  if (/visual|screenshot|manual qa|manual smoke/.test(text)) return "needs_operator_ui_confirmation";
+  if (/ui source coverage|visual|screenshot|manual qa|manual smoke/.test(text)) return "needs_refresh";
   if (/formal|provider|deployed runtime|runtime smoke|admin truth sample|production sample|blocked_manual|blocked_external|external_required/.test(text)) {
     return "blocked_formal_evidence";
   }

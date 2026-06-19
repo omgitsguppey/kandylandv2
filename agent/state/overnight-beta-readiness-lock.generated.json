@@ -1,23 +1,17 @@
 {
-  "generatedAtUtc": "2026-06-16T20:12:28.561Z",
-  "currentHead": "da47647539108be47ca5a83159f423ffcc853199",
-  "betaScore": 69.89,
-  "betaStatus": "Stale evidence",
+  "generatedAtUtc": "2026-06-19T15:00:59.242Z",
+  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "betaScore": 76.88,
+  "betaStatus": "External proof required",
   "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
   "sourceTruthStatus": "passed; active=12; supporting=6; retiredLaunchArtifacts=3",
   "cost4xxStatus": "passed; p0=0; p1=0; p2=7; route4xx=3",
   "cloudRunCostStatus": "cost_review_required",
   "cloudSqlCostStatus": "not_detected_in_repo",
   "geminiCloudAssistCostStatus": "cost_review_required",
-  "evidenceStatus": "manual=missing; provider=missing; runtime=complete; adminTruth=complete; templates=4; complete=2",
+  "evidenceStatus": "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3",
   "speedSecurityStatus": "52/beta-risk; findings=83; critical=0; p2BacklogVisible=true",
   "remainingBlockers": [
-    {
-      "id": "manual_screenshot_evidence_missing",
-      "severity": "P1",
-      "status": "manual_evidence_required",
-      "nextAction": "Attach real manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/."
-    },
     {
       "id": "provider_smoke_evidence_missing",
       "severity": "P1",
@@ -25,15 +19,9 @@
       "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
     },
     {
-      "id": "runtime_smoke_evidence_stale",
+      "id": "admin_truth_sample_evidence_missing",
       "severity": "P1",
-      "status": "stale_evidence",
-      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
-    },
-    {
-      "id": "admin_truth_sample_evidence_stale",
-      "severity": "P1",
-      "status": "stale_evidence",
+      "status": "admin_truth_source_required",
       "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
     },
     {
@@ -51,11 +39,11 @@
   ],
   "nextDayPrompts": [
     {
-      "id": "manual-screenshot-evidence",
-      "title": "Attach manual screenshot QA evidence",
-      "goal": "Use the screenshot checklist and attach real route evidence without changing source.",
+      "id": "ui-source-coverage",
+      "title": "Run UI source coverage evidence",
+      "goal": "Let deterministic source coverage evidence report UI surface gaps before optional browser or screenshot reproduction.",
       "commands": [
-        "EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence",
+        "npm run check:ui-visual-smoke-minimal",
         "npm run check:evidence-capture-status",
         "npm run check:current-beta-exit-status"
       ]
@@ -94,11 +82,11 @@
   ],
   "evidenceCaptureStates": [
     {
-      "id": "manualScreenshotQa",
-      "label": "Manual screenshot QA",
-      "truthState": "manual_evidence_required",
-      "sourceStatus": "missing",
-      "nextAction": "Attach real manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/."
+      "id": "uiSourceCoverage",
+      "label": "UI source coverage",
+      "truthState": "capture_artifact_attached",
+      "sourceStatus": "complete",
+      "nextAction": "Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction."
     },
     {
       "id": "providerSmoke",
@@ -110,15 +98,15 @@
     {
       "id": "runtimeSmoke",
       "label": "Runtime smoke",
-      "truthState": "stale_evidence",
+      "truthState": "capture_artifact_attached",
       "sourceStatus": "complete",
       "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
     },
     {
       "id": "adminTruthSample",
       "label": "Admin truth sample",
-      "truthState": "stale_evidence",
-      "sourceStatus": "complete",
+      "truthState": "admin_truth_source_required",
+      "sourceStatus": "stale",
       "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
     }
   ],

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 type ChecklistSources = {
-  manual: string;
+  uiSourceCoverage: string;
   provider: string;
   runtime: string;
   adminTruth: string;
@@ -22,7 +22,7 @@ type ChecklistSources = {
 const root = process.cwd();
 
 const paths = {
-  manual: "docs/agent-truth/manual-screenshot-qa-checklist.md",
+  uiSourceCoverage: "docs/agent-truth/ui-visual-smoke-minimal.md",
   provider: "docs/agent-truth/provider-smoke-evidence-checklist.md",
   runtime: "docs/agent-truth/runtime-smoke-evidence-checklist.md",
   adminTruth: "docs/agent-truth/admin-truth-sample-evidence-checklist.md",
@@ -64,36 +64,18 @@ function evidenceMissing(status = "") {
 export function validateEvidenceReadinessChecklists(sources: ChecklistSources) {
   const failures: string[] = [];
 
-  for (const route of [
-    "/",
-    "/drops",
-    "/drops/[id]/preview",
-    "/dashboard",
-    "/dashboard/creator",
-    "/dashboard/profile",
-    "/dashboard/settings",
-    "/dashboard/library",
-    "/dashboard/chat",
-    "/creators/[username]",
-    "Wallet / GumDrop purchase modal",
-    "Creator profile Fan Pass",
-    "Creator profile requests",
-    "Creator profile booking slots",
-    "Creator owner profile mode",
-    "Beta release notes drawer",
-    "Mobile nav/sidebar/profile dropdown",
-  ]) {
-    requireIncludes(sources.manual, route, "manual screenshot checklist", failures);
-  }
   for (const expected of [
-    "What to capture",
-    "Failure looks like",
-    "Evidence filename pattern",
-    "Source validator/report",
-    "Blocking beta exit",
-    "screenshotEvidenceAttached=false",
+    "UI Surface Coverage Gate",
+    "codebase tell on itself",
+    "Screenshots are optional follow-up evidence only",
+    "source_surface_checked",
+    "codexScoreBlocking=false",
+    "npm run check:ui:coverage",
+    "npm run check:admin-browser-surface-smoke",
+    "npm run check:device-ui",
+    "not as the readiness gate",
   ]) {
-    requireIncludes(sources.manual, expected, "manual screenshot checklist", failures);
+    requireIncludes(sources.uiSourceCoverage, expected, "UI source coverage checklist", failures);
   }
 
   for (const expected of [
@@ -137,7 +119,7 @@ export function validateEvidenceReadinessChecklists(sources: ChecklistSources) {
   }
 
   const combinedChecklists = [
-    sources.manual,
+    sources.uiSourceCoverage,
     sources.provider,
     sources.runtime,
     sources.adminTruth,
@@ -157,7 +139,7 @@ export function validateEvidenceReadinessChecklists(sources: ChecklistSources) {
 
   const steps = sources.currentBetaExitStatus.nextExactSteps ?? [];
   for (const checklistPath of [
-    paths.manual,
+    paths.uiSourceCoverage,
     paths.provider,
     paths.runtime,
     paths.adminTruth,
@@ -173,7 +155,7 @@ export function validateEvidenceReadinessChecklists(sources: ChecklistSources) {
 function main() {
   const failures: string[] = [];
   const sources: ChecklistSources = {
-    manual: readRequired(paths.manual, failures),
+    uiSourceCoverage: readRequired(paths.uiSourceCoverage, failures),
     provider: readRequired(paths.provider, failures),
     runtime: readRequired(paths.runtime, failures),
     adminTruth: readRequired(paths.adminTruth, failures),

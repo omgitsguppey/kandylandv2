@@ -33,13 +33,13 @@ export type OvernightNextDayPrompt = {
 };
 
 export type OvernightEvidenceCaptureLane = {
-  id: "manualScreenshotQa" | "providerSmoke" | "runtimeSmoke" | "adminTruthSample";
+  id: "uiSourceCoverage" | "providerSmoke" | "runtimeSmoke" | "adminTruthSample";
   label: string;
   truthState:
     | "source_blocked"
     | "stale_evidence"
     | "capture_artifact_attached"
-    | "manual_evidence_required"
+    | "source_validation_required"
     | "admin_truth_source_required"
     | "external_evidence_required";
   sourceStatus: string;
@@ -184,8 +184,8 @@ function captureLane(
       ? "stale_evidence"
     : sourceStatus === "complete"
       ? "capture_artifact_attached"
-      : id === "manualScreenshotQa"
-        ? "manual_evidence_required"
+      : id === "uiSourceCoverage"
+        ? "source_validation_required"
         : id === "adminTruthSample"
           ? "admin_truth_source_required"
           : "external_evidence_required";
@@ -199,12 +199,12 @@ function buildEvidenceCaptureStates(
 ): OvernightEvidenceCaptureLane[] {
   return [
     captureLane(
-      "manualScreenshotQa",
-      "Manual screenshot QA",
+      "uiSourceCoverage",
+      "UI source coverage",
       sourceReady,
       evidenceCaptureCurrent,
-      stringAt(evidenceSummary, ["manualScreenshotEvidence"], "missing"),
-      "Attach real manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/.",
+      stringAt(evidenceSummary, ["uiSurfaceCoverageEvidence"], "missing"),
+      "Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction.",
     ),
     captureLane(
       "providerSmoke",
@@ -240,7 +240,7 @@ function evidenceCaptureReportIsCurrent(evidence: JsonObject, head: string) {
 
 function blockerIdForLane(lane: OvernightEvidenceCaptureLane) {
   const suffix = lane.truthState === "stale_evidence" ? "stale" : "missing";
-  if (lane.id === "manualScreenshotQa") return `manual_screenshot_evidence_${suffix}`;
+  if (lane.id === "uiSourceCoverage") return `ui_source_coverage_${suffix}`;
   if (lane.id === "providerSmoke") return `provider_smoke_evidence_${suffix}`;
   if (lane.id === "runtimeSmoke") return `runtime_smoke_evidence_${suffix}`;
   return `admin_truth_sample_evidence_${suffix}`;
@@ -317,7 +317,7 @@ export function buildOvernightBetaReadinessLockReport(now = new Date()): Overnig
       "cost_review_required",
     ),
     evidenceStatus:
-      `manual=${String(evidenceSummary.manualScreenshotEvidence ?? "missing")}; ` +
+      `uiSourceCoverage=${String(evidenceSummary.uiSurfaceCoverageEvidence ?? "missing")}; ` +
       `provider=${String(evidenceSummary.providerSmokeEvidence ?? "missing")}; ` +
       `runtime=${String(evidenceSummary.runtimeSmokeEvidence ?? "missing")}; ` +
       `adminTruth=${String(evidenceSummary.adminTruthSampleEvidence ?? "missing")}; ` +
@@ -343,11 +343,11 @@ export function buildOvernightBetaReadinessLockReport(now = new Date()): Overnig
     ],
     nextDayPrompts: [
       {
-        id: "manual-screenshot-evidence",
-        title: "Attach manual screenshot QA evidence",
-        goal: "Use the screenshot checklist and attach real route evidence without changing source.",
+        id: "ui-source-coverage",
+        title: "Run UI source coverage evidence",
+        goal: "Let deterministic source coverage evidence report UI surface gaps before optional browser or screenshot reproduction.",
         commands: [
-          "EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence",
+          "npm run check:ui-visual-smoke-minimal",
           "npm run check:evidence-capture-status",
           "npm run check:current-beta-exit-status",
         ],
@@ -590,10 +590,9 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       },
     ],
     nextExactSteps: [
-      "First evidence lane: manual product-behavior screenshot QA. Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/.",
-      "Manual route/flow checklist: /, /drops, /drops/[id]/preview locked state, /dashboard, /dashboard/creator, /dashboard/profile, /dashboard/settings, /dashboard/library, /dashboard/chat shell only, /creators/[username], wallet / GumDrop purchase modal, creator profile Fan Pass, creator profile requests, creator profile booking slots, creator owner profile mode, Beta release notes drawer, mobile nav/sidebar/profile dropdown.",
-      "Manual artifact needed: copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated non-template JSON, set status complete only with real screenshots, and place screenshots under agent/evidence/manual-screenshot-qa/screenshots/.",
-      "Second lane after manual screenshots: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.",
+      "First evidence lane: deterministic UI source coverage. Use docs/agent-truth/ui-visual-smoke-minimal.md and npm run check:ui-visual-smoke-minimal before manual viewing.",
+      "UI route/flow source targets are owned by agent/state/ui-visual-smoke-minimal.generated.json; fix source-reported gaps before optional browser or screenshot reproduction.",
+      "Second lane after UI source coverage: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.",
       "Revenue smoke note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
       "Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.",
       "Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.",

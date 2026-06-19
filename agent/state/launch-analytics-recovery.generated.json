@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-19T13:21:07.017Z",
-  "currentHead": "150f93852f2029bd14694ddfe9fd65ec917c1897",
+  "generatedAtUtc": "2026-06-19T14:46:40.801Z",
+  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -1539,7 +1539,7 @@
   "evidenceProvenance": {
     "launchCoverageInput": "in_process_source_agreement_detail",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
-    "sourceAgreementInputHead": "150f93852f2029bd14694ddfe9fd65ec917c1897",
+    "sourceAgreementInputHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
     "sourceAgreementInputMode": "fixture_only_local_window",
     "sourceAgreementInputPath": null,
     "usableLaunchCoverageInputFound": false,
@@ -1742,7 +1742,7 @@
     "state": "partial",
     "reason": "Launch-history day buckets are only partially first-party backed; GA4, historical snapshots, and legacy support remain evidence-only until first-party product truth covers the range.",
     "staleInputEvidence": false,
-    "sourceAgreementEvidenceHead": "150f93852f2029bd14694ddfe9fd65ec917c1897"
+    "sourceAgreementEvidenceHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
   },
   "sourceAgreement": {
     "comparedSources": [

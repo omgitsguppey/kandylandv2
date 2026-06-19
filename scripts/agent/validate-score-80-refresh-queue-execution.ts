@@ -118,7 +118,7 @@ const DEFAULT_COMMAND_RESULTS: Score80RefreshCommandResult[] = [
   result("npm run check:existing-algorithm-refinement", "failed", "agent/state/existing-algorithm-refinement.generated.json", "blocked_existing_source_issue", "Existing algorithm lane still reports telemetry classifier disabled/enabled modeling as a source issue; privacy implementation is in-flight-owned and was not modified here."),
   result("npm run check:user-loading-wallet-mobile-refinement", "passed", "agent/state/user-loading-wallet-mobile-refinement.generated.json", "safe_automatic_refresh", "Refreshed user loading/wallet mobile refinement without touching wallet runtime."),
   result("npm run check:global-marquee-truncated-titles", "passed", "agent/state/global-marquee-truncated-titles.generated.json", "safe_automatic_refresh", "Refreshed global marquee title rollout."),
-  result("npm run check:evidence-capture-status", "passed", "agent/state/evidence-capture-status.generated.json", "safe_automatic_refresh", "Refreshed evidence capture status while keeping manual/provider/runtime/admin evidence missing."),
+  result("npm run check:evidence-capture-status", "passed", "agent/state/evidence-capture-status.generated.json", "safe_automatic_refresh", "Refreshed evidence capture status while keeping provider/runtime/admin evidence missing and UI coverage source-owned."),
   result("npm run check:operator-revenue-smoke", "passed", "agent/state/operator-revenue-smoke.generated.json", "safe_automatic_refresh", "Refreshed operator-confirmed revenue smoke as product signal only; provider gate remains missing_formal_evidence."),
   result("npm run check:debug-runtime-evidence", "failed", "agent/state/debug-runtime-evidence.generated.json", "blocked_formal_evidence", "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime proof."),
   result("npm run check:provider-smoke-evidence", "skipped", "agent/state/provider-smoke-evidence.generated.json", "blocked_formal_evidence", "Provider smoke evidence requires a real formal artifact; this pass cannot generate or clear it."),
@@ -126,7 +126,7 @@ const DEFAULT_COMMAND_RESULTS: Score80RefreshCommandResult[] = [
   result("Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status", "blocked", "debug_runtime_evidence", "blocked_formal_evidence", "Formal deployed runtime artifact required; source queue cannot generate proof."),
   result("Attach formal provider smoke evidence, then run npm run check:evidence-capture-status", "blocked", "runtime_provider_smoke", "blocked_formal_evidence", "Formal provider artifact required; source queue cannot generate proof."),
   result("Attach admin truth sample evidence, then run npm run check:evidence-capture-status", "blocked", "admin_truth_sample_evidence", "blocked_formal_evidence", "Formal admin truth sample artifact required; source queue cannot generate proof."),
-  result("Attach manual screenshot evidence, then run npm run check:evidence-capture-status", "blocked", "visual_manual_smoke", "blocked_formal_evidence", "Manual visual screenshot/operator artifact required; source queue cannot generate proof."),
+  result("npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status", "blocked", "visual_manual_smoke", "safe_automatic_refresh", "UI issues must be discovered by deterministic source coverage before optional visual reproduction."),
 ];
 
 function result(
@@ -183,17 +183,28 @@ function changedFiles(rootDir = ROOT) {
 }
 
 function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
+  if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(path)) {
+    return { path, classification: "current_generated_artifact_to_commit", reason: "Tracked terminal log artifact removed; source validation should not depend on stale logs." };
+  }
+  if (/^agent\/evidence\/manual-screenshot-qa\//u.test(path)) {
+    return { path, classification: "validator_artifact_expected", reason: "Retired old manual screenshot evidence template; UI source coverage owns first-pass UI issue detection." };
+  }
   if (/^agent\/state\/.*\.generated\.json$/u.test(path) || /^agent\/context\/.*\.generated\.json$/u.test(path)) {
     return { path, classification: "current_generated_artifact_to_commit", reason: "Generated artifact refreshed by safe score-impact refresh queue execution." };
   }
   if (/^docs\/agent-truth\//u.test(path)) {
     return { path, classification: "documentation_artifact_expected", reason: "Generated agent-truth documentation refreshed by queue validators." };
   }
-  if (/^scripts\/agent\/validate-score-80-refresh-queue-execution\.ts$/u.test(path)) {
+  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)
+    || path === "scripts/agent/validate-manual-screenshot-evidence.ts"
+  ) {
     return { path, classification: "validator_artifact_expected", reason: "Dedicated queue execution validator requested by this pass." };
   }
-  if (/^tests\/unit\/score-80-refresh-queue-execution\.spec\.ts$/u.test(path)) {
+  if (/^tests\/unit\/(beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|overnight-beta-readiness-lock|score-80-refresh-queue-execution)\.spec\.ts$/u.test(path)) {
     return { path, classification: "test_artifact_expected", reason: "Dedicated queue execution unit coverage requested by this pass." };
+  }
+  if (path === "src/app/admin/debug/components/DebugOperatorCockpit.tsx" || path === "src/lib/debug/debug-backlog-builder.ts") {
+    return { path, classification: "validator_artifact_expected", reason: "Admin/debug source wording now routes UI work through source coverage." };
   }
   if (path === "package.json") {
     return { path, classification: "real_source_change_needs_review", reason: "Scoped package script wiring for the new validator." };

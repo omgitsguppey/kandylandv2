@@ -365,7 +365,7 @@ export function buildFinalTelemetryClosureLockReport(
     ],
     nextExactSteps: [
       "Add or restore check:client-tracking-toggle-semantics as a dedicated closure artifact if the queued toggle phase did not land.",
-      "Attach formal provider smoke, runtime smoke, admin truth sample, and manual screenshot evidence before beta exit review.",
+      "Run UI source coverage and attach formal provider smoke, runtime smoke, and admin truth sample evidence before beta exit review.",
       "Collect runtime evidence for watch-time, materializers, BigQuery/cloud export, and GA4 evidence refresh before marking those lanes live.",
     ],
   };

@@ -15,15 +15,16 @@ describe("evidence freshness index", () => {
     expect(staleBlockers.every((artifact) => artifact.nextExactSteps.length > 0)).toBe(true);
   });
 
-  it("keeps external, visual, and admin source gates separate from source freshness", () => {
+  it("keeps external, UI source coverage, and admin source gates separate from source freshness", () => {
     const report = buildEvidenceFreshnessIndex();
 
     expect(report.externalProofRequired.every((artifact) => artifact.truthUse === "formal_proof_gate")).toBe(true);
-    expect(report.manualVisualRequired.every((artifact) => artifact.truthUse === "formal_proof_gate")).toBe(true);
+    expect(report.uiSourceCoverageRequired.every((artifact) => artifact.truthUse === "evidence_snapshot_only")).toBe(true);
     expect(report.adminTruthSourceRequired.every((artifact) => artifact.truthUse === "evidence_snapshot_only")).toBe(true);
     expect(report.externalProofRequired.every((artifact) => artifact.actionability === "external_proof_required")).toBe(true);
-    expect(report.manualVisualRequired.every((artifact) => artifact.actionability === "manual_visual_required")).toBe(true);
+    expect(report.uiSourceCoverageRequired.every((artifact) => artifact.actionability === "ui_source_coverage_required")).toBe(true);
     expect(report.adminTruthSourceRequired.every((artifact) => artifact.actionability === "admin_truth_source_required")).toBe(true);
     expect(report.summary.adminTruthSourceRequiredCount).toBe(report.adminTruthSourceRequired.length);
+    expect(report.summary.uiSourceCoverageRequiredCount).toBe(report.uiSourceCoverageRequired.length);
   });
 });

@@ -13,8 +13,8 @@ export type LockBlockerStatus =
   | "archive_candidate"
   | "provider_smoke_required"
   | "runtime_smoke_required"
-  | "visual_qa_required"
-  | "manual_device_required"
+  | "source_validation_required"
+  | "optional_after_source_issue"
   | "no_action_required";
 
 type LockSeverity = "P0" | "P1" | "P2" | "P3";
@@ -88,7 +88,7 @@ export type FinalPhaseCleanupLockReport = {
     missingHumanEvidence: number;
     missingProviderEvidence: number;
     missingRuntimeEvidence: number;
-    canStartScreenshotQa: boolean;
+    canStartUiSourceCoverage: boolean;
     canStartProviderSmoke: boolean;
     canStartBetaExitReview: boolean;
   };
@@ -492,7 +492,7 @@ export function buildFinalPhaseCleanupLockReport(options: {
       "code_blocker",
       "product-surface-integrity/user-facing-feature-connection-audit",
       "agent/state/*.generated.json",
-      "Screenshot QA should not begin while source-connected fake actions, primary-copy leaks, or connection P0/P1s remain.",
+      "UI source coverage should report and clear fake actions, primary-copy leaks, or connection P0/P1s before optional visual reproduction.",
       "Fix or owner-demote the P0/P1 source cleanup findings, then rerun product/user-facing validators.",
       "product-surface-owner",
     ));
@@ -500,14 +500,14 @@ export function buildFinalPhaseCleanupLockReport(options: {
 
   if (visualMissing) {
     remainingBlockers.push(blocker(
-      "visual_qa_required",
+      "ui_source_coverage_required",
       "P1",
-      "visual_qa_required",
+      "source_validation_required",
       "public-beta-score",
       reportSources.publicBetaScore.path,
-      "The beta score still applies a visual/manual evidence cap; screenshots are confirmation evidence and cannot be fabricated by source validators.",
-      "Run screenshot QA on the locked source surfaces and attach real visual evidence.",
-      "visual-qa-owner",
+      "The beta score still applies a visual/source coverage cap; deterministic source coverage must tell on UI issues before optional screenshots are used for reproduction.",
+      "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps.",
+      "ui-source-coverage-owner",
     ));
   }
 
@@ -597,16 +597,16 @@ export function buildFinalPhaseCleanupLockReport(options: {
   const humanEvidenceNeeded: HumanEvidence[] = [];
   if (visualMissing) {
     humanEvidenceNeeded.push({
-      key: "visual_qa_required",
-      status: "visual_qa_required",
+      key: "ui_source_coverage_required",
+      status: "source_validation_required",
       sourceReport: "public-beta-score",
-      exactNextAction: "Run screenshot QA on the locked source surfaces and attach real visual evidence.",
+      exactNextAction: "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps.",
     });
     humanEvidenceNeeded.push({
-      key: "manual_device_required",
-      status: "manual_device_required",
+      key: "optional_visual_reproduction",
+      status: "optional_after_source_issue",
       sourceReport: "public-beta-score",
-      exactNextAction: "Run real-device/manual smoke after screenshot QA; do not infer it from source validators.",
+      exactNextAction: "Use real-device or browser reproduction only after source coverage reports a concrete UI issue.",
     });
   }
   if (!adminSamplePassed) {
@@ -628,7 +628,7 @@ export function buildFinalPhaseCleanupLockReport(options: {
   const noCriticalSpeedFindings = Array.isArray(speed?.criticalFindings)
     ? speed.criticalFindings.length === 0
     : true;
-  const canStartScreenshotQa = sourceCleanupClear;
+  const canStartUiSourceCoverage = sourceCleanupClear;
   const canStartProviderSmoke = sourceCleanupClear && noCriticalSpeedFindings;
   const canStartBetaExitReview = sourceCleanupClear
     && providerPassed
@@ -641,7 +641,7 @@ export function buildFinalPhaseCleanupLockReport(options: {
   const checksRun = buildChecksRun(staleReports, hasLaunchFailures);
 
   const nextExactSteps = [
-    visualMissing ? "Run screenshot QA on the locked source surfaces and attach real visual evidence." : null,
+    visualMissing ? "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps." : null,
     !providerPassed ? "Run formal provider smoke checks and refresh provider-smoke-evidence.generated.json." : null,
     !runtimePassed ? "Run runtime smoke checks and refresh runtime-smoke-evidence.generated.json." : null,
     !adminSamplePassed ? "Attach a fresh admin truth screenshot or JSON sample and refresh admin-truth-sample-evidence.generated.json." : null,
@@ -678,7 +678,7 @@ export function buildFinalPhaseCleanupLockReport(options: {
       missingHumanEvidence: humanEvidenceNeeded.length,
       missingProviderEvidence: providerPassed ? 0 : 1,
       missingRuntimeEvidence: runtimePassed ? 0 : 1,
-      canStartScreenshotQa,
+    canStartUiSourceCoverage,
       canStartProviderSmoke,
       canStartBetaExitReview,
     },
@@ -715,8 +715,8 @@ export function validateFinalPhaseCleanupLockReport(report: FinalPhaseCleanupLoc
   const sourceCodeBlockers = report.remainingBlockers.filter((entry) =>
     entry.status === "code_blocker" && (entry.severity === "P0" || entry.severity === "P1")
   );
-  if (report.summary.canStartScreenshotQa && sourceCodeBlockers.length > 0) {
-    failures.push("canStartScreenshotQa cannot be true while source cleanup P0/P1 remains.");
+  if (report.summary.canStartUiSourceCoverage && sourceCodeBlockers.length > 0) {
+    failures.push("canStartUiSourceCoverage cannot be true while source cleanup P0/P1 remains.");
   }
   if (report.summary.canStartBetaExitReview && report.staleReports.length > 0) {
     failures.push("canStartBetaExitReview cannot be true while stale authority risks are unclassified/current.");
@@ -730,8 +730,8 @@ export function validateFinalPhaseCleanupLockReport(report: FinalPhaseCleanupLoc
   if (report.summary.missingRuntimeEvidence === 0 && report.remainingBlockers.some((entry) => entry.key === "runtime_smoke_required")) {
     failures.push("Runtime smoke cannot be marked passed while runtime_smoke_required remains.");
   }
-  if (report.summary.missingHumanEvidence === 0 && report.remainingBlockers.some((entry) => entry.status === "visual_qa_required")) {
-    failures.push("Visual QA missing cannot be hidden.");
+  if (report.summary.missingHumanEvidence === 0 && report.remainingBlockers.some((entry) => entry.status === "source_validation_required")) {
+    failures.push("UI source coverage missing cannot be hidden.");
   }
   if (report.staleReports.some((entry) => entry.sourceState !== "current" && !entry.exactNextAction)) {
     failures.push("Stale generated reports require an exact next action.");

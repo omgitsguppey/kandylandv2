@@ -1301,7 +1301,7 @@ function warningTruthStateForBacklogItem(item: AdminDebugBacklogItemCard): Debug
         case "stale_evidence_archive":
             return "stale";
         case "manual_visual_required":
-            return "degraded";
+            return "stale";
         case "source_backed":
         case "not_actionable":
             return "live";

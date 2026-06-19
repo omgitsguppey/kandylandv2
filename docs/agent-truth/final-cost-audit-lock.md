@@ -1,7 +1,7 @@
 # Final Cost Audit Lock
 
-Generated: 2026-06-03T04:22:36.029Z
-Current head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
+Generated: 2026-06-19T15:04:43.514Z
+Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
 
 ## Summary
 
@@ -19,7 +19,7 @@ Current head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 - Route 4xx: source_inventory_complete
 - Open PR count: 0
 - Working tree clean at report generation: false
-- Beta score/status: 89/Runtime unverified
+- Beta score/status: 76.88/External proof required
 - Beta exit review ready: false
 
 ## Audit Item Coverage
@@ -88,13 +88,13 @@ Current head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 
 ## Remaining Blockers
 
-- P1 manual_provider_runtime_admin_evidence_missing: Attach manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence before beta exit review.
+- P1 ui_provider_runtime_admin_evidence_missing: Run UI source coverage and attach provider smoke, runtime smoke, and admin truth sample evidence before beta exit review.
 - P1 runtime_watch_time_deployed_evidence_missing: Capture deployed media playback evidence before claiming live watch-time accuracy.
 - P2 external_cost_owner_review_required: Owner-review Cloud SQL, Gemini/Vertex, and deployed scheduler/provider cost lanes in external consoles.
 
 ## Next Exact Steps
 
-1. Run manual screenshot QA and attach evidence artifacts; beta exit remains blocked until real evidence exists.
+1. Run UI source coverage before optional browser or screenshot reproduction; beta exit remains blocked until formal provider/runtime/admin evidence exists.
 2. Capture deployed runtime watch-time v2 media playback evidence before claiming live watch accuracy.
 3. Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing in Google Cloud; do not mark not-detected/source-only lanes as pass.
 4. After deployment, verify Cloud Scheduler/Functions cadence externally so source guards match live schedules.

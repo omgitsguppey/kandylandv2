@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-06-19T13:21:07.046Z",
-  "currentHead": "150f93852f2029bd14694ddfe9fd65ec917c1897",
+  "generatedAtUtc": "2026-06-19T14:47:28.648Z",
+  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5431,7 +5431,24 @@
     }
   ],
   "gaps": [],
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/launch-analytics-recovery.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/launch-analytics-recovery.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    }
+  ],
   "validationFailures": [],
   "activeOldLogic": []
 }

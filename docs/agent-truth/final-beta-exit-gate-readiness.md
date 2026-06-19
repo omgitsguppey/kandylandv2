@@ -6,14 +6,14 @@ Validator: `npm run check:final-beta-exit-gate-readiness`
 
 ## Summary
 
-- Current head: `a81cdb0b885f65dec63a582e4b9fe4cfdfeced39`
-- Score: 89.19 -> 89.19
+- Current head: `e947d82891dfc7957cb4b9b9972d6378605a927d`
+- Score: 78.18 -> 78.18
 - Launch gate status: `owner_review`
 - Beta exit ready: false
-- Dimensions above 80: sourceHealth, runtimeHealth, evidenceCompleteness, freshness, costRisk, regressionRisk, overallHealthScore
-- Dimensions below 80: none
-- Open PRs remaining: 9
-- Stale artifacts remaining: 16
+- Dimensions above 80: sourceHealth, freshness, regressionRisk
+- Dimensions below 80: runtimeHealth, evidenceCompleteness, costRisk, overallHealthScore
+- Open PRs remaining: 0
+- Stale artifacts remaining: 0
 - Formal evidence remaining: formal_provider_smoke, deployed_runtime_smoke, production_admin_truth_sample
 - Production reads/provider calls/deploys performed: false
 
@@ -21,13 +21,13 @@ Validator: `npm run check:final-beta-exit-gate-readiness`
 
 | Dimension | Before | After | Target | Status | Next action |
 | --- | ---: | ---: | ---: | --- | --- |
-| sourceHealth | 100 | 100 | 80 | above_target | No score action needed for this dimension. |
-| runtimeHealth | 84.2 | 84.2 | 80 | above_target | No score action needed for this dimension. |
-| evidenceCompleteness | 84.6 | 84.6 | 80 | above_target | No score action needed for this dimension. |
-| freshness | 91.88 | 91.88 | 80 | above_target | No score action needed for this dimension. |
-| costRisk | 80.5 | 80.5 | 80 | above_target | No score action needed for this dimension. |
-| regressionRisk | 86 | 86 | 80 | above_target | No score action needed for this dimension. |
-| overallHealthScore | 89.19 | 89.19 | 80 | above_target | No score action needed for this dimension. |
+| sourceHealth | 99.2 | 99.2 | 80 | above_target | No score action needed for this dimension. |
+| runtimeHealth | 71.2 | 71.2 | 80 | below_target | Attach approved runtime/provider/admin evidence without promoting local validators to deployed proof. |
+| evidenceCompleteness | 58.4 | 58.4 | 80 | below_target | Complete the exact formal evidence gates listed in the beta score report. |
+| freshness | 83.75 | 83.75 | 80 | above_target | No score action needed for this dimension. |
+| costRisk | 55 | 55 | 80 | below_target | Resolve owner-review cost lanes without touching payment or GumDrop runtime math. |
+| regressionRisk | 94 | 94 | 80 | above_target | No score action needed for this dimension. |
+| overallHealthScore | 78.18 | 78.18 | 80 | below_target | Raise the below-target component dimensions before treating overall health as solved. |
 
 ## Launch Blockers
 
@@ -41,36 +41,13 @@ Validator: `npm run check:final-beta-exit-gate-readiness`
 
 | PR | Title | Merge state | Classification | Next action |
 | --- | --- | --- | --- | --- |
-| #299 | chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates | CLEAN | dependency_update_external_review_required | Review dependency PR #299, then merge or close it outside this final gate lock. |
-| #298 | chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1 | CLEAN | dependency_update_external_review_required | Review dependency PR #298, then merge or close it outside this final gate lock. |
-| #297 | chore(deps): bump knip from 5.88.1 to 6.14.2 | CLEAN | dependency_update_external_review_required | Review dependency PR #297, then merge or close it outside this final gate lock. |
-| #296 | chore(deps): bump syncpack from 14.3.0 to 15.3.1 | CLEAN | dependency_update_external_review_required | Review dependency PR #296, then merge or close it outside this final gate lock. |
-| #295 | chore(deps): bump puppeteer from 24.40.0 to 25.0.4 | CLEAN | dependency_update_external_review_required | Review dependency PR #295, then merge or close it outside this final gate lock. |
-| #294 | chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates | CLEAN | dependency_update_external_review_required | Review dependency PR #294, then merge or close it outside this final gate lock. |
-| #293 | 🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation | CLEAN | security_patch_external_review_required | Review security PR #293, port current-source-safe changes if needed, then close or merge intentionally. |
-| #292 | ⚡ Bolt: Replace array `.find()` with Map lookup in debug route | CLEAN | performance_patch_external_review_required | Review performance PR #292 against current source before merge or close. |
-| #291 | 🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons | CLEAN | accessibility_patch_external_review_required | Review accessibility PR #291 against current source before merge or close. |
+| None | - | - | can_close_now | No open PRs remain. |
 
 ## Stale Artifacts
 
 | Artifact | Status | Classification | Next action |
 | --- | --- | --- | --- |
-| agent/state/evidence-capture-status.generated.json | stale_source_version | refreshed | No action needed after refresh. |
-| agent/state/source-truth-authority-map.generated.json | stale_source_version | refresh_required | Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map |
-| agent/state/final-telemetry-closure-lock.generated.json | stale_source_version | refresh_required | Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock |
-| agent/state/mobile-ui-final-lock.generated.json | stale_source_version | refresh_required | Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock |
-| agent/state/overnight-final-integration-lock.generated.json | stale_source_version | refresh_required | Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock |
-| agent/state/creator-settings-control-plane.generated.json | stale_source_version | refresh_required | Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane |
-| agent/state/creator-drop-status-metrics.generated.json | stale_source_version | refresh_required | Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics |
-| agent/state/operator-revenue-smoke.generated.json | stale_source_version | refresh_required | Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke |
-| agent/state/beta-evidence-gap-map.generated.json | stale_source_version | refresh_required | Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map |
-| agent/state/beta-evidence-lane-prep.generated.json | stale_source_version | refresh_required | Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep |
-| agent/state/beta-freshness-language.generated.json | stale_source_version | refresh_required | Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language |
-| agent/state/final-pr-stale-cleanup.generated.json | stale_source_version | refresh_required | Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup |
-| agent/state/overnight-wiring-integrity.generated.json | stale_source_version | refresh_required | Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity |
-| agent/state/existing-algorithm-refinement.generated.json | stale_source_version | refresh_required | Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement |
-| agent/state/user-loading-wallet-mobile-refinement.generated.json | stale_source_version | refresh_required | User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement |
-| agent/state/global-marquee-truncated-titles.generated.json | stale_source_version | refresh_required | Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles |
+| None | - | - | No stale artifacts remain. |
 
 ## Cost Review
 
@@ -80,8 +57,8 @@ Validator: `npm run check:final-beta-exit-gate-readiness`
 
 ## Operator Final Checklist
 
-- operator_final_visual_review
-- manual_screenshot_qa
+- ui_source_coverage_current
+- optional_visual_reproduction_after_source_issue
 - provider_smoke_artifact_attachment
 - deployed_runtime_smoke_artifact_attachment
 - redacted_admin_truth_sample_attachment
@@ -90,65 +67,102 @@ Validator: `npm run check:final-beta-exit-gate-readiness`
 
 | File | Classification |
 | --- | --- |
-| CHANGELOG.md | release_artifact_expected |
-| agent/state/cost-risk-exit-pass.generated.json | score_evidence_artifact |
+| agent/evidence/manual-screenshot-qa/README.md | retired_manual_screenshot_artifact |
+| agent/evidence/manual-screenshot-qa/evidence.template.json | retired_manual_screenshot_artifact |
+| agent/evidence/manual-screenshot-qa/screenshots/.gitkeep | retired_manual_screenshot_artifact |
+| agent/state/analytics-panel-hydration.generated.json | score_evidence_artifact |
+| agent/state/analytics-semantics-final-lock.generated.json | score_evidence_artifact |
+| agent/state/beta-score-cleanup.generated.json | score_evidence_artifact |
+| agent/state/blocked-refresh-queue-resolver.generated.json | score_evidence_artifact |
 | agent/state/current-beta-exit-status.generated.json | score_evidence_artifact |
-| agent/state/daily-task-debug-score-lock.generated.json | score_evidence_artifact |
+| agent/state/debug-backlog-engine.generated.json | score_evidence_artifact |
+| agent/state/event-translation-bridge.generated.json | score_evidence_artifact |
+| agent/state/evidence-capture-status.generated.json | score_evidence_artifact |
+| agent/state/evidence-freshness-index.generated.json | score_evidence_artifact |
 | agent/state/final-beta-exit-gate-readiness.generated.json | current_generated_artifact_to_commit |
-| agent/state/freshness-window-repair.generated.json | score_evidence_artifact |
-| agent/state/launch-blocker-evidence-closure.generated.json | score_evidence_artifact |
-| agent/state/notification-pwa-score-lock.generated.json | score_evidence_artifact |
+| agent/state/final-cost-audit-lock.generated.json | score_evidence_artifact |
+| agent/state/final-morning-beta-lock.generated.json | score_evidence_artifact |
+| agent/state/final-phase-cleanup-lock.generated.json | score_evidence_artifact |
+| agent/state/launch-analytics-recovery.generated.json | score_evidence_artifact |
 | agent/state/overnight-beta-readiness-lock.generated.json | score_evidence_artifact |
+| agent/state/overnight-final-integration-lock.generated.json | score_evidence_artifact |
+| agent/state/person-metrics-hydration.generated.json | score_evidence_artifact |
 | agent/state/public-beta-score.generated.json | score_evidence_artifact |
-| agent/state/sql-database-parity-cost-lock.generated.json | score_evidence_artifact |
-| agent/state/targeted-behavior-evidence-repair.generated.json | score_evidence_artifact |
-| docs/agent-truth/cost-risk-exit-pass.md | score_evidence_artifact |
+| agent/state/score-80-path-lock.generated.json | score_evidence_artifact |
+| agent/state/score-80-refresh-queue-execution.generated.json | score_evidence_artifact |
+| agent/state/ui-visual-smoke-minimal.generated.json | score_evidence_artifact |
+| agent/state/user-creator-visual-confirmation.generated.json | score_evidence_artifact |
+| docs/agent-truth/analytics-panel-hydration.md | score_evidence_artifact |
+| docs/agent-truth/analytics-semantics-final-lock.md | score_evidence_artifact |
+| docs/agent-truth/beta-score-cleanup.md | score_evidence_artifact |
+| docs/agent-truth/blocked-refresh-queue-resolver.md | score_evidence_artifact |
 | docs/agent-truth/current-beta-exit-status.md | score_evidence_artifact |
-| docs/agent-truth/daily-task-debug-score-lock.md | score_evidence_artifact |
+| docs/agent-truth/debug-backlog-engine.md | score_evidence_artifact |
+| docs/agent-truth/event-translation-bridge.md | score_evidence_artifact |
+| docs/agent-truth/evidence-capture-status.md | score_evidence_artifact |
+| docs/agent-truth/evidence-freshness-index.md | score_evidence_artifact |
 | docs/agent-truth/final-beta-exit-gate-readiness.md | current_generated_artifact_to_commit |
-| docs/agent-truth/freshness-window-repair.md | score_evidence_artifact |
-| docs/agent-truth/launch-blocker-evidence-closure.md | score_evidence_artifact |
-| docs/agent-truth/notification-pwa-score-lock.md | score_evidence_artifact |
+| docs/agent-truth/final-cost-audit-lock.md | score_evidence_artifact |
+| docs/agent-truth/final-morning-beta-lock.md | score_evidence_artifact |
+| docs/agent-truth/launch-analytics-recovery.md | score_evidence_artifact |
+| docs/agent-truth/manual-screenshot-qa-checklist.md | retired_manual_screenshot_artifact |
 | docs/agent-truth/overnight-beta-readiness-lock.md | score_evidence_artifact |
-| docs/agent-truth/sql-database-parity-cost-lock.md | score_evidence_artifact |
-| docs/agent-truth/targeted-behavior-evidence-repair.md | score_evidence_artifact |
+| docs/agent-truth/overnight-final-integration-lock.md | score_evidence_artifact |
+| docs/agent-truth/person-metrics-hydration.md | score_evidence_artifact |
+| docs/agent-truth/score-80-path-lock.md | score_evidence_artifact |
+| docs/agent-truth/score-80-refresh-queue-execution.md | score_evidence_artifact |
+| eslint-errors.log | deleted_obsolete_log |
 | package.json | package_script_wiring |
-| public/kandydrops-release-notes.json | release_artifact_expected |
+| scripts/agent/validate-analytics-semantics-final-lock.ts | final_gate_validator |
+| scripts/agent/validate-beta-health-algorithm-v2.ts | final_gate_validator |
+| scripts/agent/validate-beta-score-cleanup.ts | final_gate_validator |
+| scripts/agent/validate-blocked-refresh-queue-resolver.ts | final_gate_validator |
+| scripts/agent/validate-creator-surface-routing.ts | final_gate_validator |
+| scripts/agent/validate-debug-backlog-engine.ts | final_gate_validator |
+| scripts/agent/validate-evidence-freshness-index.ts | final_gate_validator |
+| scripts/agent/validate-evidence-readiness-checklists.ts | final_gate_validator |
 | scripts/agent/validate-final-beta-exit-gate-readiness.ts | final_gate_validator |
-| src/lib/release-notes/public-release-notes.ts | release_artifact_expected |
-| src/lib/release-notes/release-version-contract.ts | release_artifact_expected |
-| tests/unit/final-beta-exit-gate-readiness.spec.ts | final_gate_test |
+| scripts/agent/validate-final-cost-audit-lock.ts | final_gate_validator |
+| scripts/agent/validate-final-morning-beta-lock.ts | final_gate_validator |
+| scripts/agent/validate-final-phase-cleanup-lock.ts | final_gate_validator |
+| scripts/agent/validate-final-telemetry-closure-lock.ts | final_gate_validator |
+| scripts/agent/validate-manual-screenshot-evidence.ts | final_gate_validator |
+| scripts/agent/validate-overnight-beta-readiness-lock.ts | final_gate_validator |
+| scripts/agent/validate-overnight-final-integration-lock.ts | final_gate_validator |
+| scripts/agent/validate-score-80-path-lock.ts | final_gate_validator |
+| scripts/agent/validate-score-80-refresh-queue-execution.ts | final_gate_validator |
+| scripts/agent/validate-user-creator-ui-parity.ts | final_gate_validator |
+| scripts/agent/validate-user-creator-visual-confirmation.ts | final_gate_validator |
+| scripts/agent/validate-user-loading-wallet-mobile-refinement.ts | final_gate_validator |
+| src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts | evidence_boundary_source_change |
+| src/app/admin/debug/components/DebugOperatorCockpit.tsx | evidence_boundary_source_change |
+| src/lib/admin-debug-control-tower.ts | evidence_boundary_source_change |
+| src/lib/debug/ai-critic-p1-triage.ts | evidence_boundary_source_change |
+| src/lib/debug/debug-backlog-builder.ts | evidence_boundary_source_change |
+| src/lib/debug/recovery-playbooks.ts | evidence_boundary_source_change |
+| src/lib/release-readiness/live-evidence-resolver.ts | evidence_boundary_source_change |
+| test-failures.log | deleted_obsolete_log |
+| tests/unit/ai-critic-p1-triage.spec.ts | final_gate_test |
+| tests/unit/beta-score-cleanup.spec.ts | final_gate_test |
+| tests/unit/blocked-refresh-queue-resolver.spec.ts | final_gate_test |
+| tests/unit/debug-backlog-engine.spec.ts | final_gate_test |
+| tests/unit/evidence-artifact-schemas.spec.ts | final_gate_test |
+| tests/unit/evidence-freshness-index.spec.ts | final_gate_test |
+| tests/unit/evidence-readiness-checklists.spec.ts | final_gate_test |
+| tests/unit/final-morning-beta-lock.spec.ts | final_gate_test |
+| tests/unit/final-phase-cleanup-lock.spec.ts | final_gate_test |
+| tests/unit/overnight-beta-readiness-lock.spec.ts | final_gate_test |
+| tsc-errors.log | deleted_obsolete_log |
 
 ## Next Exact Steps
 
+- runtimeHealth: Attach approved runtime/provider/admin evidence without promoting local validators to deployed proof.
+- evidenceCompleteness: Complete the exact formal evidence gates listed in the beta score report.
+- costRisk: Resolve owner-review cost lanes without touching payment or GumDrop runtime math.
+- overallHealthScore: Raise the below-target component dimensions before treating overall health as solved.
 - Runtime/provider smoke: Attach formal provider smoke and deployed runtime smoke artifacts; source confidence and operator revenue do not clear this gate.
 - Admin truth/sample evidence: Attach a redacted production admin truth sample; source wiring and debug labels do not clear the formal admin gate.
 - Report freshness and PR integrity: Review, merge, port, or close the classified open PRs before treating PR integrity as closed.
-- PR #299: Review dependency PR #299, then merge or close it outside this final gate lock.
-- PR #298: Review dependency PR #298, then merge or close it outside this final gate lock.
-- PR #297: Review dependency PR #297, then merge or close it outside this final gate lock.
-- PR #296: Review dependency PR #296, then merge or close it outside this final gate lock.
-- PR #295: Review dependency PR #295, then merge or close it outside this final gate lock.
-- PR #294: Review dependency PR #294, then merge or close it outside this final gate lock.
-- PR #293: Review security PR #293, port current-source-safe changes if needed, then close or merge intentionally.
-- PR #292: Review performance PR #292 against current source before merge or close.
-- PR #291: Review accessibility PR #291 against current source before merge or close.
-- agent/state/evidence-capture-status.generated.json: No action needed after refresh.
-- agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map
-- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock
-- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock
-- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
-- agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane
-- agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics
-- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke
-- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
-- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep
-- agent/state/beta-freshness-language.generated.json: Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language
-- agent/state/final-pr-stale-cleanup.generated.json: Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup
-- agent/state/overnight-wiring-integrity.generated.json: Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity
-- agent/state/existing-algorithm-refinement.generated.json: Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement
-- agent/state/user-loading-wallet-mobile-refinement.generated.json: User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement
-- agent/state/global-marquee-truncated-titles.generated.json: Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles
 - cloudRun: cloudRun: Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof.
 - cloudSqlDataConnect: cloudSqlDataConnect: Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console.
 - geminiCloudAssistVertex: geminiCloudAssistVertex: Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited.

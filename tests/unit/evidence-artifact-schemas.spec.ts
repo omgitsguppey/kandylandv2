@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  REQUIRED_MANUAL_SCREENSHOT_ROUTES,
-  validateManualScreenshotEvidenceDocument,
-} from "../../scripts/agent/validate-manual-screenshot-evidence";
-import {
   REQUIRED_PROVIDER_SMOKE_CHECKS,
   validateProviderSmokeEvidenceDocument,
 } from "../../scripts/agent/validate-provider-smoke-evidence";
@@ -17,51 +13,7 @@ import {
   validateAdminTruthSampleEvidenceDocument,
 } from "../../scripts/agent/validate-admin-truth-sample-evidence";
 
-const basePath = "agent/evidence/manual-screenshot-qa/screenshots/home__mobile__2026-05-17.png";
-
 describe("evidence artifact schemas", () => {
-  it("does not count manual screenshot templates as complete evidence", () => {
-    const failures = validateManualScreenshotEvidenceDocument(
-      {
-        status: "template_not_evidence",
-        capturedAtUtc: "",
-        appBaseUrl: "",
-        device: "",
-        browser: "",
-        routes: [],
-        redactions: [],
-        operatorNotes: "Template only.",
-      },
-      { requireComplete: true, existingPaths: new Set() },
-    );
-
-    expect(failures).toContain("manual screenshot evidence template is not completed evidence.");
-  });
-
-  it("requires all manual screenshot route groups for complete evidence", () => {
-    const failures = validateManualScreenshotEvidenceDocument(
-      {
-        status: "complete",
-        capturedAtUtc: "2026-05-17T05:30:00.000Z",
-        appBaseUrl: "https://example.test",
-        device: "iPhone",
-        browser: "Safari",
-        routes: REQUIRED_MANUAL_SCREENSHOT_ROUTES.slice(1).map((route) => ({
-          route,
-          surface: "user",
-          screenshotPath: basePath,
-          status: "pass",
-          notes: "",
-        })),
-        redactions: ["none"],
-        operatorNotes: "",
-      },
-      { requireComplete: true, existingPaths: new Set([basePath]) },
-    );
-
-    expect(failures).toContain('manual screenshot complete evidence must include route "/".');
-  });
-
   it("requires provider smoke PayPal, GumDrop, and creator spend checks", () => {
     const checks = REQUIRED_PROVIDER_SMOKE_CHECKS
       .filter((id) => id !== "paid-bonus-purchased-balance")

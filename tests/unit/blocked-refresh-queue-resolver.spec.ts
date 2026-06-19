@@ -46,14 +46,14 @@ const blockedQueue = [
   {
     artifact: "visual_manual_smoke",
     staleReason: "Visual QA required: Visual/manual smoke",
-    refreshCommand: "Attach manual screenshot evidence, then run npm run check:evidence-capture-status",
+    refreshCommand: "npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status",
     scoreImpactEstimate: 12,
     owner: "manual",
     dependencyOrder: 54,
     canRunAutomatically: false,
-    blockedReason: "blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.",
+    blockedReason: "source_validation_required: deterministic UI source coverage must run before optional visual reproduction.",
     source: "score_impact",
-    expectedOutcome: "Remain blocked until a human attaches the visual/manual smoke artifact.",
+    expectedOutcome: "Run source coverage and fix reported UI surface gaps before optional visual reproduction.",
   },
 ] as const;
 
@@ -93,8 +93,13 @@ describe("blocked refresh queue resolver", () => {
       "admin_truth_sample_evidence",
       "visual_manual_smoke",
     ]);
-    expect(report.resolvedEntries.every((entry) => entry.classification === "blocked_formal_evidence")).toBe(true);
-    expect(report.resolvedEntries.every((entry) => entry.nextAction.includes("Attach"))).toBe(true);
+    expect(report.resolvedEntries.filter((entry) => entry.classification === "blocked_formal_evidence")).toHaveLength(3);
+    expect(report.resolvedEntries.find((entry) => entry.artifact === "visual_manual_smoke")).toMatchObject({
+      classification: "failed_validator",
+      formalGate: "none",
+      scoreTreatment: "resolved_source_refreshable",
+    });
+    expect(report.resolvedEntries.find((entry) => entry.artifact === "visual_manual_smoke")?.nextAction).toContain("check:ui-visual-smoke-minimal");
     expect(validateBlockedRefreshQueueResolverReport(report)).toEqual([]);
   });
 

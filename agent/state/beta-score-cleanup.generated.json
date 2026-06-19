@@ -1,13 +1,13 @@
 {
-  "generatedAtUtc": "2026-05-17T06:28:21.393Z",
+  "generatedAtUtc": "2026-06-19T15:05:02.381Z",
   "reportKey": "beta-score-cleanup",
-  "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
   "summary": {
-    "betaScore": 55,
-    "betaStatus": "Unknown evidence",
+    "betaScore": 76.88,
+    "betaStatus": "External proof required",
     "scannerScore": 100,
-    "evidenceScore": 55,
-    "evidenceCaps": 4,
+    "evidenceScore": 46,
+    "evidenceCaps": 3,
     "staleReportsRetired": 3,
     "activeReportsNeedingRefresh": 0,
     "costReadinessLanes": 4,
@@ -21,52 +21,76 @@
       "Visual/manual, runtime/provider, admin truth, and debug/runtime evidence lanes still score zero until formal artifacts exist."
     ],
     "missingEvidenceCaps": [
-      "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
-      "Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
-      "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
-      "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
+      "Source validation only: Targeted behavior tests - Source behavior passed; formal runtime, provider, and admin proof stay separate.",
+      "External proof required: Runtime/provider smoke - Refresh formal provider proof and deployed runtime smoke evidence.",
+      "External proof required: Admin truth/sample evidence - Refresh the redacted production admin truth sample."
     ],
     "scannerScoreWarning": "Scanner score 100 is scanner-only source hygiene and must never be read as beta readiness."
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
       "status": "cost_review_required",
-      "detail": "Speed/security cost findings remain, so App Hosting and Cloud Run cost readiness stays owner-review.",
+      "detail": "Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
       "evidence": [
-        "artifactPath=agent/state/creator-dashboard-error-cost-inventory.generated.json",
-        "cloudRunCostFindings=2",
-        "speedSecurityCostReviewRequired=true"
+        "finalCostCurrent=false",
+        "globalCostSourceClean=true",
+        "cloudRunGuarded=false",
+        "externalBillingReviewed=false",
+        "owner=speed-security-cost",
+        "externalReviewRequired=true",
+        "externalBillingReviewed=false",
+        "nextAction=Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof."
       ],
       "blocksBetaExit": false
     },
     "cloudSqlCostReadiness": {
-      "status": "not_detected_in_repo",
-      "detail": "Cloud SQL appears only as the Data Connect/agent-context mirror; no creator-dashboard runtime SQL path was detected.",
+      "status": "owner_review_external_billing_required",
+      "detail": "Cloud SQL/Data Connect source or external billing state still needs owner review.",
       "evidence": [
-        "artifactPath=agent/state/creator-dashboard-error-cost-inventory.generated.json",
-        "cloudSqlCostFindings=1",
-        "cloudSqlRuntimeUsageDetected=false"
+        "cloudSqlGuardReportCurrent=false",
+        "cloudSqlRuntimeDetected=false",
+        "sqlMirrorScriptsGuarded=true",
+        "sqlMirrorRequiresExplicitApproval=true",
+        "notDetectedIsNotPass=true",
+        "externalBillingReviewed=false",
+        "owner=agent-context-mirror",
+        "externalReviewRequired=true",
+        "externalBillingReviewed=false",
+        "nextAction=Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console."
       ],
       "blocksBetaExit": false
     },
     "geminiCloudAssistCostReadiness": {
       "status": "cost_review_required",
-      "detail": "Gemini, Cloud Assist, Vertex, or AI usage remains an owner-review cost lane; no pass is inferred from source inventory.",
+      "detail": "AI cost lane lacks enough source guard evidence for refinement.",
       "evidence": [
-        "artifactPath=agent/state/creator-dashboard-error-cost-inventory.generated.json",
-        "geminiCloudAssistCostFindings=1",
-        "speedSecurityCostReviewRequired=true"
+        "cloudSqlGeminiGuardCurrent=false",
+        "geminiRuntimeDetected=true",
+        "aiCallsRequireExplicitAction=true",
+        "aiCallsHaveRateOrCacheGuard=true",
+        "geminiExternalBillingObserved=true",
+        "externalBillingReviewed=false",
+        "owner=admin-ai",
+        "externalReviewRequired=true",
+        "externalBillingReviewed=false",
+        "nextAction=Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited."
       ],
       "blocksBetaExit": false
     },
     "route4xxReadiness": {
-      "status": "source_inventory_complete",
-      "detail": "Expected 4xx paths are classified and the frontend-caused creator dashboard 4xx was fixed.",
+      "status": "cost_review_required",
+      "detail": "Route 4xx readiness needs current diagnostics and retry classification.",
       "evidence": [
-        "artifactPath=agent/state/creator-dashboard-error-cost-inventory.generated.json",
-        "expected4xxCount=2",
-        "unexpected4xxCount=1",
-        "unexpected4xxFixed=1"
+        "artifactPath=agent/state/final-cost-audit-lock.generated.json",
+        "artifactPath=agent/state/final-telemetry-closure-lock.generated.json",
+        "finalCostCurrent=false",
+        "analyticsRuntimeCurrent=false",
+        "route4xxSourceReady=false",
+        "retry4xxClassified=true",
+        "owner=server-routing",
+        "externalReviewRequired=false",
+        "externalBillingReviewed=false",
+        "nextAction=Keep noisy 4xx routes typed, deduped, and non-retryable unless a validator proves retry is needed."
       ],
       "blocksBetaExit": false
     }
@@ -128,7 +152,7 @@
     "Retired legacy launch/readiness reports from required beta score freshness math."
   ],
   "nextExactSteps": [
-    "Attach real manual screenshot evidence before clearing visual/manual caps.",
+    "Run UI source coverage before optional visual reproduction.",
     "Attach formal provider smoke evidence before clearing provider caps.",
     "Attach deployed runtime smoke evidence before clearing runtime caps.",
     "Attach a fresh admin truth sample before clearing admin truth caps.",

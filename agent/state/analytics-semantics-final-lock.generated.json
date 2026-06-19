@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T23:31:46.154Z",
+  "generatedAtUtc": "2026-06-19T15:03:04.690Z",
   "reportKey": "analytics-semantics-final-lock",
-  "currentHead": "2e91fea3b74d8c5e1122a1fe7acb475510e9019a",
+  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
   "guestTrackingStatus": "source_ready_guest_data_remains_guest_until_linked",
   "userTrackingStatus": "source_ready_userId_identityState_session_continuity",
   "guestUserTransferStatus": "source_ready_link_first_no_double_count",
@@ -9,8 +9,8 @@
   "runtimeWatchTimeStatus": "source_ready_runtime_watch_v2_runtime_proof_required",
   "adminAnalyticsReadiness": "source_ready_needs_fresh_admin_truth_sample_before_claiming_live_accuracy",
   "betaScoreImpact": {
-    "betaScore": 39.52,
-    "betaStatus": "Stale evidence",
+    "betaScore": 76.88,
+    "betaStatus": "External proof required",
     "analyticsSemanticsSourceReady": true,
     "runtimeEvidenceComplete": false,
     "betaExitReady": false,
@@ -29,10 +29,10 @@
       "nextAction": "Wire the runtime watch tracker into the selected media viewer and attach deployed runtime watch evidence before claiming live accuracy."
     },
     {
-      "id": "manual_provider_runtime_admin_evidence_missing",
+      "id": "ui_provider_runtime_admin_evidence_missing",
       "severity": "P1",
       "status": "beta_exit_blocked",
-      "nextAction": "Attach manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence before beta exit review."
+      "nextAction": "Run UI source coverage and attach provider smoke, runtime smoke, and admin truth sample evidence before beta exit review."
     },
     {
       "id": "cost_owner_review_backlog_visible",
@@ -42,7 +42,7 @@
     }
   ],
   "nextExactSteps": [
-    "Attach manual product-behavior screenshots while treating analytics semantics as source-ready only.",
+    "Run deterministic UI source coverage before optional browser or screenshot reproduction; keep analytics semantics source-ready only.",
     "Wire runtime watch-time v2 into the selected media viewer and capture deployed runtime evidence before claiming live watch-time accuracy.",
     "Refresh provider smoke, runtime smoke, admin truth sample, and beta score artifacts after real evidence is attached."
   ]

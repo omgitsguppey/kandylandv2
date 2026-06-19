@@ -193,10 +193,10 @@ export function buildAnalyticsSemanticsFinalLockReport(
         nextAction: "Wire the runtime watch tracker into the selected media viewer and attach deployed runtime watch evidence before claiming live accuracy.",
       },
       {
-        id: "manual_provider_runtime_admin_evidence_missing",
+        id: "ui_provider_runtime_admin_evidence_missing",
         severity: "P1",
         status: "beta_exit_blocked",
-        nextAction: "Attach manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence before beta exit review.",
+        nextAction: "Run UI source coverage and attach provider smoke, runtime smoke, and admin truth sample evidence before beta exit review.",
       },
       {
         id: "cost_owner_review_backlog_visible",
@@ -206,7 +206,7 @@ export function buildAnalyticsSemanticsFinalLockReport(
       },
     ],
     nextExactSteps: [
-      "Attach manual product-behavior screenshots while treating analytics semantics as source-ready only.",
+      "Run deterministic UI source coverage before optional browser or screenshot reproduction; keep analytics semantics source-ready only.",
       "Wire runtime watch-time v2 into the selected media viewer and capture deployed runtime evidence before claiming live watch-time accuracy.",
       "Refresh provider smoke, runtime smoke, admin truth sample, and beta score artifacts after real evidence is attached.",
     ],

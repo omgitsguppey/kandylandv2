@@ -311,7 +311,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       fixes: [
         "Resolve the exact touched surface and replace hardcoded scale with existing device/layout helpers.",
         "Use density variants when a shared component spans admin, user, and creator surfaces.",
-        "Escalate to manual screenshots only after source readiness is green and explicitly requested.",
+        "Use browser or screenshot reproduction only after source readiness is green and a concrete UI issue needs confirmation.",
       ],
       evidenceOutcome: "Mobile source residual becomes source-ready or still manual_required; does not clear formal visual/manual smoke.",
       scoringImpactEstimate: {

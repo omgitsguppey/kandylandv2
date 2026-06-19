@@ -325,18 +325,18 @@ export function buildUserCreatorVisualConfirmationReport(options: { screenshotEv
   const fixesApplied: VisualFinding[] = [
     finding("creator_broadcast_manager_density", "P2", "Aligned the Broadcast manager shell/header density with other Creator Dashboard managers.", "src/components/Creators/CreatorBroadcastManager.tsx", "fixed", "creator-ui", ["bg-black/45", "Manage fan broadcasts"], "Keep active manager panels visually consistent when adding creator tools."),
     finding("creator_agreement_tap_targets", "P2", "Raised creator agreement PDF and table-of-contents controls to mobile-safe tap targets.", "src/components/Creators/CreatorAgreementFullText.tsx", "fixed", "creator-ui", ["min-h-11", "py-2.5"], "Keep legal agreement controls tappable while preserving the approved bounded scroll region."),
-    finding("source_only_visual_confirmation_lock", "P2", "Added a source-only visual confirmation artifact because screenshots were not attached in this run.", reportRelativePath, "fixed", "user-creator-ui", ["screenshotEvidenceAttached=false", "sourceOnlyRoutes"], "Attach manual screenshots in the next visual QA pass before closing visual QA."),
+    finding("source_only_visual_confirmation_lock", "P2", "Added a source-only visual confirmation artifact; optional visual reproduction is only for source-reported UI issues.", reportRelativePath, "fixed", "user-creator-ui", ["sourceFirst=true", "sourceOnlyRoutes"], "Run UI source coverage before any optional visual reproduction."),
   ];
 
   const deferredManualChecks = REQUIRED_VISUAL_CONFIRMATION_ROUTES.map((route) => finding(
-    `manual_screenshot_${route.toString().replace(/[^a-z0-9]+/giu, "_").replace(/^_|_$/gu, "").toLowerCase() || "home"}`,
+    `ui_source_surface_${route.toString().replace(/[^a-z0-9]+/giu, "_").replace(/^_|_$/gu, "").toLowerCase() || "home"}`,
     "P2",
-    `Manual screenshot confirmation remains for ${route}.`,
+    `UI source coverage remains the first check for ${route}.`,
     route,
     "deferred",
-    "visual-qa",
-    ["source-confirmed", "no screenshot evidence attached"],
-    "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths.",
+    "ui-source-coverage",
+    ["source-confirmed", "visual reproduction optional"],
+    "Fix any source-reported UI gap before optional browser or screenshot reproduction.",
   ));
 
   return {

@@ -48,7 +48,7 @@ describe("debug backlog engine", () => {
         evidenceCapDetails: [
           "Runtime unverified: Runtime/provider smoke - Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
           "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
-          "Visual QA required: Manual screenshot - Attach targeted manual screenshot evidence before clearing visual proof.",
+          "UI source coverage required: Source coverage - Run deterministic UI source checks before optional visual reproduction.",
         ],
       },
       score80PathLock: {
@@ -98,7 +98,7 @@ describe("debug backlog engine", () => {
       ],
     });
 
-    expect(backlog.some((item) => item.source === "beta_score" && item.fixClass === "manual_required")).toBe(true);
+    expect(backlog.some((item) => item.title === "UI source coverage required" && item.fixClass === "manual_required")).toBe(false);
     expect(backlog.some((item) => item.source === "admin_truth" && item.fixClass === "manual_required")).toBe(true);
     expect(backlog.some((item) => item.source === "evidence" && item.status === "stale_retired")).toBe(true);
     expect(backlog.some((item) => item.source === "route_diagnostics" && item.fixClass === "route_fix")).toBe(true);
@@ -106,7 +106,7 @@ describe("debug backlog engine", () => {
     expect(backlog.map((item) => item.title)).toEqual(expect.arrayContaining([
       "Runtime and provider proof required",
       "Admin truth sample required",
-      "Manual UI proof required",
+      "UI source coverage required",
     ]));
     expect(JSON.stringify(backlog)).not.toContain("Unknown evidence:");
     expect(JSON.stringify(backlog)).not.toContain("Stale evidence:");
@@ -118,7 +118,7 @@ describe("debug backlog engine", () => {
     expect(summary.staleRetired).toBe(1);
     expect(summary.sourceTruthStates.runtime_proof_required).toBeGreaterThan(0);
     expect(summary.sourceTruthStates.admin_truth_source_required).toBeGreaterThan(0);
-    expect(summary.sourceTruthStates.manual_visual_required).toBeGreaterThan(0);
+    expect(summary.sourceTruthStates.source_refresh_required).toBeGreaterThan(0);
     expect(Object.values(summary.sourceTruthStates).reduce((total, count) => total + count, 0)).toBe(backlog.length);
     expect(summary).not.toHaveProperty("manualRequired");
   });
@@ -128,7 +128,7 @@ describe("debug backlog engine", () => {
       publicBetaScore: {
         evidenceCompletenessScore: 80,
         evidenceCapDetails: [
-          "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
+          "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
         ],
       },
     });
@@ -142,6 +142,7 @@ describe("debug backlog engine", () => {
       evidenceStatus: "source_backed",
     });
     expect(backlog[0].evidenceReason).toContain("does not prove runtime");
+    expect(backlog[0].evidenceReason).not.toContain("screenshot");
     expect(JSON.stringify(backlog)).not.toContain("Unknown evidence:");
     expect(validateDebugBacklog(backlog)).toEqual([]);
   });

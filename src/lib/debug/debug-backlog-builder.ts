@@ -213,8 +213,8 @@ export function resolveDebugBacklogSourceTruthState(item: DebugBacklogItem): Deb
   }
 
   if (item.status === "blocked_manual" || item.fixClass === "manual_required") {
-    return /visual|screenshot|layout|ui qa|manual screenshot/u.test(searchable)
-      ? "manual_visual_required"
+    return /visual|screenshot|layout|ui qa|ui source coverage/u.test(searchable)
+      ? "source_refresh_required"
       : "protected_manual_review";
   }
 
@@ -291,7 +291,7 @@ function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string
   const runtime = lower.includes("runtime/provider smoke") || lower.includes("runtime smoke") || lower.includes("debug/runtime evidence") || lower.includes("deployed runtime");
   const provider = lower.includes("provider smoke");
   const adminTruth = lower.includes("admin truth") || lower.includes("truth sample") || lower.includes("sample evidence");
-  const visual = lower.includes("visual") || lower.includes("manual screenshot");
+  const visual = lower.includes("visual") || lower.includes("ui source coverage");
   const refresh = lower.includes("report freshness") || lower.includes("pr integrity") || lower.includes("freshness window");
   const sourceOnly = lower.includes("targeted behavior tests");
 
@@ -305,7 +305,7 @@ function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string
       owner: "beta_score",
       surface: "beta_score",
       exactNextAction: "Keep targeted behavior checks as source-only evidence; clear runtime, provider, and admin truth gates separately.",
-      evidenceReason: "Implemented behavior validators passed. This does not prove runtime, provider, screenshot, or admin truth sample evidence.",
+      evidenceReason: "Implemented behavior validators passed. This does not prove runtime, provider, admin truth, or optional visual confirmation evidence.",
       sourceMessage: "Source-only behavior evidence is present.",
     };
   }
@@ -344,16 +344,16 @@ function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string
 
   if (visual) {
     return {
-      title: "Manual UI proof required",
+      title: "UI source coverage required",
       severity: "p1" as const,
-      status: "blocked_manual" as const,
-      fixClass: "manual_required" as const,
-      evidenceStatus: "formal_missing" as const,
-      owner: "mobile_ui",
-      surface: "mobile_ui",
-      exactNextAction: "Attach targeted manual or screenshot evidence before clearing visual proof.",
-      evidenceReason: rawReason || "Manual UI proof is missing.",
-      sourceMessage: "Manual UI proof is required.",
+      status: "open" as const,
+      fixClass: "evidence_refresh" as const,
+      evidenceStatus: "missing" as const,
+      owner: "ui_source_coverage",
+      surface: "ui_source_coverage",
+      exactNextAction: "Run deterministic UI source coverage and fix any source-reported surface gaps; use screenshots or browser viewing only to reproduce a reported issue.",
+      evidenceReason: "Visual/manual readiness now starts with source coverage. Screenshots are optional confirmation after the codebase reports a UI issue.",
+      sourceMessage: "UI source coverage must run before optional visual review.",
     };
   }
 

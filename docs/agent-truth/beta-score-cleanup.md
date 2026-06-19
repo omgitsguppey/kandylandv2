@@ -3,15 +3,15 @@
 Artifact: `agent/state/beta-score-cleanup.generated.json`
 Validator: `npm run check:beta-score-cleanup`
 
-Generated: 2026-05-17T06:28:21.393Z
-Current source head: `70919f6be9129ce71ecc8b8f88eeafec9f866b5f`
+Generated: 2026-06-19T15:05:02.381Z
+Current source head: `e947d82891dfc7957cb4b9b9972d6378605a927d`
 
 ## Summary
 
-- Beta score: 55/100, `Unknown evidence`.
+- Beta score: 76.88/100, `External proof required`.
 - Scanner score: 100/100. This is scanner-only source hygiene, not beta readiness.
-- Evidence score: 55/100.
-- Evidence caps represented: 4.
+- Evidence score: 46/100.
+- Evidence caps represented: 3.
 - Cost-readiness lanes represented: 4.
 - Beta exit review can start: no.
 
@@ -24,19 +24,18 @@ Current source head: `70919f6be9129ce71ecc8b8f88eeafec9f866b5f`
 
 Missing evidence caps:
 
-- Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.
-- Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.
-- Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.
-- Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown.
+- Source validation only: Targeted behavior tests - Source behavior passed; formal runtime, provider, and admin proof stay separate.
+- External proof required: Runtime/provider smoke - Refresh formal provider proof and deployed runtime smoke evidence.
+- External proof required: Admin truth/sample evidence - Refresh the redacted production admin truth sample.
 
 Scanner score 100 is scanner-only source hygiene and must never be read as beta readiness.
 
 ## Cost Readiness
 
-- cloudRunCostReadiness: `cost_review_required` - Speed/security cost findings remain, so App Hosting and Cloud Run cost readiness stays owner-review.
-- cloudSqlCostReadiness: `not_detected_in_repo` - Cloud SQL appears only as the Data Connect/agent-context mirror; no creator-dashboard runtime SQL path was detected.
-- geminiCloudAssistCostReadiness: `cost_review_required` - Gemini, Cloud Assist, Vertex, or AI usage remains an owner-review cost lane; no pass is inferred from source inventory.
-- route4xxReadiness: `source_inventory_complete` - Expected 4xx paths are classified and the frontend-caused creator dashboard 4xx was fixed.
+- cloudRunCostReadiness: `cost_review_required` - Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.
+- cloudSqlCostReadiness: `owner_review_external_billing_required` - Cloud SQL/Data Connect source or external billing state still needs owner review.
+- geminiCloudAssistCostReadiness: `cost_review_required` - AI cost lane lacks enough source guard evidence for refinement.
+- route4xxReadiness: `cost_review_required` - Route 4xx readiness needs current diagnostics and retry classification.
 
 These lanes are source inventory and owner-review signals. `not_detected_in_repo`, `config_not_in_repo`, and `source_inventory_complete` are not formal beta-exit passes.
 
@@ -52,7 +51,7 @@ These lanes are source inventory and owner-review signals. `not_detected_in_repo
 
 ## Next Exact Steps
 
-1. Attach real manual screenshot evidence before clearing visual/manual caps.
+1. Run UI source coverage before optional visual reproduction.
 2. Attach formal provider smoke evidence before clearing provider caps.
 3. Attach deployed runtime smoke evidence before clearing runtime caps.
 4. Attach a fresh admin truth sample before clearing admin truth caps.

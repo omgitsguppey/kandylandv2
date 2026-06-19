@@ -101,7 +101,7 @@ export function formatPublicBetaReadinessStatusForAdmin(input: { status?: string
     const status = String(input.status ?? "").trim();
     const combined = [status, input.reason, ...(input.capDetails ?? [])].filter(Boolean).join(" ");
     if (!combined.trim()) return "Readiness unavailable";
-    if (/runtime\/provider smoke|provider smoke|runtime smoke|admin truth|sample evidence|truth sample|manual screenshot|external proof|proof required/iu.test(combined)) return "External proof required";
+    if (/runtime\/provider smoke|provider smoke|runtime smoke|admin truth|sample evidence|truth sample|external proof|proof required/iu.test(combined)) return "External proof required";
     if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older/iu.test(combined)) return "Report refresh needed";
     if (/targeted behavior tests|source checks/iu.test(combined)) return "Source checks only";
     if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";

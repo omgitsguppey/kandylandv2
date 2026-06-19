@@ -1,44 +1,42 @@
 # Overnight Beta Readiness Lock
 
-Generated: 2026-06-16T20:12:28.561Z
+Generated: 2026-06-19T15:00:59.242Z
 
-Latest code version: da47647539108be47ca5a83159f423ffcc853199
+Latest code version: e947d82891dfc7957cb4b9b9972d6378605a927d
 
 ## Status
 
-- Beta score: 69.89
-- Beta status: Stale evidence
+- Beta score: 76.88
+- Beta status: External proof required
 - Creator dashboard error status: passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2
 - Source truth status: passed; active=12; supporting=6; retiredLaunchArtifacts=3
 - Cost/4xx status: passed; p0=0; p1=0; p2=7; route4xx=3
 - Cloud Run cost status: cost_review_required
 - Cloud SQL cost status: not_detected_in_repo
 - Gemini/Cloud Assist cost status: cost_review_required
-- Evidence status: manual=missing; provider=missing; runtime=complete; adminTruth=complete; templates=4; complete=2
+- Evidence status: uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3
 - Speed/security status: 52/beta-risk; findings=83; critical=0; p2BacklogVisible=true
 
 ## Evidence Truth States
 
-- Manual screenshot QA: manual_evidence_required (missing)
+- UI source coverage: capture_artifact_attached (complete)
 - Provider smoke: external_evidence_required (missing)
-- Runtime smoke: stale_evidence (complete)
-- Admin truth sample: stale_evidence (complete)
+- Runtime smoke: capture_artifact_attached (complete)
+- Admin truth sample: admin_truth_source_required (stale)
 - Beta exit review: blocked_by_formal_evidence
 
 ## Remaining Blockers
 
-- P1 manual_screenshot_evidence_missing: Attach real manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/.
 - P1 provider_smoke_evidence_missing: Attach redacted provider smoke evidence; source checks cannot create provider proof.
-- P1 runtime_smoke_evidence_stale: Attach deployed runtime smoke evidence for required user and creator routes.
-- P1 admin_truth_sample_evidence_stale: Attach a redacted admin truth sample artifact with source freshness.
+- P1 admin_truth_sample_evidence_missing: Attach a redacted admin truth sample artifact with source freshness.
 - P2 speed_security_owner_review_backlog: Keep speed/security P2 cost and route hardening backlog visible.
 - P2 cloud_cost_owner_review: Confirm Cloud Run/App Hosting, Data Connect/Cloud SQL, and Gemini/Vertex cost lanes with owner evidence.
 
 ## Next-Day Prompts
 
-1. Attach manual screenshot QA evidence
-   - Goal: Use the screenshot checklist and attach real route evidence without changing source.
-   - Commands: EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence; npm run check:evidence-capture-status; npm run check:current-beta-exit-status
+1. Run UI source coverage evidence
+   - Goal: Let deterministic source coverage evidence report UI surface gaps before optional browser or screenshot reproduction.
+   - Commands: npm run check:ui-visual-smoke-minimal; npm run check:evidence-capture-status; npm run check:current-beta-exit-status
 2. Attach provider and runtime smoke evidence
    - Goal: Attach redacted PayPal/GumDrop provider smoke and deployed runtime smoke artifacts.
    - Commands: EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence; EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence; npm run check:evidence-capture-status

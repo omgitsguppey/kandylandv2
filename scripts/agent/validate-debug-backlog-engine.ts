@@ -130,7 +130,7 @@ function buildReport() {
     fixedThisPass: Array.isArray(debugScore?.fixedThisPass) ? debugScore.fixedThisPass : [],
     deferred: Array.isArray(debugScore?.deferred) ? debugScore.deferred : [],
     formalGatesStillBlocked: [
-      "manual_screenshot",
+      "ui_source_coverage",
       "provider_smoke",
       "deployed_runtime_smoke",
       "formal_admin_truth_sample",

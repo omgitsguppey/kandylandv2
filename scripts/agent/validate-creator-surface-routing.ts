@@ -259,7 +259,7 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
       "Translated base dashboard creator settings load failures through HumanErrorNotice.",
     ],
     nextFixOrder: [
-      "Run manual screenshot QA for /dashboard/creator and /dashboard/creator/settings on mobile.",
+      "Run UI source coverage for /dashboard/creator and /dashboard/creator/settings before optional visual reproduction.",
       "Keep future creator operations links pointed at /dashboard/creator/settings unless a more specific manager route exists.",
     ],
   };

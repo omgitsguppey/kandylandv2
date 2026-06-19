@@ -2,30 +2,16 @@ import { describe, expect, it } from "vitest";
 
 import { validateEvidenceReadinessChecklists } from "../../scripts/agent/validate-evidence-readiness-checklists";
 
-const manual = [
-  "/",
-  "/drops",
-  "/drops/[id]/preview",
-  "/dashboard",
-  "/dashboard/creator",
-  "/dashboard/profile",
-  "/dashboard/settings",
-  "/dashboard/library",
-  "/dashboard/chat",
-  "/creators/[username]",
-  "Wallet / GumDrop purchase modal",
-  "Creator profile Fan Pass",
-  "Creator profile requests",
-  "Creator profile booking slots",
-  "Creator owner profile mode",
-  "Beta release notes drawer",
-  "Mobile nav/sidebar/profile dropdown",
-  "What to capture",
-  "Failure looks like",
-  "Evidence filename pattern",
-  "Source validator/report",
-  "Blocking beta exit",
-  "screenshotEvidenceAttached=false",
+const uiSourceCoverage = [
+  "UI Surface Coverage Gate",
+  "codebase tell on itself",
+  "Screenshots are optional follow-up evidence only",
+  "source_surface_checked",
+  "codexScoreBlocking=false",
+  "npm run check:ui:coverage",
+  "npm run check:admin-browser-surface-smoke",
+  "npm run check:device-ui",
+  "not as the readiness gate",
 ].join("\n");
 
 const provider = [
@@ -72,7 +58,7 @@ function statusFixture(canStartBetaExitReview = false) {
       canStartBetaExitReview,
     },
     nextExactSteps: [
-      "Use docs/agent-truth/manual-screenshot-qa-checklist.md.",
+      "Use docs/agent-truth/ui-visual-smoke-minimal.md.",
       "Use docs/agent-truth/provider-smoke-evidence-checklist.md.",
       "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
       "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",
@@ -83,7 +69,7 @@ function statusFixture(canStartBetaExitReview = false) {
 describe("evidence readiness checklists", () => {
   it("accepts checklist docs that prepare evidence without marking it passed", () => {
     expect(validateEvidenceReadinessChecklists({
-      manual,
+      uiSourceCoverage,
       provider,
       runtime,
       adminTruth,
@@ -91,21 +77,21 @@ describe("evidence readiness checklists", () => {
     })).toEqual([]);
   });
 
-  it("fails when the manual screenshot route list is incomplete", () => {
+  it("fails when UI source coverage instructions omit the source gate", () => {
     const failures = validateEvidenceReadinessChecklists({
-      manual: manual.replace("/dashboard/chat", ""),
+      uiSourceCoverage: uiSourceCoverage.replace("codebase tell on itself", ""),
       provider,
       runtime,
       adminTruth,
       currentBetaExitStatus: statusFixture(),
     });
 
-    expect(failures).toContain('manual screenshot checklist must include "/dashboard/chat".');
+    expect(failures).toContain('UI source coverage checklist must include "codebase tell on itself".');
   });
 
   it("fails when provider requirements omit paid bonus source truth", () => {
     const failures = validateEvidenceReadinessChecklists({
-      manual,
+      uiSourceCoverage,
       provider: provider.replace("Paid bonus remains purchased balance", ""),
       runtime,
       adminTruth,
@@ -117,7 +103,7 @@ describe("evidence readiness checklists", () => {
 
   it("fails when runtime requirements omit creator routes", () => {
     const failures = validateEvidenceReadinessChecklists({
-      manual,
+      uiSourceCoverage,
       provider,
       runtime: runtime.replace("`/creators/[username]` loads a creator profile", ""),
       adminTruth,
@@ -129,7 +115,7 @@ describe("evidence readiness checklists", () => {
 
   it("fails when admin truth sample rules omit redaction or freshness", () => {
     const failures = validateEvidenceReadinessChecklists({
-      manual,
+      uiSourceCoverage,
       provider,
       runtime,
       adminTruth: adminTruth.replace("sourceFreshnessUtc", ""),
@@ -141,7 +127,7 @@ describe("evidence readiness checklists", () => {
 
   it("fails when beta exit is marked ready while evidence is missing", () => {
     const failures = validateEvidenceReadinessChecklists({
-      manual,
+      uiSourceCoverage,
       provider,
       runtime,
       adminTruth,

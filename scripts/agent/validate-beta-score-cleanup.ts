@@ -182,7 +182,7 @@ export function buildBetaScoreCleanupReport(head = currentHead()): BetaScoreClea
       "Retired legacy launch/readiness reports from required beta score freshness math.",
     ],
     nextExactSteps: [
-      "Attach real manual screenshot evidence before clearing visual/manual caps.",
+      "Run UI source coverage before optional visual reproduction.",
       "Attach formal provider smoke evidence before clearing provider caps.",
       "Attach deployed runtime smoke evidence before clearing runtime caps.",
       "Attach a fresh admin truth sample before clearing admin truth caps.",

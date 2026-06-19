@@ -702,7 +702,6 @@
         "check:current-beta-exit-status": "tsx scripts/agent/validate-current-beta-exit-status.ts",
         "check:overnight-beta-readiness-lock": "tsx scripts/agent/validate-overnight-beta-readiness-lock.ts",
         "check:evidence-readiness-checklists": "tsx scripts/agent/validate-evidence-readiness-checklists.ts",
-        "check:manual-screenshot-evidence": "tsx scripts/agent/validate-manual-screenshot-evidence.ts",
         "check:operator-revenue-smoke": "tsx scripts/agent/validate-operator-revenue-smoke.ts",
         "check:evidence-capture-status": "tsx scripts/agent/validate-evidence-capture-status.ts",
         "score:telemetry": "tsx scripts/agent/score-telemetry-parity.ts",

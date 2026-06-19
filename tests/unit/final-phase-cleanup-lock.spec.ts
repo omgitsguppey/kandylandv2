@@ -37,7 +37,7 @@ function baseReports(head = "test-head"): FinalPhaseCleanupSourceReports {
       },
       staleAuthorityFindings: [],
       deferredFindings: [],
-      nextFixOrder: ["Run screenshot QA."],
+      nextFixOrder: ["Run UI source coverage."],
     },
     speedSecurityHardening: {
       currentHead: head,
@@ -115,17 +115,17 @@ function buildFixtureReport(reports: Partial<FinalPhaseCleanupSourceReports>) {
 }
 
 describe("final phase cleanup lock", () => {
-  it("blocks screenshot QA when product-surface evidence is missing", () => {
+  it("blocks UI source coverage when product-surface evidence is missing", () => {
     const reports = baseReports();
     reports.productSurfaceIntegrity = null;
 
     const report = buildFixtureReport(reports);
 
-    expect(report.summary.canStartScreenshotQa).toBe(false);
+    expect(report.summary.canStartUiSourceCoverage).toBe(false);
     expect(report.remainingBlockers.some((blocker) => blocker.key === "product_surface_integrity_missing")).toBe(true);
   });
 
-  it("blocks screenshot QA when P0/P1 source findings remain", () => {
+  it("blocks UI source coverage when P0/P1 source findings remain", () => {
     const reports = baseReports();
     reports.productSurfaceIntegrity = {
       ...reports.productSurfaceIntegrity,
@@ -137,11 +137,11 @@ describe("final phase cleanup lock", () => {
 
     const report = buildFixtureReport(reports);
 
-    expect(report.summary.canStartScreenshotQa).toBe(false);
+    expect(report.summary.canStartUiSourceCoverage).toBe(false);
     expect(report.remainingBlockers.some((blocker) => blocker.status === "code_blocker")).toBe(true);
   });
 
-  it("keeps missing visual QA visible", () => {
+  it("keeps missing UI source coverage visible", () => {
     const reports = baseReports();
     reports.publicBetaScore = {
       ...reports.publicBetaScore,
@@ -152,7 +152,7 @@ describe("final phase cleanup lock", () => {
     const report = buildFixtureReport(reports);
 
     expect(report.summary.missingHumanEvidence).toBeGreaterThan(0);
-    expect(report.humanEvidenceNeeded.some((item) => item.key === "visual_qa_required")).toBe(true);
+    expect(report.humanEvidenceNeeded.some((item) => item.key === "ui_source_coverage_required")).toBe(true);
   });
 
   it("does not treat operator-reported provider evidence as passed", () => {
@@ -230,7 +230,7 @@ describe("final phase cleanup lock", () => {
 
     const report = buildFixtureReport(reports);
 
-    expect(report.nextExactSteps).toContain("Run screenshot QA on the locked source surfaces and attach real visual evidence.");
+    expect(report.nextExactSteps).toContain("Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps.");
     expect(report.nextExactSteps).toContain("Run formal provider smoke checks and refresh provider-smoke-evidence.generated.json.");
     expect(report.nextExactSteps).toContain("Run runtime smoke checks and refresh runtime-smoke-evidence.generated.json.");
   });

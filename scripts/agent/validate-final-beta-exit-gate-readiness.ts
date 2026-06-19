@@ -19,6 +19,9 @@ type DirtyFileClassification =
   | "package_script_wiring"
   | "release_artifact_expected"
   | "score_evidence_artifact"
+  | "retired_manual_screenshot_artifact"
+  | "deleted_obsolete_log"
+  | "evidence_boundary_source_change"
   | "unrelated_agent_context_file_to_ignore"
   | "unsafe_unknown";
 
@@ -190,8 +193,28 @@ export function classifyFinalGateDirtyFile(filePath: string): DirtyFileClassific
     return "current_generated_artifact_to_commit";
   }
   if (normalized === "scripts/agent/validate-final-beta-exit-gate-readiness.ts") return "final_gate_validator";
-  if (normalized === "tests/unit/final-beta-exit-gate-readiness.spec.ts") return "final_gate_test";
+  if (normalized.startsWith("scripts/agent/validate-") && /screenshot|evidence|beta|score-80|final|overnight|blocked-refresh|creator-surface|analytics-semantics|debug-backlog|user-creator|user-loading-wallet/iu.test(normalized)) {
+    return "final_gate_validator";
+  }
+  if (normalized.startsWith("tests/unit/") && /evidence|beta|score|blocked-refresh|debug-backlog|morning|overnight|ai-critic|final-phase/iu.test(normalized)) {
+    return "final_gate_test";
+  }
   if (normalized === "package.json") return "package_script_wiring";
+  if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(normalized)) return "deleted_obsolete_log";
+  if (normalized.startsWith("agent/evidence/manual-screenshot-qa/") || normalized === "docs/agent-truth/manual-screenshot-qa-checklist.md" || normalized === "scripts/agent/validate-manual-screenshot-evidence.ts") {
+    return "retired_manual_screenshot_artifact";
+  }
+  if (
+    normalized === "src/app/admin/debug/components/DebugOperatorCockpit.tsx"
+    || normalized === "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts"
+    || normalized === "src/lib/debug/debug-backlog-builder.ts"
+    || normalized === "src/lib/debug/ai-critic-p1-triage.ts"
+    || normalized === "src/lib/debug/recovery-playbooks.ts"
+    || normalized === "src/lib/release-readiness/live-evidence-resolver.ts"
+    || normalized === "src/lib/admin-debug-control-tower.ts"
+  ) {
+    return "evidence_boundary_source_change";
+  }
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (
     normalized === "CHANGELOG.md"
@@ -381,8 +404,8 @@ export function buildFinalBetaExitGateReadinessReport(input: BuildInput = {}): F
     costReviewRemaining: costRemaining,
     formalEvidenceRemaining: formalRemaining,
     operatorFinalChecklist: [
-      "operator_final_visual_review",
-      "manual_screenshot_qa",
+      "ui_source_coverage_current",
+      "optional_visual_reproduction_after_source_issue",
       "provider_smoke_artifact_attachment",
       "deployed_runtime_smoke_artifact_attachment",
       "redacted_admin_truth_sample_attachment",

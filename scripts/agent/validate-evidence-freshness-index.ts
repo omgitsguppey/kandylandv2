@@ -22,7 +22,7 @@ type FreshnessClassification =
   | "stale_harmless"
   | "stale_consumed"
   | "missing_expected"
-  | "manual_visual_required"
+  | "ui_source_coverage_required"
   | "admin_truth_source_required"
   | "external_proof_required"
   | "archive_candidate";
@@ -30,7 +30,7 @@ type FreshnessClassification =
 type EvidenceFreshnessActionability =
   | "refreshable_by_existing_local_validator"
   | "external_proof_required"
-  | "manual_visual_required"
+  | "ui_source_coverage_required"
   | "admin_truth_source_required"
   | "archive_evidence_only"
   | "stale_consumed_blocking"
@@ -183,12 +183,12 @@ function isAdminTruthSourcePath(path: string) {
   return /admin-truth-sample/iu.test(path);
 }
 
-function isManualVisualPath(path: string) {
+function isUiSourceCoveragePath(path: string) {
   return /manual-screenshot|operator-final|visual-manual/iu.test(path);
 }
 
 function truthUseFor(classification: FreshnessClassification): EvidenceFreshnessEntry["truthUse"] {
-  if (classification === "external_proof_required" || classification === "manual_visual_required") return "formal_proof_gate";
+  if (classification === "external_proof_required") return "formal_proof_gate";
   if (classification === "archive_candidate" || classification === "stale_harmless") return "archive_only";
   if (classification === "fresh_and_consumed") return "current_truth_when_fresh";
   return "evidence_snapshot_only";
@@ -200,7 +200,7 @@ function actionabilityFor(input: {
   producerCommand: string | null;
 }): EvidenceFreshnessActionability {
   if (input.classification === "external_proof_required") return "external_proof_required";
-  if (input.classification === "manual_visual_required") return "manual_visual_required";
+  if (input.classification === "ui_source_coverage_required") return "ui_source_coverage_required";
   if (input.classification === "admin_truth_source_required") return "admin_truth_source_required";
   if (input.classification === "archive_candidate" || input.classification === "stale_harmless") return "archive_evidence_only";
   if (input.classification === "missing_expected" && input.blocking) return "missing_expected_blocking";
@@ -225,10 +225,10 @@ function nextStepsFor(input: {
         `Collect formal external/runtime/provider evidence for ${input.path} through the owning operator process.`,
         "Do not clear this gate with source-only validators.",
       ];
-    case "manual_visual_required":
+    case "ui_source_coverage_required":
       return [
-        `Attach final visual/operator QA evidence for ${input.path}.`,
-        "Do not use source-only validators to clear final visual QA.",
+        `Run npm run check:ui-visual-smoke-minimal to refresh source coverage for ${input.path}.`,
+        "Use browser or screenshots only after source coverage reports a concrete issue to reproduce.",
       ];
     case "admin_truth_source_required":
       return [
@@ -270,8 +270,8 @@ function classifyEntry(input: {
     if (isAdminTruthSourcePath(input.path)) {
       return { classification: "admin_truth_source_required", blocking: false, reason: "Admin truth evidence requires an approved redacted source sample." };
     }
-    if (isManualVisualPath(input.path)) {
-      return { classification: "manual_visual_required", blocking: false, reason: "Final visual/operator QA requires a visual evidence artifact." };
+    if (isUiSourceCoveragePath(input.path)) {
+      return { classification: "ui_source_coverage_required", blocking: false, reason: "UI source coverage is the first-pass visual gate; screenshots are optional reproduction evidence." };
     }
     return {
       classification: "missing_expected",
@@ -286,8 +286,8 @@ function classifyEntry(input: {
   if (isAdminTruthSourcePath(input.path)) {
     return { classification: "admin_truth_source_required", blocking: false, reason: "Artifact is an admin truth source sample gate; generic source freshness cannot clear it." };
   }
-  if (isManualVisualPath(input.path)) {
-    return { classification: "manual_visual_required", blocking: false, reason: "Artifact is a final visual/operator QA gate; source freshness cannot clear it." };
+  if (isUiSourceCoveragePath(input.path)) {
+    return { classification: "ui_source_coverage_required", blocking: false, reason: "Artifact is a UI coverage lane; source coverage must run before optional visual reproduction." };
   }
   if (input.fresh && input.consumed) {
     return { classification: "fresh_and_consumed", blocking: false, reason: "Generated artifact is within the doctrine freshness window and has a known consumer." };
@@ -386,7 +386,7 @@ export function buildEvidenceFreshnessIndex() {
     missing_expected: 1,
     external_proof_required: 2,
     admin_truth_source_required: 3,
-    manual_visual_required: 4,
+    ui_source_coverage_required: 4,
     fresh_and_consumed: 5,
     fresh_but_unused: 6,
     stale_harmless: 7,
@@ -407,7 +407,7 @@ export function buildEvidenceFreshnessIndex() {
     stale_harmless: 0,
     stale_consumed: 0,
     missing_expected: 0,
-    manual_visual_required: 0,
+    ui_source_coverage_required: 0,
     admin_truth_source_required: 0,
     external_proof_required: 0,
     archive_candidate: 0,
@@ -415,7 +415,7 @@ export function buildEvidenceFreshnessIndex() {
   const blockingEntries = sortedEntries.filter((entry) => entry.blocking);
   const archiveCandidates = sortedEntries.filter((entry) => entry.classification === "archive_candidate").slice(0, MAX_ARCHIVE_CANDIDATES);
   const externalProofRequired = sortedEntries.filter((entry) => entry.classification === "external_proof_required").slice(0, 40);
-  const manualVisualRequired = sortedEntries.filter((entry) => entry.classification === "manual_visual_required").slice(0, 40);
+  const uiSourceCoverageRequired = sortedEntries.filter((entry) => entry.classification === "ui_source_coverage_required").slice(0, 40);
   const adminTruthSourceRequired = sortedEntries.filter((entry) => entry.classification === "admin_truth_source_required").slice(0, 40);
 
   const byActionability = sortedEntries.reduce<Record<EvidenceFreshnessActionability, number>>((counts, entry) => {
@@ -424,7 +424,7 @@ export function buildEvidenceFreshnessIndex() {
   }, {
     refreshable_by_existing_local_validator: 0,
     external_proof_required: 0,
-    manual_visual_required: 0,
+    ui_source_coverage_required: 0,
     admin_truth_source_required: 0,
     archive_evidence_only: 0,
     stale_consumed_blocking: 0,
@@ -439,7 +439,7 @@ export function buildEvidenceFreshnessIndex() {
       generatedReportsAreTruth: false,
       defaultStaleAfterHours: GENERATED_REPORT_DEFAULT_STALE_HOURS,
       staleTruthUse: "evidence_snapshot_only",
-      formalProofNote: "Runtime/provider and final visual proof gates cannot be cleared by source-only freshness; admin truth requires an approved source sample.",
+      formalProofNote: "Runtime/provider proof gates cannot be cleared by source-only freshness; UI issues must be surfaced by source coverage before optional visual reproduction; admin truth requires an approved source sample.",
     },
     summary: {
       artifactCount: sortedEntries.length,
@@ -449,7 +449,7 @@ export function buildEvidenceFreshnessIndex() {
       staleConsumedCount: byClassification.stale_consumed,
       missingExpectedCount: byClassification.missing_expected,
       externalProofRequiredCount: byClassification.external_proof_required,
-      manualVisualRequiredCount: byClassification.manual_visual_required,
+      uiSourceCoverageRequiredCount: byClassification.ui_source_coverage_required,
       adminTruthSourceRequiredCount: byClassification.admin_truth_source_required,
       archiveCandidateCount: byClassification.archive_candidate,
       byClassification,
@@ -457,7 +457,7 @@ export function buildEvidenceFreshnessIndex() {
     },
     blockingArtifacts: blockingEntries.slice(0, 40),
     externalProofRequired,
-    manualVisualRequired,
+    uiSourceCoverageRequired,
     adminTruthSourceRequired,
     archiveCandidates,
     artifacts: sortedEntries.slice(0, MAX_INDEX_ROWS),
@@ -477,8 +477,11 @@ function validateIndex(report: ReturnType<typeof buildEvidenceFreshnessIndex>) {
     if ((artifact.classification === "stale_harmless" || artifact.classification === "stale_consumed" || artifact.classification === "archive_candidate") && artifact.truthUse === "current_truth_when_fresh") {
       failures.push(`${artifact.path} is stale but marked as current truth.`);
     }
-    if ((artifact.classification === "external_proof_required" || artifact.classification === "manual_visual_required") && artifact.truthUse !== "formal_proof_gate") {
+    if (artifact.classification === "external_proof_required" && artifact.truthUse !== "formal_proof_gate") {
       failures.push(`${artifact.path} proof gate is not labeled formal_proof_gate.`);
+    }
+    if (artifact.classification === "ui_source_coverage_required" && artifact.truthUse !== "evidence_snapshot_only") {
+      failures.push(`${artifact.path} UI source coverage is not labeled evidence_snapshot_only.`);
     }
     if (artifact.classification === "admin_truth_source_required" && artifact.truthUse !== "evidence_snapshot_only") {
       failures.push(`${artifact.path} admin truth source sample is not labeled evidence_snapshot_only.`);
@@ -510,7 +513,7 @@ function renderMarkdown(report: ReturnType<typeof buildEvidenceFreshnessIndex>) 
     `- Blocking artifacts: ${report.summary.blockingCount}`,
     `- Stale consumed artifacts: ${report.summary.staleConsumedCount}`,
     `- External proof required: ${report.summary.externalProofRequiredCount}`,
-    `- Manual visual/operator QA required: ${report.summary.manualVisualRequiredCount}`,
+    `- UI source coverage required: ${report.summary.uiSourceCoverageRequiredCount}`,
     `- Admin truth source required: ${report.summary.adminTruthSourceRequiredCount}`,
     "",
     "## Actionability",
@@ -526,7 +529,7 @@ function renderMarkdown(report: ReturnType<typeof buildEvidenceFreshnessIndex>) 
     "## Formal Evidence Gates",
     "",
     ...report.externalProofRequired.slice(0, 20).map((artifact) => `- ${artifact.path}: external proof required; source checks cannot clear this gate.`),
-    ...report.manualVisualRequired.slice(0, 20).map((artifact) => `- ${artifact.path}: final visual/operator QA required; source checks cannot clear this gate.`),
+    ...report.uiSourceCoverageRequired.slice(0, 20).map((artifact) => `- ${artifact.path}: UI source coverage required before optional visual reproduction.`),
     ...report.adminTruthSourceRequired.slice(0, 20).map((artifact) => `- ${artifact.path}: admin truth source sample required; use redacted approved evidence only.`),
     "",
   ];

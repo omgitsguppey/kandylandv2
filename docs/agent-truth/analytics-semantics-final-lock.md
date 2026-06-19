@@ -1,7 +1,7 @@
 # Analytics Semantics Final Lock
 
-Generated: 2026-05-19T23:31:46.154Z
-Current head: 2e91fea3b74d8c5e1122a1fe7acb475510e9019a
+Generated: 2026-06-19T15:03:04.690Z
+Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
 
 ## Status
 
@@ -11,7 +11,7 @@ Current head: 2e91fea3b74d8c5e1122a1fe7acb475510e9019a
 - Legacy recovery: source_ready_legacy_evidence_until_reconciled
 - Runtime watch time: source_ready_runtime_watch_v2_runtime_proof_required
 - Admin analytics readiness: source_ready_needs_fresh_admin_truth_sample_before_claiming_live_accuracy
-- Beta score impact: score=39.52; status=Stale evidence; sourceReady=true; runtimeEvidenceComplete=false; betaExitReady=false
+- Beta score impact: score=76.88; status=External proof required; sourceReady=true; runtimeEvidenceComplete=false; betaExitReady=false
 
 ## Cost Lanes
 
@@ -25,11 +25,11 @@ Current head: 2e91fea3b74d8c5e1122a1fe7acb475510e9019a
 | Id | Severity | Status | Next action |
 | --- | --- | --- | --- |
 | runtime_watch_time_v2_runtime_proof_missing | P1 | runtime_evidence_required | Wire the runtime watch tracker into the selected media viewer and attach deployed runtime watch evidence before claiming live accuracy. |
-| manual_provider_runtime_admin_evidence_missing | P1 | beta_exit_blocked | Attach manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence before beta exit review. |
+| ui_provider_runtime_admin_evidence_missing | P1 | beta_exit_blocked | Run UI source coverage and attach provider smoke, runtime smoke, and admin truth sample evidence before beta exit review. |
 | cost_owner_review_backlog_visible | P2 | owner_review_required | Keep Cloud Run, Cloud SQL/Data Connect mirror, Gemini/Vertex, and 4xx lanes visible until owner-reviewed evidence exists. |
 
 ## Next Exact Steps
 
-1. Attach manual product-behavior screenshots while treating analytics semantics as source-ready only.
+1. Run deterministic UI source coverage before optional browser or screenshot reproduction; keep analytics semantics source-ready only.
 2. Wire runtime watch-time v2 into the selected media viewer and capture deployed runtime evidence before claiming live watch-time accuracy.
 3. Refresh provider smoke, runtime smoke, admin truth sample, and beta score artifacts after real evidence is attached.

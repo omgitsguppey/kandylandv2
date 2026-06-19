@@ -1,63 +1,63 @@
 {
-  "generatedAtUtc": "2026-05-17T04:27:04.829Z",
+  "generatedAtUtc": "2026-06-19T15:15:07.064Z",
   "reportKey": "final-phase-cleanup-lock",
-  "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
   "commitsReviewed": [
-    "d0994c9a fix(wallet): clarify paid bonus gumdrop labels",
-    "6396ae06 fix(creator): polish paid gd flow clarity",
-    "a98638d3 fix(ci): require same-commit release notes [skip release-notes]",
-    "7f3f0383 fix(ci): prevent release note workflow loop [skip release-notes]",
-    "c41c9848 fix(creator): simplify booking slots and owner mode",
-    "68dfa1f2 fix(economy): lock gumdrop source funds and creator attribution",
-    "b811bb9c docs(release): update beta badge for visual confirmation [skip release-notes]",
-    "d3fa68bc fix(ui): confirm user creator visual stability",
-    "99996794 docs(release): update beta badge for user creator parity [skip release-notes]",
-    "77970bb3 fix(ui): tighten user creator parity",
-    "d8ba11bc docs(release): update beta badge for cleanup lock refresh [skip release-notes]",
-    "443992b6 docs(phase): lock cleanup evidence",
-    "243b0f60 docs(release): update beta badge for cleanup lock [skip release-notes]",
-    "b8e777fd docs(phase): lock cleanup evidence",
-    "cbc1a62a docs(release): update beta badge for guardrail cleanup [skip release-notes]",
-    "a3327698 fix(security): clean up focused guardrail risks",
-    "3769bfd3 docs(release): update beta badge for product surface integrity [skip release-notes]",
-    "540695fc chore(repo): add product surface integrity cleanup",
-    "a81f0188 docs(release): update beta badge for creator lazy loading [skip release-notes]",
-    "c1626425 fix(creator): lazy load dashboard managers",
-    "c7f18cde docs(release): update beta badge for creator bookings [skip release-notes]",
-    "f939d6a5 fix(creator): connect bookings and fan pass dashboard panels",
-    "9b587ae1 docs(release): update beta badge for creator dashboard [skip release-notes]",
-    "9a254829 fix(creator): connect dashboard request flow",
-    "b5909742 docs(release): update beta badge for speed security [skip release-notes]",
-    "ca9210a2 fix(security): bound analytics fanout and request bodies",
-    "6ff00b4f docs(release): update beta badge for auth outcomes [skip release-notes]",
-    "f43a7868 fix(admin): simplify auth outcomes mobile panel",
-    "85210a98 docs(release): update beta badge for analytics operations [skip release-notes]",
-    "d75e1f4c fix(admin): compact analytics operations mobile panels",
-    "954978c3 docs(release): update beta badge for analytics overview [skip release-notes]",
-    "f081f930 fix(admin): simplify mobile analytics overview",
-    "4293b513 docs(release): update beta badge for doctrine reset [skip release-notes]",
-    "2b582f1e docs(repo): consolidate current operator doctrine",
-    "d315c420 docs(release): update beta badge for debug triage [skip release-notes]",
-    "af8d35ae chore(debug): triage panel evidence output",
-    "104e5c03 fix(ci): skip release note-only workflow runs [skip release-notes]",
-    "0ee93628 docs(release): update beta badge for creator connection audit",
-    "fee10e6a chore(ui): audit creator feature connections",
-    "2ce388f0 docs(release): update beta badge for targeted evidence"
+    "e947d8289 repo intelligence: replace manual screenshot gate with UI source coverage",
+    "fbc3a07e8 fix(admin): load control tower source reports in fixture",
+    "0369b753a repo intelligence: refresh public beta proof boundary [skip release-notes]",
+    "68647ce4d fix(admin): label analytics refresh due as cached",
+    "b275ece32 repo intelligence: refresh analytics evidence heads [skip release-notes]",
+    "150f93852 repo intelligence: refresh formal launch day coverage [skip release-notes]",
+    "c03bd18fa analytics: expose formal launch day coverage",
+    "56c9a2e1f analytics: surface launch range proof in rebuild dry run",
+    "196bec8eb repo intelligence: refresh formal launch range evidence [skip release-notes]",
+    "430f2b3c0 analytics: expose formal launch range proof",
+    "de973ebbb repo intelligence: refresh public beta score head [skip release-notes]",
+    "743bd0fa0 repo intelligence: refresh telemetry hydration evidence [skip release-notes]",
+    "3840197f6 repo intelligence: refresh beta evidence status states [skip release-notes]",
+    "367469556 repo intelligence: refresh launch analytics source states [skip release-notes]",
+    "f7e707f97 analytics: normalize launch range source states",
+    "bb6d19061 repo intelligence: refresh analytics hydration head [skip release-notes]",
+    "474008a70 fix(analytics): compact source recovery summary",
+    "ba6b7ba4e fix(admin): clarify source-only evidence lanes",
+    "74f19db7d repo intelligence: refresh analytics recovery evidence [skip release-notes]",
+    "2d49fe026 fix(admin): clarify beta evidence states",
+    "4edce10c3 repo intelligence: refresh public beta evidence head [skip release-notes]",
+    "a60406429 fix(analytics): remove stale live-update warning literal",
+    "67c9342dc fix(analytics): label verified caches as snapshots",
+    "c22fdabf9 fix(admin): mark stale evidence head drift",
+    "8dd217140 repo intelligence: refresh current exit evidence head [skip release-notes]",
+    "940c6a46a analytics: expose formal launch coverage gaps [skip release-notes]",
+    "eda9e007e repo intelligence: refresh postflight evidence head [skip release-notes]",
+    "c0c9a8ba7 repo intelligence: refresh beta evidence head [skip release-notes]",
+    "6aa61cc5c analytics: separate formal launch range proof [skip release-notes]",
+    "cf087be24 fix(admin): clarify evidence proof states",
+    "263395717 fix(admin): soften truth badge language",
+    "e2e11a97e fix(admin): simplify analytics source copy",
+    "a92890796 fix(admin): simplify analytics drilldown controls",
+    "2a30a73d3 fix(admin): compact control tower proof summary",
+    "87ae6e368 fix(admin): clarify analytics source states",
+    "b1a3de326 chore(beta): refresh evidence status boundaries [skip release-notes]",
+    "ef2255f2b chore(analytics): collapse source agreement report hop",
+    "131ddd851 chore(analytics): require redacted launch coverage evidence",
+    "36831a402 chore(analytics): align evidence refresh boundaries",
+    "a9c93ffc3 analytics: clarify launch evidence freshness"
   ],
   "summary": {
     "userFacingConnectionStatus": "P0=0 P1=0 P2=1 fakeActions=0",
-    "productSurfaceIntegrityStatus": "P0=0 P1=0 P2=27 stale=2 deferred=27",
-    "speedSecurityStatus": "51/beta-risk; findings=91; critical=0",
-    "betaScore": 45,
-    "betaReadinessStatus": "Stale evidence",
-    "staleAuthorityRisks": 10,
+    "productSurfaceIntegrityStatus": "P0=0 P1=0 P2=28 stale=3 deferred=28",
+    "speedSecurityStatus": "52/beta-risk; findings=83; critical=0",
+    "betaScore": 78.18,
+    "betaReadinessStatus": "External proof required",
+    "staleAuthorityRisks": 11,
     "remainingP0": 0,
-    "remainingP1": 4,
-    "remainingP2": 10,
-    "missingHumanEvidence": 3,
+    "remainingP1": 2,
+    "remainingP2": 12,
+    "missingHumanEvidence": 1,
     "missingProviderEvidence": 1,
-    "missingRuntimeEvidence": 1,
-    "canStartScreenshotQa": true,
+    "missingRuntimeEvidence": 0,
+    "canStartUiSourceCoverage": true,
     "canStartProviderSmoke": true,
     "canStartBetaExitReview": false
   },
@@ -168,30 +168,39 @@
   "unavailableChecks": [],
   "refreshedReports": [
     {
-      "reportKey": "user-facing-feature-connection-audit",
-      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
-      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
-      "generatedAtUtc": "2026-05-17T04:19:07.266Z",
+      "reportKey": "public-beta-score",
+      "path": "agent/state/public-beta-score.generated.json",
+      "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+      "generatedAtUtc": "2026-06-19T15:13:38.831Z",
       "sourceState": "current",
-      "ownerLane": "creator-surface-owner",
-      "exactNextAction": "No action required for report freshness."
-    },
-    {
-      "reportKey": "product-surface-integrity",
-      "path": "agent/state/product-surface-integrity.generated.json",
-      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
-      "generatedAtUtc": "2026-05-17T04:19:31.387Z",
-      "sourceState": "current",
-      "ownerLane": "product-surface-owner",
+      "ownerLane": "beta-readiness-owner",
       "exactNextAction": "No action required for report freshness."
     }
   ],
   "staleReports": [
     {
+      "reportKey": "user-facing-feature-connection-audit",
+      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
+      "generatedAtUtc": "2026-06-03T16:09:23.535Z",
+      "sourceState": "stale_head",
+      "ownerLane": "creator-surface-owner",
+      "exactNextAction": "Refresh agent/state/user-facing-feature-connection-audit.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
+      "reportKey": "product-surface-integrity",
+      "path": "agent/state/product-surface-integrity.generated.json",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "generatedAtUtc": "2026-05-17T06:13:30.798Z",
+      "sourceState": "stale_head",
+      "ownerLane": "product-surface-owner",
+      "exactNextAction": "Refresh agent/state/product-surface-integrity.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
       "reportKey": "speed-security-hardening",
       "path": "agent/state/speed-security-hardening.generated.json",
       "currentHead": null,
-      "generatedAtUtc": "2026-05-17T04:19:39.496Z",
+      "generatedAtUtc": "2026-06-19T12:59:57.387Z",
       "sourceState": "missing_head",
       "ownerLane": "speed-security-owner",
       "exactNextAction": "Refresh agent/state/speed-security-hardening.generated.json through its focused owner command; do not treat stale data as live readiness."
@@ -199,26 +208,17 @@
     {
       "reportKey": "repo-spring-cleaning-rewire",
       "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
-      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
-      "generatedAtUtc": "2026-05-15T13:21:17.192Z",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
+      "generatedAtUtc": "2026-06-03T16:09:25.709Z",
       "sourceState": "stale_head",
       "ownerLane": "repo-governance-owner",
       "exactNextAction": "Refresh agent/state/repo-spring-cleaning-rewire.generated.json through its focused owner command; do not treat stale data as live readiness."
     },
     {
-      "reportKey": "public-beta-score",
-      "path": "agent/state/public-beta-score.generated.json",
-      "currentHead": null,
-      "generatedAtUtc": "2026-05-17T04:19:53.251Z",
-      "sourceState": "missing_head",
-      "ownerLane": "beta-readiness-owner",
-      "exactNextAction": "Refresh agent/state/public-beta-score.generated.json through its focused owner command; do not treat stale data as live readiness."
-    },
-    {
       "reportKey": "targeted-behavior-evidence",
       "path": "agent/state/targeted-behavior-evidence.generated.json",
-      "currentHead": "6b964e0e91f288a68da7a7e2ff0fce38d6343338",
-      "generatedAtUtc": "2026-05-14T14:11:47.684Z",
+      "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+      "generatedAtUtc": "2026-06-19T14:31:43.176Z",
       "sourceState": "stale_head",
       "ownerLane": "behavior-evidence-owner",
       "exactNextAction": "Refresh agent/state/targeted-behavior-evidence.generated.json through its focused owner command; do not treat stale data as live readiness."
@@ -226,8 +226,8 @@
     {
       "reportKey": "provider-smoke-evidence",
       "path": "agent/state/provider-smoke-evidence.generated.json",
-      "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
-      "generatedAtUtc": "2026-05-14T02:00:00.000Z",
+      "currentHead": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
+      "generatedAtUtc": "2026-06-11T14:40:22.954Z",
       "sourceState": "stale_head",
       "ownerLane": "provider-smoke-owner",
       "exactNextAction": "Refresh agent/state/provider-smoke-evidence.generated.json through its focused owner command; do not treat stale data as live readiness."
@@ -235,8 +235,8 @@
     {
       "reportKey": "runtime-smoke-evidence",
       "path": "agent/state/runtime-smoke-evidence.generated.json",
-      "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
-      "generatedAtUtc": "2026-05-14T02:00:00.000Z",
+      "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
+      "generatedAtUtc": "2026-06-03T18:49:41.280Z",
       "sourceState": "stale_head",
       "ownerLane": "runtime-smoke-owner",
       "exactNextAction": "Refresh agent/state/runtime-smoke-evidence.generated.json through its focused owner command; do not treat stale data as live readiness."
@@ -244,8 +244,8 @@
     {
       "reportKey": "admin-truth-sample-evidence",
       "path": "agent/state/admin-truth-sample-evidence.generated.json",
-      "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
-      "generatedAtUtc": "2026-05-14T02:00:00.000Z",
+      "currentHead": "1341f6d52f5e848c3d81bc39039e3f8333bb66e7",
+      "generatedAtUtc": "2026-06-18T07:44:00.799Z",
       "sourceState": "stale_head",
       "ownerLane": "admin-truth-owner",
       "exactNextAction": "Refresh agent/state/admin-truth-sample-evidence.generated.json through its focused owner command; do not treat stale data as live readiness."
@@ -292,16 +292,6 @@
   ],
   "remainingBlockers": [
     {
-      "key": "visual_qa_required",
-      "severity": "P1",
-      "status": "visual_qa_required",
-      "sourceReport": "public-beta-score",
-      "fileOrRoute": "agent/state/public-beta-score.generated.json",
-      "whyItMatters": "The beta score still applies a visual/manual evidence cap; screenshots are confirmation evidence and cannot be fabricated by source validators.",
-      "exactNextAction": "Run screenshot QA on the locked source surfaces and attach real visual evidence.",
-      "ownerLane": "visual-qa-owner"
-    },
-    {
       "key": "provider_smoke_required",
       "severity": "P1",
       "status": "provider_smoke_required",
@@ -310,16 +300,6 @@
       "whyItMatters": "Provider smoke evidence is missing or operator-reported only; the lock must not mark provider workflows as passed.",
       "exactNextAction": "Run formal provider smoke checks and refresh provider-smoke-evidence.generated.json.",
       "ownerLane": "provider-smoke-owner"
-    },
-    {
-      "key": "runtime_smoke_required",
-      "severity": "P1",
-      "status": "runtime_smoke_required",
-      "sourceReport": "runtime-smoke-evidence",
-      "fileOrRoute": "agent/state/runtime-smoke-evidence.generated.json",
-      "whyItMatters": "Runtime smoke remains unverified; local static validators do not prove deployed runtime behavior.",
-      "exactNextAction": "Run runtime smoke checks and refresh runtime-smoke-evidence.generated.json.",
-      "ownerLane": "runtime-smoke-owner"
     },
     {
       "key": "admin_truth_sample_required",
@@ -350,6 +330,26 @@
       "whyItMatters": "Repo spring cleaning still reports stale/archive cleanup candidates; they are classified as governance cleanup rather than live readiness proof.",
       "exactNextAction": "Refresh or archive stale generated reports through their owning validators before treating them as current authority.",
       "ownerLane": "repo-governance-owner"
+    },
+    {
+      "key": "stale_authority_user_facing_feature_connection_audit",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "user-facing-feature-connection-audit",
+      "fileOrRoute": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/user-facing-feature-connection-audit.generated.json through its focused owner command; do not treat stale data as live readiness.",
+      "ownerLane": "creator-surface-owner"
+    },
+    {
+      "key": "stale_authority_product_surface_integrity",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "product-surface-integrity",
+      "fileOrRoute": "agent/state/product-surface-integrity.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/product-surface-integrity.generated.json through its focused owner command; do not treat stale data as live readiness.",
+      "ownerLane": "product-surface-owner"
     },
     {
       "key": "stale_authority_repo_spring_cleaning_rewire",
@@ -456,18 +456,6 @@
   ],
   "humanEvidenceNeeded": [
     {
-      "key": "visual_qa_required",
-      "status": "visual_qa_required",
-      "sourceReport": "public-beta-score",
-      "exactNextAction": "Run screenshot QA on the locked source surfaces and attach real visual evidence."
-    },
-    {
-      "key": "manual_device_required",
-      "status": "manual_device_required",
-      "sourceReport": "public-beta-score",
-      "exactNextAction": "Run real-device/manual smoke after screenshot QA; do not infer it from source validators."
-    },
-    {
       "key": "admin_truth_sample_required",
       "status": "evidence_missing",
       "sourceReport": "admin-truth-sample-evidence",
@@ -475,9 +463,7 @@
     }
   ],
   "nextExactSteps": [
-    "Run screenshot QA on the locked source surfaces and attach real visual evidence.",
     "Run formal provider smoke checks and refresh provider-smoke-evidence.generated.json.",
-    "Run runtime smoke checks and refresh runtime-smoke-evidence.generated.json.",
     "Attach a fresh admin truth screenshot or JSON sample and refresh admin-truth-sample-evidence.generated.json.",
     "Refresh or archive stale generated reports through focused owner validators; do not treat them as live authority.",
     "Continue focused speed/security guardrail cleanup from the current recommendedFixOrder without touching forbidden surfaces."

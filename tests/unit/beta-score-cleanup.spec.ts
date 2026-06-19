@@ -78,7 +78,7 @@ function reportFixture(overrides: Partial<BetaScoreCleanupReport> = {}): BetaSco
       "Added cost-readiness lanes.",
     ],
     nextExactSteps: [
-      "Attach manual screenshot evidence.",
+      "Run UI source coverage.",
       "Attach provider smoke evidence.",
     ],
   };

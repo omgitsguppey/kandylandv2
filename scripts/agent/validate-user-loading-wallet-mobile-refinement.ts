@@ -265,7 +265,7 @@ export function buildUserLoadingWalletMobileRefinementReport(
     prCleanupActions: inputs.openPrActions,
     nextFixOrder: [
       "Apply the compact wallet markers to any future wallet entrypoints that reuse PurchaseModal.",
-      "Keep route loading placeholders close to final module size before escalating to screenshot QA.",
+      "Keep route loading placeholders close to final module size before optional visual reproduction.",
       "Continue moving optional dashboard modules to staged dynamic loading when they become source-heavy.",
     ],
   };

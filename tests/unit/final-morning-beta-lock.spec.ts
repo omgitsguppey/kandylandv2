@@ -30,7 +30,7 @@ describe("final morning beta lock", () => {
       evidence: {
         operatorRevenueSmokeStatus: "operator_confirmed_revenue_smoke",
         formalProviderSmokeStatus: "missing_formal_evidence",
-        manualEvidenceStatus: "missing",
+        uiSourceCoverageStatus: "missing",
         runtimeEvidenceStatus: "missing",
         adminTruthEvidenceStatus: "missing",
         canStartBetaExitReview: false,
@@ -69,7 +69,7 @@ describe("final morning beta lock", () => {
       evidence: {
         operatorRevenueSmokeStatus: "operator_confirmed_revenue_smoke",
         formalProviderSmokeStatus: "formal_provider_smoke_passed",
-        manualEvidenceStatus: "missing",
+        uiSourceCoverageStatus: "missing",
         runtimeEvidenceStatus: "missing",
         adminTruthEvidenceStatus: "missing",
         canStartBetaExitReview: true,

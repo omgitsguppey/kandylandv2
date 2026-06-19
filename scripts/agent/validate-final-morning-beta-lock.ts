@@ -33,7 +33,7 @@ type BuildInput = {
   evidence?: Partial<{
     operatorRevenueSmokeStatus: string;
     formalProviderSmokeStatus: string;
-    manualEvidenceStatus: string;
+    uiSourceCoverageStatus: string;
     runtimeEvidenceStatus: string;
     adminTruthEvidenceStatus: string;
     canStartBetaExitReview: boolean;
@@ -60,7 +60,7 @@ export type FinalMorningBetaLockReport = {
     staleArtifactsHaveRefreshActions: boolean;
     operatorRevenueSmokeStatus: string;
     formalProviderSmokeStatus: string;
-    manualEvidenceStatus: string;
+    uiSourceCoverageStatus: string;
     runtimeEvidenceStatus: string;
     adminTruthEvidenceStatus: string;
     betaScore: number;
@@ -186,6 +186,23 @@ function classifyDirtyFile(path: string): DirtyFileAction {
   if (path === ARTIFACT || path === DOC || path === "scripts/agent/validate-final-morning-beta-lock.ts" || path === "tests/unit/final-morning-beta-lock.spec.ts") {
     return { path, classification: "current_generated_artifact_to_commit", action: "Commit as this final morning lock." };
   }
+  if (path.startsWith("agent/evidence/manual-screenshot-qa/") || path === "docs/agent-truth/manual-screenshot-qa-checklist.md" || path === "scripts/agent/validate-manual-screenshot-evidence.ts") {
+    return { path, classification: "retired_manual_screenshot_artifact", action: "Commit deletion; UI source coverage owns first-pass UI issue detection." };
+  }
+  if (/^(eslint-errors|test-failures|tsc-errors)\.log$/u.test(path)) {
+    return { path, classification: "deleted_obsolete_log", action: "Commit deletion; transient terminal logs must not be source evidence." };
+  }
+  if (
+    path === "src/app/admin/debug/components/DebugOperatorCockpit.tsx"
+    || path === "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts"
+    || path === "src/lib/debug/debug-backlog-builder.ts"
+    || path === "src/lib/debug/ai-critic-p1-triage.ts"
+    || path === "src/lib/debug/recovery-playbooks.ts"
+    || path === "src/lib/release-readiness/live-evidence-resolver.ts"
+    || path === "src/lib/admin-debug-control-tower.ts"
+  ) {
+    return { path, classification: "evidence_boundary_source_change", action: "Commit source-boundary copy that routes visual issues through UI source coverage." };
+  }
   if (path.startsWith("agent/state/") || path.startsWith("docs/agent-truth/")) {
     return { path, classification: "current_generated_artifact_to_commit", action: "Commit refreshed source-only status artifact." };
   }
@@ -232,7 +249,7 @@ function workspaceEvidence() {
   return {
     operatorRevenueSmokeStatus: readString(operatorSummary.revenueSmokeStatus, "not_recorded"),
     formalProviderSmokeStatus: readString(operatorSummary.providerSmokeGateStatus, readString(evidenceSummary.providerSmokeEvidence, "missing")),
-    manualEvidenceStatus: readString(evidenceSummary.manualScreenshotEvidence, "missing"),
+    uiSourceCoverageStatus: readString(evidenceSummary.uiSurfaceCoverageEvidence, "missing"),
     runtimeEvidenceStatus: readString(evidenceSummary.runtimeSmokeEvidence, "missing"),
     adminTruthEvidenceStatus: readString(evidenceSummary.adminTruthSampleEvidence, "missing"),
     canStartBetaExitReview: evidenceSummary.canStartBetaExitReview === true,
@@ -266,7 +283,7 @@ export function buildFinalMorningBetaLockReport(input: BuildInput = {}): FinalMo
   const staleArtifactsHaveRefreshActions = staleArtifacts.every((entry) => Boolean(entry.nextAction && entry.refreshCommand));
   const formalEvidenceMissing = [
     evidence.formalProviderSmokeStatus,
-    evidence.manualEvidenceStatus,
+    evidence.uiSourceCoverageStatus,
     evidence.runtimeEvidenceStatus,
     evidence.adminTruthEvidenceStatus,
   ].some((status) => status !== "complete" && !/^formal_.*passed$/u.test(status ?? ""));
@@ -274,8 +291,8 @@ export function buildFinalMorningBetaLockReport(input: BuildInput = {}): FinalMo
     evidence.formalProviderSmokeStatus === "missing_formal_evidence" || evidence.formalProviderSmokeStatus === "missing"
       ? { id: "formal_provider_smoke_missing", severity: "P1" as const, status: evidence.formalProviderSmokeStatus ?? "missing", nextAction: "Attach formal provider/app artifact only when the operator chooses to clear provider smoke." }
       : null,
-    evidence.manualEvidenceStatus !== "complete"
-      ? { id: "manual_evidence_missing", severity: "P1" as const, status: evidence.manualEvidenceStatus ?? "missing", nextAction: "Attach manual screenshot QA evidence." }
+    evidence.uiSourceCoverageStatus !== "complete"
+      ? { id: "ui_source_coverage_missing", severity: "P1" as const, status: evidence.uiSourceCoverageStatus ?? "missing", nextAction: "Run deterministic UI source coverage and fix source-reported gaps before optional visual review." }
       : null,
     evidence.runtimeEvidenceStatus !== "complete"
       ? { id: "runtime_evidence_missing", severity: "P1" as const, status: evidence.runtimeEvidenceStatus ?? "missing", nextAction: "Attach deployed runtime smoke evidence." }
@@ -306,7 +323,7 @@ export function buildFinalMorningBetaLockReport(input: BuildInput = {}): FinalMo
       staleArtifactsHaveRefreshActions,
       operatorRevenueSmokeStatus: evidence.operatorRevenueSmokeStatus ?? "not_recorded",
       formalProviderSmokeStatus: evidence.formalProviderSmokeStatus ?? "missing",
-      manualEvidenceStatus: evidence.manualEvidenceStatus ?? "missing",
+      uiSourceCoverageStatus: evidence.uiSourceCoverageStatus ?? "missing",
       runtimeEvidenceStatus: evidence.runtimeEvidenceStatus ?? "missing",
       adminTruthEvidenceStatus: evidence.adminTruthEvidenceStatus ?? "missing",
       betaScore: beta.betaScore ?? 0,
@@ -324,7 +341,7 @@ export function buildFinalMorningBetaLockReport(input: BuildInput = {}): FinalMo
     evidenceStatus: [
       { lane: "operator_revenue_smoke", status: evidence.operatorRevenueSmokeStatus ?? "not_recorded", gateImpact: "product_signal_only", nextAction: "Keep represented without clearing provider smoke." },
       { lane: "formal_provider_smoke", status: evidence.formalProviderSmokeStatus ?? "missing", gateImpact: "required_formal_lane", nextAction: "Attach formal artifact only when available." },
-      { lane: "manual_screenshot_qa", status: evidence.manualEvidenceStatus ?? "missing", gateImpact: "required_formal_lane", nextAction: "Attach screenshot evidence." },
+      { lane: "ui_source_coverage", status: evidence.uiSourceCoverageStatus ?? "missing", gateImpact: "source_validation_lane", nextAction: "Run UI source coverage before optional visual review." },
       { lane: "runtime_smoke", status: evidence.runtimeEvidenceStatus ?? "missing", gateImpact: "required_formal_lane", nextAction: "Attach deployed runtime proof." },
       { lane: "admin_truth_sample", status: evidence.adminTruthEvidenceStatus ?? "missing", gateImpact: "required_formal_lane", nextAction: "Attach redacted admin truth sample." },
     ],
@@ -333,7 +350,7 @@ export function buildFinalMorningBetaLockReport(input: BuildInput = {}): FinalMo
     nextExactSteps: [
       "Keep operator-confirmed $50 GumDrop revenue smoke represented as product signal only.",
       "Do not clear formal provider smoke until a formal provider/app artifact exists.",
-      "Attach manual screenshot, runtime smoke, and admin truth sample evidence before beta exit review.",
+      "Run UI source coverage first; attach runtime smoke and admin truth sample evidence before beta exit review.",
       "Use stale artifact refresh commands before relying on supporting reports.",
     ],
   };
@@ -351,7 +368,7 @@ export function validateFinalMorningBetaLockReport(report: FinalMorningBetaLockR
   if (/passed|complete/u.test(report.summary.formalProviderSmokeStatus) && report.summary.operatorRevenueSmokeStatus === "operator_confirmed_revenue_smoke") {
     failures.push("operator-confirmed revenue smoke must not clear formal provider smoke.");
   }
-  if (report.summary.canStartBetaExitReview && [report.summary.formalProviderSmokeStatus, report.summary.manualEvidenceStatus, report.summary.runtimeEvidenceStatus, report.summary.adminTruthEvidenceStatus].some((status) => !/complete|passed/u.test(status))) {
+  if (report.summary.canStartBetaExitReview && [report.summary.formalProviderSmokeStatus, report.summary.uiSourceCoverageStatus, report.summary.runtimeEvidenceStatus, report.summary.adminTruthEvidenceStatus].some((status) => !/complete|passed/u.test(status))) {
     failures.push("beta exit cannot be true without formal evidence lanes.");
   }
   if (!report.summary.chatUntouched || !report.summary.navUntouched) failures.push("chat/nav files must remain untouched.");
@@ -371,7 +388,7 @@ Generated: ${report.generatedAtUtc}
 - Stale artifacts have refresh actions: ${report.summary.staleArtifactsHaveRefreshActions}
 - Operator revenue smoke: ${report.summary.operatorRevenueSmokeStatus}
 - Formal provider smoke: ${report.summary.formalProviderSmokeStatus}
-- Manual evidence: ${report.summary.manualEvidenceStatus}
+- UI source coverage: ${report.summary.uiSourceCoverageStatus}
 - Runtime evidence: ${report.summary.runtimeEvidenceStatus}
 - Admin truth evidence: ${report.summary.adminTruthEvidenceStatus}
 - Beta score/status: ${report.summary.betaScore}/${report.summary.betaStatus}

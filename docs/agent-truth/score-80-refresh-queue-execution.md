@@ -7,14 +7,14 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 ## Score
 
 - Old score: 77.76
-- New score: 73.13
-- Distance to 80: 6.87
+- New score: 76.88
+- Distance to 80: 3.12
 
 ## Queue Execution
 
-- Queue entries in latest queue: 54
-- Automatic entries in latest queue: 50
-- Blocked entries in latest queue: 4
+- Queue entries in latest queue: 17
+- Automatic entries in latest queue: 9
+- Blocked entries in latest queue: 8
 - Commands passed: 15
 - Commands skipped: 2
 - Commands blocked/failed: 8
@@ -30,7 +30,7 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 - debug_runtime_evidence: blocked_formal_evidence; Formal deployed runtime artifact required; source queue cannot generate proof.
 - runtime_provider_smoke: blocked_formal_evidence; Formal provider artifact required; source queue cannot generate proof.
 - admin_truth_sample_evidence: blocked_formal_evidence; Formal admin truth sample artifact required; source queue cannot generate proof.
-- visual_manual_smoke: blocked_formal_evidence; Manual visual screenshot/operator artifact required; source queue cannot generate proof.
+- visual_manual_smoke: safe_automatic_refresh; UI issues must be discovered by deterministic source coverage before optional visual reproduction.
 
 ## Refreshed Artifacts
 
@@ -52,7 +52,7 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 
 ## Stale Artifacts Still Tracked
 
-- None
+- agent/state/overnight-final-integration-lock.generated.json: stale_source_version; command=npm run check:overnight-final-integration-lock
 
 ## Open PRs
 
@@ -61,59 +61,67 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 
 ## Dirty File Classification
 
-- CHANGELOG.md: release_artifact_expected; Same-commit public beta release note artifact requested by this batch.
-- agent/context/optimized-task-context.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/beta-evidence-gap-map.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/beta-evidence-lane-prep.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/beta-freshness-language.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/creator-drop-status-metrics.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/creator-settings-control-plane.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/evidence/manual-screenshot-qa/README.md: validator_artifact_expected; Retired old manual screenshot evidence template; UI source coverage owns first-pass UI issue detection.
+- agent/evidence/manual-screenshot-qa/evidence.template.json: validator_artifact_expected; Retired old manual screenshot evidence template; UI source coverage owns first-pass UI issue detection.
+- agent/evidence/manual-screenshot-qa/screenshots/.gitkeep: validator_artifact_expected; Retired old manual screenshot evidence template; UI source coverage owns first-pass UI issue detection.
+- agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/analytics-semantics-final-lock.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/blocked-refresh-queue-resolver.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
 - agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/debug-runtime-evidence.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/debug-backlog-engine.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
 - agent/state/evidence-capture-status.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/existing-algorithm-refinement.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/final-pr-stale-cleanup.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/final-telemetry-closure-lock.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/global-marquee-truncated-titles.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/mobile-ui-final-lock.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/operator-revenue-smoke.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/final-cost-audit-lock.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/launch-analytics-recovery.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
 - agent/state/overnight-beta-readiness-lock.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
 - agent/state/overnight-final-integration-lock.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/overnight-wiring-integrity.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/refresh-safeguards.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/score-80-path-lock.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
 - agent/state/score-80-refresh-queue-execution.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/self-healing-refresh-queue.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/source-truth-authority-map.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/user-loading-wallet-mobile-refinement.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- docs/agent-truth/beta-evidence-gap-map.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/beta-evidence-lane-prep.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/beta-freshness-language.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/creator-drop-status-metrics.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/creator-settings-control-plane.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- agent/state/ui-visual-smoke-minimal.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/analytics-semantics-final-lock.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/blocked-refresh-queue-resolver.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
 - docs/agent-truth/current-beta-exit-status.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/debug-runtime-evidence.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/debug-backlog-engine.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
 - docs/agent-truth/evidence-capture-status.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/existing-algorithm-refinement.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/final-pr-stale-cleanup.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/final-telemetry-closure-lock.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/global-marquee-truncated-titles.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/mobile-ui-final-lock.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/operator-revenue-smoke.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/final-cost-audit-lock.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/manual-screenshot-qa-checklist.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
 - docs/agent-truth/overnight-beta-readiness-lock.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
 - docs/agent-truth/overnight-final-integration-lock.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/overnight-wiring-integrity.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/refresh-safeguards.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/score-80-path-lock.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
 - docs/agent-truth/score-80-refresh-queue-execution.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/self-healing-refresh-queue.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/source-truth-authority-map.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/user-loading-wallet-mobile-refinement.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- eslint-errors.log: current_generated_artifact_to_commit; Tracked terminal log artifact removed; source validation should not depend on stale logs.
 - package.json: real_source_change_needs_review; Scoped package script wiring for the new validator.
-- public/kandydrops-release-notes.json: release_artifact_expected; Same-commit public beta release note artifact requested by this batch.
+- scripts/agent/validate-analytics-semantics-final-lock.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-beta-score-cleanup.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-blocked-refresh-queue-resolver.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-creator-surface-routing.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-debug-backlog-engine.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-evidence-readiness-checklists.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-final-beta-exit-gate-readiness.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-final-cost-audit-lock.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-final-morning-beta-lock.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-manual-screenshot-evidence.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-overnight-beta-readiness-lock.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-overnight-final-integration-lock.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-score-80-path-lock.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
 - scripts/agent/validate-score-80-refresh-queue-execution.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected; Same-commit public beta release note artifact requested by this batch.
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected; Same-commit public beta release note artifact requested by this batch.
-- tests/unit/score-80-refresh-queue-execution.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- scripts/agent/validate-user-creator-visual-confirmation.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- src/app/admin/debug/components/DebugOperatorCockpit.tsx: validator_artifact_expected; Admin/debug source wording now routes UI work through source coverage.
+- src/lib/debug/debug-backlog-builder.ts: validator_artifact_expected; Admin/debug source wording now routes UI work through source coverage.
+- test-failures.log: current_generated_artifact_to_commit; Tracked terminal log artifact removed; source validation should not depend on stale logs.
+- tests/unit/beta-score-cleanup.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tests/unit/blocked-refresh-queue-resolver.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tests/unit/debug-backlog-engine.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tests/unit/evidence-artifact-schemas.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tests/unit/evidence-readiness-checklists.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tests/unit/final-morning-beta-lock.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tests/unit/overnight-beta-readiness-lock.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tsc-errors.log: current_generated_artifact_to_commit; Tracked terminal log artifact removed; source validation should not depend on stale logs.
 
 ## Validation
 

@@ -20,14 +20,14 @@ function reportFixture(
     cloudSqlCostStatus: "not_detected_in_repo",
     geminiCloudAssistCostStatus: "cost_review_required",
     evidenceStatus:
-      "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0",
+      "uiSourceCoverage=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0",
     speedSecurityStatus: "51/beta-risk; findings=89; critical=0; p2BacklogVisible=true",
     remainingBlockers: [
       {
-        id: "manual_screenshot_evidence_missing",
+        id: "ui_source_coverage_missing",
         severity: "P1",
         status: "missing",
-        nextAction: "Attach manual screenshot QA evidence.",
+        nextAction: "Run UI source coverage.",
       },
       {
         id: "provider_smoke_evidence_missing",
@@ -38,11 +38,11 @@ function reportFixture(
     ],
     nextDayPrompts: [
       {
-        id: "manual-screenshot-evidence",
-        title: "Attach manual screenshot QA evidence",
-        goal: "Capture and attach required manual screenshot evidence artifacts.",
+        id: "ui-source-coverage",
+        title: "Run UI source coverage evidence",
+        goal: "Let source coverage evidence report UI surface gaps first.",
         commands: [
-          "EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence",
+          "npm run check:ui-visual-smoke-minimal",
           "npm run check:evidence-capture-status",
         ],
       },
@@ -77,11 +77,11 @@ function reportFixture(
     ],
     evidenceCaptureStates: [
       {
-        id: "manualScreenshotQa",
-        label: "Manual screenshot QA",
-        truthState: "manual_evidence_required",
+        id: "uiSourceCoverage",
+        label: "UI source coverage",
+        truthState: "source_validation_required",
         sourceStatus: "missing",
-        nextAction: "Attach manual screenshot QA evidence.",
+        nextAction: "Run UI source coverage.",
       },
       {
         id: "providerSmoke",
@@ -132,7 +132,7 @@ describe("overnight beta readiness lock validator", () => {
     const failures = validateOvernightBetaReadinessLockReport(report, "head");
 
     expect(report.evidenceCaptureStates.map((lane) => lane.truthState)).toEqual([
-      "manual_evidence_required",
+      "source_validation_required",
       "external_evidence_required",
       "external_evidence_required",
       "admin_truth_source_required",

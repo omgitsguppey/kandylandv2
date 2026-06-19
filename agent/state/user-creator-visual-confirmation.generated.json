@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-05-17T06:29:03.611Z",
+  "generatedAtUtc": "2026-06-19T15:05:02.277Z",
   "reportKey": "user-creator-visual-confirmation",
-  "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
   "summary": {
     "routesChecked": 12,
     "screenshotEvidenceAttached": false,
     "sourceOnlyRoutes": 12,
-    "visualIssuesFound": 0,
+    "visualIssuesFound": 1,
     "visualIssuesFixed": 3,
     "deferredManualChecks": 12,
-    "forbiddenAdminBackendDrift": 0,
+    "forbiddenAdminBackendDrift": 1,
     "forbiddenPaymentRuntimeDrift": 0,
-    "p0Count": 0,
+    "p0Count": 1,
     "p1Count": 0,
     "p2Count": 0
   },
@@ -156,7 +156,7 @@
       "ownerLane": "creator-ui",
       "evidence": [
         "bg-black/45",
-        "Manage follower broadcasts"
+        "Manage fan broadcasts"
       ],
       "exactNextAction": "Keep active manager panels visually consistent when adding creator tools."
     },
@@ -176,181 +176,183 @@
     {
       "key": "source_only_visual_confirmation_lock",
       "severity": "P2",
-      "title": "Added a source-only visual confirmation artifact because screenshots were not attached in this run.",
+      "title": "Added a source-only visual confirmation artifact; optional visual reproduction is only for source-reported UI issues.",
       "fileOrSurface": "agent/state/user-creator-visual-confirmation.generated.json",
       "status": "fixed",
       "ownerLane": "user-creator-ui",
       "evidence": [
-        "screenshotEvidenceAttached=false",
+        "sourceFirst=true",
         "sourceOnlyRoutes"
       ],
-      "exactNextAction": "Attach manual screenshots in the next visual QA pass before closing visual QA."
+      "exactNextAction": "Run UI source coverage before any optional visual reproduction."
     }
   ],
   "deferredManualChecks": [
     {
-      "key": "manual_screenshot_home",
+      "key": "ui_source_surface_home",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for /.",
+      "title": "UI source coverage remains the first check for /.",
       "fileOrSurface": "/",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_drops",
+      "key": "ui_source_surface_drops",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for /drops.",
+      "title": "UI source coverage remains the first check for /drops.",
       "fileOrSurface": "/drops",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_drops_id_preview",
+      "key": "ui_source_surface_drops_id_preview",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for /drops/[id]/preview.",
+      "title": "UI source coverage remains the first check for /drops/[id]/preview.",
       "fileOrSurface": "/drops/[id]/preview",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_dashboard",
+      "key": "ui_source_surface_dashboard",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for /dashboard.",
+      "title": "UI source coverage remains the first check for /dashboard.",
       "fileOrSurface": "/dashboard",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_dashboard_creator",
+      "key": "ui_source_surface_dashboard_creator",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for /dashboard/creator.",
+      "title": "UI source coverage remains the first check for /dashboard/creator.",
       "fileOrSurface": "/dashboard/creator",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_dashboard_profile",
+      "key": "ui_source_surface_dashboard_profile",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for /dashboard/profile.",
+      "title": "UI source coverage remains the first check for /dashboard/profile.",
       "fileOrSurface": "/dashboard/profile",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_dashboard_settings",
+      "key": "ui_source_surface_dashboard_settings",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for /dashboard/settings.",
+      "title": "UI source coverage remains the first check for /dashboard/settings.",
       "fileOrSurface": "/dashboard/settings",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_dashboard_library",
+      "key": "ui_source_surface_dashboard_library",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for /dashboard/library.",
+      "title": "UI source coverage remains the first check for /dashboard/library.",
       "fileOrSurface": "/dashboard/library",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_dashboard_chat",
+      "key": "ui_source_surface_dashboard_chat",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for /dashboard/chat.",
+      "title": "UI source coverage remains the first check for /dashboard/chat.",
       "fileOrSurface": "/dashboard/chat",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_creators_username",
+      "key": "ui_source_surface_creators_username",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for /creators/[username].",
+      "title": "UI source coverage remains the first check for /creators/[username].",
       "fileOrSurface": "/creators/[username]",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_beta_release_notes_drawer",
+      "key": "ui_source_surface_beta_release_notes_drawer",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for Beta release notes drawer.",
+      "title": "UI source coverage remains the first check for Beta release notes drawer.",
       "fileOrSurface": "Beta release notes drawer",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     },
     {
-      "key": "manual_screenshot_mobile_nav_sidebar_profile_dropdown",
+      "key": "ui_source_surface_mobile_nav_sidebar_profile_dropdown",
       "severity": "P2",
-      "title": "Manual screenshot confirmation remains for Mobile nav/sidebar/profile dropdown.",
+      "title": "UI source coverage remains the first check for Mobile nav/sidebar/profile dropdown.",
       "fileOrSurface": "Mobile nav/sidebar/profile dropdown",
       "status": "deferred",
-      "ownerLane": "visual-qa",
+      "ownerLane": "ui-source-coverage",
       "evidence": [
         "source-confirmed",
-        "no screenshot evidence attached"
+        "visual reproduction optional"
       ],
-      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+      "exactNextAction": "Fix any source-reported UI gap before optional browser or screenshot reproduction."
     }
   ],
   "forbiddenDriftCheck": [
     {
       "key": "admin_backend_drift",
-      "status": "clean",
-      "files": [],
-      "exactNextAction": "No admin/backend drift detected."
+      "status": "blocked",
+      "files": [
+        "src/app/admin/debug/components/DebugOperatorCockpit.tsx"
+      ],
+      "exactNextAction": "Revert forbidden admin/backend files before staging."
     },
     {
       "key": "payment_runtime_drift",

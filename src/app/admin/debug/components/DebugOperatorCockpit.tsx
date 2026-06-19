@@ -56,7 +56,7 @@ function sourceTruthStateLabel(state: unknown) {
         case "admin_truth_source_required":
             return "Admin sample required";
         case "manual_visual_required":
-            return "Manual UI proof required";
+            return "UI source coverage required";
         case "protected_manual_review":
             return "Protected review required";
         case "stale_evidence_archive":

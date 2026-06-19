@@ -314,7 +314,7 @@ export function buildUserCreatorUiParityReport(): UserCreatorUiParityReport {
     fixesApplied,
     deferredFindings,
     nextFixOrder: [
-      "Run screenshot QA on user and creator mobile routes now that source parity is locked.",
+      "Run UI source coverage on user and creator mobile routes, then use screenshots only to reproduce source-reported issues.",
       "Run focused chat shell visual confirmation without changing message persistence.",
       "Handle admin/debug/backend P2 backlog only in an admin-scoped issue.",
       "Handle payment/wallet/PayPal parity only in a payment-scoped issue.",
