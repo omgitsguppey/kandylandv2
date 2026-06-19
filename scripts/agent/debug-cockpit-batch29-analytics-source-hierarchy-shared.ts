@@ -18,6 +18,7 @@ type LaunchHistoryCoverageInputStatus = {
   state:
     | "missing"
     | "usable_launch_history_coverage"
+    | "present_without_completion_or_redaction_proof"
     | "present_without_launch_history_coverage"
     | "template_not_evidence"
     | "malformed_json";
@@ -90,6 +91,42 @@ function asSourceCount(value: unknown): number {
 
 function asOptionalString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
+function hasPassedCheck(root: Record<string, unknown>, checkId: string) {
+  const checks = Array.isArray(root.checks) ? root.checks : [];
+  return checks.some((entry) => {
+    const check = asRecord(entry);
+    return check.id === checkId && check.status === "pass";
+  });
+}
+
+function hasLaunchCoverageRedactionProof(root: Record<string, unknown>) {
+  const redaction = asRecord(root.redaction);
+  const localExportRedactionProof =
+    redaction.rawUserIdentifiersIncluded === false
+    && redaction.rawPaymentDetailsIncluded === false
+    && redaction.secretsIncluded === false;
+  const adminTruthRedactionProof =
+    hasPassedCheck(root, "redacted-artifact-attached")
+    && Array.isArray(root.redactions)
+    && root.redactions.some((entry) => typeof entry === "string" && /no user identifiers|redacted/iu.test(entry));
+
+  return localExportRedactionProof || adminTruthRedactionProof;
+}
+
+export function isUsableLaunchHistoryCoverageEvidence(filePath: string, raw: unknown) {
+  const root = asRecord(raw);
+  if (root.status === "template_not_evidence") return false;
+  if (normalizeLaunchHistoryCoverageExport(raw) === null) return false;
+
+  const normalizedPath = filePath.replace(/\\/gu, "/");
+  const isAdminTruthSample = normalizedPath.startsWith(`${ADMIN_TRUTH_SAMPLE_EVIDENCE_FOLDER}/`);
+  const completionProof = isAdminTruthSample
+    ? root.status === "complete" && root.surface === "admin_truth_sample"
+    : root.status === "complete";
+
+  return completionProof && hasLaunchCoverageRedactionProof(root);
 }
 
 function isDayKey(value: string) {
@@ -201,12 +238,20 @@ export function launchHistoryCoverageInputStatuses(): LaunchHistoryCoverageInput
         nextAction: "Use this only as a shape reference; it cannot clear source agreement.",
       };
     }
-    if (coverage) {
+    if (coverage && isUsableLaunchHistoryCoverageEvidence(filePath, readResult.raw)) {
       return {
         path: filePath,
         state: "usable_launch_history_coverage",
         proofMode: proofModeForLaunchCoverageExport(filePath, readResult.raw),
         nextAction: "Use this file as the local launch-history coverage input for source agreement.",
+      };
+    }
+    if (coverage) {
+      return {
+        path: filePath,
+        state: "present_without_completion_or_redaction_proof",
+        proofMode: "none",
+        nextAction: "Add status=complete and explicit redaction proof before this launch-history coverage can clear source agreement.",
       };
     }
 
@@ -236,6 +281,7 @@ export function proofModeForLaunchCoverageExport(
 function loadLaunchHistoryCoverageExport() {
   for (const filePath of launchHistoryCoverageExportPaths()) {
     const raw = readJson(filePath);
+    if (!isUsableLaunchHistoryCoverageEvidence(filePath, raw)) continue;
     const coverage = normalizeLaunchHistoryCoverageExport(raw);
     if (coverage) {
       return {

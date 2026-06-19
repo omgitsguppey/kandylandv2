@@ -7,6 +7,7 @@ import {
 import {
   launchHistoryCoverageInputStatuses,
   launchHistoryCoverageExportPaths,
+  isUsableLaunchHistoryCoverageEvidence,
   normalizeLaunchHistoryCoverageExport,
   proofModeForLaunchCoverageExport,
 } from "../../scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared";
@@ -412,6 +413,16 @@ describe("source agreement failure detail", () => {
     const raw = {
       status: "complete",
       surface: "admin_truth_sample",
+      redactions: [
+        "No user identifiers, emails, transaction IDs, provider IDs, raw auth data, or support content included.",
+      ],
+      checks: [
+        {
+          id: "redacted-artifact-attached",
+          status: "pass",
+          notes: "artifactPath=agent/evidence/admin-truth-sample/launch.redacted.json",
+        },
+      ],
       launchHistoryCoverage: {
         rangeStartDayKey: "2026-05-04",
         rangeEndDayKey: "2026-05-04",
@@ -441,6 +452,7 @@ describe("source agreement failure detail", () => {
 
     const coverage = normalizeLaunchHistoryCoverageExport(raw);
 
+    expect(isUsableLaunchHistoryCoverageEvidence("agent/evidence/admin-truth-sample/launch.json", raw)).toBe(true);
     expect(proofModeForLaunchCoverageExport("agent/evidence/admin-truth-sample/launch.redacted.json", raw)).toBe("admin_truth_sample");
     expect(proofModeForLaunchCoverageExport("agent/evidence/admin-truth-sample/evidence.template.json", {
       ...raw,
@@ -514,6 +526,40 @@ describe("source agreement failure detail", () => {
         }],
       },
     })).toBeNull();
+  });
+
+  it("does not treat launch history day rows as usable evidence without completion and redaction proof", () => {
+    const raw = {
+      status: "draft",
+      launchHistoryCoverage: {
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
+        days: [{
+          dayKey: "2026-05-01",
+          expected: true,
+          sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 0, legacySupport: 0 },
+        }],
+      },
+    };
+
+    expect(normalizeLaunchHistoryCoverageExport(raw)).not.toBeNull();
+    expect(isUsableLaunchHistoryCoverageEvidence(
+      "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      raw,
+    )).toBe(false);
+    expect(isUsableLaunchHistoryCoverageEvidence(
+      "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      {
+        ...raw,
+        status: "complete",
+        redaction: {
+          rawUserIdentifiersIncluded: false,
+          rawPaymentDetailsIncluded: false,
+          secretsIncluded: false,
+        },
+      },
+    )).toBe(true);
   });
 
   it("derives recovered launch coverage from rows instead of declared counts", () => {
