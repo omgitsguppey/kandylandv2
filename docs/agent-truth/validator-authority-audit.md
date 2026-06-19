@@ -5,8 +5,8 @@ Validator: `npm run check:validator-authority-audit`
 
 ## Summary
 
-- Generated: `2026-06-01T04:30:04.801Z`
-- Current head: `3f06d1a8431e29a22ac0ea18233146084f1ff47a`
+- Generated: `2026-06-19T06:37:30.843Z`
+- Current head: `3e245bb437cc887cd02cd60667869dbf3c2568b3`
 - Validation status: `pass`
 
 ## Evidence Boundary
@@ -18,15 +18,15 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
 ```json
 {
   "reportKey": "validator-authority-audit",
-  "generatedAtUtc": "2026-06-01T04:30:04.801Z",
-  "currentHead": "3f06d1a8431e29a22ac0ea18233146084f1ff47a",
+  "generatedAtUtc": "2026-06-19T06:37:30.843Z",
+  "currentHead": "3e245bb437cc887cd02cd60667869dbf3c2568b3",
   "reportFormat": "compact_summary_full_detail_derivable",
-  "validatorsAudited": 788,
+  "validatorsAudited": 792,
   "authorityGapCount": 0,
-  "scoreConsumedScriptCount": 80,
+  "scoreConsumedScriptCount": 81,
   "proofStatusCounts": {
-    "missing_validator": 48,
-    "source_proven_only": 740
+    "missing_validator": 49,
+    "source_proven_only": 743
   },
   "missingValidatorSamples": [
     {
@@ -85,6 +85,25 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "stillAuthoritative": false,
       "proofStatus": "missing_validator",
       "exactNextAction": "Repair authority wiring for check:telemetry."
+    },
+    {
+      "scriptName": "check:admin-browser-surface-smoke:browser",
+      "command": "playwright test tests/ui-audits/admin-browser-surface-smoke.spec.ts --project=chromium --project=\"Mobile Chrome\"",
+      "validatorFile": null,
+      "validatorFileExists": false,
+      "testFile": "tests/unit/admin-browser-surface-smoke-browser.spec.ts",
+      "testFileExists": false,
+      "artifactPath": "agent/state/admin-browser-surface-smoke-browser.generated.json",
+      "artifactGenerated": false,
+      "docPath": "docs/agent-truth/admin-browser-surface-smoke-browser.md",
+      "docGenerated": false,
+      "sourceFilesValidated": [],
+      "packageScriptUsedByScore": false,
+      "supersededByNewerValidator": null,
+      "duplicateGroup": null,
+      "stillAuthoritative": false,
+      "proofStatus": "missing_validator",
+      "exactNextAction": "Repair authority wiring for check:admin-browser-surface-smoke:browser."
     },
     {
       "scriptName": "check:analytics-semantics",
@@ -484,25 +503,6 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "stillAuthoritative": false,
       "proofStatus": "missing_validator",
       "exactNextAction": "Repair authority wiring for check:firebase-runtime."
-    },
-    {
-      "scriptName": "check:runtime:continuity",
-      "command": "tsx scripts/check-runtime-continuity.ts",
-      "validatorFile": null,
-      "validatorFileExists": false,
-      "testFile": "tests/unit/runtime-continuity.spec.ts",
-      "testFileExists": false,
-      "artifactPath": "agent/state/runtime-continuity.generated.json",
-      "artifactGenerated": false,
-      "docPath": "docs/agent-truth/runtime-continuity.md",
-      "docGenerated": false,
-      "sourceFilesValidated": [],
-      "packageScriptUsedByScore": false,
-      "supersededByNewerValidator": null,
-      "duplicateGroup": null,
-      "stillAuthoritative": false,
-      "proofStatus": "missing_validator",
-      "exactNextAction": "Repair authority wiring for check:runtime:continuity."
     }
   ],
   "retiredDuplicateTruthArtifacts": [
@@ -517,18 +517,6 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "classification": "deprecation_map_only",
       "canonicalReplacement": "agent/state/event-liveness-audit.generated.json",
       "action": "Keep as legacy evidence until package-script references are retired; do not score-consume it."
-    },
-    {
-      "id": "agent/state/analytics-hydration-consolidation.generated.json",
-      "classification": "deprecation_map_only",
-      "canonicalReplacement": "agent/state/analytics-panel-hydration.generated.json",
-      "action": "Keep as legacy evidence until references are retired; analytics panel truth is canonical."
-    },
-    {
-      "id": "agent/state/analytics-hydration-consolidation-audit.generated.json",
-      "classification": "deprecation_map_only",
-      "canonicalReplacement": "agent/state/analytics-panel-hydration.generated.json",
-      "action": "Keep as legacy evidence until references are retired; analytics panel truth is canonical."
     },
     {
       "id": "agent/state/live-evidence-gate-replacement.generated.json",
