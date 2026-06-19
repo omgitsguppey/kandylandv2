@@ -25,6 +25,7 @@ export type DebugCockpitBatch29AnalyticsSourceHierarchyReport = {
   analyticsTabSourceStatus: AdminAnalyticsSourceHierarchy["status"];
   consumerSourceMismatches: string[];
   blockedAnalyticsConsumers: string[];
+  secondSourceAnalyticsConsumers: string[];
   sourceAgreementDetails: SourceAgreementFailureDetail;
   scoreBefore: number;
   scoreAfter: number;
@@ -75,15 +76,22 @@ export function buildDebugCockpitBatch29AnalyticsSourceHierarchyReport(input: {
     analyticsTabHasData: input.analyticsTabHasData ?? false,
     debugHasData: input.debugHasData ?? true,
   });
+  const blockedAnalyticsConsumers = input.blockedAnalyticsConsumers ?? hierarchy.blockedAnalyticsConsumers;
+  const sourceAgreementConsumers = [
+    ...new Set([
+      ...blockedAnalyticsConsumers,
+      ...hierarchy.secondSourceAnalyticsConsumers,
+    ]),
+  ];
   const sourceAgreementDetails = input.comparedSources
     ? buildSourceAgreementFailureDetail({
         comparedSources: input.comparedSources,
         expectedDays: input.expectedDays,
-        blockedConsumers: input.blockedAnalyticsConsumers ?? hierarchy.blockedAnalyticsConsumers,
+        blockedConsumers: sourceAgreementConsumers,
       })
     : buildLaunchAnalyticsSourceAgreementFailureDetail({
         expectedDays: input.expectedDays,
-        blockedConsumers: input.blockedAnalyticsConsumers ?? hierarchy.blockedAnalyticsConsumers,
+        blockedConsumers: sourceAgreementConsumers,
       });
   const validationCopyContradictionsAfter = input.validationCopyContradictionsAfter ?? (chartReadinessStatusAfter === "source_disagreement" ? 0 : input.validationCopyContradictionsBefore ?? 0);
   const passAllowedContradictionsAfter = input.passAllowedContradictionsAfter ?? (chartReadinessStatusAfter === "source_disagreement" ? 0 : input.passAllowedContradictionsBefore ?? 0);
@@ -102,7 +110,8 @@ export function buildDebugCockpitBatch29AnalyticsSourceHierarchyReport(input: {
     passAllowedContradictionsAfter,
     analyticsTabSourceStatus: (input.analyticsTabSourceStatus as AdminAnalyticsSourceHierarchy["status"] | undefined) ?? hierarchy.status,
     consumerSourceMismatches: input.consumerSourceMismatches ?? hierarchy.consumerSourceMismatches,
-    blockedAnalyticsConsumers: input.blockedAnalyticsConsumers ?? hierarchy.blockedAnalyticsConsumers,
+    blockedAnalyticsConsumers,
+    secondSourceAnalyticsConsumers: hierarchy.secondSourceAnalyticsConsumers,
     sourceAgreementDetails,
     scoreBefore,
     scoreAfter,

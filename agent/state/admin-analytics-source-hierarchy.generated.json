@@ -1,7 +1,7 @@
 {
   "reportKey": "admin-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-19T00:39:42.444Z",
-  "currentHead": "bead614bca0607eaee3142fade2790cbb4e41979",
+  "generatedAtUtc": "2026-06-19T03:33:25.486Z",
+  "currentHead": "afba5b19654c51bcece9fe858ba5d07e132df9b4",
   "fixtureEvidence": {
     "evidenceKind": "source_fixture",
     "scenario": "debug_has_data_analytics_empty_source_agreement_failed",
@@ -142,12 +142,14 @@
         "debug_data_validation",
         "admin_analytics_overview",
         "admin_analytics_charts",
-        "admin_analytics_device_mix",
-        "admin_analytics_region_demand",
-        "admin_analytics_top_paths",
         "admin_analytics_insight_cards",
         "admin_analytics_source_health",
         "public_beta_score_evidence"
+      ],
+      "secondSourceAnalyticsConsumers": [
+        "admin_analytics_device_mix",
+        "admin_analytics_region_demand",
+        "admin_analytics_top_paths"
       ],
       "nextAction": "Review source details in Debug and restore first-party/materialized coverage before promoting charts."
     }

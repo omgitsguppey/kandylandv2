@@ -27,6 +27,20 @@ describe("admin analytics source hierarchy", () => {
       blockerReason: "source_agreement_failed",
       displayState: "second_source_only",
     });
+    expect(hierarchy.secondSourceAnalyticsConsumers).toEqual([
+      "admin_analytics_device_mix",
+      "admin_analytics_region_demand",
+      "admin_analytics_top_paths",
+    ]);
+    expect(hierarchy.blockedAnalyticsConsumers).toEqual([
+      "debug_data_validation",
+      "admin_analytics_overview",
+      "admin_analytics_charts",
+      "admin_analytics_insight_cards",
+      "admin_analytics_source_health",
+      "public_beta_score_evidence",
+    ]);
+    expect(hierarchy.blockedAnalyticsConsumers).not.toContain("admin_analytics_device_mix");
     expect(hierarchy.consumers.find((consumer) => consumer.consumerId === "public_beta_score_evidence")).toMatchObject({
       blockerReason: "source_agreement_failed",
       displayState: "chart_promotion_blocked",
@@ -62,6 +76,7 @@ describe("admin analytics source hierarchy", () => {
       "admin_analytics_top_paths",
       "admin_analytics_insight_cards",
     ]);
+    expect(hierarchy.secondSourceAnalyticsConsumers).toEqual([]);
     expect(hierarchy.consumers.filter((consumer) => consumer.displayState === "consumer_source_mismatch")).toHaveLength(6);
   });
 });

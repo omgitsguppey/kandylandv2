@@ -25,6 +25,18 @@ describe("debug cockpit batch 29 analytics source hierarchy", () => {
     expect(report.validationCopyContradictionsAfter).toBe(0);
     expect(report.passAllowedContradictionsAfter).toBe(0);
     expect(report.sourceAgreementDetails.comparedSources).toEqual(["first_party", "ga4", "historical_snapshot", "legacy_support"]);
+    expect(report.secondSourceAnalyticsConsumers).toEqual([
+      "admin_analytics_device_mix",
+      "admin_analytics_region_demand",
+      "admin_analytics_top_paths",
+    ]);
+    expect(report.blockedAnalyticsConsumers).not.toContain("admin_analytics_device_mix");
+    expect(report.sourceAgreementDetails.blockedConsumerDetails).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        consumer: "admin_analytics_device_mix",
+        allowedDisplayState: "second_source_only",
+      }),
+    ]));
     expect(report.scoreAfter).toBeGreaterThan(report.scoreBefore);
     expect(report.scoreDimensions).toContain("chartReadinessHierarchy");
   });

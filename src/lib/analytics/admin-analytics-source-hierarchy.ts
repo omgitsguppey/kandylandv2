@@ -42,6 +42,7 @@ export type AdminAnalyticsSourceHierarchy = {
   consumers: AdminAnalyticsSourceHierarchyConsumer[];
   consumerSourceMismatches: AdminAnalyticsConsumerId[];
   blockedAnalyticsConsumers: AdminAnalyticsConsumerId[];
+  secondSourceAnalyticsConsumers: AdminAnalyticsConsumerId[];
   nextAction: string;
 };
 
@@ -254,7 +255,10 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       .map((consumer) => consumer.consumerId)
     : [];
   const blockedAnalyticsConsumers = consumers
-    .filter((consumer) => Boolean(consumer.blockerReason))
+    .filter((consumer) => consumer.displayState !== "connected" && consumer.displayState !== "second_source_only")
+    .map((consumer) => consumer.consumerId);
+  const secondSourceAnalyticsConsumers = consumers
+    .filter((consumer) => consumer.displayState === "second_source_only")
     .map((consumer) => consumer.consumerId);
 
   return {
@@ -276,6 +280,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
     consumers,
     consumerSourceMismatches,
     blockedAnalyticsConsumers,
+    secondSourceAnalyticsConsumers,
     nextAction: sourceAgreementFailed
       ? "Review source details in Debug and restore first-party/materialized coverage before promoting charts."
       : mismatch

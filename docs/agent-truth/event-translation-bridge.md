@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-06-19T03:18:29.385Z
+Generated: 2026-06-19T03:35:27.239Z
 Status: pass
-Current head: 0ebc74a669dc9ac10241fdf708a765a39d435184
+Current head: afba5b19654c51bcece9fe858ba5d07e132df9b4
 
 ## Contract
 
@@ -53,15 +53,26 @@ Current head: 0ebc74a669dc9ac10241fdf708a765a39d435184
 
 ## Dirty Files
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/admin-analytics-source-hierarchy.generated.json: current_generated_artifact_to_commit
 - agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json: current_generated_artifact_to_commit
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/source-agreement-failure-detail.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/admin-analytics-source-hierarchy.md: documentation_artifact_expected
 - docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md: documentation_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
 - docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: stale_generated_artifact_to_regenerate
-- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
+- src/lib/analytics/admin-analytics-source-hierarchy.ts: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts: real_source_change_needs_review
+- tests/unit/admin-analytics-source-hierarchy.spec.ts: test_artifact_expected
+- tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

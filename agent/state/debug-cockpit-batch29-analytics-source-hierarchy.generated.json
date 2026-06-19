@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch29-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-18T14:42:30.740Z",
-  "currentHead": "ba822abce140a896b0b9ddeb2cd988410380ba03",
+  "generatedAtUtc": "2026-06-19T03:33:25.801Z",
+  "currentHead": "afba5b19654c51bcece9fe858ba5d07e132df9b4",
   "ga4AvailabilityStatusBefore": "reports_available",
   "ga4AvailabilityStatusAfter": "reports_loaded_empty",
   "chartReadinessStatusBefore": "ready",
@@ -21,6 +21,11 @@
     "admin_analytics_source_health",
     "public_beta_score_evidence"
   ],
+  "secondSourceAnalyticsConsumers": [
+    "admin_analytics_device_mix",
+    "admin_analytics_region_demand",
+    "admin_analytics_top_paths"
+  ],
   "sourceAgreementDetails": {
     "comparedSources": [
       "first_party",
@@ -35,35 +40,9 @@
     "expectedRangeSource": "union_of_local_source_days",
     "coverageWindowKind": "fixture_only_local_window",
     "allLaunchRangeProven": false,
-    "disagreementCount": 3,
+    "disagreementCount": 2,
     "maxDeltaPct": 67,
     "disagreements": [
-      {
-        "dayKey": "2026-05-01",
-        "sourcesPresent": [
-          "first_party",
-          "ga4",
-          "historical_snapshot"
-        ],
-        "sourcesMissing": [
-          "legacy_support"
-        ],
-        "primarySourceState": "first_party_present",
-        "secondSourceState": "ga4_present",
-        "fallbackState": "fallback_present",
-        "classifications": [
-          "date_range_mismatch",
-          "duplicate_event"
-        ],
-        "likelyRootCause": "Multiple evidence lanes overlap; use first-party product truth and keep GA4/fallback as corroboration.",
-        "nextAction": "Keep first-party as primary and use secondary/fallback evidence only for corroboration.",
-        "recoveryLane": "source_overlap_review",
-        "blockingOwner": "source agreement overlap review",
-        "proofRequired": [
-          "fallback_archive_label_and_dedupe_review"
-        ],
-        "productTruthEligible": true
-      },
       {
         "dayKey": "2026-05-02",
         "sourcesPresent": [
@@ -108,8 +87,7 @@
         "classifications": [
           "date_range_mismatch",
           "external_source_gap",
-          "missing_materializer",
-          "duplicate_event"
+          "missing_materializer"
         ],
         "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
         "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics.",
@@ -190,7 +168,84 @@
       "admin_analytics_charts",
       "admin_analytics_insight_cards",
       "admin_analytics_source_health",
-      "public_beta_score_evidence"
+      "public_beta_score_evidence",
+      "admin_analytics_device_mix",
+      "admin_analytics_region_demand",
+      "admin_analytics_top_paths"
+    ],
+    "blockedConsumerDetails": [
+      {
+        "consumer": "debug_data_validation",
+        "label": "Debug source agreement",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "chart_promotion_blocked",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "admin_analytics_overview",
+        "label": "Analytics overview",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "source_missing",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "admin_analytics_charts",
+        "label": "Analytics charts",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "source_missing",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "admin_analytics_insight_cards",
+        "label": "Insight cards",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "source_missing",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "admin_analytics_source_health",
+        "label": "Source health",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "chart_promotion_blocked",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "public_beta_score_evidence",
+        "label": "Public beta evidence",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "chart_promotion_blocked",
+        "blockingOwner": "analytics_event_facts materialization",
+        "nextAction": "Show source missing or chart promotion blocked until first-party day buckets and source agreement pass."
+      },
+      {
+        "consumer": "admin_analytics_device_mix",
+        "label": "Device mix",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "second_source_only",
+        "blockingOwner": "GA4/external evidence lane, with first-party promotion blocked",
+        "nextAction": "Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes."
+      },
+      {
+        "consumer": "admin_analytics_region_demand",
+        "label": "Region demand",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "second_source_only",
+        "blockingOwner": "GA4/external evidence lane, with first-party promotion blocked",
+        "nextAction": "Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes."
+      },
+      {
+        "consumer": "admin_analytics_top_paths",
+        "label": "Top paths",
+        "currentState": "materializer_missing",
+        "allowedDisplayState": "second_source_only",
+        "blockingOwner": "GA4/external evidence lane, with first-party promotion blocked",
+        "nextAction": "Show GA4 as second-source evidence only; do not promote this panel to canonical product truth until first-party source agreement passes."
+      }
     ],
     "nextAction": "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.",
     "nextExactSteps": [
@@ -220,41 +275,41 @@
   ],
   "nextExactSteps": [
     "GA4 reports loaded from admin analytics historical validation route, but no sample rows or day buckets were present. Keep this as setup availability only until data samples load.",
-    "Review source agreement in Debug and restore first-party/materialized coverage before promoting charts.",
+    "Review source details in Debug and restore first-party/materialized coverage before promoting charts.",
     "Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity."
   ],
   "dirtyFileClassifications": [
     {
-      "filePath": "agent/state/chart-readiness-hierarchy-repair.generated.json",
-      "classification": "analytics_source_hierarchy_fix_required"
+      "filePath": "agent/state/admin-analytics-source-hierarchy.generated.json",
+      "classification": "analytics_tab_source_truth_mismatch_required"
     },
     {
       "filePath": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "agent/state/source-agreement-failure-detail.generated.json",
-      "classification": "source_agreement_failure_classification_required"
-    },
-    {
-      "filePath": "docs/agent-truth/chart-readiness-hierarchy-repair.md",
-      "classification": "analytics_source_hierarchy_fix_required"
+      "filePath": "docs/agent-truth/admin-analytics-source-hierarchy.md",
+      "classification": "analytics_tab_source_truth_mismatch_required"
     },
     {
       "filePath": "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/source-agreement-failure-detail.md",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "src/lib/analytics/admin-analytics-source-hierarchy.ts",
+      "classification": "analytics_tab_source_truth_mismatch_required"
     },
     {
-      "filePath": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+      "filePath": "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "src/lib/debug/debug-cockpit-batch28-bug-validation.ts",
-      "classification": "analytics_source_hierarchy_fix_required"
+      "filePath": "tests/unit/admin-analytics-source-hierarchy.spec.ts",
+      "classification": "analytics_tab_source_truth_mismatch_required"
+    },
+    {
+      "filePath": "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts",
+      "classification": "validator_artifact_expected"
     }
   ],
   "openPrClassifications": [],
