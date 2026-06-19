@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-19T12:45:51.222Z
-Current head: 474008a708936322c4a8cac27da5c0989f60ad29
+Generated: 2026-06-19T12:54:49.333Z
+Current head: f7e707f97836d0b8b20ea22584ade870b463e4dd
 Status: source_agreement_failed
 
 ## Source Order
@@ -57,7 +57,7 @@ Status: source_agreement_failed
 - Unproven formal ranges: 2026-05-01..2026-06-19
 - Formal range reason: Current evidence only covers the local source window; approved all-launch export or admin truth sample is still required.
 - Range: 2026-05-01 to 2026-05-03
-- Range proof: union_of_local_source_days
+- Range proof: fixture_only_local_window
 - Coverage window: fixture_only_local_window
 - Range proof reason: The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.
 - Recovered days: 3/3
