@@ -5,8 +5,8 @@ Validator: `npm run check:automated-truth-reconciliation`
 
 ## Summary
 
-- Generated: `2026-06-01T04:55:55.091Z`
-- Current head: `c525024240902c3f2ca716c01015c3cb6b25997b`
+- Generated: `2026-06-19T02:02:14.240Z`
+- Current head: `20de2ac21a0bf5b003eab4838cf42b1c49820e9d`
 - Validation status: `pass`
 
 ## Evidence Boundary
@@ -18,19 +18,19 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
 ```json
 {
   "reportKey": "automated-truth-reconciliation",
-  "generatedAtUtc": "2026-06-01T04:55:55.091Z",
-  "currentHead": "c525024240902c3f2ca716c01015c3cb6b25997b",
+  "generatedAtUtc": "2026-06-19T02:02:14.240Z",
+  "currentHead": "20de2ac21a0bf5b003eab4838cf42b1c49820e9d",
   "reportFormat": "compact_summary_full_detail_derivable",
-  "betaScore": 78.03,
+  "betaScore": 77.2,
   "betaScoreProofStatus": "proven_current",
   "manualQaRecommended": false,
-  "releaseCriticalGapCount": 0,
+  "releaseCriticalGapCount": 1,
   "halfImplementedLaneCount": 0,
   "unprovenClaimCount": 50,
   "validatorAuthorityGapCount": 0,
   "costRiskGapCount": 3,
-  "openPrCount": 0,
-  "securityPrCount": 0,
+  "openPrCount": 14,
+  "securityPrCount": 3,
   "unclassifiedDirtyFiles": [],
   "formalEvidenceStillMissing": [
     "runtime/provider smoke",
@@ -38,7 +38,9 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
     "manual production smoke",
     "external billing review"
   ],
-  "releaseCriticalGaps": [],
+  "releaseCriticalGaps": [
+    "security-prs-handled-or-blocked"
+  ],
   "validationFailures": []
 }
 ```

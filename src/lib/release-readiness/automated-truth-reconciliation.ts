@@ -6,8 +6,8 @@ import { classifyGeneratedArtifactFromGit } from "../agent-score/generated-artif
 import {
   buildReleaseReadinessContext,
   classifyOpenPr,
+  readOpenPullRequests,
   type ClassifiedOpenPr,
-  type OpenPrInput,
   type ScoreDimensions,
 } from "./final-release-readiness";
 
@@ -223,18 +223,6 @@ const VALIDATOR_AUTHORITY_DEPRECATION_MAP = [
     classification: "deprecation_map_only",
     canonicalReplacement: "agent/state/event-liveness-audit.generated.json",
     action: "Keep as legacy evidence until package-script references are retired; do not score-consume it.",
-  },
-  {
-    id: "agent/state/analytics-hydration-consolidation.generated.json",
-    classification: "retired_duplicate_consumer",
-    canonicalReplacement: "agent/state/analytics-panel-hydration.generated.json",
-    action: "Retired by analytics admin reorg; analytics panel truth is canonical.",
-  },
-  {
-    id: "agent/state/analytics-hydration-consolidation-audit.generated.json",
-    classification: "retired_duplicate_consumer",
-    canonicalReplacement: "agent/state/analytics-panel-hydration.generated.json",
-    action: "Retired by analytics admin reorg; analytics panel truth is canonical.",
   },
   {
     id: "agent/state/live-evidence-gate-replacement.generated.json",
@@ -458,7 +446,13 @@ export function classifyTruthReconciliationDirtyFile(path: string) {
   if (/^agent\/state\/(activity-verification-engine|evidence-capture-status|formal-evidence-bridge|live-evidence-gate-replacement|real-usage-confidence|real-usage-confidence-calibration|runtime-smoke-harness|runtime-smoke-substitute-matrix)\.generated\.json$/u.test(normalized)) {
     return "current_generated_artifact_to_commit";
   }
+  if (/^agent\/state\/(analytics-panel-hydration|launch-analytics-recovery|source-agreement-failure-detail)\.generated\.json$/u.test(normalized)) {
+    return "current_generated_artifact_to_commit";
+  }
   if (/^docs\/agent-truth\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|final-current-head-score-refresh|final-release-exit-readiness-packet|overnight-beta-readiness-lock)\.md$/u.test(normalized)) {
+    return "release_artifact_expected";
+  }
+  if (/^docs\/agent-truth\/(analytics-panel-hydration|launch-analytics-recovery|source-agreement-failure-detail)\.md$/u.test(normalized)) {
     return "release_artifact_expected";
   }
   if (/^docs\/agent-truth\/(activity-verification-engine|current-beta-exit-status|evidence-capture-status|formal-evidence-bridge|live-evidence-gate-replacement|real-usage-confidence|real-usage-confidence-calibration|runtime-smoke-harness|runtime-smoke-substitute-matrix)\.md$/u.test(normalized)) {
@@ -489,25 +483,7 @@ export function classifyTruthReconciliationDirtyFile(path: string) {
 }
 
 function openPullRequests(root: string): ClassifiedOpenPr[] {
-  const output = shell(root, "gh", [
-    "pr",
-    "list",
-    "--repo",
-    "omgitsguppey/kandylandv2",
-    "--state",
-    "open",
-    "--limit",
-    "100",
-    "--json",
-    "number,title,url,headRefName,baseRefName,mergeStateStatus,isDraft,updatedAt,author",
-  ]);
-  if (!output) return [];
-  try {
-    const parsed = JSON.parse(output) as unknown;
-    return Array.isArray(parsed) ? (parsed as OpenPrInput[]).map(classifyOpenPr) : [];
-  } catch {
-    return [];
-  }
+  return readOpenPullRequests(root).map(classifyOpenPr);
 }
 
 function validatorFileFromCommand(command: string) {
@@ -531,14 +507,15 @@ function docPathForSlug(slug: string) {
   return `docs/agent-truth/${slug}.md`;
 }
 
-function proofForArtifact(root: string, path: string) {
+function proofForArtifact(root: string, path: string, head: string) {
   const artifact = readJson(root, path);
   if (Object.keys(artifact).length === 0) return { proofStatus: "missing_source_wiring" as const, artifactHead: null };
-  const freshness = artifactFreshness(root, path, artifact);
-  if (freshness.status === "current_head" || freshness.status === "same_commit_snapshot" || freshness.status === "current_by_impact") {
-    return { proofStatus: "proven_current" as const, artifactHead: artifactHead(artifact) };
-  }
-  return { proofStatus: freshness.status === "missing_version" ? "stale" as const : "head_mismatch" as const, artifactHead: artifactHead(artifact) };
+  const headFromArtifact = artifactHead(artifact);
+  if (!headFromArtifact) return { proofStatus: "stale" as const, artifactHead: null };
+  return {
+    proofStatus: headFromArtifact === head ? "proven_current" as const : "head_mismatch" as const,
+    artifactHead: headFromArtifact,
+  };
 }
 
 export function buildClaimTruthAuditReport(root: string): ClaimTruthAuditReport {
@@ -554,7 +531,7 @@ export function buildClaimTruthAuditReport(root: string): ClaimTruthAuditReport 
   for (const file of files) {
     const text = readText(root, file);
     const artifact = file.endsWith(".json") ? readJson(root, file) : {};
-    const proof = file.endsWith(".json") ? proofForArtifact(root, file) : { proofStatus: "source_proven_only" as const, artifactHead: null };
+    const proof = file.endsWith(".json") ? proofForArtifact(root, file, head) : { proofStatus: "source_proven_only" as const, artifactHead: null };
     const slug = file.split("/").pop()?.replace(/\.generated\.json$/u, "").replace(/\.md$/u, "") ?? "unknown";
     const scriptName = `check:${slug}`;
     const referencedPackageScript = scripts[scriptName] ? scriptName : null;
