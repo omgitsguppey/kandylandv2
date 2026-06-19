@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T06:54:20.416Z",
-  "currentHead": "c57d35b79f344c4a2c7a8a4c1761c7047c7554b0",
+  "generatedAtUtc": "2026-06-19T07:01:52.624Z",
+  "currentHead": "d6b1c50ede06bd7ae0004c5559c8679746db2799",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,11 +365,9 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 8,
+    "total": 4,
     "byClassification": {
       "stale_generated_artifact_to_regenerate": 2,
-      "analytics_panel_hydration_artifact_expected": 2,
-      "launch_analytics_recovery_artifact_expected": 2,
       "source_agreement_failure_artifact_expected": 1,
       "documentation_artifact_expected": 1
     },
@@ -380,28 +378,12 @@
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/analytics-panel-hydration.generated.json",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "agent/state/launch-analytics-recovery.generated.json",
-        "classification": "launch_analytics_recovery_artifact_expected"
-      },
-      {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
       },
       {
         "path": "docs/agent-truth/admin-analytics-realtime-hot-cache.md",
         "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "docs/agent-truth/analytics-panel-hydration.md",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/launch-analytics-recovery.md",
-        "classification": "launch_analytics_recovery_artifact_expected"
       },
       {
         "path": "docs/agent-truth/source-agreement-failure-detail.md",
