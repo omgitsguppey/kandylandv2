@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-06-19T03:35:27.295Z",
+  "generatedAtUtc": "2026-06-19T03:47:35.174Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4973,22 +4973,10 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "afba5b19654c51bcece9fe858ba5d07e132df9b4",
+  "currentHead": "a082a1e8e38034f1fe050ef50d7928cb23737e16",
   "dirtyFiles": [
     {
-      "path": "agent/state/admin-analytics-source-hierarchy.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -4996,27 +4984,11 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/source-agreement-failure-detail.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/admin-analytics-source-hierarchy.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -5024,36 +4996,8 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/source-agreement-failure-detail.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "src/lib/analytics/admin-analytics-source-hierarchy.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/admin-analytics-source-hierarchy.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
   "activeOldLogic": [],
