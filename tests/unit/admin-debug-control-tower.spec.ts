@@ -206,6 +206,49 @@ describe("admin debug control tower model", () => {
         }))).toBe("Refresh due");
     });
 
+    it("hydrates self-healing refresh queue items as source-derived evidence", () => {
+        const root = createTempRoot();
+        writeReport(root, "self-healing-refresh-queue.generated.json", {
+            generatedAtUtc: "2026-05-04T00:00:00.000Z",
+            reportKey: "self-healing-refresh-queue",
+            overallStatus: "pass",
+            queue: [
+                {
+                    artifact: "agent/state/source-refresh.generated.json",
+                    staleReason: "source_backed",
+                    refreshCommand: "npm run check:source-refresh",
+                    canRunAutomatically: true,
+                    blockedReason: "",
+                    expectedOutcome: "Refresh generated source evidence.",
+                },
+                {
+                    artifact: "runtime_provider_smoke",
+                    staleReason: "External proof required",
+                    refreshCommand: "Attach formal provider smoke evidence.",
+                    canRunAutomatically: false,
+                    blockedReason: "blocked_formal_evidence: formal provider smoke artifact required.",
+                    expectedOutcome: "Remain blocked until formal provider proof is attached.",
+                },
+            ],
+            summary: {
+                total: 2,
+                automatic: 1,
+                blocked: 1,
+            },
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
+        const queue = model.reports.find((report) => report.id === "self-healing-refresh-queue");
+
+        expect(queue?.findingCount).toBe(2);
+        expect(queue?.topFindings.map((finding) => finding.title)).toEqual(expect.arrayContaining([
+            "Queued source refresh",
+            "Formal proof still required",
+        ]));
+        expect(queue?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).toContain("runtime_provider_smoke needs outside proof");
+        expect(queue?.topFindings.flatMap((finding) => finding.evidence).join(" ")).toContain("External proof required");
+    });
+
     it("marks generated report source commit drift as stale instead of live", () => {
         const root = createTempRoot();
         writeReport(root, "public-beta-score.generated.json", {

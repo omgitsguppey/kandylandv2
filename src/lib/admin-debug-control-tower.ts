@@ -451,6 +451,51 @@ function collectFindings(raw: Record<string, unknown>): unknown[] {
         });
 }
 
+function collectSelfHealingQueueFindings(raw: Record<string, unknown>): unknown[] {
+    if (raw.reportKey !== "self-healing-refresh-queue" || !Array.isArray(raw.queue)) {
+        return [];
+    }
+
+    return raw.queue.slice(0, 5).map((entry, index) => {
+        const item = isRecord(entry) ? entry : {};
+        const artifact = toStringValue(item.artifact, `refresh item ${index + 1}`);
+        const canRunAutomatically = item.canRunAutomatically === true;
+        const blockedReason = toStringValue(item.blockedReason);
+        const staleReason = toStringValue(item.staleReason, "Refresh needed");
+        const refreshCommand = toStringValue(item.refreshCommand, "Open the owning evidence lane.");
+        const expectedOutcome = toStringValue(item.expectedOutcome, "Refresh the source evidence without clearing formal runtime proof.");
+        const title = canRunAutomatically ? "Queued source refresh" : "Formal proof still required";
+        const humanReadableWarning = canRunAutomatically
+            ? `${artifact} can refresh from local source evidence.`
+            : `${artifact} needs outside proof before this lane can clear.`;
+
+        return {
+            id: `self-healing-refresh-queue-${index}`,
+            severity: canRunAutomatically ? "moderate" : "major",
+            title,
+            humanReadableWarning,
+            filePath: artifact,
+            evidence: [
+                staleReason,
+                blockedReason || expectedOutcome,
+                refreshCommand,
+            ].filter(Boolean),
+        };
+    });
+}
+
+function derivedFindingCount(raw: Record<string, unknown>, normalizedFindings: AdminDebugFindingCard[], queueFindings: AdminDebugFindingCard[]) {
+    return Math.max(
+        Number(raw.findingCount) || 0,
+        Number(raw.dedupedFindingCount) || 0,
+        normalizedFindings.length,
+        queueFindings.length,
+        raw.reportKey === "self-healing-refresh-queue" && isRecord(raw.summary)
+            ? Number(raw.summary.total) || 0
+            : 0,
+    );
+}
+
 function translateSpeedSecurityFinding(
     reportId: string,
     title: string,
@@ -754,14 +799,17 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
         const normalizedFindings = allFindings
             .map((finding, index) => normalizeFinding(definition.id, definition.section, definition.command, index, finding))
             .sort((left, right) => SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity]);
+        const queueFindings = collectSelfHealingQueueFindings(raw)
+            .map((finding, index) => normalizeFinding(definition.id, definition.section, definition.command, index + normalizedFindings.length, finding))
+            .sort((left, right) => SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity]);
         const evidenceGateFindings = publicBetaEvidenceGateFindings(definition, relativePath, raw);
         const criticalCount = Math.max(
             Number(raw.criticalCount) || 0,
-            normalizedFindings.filter((finding) => finding.severity === "critical").length,
+            [...normalizedFindings, ...queueFindings].filter((finding) => finding.severity === "critical").length,
         );
         const majorCount = Math.max(
             Number(raw.majorCount) || 0,
-            normalizedFindings.filter((finding) => finding.severity === "major").length,
+            [...normalizedFindings, ...queueFindings].filter((finding) => finding.severity === "major").length,
         );
         const staleFinding: AdminDebugFindingCard[] = freshness === "stale_72h" && definition.required
             ? [{
@@ -797,7 +845,7 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
             generatedAt,
             updatedAtMs,
             ageHours: Number(ageHours.toFixed(1)),
-            findingCount: Math.max(Number(raw.findingCount) || 0, Number(raw.dedupedFindingCount) || 0, normalizedFindings.length),
+            findingCount: derivedFindingCount(raw, normalizedFindings, queueFindings),
             evidenceGateCount: evidenceGateFindings.length,
             criticalCount,
             majorCount: majorCount
@@ -808,7 +856,7 @@ function readGeneratedReport(rootDir: string | null | undefined, definition: Rep
             sourceCommit: commitState.sourceCommit,
             currentHead: commitState.currentHead,
             sourceDrift: commitState.sourceDrift,
-            topFindings: [...staleFinding, ...sourceDriftFinding, ...evidenceGateFindings, ...normalizedFindings].slice(0, 5),
+            topFindings: [...staleFinding, ...sourceDriftFinding, ...evidenceGateFindings, ...queueFindings, ...normalizedFindings].slice(0, 5),
         };
     } catch (error) {
         return {
