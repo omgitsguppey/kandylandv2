@@ -101,6 +101,7 @@ const uiSurfaceCoverageOwnedInputPaths = [
   "src/lib/evidence/ui-visual-smoke-contract.ts",
   "agent/evidence/ui-visual-smoke/template.json",
 ] as const;
+let currentCommitContext: { parentHead: string | null; changedFilesInHead: string[] } | null = null;
 
 const laneLabels: Record<keyof EvidenceLaneStatuses, string> = {
   uiSurfaceCoverageEvidence: "UI surface coverage evidence",
@@ -111,6 +112,27 @@ const laneLabels: Record<keyof EvidenceLaneStatuses, string> = {
 
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+}
+
+function currentGeneratedCommitContext() {
+  if (currentCommitContext) return currentCommitContext;
+  let parentHead: string | null = null;
+  try {
+    parentHead = execFileSync("git", ["rev-parse", "HEAD^"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  } catch {
+    parentHead = null;
+  }
+  const changedFilesOutput = execFileSync("git", ["diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+  }).trim();
+  currentCommitContext = {
+    parentHead,
+    changedFilesInHead: changedFilesOutput.length > 0
+      ? changedFilesOutput.split(/\r?\n/u).map((path) => path.replace(/\\/g, "/"))
+      : [],
+  };
+  return currentCommitContext;
 }
 
 function readCurrentBetaExitCanStart() {
@@ -241,11 +263,15 @@ function readArtifactInput(relativePath: string, head: string, generatedAtUtc: s
   }
   const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
   const readString = (value: unknown) => typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+  const sourceCommit = readString(parsed.sourceCommit) ?? readString(parsed.currentHead);
+  const gitContext = sourceCommit && sourceCommit !== head ? currentGeneratedCommitContext() : null;
   return {
     artifactPath: relativePath,
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
-    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+    sourceCommit,
     currentCodeVersion: head,
+    parentHead: gitContext?.parentHead,
+    changedFilesInHead: gitContext?.changedFilesInHead,
     exists: true,
   };
 }
