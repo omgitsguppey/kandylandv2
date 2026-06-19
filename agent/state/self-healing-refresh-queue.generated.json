@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-18T21:12:08.112Z",
+  "generatedAtUtc": "2026-06-19T00:06:34.341Z",
   "reportKey": "self-healing-refresh-queue",
-  "currentHead": "45ed76f10eb078618a5ce3769b640f90f37e4e37",
-  "sourceCommit": "45ed76f10eb078618a5ce3769b640f90f37e4e37",
+  "currentHead": "8c9d38535935d60b26758e7b8539b7ef21e2662b",
+  "sourceCommit": "8c9d38535935d60b26758e7b8539b7ef21e2662b",
   "overallStatus": "pass",
   "queue": [
     {
@@ -330,12 +330,24 @@
       "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
     },
     {
+      "artifact": "agent/state/debug-runtime-evidence.generated.json",
+      "staleReason": "unknown",
+      "refreshCommand": "npm run check:debug-runtime-evidence",
+      "scoreImpactEstimate": 0.01,
+      "owner": "runtime",
+      "dependencyOrder": 28,
+      "canRunAutomatically": true,
+      "blockedReason": "",
+      "source": "score_impact",
+      "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
+    },
+    {
       "artifact": "debug_runtime_evidence",
-      "staleReason": "Unknown evidence: Debug/runtime evidence",
+      "staleReason": "Deployed runtime proof required",
       "refreshCommand": "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 16.33,
       "owner": "runtime",
-      "dependencyOrder": 28,
+      "dependencyOrder": 29,
       "canRunAutomatically": false,
       "blockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
       "source": "score_impact",
@@ -343,11 +355,11 @@
     },
     {
       "artifact": "runtime_provider_smoke",
-      "staleReason": "Runtime unverified: Runtime/provider smoke",
+      "staleReason": "External proof required",
       "refreshCommand": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 16.33,
       "owner": "runtime",
-      "dependencyOrder": 29,
+      "dependencyOrder": 30,
       "canRunAutomatically": false,
       "blockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
       "source": "score_impact",
@@ -355,11 +367,11 @@
     },
     {
       "artifact": "admin_truth_sample_evidence",
-      "staleReason": "Unknown evidence: Admin truth/sample evidence",
+      "staleReason": "Admin sample required",
       "refreshCommand": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 12,
       "owner": "admin",
-      "dependencyOrder": 30,
+      "dependencyOrder": 31,
       "canRunAutomatically": false,
       "blockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
       "source": "score_impact",
@@ -367,11 +379,11 @@
     },
     {
       "artifact": "visual_manual_smoke",
-      "staleReason": "Visual QA required: Visual/manual smoke",
+      "staleReason": "Manual UI proof required",
       "refreshCommand": "Attach manual screenshot evidence, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 12,
       "owner": "manual",
-      "dependencyOrder": 31,
+      "dependencyOrder": 32,
       "canRunAutomatically": false,
       "blockedReason": "blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.",
       "source": "score_impact",
@@ -379,10 +391,10 @@
     }
   ],
   "summary": {
-    "total": 31,
-    "automatic": 27,
+    "total": 32,
+    "automatic": 28,
     "blocked": 4,
-    "totalScoreImpactEstimate": 100.66
+    "totalScoreImpactEstimate": 100.67
   },
   "integration": {
     "betaScoreRefreshPlan": true,

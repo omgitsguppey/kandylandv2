@@ -4,10 +4,10 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 
 ## Summary
 
-- Queue entries: 31
-- Automatic entries: 27
+- Queue entries: 32
+- Automatic entries: 28
 - Blocked entries: 4
-- Estimated score impact: 100.66
+- Estimated score impact: 100.67
 
 ## Queue
 
@@ -281,40 +281,50 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 28. debug_runtime_evidence
+### 28. agent/state/debug-runtime-evidence.generated.json
 
 - Owner: runtime
-- Stale reason: Unknown evidence: Debug/runtime evidence
+- Stale reason: unknown
+- Refresh command: `npm run check:debug-runtime-evidence`
+- Score impact estimate: 0.01
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
+
+### 29. debug_runtime_evidence
+
+- Owner: runtime
+- Stale reason: Deployed runtime proof required
 - Refresh command: `Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status`
 - Score impact estimate: 16.33
 - Can run automatically: false
 - Blocked reason: blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.
 - Expected outcome: Remain blocked until a human attaches the deployed runtime smoke artifact.
 
-### 29. runtime_provider_smoke
+### 30. runtime_provider_smoke
 
 - Owner: runtime
-- Stale reason: Runtime unverified: Runtime/provider smoke
+- Stale reason: External proof required
 - Refresh command: `Attach formal provider smoke evidence, then run npm run check:evidence-capture-status`
 - Score impact estimate: 16.33
 - Can run automatically: false
 - Blocked reason: blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the formal provider smoke artifact.
 
-### 30. admin_truth_sample_evidence
+### 31. admin_truth_sample_evidence
 
 - Owner: admin
-- Stale reason: Unknown evidence: Admin truth/sample evidence
+- Stale reason: Admin sample required
 - Refresh command: `Attach admin truth sample evidence, then run npm run check:evidence-capture-status`
 - Score impact estimate: 12
 - Can run automatically: false
 - Blocked reason: blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the admin truth sample artifact.
 
-### 31. visual_manual_smoke
+### 32. visual_manual_smoke
 
 - Owner: manual
-- Stale reason: Visual QA required: Visual/manual smoke
+- Stale reason: Manual UI proof required
 - Refresh command: `Attach manual screenshot evidence, then run npm run check:evidence-capture-status`
 - Score impact estimate: 12
 - Can run automatically: false

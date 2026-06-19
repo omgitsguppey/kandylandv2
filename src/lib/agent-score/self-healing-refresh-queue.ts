@@ -101,6 +101,14 @@ function formalEvidenceBlockedReason(artifact: string) {
   return "blocked_formal_evidence: formal artifact required; source queue cannot generate proof.";
 }
 
+function formalEvidenceStaleReason(artifact: string) {
+  if (artifact === "debug_runtime_evidence") return "Deployed runtime proof required";
+  if (artifact === "runtime_provider_smoke") return "External proof required";
+  if (artifact === "admin_truth_sample_evidence") return "Admin sample required";
+  if (artifact === "visual_manual_smoke") return "Manual UI proof required";
+  return "Formal proof required";
+}
+
 function formalEvidenceExpectedOutcome(artifact: string) {
   if (artifact === "debug_runtime_evidence") {
     return "Remain blocked until a human attaches the deployed runtime smoke artifact.";
@@ -137,7 +145,7 @@ function buildRefreshPlanEntries(
       const formal = isFormalEvidenceRefresh(command, entry.artifactPath, entry.status);
       return {
         artifact: entry.artifactPath,
-        staleReason: entry.status,
+        staleReason: formal ? formalEvidenceStaleReason(entry.artifactPath) : entry.status,
         refreshCommand: command,
         scoreImpactEstimate: round(impact?.pointImpact ?? (entry.status === "stale_source_version" ? 1 : 0.5)),
         owner: entry.owner,
@@ -175,7 +183,7 @@ function buildScoreImpactEntries(
       const formal = isFormalEvidenceRefresh(command, item.id, item.status);
       return {
         artifact: item.id,
-        staleReason: item.status ?? "score_impact",
+        staleReason: formal ? formalEvidenceStaleReason(item.id) : item.status ?? "score_impact",
         refreshCommand: command,
         scoreImpactEstimate: round(item.pointImpact ?? 0),
         owner: ownerForArtifact(item.id),

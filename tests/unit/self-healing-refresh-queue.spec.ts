@@ -81,9 +81,12 @@ describe("self-healing refresh queue", () => {
 
     expect(report.queue[0]).toMatchObject({
       artifact: "runtime_provider_smoke",
+      staleReason: "External proof required",
       canRunAutomatically: false,
       blockedReason: expect.stringContaining("formal provider smoke artifact required"),
     });
+    expect(JSON.stringify(report)).not.toContain("Runtime unverified:");
+    expect(JSON.stringify(report)).not.toContain("Unknown evidence:");
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
   });
 
