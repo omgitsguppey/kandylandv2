@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-06-19T06:06:48.098Z
+Generated: 2026-06-19T06:25:32.636Z
 Status: pass
-Current head: dd03fbe68fc2fb3a9e0fdb9d3b014fb4bfbfa92f
+Current head: f6cdf660bab8aaae7a44a78bd26c89bdda4d2b13
 
 ## Contract
 
@@ -72,8 +72,18 @@ Current head: dd03fbe68fc2fb3a9e0fdb9d3b014fb4bfbfa92f
 
 ## Dirty Files
 
+- agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/launch-analytics-recovery.generated.json: current_generated_artifact_to_commit
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/source-agreement-failure-detail.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/launch-analytics-recovery.md: documentation_artifact_expected
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/source-agreement-failure-detail.md: documentation_artifact_expected
+- src/lib/analytics/source-agreement-detail.ts: real_source_change_needs_review
+- tests/unit/source-agreement-failure-detail.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 

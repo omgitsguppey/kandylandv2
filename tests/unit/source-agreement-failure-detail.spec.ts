@@ -124,7 +124,7 @@ describe("source agreement failure detail", () => {
       },
     });
 
-    expect(detail.coverageWindowKind).toBe("all_range_historical_export");
+    expect(detail.coverageWindowKind).toBe("local_source_window");
     expect(detail.allLaunchRangeProven).toBe(false);
     expect(detail.perDaySourceCounts?.["2026-05-01"]).toEqual({
       first_party: 42,
@@ -293,6 +293,7 @@ describe("source agreement failure detail", () => {
 
     expect(detail.sourceAgreementStatus).toBe("pass");
     expect(detail.allLaunchRangeProven).toBe(false);
+    expect(detail.coverageWindowKind).toBe("local_source_window");
   });
 
   it("classifies first-party and GA4 count deltas without letting GA4 overwrite truth", () => {

@@ -428,6 +428,19 @@ function proofModeAllowsLaunchRangeProof(input: {
     || rangeProof?.expectedRangeSource === "approved_all_launch_export";
 }
 
+function coverageWindowKindForLaunchHistoryCoverage(input: {
+  proofMode?: "local_export" | "admin_truth_sample";
+  coverage: LaunchHistoryCoverageForSourceAgreement;
+}): SourceAgreementFailureDetail["coverageWindowKind"] {
+  if (input.proofMode === "admin_truth_sample") return "admin_truth_sample";
+
+  const rangeProof = input.coverage.rangeProof;
+  return rangeProof?.coverageWindowKind === "all_range_historical_export"
+    || rangeProof?.expectedRangeSource === "approved_all_launch_export"
+    ? "all_range_historical_export"
+    : "local_source_window";
+}
+
 export function buildSourceAgreementFailureDetail(input: {
   comparedSources: SourceAgreementCoverageInput[] | string[];
   coverageBySource?: Record<string, string[]>;
@@ -609,9 +622,10 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
     comparedMetrics: input.comparedMetrics,
     tolerance: input.tolerance,
     blockedConsumers: input.blockedConsumers,
-    coverageWindowKind: input.proofMode === "admin_truth_sample"
-      ? "admin_truth_sample"
-      : "all_range_historical_export",
+    coverageWindowKind: coverageWindowKindForLaunchHistoryCoverage({
+      proofMode: input.proofMode,
+      coverage: input.launchHistoryCoverage,
+    }),
   });
   const perDaySourceCounts = Object.fromEntries(
     input.launchHistoryCoverage.days
