@@ -297,6 +297,30 @@ function formatPanelRecoveryAction(action: string) {
   return action.replaceAll("source_missing", "source missing");
 }
 
+function formatLaunchRecoveryStatusLine(
+  summary: {
+    confidenceLabel: string;
+    missingRangeCount: number;
+    sourceAgreementState: string;
+  },
+  rangeLabel?: string | null,
+) {
+  const label = rangeLabel ?? "All";
+  const suffix = summary.missingRangeCount > 0
+    ? ` ${summary.missingRangeCount} range(s) still need recovery.`
+    : "";
+
+  if (summary.sourceAgreementState === "pass" && summary.confidenceLabel === "verified") {
+    return `${label} keeps launch history available. Missing stays labeled; estimates are not zero.${suffix}`;
+  }
+
+  if (summary.sourceAgreementState === "not_enough_sources" || summary.confidenceLabel === "unknown") {
+    return `${label} is waiting for launch source evidence. Missing stays labeled; estimates are not zero.${suffix}`;
+  }
+
+  return `${label} shows launch evidence under review. First-party gaps stay labeled until sources agree.${suffix}`;
+}
+
 const AdminAnalyticsOperationsTab = dynamic(
   () => import("./components/AdminAnalyticsOperationsTab").then((module) => module.AdminAnalyticsOperationsTab),
 );
@@ -575,8 +599,7 @@ export default function AdminAnalyticsPage() {
               {activeTabLabel} view - {historicalSourceLabel || "Historical source pending"}
             </p>
             <p className="mt-1 text-[11px] leading-4 text-gray-400">
-              {launchRecoveryRange?.label ?? "All"} keeps launch history available. Missing stays labeled; estimates are not zero.
-              {state.launchRecoverySummary.missingRangeCount > 0 ? ` ${state.launchRecoverySummary.missingRangeCount} range(s) still need recovery.` : ""}
+              {formatLaunchRecoveryStatusLine(state.launchRecoverySummary, launchRecoveryRange?.label)}
             </p>
           </div>
           <AnalyticsViewModeToggle value={mobileViewMode} onChange={setMobileViewMode} />
