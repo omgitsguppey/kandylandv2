@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T04:32:08.465Z",
-  "currentHead": "1d528701f1d1e1b6e1a4bffb75d235523528382d",
+  "generatedAtUtc": "2026-06-19T04:49:38.264Z",
+  "currentHead": "343fe21c2f5c75dd383d43532c80f64322c9b58f",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,19 +365,36 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 10,
+    "total": 23,
     "byClassification": {
-      "analytics_panel_hydration_artifact_expected": 2,
+      "analytics_panel_hydration_artifact_expected": 3,
+      "stale_generated_artifact_to_regenerate": 6,
       "current_generated_artifact_to_commit": 2,
       "launch_analytics_recovery_artifact_expected": 2,
       "source_agreement_failure_artifact_expected": 1,
-      "documentation_artifact_expected": 3
+      "documentation_artifact_expected": 3,
+      "retired_duplicate_source_agreement_lane_expected": 1,
+      "real_source_change_needs_review": 2,
+      "source_agreement_failure_classification_required": 1,
+      "test_artifact_expected": 2
     },
     "unsafeUnknown": [],
     "sample": [
       {
         "path": "agent/state/analytics-panel-hydration.generated.json",
         "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "agent/state/analytics-validation-semantics.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/data-validation-ui-semantic-cleanup.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/debug-cockpit-batch28-bug-validation.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
       },
       {
         "path": "agent/state/event-translation-bridge.generated.json",
@@ -394,18 +411,6 @@
       {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/analytics-panel-hydration.md",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/event-translation-bridge.md",
-        "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/launch-analytics-recovery.md",
-        "classification": "launch_analytics_recovery_artifact_expected"
       }
     ],
     "sampleTruncated": true

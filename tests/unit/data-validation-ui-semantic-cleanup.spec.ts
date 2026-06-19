@@ -9,7 +9,7 @@ describe("data validation UI semantic cleanup", () => {
   it("surfaces four compact dimensions and keeps raw rows collapsed", () => {
     const semantics = buildDataValidationUiSemantics({
       chartReadinessState: "ready",
-      sourceAgreementState: "fail",
+      sourceAgreementState: "failed",
       validationParityState: "fail",
       blockedPassCount: 10,
       routeLoadedSuccessfully: true,

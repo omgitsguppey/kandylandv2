@@ -127,7 +127,9 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/server/admin-analytics-historical-validation.ts") return "real_source_change_needs_review";
   if (normalized === "src/types/admin-analytics.ts") return "real_source_change_needs_review";
   if (normalized === "tests/unit/admin-data-validation.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/analytics-validation-semantics.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/chart-readiness-hierarchy-repair.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/data-validation-ui-semantic-cleanup.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/data-validation-copy-consistency.spec.ts") return "test_artifact_expected";
   if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
@@ -169,6 +171,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/lib/telemetry-catalog.ts") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/app/admin/roster/page.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/validation-readiness-contract.ts") return "source_agreement_failure_classification_required";
   if (normalized === "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts") return "retired_duplicate_source_agreement_lane_expected";
   if (normalized === "src/lib/analytics/source-agreement-detail.ts") return "source_agreement_failure_classification_required";
   if (normalized === "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts") return "source_agreement_failure_classification_required";

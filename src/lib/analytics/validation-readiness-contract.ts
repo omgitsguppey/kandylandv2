@@ -5,7 +5,7 @@ export type ValidationReadinessState = {
     recentGaps: string[];
   };
   sourceAgreement: {
-    state: "pass" | "fail" | "review" | "unavailable";
+    state: "pass" | "failed" | "review" | "unavailable";
     sources: string[];
     failedSources: string[];
     reason: string;
@@ -60,14 +60,14 @@ export function buildValidationReadinessSummary(input: {
     }));
   const failedSources = input.sourceAgreement.failedSources ?? [];
   const sourceAgreementState =
-    failedSources.length > 0 ? "fail"
+    failedSources.length > 0 ? "failed"
       : input.sourceAgreement.sources.length < 2 ? "unavailable"
         : input.sourceAgreement.reason ? "review"
           : "pass";
   const chartState =
     input.chartReadiness.availability === "unavailable" ? "unavailable"
       : input.chartReadiness.continuity === "error" || input.chartReadiness.recentGaps.length > 0 ? "blocked"
-        : sourceAgreementState === "fail" ? "source_disagreement"
+        : sourceAgreementState === "failed" ? "source_disagreement"
         : input.chartReadiness.availability === "pass" && input.chartReadiness.continuity === "none" ? "ready"
           : "partial";
   const validationParityState =
@@ -75,7 +75,7 @@ export function buildValidationReadinessSummary(input: {
       : failCount > 0 ? "fail"
         : staleCount > 0 ? "stale"
           : "pass";
-  const nextAction = sourceAgreementState === "fail"
+  const nextAction = sourceAgreementState === "failed"
     ? `Review source agreement failures across ${failedSources.join(", ")} before trusting analytics parity.`
     : blockedRows.length > 0
       ? "Review blocked validation rows; blocked pass means not safe to promote to pass."
@@ -110,7 +110,7 @@ export function buildValidationReadinessSummary(input: {
 
 export function buildDataValidationUiSemantics(input: {
   chartReadinessState: "ready" | "partial" | "blocked" | "source_disagreement" | "unavailable";
-  sourceAgreementState: "pass" | "fail" | "review" | "unavailable";
+  sourceAgreementState: "pass" | "failed" | "fail" | "review" | "unavailable";
   validationParityState: "pass" | "fail" | "stale" | "not_validated" | "loading";
   blockedPassCount: number;
   routeLoadedSuccessfully: boolean;
@@ -118,7 +118,7 @@ export function buildDataValidationUiSemantics(input: {
   cacheState?: "hit" | "miss" | "stale" | "unknown" | "not_loaded";
 }) {
   const failedRows = input.failedRows ?? [];
-  const sourceAgreementFailed = input.sourceAgreementState === "fail";
+  const sourceAgreementFailed = input.sourceAgreementState === "fail" || input.sourceAgreementState === "failed";
   const nextAction = sourceAgreementFailed
     ? `Source agreement failed in ${failedRows.join(", ") || "validation rows"}; inspect source agreement failures and blocked passes before trusting parity.`
     : input.blockedPassCount > 0

@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-validation-semantics",
-  "generatedAtUtc": "2026-06-17T00:19:19.413Z",
-  "currentHead": "3ea5f43d52b54ecb065c125a4d6913fc7f2c38d6",
+  "generatedAtUtc": "2026-06-19T04:51:19.442Z",
+  "currentHead": "343fe21c2f5c75dd383d43532c80f64322c9b58f",
   "summary": {
     "chartReadiness": {
       "state": "source_disagreement",
@@ -9,7 +9,7 @@
       "recentGaps": []
     },
     "sourceAgreement": {
-      "state": "fail",
+      "state": "failed",
       "sources": [
         "ga4",
         "historical_snapshot",

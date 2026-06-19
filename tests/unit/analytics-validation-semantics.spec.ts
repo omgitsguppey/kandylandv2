@@ -22,7 +22,7 @@ describe("analytics validation semantics", () => {
     });
 
     expect(summary.chartReadiness.state).toBe("source_disagreement");
-    expect(summary.sourceAgreement.state).toBe("fail");
+    expect(summary.sourceAgreement.state).toBe("failed");
     expect(summary.validationParity.state).toBe("fail");
     expect(summary.blockedPass.rows).toHaveLength(1);
     expect(summary.nextAction).toMatch(/source agreement/i);

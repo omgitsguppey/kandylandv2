@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch28-bug-validation",
-  "generatedAtUtc": "2026-06-18T06:33:08.990Z",
-  "currentHead": "7b40cced651b9442b80700824008cbd789446f36",
+  "generatedAtUtc": "2026-06-19T04:51:20.545Z",
+  "currentHead": "343fe21c2f5c75dd383d43532c80f64322c9b58f",
   "bugReportTruthStatusBefore": "loading",
   "bugReportTruthStatusAfter": "loaded_empty",
   "bugReportTerminalState": "loaded_empty",
@@ -35,7 +35,7 @@
     "rawRowsCollapsed"
   ],
   "remainingGaps": [
-    "Source agreement remains failed until GA4, historical snapshot, and legacy support agree inside tolerance."
+    "Source agreement remains failed until first-party, GA4, historical snapshot, and legacy support agree inside tolerance."
   ],
   "nextExactSteps": [
     "Run npm run check:debug-cockpit-batch28-bug-validation after touching this debug/source validation lane.",
@@ -47,15 +47,27 @@
       "classification": "fixed_current"
     },
     {
-      "filePath": "agent/state/analytics-source-agreement-cleanup.generated.json",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "agent/state/analytics-validation-semantics.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/data-validation-ui-semantic-cleanup.generated.json",
+      "classification": "fixed_current"
     },
     {
       "filePath": "agent/state/debug-cockpit-batch28-bug-validation.generated.json",
       "classification": "validator_artifact_expected"
     },
     {
+      "filePath": "agent/state/event-translation-bridge.generated.json",
+      "classification": "fixed_current"
+    },
+    {
       "filePath": "agent/state/launch-analytics-recovery.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/person-metrics-hydration.generated.json",
       "classification": "fixed_current"
     },
     {
@@ -67,15 +79,27 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/analytics-source-agreement-cleanup.md",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "docs/agent-truth/analytics-validation-semantics.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/data-validation-ui-semantic-cleanup.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "filePath": "docs/agent-truth/debug-cockpit-batch28-bug-validation.md",
       "classification": "validator_artifact_expected"
     },
     {
+      "filePath": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
       "filePath": "docs/agent-truth/launch-analytics-recovery.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -83,15 +107,7 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "package.json",
-      "classification": "fixed_current"
-    },
-    {
       "filePath": "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -99,16 +115,24 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-analytics-source-agreement-cleanup.ts",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "fixed_current"
     },
     {
-      "filePath": "src/lib/analytics/analytics-source-agreement-status.ts",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "fixed_current"
     },
     {
-      "filePath": "tests/unit/analytics-source-agreement-cleanup.spec.ts",
-      "classification": "source_agreement_failure_classification_required"
+      "filePath": "src/lib/analytics/validation-readiness-contract.ts",
+      "classification": "analytics_validation_semantics_fix_required"
+    },
+    {
+      "filePath": "tests/unit/analytics-validation-semantics.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/data-validation-ui-semantic-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "openPrClassifications": [

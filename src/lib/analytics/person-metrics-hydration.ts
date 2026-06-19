@@ -996,7 +996,16 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/analytics-legacy-purgatory-queue.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/ga4-recovery-truth.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/ga4-availability-semantics.md") return "documentation_artifact_expected";
+  if (normalized === "src/lib/analytics/validation-readiness-contract.ts") return "source_agreement_failure_classification_required";
   if (normalized === "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts") return "retired_duplicate_source_agreement_lane_expected";
+  if (normalized === "agent/state/analytics-validation-semantics.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/data-validation-ui-semantic-cleanup.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/debug-cockpit-batch28-bug-validation.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/analytics-validation-semantics.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/data-validation-ui-semantic-cleanup.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/debug-cockpit-batch28-bug-validation.md") return "documentation_artifact_expected";
+  if (normalized === "tests/unit/analytics-validation-semantics.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/data-validation-ui-semantic-cleanup.spec.ts") return "test_artifact_expected";
   if (normalized === "functions/src/analytics-truth-cli.ts" || normalized === "functions/src/analytics-truth-runtime.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/rebuild-analytics-truth.ts" || normalized === "scripts/rebuild-behavioral-intelligence.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/source-agreement-detail.ts") return "real_source_change_needs_review";

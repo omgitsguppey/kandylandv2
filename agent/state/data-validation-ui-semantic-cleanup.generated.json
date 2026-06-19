@@ -1,7 +1,7 @@
 {
   "reportKey": "data-validation-ui-semantic-cleanup",
-  "generatedAtUtc": "2026-06-17T00:19:23.508Z",
-  "currentHead": "3ea5f43d52b54ecb065c125a4d6913fc7f2c38d6",
+  "generatedAtUtc": "2026-06-19T04:51:19.317Z",
+  "currentHead": "343fe21c2f5c75dd383d43532c80f64322c9b58f",
   "ui": {
     "summaryPills": [
       {
@@ -10,7 +10,7 @@
       },
       {
         "label": "Source agreement",
-        "state": "fail"
+        "state": "failed"
       },
       {
         "label": "Validation parity",

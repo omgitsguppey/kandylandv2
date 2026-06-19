@@ -185,7 +185,7 @@ export function validateAnalyticsValidationSemantics() {
     validations: [{ checkKey: "source_agreement_chart_readiness", status: "fail", passAllowed: false }],
   });
   expectPass(summary.chartReadiness.state === "source_disagreement", failures, "source agreement failure is not represented in chart readiness.");
-  expectPass(summary.sourceAgreement.state === "fail", failures, "source agreement fail is hidden.");
+  expectPass(summary.sourceAgreement.state === "failed", failures, "source agreement failed is hidden.");
   expectPass(summary.validationParity.state === "fail", failures, "failCount > 0 lacks failed dimension.");
   expectPass(summary.blockedPass.rows.length > 0, failures, "blockedPassCount > 0 but panel says clean.");
   expectPass(!summary.nextAction.startsWith("Retry"), failures, "semantic/source agreement failure only suggests retry.");
@@ -200,15 +200,21 @@ export function validateDataValidationUiSemanticCleanup() {
   const component = read("src/app/admin/debug/components/DebugAdvancedDataValidation.tsx");
   const ui = buildDataValidationUiSemantics({
     chartReadinessState: "ready",
-    sourceAgreementState: "fail",
+    sourceAgreementState: "failed",
     validationParityState: "fail",
     blockedPassCount: 10,
     routeLoadedSuccessfully: true,
     failedRows: ["source_agreement_chart_readiness"],
     cacheState: "miss",
   });
-  expectPass(component.includes("Chart readiness") && component.includes("Source agreement") && component.includes("Validation parity") && component.includes("Blocked pass"), failures, "Data Validation still blends readiness dimensions.");
-  expectPass(component.includes("Source agreement failures"), failures, "blocked/source agreement rows not surfaced.");
+  expectPass(
+    ["Chart readiness", "Source agreement", "Validation parity", "Blocked pass"].every((label) =>
+      ui.summaryPills.some((pill) => pill.label === label)
+    ),
+    failures,
+    "Data Validation still blends readiness dimensions.",
+  );
+  expectPass(component.includes("data-source-agreement-failures=\"visible\"") && component.includes("Source agreement failed"), failures, "blocked/source agreement rows not surfaced.");
   expectPass(component.includes("data-raw-validation-rows-default-open=\"false\""), failures, "raw validation rows open by default.");
   expectPass(!component.includes("Validation failed. Retry the validation route or inspect admin analytics historical route errors."), failures, "generic retry remains the only source agreement failure action.");
   expectPass(ui.cacheMissIsFailure === false, failures, "cache miss treated as failure.");
