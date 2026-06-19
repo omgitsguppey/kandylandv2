@@ -2787,6 +2787,7 @@ try {
     /^agent\/state\/debug-evidence-index\.generated\.json$/u,
     /^agent\/state\/debug-backlog-engine\.generated\.json$/u,
     /^agent\/state\/public-beta-score\.generated\.json$/u,
+    /^agent\/state\/self-healing-refresh-queue\.generated\.json$/u,
     /^agent\/state\/analytics-panel-hydration\.generated\.json$/u,
     /^agent\/state\/launch-analytics-recovery\.generated\.json$/u,
     /^agent\/state\/repo-spring-cleaning-rewire\.generated\.json$/u,
