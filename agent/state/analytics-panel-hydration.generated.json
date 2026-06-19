@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-19T07:30:22.644Z",
-  "currentHead": "35882cb4d032e57d3c81f22f9618fe93eadcaca5",
+  "generatedAtUtc": "2026-06-19T07:31:30.701Z",
+  "currentHead": "1618a20e488d121fd96e359a8dc52cc84fb8ba3c",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,48 +365,23 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 9,
+    "total": 2,
     "byClassification": {
-      "stale_generated_artifact_to_regenerate": 7,
       "source_agreement_failure_artifact_expected": 1,
       "documentation_artifact_expected": 1
     },
     "unsafeUnknown": [],
     "sample": [
       {
-        "path": "agent/state/analytics-legacy-history-reconciliation.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/analytics-legacy-purgatory-queue.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/ga4-recovery-truth.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
         "path": "agent/state/source-agreement-failure-detail.generated.json",
         "classification": "source_agreement_failure_artifact_expected"
       },
       {
-        "path": "docs/agent-truth/analytics-legacy-history-reconciliation.md",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "docs/agent-truth/ga4-recovery-truth.md",
-        "classification": "stale_generated_artifact_to_regenerate"
+        "path": "docs/agent-truth/source-agreement-failure-detail.md",
+        "classification": "documentation_artifact_expected"
       }
     ],
-    "sampleTruncated": true
+    "sampleTruncated": false
   },
   "nextExactSteps": [
     "Connect safe lastSeen/materialized summaries for source-missing panels.",
