@@ -1147,9 +1147,9 @@ describe("recovery timeline spine", () => {
 
     expect(blocked).toMatchObject({
       canClearSourceGate: false,
-      sourceGateReason: "The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth.",
-      allLaunchRangeProofReason: "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.",
+      sourceGateReason: "The evidence window is not proven to cover the full launch range; source truth needs a redacted all-range historical export or admin truth sample before clearing.",
     });
+    expect(blocked.allLaunchRangeProofReason).toContain("npm run capture:truthful-evidence -- --launch-coverage-from");
     expect(blocked.sourceGateBlockers.map((entry) => entry.blocker)).toEqual([
       "all_launch_range_proof_missing",
       "first_party_coverage_incomplete",
@@ -1158,6 +1158,7 @@ describe("recovery timeline spine", () => {
       "launch_history_coverage_unavailable",
     ]);
     expect(blocked.sourceGateBlockers.every((entry) => entry.reason && entry.nextAction)).toBe(true);
+    expect(blocked.sourceGateBlockers[0]?.nextAction).toContain("agent/evidence/launch-analytics/launch-history-coverage.local.json");
 
     const stale = buildLaunchRecoverySourceGateState({
       localEvidenceDayCount: 128,

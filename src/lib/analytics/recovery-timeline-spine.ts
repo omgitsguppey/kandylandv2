@@ -217,6 +217,9 @@ export const RECOVERY_METRIC_MODELING_POLICY = {
 export const RECOVERY_METRIC_POLICY_PROOF_BOUNDARY = "policy_metadata_only_not_runtime_provider_or_admin_truth_proof" as const;
 export type RecoveryMetricPolicyProofBoundary = typeof RECOVERY_METRIC_POLICY_PROOF_BOUNDARY;
 
+const LAUNCH_HISTORY_EXPORT_COMMAND = "npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>";
+const LAUNCH_HISTORY_EXPORT_PATHS = "agent/evidence/launch-analytics/launch-history-coverage.local.json or agent/evidence/launch-analytics/launch-history-coverage.export.json";
+
 export const RECOVERED_METRIC_METADATA_PROOF_BOUNDARY = "metadata_completeness_only_not_source_runtime_provider_or_admin_truth_proof" as const;
 export type RecoveredMetricMetadataProofBoundary = typeof RECOVERED_METRIC_METADATA_PROOF_BOUNDARY;
 
@@ -2763,8 +2766,8 @@ export function buildLaunchRecoverySourceGateState(input: {
         ? "The source-agreement detail includes explicit all-launch range proof from a formal admin truth sample."
         : "The source-agreement detail includes explicit all-launch range proof from an approved all-launch source."
     : input.coverageWindowKind.includes("fixture")
-      ? "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export."
-      : "The local source-agreement evidence proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.";
+      ? `The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Convert a redacted all-range historical route export with \`${LAUNCH_HISTORY_EXPORT_COMMAND}\` or place a complete redacted admin truth sample with launchHistoryCoverage day rows.`
+      : `The local source-agreement evidence proves only the current evidence window. Convert a redacted all-range historical route export with \`${LAUNCH_HISTORY_EXPORT_COMMAND}\` or place a complete redacted admin truth sample with launchHistoryCoverage day rows.`;
   const sourceGateBlockers: LaunchRecoverySourceGateBlocker[] = [];
   if (input.staleEvidence) {
     sourceGateBlockers.push({
@@ -2776,8 +2779,8 @@ export function buildLaunchRecoverySourceGateState(input: {
   if (!input.allLaunchRangeProven) {
     sourceGateBlockers.push({
       blocker: "all_launch_range_proof_missing",
-      reason: "The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth.",
-      nextAction: "Attach approved all-range launch-history evidence or a redacted admin truth sample with launchHistoryCoverage day rows.",
+      reason: "The evidence window is not proven to cover the full launch range; source truth needs a redacted all-range historical export or admin truth sample before clearing.",
+      nextAction: `Run \`${LAUNCH_HISTORY_EXPORT_COMMAND}\` from a saved redacted Admin Analytics range=all response, or place the completed export at ${LAUNCH_HISTORY_EXPORT_PATHS}.`,
     });
   }
   if (input.firstPartyCoverageState !== "available") {
@@ -2812,7 +2815,7 @@ export function buildLaunchRecoverySourceGateState(input: {
     sourceGateBlockers.push({
       blocker: "local_evidence_missing",
       reason: "No launch history evidence window is available.",
-      nextAction: "Attach bounded first-party launch-history evidence before attempting source recovery.",
+      nextAction: `Create a redacted launch-history coverage export with \`${LAUNCH_HISTORY_EXPORT_COMMAND}\`; screenshots or operator summaries cannot clear this source gate.`,
     });
   }
   const sourceGateReason = canClearSourceGate
