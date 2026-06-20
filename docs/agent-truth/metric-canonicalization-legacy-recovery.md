@@ -1,7 +1,7 @@
 # Metric Canonicalization Legacy Recovery
 
-Generated: 2026-06-20T21:07:40.426Z
-Current head: bc49f85a44b9c911b5404762ddf93e75bfea4b3b
+Generated: 2026-06-20T21:17:59.435Z
+Current head: 5887f2f7ac7e64fd69d0a3666d05f8d823d32ced
 Status: pass
 
 ## Contract
