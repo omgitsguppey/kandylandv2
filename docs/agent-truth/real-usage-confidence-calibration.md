@@ -8,7 +8,9 @@ Status: source-only calibration for non-UI beta confidence. It does not read pro
 - Calibrated confidence score: 63.27
 - Runtime health credit: 92
 - Evidence completeness credit: 63.27
-- Operator-confirmed $50 sale recognized: true
+- Operator-confirmed revenue context recognized: true
+- Operator revenue source truth: operator_context_only
+- Operator revenue source role: confidence_context_not_provider_truth
 - Formal provider gate cleared: false
 - Deployed runtime gate cleared: false
 

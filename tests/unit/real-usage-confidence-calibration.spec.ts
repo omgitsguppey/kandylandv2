@@ -59,7 +59,7 @@ function input(overrides: Partial<RealUsageConfidenceCalibrationInput> = {}): Re
       },
     },
     operatorRevenueSmoke: {
-      amountUsdConfirmed: 50,
+      amountUsdConfirmed: 37.5,
       confirmationSource: "operator_confirmed",
       formalProviderSmokePassed: false,
       providerArtifactAttached: false,
@@ -81,12 +81,14 @@ function input(overrides: Partial<RealUsageConfidenceCalibrationInput> = {}): Re
 }
 
 describe("real usage confidence calibration", () => {
-  it("recognizes the operator-confirmed sale without clearing formal gates", () => {
+  it("recognizes operator-confirmed revenue context without clearing formal gates", () => {
     const report = buildRealUsageConfidenceCalibration(input());
 
     expect(report.operatorConfirmedRevenueSmoke).toMatchObject({
-      amountUsdConfirmed: 50,
+      amountUsdConfirmed: 37.5,
       recognized: true,
+      sourceTruth: "operator_context_only",
+      sourceRole: "confidence_context_not_provider_truth",
       formalProviderGateCleared: false,
     });
     expect(report.formalGateImpact).toEqual({
@@ -96,6 +98,28 @@ describe("real usage confidence calibration", () => {
     expect(report.perFlowConfidence.wallet_refill.confidenceClass).toBe("observed_operator_confirmed");
     expect(report.perFlowConfidence.wallet_refill.observedCount).toBe(1);
     expect(validateRealUsageConfidenceCalibration(report)).toEqual([]);
+  });
+
+  it("does not recognize missing or zero revenue context as usage proof", () => {
+    const report = buildRealUsageConfidenceCalibration(input({
+      operatorRevenueSmoke: {
+        amountUsdConfirmed: 0,
+        confirmationSource: "operator_confirmed",
+        formalProviderSmokePassed: false,
+        providerArtifactAttached: false,
+      },
+    }));
+
+    expect(report.operatorConfirmedRevenueSmoke).toMatchObject({
+      recognized: false,
+      sourceTruth: "source_missing",
+      formalProviderGateCleared: false,
+    });
+    expect(validateRealUsageConfidenceCalibration(report)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("operator-confirmed revenue context is ignored"),
+      ]),
+    );
   });
 
   it("keeps inferred and source-ready signals out of observed proof", () => {

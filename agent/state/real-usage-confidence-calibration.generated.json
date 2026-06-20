@@ -1,8 +1,8 @@
 {
   "reportKey": "real-usage-confidence-calibration",
-  "generatedAtUtc": "2026-06-19T16:01:13.548Z",
-  "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
-  "sourceCommit": "036a189a959f392c6eeec496ce112825d50864bb",
+  "generatedAtUtc": "2026-06-20T17:32:48.973Z",
+  "currentHead": "fd1a7917cc7d1cc849245dfd190428150d23d6fa",
+  "sourceCommit": "fd1a7917cc7d1cc849245dfd190428150d23d6fa",
   "status": "source_ready_real_usage_confidence_calibrated",
   "detail": "Real usage confidence is calibrated from operator-confirmed usage, behavior math, identity transfer, telemetry closure, and source-ready paths without clearing formal gates.",
   "productionReadsRequired": false,
@@ -21,6 +21,8 @@
   "operatorConfirmedRevenueSmoke": {
     "amountUsdConfirmed": 50,
     "recognized": true,
+    "sourceTruth": "operator_context_only",
+    "sourceRole": "confidence_context_not_provider_truth",
     "sourcePath": "agent/state/operator-revenue-smoke.generated.json",
     "formalProviderGateCleared": false
   },

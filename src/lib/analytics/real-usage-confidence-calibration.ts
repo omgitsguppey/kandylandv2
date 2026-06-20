@@ -129,6 +129,8 @@ export type RealUsageConfidenceCalibrationReport = {
   operatorConfirmedRevenueSmoke: {
     amountUsdConfirmed: number;
     recognized: boolean;
+    sourceTruth: "operator_context_only" | "source_missing";
+    sourceRole: "confidence_context_not_provider_truth";
     sourcePath: string;
     formalProviderGateCleared: boolean;
   };
@@ -280,9 +282,13 @@ function sourceSignalReady(signal: RealUsageCalibrationSignalLike | null | undef
   return signal?.status === "source_ready" || signal?.status === "observed";
 }
 
+function hasPositiveRevenueContext(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
 function operatorRevenueRecognized(input: RealUsageConfidenceCalibrationInput) {
   return input.operatorRevenueSmoke?.confirmationSource === "operator_confirmed"
-    && input.operatorRevenueSmoke.amountUsdConfirmed === 50
+    && hasPositiveRevenueContext(input.operatorRevenueSmoke.amountUsdConfirmed)
     && input.operatorRevenueSmoke.formalProviderSmokePassed !== true;
 }
 
@@ -413,6 +419,8 @@ export function buildRealUsageConfidenceCalibration(
     operatorConfirmedRevenueSmoke: {
       amountUsdConfirmed: input.operatorRevenueSmoke?.amountUsdConfirmed ?? 0,
       recognized: operatorRevenueRecognized(input),
+      sourceTruth: operatorRevenueRecognized(input) ? "operator_context_only" : "source_missing",
+      sourceRole: "confidence_context_not_provider_truth",
       sourcePath: "agent/state/operator-revenue-smoke.generated.json",
       formalProviderGateCleared: false,
     },
@@ -454,8 +462,12 @@ export function validateRealUsageConfidenceCalibration(
   if (report.productionReadsRequired !== false) failures.push("real usage calibration must not require production reads.");
   if (report.legacyMutationAllowed !== false) failures.push("real usage calibration must not mutate legacy data.");
   if (report.fakeUsageCountsUsed !== false) failures.push("real usage confidence uses fake counts.");
-  if (report.operatorConfirmedRevenueSmoke.amountUsdConfirmed !== 50 || !report.operatorConfirmedRevenueSmoke.recognized) {
-    failures.push("operator-confirmed $50 sale is ignored.");
+  if (report.operatorConfirmedRevenueSmoke.amountUsdConfirmed <= 0 || !report.operatorConfirmedRevenueSmoke.recognized) {
+    failures.push("operator-confirmed revenue context is ignored.");
+  }
+  if (report.operatorConfirmedRevenueSmoke.sourceRole !== "confidence_context_not_provider_truth"
+    || report.operatorConfirmedRevenueSmoke.sourceTruth !== "operator_context_only") {
+    failures.push("operator revenue context is not labeled as confidence-only evidence.");
   }
   if (report.formalGateImpact.clearsFormalProvider) failures.push("real usage calibration must not clear formal provider.");
   if (report.formalGateImpact.clearsDeployedRuntime) failures.push("real usage calibration must not clear deployed runtime.");
