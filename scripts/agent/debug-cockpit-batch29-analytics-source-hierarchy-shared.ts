@@ -9,6 +9,7 @@ import {
   type LaunchHistoryCoverageForSourceAgreement,
 } from "../../src/lib/analytics/source-agreement-detail";
 import {
+  buildLaunchHistoryCoverageRangeProofEligibility,
   buildLaunchHistoryCoverageSummaryState,
   buildLaunchHistorySourceCoverageRowsState,
 } from "../../src/lib/analytics/recovery-timeline-spine";
@@ -22,8 +23,10 @@ type LaunchHistoryCoverageInputStatus = {
   state:
     | "missing"
     | "usable_launch_history_coverage"
+    | "usable_local_window_only"
     | "present_without_completion_or_redaction_proof"
     | "present_without_launch_history_coverage"
+    | "present_without_expected_day_rows"
     | "template_not_evidence"
     | "malformed_json";
   proofMode: "admin_truth_sample" | "local_export" | "none";
@@ -194,6 +197,7 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
   }
 
   if (days.length === 0) return null;
+  if (expectedDayKeys.length === 0) return null;
 
   const sourceCoverageRows = buildLaunchHistorySourceCoverageRowsState({
     expectedDayKeys,
@@ -221,6 +225,54 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
     },
     days,
   };
+}
+
+export function launchHistoryCoverageHasFormalRangeProof(
+  filePath: string,
+  raw: unknown,
+) {
+  const coverage = normalizeLaunchHistoryCoverageExport(raw);
+  if (!coverage) return false;
+
+  const expectedDayKeys = [...new Set(
+    coverage.days
+      .filter((day) => day.expected)
+      .map((day) => day.dayKey)
+      .filter(Boolean),
+  )].sort();
+  if (expectedDayKeys.length === 0) return false;
+
+  const sourceCountsByDay = Object.fromEntries(
+    coverage.days
+      .filter((day) => day.expected)
+      .map((day) => [day.dayKey, day.sourceCounts]),
+  );
+  const sourceCoverageRows = buildLaunchHistorySourceCoverageRowsState({
+    expectedDayKeys,
+    sourceCountsByDay,
+  });
+  const coverageSummary = buildLaunchHistoryCoverageSummaryState({
+    expectedDayKeys: sourceCoverageRows.expectedDayKeys,
+    dayCoverage: sourceCoverageRows.dayCoverage,
+    staleEvidence: false,
+    sourceAgreementState: "pass",
+  });
+  const eligibility = buildLaunchHistoryCoverageRangeProofEligibility({
+    proofMode: proofModeForLaunchCoverageExport(filePath, raw),
+    expectedDayKeys,
+    declaredExpectedDayCount: coverage.expectedDayCount,
+    declaredRecoveredDayCount: coverage.recoveredDayCount,
+    recoveredDayCount: coverageSummary.recoveredDayCount,
+    rangeStartDayKey: coverage.rangeStartDayKey,
+    rangeEndDayKey: coverage.rangeEndDayKey,
+    rangeProof: coverage.rangeProof,
+    launchCoverageState: coverageSummary.launchCoverage.state,
+    firstPartyCoverageState: coverageSummary.firstPartyCoverage.state,
+    productTruthRecoveredDayCount: coverageSummary.productTruthRecoveredDayCount,
+    sourceAgreementState: "pass",
+  });
+
+  return eligibility.allLaunchRangeProven;
 }
 
 function listAdminTruthSampleEvidencePaths() {
@@ -270,12 +322,34 @@ export function launchHistoryCoverageInputStatuses(): LaunchHistoryCoverageInput
       };
     }
     if (coverage && isUsableLaunchHistoryCoverageEvidence(filePath, readResult.raw)) {
+      if (!launchHistoryCoverageHasFormalRangeProof(filePath, readResult.raw)) {
+        return {
+          path: filePath,
+          state: "usable_local_window_only",
+          proofMode: proofModeForLaunchCoverageExport(filePath, readResult.raw),
+          nextAction: "This complete redacted input can compare the local evidence window, but it still needs explicit all-launch range proof before clearing February-to-now recovery.",
+        };
+      }
+
       return {
         path: filePath,
         state: "usable_launch_history_coverage",
         proofMode: proofModeForLaunchCoverageExport(filePath, readResult.raw),
         nextAction: "Use this file as the local launch-history coverage input for source agreement.",
       };
+    }
+    if (coverage === null) {
+      const candidate = asRecord(root.launchHistoryCoverage ?? asRecord(root.analyticsSourceHealth).launchHistoryCoverage ?? root);
+      const days = Array.isArray(candidate.days) ? candidate.days : [];
+      const hasDayRows = days.length > 0;
+      if (hasDayRows) {
+        return {
+          path: filePath,
+          state: "present_without_expected_day_rows",
+          proofMode: "none",
+          nextAction: "Launch-history evidence must include at least one valid expected day row before it can be compared or used as range proof.",
+        };
+      }
     }
     if (coverage) {
       return {

@@ -306,7 +306,11 @@ export function summarizeLaunchCoverageInputEvidence(
 }
 
 export function launchCoverageInputEvidenceNextAction(input: LaunchCoverageInputEvidenceSummary) {
-  if (input.usableInputFound) return null;
+  if (input.usableInputFound && (input.stateCounts.usable_launch_history_coverage ?? 0) > 0) return null;
+
+  if ((input.stateCounts.usable_local_window_only ?? 0) > 0) {
+    return "The attached launch-history input is complete and redacted, but it only proves a local evidence window. Add explicit all-launch range proof covering February launch through the current recovery date before clearing source truth.";
+  }
 
   const acceptedPaths = input.candidates
     .filter((entry) => entry.path.includes("agent/evidence/launch-analytics/launch-history-coverage"))

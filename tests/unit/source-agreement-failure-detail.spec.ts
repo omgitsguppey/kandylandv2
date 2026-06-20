@@ -18,6 +18,7 @@ import {
 import {
   launchHistoryCoverageInputStatuses,
   launchHistoryCoverageExportPaths,
+  launchHistoryCoverageHasFormalRangeProof,
   isUsableLaunchHistoryCoverageEvidence,
   normalizeLaunchHistoryCoverageExport,
   proofModeForLaunchCoverageExport,
@@ -651,6 +652,13 @@ describe("source agreement failure detail", () => {
     expect(launchCoverageInputEvidenceNextAction({
       ...summary,
       usableInputFound: true,
+    })).toContain("Attach approved launch-history coverage");
+    expect(launchCoverageInputEvidenceNextAction({
+      ...summary,
+      usableInputFound: true,
+      stateCounts: {
+        usable_launch_history_coverage: 1,
+      },
     })).toBeNull();
   });
 
@@ -724,6 +732,80 @@ describe("source agreement failure detail", () => {
         },
       },
     )).toBe(true);
+    expect(launchHistoryCoverageHasFormalRangeProof(
+      "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      {
+        ...raw,
+        status: "complete",
+        redaction: {
+          rawUserIdentifiersIncluded: false,
+          rawPaymentDetailsIncluded: false,
+          secretsIncluded: false,
+        },
+      },
+    )).toBe(false);
+  });
+
+  it("keeps complete redacted local-window evidence distinct from formal launch-range proof", () => {
+    const localWindow = {
+      status: "complete",
+      redaction: {
+        rawUserIdentifiersIncluded: false,
+        rawPaymentDetailsIncluded: false,
+        secretsIncluded: false,
+      },
+      launchHistoryCoverage: {
+        rangeStartDayKey: "2026-05-01",
+        rangeEndDayKey: "2026-05-01",
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
+        days: [{
+          dayKey: "2026-05-01",
+          expected: true,
+          sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 0, legacySupport: 0 },
+        }],
+      },
+    };
+    const allRangeExport = {
+      ...localWindow,
+      launchHistoryCoverage: {
+        ...localWindow.launchHistoryCoverage,
+        rangeProof: {
+          allLaunchRangeProven: true,
+          expectedRangeSource: "approved_all_launch_export",
+          coverageWindowKind: "all_range_historical_export",
+        },
+      },
+    };
+
+    expect(isUsableLaunchHistoryCoverageEvidence(
+      "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      localWindow,
+    )).toBe(true);
+    expect(launchHistoryCoverageHasFormalRangeProof(
+      "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      localWindow,
+    )).toBe(false);
+    expect(launchHistoryCoverageHasFormalRangeProof(
+      "agent/evidence/launch-analytics/launch-history-coverage.export.json",
+      allRangeExport,
+    )).toBe(true);
+
+    const summary = summarizeLaunchCoverageInputEvidence({
+      sourceAgreementInputMode: "local_export",
+      sourceAgreementInputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      usableLaunchCoverageInputFound: true,
+      candidateLaunchCoverageInputStatuses: [{
+        path: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+        state: "usable_local_window_only",
+        proofMode: "local_export",
+        nextAction: "Add all-launch proof.",
+      }],
+    });
+
+    expect(summary.stateCounts.usable_local_window_only).toBe(1);
+    expect(launchCoverageInputEvidenceNextAction(summary)).toContain("only proves a local evidence window");
   });
 
   it("derives recovered launch coverage from rows instead of declared counts", () => {
