@@ -1,6 +1,7 @@
 import "server-only";
 
 import { describeSecurityEvent } from "@/lib/security-events";
+import { mapLegacyEventToCurrentMetric } from "@/lib/math/legacy-metric-canonicalization";
 
 import {
     getTelemetryParamNumber,
@@ -56,6 +57,32 @@ export interface RealtimeSurfaceMixItem {
     label: string;
     activeUsers: number;
     lastSeenAt: number;
+}
+
+function isExperienceConversionEvent(eventName: string) {
+    const canonicalEventName = mapLegacyEventToCurrentMetric({ eventName }).canonicalEventName;
+    return canonicalEventName === "drop_unlocked"
+        || eventName === "viewer_asset_consumed"
+        || eventName === "viewer_asset_completed";
+}
+
+function buildExperienceConversionKey(input: {
+    record: TelemetryLogRecord;
+    eventName: string;
+    userKey: string;
+    experienceKey: string;
+}) {
+    const eventId = getTelemetryParamString(input.record, "event_id")
+        || getTelemetryParamString(input.record, "eventId")
+        || getTelemetryParamString(input.record, "idempotency_key")
+        || getTelemetryParamString(input.record, "idempotencyKey");
+    const canonicalEventName = mapLegacyEventToCurrentMetric({ eventName: input.eventName }).canonicalEventName;
+    if (eventId) {
+        return `${canonicalEventName}:event:${eventId}`;
+    }
+
+    const timestampBucket = Math.floor(toNumber(input.record.timestamp) / 60_000);
+    return `${canonicalEventName}:${input.userKey}:${input.experienceKey}:${timestampBucket}`;
 }
 
 function humanizeLabel(value: string) {
@@ -173,6 +200,7 @@ export function buildHistoricalAnalyticsContext(input: {
         uniqueUsers: Set<string>;
         watchSeconds: number;
         conversionCount: number;
+        conversionKeys: Set<string>;
     }>();
     const securityReasonMap = new Map<string, {
         reason: string;
@@ -230,12 +258,22 @@ export function buildHistoricalAnalyticsContext(input: {
                 uniqueUsers: new Set<string>(),
                 watchSeconds: 0,
                 conversionCount: 0,
+                conversionKeys: new Set<string>(),
             };
             currentExperience.eventCount += 1;
             currentExperience.uniqueUsers.add(userKey);
             currentExperience.watchSeconds += watchSeconds;
-            if (record.eventName === "unlock_drop_success" || record.eventName === "viewer_asset_consumed" || record.eventName === "viewer_asset_completed") {
-                currentExperience.conversionCount += 1;
+            if (isExperienceConversionEvent(record.eventName)) {
+                const conversionKey = buildExperienceConversionKey({
+                    record,
+                    eventName: record.eventName,
+                    userKey,
+                    experienceKey: experience.key,
+                });
+                if (!currentExperience.conversionKeys.has(conversionKey)) {
+                    currentExperience.conversionKeys.add(conversionKey);
+                    currentExperience.conversionCount += 1;
+                }
             }
             experienceMap.set(experience.key, currentExperience);
         }
@@ -335,6 +373,7 @@ export function buildHistoricalAnalyticsContext(input: {
             uniqueUsers: new Set<string>(),
             watchSeconds: 0,
             conversionCount: 0,
+            conversionKeys: new Set<string>(),
         };
         currentExperience.label = item.dropTitle || currentExperience.label;
         currentExperience.eventCount += item.sessionCount + item.assetStarts + item.downloads + item.relatedClicks;
