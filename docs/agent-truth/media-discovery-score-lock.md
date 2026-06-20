@@ -1,7 +1,7 @@
 # Media Discovery Score Lock
 
-Generated: 2026-06-18T16:24:46.209Z
-Head: 2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78
+Generated: 2026-06-20T15:23:38.810Z
+Head: 6e903936b9ba164bd883dff1e698504e51a4aed0
 Status: pass
 
 ## Summary
@@ -16,7 +16,7 @@ Status: pass
 - Debug visibility: pass
 - Sensitive route access: pass
 - Raw sensitive telemetry protected: true
-- Score: 77.4 -> 77.4
+- Score: 70.79 -> 70.79
 - Score dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, freshness, costRisk, regressionRisk
 
 ## Event Spines
@@ -59,15 +59,6 @@ Status: pass
 | File | Classification |
 | --- | --- |
 | agent/state/creator-experience-simplification.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/creator-monetization-readiness-lock.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/current-beta-exit-status.generated.json | current_generated_artifact_to_commit |
-| agent/state/final-parity-telemetry-lock.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/media-discovery-score-lock.generated.json | current_generated_artifact_to_commit |
-| agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
-| agent/state/user-creator-ui-parity.generated.json | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/creator-monetization-readiness-lock.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/final-parity-telemetry-lock.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/media-discovery-score-lock.md | documentation_artifact_expected |
 
 ## Remaining Gaps
 

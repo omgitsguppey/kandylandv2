@@ -1,7 +1,7 @@
 {
   "reportKey": "media-discovery-score-lock",
-  "generatedAtUtc": "2026-06-18T16:24:46.209Z",
-  "currentHead": "2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78",
+  "generatedAtUtc": "2026-06-20T15:23:38.810Z",
+  "currentHead": "6e903936b9ba164bd883dff1e698504e51a4aed0",
   "mediaUploadStatus": "pass",
   "privateMediaAccessStatus": "pass",
   "creatorDiscoveryStatus": "pass",
@@ -102,8 +102,8 @@
     "scripts/agent/validate-search-discovery-cost.ts": "pass",
     "tests/unit/search-discovery-cost.spec.ts": "pass"
   },
-  "scoreBefore": 77.4,
-  "scoreAfter": 77.4,
+  "scoreBefore": 70.79,
+  "scoreAfter": 70.79,
   "scoreDimensions": [
     "sourceHealth",
     "runtimeHealth",
@@ -125,42 +125,6 @@
     {
       "path": "agent/state/creator-experience-simplification.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/final-parity-telemetry-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/media-discovery-score-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/user-creator-ui-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/media-discovery-score-lock.md",
-      "classification": "documentation_artifact_expected"
     }
   ],
   "validationFailures": []
