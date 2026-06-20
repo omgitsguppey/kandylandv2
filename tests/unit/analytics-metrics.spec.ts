@@ -116,4 +116,44 @@ describe("analytics metrics", () => {
       },
     });
   });
+
+  it("dedupes drop share and viewer open facts for share rate", () => {
+    const report = buildAnalyticsMetricReport({
+      eventFacts: [
+        {
+          eventId: "viewer_1",
+          eventName: "viewer_opened",
+          timestamp: 1_000,
+          sessionId: "session_1",
+          dropId: "drop_1",
+          params: { drop_id: "drop_1" },
+        },
+        {
+          eventId: "share_1",
+          eventName: "drop_share_copied",
+          timestamp: 2_000,
+          sessionId: "session_1",
+          dropId: "drop_1",
+          params: { drop_id: "drop_1" },
+        },
+        {
+          eventId: "share_1",
+          eventName: "drop_share_copied",
+          timestamp: 2_100,
+          sessionId: "session_1",
+          dropId: "drop_1",
+          params: { drop_id: "drop_1" },
+        },
+      ],
+    });
+
+    expect(metric(report, "drop_share_rate")).toMatchObject({
+      value: 1,
+      sampleSize: 1,
+      supportingValues: {
+        dropShares: 1,
+        viewerOpens: 1,
+      },
+    });
+  });
 });

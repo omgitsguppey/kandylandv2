@@ -550,6 +550,7 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
   const dropPreviewOpens = countCanonicalEventGroup(input, "drop_preview_opened", ["drop_preview", "drop_preview_page_viewed"]);
   const dropUnlocks = countCanonicalEventGroup(input, "drop_unlocked", ["unlock_drop_success", "drop_unwrapped", "entitlement_granted"]);
   const viewerOpens = countCanonicalEventGroup(input, "viewer_opened", []);
+  const dropShares = countCanonicalEventGroup(input, "drop_share_copied", []);
 
   const reachedSessions = sessions.size;
   let totalPageViews = 0;
@@ -851,11 +852,11 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
     ),
     drop_share_rate: createResult(
       ANALYTICS_SOCIAL_METRICS_BY_KEY.drop_share_rate,
-      percent(toNumber(eventCounts.drop_share_copied), toNumber(eventCounts.viewer_opened)),
-      toNumber(eventCounts.viewer_opened),
+      percent(dropShares, viewerOpens),
+      viewerOpens,
       {
-        dropShares: toNumber(eventCounts.drop_share_copied),
-        viewerOpens: toNumber(eventCounts.viewer_opened),
+        dropShares,
+        viewerOpens,
       },
     ),
   } as Record<string, AnalyticsMetricResult>;
