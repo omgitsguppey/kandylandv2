@@ -8,6 +8,7 @@ import {
   formatAnalyticsMetricValue,
 } from "@/lib/analytics-metric-catalog";
 import { getLegacyPagePathForEvent } from "@/lib/analytics-semantics";
+import { mapLegacyEventToCurrentMetric } from "@/lib/math/legacy-metric-canonicalization";
 import {
   AnalyticsEventFactRecord,
   AnalyticsGuestBatchRecord,
@@ -469,6 +470,63 @@ function ratio(numerator: number, denominator: number) {
   return numerator / denominator;
 }
 
+function eventNameMatchesCanonicalGroup(eventName: string, canonicalEventName: string, aliases: readonly string[]) {
+  if (!eventName) return false;
+  const normalized = eventName.trim();
+  if (normalized === canonicalEventName || aliases.includes(normalized)) return true;
+  return mapLegacyEventToCurrentMetric({ eventName: normalized }).canonicalEventName === canonicalEventName;
+}
+
+function countCanonicalEventFacts(
+  facts: readonly AnalyticsEventFactRecord[],
+  canonicalEventName: string,
+  aliases: readonly string[],
+  dedupeWindowMs = 60_000,
+) {
+  const seen = new Set<string>();
+
+  for (const fact of facts) {
+    const eventName = toStringValue(fact.eventName);
+    const actionName = resolveFactActionName(fact);
+    if (
+      !eventNameMatchesCanonicalGroup(eventName, canonicalEventName, aliases)
+      && !eventNameMatchesCanonicalGroup(actionName, canonicalEventName, aliases)
+    ) {
+      continue;
+    }
+
+    const params = (fact.params ?? {}) as Record<string, unknown>;
+    const eventId = toStringValue((fact as Record<string, unknown>).eventId);
+    const actorId = toStringValue(fact.userId) || toStringValue(fact.sessionId) || "unknown_actor";
+    const objectId = toStringValue(fact.dropId)
+      || toStringValue(params.drop_id)
+      || toStringValue(params.dropId)
+      || toStringValue(params.entitlement_id)
+      || toStringValue(params.entitlementId)
+      || "unknown_object";
+    const timeBucket = Math.floor(toNumber(fact.timestamp) / dedupeWindowMs);
+    seen.add(eventId || `${canonicalEventName}:${actorId}:${objectId}:${timeBucket}`);
+  }
+
+  return seen.size;
+}
+
+function countCanonicalEventGroup(
+  input: AnalyticsMetricEngineInput,
+  canonicalEventName: string,
+  aliases: readonly string[],
+) {
+  const factCount = countCanonicalEventFacts(input.eventFacts ?? [], canonicalEventName, aliases);
+  if (factCount > 0) return factCount;
+
+  const countBuckets = Object.entries(input.eventCounts ?? {})
+    .filter(([eventName]) => eventNameMatchesCanonicalGroup(eventName, canonicalEventName, aliases))
+    .map(([, count]) => toNumber(count))
+    .filter((count) => count > 0);
+
+  return countBuckets.length > 0 ? Math.max(...countBuckets) : 0;
+}
+
 function createResult(
   definition: AnalyticsMetricDefinition,
   value: number,
@@ -489,6 +547,9 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
   const eventCounts = input.eventCounts ?? {};
   const sessions = buildSessionSummaries(input);
   const viewer = buildViewerAccumulator(input);
+  const dropPreviewOpens = countCanonicalEventGroup(input, "drop_preview_opened", ["drop_preview", "drop_preview_page_viewed"]);
+  const dropUnlocks = countCanonicalEventGroup(input, "drop_unlocked", ["unlock_drop_success", "drop_unwrapped", "entitlement_granted"]);
+  const viewerOpens = countCanonicalEventGroup(input, "viewer_opened", []);
 
   const reachedSessions = sessions.size;
   let totalPageViews = 0;
@@ -736,29 +797,29 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
     ),
     preview_click_through_rate: createResult(
       ANALYTICS_SOCIAL_METRICS_BY_KEY.preview_click_through_rate,
-      percent(toNumber(eventCounts.drop_preview_opened), toNumber(eventCounts.drop_card_impression)),
+      percent(dropPreviewOpens, toNumber(eventCounts.drop_card_impression)),
       toNumber(eventCounts.drop_card_impression),
       {
-        dropPreviewOpens: toNumber(eventCounts.drop_preview_opened),
+        dropPreviewOpens,
         dropCardImpressions: toNumber(eventCounts.drop_card_impression),
       },
     ),
     preview_to_unlock_rate: createResult(
       ANALYTICS_SOCIAL_METRICS_BY_KEY.preview_to_unlock_rate,
-      percent(toNumber(eventCounts.drop_unwrapped), toNumber(eventCounts.drop_preview_opened)),
-      toNumber(eventCounts.drop_preview_opened),
+      percent(dropUnlocks, dropPreviewOpens),
+      dropPreviewOpens,
       {
-        unlocks: toNumber(eventCounts.drop_unwrapped),
-        previews: toNumber(eventCounts.drop_preview_opened),
+        unlocks: dropUnlocks,
+        previews: dropPreviewOpens,
       },
     ),
     unlock_to_viewer_rate: createResult(
       ANALYTICS_SOCIAL_METRICS_BY_KEY.unlock_to_viewer_rate,
-      percent(toNumber(eventCounts.viewer_opened), toNumber(eventCounts.drop_unwrapped)),
-      toNumber(eventCounts.drop_unwrapped),
+      percent(viewerOpens, dropUnlocks),
+      dropUnlocks,
       {
-        viewerOpens: toNumber(eventCounts.viewer_opened),
-        unlocks: toNumber(eventCounts.drop_unwrapped),
+        viewerOpens,
+        unlocks: dropUnlocks,
       },
     ),
     viewer_completion_rate: createResult(
