@@ -275,6 +275,7 @@ function classifyDirtyFile(path: string): Score80DirtyFile {
     return { path, classification: "current_generated_artifact_to_commit", action: "Commit score-80 refresh report artifact." };
   }
   if (path === "scripts/agent/validate-score-80-refresh-pass.ts"
+    || path === "scripts/agent/validate-score-80-path-lock.ts"
     || path === "scripts/agent/score-public-beta-readiness.ts"
     || path === "scripts/agent/validate-analytics-panel-hydration.ts"
     || path === "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts"
@@ -292,6 +293,7 @@ function classifyDirtyFile(path: string): Score80DirtyFile {
     || path === "tests/unit/creator-experiences-panel.spec.tsx"
     || path === "tests/unit/post-economy-creator-flow-qa.spec.ts"
     || path === "tests/unit/regression-risk-high-blast-refresh.spec.ts"
+    || path === "tests/unit/score-80-path-lock.spec.ts"
     || path === "tests/unit/score-80-refresh-pass.spec.ts"
     || path === "tests/unit/public-beta-score.spec.ts"
     || path === "tests/unit/purchase-modal.spec.tsx") {
@@ -316,8 +318,8 @@ function formalEvidenceGatesFromScore(score: Record<string, unknown> | null): Sc
   const launchBlockers = Array.isArray(score?.launchBlockers) ? score.launchBlockers.map(String) : [];
   return [
     {
-      id: "manual_visual_smoke",
-      status: launchBlockers.some((blocker) => /Visual\/manual smoke/u.test(blocker)) ? "missing_formal_evidence" : "unknown",
+      id: "ui_source_coverage",
+      status: launchBlockers.some((blocker) => /Visual\/manual smoke|UI source coverage|ui surface coverage/iu.test(blocker)) ? "source_validation_required" : "unknown",
       betaExitGate: true,
     },
     {
@@ -385,7 +387,7 @@ export function buildScore80RefreshPassReport(inputs: BuildScore80RefreshPassInp
     prActions: inputs.openPrs,
     dirtyFileActions,
     nextExactSteps: [
-      "Do not mark beta exit ready from source refreshes; attach formal manual, runtime/provider, and admin truth evidence first.",
+      "Do not mark beta exit ready from source refreshes; run deterministic UI source coverage and attach formal runtime/provider and admin truth evidence first.",
       "Resolve the blocked legacy implemented-lane validators or retire them from score inputs if they are obsolete.",
       "Run npm run score:beta and npm run check:beta-score after each implemented-lane refresh batch.",
     ],

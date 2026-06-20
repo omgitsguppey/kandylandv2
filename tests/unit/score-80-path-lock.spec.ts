@@ -59,6 +59,11 @@ describe("score 80 path lock", () => {
     ]);
     expect(report.remainingScoreDrag[0]?.weightedPointImpact).toBeGreaterThan(report.remainingScoreDrag[1]?.weightedPointImpact ?? 0);
     expect(report.artifactsBlocking80[0]?.refreshCommand).toBeTruthy();
+    expect(report.artifactsBlocking80.find((entry) => entry.id === "ui_source_coverage")).toMatchObject({
+      refreshCommand: expect.stringContaining("check:ui-visual-smoke-minimal"),
+      nextAction: expect.stringContaining("deterministic UI source coverage"),
+    });
+    expect(JSON.stringify(report.artifactsBlocking80)).not.toContain("manual visual");
     expect(report.nextThreeActions).toHaveLength(3);
     expect(validateScore80PathLockReport(report)).toEqual([]);
   });

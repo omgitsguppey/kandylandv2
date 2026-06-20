@@ -158,10 +158,10 @@ function classifyDirtyPath(path: string, status: string): DirtyFile {
   if (path === ARTIFACT_PATH || path === DOC_PATH) {
     return { path, status, classification: "current_generated_artifact_to_commit", action: "Commit score-80 path lock artifact." };
   }
-  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)) {
+  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-pass|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)) {
     return { path, status, classification: "real_source_change_needs_review", action: "Commit scoped score-80 path lock validator/test." };
   }
-  if (/^tests\/unit\/(beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|overnight-beta-readiness-lock)\.spec\.ts$/u.test(path)) {
+  if (/^tests\/unit\/(beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|overnight-beta-readiness-lock|score-80-path-lock|score-80-refresh-pass)\.spec\.ts$/u.test(path)) {
     return { path, status, classification: "real_source_change_needs_review", action: "Commit targeted source-coverage test update." };
   }
   if (path === "src/app/admin/debug/components/DebugOperatorCockpit.tsx" || path === "src/lib/debug/debug-backlog-builder.ts") {
@@ -246,7 +246,8 @@ function buildRemainingScoreDrag(scores: Pick<Score80PathLockReport,
 }
 
 function refreshCommandForEvidenceGate(id: string) {
-  if (id.includes("manual") || id.includes("visual")) return "Run npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status";
+  if (id.includes("ui_source") || id.includes("visual")) return "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps; screenshots are optional reproduction only.";
+  if (id.includes("manual")) return "Attach structured evidence for the named manual gate, then run npm run check:evidence-capture-status";
   if (id.includes("provider")) return "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status";
   if (id.includes("runtime")) return "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status";
   if (id.includes("admin")) return "Attach admin truth sample evidence, then run npm run check:evidence-capture-status";
@@ -271,7 +272,10 @@ function buildArtifactBlockers(input: {
     .map((cap) => String(cap))
     .filter((cap) => /visual|manual|runtime|provider|admin/iu.test(cap))
     .map((cap) => {
-      const id = cap.replace(/^[^:]+:\s*/u, "").replace(/[^a-z0-9]+/giu, "_").replace(/^_|_$/gu, "").toLowerCase();
+      const visualSourceCoverage = /visual\/manual smoke|visual qa|ui source coverage|ui surface coverage/iu.test(cap);
+      const id = visualSourceCoverage
+        ? "ui_source_coverage"
+        : cap.replace(/^[^:]+:\s*/u, "").replace(/[^a-z0-9]+/giu, "_").replace(/^_|_$/gu, "").toLowerCase();
       const impact = /runtime|provider/iu.test(cap)
         ? input.remainingScoreDrag.find((entry) => entry.dimension === "runtimeHealthScore")?.weightedPointImpact ?? 0
         : /visual|manual|admin/iu.test(cap)
@@ -282,7 +286,9 @@ function buildArtifactBlockers(input: {
         status: cap,
         pointImpact: round(impact),
         refreshCommand: refreshCommandForEvidenceGate(id),
-        nextAction: "Attach formal evidence before clearing this beta gate.",
+        nextAction: visualSourceCoverage
+          ? "Run deterministic UI source coverage before optional browser reproduction."
+          : "Attach formal evidence before clearing this beta gate.",
       };
     });
   return [...formalEvidence, ...stale]
