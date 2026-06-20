@@ -335,6 +335,24 @@ describe("recovery timeline spine", () => {
     });
   });
 
+  it("does not trust bare observed event-name lists as first-party launch proof", () => {
+    const report = buildLaunchCriticalRecoveryCoverageReport({
+      generatedAtUtc: "2026-06-07T12:00:00.000Z",
+      observedEventNames: ["page_viewed", "semantic_page_viewed"],
+    });
+
+    expect(report.familySourceStates.find((family) => family.familyId === "page_view")).toMatchObject({
+      observedFirstParty: false,
+      sourceTruth: "source_missing",
+      evidenceKind: "missing",
+      sourceCoverageState: "source_missing",
+      productTruthEligible: false,
+    });
+    expect(report.observedFirstPartyFamilyCount).toBe(0);
+    expect(report.sourceCoverageStatus).toBe("blocked");
+    expect(report.missingFamilies).toContain("page_view");
+  });
+
   it("separates active source-code coverage from historical launch proof", () => {
     const sourceReferencesByEventName = Object.fromEntries(
       LAUNCH_CRITICAL_EVENT_FAMILIES.map((family) => [
@@ -424,6 +442,7 @@ describe("recovery timeline spine", () => {
       buildLaunchCriticalRecoveryCoverageReport({
         generatedAtUtc: "2026-06-07T12:00:00.000Z",
         observedEventNames: ["page_viewed"],
+        observedEventNamesSource: "bounded_source_evidence",
       }).familySourceStates,
     );
 
@@ -1548,6 +1567,7 @@ describe("recovery timeline spine", () => {
           familySourceStates: buildLaunchCriticalRecoveryCoverageReport({
             generatedAtUtc: "2026-06-07T12:00:00.000Z",
             observedEventNames: ["page_viewed"],
+            observedEventNamesSource: "bounded_source_evidence",
           }).familySourceStates,
         },
         days: [
@@ -1579,6 +1599,7 @@ describe("recovery timeline spine", () => {
           familySourceStates: buildLaunchCriticalRecoveryCoverageReport({
             generatedAtUtc: "2026-06-07T12:00:00.000Z",
             observedEventNames: ["page_viewed"],
+            observedEventNamesSource: "bounded_source_evidence",
           }).familySourceStates,
         },
       },
@@ -1632,6 +1653,7 @@ describe("recovery timeline spine", () => {
     const report = buildLaunchCriticalRecoveryCoverageReport({
       generatedAtUtc: "2026-06-07T12:00:00.000Z",
       observedEventNames: LAUNCH_CRITICAL_EVENT_FAMILIES.map((family) => family.canonicalEventNames[0] ?? family.familyId),
+      observedEventNamesSource: "bounded_source_evidence",
     });
 
     expect(report).toMatchObject({
@@ -1755,6 +1777,7 @@ describe("recovery timeline spine", () => {
     const report = buildLaunchCriticalRecoveryCoverageReport({
       generatedAtUtc: "2026-06-07T12:00:00.000Z",
       observedEventNames: ["semantic_page_viewed"],
+      observedEventNamesSource: "bounded_source_evidence",
       recoveredMetrics: [
         buildRecoveredLaunchMetricState({
           eventName: "semantic_page_viewed",
@@ -1800,6 +1823,7 @@ describe("recovery timeline spine", () => {
     });
     const report = buildLaunchCriticalRecoveryCoverageReport({
       observedEventNames: observedNames,
+      observedEventNamesSource: "bounded_source_evidence",
       recoveredMetrics,
     });
 

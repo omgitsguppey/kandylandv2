@@ -592,6 +592,10 @@ export type LaunchCriticalRecoveryCoverageReport = {
   modelingPolicy: typeof RECOVERY_METRIC_MODELING_POLICY;
 };
 
+export type LaunchCriticalObservedEventNameSource =
+  | "bounded_source_evidence"
+  | "untrusted_name_list";
+
 export type LaunchCriticalCatalogFamilyState = {
   familyId: LaunchCriticalEventFamilyId;
   canonicalEventNames: string[];
@@ -3174,6 +3178,7 @@ export function buildLaunchCriticalRecoveryCoverageFromEvidence(input: {
   return buildLaunchCriticalRecoveryCoverageReport({
     generatedAtUtc: input.generatedAtUtc,
     observedEventNames,
+    observedEventNamesSource: "bounded_source_evidence",
     recoveredMetrics,
   });
 }
@@ -3328,9 +3333,13 @@ export function buildRecoveredLaunchMetricState(input: {
 export function buildLaunchCriticalRecoveryCoverageReport(input: {
   generatedAtUtc?: string;
   observedEventNames: string[];
+  observedEventNamesSource?: LaunchCriticalObservedEventNameSource;
   recoveredMetrics?: RecoveredLaunchMetricState[];
 }): LaunchCriticalRecoveryCoverageReport {
-  const observed = new Set(input.observedEventNames.map((eventName) => eventName.trim()).filter(Boolean));
+  const observedEventNamesSource = input.observedEventNamesSource ?? "untrusted_name_list";
+  const observed = observedEventNamesSource === "bounded_source_evidence"
+    ? new Set(input.observedEventNames.map((eventName) => eventName.trim()).filter(Boolean))
+    : new Set<string>();
   const recoveredMetrics = input.recoveredMetrics ?? [];
   const familySourceStates: LaunchCriticalFamilySourceState[] = LAUNCH_CRITICAL_EVENT_FAMILIES.map((family) => {
     const activeSourceEventNames = getLaunchCriticalActiveSourceEventNames(family);
@@ -3408,8 +3417,8 @@ export function buildLaunchCriticalRecoveryCoverageReport(input: {
       nextAction: nextActionForFamilySourceState(sourceCoverageState),
     };
   });
-  const missingFamilies = LAUNCH_CRITICAL_EVENT_FAMILIES
-    .filter((family) => !getLaunchCriticalActiveSourceEventNames(family).some((eventName) => observed.has(eventName)))
+  const missingFamilies = familySourceStates
+    .filter((family) => family.sourceCoverageState === "source_missing")
     .map((family) => family.familyId);
   const mappedFamilyCount = LAUNCH_CRITICAL_EVENT_FAMILIES.length - missingFamilies.length;
   const coveragePercent = Math.round((mappedFamilyCount / LAUNCH_CRITICAL_EVENT_FAMILIES.length) * 1000) / 10;
