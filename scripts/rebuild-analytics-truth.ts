@@ -7,6 +7,23 @@ import {
   FORBIDDEN_RUNTIME_MUTATION_SURFACES,
 } from "../src/lib/analytics/import-export-truth-policy"
 import {
+  buildLaunchHistoryDisplaySummaryState,
+  RECOVERED_METRIC_METADATA_PROOF_BOUNDARY,
+  RECOVERY_METRIC_DEDUPE_RULES,
+  RECOVERY_METRIC_MODELING_POLICY,
+  RECOVERY_METRIC_POLICY_PROOF_BOUNDARY,
+  RECOVERY_METRIC_PRODUCT_TRUTH_POLICY,
+  summarizeLaunchActiveSourceFamilyStates,
+  summarizeLaunchRecoveryDayEvidence,
+  summarizeLaunchRecoveryFamilySourceStates,
+  summarizeRecoveredMetricMetadataCompleteness,
+} from "../src/lib/analytics/recovery-timeline-spine"
+import {
+  LAUNCH_ANALYTICS_SOURCE_TRUTH_POLICY,
+  launchCoverageInputEvidenceNextAction,
+  summarizeLaunchCoverageInputEvidence,
+} from "../src/lib/analytics/source-agreement-detail"
+import {
   classifyGeneratedArtifactFromGit,
   isGeneratedArtifactCurrent,
 } from "../src/lib/agent-score/generated-artifact-version-policy"
@@ -100,54 +117,18 @@ function readNumber(value: unknown, fallback = 0) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback
 }
 
+function readRecordArray(value: unknown) {
+  return Array.isArray(value)
+    ? value.map((entry) => asRecord(entry)).filter((entry) => Object.keys(entry).length > 0)
+    : []
+}
+
 function readCurrentHead() {
   try {
     return execFileSync("git", ["rev-parse", "HEAD"], {cwd: process.cwd(), encoding: "utf8"}).trim()
   } catch {
     return "unknown"
   }
-}
-
-function readLaunchCoverageInputCandidates(evidenceProvenance: Record<string, unknown>) {
-  const statuses = Array.isArray(evidenceProvenance.candidateLaunchCoverageInputStatuses)
-    ? evidenceProvenance.candidateLaunchCoverageInputStatuses
-    : []
-  const summary = new Map<string, number>()
-  const candidates = statuses
-    .map((entry) => {
-      const record = asRecord(entry)
-      const state = readString(record.state, "unknown")
-      summary.set(state, (summary.get(state) ?? 0) + 1)
-      return {
-        path: readString(record.path, "unknown"),
-        state,
-        proofMode: readString(record.proofMode, "none"),
-        nextAction: readString(record.nextAction, "Attach a launch-history coverage input before promoting analytics truth."),
-      }
-    })
-    .slice(0, 8)
-
-  return {
-    inputMode: readString(evidenceProvenance.sourceAgreementInputMode, "unknown"),
-    inputPath: readString(evidenceProvenance.sourceAgreementInputPath, "none"),
-    usableInputFound: readBoolean(evidenceProvenance.usableLaunchCoverageInputFound, false),
-    candidateCount: statuses.length,
-    candidates,
-    stateCounts: Object.fromEntries(summary),
-  }
-}
-
-function launchCoverageInputNextAction(input: ReturnType<typeof readLaunchCoverageInputCandidates>) {
-  if (input.usableInputFound) return null
-
-  const acceptedPaths = input.candidates
-    .filter((entry) => entry.path.includes("agent/evidence/launch-analytics/launch-history-coverage"))
-    .map((entry) => entry.path)
-  const pathList = acceptedPaths.length > 0
-    ? acceptedPaths.join(" or ")
-    : "agent/evidence/launch-analytics/launch-history-coverage.local.json or agent/evidence/launch-analytics/launch-history-coverage.export.json"
-
-  return `Attach approved launch-history coverage at ${pathList}, or attach a redacted admin truth sample with launchHistoryCoverage day rows. Then run npm run check:analytics-panel-hydration before treating launch analytics charts as canonical.`
 }
 
 function launchRecoveryEvidenceFreshness(status: string) {
@@ -165,12 +146,7 @@ function readLaunchRecoveryDryRunSummary() {
       status: "launch_recovery_artifact_missing",
       readPerformed: false,
       mutationAllowed: false,
-      sourceTruthPolicy: {
-        firstPartyPrimary: true,
-        ga4SecondSourceOnly: true,
-        fallbackEvidenceOnly: true,
-        missingIsNotZero: true,
-      },
+      sourceTruthPolicy: LAUNCH_ANALYTICS_SOURCE_TRUTH_POLICY,
       nextAction: "Run npm run check:analytics-panel-hydration to generate launch recovery evidence before importing analytics truth.",
     }
   }
@@ -189,17 +165,41 @@ function readLaunchRecoveryDryRunSummary() {
     const evidenceProvenance = asRecord(report.evidenceProvenance)
     const rangeProof = asRecord(asRecord(report.launchHistoryCoverage).rangeProof)
     const firstPartyCoverage = asRecord(asRecord(report.launchHistoryCoverage).firstPartyCoverage)
+    const eventFamilyCoverage = asRecord(asRecord(report.launchHistoryCoverage).eventFamilyCoverage)
+    const launchHistoryCoverage = asRecord(report.launchHistoryCoverage)
+    const eventFamilySourceStates = readRecordArray(eventFamilyCoverage.familySourceStates)
+    const activeSourceCoverage = asRecord(launchHistoryCoverage.activeSourceCoverage)
+    const activeSourceFamilyStates = readRecordArray(activeSourceCoverage.familySourceStates)
+    const holdbackValidation = asRecord(eventFamilyCoverage.holdbackValidation)
     const formalLaunchRange = asRecord(report.formalLaunchRange)
+    const formalDayCoverage = readRecordArray(formalLaunchRange.dayCoverage)
+    const localEvidenceDays = readRecordArray(launchHistoryCoverage.days)
     const sourceAgreement = asRecord(report.sourceAgreement)
+    const sourceAgreementDisagreements = readRecordArray(sourceAgreement.disagreements)
+    const sourceAgreementMetricDeltas = readRecordArray(sourceAgreement.perDayMetricDeltas)
+    const displaySummary = buildLaunchHistoryDisplaySummaryState({
+      launchHistoryCoverage,
+      sourceAgreementState: readString(sourceAgreement.state, "unknown"),
+    })
     const sourceTruthPolicy = Object.keys(asRecord(report.sourceTruthPolicy)).length > 0
       ? asRecord(report.sourceTruthPolicy)
       : asRecord(sourceAgreement.sourceTruthPolicy)
-    const launchCoverageInputs = readLaunchCoverageInputCandidates(evidenceProvenance)
+    const recoveryPolicy = asRecord(report.recoveryPolicy)
+    const recoveryDedupeRules = Object.keys(asRecord(recoveryPolicy.dedupeRules)).length > 0
+      ? asRecord(recoveryPolicy.dedupeRules)
+      : RECOVERY_METRIC_DEDUPE_RULES
+    const recoveryProductTruthPolicy = Object.keys(asRecord(recoveryPolicy.productTruthPolicy)).length > 0
+      ? asRecord(recoveryPolicy.productTruthPolicy)
+      : RECOVERY_METRIC_PRODUCT_TRUTH_POLICY
+    const recoveryModelingPolicy = Object.keys(asRecord(recoveryPolicy.modelingPolicy)).length > 0
+      ? asRecord(recoveryPolicy.modelingPolicy)
+      : RECOVERY_METRIC_MODELING_POLICY
+    const launchCoverageInputs = summarizeLaunchCoverageInputEvidence(evidenceProvenance)
     const reportNextAction = readString(
       report.nextAction,
       readString(sourceAgreement.nextAction, "Review launch analytics recovery evidence before importing analytics truth."),
     )
-    const nextAction = launchCoverageInputNextAction(launchCoverageInputs) ?? reportNextAction
+    const nextAction = launchCoverageInputEvidenceNextAction(launchCoverageInputs) ?? reportNextAction
     return {
       artifactPath: LAUNCH_RECOVERY_REPORT_PATH,
       status: readString(report.status, "unknown"),
@@ -252,6 +252,63 @@ function readLaunchRecoveryDryRunSummary() {
         canPromoteProductTruth: readBoolean(firstPartyCoverage.canPromoteProductTruth, false),
         missingRanges: Array.isArray(firstPartyCoverage.missingRanges) ? firstPartyCoverage.missingRanges.slice(0, 5) : [],
         reason: readString(firstPartyCoverage.reason, "No first-party coverage reason was supplied."),
+      },
+      displaySummary: {
+        sourceLabel: displaySummary.sourceLabel,
+        confidenceLabel: displaySummary.confidenceLabel,
+        coverageLabel: displaySummary.coverageLabel,
+        sourceWindowLabel: displaySummary.sourceWindowLabel,
+        coverageDenominatorKind: displaySummary.coverageDenominatorKind ?? "unknown",
+        missingRangeCount: displaySummary.missingRangeCount,
+        sourceAgreementState: displaySummary.sourceAgreementState,
+        sourceRoleCounts: Object.fromEntries(
+          Object.entries(displaySummary.sourceRoleCounts ?? {})
+            .filter(([, value]) => typeof value === "number" && Number.isFinite(value))
+            .slice(0, 8),
+        ),
+        mathReasonSamples: (displaySummary.mathReasonSamples ?? [])
+          .slice(0, 4)
+          .map((entry) => ({
+            familyId: readString(entry.familyId, "unknown"),
+            sourceRole: readString(entry.sourceRole, "missing_source"),
+            mathReason: readString(entry.mathReason, "Missing first-party launch source evidence; do not render this family as zero."),
+            nextAction: readString(entry.nextAction, "Repair this launch-critical family before promoting recovered launch charts."),
+          })),
+      },
+      eventFamilyCoverage: {
+        canonicalMappedFamilyCount: readNumber(eventFamilyCoverage.canonicalMappedFamilyCount, 0),
+        canonicalMappingCoveragePercent: readNumber(eventFamilyCoverage.canonicalMappingCoveragePercent, 0),
+        observedFirstPartyFamilyCount: readNumber(eventFamilyCoverage.observedFirstPartyFamilyCount, 0),
+        observedFirstPartyCoveragePercent: readNumber(eventFamilyCoverage.observedFirstPartyCoveragePercent, 0),
+        sourceCoverageStatus: readString(eventFamilyCoverage.sourceCoverageStatus, "blocked"),
+        sourceStateSummary: summarizeLaunchRecoveryFamilySourceStates(eventFamilySourceStates),
+        holdbackStatus: readString(holdbackValidation.status, "blocked"),
+        holdbackReason: readString(holdbackValidation.reason, "Observed first-party launch-critical coverage has not been proven."),
+      },
+      activeSourceCoverage: {
+        activeSourceFamilyCount: readNumber(activeSourceCoverage.activeSourceFamilyCount, 0),
+        activeSourceCoveragePercent: readNumber(activeSourceCoverage.activeSourceCoveragePercent, 0),
+        targetCoveragePercent: readNumber(activeSourceCoverage.targetCoveragePercent, 95),
+        sourceCoverageStatus: readString(activeSourceCoverage.sourceCoverageStatus, "blocked"),
+        canClearHistoricalLaunchProof: readBoolean(activeSourceCoverage.canClearHistoricalLaunchProof, false),
+        sourceStateSummary: summarizeLaunchActiveSourceFamilyStates(activeSourceFamilyStates),
+      },
+      localEvidenceWindowSummary: summarizeLaunchRecoveryDayEvidence(localEvidenceDays),
+      formalLaunchDaySummary: summarizeLaunchRecoveryDayEvidence(formalDayCoverage),
+      recoveredMetricMetadataCompleteness: {
+        eventFamilySourceStates: summarizeRecoveredMetricMetadataCompleteness(eventFamilySourceStates),
+        activeSourceFamilyStates: summarizeRecoveredMetricMetadataCompleteness(activeSourceFamilyStates),
+        localEvidenceDays: summarizeRecoveredMetricMetadataCompleteness(localEvidenceDays),
+        formalLaunchDayCoverage: summarizeRecoveredMetricMetadataCompleteness(formalDayCoverage),
+        sourceAgreementDisagreements: summarizeRecoveredMetricMetadataCompleteness(sourceAgreementDisagreements),
+        sourceAgreementMetricDeltas: summarizeRecoveredMetricMetadataCompleteness(sourceAgreementMetricDeltas),
+        proofBoundary: RECOVERED_METRIC_METADATA_PROOF_BOUNDARY,
+      },
+      recoveryPolicy: {
+        dedupeRules: recoveryDedupeRules,
+        productTruthPolicy: recoveryProductTruthPolicy,
+        modelingPolicy: recoveryModelingPolicy,
+        proofBoundary: readString(recoveryPolicy.proofBoundary, RECOVERY_METRIC_POLICY_PROOF_BOUNDARY),
       },
       sourceAgreement: {
         state: readString(sourceAgreement.state, "unknown"),

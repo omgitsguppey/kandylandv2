@@ -2,15 +2,42 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import {
+  ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
+  LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT,
+  LAUNCH_CRITICAL_EVENT_FAMILIES,
   GA4_RECOVERY_EVENT_MAPPINGS,
+  RECOVERY_METRIC_CONFIDENCE_BANDS,
+  RECOVERY_METRIC_DEDUPE_DIMENSIONS,
+  RECOVERY_METRIC_EVIDENCE_KINDS,
+  RECOVERY_METRIC_FRESHNESS_STATES,
+  RECOVERY_METRIC_DEDUPE_RULES,
+  RECOVERY_METRIC_MODELING_POLICY,
+  RECOVERY_METRIC_PRODUCT_TRUTH_POLICY,
+  RECOVERY_METRIC_SOURCE_TRUTHS,
   RECOVERY_TIMELINE_SOURCE_PRECEDENCE,
   RECOVERY_TIMELINE_SPINE_VERSION,
   TREASURY_TIMELINE_EVENT_MAP,
+  buildLaunchCriticalFamilyProofBoundary,
+  buildLaunchCriticalActiveSourceCoverageReport,
+  buildLaunchCriticalCatalogCoverage,
+  buildLaunchCriticalRecoveryCoverageReport,
+  buildLaunchCriticalRecoveryCoverageFromEvidence,
+  buildFormalLaunchHistoryDayRecoveryState,
+  buildLaunchHistoryCoverageRangeProofEligibility,
+  buildLaunchHistoryDayRecoveryState,
+  buildLaunchHistoryDisplaySummaryState,
+  buildLaunchHistorySourceDayCoverageState,
   buildGumdropRecoveryQueue,
+  buildRecoveryMetricIdentityStitchingState,
+  buildRecoveredLaunchMetricState,
   buildRecoveryTimelineEntryFromCanonicalEvent,
   buildRecoveryTimelineEntryFromGa4Event,
+  getLaunchCriticalEventFamily,
   reconcileAnalyticsEventFactsWithRecoveryTimeline,
   reconcileTreasuryEventsWithRecoveryTimeline,
+  classifyRecoveryMetricConfidenceBand,
+  normalizeRecoveryMetricEvidenceKind,
+  summarizeLaunchRecoveryDayEvidence,
   validateGumdropRecoveryQueue,
   validateRecoveryTimelineEntries,
   type RecoveryTimelineEntry,
@@ -18,6 +45,10 @@ import {
   type TreasuryTimelineEvidenceInput,
 } from "../../src/lib/analytics/recovery-timeline-spine";
 import { createCanonicalAnalyticsEvent } from "../../src/lib/analytics/analytics-event-contract";
+import {
+  TELEMETRY_CANONICAL_EVENT_NAMES,
+  TELEMETRY_EVENT_ALIAS_TO_CANONICAL,
+} from "../../shared/runtime/telemetry-event-manifest";
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/recovery-timeline-spine.generated.json";
@@ -302,10 +333,366 @@ function main() {
     timelineEvidence: treasuryTimelineEvidence,
   });
   const gumdropRecoveryQueueFailures = validateGumdropRecoveryQueue(gumdropRecoveryQueue);
+  const launchCoverage = buildLaunchCriticalRecoveryCoverageFromEvidence({
+    generatedAtUtc: "2026-06-07T12:00:00.000Z",
+    sourceEvidence: {
+      canonicalEventCounts: Object.fromEntries(
+        LAUNCH_CRITICAL_EVENT_FAMILIES.map((family) => [family.canonicalEventNames[0] ?? family.familyId, 1]),
+      ),
+    },
+  });
+  const launchCatalogCoverage = buildLaunchCriticalCatalogCoverage({
+    catalogEventNames: TELEMETRY_CANONICAL_EVENT_NAMES,
+    aliasToCanonical: TELEMETRY_EVENT_ALIAS_TO_CANONICAL,
+  });
+  const ga4MappedLaunchCriticalFamilyIds = new Set(
+    GA4_RECOVERY_EVENT_MAPPINGS
+      .map((entry) => getLaunchCriticalEventFamily(entry.canonicalEventName)?.familyId ?? null)
+      .filter(Boolean),
+  );
+  const activeSourceCoverage = buildLaunchCriticalActiveSourceCoverageReport({
+    generatedAtUtc: "2026-06-07T12:00:00.000Z",
+    sourceReferencesByEventName: Object.fromEntries(
+      LAUNCH_CRITICAL_EVENT_FAMILIES.flatMap((family) =>
+        family.canonicalEventNames.map((eventName) => [eventName, [`src/source/${family.familyId}.ts`]]),
+      ),
+    ),
+    materializerReferencesByEventName: Object.fromEntries(
+      LAUNCH_CRITICAL_EVENT_FAMILIES.flatMap((family) =>
+        family.canonicalEventNames.map((eventName) => [eventName, [`src/materializer/${family.familyId}.ts`]]),
+      ),
+    ),
+  });
+  const launchMetricSamples = [
+    buildRecoveredLaunchMetricState({
+      eventName: "semantic_page_viewed",
+      eventId: "event_fact:page",
+      sessionId: "launch_session",
+      identityLinkId: "identity_link_sample",
+      userId: "sample_user",
+      route: "/",
+      timestampMs: Date.parse("2026-06-07T00:00:00.000Z"),
+      insideLateArrivalWindow: true,
+    }),
+    buildRecoveredLaunchMetricState({
+      eventName: "page_viewed",
+      sourceTruth: "ga4_evidence_only",
+      sourceObserved: true,
+      sessionId: "ga4_session",
+      anonymousVisitorId: "ga4_pseudo",
+      route: "/drops",
+      timestampMs: Date.parse("2026-06-07T00:01:00.000Z"),
+    }),
+    buildRecoveredLaunchMetricState({
+      eventName: "creator_drop_submitted",
+      sourceTruth: "source_missing",
+      sourceObserved: false,
+    }),
+  ];
+  const ga4OnlyLaunchCoverage = buildLaunchCriticalRecoveryCoverageReport({
+    generatedAtUtc: "2026-06-07T12:00:00.000Z",
+    observedEventNames: [],
+    recoveredMetrics: [launchMetricSamples[1]],
+  });
+  const launchRangeEligibilitySamples = {
+    approvedExport: buildLaunchHistoryCoverageRangeProofEligibility({
+      proofMode: "local_export",
+      expectedDayKeys: ["2026-02-12", "2026-02-13", "2026-02-14"],
+      declaredExpectedDayCount: 3,
+      declaredRecoveredDayCount: 3,
+      recoveredDayCount: 3,
+      rangeStartDayKey: "2026-02-12",
+      rangeEndDayKey: "2026-02-14",
+      rangeProof: {
+        allLaunchRangeProven: true,
+        expectedRangeSource: "approved_all_launch_export",
+        coverageWindowKind: "all_range_historical_export",
+      },
+      launchCoverageState: "available",
+      firstPartyCoverageState: "available",
+      productTruthRecoveredDayCount: 3,
+      sourceAgreementState: "pass",
+    }),
+    localWindow: buildLaunchHistoryCoverageRangeProofEligibility({
+      proofMode: "local_export",
+      expectedDayKeys: ["2026-02-12", "2026-02-13", "2026-02-14"],
+      declaredExpectedDayCount: 3,
+      declaredRecoveredDayCount: 3,
+      recoveredDayCount: 3,
+      rangeStartDayKey: "2026-02-12",
+      rangeEndDayKey: "2026-02-14",
+      rangeProof: {
+        allLaunchRangeProven: true,
+        expectedRangeSource: "fixture_window",
+        coverageWindowKind: "fixture_only_local_window",
+      },
+      launchCoverageState: "available",
+      firstPartyCoverageState: "available",
+      productTruthRecoveredDayCount: 3,
+      sourceAgreementState: "pass",
+    }),
+    mismatchedAdminTruth: buildLaunchHistoryCoverageRangeProofEligibility({
+      proofMode: "admin_truth_sample",
+      expectedDayKeys: ["2026-02-12", "2026-02-13", "2026-02-14"],
+      declaredExpectedDayCount: 3,
+      declaredRecoveredDayCount: 2,
+      recoveredDayCount: 3,
+      rangeStartDayKey: "2026-02-12",
+      rangeEndDayKey: "2026-02-14",
+      rangeProof: {
+        allLaunchRangeProven: true,
+        expectedRangeSource: "admin_truth_sample",
+        coverageWindowKind: "admin_truth_sample",
+      },
+      launchCoverageState: "available",
+      firstPartyCoverageState: "available",
+      productTruthRecoveredDayCount: 3,
+      sourceAgreementState: "pass",
+    }),
+  };
+  const launchSourceDayCoverageSample = buildLaunchHistorySourceDayCoverageState({
+    expectedDayKeys: ["2026-02-12", "2026-02-13", "2026-02-14"],
+    firstPartyDayKeys: ["2026-02-12"],
+    ga4DayKeys: ["2026-02-12", "2026-02-13"],
+    historicalSnapshotDayKeys: [],
+    legacySupportDayKeys: ["2026-02-14"],
+  });
+  const launchDayEvidenceSummarySample = summarizeLaunchRecoveryDayEvidence([
+    buildLaunchHistoryDayRecoveryState({
+      dayKey: "2026-02-12",
+      firstPartyCount: 1,
+    }),
+    buildLaunchHistoryDayRecoveryState({
+      dayKey: "2026-02-13",
+      ga4Count: 1,
+    }),
+    buildFormalLaunchHistoryDayRecoveryState({
+      dayKey: "2026-02-14",
+      localDay: null,
+    }),
+  ]);
+  const launchDisplaySummarySamples = {
+    sourceMissing: buildLaunchHistoryDisplaySummaryState({
+      sourceAgreementState: "review",
+      launchHistoryCoverage: {
+        expectedDayCount: 3,
+        recoveredDayCount: 3,
+        evidenceObservedDayCount: 3,
+        productTruthRecoveredDayCount: 0,
+        state: "partial",
+        sourceDayCounts: {
+          firstParty: 0,
+          ga4: 3,
+          historicalSnapshot: 0,
+          legacySupport: 0,
+        },
+        firstPartyCoverage: {
+          state: "source_missing",
+          coveredDayCount: 0,
+          missingRanges: ["2026-02-12..2026-06-20"],
+        },
+        rangeProof: {
+          allLaunchRangeProven: false,
+          formalExpectedDayCount: 129,
+          evidenceDayCount: 3,
+          coverageWindowKind: "fixture_only_local_window",
+        },
+        days: [{ confidenceBand: "directional" }],
+      },
+    }),
+    firstParty: buildLaunchHistoryDisplaySummaryState({
+      sourceAgreementState: "pass",
+      launchHistoryCoverage: {
+        expectedDayCount: 2,
+        recoveredDayCount: 2,
+        evidenceObservedDayCount: 2,
+        productTruthRecoveredDayCount: 2,
+        state: "available",
+        sourceDayCounts: {
+          firstParty: 2,
+          ga4: 0,
+          historicalSnapshot: 0,
+          legacySupport: 0,
+        },
+        firstPartyCoverage: {
+          state: "available",
+          coveredDayCount: 2,
+          missingRanges: [],
+        },
+        rangeProof: {
+          allLaunchRangeProven: true,
+          formalExpectedDayCount: 2,
+          evidenceDayCount: 2,
+          coverageWindowKind: "admin_truth_sample",
+        },
+        days: [{ confidenceBand: "strong" }],
+      },
+    }),
+  };
 
   const checks = {
     packageScriptPresent: packageJson.scripts?.["check:recovery-timeline-spine"] === "tsx scripts/agent/validate-recovery-timeline-spine.ts",
     schemaVersioned: RECOVERY_TIMELINE_SPINE_VERSION === "2026.06.recovery-timeline-spine.1",
+    lateArrivalWindowDeclared: ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS === 12,
+    launchCriticalFamiliesMapped: LAUNCH_CRITICAL_EVENT_FAMILIES.length === 13
+      && launchCoverage.canonicalMappedFamilyCount === 13
+      && launchCoverage.canonicalMappingCoveragePercent === 100
+      && launchCoverage.coveragePercent === 100
+      && launchCoverage.missingFamilies.length === 0,
+    launchCriticalCatalogMapped: launchCatalogCoverage.catalogMappedFamilyCount === 13
+      && launchCatalogCoverage.catalogMappingCoveragePercent === 100
+      && launchCatalogCoverage.missingFamilies.length === 0
+      && launchCatalogCoverage.familyCatalogStates.every((entry) => entry.catalogMapped),
+    launchCriticalFirstPartyHoldbackRequired: launchCoverage.observedFirstPartyFamilyCount === 13
+      && launchCoverage.observedFirstPartyCoveragePercent === 100
+      && launchCoverage.sourceCoverageStatus === "pass"
+      && launchCoverage.holdbackValidation.observedFirstPartyRequired
+      && launchCoverage.holdbackValidation.modeledOrInferredCanCalibrateOnly
+      && launchCoverage.targetCoveragePercent === LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT
+      && launchCoverage.holdbackValidation.minObservedFirstPartyCoveragePercent === LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT
+      && launchCoverage.familySourceStates.length === LAUNCH_CRITICAL_EVENT_FAMILIES.length
+      && launchCoverage.familySourceStates.every((entry) => entry.observedFirstParty && entry.productTruthEligible),
+    launchFamilySourceRolesAndMathReasons: launchCoverage.familySourceStates.every((entry) =>
+      entry.sourceRole === "product_truth"
+      && entry.mathReason.includes("observed product-truth evidence")
+    )
+      && ga4OnlyLaunchCoverage.familySourceStates.some((entry) =>
+        entry.sourceRole === "calibration_only"
+        && entry.sourceCoverageState === "modeled_second_source"
+        && entry.mathReason.includes("calibration evidence only")
+      ),
+    launchFamilyMetadataComplete: launchCoverage.familySourceStates.every((entry) =>
+      entry.sourceTruth === entry.strongestSourceTruth
+      && entry.evidenceKind === entry.strongestEvidenceKind
+      && RECOVERY_METRIC_SOURCE_TRUTHS.includes(entry.sourceTruth)
+      && RECOVERY_METRIC_EVIDENCE_KINDS.includes(entry.evidenceKind)
+      && RECOVERY_METRIC_FRESHNESS_STATES.includes(entry.freshnessState)
+      && entry.proofBoundary.externalEvidenceCanClearProductTruth === false
+      && entry.proofBoundary.missingCanRenderAsZero === false
+      && typeof entry.proofBoundary.recoveryBoundary === "string"
+      && typeof entry.dedupeKey === "string"
+      && entry.dedupeKey.includes(`launch_recovery|${entry.familyId}`)
+      && entry.lateArrivalWindowDays === ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS
+    )
+      && ga4OnlyLaunchCoverage.familySourceStates.every((entry) =>
+        entry.sourceTruth === entry.strongestSourceTruth
+        && entry.evidenceKind === entry.strongestEvidenceKind
+        && RECOVERY_METRIC_SOURCE_TRUTHS.includes(entry.sourceTruth)
+        && RECOVERY_METRIC_EVIDENCE_KINDS.includes(entry.evidenceKind)
+        && RECOVERY_METRIC_FRESHNESS_STATES.includes(entry.freshnessState)
+        && entry.proofBoundary.externalEvidenceCanClearProductTruth === false
+        && entry.proofBoundary.missingCanRenderAsZero === false
+        && typeof entry.proofBoundary.recoveryBoundary === "string"
+        && typeof entry.dedupeKey === "string"
+        && entry.dedupeKey.includes(`launch_recovery|${entry.familyId}`)
+        && entry.lateArrivalWindowDays === ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS
+      )
+      && ga4OnlyLaunchCoverage.familySourceStates.some((entry) =>
+        entry.sourceTruth === "ga4_evidence_only"
+        && entry.evidenceKind === "modeled"
+        && entry.freshnessState === "external_evidence_required"
+      ),
+    launchDedupeDimensionsCanonical: RECOVERY_METRIC_DEDUPE_RULES.dedupeDimensions.join("|") === RECOVERY_METRIC_DEDUPE_DIMENSIONS.join("|")
+      && RECOVERY_METRIC_DEDUPE_DIMENSIONS.join("|") === "event_id|session_id|identity_link_id|user_id|guest_id|route|object_id|timestamp_window|semantic_action"
+      && launchCoverage.familySourceStates.every((entry) =>
+        entry.dedupeDimensions?.join("|") === RECOVERY_METRIC_DEDUPE_DIMENSIONS.join("|")
+      )
+      && ga4OnlyLaunchCoverage.familySourceStates.every((entry) =>
+        entry.dedupeDimensions?.join("|") === RECOVERY_METRIC_DEDUPE_DIMENSIONS.join("|")
+      )
+      && activeSourceCoverage.familySourceStates.every((entry) =>
+        entry.dedupeDimensions?.join("|") === RECOVERY_METRIC_DEDUPE_DIMENSIONS.join("|")
+      ),
+    activeSourceFamilyMetadataComplete: activeSourceCoverage.familySourceStates.every((entry) =>
+      RECOVERY_METRIC_SOURCE_TRUTHS.includes(entry.sourceTruth)
+      && RECOVERY_METRIC_EVIDENCE_KINDS.includes(entry.evidenceKind)
+      && RECOVERY_METRIC_FRESHNESS_STATES.includes(entry.freshnessState)
+      && entry.proofBoundary.externalEvidenceCanClearProductTruth === false
+      && entry.proofBoundary.missingCanRenderAsZero === false
+      && typeof entry.dedupeKey === "string"
+      && entry.dedupeKey.includes(`launch_recovery|${entry.familyId}`)
+      && entry.lateArrivalWindowDays === ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS
+    ),
+    launchRecoveryStatesPresent: launchCoverage.sourceTruthStates.includes("first_party_event_fact")
+      && launchCoverage.sourceTruthStates.includes("ga4_evidence_only")
+      && launchCoverage.sourceTruthStates.includes("source_missing")
+      && launchCoverage.sourceTruthStates.join("|") === RECOVERY_METRIC_SOURCE_TRUTHS.join("|")
+      && launchCoverage.evidenceKinds.join("|") === RECOVERY_METRIC_EVIDENCE_KINDS.join("|")
+      && launchCoverage.confidenceBands.join("|") === RECOVERY_METRIC_CONFIDENCE_BANDS.join("|")
+      && launchCoverage.freshnessStates.join("|") === RECOVERY_METRIC_FRESHNESS_STATES.join("|")
+      && launchCoverage.productTruthPolicy.missingIsNotZero,
+    launchRecoveryPoliciesCanonical: JSON.stringify(launchCoverage.dedupeRules) === JSON.stringify(RECOVERY_METRIC_DEDUPE_RULES)
+      && JSON.stringify(launchCoverage.productTruthPolicy) === JSON.stringify(RECOVERY_METRIC_PRODUCT_TRUTH_POLICY)
+      && JSON.stringify(launchCoverage.modelingPolicy) === JSON.stringify(RECOVERY_METRIC_MODELING_POLICY)
+      && launchCoverage.modelingPolicy.lateArrivalWindowDays === ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS
+      && launchCoverage.modelingPolicy.visibilityMinimumVisiblePercent === 50
+      && launchCoverage.modelingPolicy.visibilityMinimumVisibleMs === 1_000
+      && launchCoverage.modelingPolicy.modeledEvidenceCanCalibrateOnly
+      && launchCoverage.modelingPolicy.productTruthRequiresFirstPartyOrLedgerCorroboration,
+    modelledAliasNormalizesToModeled: normalizeRecoveryMetricEvidenceKind("modelled") === "modeled"
+      && normalizeRecoveryMetricEvidenceKind("modeled") === "modeled"
+      && !launchCoverage.evidenceKinds.includes("modelled" as never),
+    launchDedupeEventIdPrimary: launchMetricSamples[0].dedupeKey === "launch_recovery|page_view|event:event_fact:page",
+    launchDedupeFallbackIncludesIdentityRouteObjectAndWindow: launchMetricSamples[1].dedupeKey.includes("event:no_event_id")
+      && launchMetricSamples[1].dedupeKey.includes("session:ga4_session")
+      && launchMetricSamples[1].dedupeKey.includes("guest:ga4_pseudo")
+      && launchMetricSamples[1].dedupeKey.includes("route:/drops")
+      && launchMetricSamples[1].dedupeKey.includes("object:no_object")
+      && launchMetricSamples[1].dedupeKey.includes("bucket:"),
+    launchMetricDedupeDimensionsPresent: launchMetricSamples.every((entry) =>
+      entry.dedupeDimensions.join("|") === RECOVERY_METRIC_DEDUPE_DIMENSIONS.join("|")
+    ),
+    launchIdentityStitchingCanonical: buildRecoveryMetricIdentityStitchingState({
+      eventId: "event_fact:page",
+      identityLinkId: "identity_link_sample",
+    }).doubleCountingPreventedBy === "event_id"
+      && buildRecoveryMetricIdentityStitchingState({
+        identityLinkId: "identity_link_sample",
+      }).doubleCountingPreventedBy === "identity_link_id"
+      && buildRecoveryMetricIdentityStitchingState({}).doubleCountingPreventedBy === "session_semantic_window",
+    launchMetricMissingNotZero: launchMetricSamples[2].evidenceKind === "missing"
+      && launchMetricSamples[2].confidenceScore === 0
+      && launchMetricSamples[2].confidenceBand === "missing"
+      && launchMetricSamples[2].missingVsZeroState === "source_missing",
+    launchHistoryRangeEligibilityCentralized: launchRangeEligibilitySamples.approvedExport.allLaunchRangeProven
+      && launchRangeEligibilitySamples.approvedExport.coverageWindowKind === "all_range_historical_export"
+      && launchRangeEligibilitySamples.approvedExport.proofModeAllowsLaunchRangeProof
+      && !launchRangeEligibilitySamples.localWindow.allLaunchRangeProven
+      && launchRangeEligibilitySamples.localWindow.coverageWindowKind === "local_source_window"
+      && !launchRangeEligibilitySamples.localWindow.proofModeAllowsLaunchRangeProof
+      && !launchRangeEligibilitySamples.mismatchedAdminTruth.allLaunchRangeProven
+      && launchRangeEligibilitySamples.mismatchedAdminTruth.coverageWindowKind === "admin_truth_sample"
+      && !launchRangeEligibilitySamples.mismatchedAdminTruth.declaredCountsMatchRows,
+    launchSourceDayCoverageCentralized: launchSourceDayCoverageSample.sourceDayCounts.firstParty === 1
+      && launchSourceDayCoverageSample.sourceDayCounts.first_party === 1
+      && launchSourceDayCoverageSample.sourceDayCounts.ga4 === 2
+      && launchSourceDayCoverageSample.sourceDayCounts.historicalSnapshot === 0
+      && launchSourceDayCoverageSample.sourceDayCounts.legacySupport === 1
+      && launchSourceDayCoverageSample.firstPartyMissingDayKeys.length === 2
+      && launchSourceDayCoverageSample.sourceMissingDayKeys.length === 0,
+    launchDayEvidenceSummaryCountsKnownSources: launchDayEvidenceSummarySample.dayCount === 3
+      && launchDayEvidenceSummarySample.sourceCountsKnownDayCount === 2
+      && launchDayEvidenceSummarySample.evidenceKindCounts.observed === 1
+      && launchDayEvidenceSummarySample.evidenceKindCounts.modeled === 1
+      && launchDayEvidenceSummarySample.evidenceKindCounts.missing === 1,
+    launchHistoryDisplaySummaryCentralized: launchDisplaySummarySamples.sourceMissing.sourceLabel === "GA4"
+      && launchDisplaySummarySamples.sourceMissing.confidenceLabel === "directional"
+      && launchDisplaySummarySamples.sourceMissing.coverageLabel.includes("Product-truth source missing")
+      && launchDisplaySummarySamples.sourceMissing.coverageLabel.includes("evidence present")
+      && !launchDisplaySummarySamples.sourceMissing.coverageLabel.includes("observed 3/3 evidence days")
+      && launchDisplaySummarySamples.sourceMissing.missingRangeCount === 1
+      && launchDisplaySummarySamples.firstParty.sourceLabel === "First-party"
+      && launchDisplaySummarySamples.firstParty.coverageLabel === "2/2 product-truth launch days",
+    ga4MetricModeledEvidenceOnly: launchMetricSamples[1].evidenceKind === "modeled"
+      && launchMetricSamples[1].sourceTruth === "ga4_evidence_only"
+      && launchMetricSamples[1].freshnessState === "external_evidence_required"
+      && launchMetricSamples[1].confidenceBand === "directional",
+    launchMetricConfidenceBandsCanonical: launchMetricSamples.every((entry) =>
+      entry.confidenceBand === classifyRecoveryMetricConfidenceBand(entry.confidenceScore)
+    )
+      && launchCoverage.familySourceStates.every((entry) =>
+        entry.confidenceBand === classifyRecoveryMetricConfidenceBand(entry.confidenceScore)
+      ),
     sourcePrecedenceDeclared: RECOVERY_TIMELINE_SOURCE_PRECEDENCE[0] === "first_party_event_fact"
       && RECOVERY_TIMELINE_SOURCE_PRECEDENCE.includes("ga4_evidence")
       && RECOVERY_TIMELINE_SOURCE_PRECEDENCE.includes("unknown_legacy"),
@@ -324,7 +711,8 @@ function main() {
       && includes(contract, "treasuryLedgerCorroborated")
       && timeline.some((entry) => entry.productDomain === "wallet_payment" && entry.recoveryEligibility === "rejected"),
     ga4MappingsPresent: GA4_RECOVERY_EVENT_MAPPINGS.some((entry) => entry.ga4EventName === "purchase" && entry.commerceTruthRequiresLedger)
-      && GA4_RECOVERY_EVENT_MAPPINGS.some((entry) => entry.ga4EventName === "page_view" && entry.productDomain === "telemetry_behavior"),
+      && GA4_RECOVERY_EVENT_MAPPINGS.some((entry) => entry.ga4EventName === "page_view" && entry.productDomain === "telemetry_behavior")
+      && LAUNCH_CRITICAL_EVENT_FAMILIES.every((family) => ga4MappedLaunchCriticalFamilyIds.has(family.familyId)),
     validationPasses: validation.ok,
     eventFactReconciliationPresent: eventFactReconciliation.reportKey === "analytics-event-facts-recovery-reconciliation"
       && eventFactReconciliation.productTruthPolicy.firstPartyEventFactsPrimary
@@ -389,6 +777,10 @@ function main() {
         "evidenceLabels",
       ],
       classificationStates: ["canonical", "corroborating_evidence", "weak_match", "unknown_legacy", "duplicate_candidate", "rejected"],
+      evidenceKindAliases: {
+        modelled: "modeled",
+      },
+      modelingPolicy: RECOVERY_METRIC_MODELING_POLICY,
       productTruthEligibleSources: ["first_party_event_fact", "transaction_ledger", "gumdrop_ledger", "unlock_record", "reward_record"],
       evidenceOnlySources: ["ga4_evidence", "legacy_analytics", "unknown_legacy"],
       ga4EventMappings: GA4_RECOVERY_EVENT_MAPPINGS.map((entry) => ({
@@ -397,6 +789,47 @@ function main() {
         confidence: entry.confidence,
         productDomain: entry.productDomain,
         commerceTruthRequiresLedger: entry.commerceTruthRequiresLedger,
+      })),
+      ga4LaunchCriticalFamilyCoverage: {
+        mappedFamilyCount: ga4MappedLaunchCriticalFamilyIds.size,
+        requiredFamilyCount: LAUNCH_CRITICAL_EVENT_FAMILIES.length,
+        mappedFamilies: [...ga4MappedLaunchCriticalFamilyIds].sort(),
+        missingFamilies: LAUNCH_CRITICAL_EVENT_FAMILIES
+          .map((family) => family.familyId)
+          .filter((familyId) => !ga4MappedLaunchCriticalFamilyIds.has(familyId)),
+      },
+    },
+    launchCriticalRecovery: {
+      coverage: launchCoverage,
+      catalogCoverage: launchCatalogCoverage,
+      activeSourceCoverage,
+      compactMetricSamples: launchMetricSamples.map((entry) => ({
+        metricKey: entry.metricKey,
+        eventName: entry.eventName,
+        sourceTruth: entry.sourceTruth,
+        freshnessState: entry.freshnessState,
+        confidenceScore: entry.confidenceScore,
+        confidenceBand: entry.confidenceBand,
+        evidenceKind: entry.evidenceKind,
+        dedupeKey: entry.dedupeKey,
+        lateArrivalWindowDays: entry.lateArrivalWindowDays,
+        missingVsZeroState: entry.missingVsZeroState,
+        identityStitching: entry.identityStitching,
+        mathReason: entry.mathReason,
+      })),
+      familyMap: LAUNCH_CRITICAL_EVENT_FAMILIES.map((family) => ({
+        familyId: family.familyId,
+        canonicalEventNames: family.canonicalEventNames,
+        activeSourceEventNames: family.activeSourceEventNames ?? family.canonicalEventNames,
+        defaultSourceTruth: family.defaultSourceTruth,
+        defaultEvidenceKind: family.defaultEvidenceKind,
+        productDomain: family.productDomain,
+        materializerLane: family.materializerLane,
+        identityScope: family.identityScope,
+        dedupeWindowMs: family.dedupeWindowMs,
+        dedupeDimensions: family.dedupeDimensions ?? RECOVERY_METRIC_DEDUPE_DIMENSIONS,
+        proofBoundary: buildLaunchCriticalFamilyProofBoundary(family),
+        recoveryNotes: family.recoveryNotes,
       })),
     },
     compactTimelineSample: timeline.map((entry) => ({
