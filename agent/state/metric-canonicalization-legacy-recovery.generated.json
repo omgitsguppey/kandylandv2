@@ -1,7 +1,7 @@
 {
   "reportKey": "metric-canonicalization-legacy-recovery",
-  "generatedAtUtc": "2026-06-20T21:01:28.226Z",
-  "currentHead": "c8aee4170f2e286ca3d442e5d9a2a4610cb27b65",
+  "generatedAtUtc": "2026-06-20T21:07:40.426Z",
+  "currentHead": "bc49f85a44b9c911b5404762ddf93e75bfea4b3b",
   "status": "pass",
   "scoreBefore": {
     "sourceHealth": 97.2,
