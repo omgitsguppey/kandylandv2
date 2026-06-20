@@ -99,7 +99,7 @@ const MAIN_STEPS = [
   { stepKey: "authModalOpens", eventName: "auth_modal_opened", visibleLabel: "Auth modal opens" },
   { stepKey: "previewOpens", eventName: "drop_preview_opened", visibleLabel: "Drop previews" },
   { stepKey: "viewerOpens", eventName: "viewer_opened", visibleLabel: "Viewer opens" },
-  { stepKey: "unlocks", eventName: "unlock_drop_success", visibleLabel: "Unlocks" },
+  { stepKey: "unlocks", eventName: "drop_unlocked", visibleLabel: "Unlocks" },
   { stepKey: "checkoutStarts", eventName: "begin_checkout", visibleLabel: "Checkout starts" },
   { stepKey: "purchases", eventName: "gumdrops_purchase_completed", visibleLabel: "Purchases" },
 ] as const;

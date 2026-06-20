@@ -52,6 +52,7 @@ describe("buildAdminAnalyticsJourneyFunnelModel", () => {
     expect(model.denominatorMode).toBe("prior_step_events");
     expect(model.nonSequentialSteps).toContain("unlocks");
     expect(model.sourceMismatchSteps).toContain("purchases");
+    expect(model.steps.find((step) => step.stepKey === "unlocks")?.eventName).toBe("drop_unlocked");
     expect(model.steps.find((step) => step.stepKey === "purchases")?.displayedPercent).toBeCloseTo(19 / 5);
     expect(model.steps.find((step) => step.stepKey === "purchases")?.source).toBe("mixed_first_party_payment");
     expect(model.measurementMode).toBe("event_volume_only");
@@ -68,7 +69,7 @@ describe("buildAdminAnalyticsJourneyFunnelModel", () => {
     expect(model.steps[0].displayedCount).toBeNull();
     expect(model.steps[0].fakeZeroPrevented).toBe(true);
     expect(model.modeLabel).toBe("Collecting");
-    expect(model.visibleHelperCopy).toContain("Waiting");
+    expect(model.visibleHelperCopy).toContain("Collecting activity");
   });
 
   it("does not classify a missing non-loading response as an error", () => {
