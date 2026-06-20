@@ -654,7 +654,16 @@ export type ContentConversionRow = {
   revenueUsd?: number | null;
   gumdropsSpent?: number | null;
   sourceTruth: string;
-  freshnessState: "live" | "partial" | "stale" | "unknown";
+  freshnessState: RecoveredLaunchMetricState["freshnessState"] | "live" | "partial" | "stale" | "unknown";
+  confidenceScore?: RecoveredLaunchMetricState["confidenceScore"];
+  confidenceBand?: RecoveredLaunchMetricState["confidenceBand"];
+  evidenceKind?: RecoveredLaunchMetricState["evidenceKind"];
+  dedupeKey?: RecoveredLaunchMetricState["dedupeKey"];
+  dedupeDimensions?: RecoveredLaunchMetricState["dedupeDimensions"];
+  lateArrivalWindowDays?: RecoveredLaunchMetricState["lateArrivalWindowDays"];
+  productTruthEligible?: RecoveredLaunchMetricState["productTruthEligible"];
+  missingVsZeroState?: RecoveredLaunchMetricState["missingVsZeroState"];
+  mathReason?: RecoveredLaunchMetricState["mathReason"];
   conversionState: "healthy" | "review" | "no_data" | "missing_metadata";
   explanation: string;
 };

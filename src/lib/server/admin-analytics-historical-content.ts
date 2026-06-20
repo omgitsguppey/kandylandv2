@@ -1,6 +1,10 @@
 import "server-only";
 
 import { PLATFORM_ECONOMY_WARNING_FLOOR_USD_PER_100_GD } from "@/lib/platform-economy";
+import {
+  buildRecoveredLaunchMetricState,
+  type RecoveryMetricSourceTruth,
+} from "@/lib/analytics/recovery-timeline-spine";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { mapLegacyEventToCurrentMetric } from "@/lib/math/legacy-metric-canonicalization";
 import type { Drop } from "@/types/db";
@@ -71,6 +75,49 @@ export interface HistoricalContentAnalytics {
 
 function roundMoney(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function buildContentConversionRecoveryMetadata(input: {
+  groupKey: string;
+  previewCount: number;
+  unlockCount: number;
+  viewerOpenCount: number;
+  watchSeconds: number;
+  usingUnlockRollupFallback: boolean;
+  generatedAtUtc: string;
+}) {
+  const hasUnlock = input.unlockCount > 0;
+  const hasPreview = input.previewCount > 0;
+  const hasViewerOpen = input.viewerOpenCount > 0;
+  const hasWatch = input.watchSeconds > 0;
+  const sourceObserved = hasUnlock || hasPreview || hasViewerOpen || hasWatch;
+  const sourceTruth: RecoveryMetricSourceTruth = hasUnlock
+    ? input.usingUnlockRollupFallback
+      ? "hot_cache_snapshot"
+      : "server_ledger"
+    : hasWatch
+      ? "watch_session_rollup"
+      : hasPreview || hasViewerOpen
+        ? "first_party_event_fact"
+        : "source_missing";
+  const eventName = hasUnlock
+    ? "drop_unlocked"
+    : hasWatch
+      ? "watch_session_started"
+      : hasViewerOpen
+        ? "viewer_opened"
+        : "drop_preview_opened";
+  const timestampMs = Date.parse(input.generatedAtUtc);
+
+  return buildRecoveredLaunchMetricState({
+    eventName,
+    sourceObserved,
+    sourceTruth,
+    fromCache: sourceTruth === "hot_cache_snapshot",
+    route: "admin_analytics_content_conversion",
+    objectId: input.groupKey,
+    timestampMs: Number.isFinite(timestampMs) ? timestampMs : null,
+  });
 }
 
 function normalizePackageId(rawValue: string) {
@@ -704,26 +751,15 @@ export function buildHistoricalContentAnalytics(input: {
           : "Some preview or unwrap records could not be mapped cleanly, so this cohort is partially hydrated.";
       }
 
-      const sourceTruth = group.hasPreviewSource && group.hasUnlockSource
-        ? usingUnlockRollupFallback
-          ? "drop_metadata_plus_unlock_rollups"
-          : "drop_metadata_plus_telemetry"
-        : group.hasUnlockSource
-          ? usingUnlockRollupFallback
-            ? "drop_metadata_plus_unlock_rollups"
-            : "rollup_only"
-          : group.hasPreviewSource || group.hasViewerSource
-            ? "telemetry_only"
-            : "missing";
-
-      const freshnessState: ContentConversionState["rows"][number]["freshnessState"] =
-        !hasAnyActivity
-          ? "unknown"
-          : input.freshnessState === "stale"
-            ? "stale"
-            : input.freshnessState === "partial" || usingUnlockRollupFallback
-              ? "partial"
-              : "live";
+      const recoveryMetadata = buildContentConversionRecoveryMetadata({
+        groupKey: group.groupKey,
+        previewCount: group.previewCount,
+        unlockCount: group.unlockCount,
+        viewerOpenCount: group.viewerOpenCount,
+        watchSeconds: group.watchSeconds,
+        usingUnlockRollupFallback,
+        generatedAtUtc: input.generatedAtUtc,
+      });
 
       return {
         groupKey: group.groupKey,
@@ -740,8 +776,17 @@ export function buildHistoricalContentAnalytics(input: {
           : null,
         revenueUsd: group.revenueUsd > 0 ? roundMoney(group.revenueUsd) : null,
         gumdropsSpent: group.gumdropsSpent > 0 ? group.gumdropsSpent : null,
-        sourceTruth,
-        freshnessState,
+        sourceTruth: recoveryMetadata.sourceTruth,
+        freshnessState: recoveryMetadata.freshnessState,
+        confidenceScore: recoveryMetadata.confidenceScore,
+        confidenceBand: recoveryMetadata.confidenceBand,
+        evidenceKind: recoveryMetadata.evidenceKind,
+        dedupeKey: recoveryMetadata.dedupeKey,
+        dedupeDimensions: recoveryMetadata.dedupeDimensions,
+        lateArrivalWindowDays: recoveryMetadata.lateArrivalWindowDays,
+        productTruthEligible: recoveryMetadata.productTruthEligible,
+        missingVsZeroState: recoveryMetadata.missingVsZeroState,
+        mathReason: recoveryMetadata.mathReason,
         conversionState,
         explanation,
       };

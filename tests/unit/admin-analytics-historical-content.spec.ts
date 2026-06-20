@@ -95,6 +95,23 @@ describe("buildHistoricalContentAnalytics", () => {
     });
 
     expect(analytics.contentConversionState.totalPreviews).toBe(1);
+    const conversionRow = analytics.contentConversionState.rows.find((row) =>
+      row.groupingDimension === "contentType" && row.previewCount === 1 && row.unlockCount === 1
+    );
+    expect(conversionRow).toMatchObject({
+      previewCount: 1,
+      unlockCount: 1,
+      sourceTruth: "hot_cache_snapshot",
+      evidenceKind: "cached",
+      freshnessState: "cached",
+      confidenceScore: 82,
+      confidenceBand: "strong",
+      lateArrivalWindowDays: 12,
+      productTruthEligible: false,
+      missingVsZeroState: "source_present",
+    });
+    expect(conversionRow?.dedupeKey).toContain("launch_recovery|unlock");
+    expect(conversionRow?.mathReason).toContain("drop_unlocked");
     expect(analytics.unlockCategoryMix).toEqual([
       expect.objectContaining({
         label: "Chocolate",
@@ -106,5 +123,60 @@ describe("buildHistoricalContentAnalytics", () => {
       { tag: "sweet", count: 1 },
       { tag: "launch", count: 1 },
     ]);
+  });
+
+  it("labels transaction-backed content conversion as server-ledger unlock truth", () => {
+    const analytics = buildHistoricalContentAnalytics({
+      telemetryLogsByEvent: {
+        drop_preview_opened: [telemetryEvent("drop_preview_opened")],
+      },
+      eventsData: {},
+      watchAssetDocs: [],
+      dropDocs: [
+        doc("drop_1", {
+          title: "Launch Drop",
+          creatorId: "creator_1",
+          validFrom: 1_700_000_000_000,
+          unlockCost: 100,
+          mediaCounts: { images: 1, videos: 0 },
+          tags: ["sweet"],
+        }),
+      ],
+      dropDailyDocs: [],
+      viewerDropInsights: [],
+      viewerOverview,
+      normalizedTransactionsInRange: [
+        {
+          type: "unlock_content",
+          relatedDropId: "drop_1",
+          grossRevenueUsd: 1.25,
+          amount: -100,
+        } as unknown as Parameters<typeof buildHistoricalContentAnalytics>[0]["normalizedTransactionsInRange"][number],
+      ],
+      packageConfigs: [],
+      rangeLabel: "all",
+      generatedAtUtc: "2026-06-20T00:00:00.000Z",
+      freshnessState: "live",
+      funnel: {
+        previewOpens: 1,
+        unlocks: 1,
+        viewerOpens: 0,
+      },
+    });
+
+    const conversionRow = analytics.contentConversionState.rows.find((row) =>
+      row.groupingDimension === "contentType" && row.previewCount === 1 && row.unlockCount === 1
+    );
+
+    expect(conversionRow).toMatchObject({
+      sourceTruth: "server_ledger",
+      evidenceKind: "observed",
+      freshnessState: "source_current",
+      confidenceScore: 98,
+      confidenceBand: "verified",
+      productTruthEligible: true,
+      revenueUsd: 1.25,
+      gumdropsSpent: 100,
+    });
   });
 });
