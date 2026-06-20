@@ -720,7 +720,11 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   const sourceAgreementState = typeof rawSourceAgreementState === "string"
     ? rawSourceAgreementState
     : sourceAgreementSummary.sourceAgreementStatus;
-  const staleEvidence = typeof sourceAgreementHead === "string" && sourceAgreementHead !== input.currentHead;
+  const hasLaunchCoverageInput = typeof input.sourceAgreementResult.inputPath === "string"
+    && input.sourceAgreementResult.inputPath.trim().length > 0;
+  const staleEvidence = hasLaunchCoverageInput
+    ? typeof sourceAgreementHead !== "string" || sourceAgreementHead !== input.currentHead
+    : false;
   const launchCoverageSummary = buildLaunchHistoryCoverageSummaryState({
     expectedDayKeys: expectedDays,
     dayCoverage,

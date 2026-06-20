@@ -259,6 +259,8 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("sourceGateBlockers: launchSourceGate.sourceGateBlockers");
     expect(source).toContain("input.sourceAgreementResult.inputHead");
     expect(source).toContain("sourceAgreementEvidence.inputHead");
+    expect(source).toContain("const hasLaunchCoverageInput");
+    expect(source).toContain("typeof sourceAgreementHead !== \"string\"");
     expect(source).toContain("sourceAgreementHead !== input.currentHead");
     expect(source).not.toContain("const sourceAgreementHead = input.currentHead");
     expect(source).not.toContain("launchSourceGateCanClear");

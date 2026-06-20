@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-20T12:28:57.540Z",
-  "currentHead": "ef001b713f41db94ba1769e568d360a0d97e9536",
+  "generatedAtUtc": "2026-06-20T12:34:25.530Z",
+  "currentHead": "10166e5ea07b1d6e4561e0156718b49c07ab4618",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,26 +365,26 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 87,
+    "total": 81,
     "byClassification": {
       "doctrine_memory_expected": 14,
       "unrelated_agent_context_file_to_ignore": 1,
       "stale_generated_artifact_to_regenerate": 26,
-      "analytics_panel_hydration_artifact_expected": 4,
       "source_agreement_failure_artifact_expected": 1,
       "launch_analytics_recovery_artifact_expected": 2,
       "documentation_artifact_expected": 1,
       "analytics_semantics_source_expected": 3,
-      "source_agreement_failure_classification_required": 2,
+      "source_agreement_failure_classification_required": 1,
       "admin_browser_source_smoke_expected": 4,
+      "analytics_panel_hydration_artifact_expected": 2,
       "validator_artifact_expected": 3,
       "creator_drop_workflow_expected": 3,
       "telemetry_catalog_manifest_expected": 3,
       "launch_analytics_recovery_source_expected": 3,
-      "real_source_change_needs_review": 6,
+      "real_source_change_needs_review": 5,
       "admin_debug_truth_display_source_expected": 3,
       "admin_surface_modal_replacement_source_expected": 2,
-      "test_artifact_expected": 6
+      "test_artifact_expected": 4
     },
     "unsafeUnknown": [],
     "sample": [
