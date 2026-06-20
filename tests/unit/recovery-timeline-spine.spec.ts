@@ -183,6 +183,10 @@ describe("recovery timeline spine", () => {
       familyId: "purchase",
       defaultSourceTruth: "server_ledger",
     });
+    expect(getLaunchCriticalEventFamily("drop_unlocked")).toMatchObject({
+      familyId: "unlock",
+      defaultSourceTruth: "server_ledger",
+    });
     expect(buildLaunchCriticalFamilyProofBoundary(getLaunchCriticalEventFamily("server_purchase_verified")!)).toMatchObject({
       productTruthSource: "server_ledger",
       sourceRole: "ledger_protected_truth",
@@ -235,6 +239,9 @@ describe("recovery timeline spine", () => {
     expect(report.familyCatalogStates.find((family) => family.familyId === "watch_end")).toMatchObject({
       primaryResolvedEventName: "watch_session_ended",
     });
+    expect(report.familyCatalogStates.find((family) => family.familyId === "unlock")).toMatchObject({
+      primaryResolvedEventName: "drop_unlocked",
+    });
   });
 
   it("maps GA/custom recovery evidence into every launch-critical family without clearing product truth", () => {
@@ -252,6 +259,16 @@ describe("recovery timeline spine", () => {
     });
     expect(getGa4RecoveryEventMapping("purchase")).toMatchObject({
       canonicalEventName: "gumdrops_purchase_completed",
+      commerceTruthRequiresLedger: true,
+    });
+    expect(getGa4RecoveryEventMapping("unlock_drop_success")).toMatchObject({
+      canonicalEventName: "drop_unlocked",
+      productDomain: "drop_unlock",
+      commerceTruthRequiresLedger: true,
+    });
+    expect(getGa4RecoveryEventMapping("drop_unlocked")).toMatchObject({
+      canonicalEventName: "drop_unlocked",
+      productDomain: "drop_unlock",
       commerceTruthRequiresLedger: true,
     });
     expect(getGa4RecoveryEventMapping("admin_creator_drop_reviewed")).toMatchObject({

@@ -878,7 +878,8 @@ export const LAUNCH_CRITICAL_EVENT_FAMILIES: LaunchCriticalEventFamily[] = [
   },
   {
     familyId: "unlock",
-    canonicalEventNames: ["unlock_drop_success", "drop_unwrapped", "entitlement_granted"],
+    canonicalEventNames: ["drop_unlocked", "unlock_drop_success", "drop_unwrapped", "entitlement_granted"],
+    activeSourceEventNames: ["drop_unlocked", "unlock_drop_success", "drop_unwrapped", "entitlement_granted"],
     productDomain: "drop_unlock",
     objectType: "unlock",
     defaultSourceTruth: "server_ledger",
@@ -1251,7 +1252,7 @@ export const TREASURY_TIMELINE_EVENT_MAP: TreasuryTimelineReconciliationReport["
   {
     eventType: "unlock_spend",
     ledgerOwner: "unlock_record",
-    analyticsEvidenceEvents: ["drop_unwrapped", "unlock_content", "unlock_drop_success"],
+    analyticsEvidenceEvents: ["drop_unlocked", "drop_unwrapped", "unlock_content", "unlock_drop_success"],
     productTruthRule: "Unlock spend truth requires source-aware ledger split and entitlement/unlock record.",
   },
   {
@@ -1374,7 +1375,15 @@ export const GA4_RECOVERY_EVENT_MAPPINGS: Ga4RecoveryEventMapping[] = [
   },
   {
     ga4EventName: "unlock_drop_success",
-    canonicalEventName: "drop_unwrapped",
+    canonicalEventName: "drop_unlocked",
+    confidence: "low",
+    objectType: "unlock",
+    productDomain: "drop_unlock",
+    commerceTruthRequiresLedger: true,
+  },
+  {
+    ga4EventName: "drop_unlocked",
+    canonicalEventName: "drop_unlocked",
     confidence: "low",
     objectType: "unlock",
     productDomain: "drop_unlock",

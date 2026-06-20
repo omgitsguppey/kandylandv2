@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-06-20T18:16:39.762Z",
+  "generatedAtUtc": "2026-06-20T20:25:31.019Z",
   "reportKey": "recovery-timeline-spine",
   "version": "2026.06.recovery-timeline-spine.1",
   "status": "pass",
@@ -166,15 +166,15 @@
       },
       {
         "ga4EventName": "unlock_drop_success",
-        "canonicalEventName": "drop_unwrapped",
+        "canonicalEventName": "drop_unlocked",
         "confidence": "low",
         "productDomain": "drop_unlock",
         "commerceTruthRequiresLedger": true
       }
     ],
-    "ga4EventMappingCount": 18,
+    "ga4EventMappingCount": 19,
     "ga4EventMappingPreviewLimit": 12,
-    "ga4EventMappingOmittedCount": 6,
+    "ga4EventMappingOmittedCount": 7,
     "ga4LaunchCriticalFamilyCoverage": {
       "mappedFamilyCount": 13,
       "requiredFamilyCount": 13,
@@ -594,11 +594,13 @@
       {
         "familyId": "unlock",
         "canonicalEventNames": [
+          "drop_unlocked",
           "unlock_drop_success",
           "drop_unwrapped",
           "entitlement_granted"
         ],
         "activeSourceEventNames": [
+          "drop_unlocked",
           "unlock_drop_success",
           "drop_unwrapped",
           "entitlement_granted"
@@ -880,6 +882,7 @@
         "eventType": "unlock_spend",
         "ledgerOwner": "unlock_record",
         "analyticsEvidenceEvents": [
+          "drop_unlocked",
           "drop_unwrapped",
           "unlock_content",
           "unlock_drop_success"
