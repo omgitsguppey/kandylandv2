@@ -23,6 +23,62 @@ describe("telemetry truth recovery formulas", () => {
     expect(result.finalViews).toBe(10);
     expect(result.estimatedRatioPct).toBe(20);
     expect(result.duplicateRatePct).toBe(20);
+    expect(result.sourceTruth).toBe("first_party_event_fact");
+    expect(result.evidenceKind).toBe("observed");
+    expect(result.freshnessState).toBe("refresh_due");
+    expect(result.confidenceScore).toBe(result.confidencePct);
+    expect(result.confidenceBand).toBe("directional");
+    expect(result.productTruthEligible).toBe(true);
+    expect(result.missingVsZeroState).toBe("source_present");
+    expect(result.dedupeKey).toContain("launch_recovery|page_view");
+    expect(result.lateArrivalWindowDays).toBe(12);
+    expect(result.dedupeDimensions).toEqual([
+      "event_id",
+      "session_id",
+      "identity_link_id",
+      "user_id",
+      "guest_id",
+      "route",
+      "object_id",
+      "timestamp_window",
+      "semantic_action",
+    ]);
+  });
+
+  it("labels GA-only recovered views as modeled evidence, not product truth", () => {
+    const result = calculateTelemetryTruthRecoveryFormulas({
+      observedViews: 0,
+      checkedViews: 0,
+      estimatedViews: 5,
+      freshnessScore: 100,
+      sourceCompletenessScore: 40,
+      recoveryQualityScore: 55,
+      lastRebuildAtUtc: "2026-06-20T12:00:00.000Z",
+      sourcePath: "ga4 recovery sample",
+    });
+
+    expect(result.finalViews).toBe(5);
+    expect(result.sourceTruth).toBe("ga4_evidence_only");
+    expect(result.evidenceKind).toBe("modeled");
+    expect(result.freshnessState).toBe("external_evidence_required");
+    expect(result.productTruthEligible).toBe(false);
+    expect(result.missingVsZeroState).toBe("source_present");
+    expect(result.confidenceBand).toBe("directional");
+  });
+
+  it("keeps empty recovery missing instead of zero-as-truth", () => {
+    const result = calculateTelemetryTruthRecoveryFormulas({
+      observedViews: 0,
+      checkedViews: 0,
+      estimatedViews: 0,
+    });
+
+    expect(result.finalViews).toBe(0);
+    expect(result.sourceTruth).toBe("source_missing");
+    expect(result.evidenceKind).toBe("missing");
+    expect(result.freshnessState).toBe("source_missing");
+    expect(result.productTruthEligible).toBe(false);
+    expect(result.missingVsZeroState).toBe("source_missing");
   });
 
   it("does not treat missing per-drop/user rows as healthy", () => {
@@ -37,5 +93,8 @@ describe("telemetry truth recovery formulas", () => {
 
     expect(report.status.status).toBe("stale_rebuild_required");
     expect(report.status.nextAction).toContain("reconciliation job");
+    expect(report.sourceTruth).toBe("source_missing");
+    expect(report.evidenceKind).toBe("missing");
+    expect(report.lateArrivalWindowDays).toBe(12);
   });
 });

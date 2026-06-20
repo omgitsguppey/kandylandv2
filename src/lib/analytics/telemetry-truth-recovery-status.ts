@@ -22,6 +22,8 @@ export function buildTelemetryTruthRecoveryStatus(input: {
     freshnessScore: input.lastRebuildAtUtc ? 100 : 0,
     sourceCompletenessScore: input.dropMetricCount + input.userMetricCount > 0 ? 100 : 0,
     recoveryQualityScore: input.qualityState === "verified" ? 100 : input.qualityState === "estimated" ? 55 : 70,
+    lastRebuildAtUtc: input.lastRebuildAtUtc,
+    sourcePath: input.sourcePath,
   });
   const rowsLoaded = Math.max(0, input.dropMetricCount) + Math.max(0, input.userMetricCount);
   const status = classifySourceWindowZeroShell({

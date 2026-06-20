@@ -98,6 +98,8 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/behavioral/normalize-event-fact.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/recovery-timeline-spine.ts") return "recovery_spine_source_expected";
+  if (normalized === "src/lib/analytics/telemetry-truth-recovery-formulas.ts") return "telemetry_recovery_source_expected";
+  if (normalized === "src/lib/analytics/telemetry-truth-recovery-status.ts") return "telemetry_recovery_source_expected";
   if (normalized === "src/lib/analytics/source-agreement-detail.ts") return "source_agreement_source_expected";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts") return "telemetry_catalog_external_lane";
@@ -106,6 +108,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-count-deduplication-normalization.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-metric-canonicalization-legacy-recovery.ts") return "metric_canonicalization_validator_expected";
   if (normalized === "scripts/agent/validate-recovery-timeline-spine.ts") return "recovery_spine_validator_expected";
+  if (normalized === "scripts/agent/validate-telemetry-truth-recovery-formulas.ts") return "telemetry_recovery_validator_expected";
   if (normalized === "scripts/agent/validate-event-catalog-telemetry.ts" || normalized === "scripts/audit-telemetry.ts") return "telemetry_catalog_validator_expected";
   if (normalized === "scripts/agent/validate-admin-browser-surface-smoke.ts") return "admin_browser_smoke_external_lane";
   if (normalized === "scripts/agent/validate-drops-mobile-refinement.ts") return "creator_drop_external_lane";
@@ -118,6 +121,7 @@ function classifyDirtyFile(path: string) {
   ) return "admin_debug_evidence_boundary_expected";
   if (normalized === "tests/unit/count-deduplication-normalization.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/recovery-timeline-spine.spec.ts") return "recovery_spine_test_expected";
+  if (normalized === "tests/unit/telemetry-truth-recovery-formulas.spec.ts") return "telemetry_recovery_test_expected";
   if (normalized === "tests/unit/admin-data-validation.spec.ts") return "admin_analytics_source_health_test_expected";
   if (normalized === "tests/unit/source-agreement-failure-detail.spec.ts") return "source_agreement_test_expected";
   if (normalized === "tests/unit/admin-browser-surface-smoke.spec.ts") return "admin_browser_smoke_external_lane";
