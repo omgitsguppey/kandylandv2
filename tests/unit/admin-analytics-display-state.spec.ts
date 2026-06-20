@@ -6,7 +6,10 @@ import {
   formatAdminAnalyticsEvidenceSourceLabel,
   formatAdminAnalyticsSourceStateLabel,
   formatAdminAnalyticsSourceTruthLabel,
+  hasAdminAnalyticsLaunchRecoveryEvidence,
   resolveAdminAnalyticsDisplayState,
+  resolveAdminAnalyticsLaunchRecoverySummary,
+  resolveAdminAnalyticsOverviewFreshnessState,
   resolveAdminAnalyticsOverviewMetricState,
 } from "@/lib/analytics/admin-analytics-display-state";
 import {
@@ -21,6 +24,79 @@ import {
 import { createSnapshotValue, type AdminMetricSnapshot } from "@/lib/analytics/admin-metric-snapshot";
 
 describe("resolveAdminAnalyticsDisplayState", () => {
+  it("keeps launch recovery source roles and math reasons from the spine summary", () => {
+    expect(resolveAdminAnalyticsLaunchRecoverySummary({
+      sourceAgreementState: "failed",
+      launchHistoryCoverage: {
+        displaySummary: {
+          sourceLabel: "Mixed",
+          confidenceLabel: "review",
+          coverageLabel: "1/129 product-truth launch days (evidence window 3)",
+          sourceWindowLabel: "Launch evidence window since 2026-02-12",
+          coverageDenominatorKind: "formal_launch_range",
+          missingRangeCount: 1,
+          sourceAgreementState: "failed",
+          sourceRoleCounts: {
+            product_truth: 1,
+            missing_source: 12,
+          },
+          sourceGateBlockers: [{
+            blocker: "launch_critical_family_coverage_below_floor",
+            reason: "Launch-critical first-party family coverage is 7.7%; source truth needs at least 95% observed first-party coverage before clearing.",
+            nextAction: "Recover observed first-party evidence before canonical chart promotion.",
+          }],
+          mathReasonSamples: [{
+            familyId: "purchase",
+            sourceRole: "missing_source",
+            mathReason: "purchase has no bounded source evidence in the recovery window.",
+            nextAction: "Attach first-party source evidence before promotion.",
+          }],
+        },
+      },
+    })).toMatchObject({
+      sourceRoleCounts: {
+        product_truth: 1,
+        missing_source: 12,
+      },
+      sourceGateBlockers: [{
+        blocker: "launch_critical_family_coverage_below_floor",
+      }],
+      mathReasonSamples: [{
+        familyId: "purchase",
+        sourceRole: "missing_source",
+      }],
+    });
+  });
+
+  it("derives launch recovery evidence presence from source roles instead of recovered count shortcuts", () => {
+    expect(hasAdminAnalyticsLaunchRecoveryEvidence({
+      sourceLabel: "Missing",
+      confidenceLabel: "unknown",
+      coverageLabel: "Product-truth source missing",
+      sourceWindowLabel: null,
+      coverageDenominatorKind: "formal_launch_range",
+      missingRangeCount: 1,
+      sourceAgreementState: "failed",
+      sourceRoleCounts: {
+        missing_source: 13,
+      },
+    })).toBe(false);
+
+    expect(hasAdminAnalyticsLaunchRecoveryEvidence({
+      sourceLabel: "Mixed",
+      confidenceLabel: "review",
+      coverageLabel: "1/129 product-truth launch days",
+      sourceWindowLabel: "Launch evidence window since 2026-02-12",
+      coverageDenominatorKind: "formal_launch_range",
+      missingRangeCount: 1,
+      sourceAgreementState: "failed",
+      sourceRoleCounts: {
+        product_truth: 1,
+        missing_source: 12,
+      },
+    })).toBe(true);
+  });
+
   it("renders a verified snapshot when realtime fails", () => {
     const state = resolveAdminAnalyticsDisplayState({
       latestVerifiedSnapshot: {
@@ -333,6 +409,13 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(state.visibleMessage).toBe("Cached snapshot.");
   });
 
+  it("maps stale cache freshness to recent overview state instead of stale truth", () => {
+    expect(resolveAdminAnalyticsOverviewFreshnessState("refresh_due")).toBe("recent");
+    expect(resolveAdminAnalyticsOverviewFreshnessState("stale")).toBe("recent");
+    expect(resolveAdminAnalyticsOverviewFreshnessState("cached")).toBe("recent");
+    expect(resolveAdminAnalyticsOverviewFreshnessState("blocked")).toBe("not_observed");
+  });
+
   it("preserves cached realtime route labels through snapshot-first admin state", () => {
     const source = readFileSync(
       join(process.cwd(), "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
@@ -340,7 +423,9 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     );
 
     expect(source).toContain('label === "cached" || label === "refresh_due"');
+    expect(source).toContain("resolveAdminAnalyticsOverviewFreshnessState(liveActiveTruthState)");
     expect(source).toContain('return "cached"');
+    expect(source).not.toContain('liveActiveTruthState === "stale" ? "stale"');
     expect(source).not.toContain('label === "cached") {\n    return "fallback"');
   });
 });

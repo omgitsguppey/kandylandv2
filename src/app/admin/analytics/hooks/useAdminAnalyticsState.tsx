@@ -18,7 +18,10 @@ import { authFetch } from "@/lib/authFetch";
 import { isAdminUiTestSessionUser } from "@/lib/admin/admin-ui-test-session";
 import { reportStorageIssue } from "@/lib/client-error-reporting";
 import {
+  hasAdminAnalyticsLaunchRecoveryEvidence,
   resolveAdminAnalyticsDisplayState,
+  resolveAdminAnalyticsOverviewFreshnessState,
+  resolveAdminAnalyticsLaunchRecoverySummary,
   resolveAdminAnalyticsOverviewMetricState,
   type AdminAnalyticsDisplaySnapshotState,
   type AdminAnalyticsDisplayState,
@@ -627,21 +630,6 @@ function toOverviewGeneratedAtUtc(response: AdminOverviewResponse | undefined) {
   }
 
   return new Date(response.generatedAt).toISOString();
-}
-
-function mapOverviewFreshnessState(
-  freshnessState: "live" | "review" | "stale" | "unknown" | "blocked" | "unavailable" | undefined,
-): AnalyticsOverviewCard["freshnessState"] {
-  switch (freshnessState) {
-    case "live":
-      return "live";
-    case "review":
-      return "recent";
-    case "stale":
-      return "stale";
-    default:
-      return "unknown";
-  }
 }
 
 function isUnavailableOverviewDisplayLabel(value: string | null) {
@@ -1462,8 +1450,15 @@ export function useAdminAnalyticsState() {
   const launchHistoryCoverage =
     historicalOverviewResponse?.analyticsSourceHealth?.launchHistoryCoverage ??
     historicalResponse?.analyticsSourceHealth?.launchHistoryCoverage;
-  const hasLaunchHistoryCoverage =
-    (launchHistoryCoverage?.recoveredDayCount ?? 0) > 0;
+  const sourceAgreementState =
+    historicalOverviewResponse?.analyticsSourceHealth?.sourceAgreement.state ??
+    historicalResponse?.analyticsSourceHealth?.sourceAgreement.state ??
+    "not_enough_sources";
+  const launchRecoverySummary = resolveAdminAnalyticsLaunchRecoverySummary({
+    launchHistoryCoverage,
+    sourceAgreementState,
+  });
+  const hasLaunchHistoryCoverage = hasAdminAnalyticsLaunchRecoveryEvidence(launchRecoverySummary);
   const hasOverviewHydrationEvidence =
     hasOverviewSnapshotFirstValue || hasOverviewTransactionFallbackValue || hasLaunchHistoryCoverage;
   const liveRealtimeFailureDetail =
@@ -1521,84 +1516,10 @@ export function useAdminAnalyticsState() {
           : hasOverviewSnapshotFirstValue ? "cached"
           : hasOverviewTransactionFallbackValue ? "degraded"
           : historicalLoading ? "loading" : "failed";
-  const launchRangeProof = launchHistoryCoverage?.rangeProof;
-  const launchFormalExpectedDayCount = launchRangeProof?.formalExpectedDayCount ?? launchHistoryCoverage?.expectedDayCount ?? 0;
-  const launchEvidenceDayCount = launchRangeProof?.evidenceDayCount ?? launchHistoryCoverage?.expectedDayCount ?? 0;
-  const launchUsesFormalDenominator = Boolean(
-    launchHistoryCoverage &&
-    !launchRangeProof?.allLaunchRangeProven &&
-    launchFormalExpectedDayCount > launchHistoryCoverage.expectedDayCount,
-  );
-  const launchCoverageWindowLabel = launchRangeProof?.allLaunchRangeProven
-    ? "launch days"
-    : launchUsesFormalDenominator
-      ? `launch days (evidence window ${launchEvidenceDayCount})`
-    : launchRangeProof?.coverageWindowKind === "fixture_only_local_window" ||
-      launchRangeProof?.coverageWindowKind === "local_source_window"
-      ? "local evidence days"
-      : launchRangeProof
-        ? "evidence days"
-        : "launch days";
-  const launchHistorySourceLabel =
-    launchHistoryCoverage?.firstRecoveredDayKey
-      ? launchRangeProof?.allLaunchRangeProven
-        ? `${launchHistoryCoverage.state === "available" ? "Launch history recovered" : "Launch history partially recovered"} since ${launchHistoryCoverage.firstRecoveredDayKey}`
-        : `Launch evidence window since ${launchHistoryCoverage.firstRecoveredDayKey}`
-      : null;
-  const launchSourceCounts = launchHistoryCoverage?.sourceDayCounts;
-  const launchFirstPartyCoverage = launchHistoryCoverage?.firstPartyCoverage;
-  const launchProductTruthRecoveredDayCount =
-    launchHistoryCoverage?.productTruthRecoveredDayCount ??
-    launchFirstPartyCoverage?.coveredDayCount ??
-    launchSourceCounts?.firstParty ??
-    0;
-  const launchEvidenceObservedDayCount =
-    launchHistoryCoverage?.evidenceObservedDayCount ??
-    launchHistoryCoverage?.recoveredDayCount ??
-    0;
-  const launchFirstPartyCoverageLabel =
-    launchHistoryCoverage && launchFirstPartyCoverage?.state !== "available"
-      ? ` - observed ${launchEvidenceObservedDayCount}/${launchEvidenceDayCount} evidence days`
-      : "";
-  const launchRecoverySourceLabel = launchSourceCounts
-    ? launchSourceCounts.firstParty > 0 && launchSourceCounts.ga4 > 0
-      ? "Mixed"
-      : launchSourceCounts.firstParty > 0
-        ? "First-party"
-        : launchSourceCounts.ga4 > 0
-          ? "GA4"
-          : launchSourceCounts.legacySupport > 0
-            ? "Fallback"
-            : "Unknown"
-    : "Unknown";
-  const sourceAgreementState =
-    historicalOverviewResponse?.analyticsSourceHealth?.sourceAgreement.state ??
-    historicalResponse?.analyticsSourceHealth?.sourceAgreement.state ??
-    "not_enough_sources";
-  const launchRecoveryConfidenceLabel =
-    sourceAgreementState === "pass" && launchHistoryCoverage?.state === "available"
-      ? "verified"
-      : sourceAgreementState === "failed"
-        ? "review"
-        : launchHistoryCoverage?.state === "partial" || sourceAgreementState === "review"
-          ? "partial"
-          : launchHistoryCoverage?.state === "source_missing"
-            ? "unknown"
-            : "partial";
-  const launchRecoverySummary = {
-    sourceLabel: launchRecoverySourceLabel,
-    confidenceLabel: launchRecoveryConfidenceLabel,
-    coverageLabel: launchHistoryCoverage
-      ? `${launchProductTruthRecoveredDayCount}/${launchUsesFormalDenominator ? launchFormalExpectedDayCount : launchHistoryCoverage.expectedDayCount} product-truth ${launchCoverageWindowLabel}${launchFirstPartyCoverageLabel}`
-      : "Coverage waiting",
-    missingRangeCount: launchFirstPartyCoverage?.missingRanges.length ?? launchHistoryCoverage?.missingRanges.length ?? 0,
-    sourceAgreementState,
-  };
-
   const historicalSourceLabel =
     historicalOverviewResponse && !historicalError
-      ? launchHistorySourceLabel
-        ? launchHistorySourceLabel
+      ? launchRecoverySummary.sourceWindowLabel
+        ? launchRecoverySummary.sourceWindowLabel
         : historicalOverviewResponse.cacheSourceLabel
         ? `${range.toUpperCase()} ${historicalOverviewResponse.cacheSourceLabel}`
         : `Server-confirmed ${range.toUpperCase()} snapshot`
@@ -1719,12 +1640,7 @@ export function useAdminAnalyticsState() {
         historicalOverviewResponse.cacheState === "refresh_due"
           ? "last_verified_snapshot"
           : "historical_snapshot",
-      freshnessState:
-        resolvedHistoricalOverviewTruthState === "stale"
-          ? "stale"
-          : resolvedHistoricalOverviewTruthState === "cached"
-            ? "recent"
-            : "live",
+      freshnessState: resolveAdminAnalyticsOverviewFreshnessState(resolvedHistoricalOverviewTruthState),
       windowLabel: range.toUpperCase(),
       generatedAtUtc: historicalOverviewResponse.generatedAtMs
         ? new Date(historicalOverviewResponse.generatedAtMs).toISOString()
@@ -1743,7 +1659,7 @@ export function useAdminAnalyticsState() {
         truthState: "degraded",
         statusBadgeLabel: "Partial",
         sourceTruth: "server_transactions",
-        freshnessState: mapOverviewFreshnessState(overviewRevenueMetric?.freshnessState),
+        freshnessState: resolveAdminAnalyticsOverviewFreshnessState(overviewRevenueMetric?.freshnessState),
         windowLabel: "30D",
         generatedAtUtc: toOverviewGeneratedAtUtc(adminOverviewResponse),
         explanation: `${sharedFallbackExplanation} Source: server-confirmed transactions.`,
@@ -1787,12 +1703,7 @@ export function useAdminAnalyticsState() {
         historicalOverviewResponse.cacheState === "refresh_due"
           ? "last_verified_snapshot"
           : "historical_snapshot",
-      freshnessState:
-        resolvedHistoricalOverviewTruthState === "stale"
-          ? "stale"
-          : resolvedHistoricalOverviewTruthState === "cached"
-            ? "recent"
-            : "live",
+      freshnessState: resolveAdminAnalyticsOverviewFreshnessState(resolvedHistoricalOverviewTruthState),
       windowLabel: range.toUpperCase(),
       generatedAtUtc: historicalOverviewResponse.generatedAtMs
         ? new Date(historicalOverviewResponse.generatedAtMs).toISOString()
@@ -1813,7 +1724,7 @@ export function useAdminAnalyticsState() {
         truthState: "degraded",
         statusBadgeLabel: "Partial",
         sourceTruth: "server_transactions",
-        freshnessState: mapOverviewFreshnessState(overviewPurchasesMetric?.freshnessState),
+        freshnessState: resolveAdminAnalyticsOverviewFreshnessState(overviewPurchasesMetric?.freshnessState),
         windowLabel: "30D",
         generatedAtUtc: toOverviewGeneratedAtUtc(adminOverviewResponse),
         explanation: `${sharedFallbackExplanation} Source: completed transactions.`,
@@ -1857,14 +1768,9 @@ export function useAdminAnalyticsState() {
           ? undefined
           : "Cached",
       sourceTruth: historicalOverviewResponse ? "historical_snapshot" : "device_sample",
-      freshnessState:
-        historicalOverviewResponse
-          ? resolvedHistoricalOverviewTruthState === "stale"
-            ? "stale"
-            : resolvedHistoricalOverviewTruthState === "cached"
-              ? "recent"
-              : "live"
-          : "recent",
+      freshnessState: historicalOverviewResponse
+        ? resolveAdminAnalyticsOverviewFreshnessState(resolvedHistoricalOverviewTruthState)
+        : "recent",
       windowLabel: range.toUpperCase(),
       generatedAtUtc: historicalOverviewResponse?.generatedAtMs
         ? new Date(historicalOverviewResponse.generatedAtMs).toISOString()
@@ -2272,7 +2178,7 @@ export function useAdminAnalyticsState() {
           : snapshotLiveActiveValue !== null ? "verified_snapshot" : liveLoading ? "hydrating" : "unavailable",
         truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
         sourceTruth: effectiveLiveResponse ? "current_activity_snapshot" : snapshotLiveActiveValue !== null ? "last_verified_snapshot" : "missing",
-        freshnessState: liveActiveTruthState === "live" ? "live" : liveActiveTruthState === "cached" ? "recent" : liveActiveTruthState === "stale" ? "stale" : "unknown",
+        freshnessState: resolveAdminAnalyticsOverviewFreshnessState(liveActiveTruthState),
         realtimeLaneStatus: liveRealtime.feedStatus,
         snapshotModule: livePulseSnapshotModule,
         waitingShownBecause: effectiveLiveResponse?.totalActive === undefined || effectiveLiveResponse?.totalActive === null
@@ -2350,7 +2256,7 @@ export function useAdminAnalyticsState() {
         sourceTruth: effectiveLiveResponse && (
           liveRealtime.feedStatus === "realtime" || liveRealtime.feedStatus === "partial"
         ) ? "current_activity_snapshot" : snapshotLiveActiveValue !== null ? "last_verified_snapshot" : "missing",
-        freshnessState: liveActiveTruthState === "live" ? "live" : liveActiveTruthState === "cached" ? "recent" : liveActiveTruthState === "stale" ? "stale" : "unknown",
+        freshnessState: resolveAdminAnalyticsOverviewFreshnessState(liveActiveTruthState),
       },
       mobileShare: mobileShareCard,
       revenue: revenueCard,
@@ -3149,7 +3055,7 @@ export function useAdminAnalyticsState() {
     !blockingAnalyticsError &&
     !historicalHasSignals;
   const adminAnalyticsSourceHierarchy = buildAdminAnalyticsSourceHierarchy({
-    sourceAgreementState: historicalOverviewResponse?.analyticsSourceHealth?.sourceAgreement.state ?? (showHistoricalEmptyState ? "not_enough_sources" : "pass"),
+    sourceAgreementState,
     chartReadinessState: historicalOverviewResponse?.analyticsSourceHealth?.chartReadiness.state ?? (showHistoricalEmptyState ? "unavailable" : "ready"),
     analyticsTabHasData: historicalHasSignals,
     debugHasData: Boolean(historicalOverviewResponse?.analyticsSourceHealth) || showHistoricalEmptyState,

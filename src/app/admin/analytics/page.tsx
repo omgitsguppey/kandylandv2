@@ -349,9 +349,59 @@ function formatLaunchRecoveryConfidenceLabel(value: string | null | undefined) {
   const normalized = String(value ?? "").trim().toLowerCase();
   if (!normalized || normalized === "unknown") return "Partial";
   if (normalized === "verified") return "Verified";
+  if (normalized === "strong") return "Strong";
+  if (normalized === "directional") return "Directional";
+  if (normalized === "weak") return "Weak";
   if (normalized === "partial") return "Partial";
   if (normalized === "review") return "Review";
   return String(value).trim();
+}
+
+function formatLaunchRecoverySourceRoleLabel(value: string | null | undefined) {
+  switch (String(value ?? "").trim()) {
+    case "product_truth":
+      return "product truth";
+    case "calibration_only":
+      return "calibration only";
+    case "legacy_review":
+      return "legacy review";
+    case "snapshot_review":
+      return "snapshot review";
+    case "missing_source":
+      return "missing source";
+    default:
+      return "source review";
+  }
+}
+
+function formatLaunchRecoverySourceRoleSummary(counts: Record<string, number> | null | undefined) {
+  const entries = Object.entries(counts ?? {})
+    .filter(([, count]) => count > 0)
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  if (entries.length === 0) return null;
+
+  return `Launch source roles: ${entries
+    .map(([role, count]) => `${count} ${formatLaunchRecoverySourceRoleLabel(role)}`)
+    .join(", ")}.`;
+}
+
+function formatLaunchRecoveryMathReasonSample(sample: {
+  familyId: string;
+  sourceRole: string;
+  mathReason: string;
+}) {
+  return `${sample.familyId.replaceAll("_", " ")} (${formatLaunchRecoverySourceRoleLabel(sample.sourceRole)}): ${sample.mathReason}`;
+}
+
+function formatLaunchRecoverySourceGateBlocker(blocker: {
+  blocker: string;
+  reason: string;
+}) {
+  const label = blocker.blocker
+    .replaceAll("_", " ")
+    .replace(/^./u, (char) => char.toUpperCase());
+  return `${label}: ${blocker.reason}`;
 }
 
 const AdminAnalyticsOperationsTab = dynamic(
@@ -402,6 +452,21 @@ export default function AdminAnalyticsPage() {
     `Source: ${formatLaunchRecoverySourceLabel(state.launchRecoverySummary.sourceLabel)}`,
     `Confidence: ${formatLaunchRecoveryConfidenceLabel(state.launchRecoverySummary.confidenceLabel)}`,
   ];
+  const launchRecoverySourceRoleSummary = formatLaunchRecoverySourceRoleSummary(
+    state.launchRecoverySummary.sourceRoleCounts,
+  );
+  const launchRecoveryMathReasonItems = useMemo(
+    () => (state.launchRecoverySummary.mathReasonSamples ?? [])
+      .slice(0, 3)
+      .map(formatLaunchRecoveryMathReasonSample),
+    [state.launchRecoverySummary.mathReasonSamples],
+  );
+  const launchRecoveryBlockerItems = useMemo(
+    () => (state.launchRecoverySummary.sourceGateBlockers ?? [])
+      .slice(0, 4)
+      .map(formatLaunchRecoverySourceGateBlocker),
+    [state.launchRecoverySummary.sourceGateBlockers],
+  );
   const primaryBlockingAnalyticsError = overviewSnapshotUnavailable ? null : blockingAnalyticsError;
   const visibleOverviewDegradedCopy = (visibleDegradedCopy ?? []).filter(
     (copy) =>
@@ -457,10 +522,20 @@ export default function AdminAnalyticsPage() {
   const sourceDetailItems = useMemo(() => (
     Array.from(new Set([
       ...sourceHierarchyDetailItems,
+      ...launchRecoveryBlockerItems,
+      launchRecoverySourceRoleSummary,
+      ...launchRecoveryMathReasonItems,
       ...sourceStatusItems,
       liveFeedSourceStatusItem,
     ].filter((item): item is string => Boolean(item))))
-  ), [liveFeedSourceStatusItem, sourceHierarchyDetailItems, sourceStatusItems]);
+  ), [
+    launchRecoveryBlockerItems,
+    launchRecoveryMathReasonItems,
+    launchRecoverySourceRoleSummary,
+    liveFeedSourceStatusItem,
+    sourceHierarchyDetailItems,
+    sourceStatusItems,
+  ]);
   const panelHydrationSummary = state.panelHydration?.summary;
   const connectedPanelCount = panelHydrationSummary?.hydrated ?? 0;
   const totalPanelCount = panelHydrationSummary?.totalPanels ?? 0;

@@ -130,6 +130,7 @@ const mockState = vi.hoisted(() => {
         sourceLabel: "First-party",
         confidenceLabel: "verified",
         coverageLabel: "11/11 product-truth launch days",
+        sourceWindowLabel: "Launch history recovered since 2026-05-01",
         missingRangeCount: 0,
         sourceAgreementState: "pass",
       },
@@ -312,6 +313,20 @@ describe("AdminAnalyticsPage", () => {
     expect(ANALYTICS_STATE_SOURCE).toContain("unknownDeviceUsers");
     expect(ANALYTICS_STATE_SOURCE).toContain("classifiedDeviceUsers > 0");
     expect(ANALYTICS_STATE_SOURCE).not.toContain("? totalDeviceUsers > 0");
+  });
+
+  it("derives launch recovery confidence from canonical confidence bands", () => {
+    expect(ANALYTICS_STATE_SOURCE).toContain("resolveAdminAnalyticsLaunchRecoverySummary");
+    expect(ANALYTICS_STATE_SOURCE).toContain("hasAdminAnalyticsLaunchRecoveryEvidence(launchRecoverySummary)");
+    expect(ANALYTICS_STATE_SOURCE).not.toContain("launchHistoryCoverage?.recoveredDayCount");
+    expect(ANALYTICS_STATE_SOURCE).not.toContain("launchHistoryCoverage?.days.map((day) => day.confidenceBand)");
+    expect(ANALYTICS_STATE_SOURCE).not.toContain('sourceAgreementState === "failed"\n      ? "review"');
+  });
+
+  it("passes resolved source agreement into the source hierarchy instead of defaulting missing source health to pass", () => {
+    expect(ANALYTICS_STATE_SOURCE).toContain("const sourceAgreementState =");
+    expect(ANALYTICS_STATE_SOURCE).toContain("sourceAgreementState,\n    chartReadinessState");
+    expect(ANALYTICS_STATE_SOURCE).not.toContain('sourceAgreementState: historicalOverviewResponse?.analyticsSourceHealth?.sourceAgreement.state ?? (showHistoricalEmptyState ? "not_enough_sources" : "pass")');
   });
 
   it("uses compact natural disclosure copy for analytics drilldowns", () => {
@@ -684,9 +699,29 @@ describe("AdminAnalyticsPage", () => {
       launchRecoverySummary: {
         sourceLabel: "Mixed",
         confidenceLabel: "review",
-        coverageLabel: "1/50 product-truth launch days (evidence window 3) - observed 3/3 evidence days",
+        coverageLabel: "1/50 product-truth launch days (evidence window 3) - evidence present 3/3 days",
+        sourceWindowLabel: "Launch history partially recovered since 2026-05-01",
         missingRangeCount: 1,
         sourceAgreementState: "failed",
+        sourceRoleCounts: {
+          product_truth: 1,
+          missing_source: 12,
+        },
+        sourceGateBlockers: [
+          {
+            blocker: "launch_critical_family_coverage_below_floor",
+            reason: "Launch-critical first-party family coverage is 7.7%; source truth needs at least 95% observed first-party coverage before clearing.",
+            nextAction: "Recover or materialize observed first-party evidence for missing launch-critical families before canonical chart promotion.",
+          },
+        ],
+        mathReasonSamples: [
+          {
+            familyId: "purchase",
+            sourceRole: "missing_source",
+            mathReason: "purchase has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
+            nextAction: "Attach first-party event facts before promoting purchase launch recovery.",
+          },
+        ],
       },
     };
 
@@ -694,14 +729,44 @@ describe("AdminAnalyticsPage", () => {
       root.render(<AdminAnalyticsPage />);
     });
 
-    expect(container.textContent).toContain("Coverage: 1/50 product-truth launch days (evidence window 3) - observed 3/3 evidence days");
+    expect(container.textContent).toContain("Coverage: 1/50 product-truth launch days (evidence window 3) - evidence present 3/3 days");
     expect(container.textContent).toContain("Source: Mixed");
     expect(container.textContent).toContain("Confidence: Review");
     expect(container.textContent).toContain("Launch history shows launch evidence under review");
     expect(container.textContent).toContain("First-party gaps stay labeled until sources agree");
     expect(container.textContent).toContain("1 range(s) still need recovery");
+    expect(container.textContent).toContain("Launch source roles: 12 missing source, 1 product truth");
+    expect(container.textContent).toContain("Launch critical family coverage below floor");
+    expect(container.textContent).toContain("source truth needs at least 95% observed first-party coverage");
+    expect(container.textContent).toContain("purchase (missing source): purchase has no bounded source evidence");
     expect(container.textContent).not.toContain("All keeps launch history available");
     expect(container.textContent).not.toContain("All shows launch evidence under review");
+  });
+
+  it("renders directional recovery confidence as review-grade evidence", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      historicalSourceLabel: "Launch evidence window since 2026-05-01",
+      launchRecoverySummary: {
+        sourceLabel: "GA4",
+        confidenceLabel: "directional",
+        coverageLabel: "Product-truth source missing for launch days (evidence window 3) - evidence present 3/3 days",
+        sourceWindowLabel: "Launch evidence window since 2026-05-01",
+        missingRangeCount: 2,
+        sourceAgreementState: "review",
+      },
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).toContain("Confidence: Directional");
+    expect(container.textContent).toContain("Coverage: Product-truth source missing for launch days (evidence window 3) - evidence present 3/3 days");
+    expect(container.textContent).toContain("Launch history shows launch evidence under review");
+    expect(container.textContent).not.toContain("Coverage: 0/50 product-truth");
+    expect(container.textContent).not.toContain("Confidence: Verified");
+    expect(container.textContent).not.toContain("confidenceBand");
   });
 
   it("does not show missing analytics source states as bare unavailable summary copy", async () => {
@@ -714,6 +779,7 @@ describe("AdminAnalyticsPage", () => {
         sourceLabel: "Unknown",
         confidenceLabel: "unknown",
         coverageLabel: "Coverage waiting",
+        sourceWindowLabel: null,
         missingRangeCount: 0,
         sourceAgreementState: "not_enough_sources",
       },

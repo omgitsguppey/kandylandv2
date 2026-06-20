@@ -16,6 +16,14 @@ import type { WatchTimeDiagnosticEstimate } from "@/lib/behavioral/watch-time-es
 import type { WatchTimeRollupIssue, WatchTimeRollupSource } from "@/lib/watch-time-rollup-contract";
 import type { UserProfile } from "@/types/db";
 import type { TransactionSourceClass } from "@/lib/commerce/transaction-source-of-funds-contract";
+import type {
+  LaunchCriticalFamilySourceState,
+  LaunchCriticalRecoveryCoverageReport,
+  LaunchRecoverySourceGateBlocker,
+  LaunchHistoryDisplaySummaryState,
+  LaunchHistoryDayRecoveryState,
+  RecoveryMetricPolicyProofBoundary,
+} from "@/lib/analytics/recovery-timeline-spine";
 
 export type ViewTab = "operations" | "audience" | "commerce";
 export type RangeOption = AdminAnalyticsRangeOption;
@@ -853,6 +861,7 @@ export interface AnalyticsSourceHealth {
   range: "7d" | "30d" | "90d" | string;
   generatedAtUtc: string;
   launchHistoryCoverage?: {
+    displaySummary: LaunchHistoryDisplaySummaryState;
     rangeProof: {
       expectedRangeSource:
         | "all_range_historical_route"
@@ -900,33 +909,26 @@ export interface AnalyticsSourceHealth {
       canPromoteProductTruth: boolean;
       reason: string;
     };
+    eventFamilyCoverage: {
+      canonicalMappedFamilyCount: number;
+      canonicalMappingCoveragePercent: number;
+      observedFirstPartyFamilyCount: number;
+      observedFirstPartyCoveragePercent: number;
+      sourceCoverageStatus: "pass" | "blocked";
+      holdbackValidation: LaunchCriticalRecoveryCoverageReport["holdbackValidation"];
+      familySourceStates: LaunchCriticalFamilySourceState[];
+    };
+    sourceGateBlockers?: LaunchRecoverySourceGateBlocker[];
+    recoveryPolicy: {
+      dedupeRules: LaunchCriticalRecoveryCoverageReport["dedupeRules"];
+      productTruthPolicy: LaunchCriticalRecoveryCoverageReport["productTruthPolicy"];
+      modelingPolicy: LaunchCriticalRecoveryCoverageReport["modelingPolicy"];
+      proofBoundary: RecoveryMetricPolicyProofBoundary;
+    };
     missingRanges: string[];
     duplicateRanges: string[];
     sourceOverlapRanges: string[];
-    days: Array<{
-      dayKey: string;
-      expected: true;
-      recovered: boolean;
-      evidenceObserved?: boolean;
-      productTruthRecovered?: boolean;
-      sourceTruthState?:
-        | "first_party_recovered"
-        | "mixed_evidence"
-        | "second_source_only"
-        | "fallback_only"
-        | "source_missing";
-      sourceCounts: {
-        first_party: 0 | 1;
-        ga4: 0 | 1;
-        historicalSnapshot: 0 | 1;
-        legacySupport: 0 | 1;
-      };
-      internalAdminExcludedCount: number | null;
-      duplicateSourceCount: number;
-      confidence: "verified" | "mixed" | "partial" | "fallback" | "unknown";
-      reason: string;
-      nextAction: string;
-    }>;
+    days: LaunchHistoryDayRecoveryState[];
     state: "available" | "partial" | "source_missing";
     reason: string;
   };

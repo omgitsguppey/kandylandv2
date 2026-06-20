@@ -3,6 +3,11 @@ import type {
   AdminMetricSnapshotTruthState,
   SnapshotRefreshStatus,
 } from "@/lib/analytics/admin-metric-snapshot";
+import {
+  buildLaunchHistoryDisplaySummaryState,
+  type LaunchHistoryDisplaySummaryCoverageInput,
+  type LaunchHistoryDisplaySummaryState,
+} from "@/lib/analytics/recovery-timeline-spine";
 
 export type AdminAnalyticsVisibleValueSource =
   | "verified_snapshot"
@@ -87,6 +92,37 @@ export type AdminAnalyticsOverviewExactness =
   | "estimated"
   | "unavailable";
 
+type AdminAnalyticsLaunchRecoveryCoverage = LaunchHistoryDisplaySummaryCoverageInput & {
+  displaySummary?: LaunchHistoryDisplaySummaryState | null;
+};
+
+export type AdminAnalyticsLaunchRecoverySummary = LaunchHistoryDisplaySummaryState;
+
+export function resolveAdminAnalyticsLaunchRecoverySummary(input: {
+  launchHistoryCoverage?: AdminAnalyticsLaunchRecoveryCoverage | null;
+  sourceAgreementState?: string | null;
+}): AdminAnalyticsLaunchRecoverySummary {
+  const coverage = input.launchHistoryCoverage ?? null;
+  const sourceAgreementState = input.sourceAgreementState ?? "not_enough_sources";
+
+  return coverage?.displaySummary ?? buildLaunchHistoryDisplaySummaryState({
+    launchHistoryCoverage: coverage,
+    sourceAgreementState,
+  });
+}
+
+export function hasAdminAnalyticsLaunchRecoveryEvidence(summary: AdminAnalyticsLaunchRecoverySummary) {
+  const sourceRoleCounts = summary.sourceRoleCounts ?? {};
+  const evidenceRoleCount = Object.entries(sourceRoleCounts)
+    .filter(([role]) => role !== "missing_source")
+    .reduce((sum, [, count]) => sum + (Number.isFinite(count) ? count : 0), 0);
+
+  return evidenceRoleCount > 0 ||
+    Boolean(summary.sourceWindowLabel) ||
+    summary.coverageDenominatorKind === "evidence_window" ||
+    summary.coverageDenominatorKind === "approved_launch_range";
+}
+
 export function resolveAdminAnalyticsOverviewMetricState(input: {
   primaryValue: number | null;
   truthState: string | null | undefined;
@@ -149,6 +185,25 @@ export function resolveAdminAnalyticsOverviewMetricState(input: {
     displayState: "ready",
     exactness: "exact",
   };
+}
+
+export function resolveAdminAnalyticsOverviewFreshnessState(
+  freshnessState: string | null | undefined,
+): "live" | "recent" | "not_observed" | "unknown" {
+  switch (freshnessState) {
+    case "live":
+      return "live";
+    case "review":
+    case "cached":
+    case "refresh_due":
+    case "stale":
+      return "recent";
+    case "blocked":
+    case "unavailable":
+      return "not_observed";
+    default:
+      return "unknown";
+  }
 }
 
 export function formatAdminAnalyticsEvidenceSourceLabel(
