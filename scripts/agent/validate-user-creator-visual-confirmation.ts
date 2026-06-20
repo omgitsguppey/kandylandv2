@@ -336,7 +336,7 @@ export function buildUserCreatorVisualConfirmationReport(options: { reproduction
     "deferred",
     "ui-source-coverage",
     ["source-confirmed", "visual reproduction optional"],
-    "Fix any source-reported UI gap before optional browser or screenshot reproduction.",
+    "Fix any source-reported UI gap before optional browser reproduction.",
   ));
 
   return {
@@ -374,7 +374,7 @@ export function buildUserCreatorVisualConfirmationReport(options: { reproduction
       },
     ],
     nextFixOrder: [
-      "Fix every source-reported UI gap before optional browser or screenshot reproduction.",
+      "Fix every source-reported UI gap before optional browser reproduction.",
       "Use browser viewing or screenshots only to reproduce a specific source-reported issue.",
       "Keep reproductionEvidenceAttached=false unless an optional reproduction artifact is attached for a source-reported issue.",
     ],

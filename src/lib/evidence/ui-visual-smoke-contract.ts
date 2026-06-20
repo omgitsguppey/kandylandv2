@@ -228,11 +228,11 @@ export function buildUiVisualSmokeMinimalReport(
     ],
     nextExactSteps: missingSurfaceIds.length > 0
       ? missingSurfaceIds.map((surfaceId) =>
-        `Fix source UI surface coverage for ${surfaceId}; browser or screenshot review is only for reproducing that source-reported issue.`,
+        `Fix source UI surface coverage for ${surfaceId}; browser reproduction is only for reproducing that source-reported issue.`,
       )
       : [
         "Keep deterministic UI source coverage and device UI source checks in the UI/admin fast lane.",
-        "Use browser or screenshot review only to reproduce a specific source-reported UI issue, not as the readiness gate.",
+        "Use browser reproduction only to reproduce a specific source-reported UI issue, not as the readiness gate.",
       ],
   };
 }

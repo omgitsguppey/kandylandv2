@@ -120,7 +120,7 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
       exactTemplate: "agent/state/ui-visual-smoke-minimal.generated.json",
       exactCheckCommand: "npm run check:ui-visual-smoke-minimal",
       scoreImpact: "Raises UI confidence when deterministic surface checks find disconnected modals, panels, and routes before visual review.",
-      launchImpact: "Required for beta exit as source UI coverage; screenshots are optional only to reproduce source-reported issues.",
+      launchImpact: "Required for beta exit as source UI coverage; browser reproduction is optional only to reproduce source-reported issues.",
       nextAction: "Run npm run check:ui-visual-smoke-minimal and fix any source-reported UI surface gap.",
     }),
     lane({

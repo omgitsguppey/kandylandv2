@@ -246,7 +246,7 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
       completeAsProductSignal: evidence.uiSurfaceCoverageEvidence === "complete",
       clearsFormalProviderGate: false,
       scoreImpact: "Raises UI confidence when deterministic source coverage can find disconnected surfaces before visual review.",
-      launchGateImpact: "Required for beta exit as source coverage; screenshots are optional only to reproduce a source-reported UI issue.",
+      launchGateImpact: "Required for beta exit as source coverage; browser reproduction is optional only to reproduce a source-reported UI issue.",
       nextAction: "Run npm run check:ui-visual-smoke-minimal and fix any source-reported UI surface gap.",
     }),
     lane({

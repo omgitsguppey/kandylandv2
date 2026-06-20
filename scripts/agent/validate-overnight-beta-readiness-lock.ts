@@ -346,7 +346,7 @@ export function buildOvernightBetaReadinessLockReport(now = new Date()): Overnig
       {
         id: "ui-source-coverage",
         title: "Run UI source coverage evidence",
-        goal: "Let deterministic source coverage evidence report UI surface gaps before optional browser or screenshot reproduction.",
+        goal: "Let deterministic source coverage evidence report UI surface gaps before optional browser reproduction.",
         commands: [
           "npm run check:ui-visual-smoke-minimal",
           "npm run check:evidence-capture-status",

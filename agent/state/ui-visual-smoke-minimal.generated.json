@@ -1,9 +1,9 @@
 {
   "status": "source_surface_checks_current",
   "passed": true,
-  "generatedAtUtc": "2026-06-20T17:11:19.692Z",
-  "currentHead": "d5dbf45c79634cb9e3e569e689454ed17b4d08c2",
-  "sourceCommit": "d5dbf45c79634cb9e3e569e689454ed17b4d08c2",
+  "generatedAtUtc": "2026-06-20T19:44:39.401Z",
+  "currentHead": "53112b169e7e3e1599b1d651059bec9134249602",
+  "sourceCommit": "53112b169e7e3e1599b1d651059bec9134249602",
   "detail": "Deterministic UI surface coverage is current. Browser viewing is optional follow-up only after a source/UI-surface check finds a visual issue.",
   "nonUiLanesBlocked": false,
   "formalGateImpact": {
@@ -130,7 +130,7 @@
   ],
   "nextExactSteps": [
     "Keep deterministic UI source coverage and device UI source checks in the UI/admin fast lane.",
-    "Use browser or screenshot review only to reproduce a specific source-reported UI issue, not as the readiness gate."
+    "Use browser reproduction only to reproduce a specific source-reported UI issue, not as the readiness gate."
   ],
   "validationFailures": []
 }

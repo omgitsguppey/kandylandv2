@@ -302,7 +302,7 @@ export function buildAlgorithmicEvidencePolicyReport(
       status: confidenceFromScore(uiSurfaceCoverageGateCleared ? 100 : 0, uiSurfaceCoverageGateCleared),
       sourcePath: pathOf(uiSurfaceCoverageEvidence),
       nextAction: uiSurfaceCoverageGateCleared
-        ? "Deterministic UI surface coverage is current; browser or screenshot review is optional only after source-reported UI issues."
+        ? "Deterministic UI surface coverage is current; browser reproduction is optional only after source-reported UI issues."
         : "Run deterministic UI source coverage and device UI source checks; use browser reproduction only for concrete source-reported UI issues.",
     },
     nonUiAlgorithmicEvidence: {
@@ -311,7 +311,7 @@ export function buildAlgorithmicEvidencePolicyReport(
         .filter((item) => item.score > 0)
         .map((item) => item.category),
       score: nonUiAlgorithmicCoverageScore,
-      note: "UI visual artifacts are optional reproduction evidence only after source-reported UI issues and must not block telemetry, admin, cost, refresh, or source-runtime confidence.",
+      note: "UI source coverage is the default readiness evidence; optional browser reproduction must follow a source-reported UI issue and must not block telemetry, admin, cost, refresh, or source-runtime confidence.",
     },
   };
   const report: AlgorithmicEvidencePolicyReport = {

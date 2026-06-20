@@ -445,7 +445,7 @@ function renderDoc(report: ScoreImpactStaleArtifactSweepReport) {
     "",
     "## Remaining Formal Evidence Gates",
     "",
-    "- UI surface coverage is source-owned; browser or screenshot review is optional reproduction only after a source-reported UI issue.",
+    "- UI surface coverage is source-owned; browser reproduction is optional only after a source-reported UI issue.",
     "- Runtime/provider smoke remains formal deployed/provider evidence, not source refresh.",
     "- Admin truth/sample evidence remains formal evidence unless a formal sample is attached.",
     "",

@@ -43,4 +43,4 @@ This lane lets the codebase tell on itself before optional browser reproduction.
 ## Next Exact Steps
 
 - Keep deterministic UI source coverage and device UI source checks in the UI/admin fast lane.
-- Use browser or screenshot review only to reproduce a specific source-reported UI issue, not as the readiness gate.
+- Use browser reproduction only to reproduce a specific source-reported UI issue, not as the readiness gate.

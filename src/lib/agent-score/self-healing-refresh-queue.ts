@@ -237,7 +237,7 @@ function buildScoreImpactEntries(
               : "No registered refresh command.",
         source: "score_impact",
         expectedOutcome: isLegacyScreenshotEvidenceText(`${item.refreshCommand ?? ""} ${item.id} ${item.status ?? ""}`)
-          ? "Run deterministic UI source coverage and fix any source-reported UI surface gap; screenshots are optional reproduction evidence only."
+          ? "Run deterministic UI source coverage and fix any source-reported UI surface gap; browser reproduction is optional evidence only."
           : formal
           ? formalEvidenceExpectedOutcome(item.id)
           : "Refresh score-impact artifact and reduce freshness/regression drag if validation passes.",

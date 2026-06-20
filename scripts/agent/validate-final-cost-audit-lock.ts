@@ -414,7 +414,7 @@ function buildReport(): FinalCostAuditLockReport {
       },
     ],
     nextExactSteps: [
-      "Run UI source coverage before optional browser or screenshot reproduction; beta exit remains blocked until formal provider/runtime/admin evidence exists.",
+      "Run UI source coverage before optional browser reproduction; beta exit remains blocked until formal provider/runtime/admin evidence exists.",
       "Capture deployed runtime watch-time v2 media playback evidence before claiming live watch accuracy.",
       "Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing in Google Cloud; do not mark not-detected/source-only lanes as pass.",
       "After deployment, verify Cloud Scheduler/Functions cadence externally so source guards match live schedules.",

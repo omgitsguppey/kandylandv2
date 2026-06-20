@@ -228,7 +228,7 @@ function nextStepsFor(input: {
     case "ui_source_coverage_required":
       return [
         `Run npm run check:ui-visual-smoke-minimal to refresh source coverage for ${input.path}.`,
-        "Use browser or screenshots only after source coverage reports a concrete issue to reproduce.",
+        "Use browser reproduction only after source coverage reports a concrete issue to reproduce.",
       ];
     case "admin_truth_source_required":
       return [
@@ -271,7 +271,7 @@ function classifyEntry(input: {
       return { classification: "admin_truth_source_required", blocking: false, reason: "Admin truth evidence requires an approved redacted source sample." };
     }
     if (isUiSourceCoveragePath(input.path)) {
-      return { classification: "ui_source_coverage_required", blocking: false, reason: "UI source coverage is the first-pass visual gate; screenshots are optional reproduction evidence." };
+      return { classification: "ui_source_coverage_required", blocking: false, reason: "UI source coverage is the first-pass visual gate; browser reproduction is optional evidence." };
     }
     return {
       classification: "missing_expected",

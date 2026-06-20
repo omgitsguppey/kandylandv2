@@ -280,7 +280,7 @@ if (report) {
       failures.push("UI source coverage must be allowed to pass inside Codex.");
     }
     if (!visualChecklist.note.includes("source-reported UI issue")) {
-      failures.push("UI source coverage must state screenshots are optional only for a source-reported UI issue.");
+      failures.push("UI source coverage must state browser reproduction is optional only for a source-reported UI issue.");
     }
     if (!Array.isArray(visualChecklist.surfaces) || visualChecklist.surfaces.length === 0) {
       failures.push("operator visual checklist must include tracked UI surfaces.");
