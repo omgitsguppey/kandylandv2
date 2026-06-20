@@ -54,7 +54,7 @@ describe("evidence artifact schemas", () => {
       runtime: false,
       admin: false,
       launchCoverageInputPath: "tmp/export.json",
-      launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.export.json",
       reason: "explicit_launch_coverage_export",
     });
   });

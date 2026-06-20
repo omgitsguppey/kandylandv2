@@ -20,7 +20,10 @@ npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-
 ```
 
 This command reads a local JSON file only. It rejects local-window evidence and
-does not call production routes, GA, Firebase, or providers.
+does not call production routes, GA, Firebase, or providers. By default it writes
+`agent/evidence/launch-analytics/launch-history-coverage.export.json`; pass
+`--launch-coverage-output <path>` only when you intentionally need another
+accepted path.
 
 Rules:
 

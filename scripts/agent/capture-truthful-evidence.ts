@@ -19,6 +19,7 @@ const ADMIN_FOLDER = "agent/evidence/admin-truth-sample";
 const LAUNCH_COVERAGE_FOLDER = "agent/evidence/launch-analytics";
 const LAUNCH_RECOVERY_REPORT_PATH = "agent/state/launch-analytics-recovery.generated.json";
 const DEFAULT_LAUNCH_COVERAGE_EXPORT_PATH = `${LAUNCH_COVERAGE_FOLDER}/launch-history-coverage.local.json`;
+const DEFAULT_IMPORTED_LAUNCH_COVERAGE_EXPORT_PATH = `${LAUNCH_COVERAGE_FOLDER}/launch-history-coverage.export.json`;
 const DEFAULT_APP_BASE_URL = "https://kandydrops.com";
 
 function readArgValue(args: readonly string[], name: string) {
@@ -35,7 +36,9 @@ export function resolveEvidenceCaptureMode(args = process.argv.slice(2)) {
   const launchCoverageInputPath = readArgValue(args, "--launch-coverage-from");
   const launchCoverageOutputPath =
     readArgValue(args, "--launch-coverage-output")
-    || DEFAULT_LAUNCH_COVERAGE_EXPORT_PATH;
+    || (launchCoverageInputPath
+      ? DEFAULT_IMPORTED_LAUNCH_COVERAGE_EXPORT_PATH
+      : DEFAULT_LAUNCH_COVERAGE_EXPORT_PATH);
   if (launchCoverageInputPath) {
     return {
       runtime: false,
