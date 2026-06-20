@@ -128,6 +128,17 @@ export type RegionDemandRow = {
   externalUserCount: number;
   sharePct: number;
   adjustedSharePct: number;
+  sourceTruth?: RecoveredLaunchMetricState["sourceTruth"];
+  freshnessState?: RecoveredLaunchMetricState["freshnessState"];
+  confidenceScore?: RecoveredLaunchMetricState["confidenceScore"];
+  confidenceBand?: RecoveredLaunchMetricState["confidenceBand"];
+  evidenceKind?: RecoveredLaunchMetricState["evidenceKind"];
+  dedupeKey?: RecoveredLaunchMetricState["dedupeKey"];
+  dedupeDimensions?: RecoveredLaunchMetricState["dedupeDimensions"];
+  lateArrivalWindowDays?: RecoveredLaunchMetricState["lateArrivalWindowDays"];
+  productTruthEligible?: RecoveredLaunchMetricState["productTruthEligible"];
+  missingVsZeroState?: RecoveredLaunchMetricState["missingVsZeroState"];
+  mathReason?: RecoveredLaunchMetricState["mathReason"];
   demandState: "verified_external" | "mixed_with_internal" | "mostly_internal" | "unknown_location" | "review";
   explanation: string;
 };

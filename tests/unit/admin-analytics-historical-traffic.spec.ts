@@ -310,6 +310,64 @@ describe("buildHistoricalTrafficOverview", () => {
     });
   });
 
+  it("labels region demand rows as modeled GA evidence instead of verified geography truth", () => {
+    const overview = buildHistoricalTrafficOverview({
+      responseRows: [
+        row("20260401", [3, 8, 4, 2, 0, 0]),
+      ],
+      eventRows: [],
+      geoRows: [],
+      geoPathRows: [
+        {
+          dimensionValues: [
+            { value: "United States" },
+            { value: "Austin" },
+            { value: "/" },
+          ],
+          metricValues: [{ value: "12" }],
+        },
+        {
+          dimensionValues: [
+            { value: "United States" },
+            { value: "Austin" },
+            { value: "/admin/debug" },
+          ],
+          metricValues: [{ value: "4" }],
+        },
+      ],
+      deviceRows: [],
+      pageRows: [],
+      dailyRollups: [],
+      pageRollups: [],
+      analyticsEventFacts: [],
+      guestBatchDocs: [],
+      guestSessionDocs: [],
+      sessionFacts: [],
+      startMs: Date.UTC(2026, 3, 1, 0, 0, 0),
+      endMs: Date.UTC(2026, 3, 1, 23, 59, 59),
+      startDayKey: "2026-04-01",
+      endDayKey: "2026-04-01",
+      timelineBucket: "day",
+      authenticatedPageViewEventNames: new Set(["home_page_viewed"]),
+    });
+
+    expect(overview.regionDemandRows[0]).toMatchObject({
+      city: "Austin",
+      country: "United States",
+      rawCount: 16,
+      adjustedCount: 12,
+      adminInternalCount: 4,
+      sourceTruth: "ga4_evidence_only",
+      evidenceKind: "modeled",
+      freshnessState: "external_evidence_required",
+      confidenceScore: 58,
+      lateArrivalWindowDays: 12,
+      productTruthEligible: false,
+      missingVsZeroState: "source_present",
+    });
+    expect(overview.regionDemandRows[0]?.dedupeKey).toContain("launch_recovery|page_view");
+  });
+
   it("recovers legacy page rollup dates and view counts from document ids and old fields", () => {
     const overview = buildHistoricalTrafficOverview({
       responseRows: [],

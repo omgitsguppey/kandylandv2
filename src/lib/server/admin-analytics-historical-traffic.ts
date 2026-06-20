@@ -130,6 +130,24 @@ function buildTrafficBucketRecoveryMetadata(input: {
   });
 }
 
+function buildRegionDemandRecoveryMetadata(input: {
+  city: string | null;
+  country: string | null;
+  rawCount: number;
+  generatedAtMs: number | null | undefined;
+}) {
+  const sourceObserved = input.rawCount > 0;
+  return buildRecoveredLaunchMetricState({
+    eventName: "page_view",
+    sourceObserved,
+    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
+    evidenceKind: sourceObserved ? "modeled" : "missing",
+    route: "admin_analytics_region_demand",
+    objectId: `${input.country ?? "unknown_country"}:${input.city ?? "unknown_city"}`,
+    timestampMs: input.generatedAtMs ?? null,
+  });
+}
+
 function trimLeadingEmptyLaunchBuckets<T extends {
   users: number;
   views: number;
@@ -636,6 +654,12 @@ export function buildHistoricalTrafficOverview(input: {
       } else {
         explanation = "GA route-level geography is unavailable for this range, so the panel cannot separate admin/internal traffic from raw city counts.";
       }
+      const recoveryMetadata = buildRegionDemandRecoveryMetadata({
+        city: row.city,
+        country: row.country,
+        rawCount,
+        generatedAtMs: endMs,
+      });
 
       return {
         city: row.city,
@@ -648,6 +672,17 @@ export function buildHistoricalTrafficOverview(input: {
         externalUserCount: adjustedCount,
         sharePct: 0,
         adjustedSharePct: 0,
+        sourceTruth: recoveryMetadata.sourceTruth,
+        freshnessState: recoveryMetadata.freshnessState,
+        confidenceScore: recoveryMetadata.confidenceScore,
+        confidenceBand: recoveryMetadata.confidenceBand,
+        evidenceKind: recoveryMetadata.evidenceKind,
+        dedupeKey: recoveryMetadata.dedupeKey,
+        dedupeDimensions: recoveryMetadata.dedupeDimensions,
+        lateArrivalWindowDays: recoveryMetadata.lateArrivalWindowDays,
+        productTruthEligible: recoveryMetadata.productTruthEligible,
+        missingVsZeroState: recoveryMetadata.missingVsZeroState,
+        mathReason: recoveryMetadata.mathReason,
         demandState,
         explanation,
       } satisfies RegionDemandRow;

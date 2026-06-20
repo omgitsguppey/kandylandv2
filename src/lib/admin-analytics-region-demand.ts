@@ -1,4 +1,5 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type {
   HistoricalAnalyticsResponse,
   RangeOption,
@@ -84,10 +85,18 @@ function formatUnitLabel(countUnit: RegionDemandPanelState["countUnit"], count: 
   return `${count.toLocaleString()} ${label}`;
 }
 
-function normalizeFallbackRow(row: { city: string; country: string; users: number }): RegionDemandRow {
+function normalizeFallbackRow(
+  row: { city: string; country: string; users: number },
+  generatedAtMs: number | null | undefined,
+): RegionDemandRow {
   const city = row.city && row.city !== "Unknown" ? row.city : null;
   const country = row.country && row.country !== "Unknown" ? row.country : null;
   const rawCount = Math.max(0, row.users);
+  const recoveryMetadata = buildRegionDemandRecoveryMetadata({
+    rawCount,
+    objectId: `${country ?? "unknown_country"}:${city ?? "unknown_city"}`,
+    generatedAtMs,
+  });
   return {
     city,
     region: null,
@@ -99,6 +108,17 @@ function normalizeFallbackRow(row: { city: string; country: string; users: numbe
     externalUserCount: rawCount,
     sharePct: 0,
     adjustedSharePct: 0,
+    sourceTruth: recoveryMetadata.sourceTruth,
+    freshnessState: recoveryMetadata.freshnessState,
+    confidenceScore: recoveryMetadata.confidenceScore,
+    confidenceBand: recoveryMetadata.confidenceBand,
+    evidenceKind: recoveryMetadata.evidenceKind,
+    dedupeKey: recoveryMetadata.dedupeKey,
+    dedupeDimensions: recoveryMetadata.dedupeDimensions,
+    lateArrivalWindowDays: recoveryMetadata.lateArrivalWindowDays,
+    productTruthEligible: recoveryMetadata.productTruthEligible,
+    missingVsZeroState: recoveryMetadata.missingVsZeroState,
+    mathReason: recoveryMetadata.mathReason,
     demandState: !city || !country ? "unknown_location" : "review",
     explanation: !city || !country
       ? "Unknown city/country is a data-quality bucket, not reliable external demand."
@@ -106,12 +126,29 @@ function normalizeFallbackRow(row: { city: string; country: string; users: numbe
   };
 }
 
+function buildRegionDemandRecoveryMetadata(input: {
+  rawCount: number;
+  objectId: string;
+  generatedAtMs: number | null | undefined;
+}) {
+  const sourceObserved = input.rawCount > 0;
+  return buildRecoveredLaunchMetricState({
+    eventName: "page_view",
+    sourceObserved,
+    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
+    evidenceKind: sourceObserved ? "modeled" : "missing",
+    route: "admin_analytics_region_demand",
+    objectId: input.objectId,
+    timestampMs: input.generatedAtMs ?? null,
+  });
+}
+
 export function buildAdminAnalyticsRegionDemandModel(input: {
   response?: Partial<HistoricalAnalyticsResponse> | null;
   selectedRange: RangeOption;
   loading: boolean;
 }): AdminAnalyticsRegionDemandModel {
-  const fallbackRows = (input.response?.geo ?? []).map(normalizeFallbackRow);
+  const fallbackRows = (input.response?.geo ?? []).map((row) => normalizeFallbackRow(row, input.response?.generatedAtMs));
   const fallbackRawTotal = fallbackRows.reduce((sum, row) => sum + row.rawCount, 0);
   const fallbackAdjustedTotal = fallbackRows.reduce((sum, row) => sum + row.adjustedCount, 0);
   const state = input.response?.regionDemandPanelState ?? {
