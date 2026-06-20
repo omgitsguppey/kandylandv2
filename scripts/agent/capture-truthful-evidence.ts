@@ -12,6 +12,7 @@ const __dirname = dirname(__filename);
 const ROOT = join(__dirname, "..", "..");
 const RUNTIME_FOLDER = "agent/evidence/runtime-smoke";
 const ADMIN_FOLDER = "agent/evidence/admin-truth-sample";
+const LAUNCH_RECOVERY_REPORT_PATH = "agent/state/launch-analytics-recovery.generated.json";
 const DEFAULT_APP_BASE_URL = "https://kandydrops.com";
 
 function currentHead() {
@@ -43,6 +44,76 @@ function boolValue(value: unknown) {
 
 function numberValue(value: unknown, fallback = 0) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function arrayValue(value: unknown) {
+  return Array.isArray(value) ? value : [];
+}
+
+export function buildLaunchHistoryCoverageReadinessForEvidence(report: unknown) {
+  const root = record(report);
+  const coverage = record(root.launchHistoryCoverage);
+  const rangeProof = record(coverage.rangeProof);
+  const sourceAgreement = record(root.sourceAgreement);
+  const dayRows = arrayValue(coverage.days).map(record).filter((day) => stringValue(day.dayKey).length > 0);
+  const allLaunchRangeProven = boolValue(rangeProof.allLaunchRangeProven);
+  const canClearSourceGate = boolValue(root.canClearSourceGate);
+  const canAttachFormalCoverage = canClearSourceGate && allLaunchRangeProven && dayRows.length > 0;
+
+  return {
+    sourceArtifact: LAUNCH_RECOVERY_REPORT_PATH,
+    status: stringValue(root.status, "missing"),
+    canClearSourceGate,
+    canAttachFormalCoverage,
+    allLaunchRangeProven,
+    coverageWindowKind: stringValue(rangeProof.coverageWindowKind, "unknown"),
+    rangeStartDayKey: stringValue(coverage.rangeStartDayKey, ""),
+    rangeEndDayKey: stringValue(coverage.rangeEndDayKey, ""),
+    expectedDayCount: numberValue(coverage.expectedDayCount),
+    recoveredDayCount: numberValue(coverage.recoveredDayCount),
+    productTruthRecoveredDayCount: numberValue(coverage.productTruthRecoveredDayCount),
+    dayRowCount: dayRows.length,
+    sourceAgreementState: stringValue(sourceAgreement.state, "unknown"),
+    sourceGateReason: stringValue(root.sourceGateReason, "Launch history coverage has not been evaluated."),
+    nextAction: stringValue(
+      root.nextAction,
+      "Run npm run check:analytics-panel-hydration after attaching approved launch-history coverage.",
+    ),
+  };
+}
+
+function buildLaunchHistoryCoverageForEvidence(report: unknown) {
+  const root = record(report);
+  const coverage = record(root.launchHistoryCoverage);
+  const readiness = buildLaunchHistoryCoverageReadinessForEvidence(report);
+  if (!readiness.canAttachFormalCoverage) return null;
+
+  return {
+    rangeStartDayKey: readiness.rangeStartDayKey,
+    rangeEndDayKey: readiness.rangeEndDayKey,
+    expectedDayCount: readiness.expectedDayCount,
+    rangeProof: {
+      coverageWindowKind: readiness.coverageWindowKind,
+      allLaunchRangeProven: true,
+      reason: stringValue(record(coverage.rangeProof).reason, readiness.sourceGateReason),
+    },
+    days: arrayValue(coverage.days)
+      .map(record)
+      .filter((day) => stringValue(day.dayKey).length > 0)
+      .map((day) => ({
+        dayKey: stringValue(day.dayKey),
+        expected: day.expected === true,
+        sourceCounts: {
+          first_party: numberValue(record(day.sourceCounts).first_party),
+          ga4: numberValue(record(day.sourceCounts).ga4),
+          historicalSnapshot: numberValue(record(day.sourceCounts).historicalSnapshot),
+          legacySupport: numberValue(record(day.sourceCounts).legacySupport),
+        },
+        internalAdminExcludedCount: typeof day.internalAdminExcludedCount === "number"
+          ? day.internalAdminExcludedCount
+          : null,
+      })),
+  };
 }
 
 function routeToUrl(baseUrl: string, route: string) {
@@ -153,6 +224,9 @@ async function captureRuntimeEvidence(generatedAtUtc: string, evidenceStamp: str
 function captureAdminTruthEvidence(generatedAtUtc: string, evidenceStamp: string) {
   const source = readJson("agent/state/admin-truth-source-sample.generated.json");
   const debugTriage = readJson("agent/state/debug-panel-output-triage.generated.json");
+  const launchRecovery = readJson(LAUNCH_RECOVERY_REPORT_PATH);
+  const launchHistoryCoverageReadiness = buildLaunchHistoryCoverageReadinessForEvidence(launchRecovery);
+  const launchHistoryCoverage = buildLaunchHistoryCoverageForEvidence(launchRecovery);
   const folder = join(ROOT, ADMIN_FOLDER);
   mkdirSync(folder, { recursive: true });
   const samplePath = `${ADMIN_FOLDER}/automated-admin-truth-sample.${evidenceStamp}.redacted.json`;
@@ -177,6 +251,8 @@ function captureAdminTruthEvidence(generatedAtUtc: string, evidenceStamp: string
       status: stringValue(lane.status, "unknown"),
       nextAction: stringValue(lane.nextAction, "unknown"),
     })),
+    launchHistoryCoverageReadiness,
+    ...(launchHistoryCoverage ? { launchHistoryCoverage } : {}),
     redactionPolicy: "No user identifiers, emails, transaction IDs, provider IDs, raw auth data, or support content included.",
   };
   writeFileSync(join(ROOT, samplePath), `${JSON.stringify(redactedSample, null, 2)}\n`);
@@ -190,6 +266,11 @@ function captureAdminTruthEvidence(generatedAtUtc: string, evidenceStamp: string
     { id: "sample-count", status: "pass", notes: "sampleCount=1" },
     { id: "source-state-label", status: sourceReady ? "pass" : "fail", notes: `sourceTruthStatus=${redactedSample.sourceTruthStatus}` },
     { id: "redacted-artifact-attached", status: "pass", notes: `artifactPath=${samplePath}` },
+    ...(launchHistoryCoverage ? [{
+      id: "launch-history-coverage",
+      status: "pass",
+      notes: `launchHistoryCoverage dayRows=${launchHistoryCoverage.days.length}; source=${LAUNCH_RECOVERY_REPORT_PATH}`,
+    }] : []),
   ];
   const failed = checks.filter((check) => check.status !== "pass");
   const manifest = {
@@ -202,6 +283,8 @@ function captureAdminTruthEvidence(generatedAtUtc: string, evidenceStamp: string
     checks,
     operatorNotes: "Automated first-party redacted JSON admin truth sample.",
     currentHead: currentHead(),
+    launchHistoryCoverageReadiness,
+    ...(launchHistoryCoverage ? { launchHistoryCoverage } : {}),
   };
   writeFileSync(join(ROOT, manifestPath), `${JSON.stringify(manifest, null, 2)}\n`);
   return { artifactPath: manifestPath, samplePath, status: manifest.status, failedCount: failed.length };

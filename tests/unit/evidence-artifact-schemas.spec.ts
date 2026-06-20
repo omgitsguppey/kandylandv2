@@ -14,6 +14,9 @@ import {
   adminTruthSampleReadinessImpact,
   validateAdminTruthSampleEvidenceDocument,
 } from "../../scripts/agent/validate-admin-truth-sample-evidence";
+import {
+  buildLaunchHistoryCoverageReadinessForEvidence,
+} from "../../scripts/agent/capture-truthful-evidence";
 
 describe("evidence artifact schemas", () => {
   it("requires provider smoke PayPal, GumDrop, and creator spend checks", () => {
@@ -256,5 +259,46 @@ describe("evidence artifact schemas", () => {
       launchSample,
       { requireComplete: true, existingPaths: new Set(["agent/evidence/admin-truth-sample/sample.redacted.json"]) },
     )).toEqual([]);
+  });
+
+  it("exposes launch-history readiness without promoting source-only recovery evidence", () => {
+    expect(buildLaunchHistoryCoverageReadinessForEvidence({
+      status: "source_agreement_failed",
+      canClearSourceGate: false,
+      sourceGateReason: "Formal all-launch evidence is missing.",
+      launchHistoryCoverage: {
+        rangeStartDayKey: "2026-02-12",
+        rangeEndDayKey: "2026-06-20",
+        expectedDayCount: 129,
+        recoveredDayCount: 3,
+        productTruthRecoveredDayCount: 1,
+        rangeProof: {
+          coverageWindowKind: "fixture_only_local_window",
+          allLaunchRangeProven: false,
+        },
+        days: [
+          { dayKey: "2026-06-18", expected: true },
+          { dayKey: "2026-06-19", expected: true },
+          { dayKey: "2026-06-20", expected: true },
+        ],
+      },
+      sourceAgreement: {
+        state: "failed",
+      },
+      nextAction: "Attach approved all-launch coverage.",
+    })).toMatchObject({
+      sourceArtifact: "agent/state/launch-analytics-recovery.generated.json",
+      status: "source_agreement_failed",
+      canClearSourceGate: false,
+      canAttachFormalCoverage: false,
+      allLaunchRangeProven: false,
+      coverageWindowKind: "fixture_only_local_window",
+      expectedDayCount: 129,
+      recoveredDayCount: 3,
+      productTruthRecoveredDayCount: 1,
+      dayRowCount: 3,
+      sourceAgreementState: "failed",
+      sourceGateReason: "Formal all-launch evidence is missing.",
+    });
   });
 });
