@@ -232,7 +232,13 @@ function classifyDirtyFile(path: string) {
   if (
     normalized === "scripts/agent/validate-recovery-timeline-spine.ts"
     || normalized === "src/lib/analytics/recovery-timeline-spine.ts"
+    || normalized === "src/lib/admin-analytics-audience-snapshot.ts"
+    || normalized === "src/lib/admin-analytics-guest-bounce-quality.ts"
+    || normalized === "scripts/check-admin-analytics-audience-snapshot.ts"
+    || normalized === "scripts/check-admin-analytics-guest-bounce-quality.ts"
     || normalized === "tests/unit/recovery-timeline-spine.spec.ts"
+    || normalized === "tests/unit/admin-analytics-audience-snapshot.spec.ts"
+    || normalized === "tests/unit/admin-analytics-guest-bounce-quality.spec.ts"
   ) {
     return "launch_analytics_recovery_source_expected";
   }

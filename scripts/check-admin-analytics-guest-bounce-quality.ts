@@ -49,7 +49,7 @@ assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANA
 assertIncludes("Guest Quality section", section, 'title="Guest Quality"');
 assertIncludes("Guest Quality section", section, "guestBounceQualityModel.visibleCopy");
 assertIncludes("Guest Quality section", section, "Guest Quality");
-assertIncludes("Guest Quality section", section, "NO SAMPLE");
+assertIncludes("Guest Quality section", section, "No sample");
 assertIncludes("Guest Quality section", section, "chartCollapsedBecauseEmpty");
 assertNotIncludes("Guest Quality section", section, "h-72 w-full");
 assertNotIncludes("Guest Quality section", section, "BarChart");
@@ -64,6 +64,11 @@ assertIncludes("useAdminAnalyticsState", hook, "buildAdminAnalyticsGuestBounceQu
 assertIncludes("useAdminAnalyticsState", hook, "guestBounceQualityModel");
 assertIncludes("guest quality helper", helper, "guestEstimateFormula");
 assertIncludes("guest quality helper", helper, "guestEstimateClamped");
+assertIncludes("guest quality helper", helper, "buildGuestTrafficRecoveryMetricState");
+assertIncludes("guest quality helper", helper, "canonicalSourceTruth");
+assertIncludes("guest quality helper", helper, "sourceFreshnessState");
+assertIncludes("guest quality helper", helper, "lateArrivalWindowDays");
+assertIncludes("guest quality helper", helper, "missingVsZeroState");
 assertIncludes("guest quality helper", helper, "Guest views are estimated");
 assertIncludes("guest quality helper", helper, "Guest quality unavailable until consented guest quality batches arrive.");
 assertIncludes("guest quality helper", helper, "Signed-in bounce has no valid visit sample.");

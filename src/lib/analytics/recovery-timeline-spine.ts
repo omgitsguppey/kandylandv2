@@ -3374,6 +3374,40 @@ export function buildRecoveredLaunchMetricState(input: {
   };
 }
 
+export function buildGuestTrafficRecoveryMetricState(input: {
+  truthLabel?: "exact" | "estimated" | "unknown" | null;
+  generatedAtUtc?: string | null;
+  sourcePath?: string | null;
+  fromCache?: boolean;
+  sourceObserved?: boolean;
+}): RecoveredLaunchMetricState {
+  const truthLabel = input.truthLabel ?? "unknown";
+  const sourceTruth: RecoveryMetricSourceTruth = truthLabel === "exact"
+    ? "first_party_event_fact"
+    : truthLabel === "estimated"
+      ? "ga4_evidence_only"
+      : "source_missing";
+  const evidenceKind: RecoveryMetricEvidenceKindInput = truthLabel === "exact"
+    ? "observed"
+    : truthLabel === "estimated"
+      ? "modeled"
+      : "missing";
+  const timestampMs = typeof input.generatedAtUtc === "string"
+    ? Date.parse(input.generatedAtUtc)
+    : Number.NaN;
+
+  return buildRecoveredLaunchMetricState({
+    eventName: "semantic_page_viewed",
+    sourceTruth,
+    sourceObserved: input.sourceObserved ?? truthLabel !== "unknown",
+    evidenceKind,
+    route: "admin_analytics_guest_traffic",
+    objectId: input.sourcePath ?? `guest_traffic_${truthLabel}`,
+    timestampMs: Number.isFinite(timestampMs) ? timestampMs : undefined,
+    fromCache: input.fromCache,
+  });
+}
+
 export function buildLaunchCriticalRecoveryCoverageReport(input: {
   generatedAtUtc?: string;
   observedEventNames: string[];

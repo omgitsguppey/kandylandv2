@@ -199,6 +199,13 @@ describe("buildAdminAnalyticsGuestBounceQualityModel", () => {
     expect(model.guestViews.value).toBe(19_200);
     expect(model.guestViewsEstimated).toBe(true);
     expect(model.estimatedGuestViews.sourceTruth).toBe("ga4_evidence_only");
+    expect(model.estimatedGuestViews.canonicalSourceTruth).toBe("ga4_evidence_only");
+    expect(model.estimatedGuestViews.evidenceKind).toBe("modeled");
+    expect(model.estimatedGuestViews.sourceFreshnessState).toBe("external_evidence_required");
+    expect(model.estimatedGuestViews.productTruthEligible).toBe(false);
+    expect(model.estimatedGuestViews.missingVsZeroState).toBe("source_present");
+    expect(model.estimatedGuestViews.dedupeKey).toContain("launch_recovery|page_view");
+    expect(model.estimatedGuestViews.lateArrivalWindowDays).toBe(12);
     expect(model.guestEstimateFormula).toBe("GA total views - identified first-party views");
     expect(model.guestBounce.value).toBeNull();
     expect(model.guestEngaged.value).toBeNull();
@@ -246,6 +253,9 @@ describe("buildAdminAnalyticsGuestBounceQualityModel", () => {
     expect(model.signedInBounce.value).toBeNull();
     expect(model.signedInBounce.fakeZeroPrevented).toBe(true);
     expect(model.signedInBounce.unavailableReason).toBe("Signed-in bounce has no valid visit sample.");
+    expect(model.estimatedGuestViews.canonicalSourceTruth).toBe("first_party_event_fact");
+    expect(model.estimatedGuestViews.evidenceKind).toBe("observed");
+    expect(model.estimatedGuestViews.productTruthEligible).toBe(true);
     expect(model.badgeLabel).toBe("No sample");
   });
 });

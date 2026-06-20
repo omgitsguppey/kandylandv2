@@ -1,4 +1,8 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import {
+  buildGuestTrafficRecoveryMetricState,
+  type RecoveredLaunchMetricState,
+} from "@/lib/analytics/recovery-timeline-spine";
 import type {
   AudienceSnapshotDiagnostics,
   AudienceSnapshotState,
@@ -28,10 +32,20 @@ type AudienceMetric = {
 
 type AudienceEstimateMetadata = {
   sourceTruth: "ga4_evidence_only" | "event_estimate" | "server_estimate" | "legacy" | "unknown";
+  canonicalSourceTruth: RecoveredLaunchMetricState["sourceTruth"];
+  sourceFreshnessState: RecoveredLaunchMetricState["freshnessState"];
+  evidenceKind: RecoveredLaunchMetricState["evidenceKind"];
   formula: string | null;
   confidencePct: number | null;
+  confidenceScore: number;
+  confidenceBand: RecoveredLaunchMetricState["confidenceBand"];
   freshnessState: "live" | "refresh_due" | "stale" | "unknown";
   lastUpdatedAtUtc: string | null;
+  dedupeKey: string;
+  dedupeDimensions: RecoveredLaunchMetricState["dedupeDimensions"];
+  lateArrivalWindowDays: RecoveredLaunchMetricState["lateArrivalWindowDays"];
+  productTruthEligible: boolean;
+  missingVsZeroState: RecoveredLaunchMetricState["missingVsZeroState"];
   explanation: string;
 };
 
@@ -320,6 +334,13 @@ export function buildAdminAnalyticsAudienceSnapshotModel(input: {
         : response
           ? "live"
           : "unknown";
+  const guestTrafficRecoveryMetric = buildGuestTrafficRecoveryMetricState({
+    truthLabel: guestTraffic?.truthLabel ?? "unknown",
+    generatedAtUtc: guestQualityDiagnostics?.estimatedLastUpdatedAtUtc ?? diagnostics?.gaLastSeenAtUtc ?? generatedAtUtc,
+    sourcePath: guestQualityDiagnostics?.estimatedSourceTruth ?? "audience_guest_estimate",
+    fromCache: guestEstimateFreshnessState === "refresh_due",
+    sourceObserved: hasResponse && guestTraffic?.truthLabel !== "unknown",
+  });
   const guestVisitsValue = guestTraffic
     ? guestTraffic.truthLabel === "exact"
       ? guestTraffic.exactGuestViews
@@ -488,10 +509,20 @@ export function buildAdminAnalyticsAudienceSnapshotModel(input: {
       : null,
     guestEstimateMetadata: {
       sourceTruth: guestQualityDiagnostics?.estimatedSourceTruth ?? "unknown",
+      canonicalSourceTruth: guestTrafficRecoveryMetric.sourceTruth,
+      sourceFreshnessState: guestTrafficRecoveryMetric.freshnessState,
+      evidenceKind: guestTrafficRecoveryMetric.evidenceKind,
       formula: guestEstimateFormula,
       confidencePct: guestQualityDiagnostics?.estimatedConfidencePct ?? null,
+      confidenceScore: guestTrafficRecoveryMetric.confidenceScore,
+      confidenceBand: guestTrafficRecoveryMetric.confidenceBand,
       freshnessState: guestEstimateFreshnessState,
       lastUpdatedAtUtc: guestQualityDiagnostics?.estimatedLastUpdatedAtUtc ?? diagnostics?.gaLastSeenAtUtc ?? null,
+      dedupeKey: guestTrafficRecoveryMetric.dedupeKey,
+      dedupeDimensions: guestTrafficRecoveryMetric.dedupeDimensions,
+      lateArrivalWindowDays: guestTrafficRecoveryMetric.lateArrivalWindowDays,
+      productTruthEligible: guestTrafficRecoveryMetric.sourceTruth === "first_party_event_fact",
+      missingVsZeroState: guestTrafficRecoveryMetric.missingVsZeroState,
       explanation: guestEstimateFormulaUsed
         ? "Estimated because consented guest batches are unavailable for part of this range."
         : "Exact consented guest batches are available for this range.",

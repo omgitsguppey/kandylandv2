@@ -1,4 +1,8 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import {
+  buildGuestTrafficRecoveryMetricState,
+  type RecoveredLaunchMetricState,
+} from "@/lib/analytics/recovery-timeline-spine";
 import type { HistoricalAnalyticsResponse, RangeOption, SemanticCategorySummaryItem } from "@/types/admin-analytics";
 
 type GuestTraffic = NonNullable<HistoricalAnalyticsResponse["guestTraffic"]>;
@@ -37,11 +41,21 @@ export type AdminAnalyticsGuestBounceQualityModel = {
     value: number;
     display: string;
     sourceTruth: GuestQualityDiagnostics["estimatedSourceTruth"];
+    canonicalSourceTruth: RecoveredLaunchMetricState["sourceTruth"];
+    sourceFreshnessState: RecoveredLaunchMetricState["freshnessState"];
+    evidenceKind: RecoveredLaunchMetricState["evidenceKind"];
     formula: string | null;
     formulaState: GuestQualityDiagnostics["estimatedFormulaState"];
     confidencePct: number | null;
+    confidenceScore: number;
+    confidenceBand: RecoveredLaunchMetricState["confidenceBand"];
     freshnessState: "live" | "refresh_due" | "stale" | "unknown";
     lastUpdatedAtUtc: string | null;
+    dedupeKey: string;
+    dedupeDimensions: RecoveredLaunchMetricState["dedupeDimensions"];
+    lateArrivalWindowDays: RecoveredLaunchMetricState["lateArrivalWindowDays"];
+    productTruthEligible: boolean;
+    missingVsZeroState: RecoveredLaunchMetricState["missingVsZeroState"];
     explanation: string;
   };
   guestQuality: {
@@ -163,6 +177,13 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     refreshDue: cacheRefreshDue,
     lastUpdatedAtUtc: diagnostics.estimatedLastUpdatedAtUtc ?? generatedAtUtc,
   });
+  const guestTrafficRecoveryMetric = buildGuestTrafficRecoveryMetricState({
+    truthLabel: input.guestTraffic?.truthLabel ?? "unknown",
+    generatedAtUtc: diagnostics.estimatedLastUpdatedAtUtc ?? generatedAtUtc,
+    sourcePath: diagnostics.estimatedSourceTruth,
+    fromCache: cacheRefreshDue,
+    sourceObserved: hasResponse && input.guestTraffic?.truthLabel !== "unknown",
+  });
   const signedInBounceValue = userSemantic?.viewCount
     ? (userSemantic.bounceCount ?? 0) / userSemantic.viewCount
     : null;
@@ -234,11 +255,21 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
       value: guestViewsValue,
       display: formatCompactNumber(guestViewsValue),
       sourceTruth: diagnostics.estimatedSourceTruth,
+      canonicalSourceTruth: guestTrafficRecoveryMetric.sourceTruth,
+      sourceFreshnessState: guestTrafficRecoveryMetric.freshnessState,
+      evidenceKind: guestTrafficRecoveryMetric.evidenceKind,
       formula: diagnostics.estimatedFormula,
       formulaState: diagnostics.estimatedFormulaState,
       confidencePct: diagnostics.estimatedConfidencePct,
+      confidenceScore: guestTrafficRecoveryMetric.confidenceScore,
+      confidenceBand: guestTrafficRecoveryMetric.confidenceBand,
       freshnessState: estimatedFreshness,
       lastUpdatedAtUtc: diagnostics.estimatedLastUpdatedAtUtc ?? generatedAtUtc,
+      dedupeKey: guestTrafficRecoveryMetric.dedupeKey,
+      dedupeDimensions: guestTrafficRecoveryMetric.dedupeDimensions,
+      lateArrivalWindowDays: guestTrafficRecoveryMetric.lateArrivalWindowDays,
+      productTruthEligible: guestTrafficRecoveryMetric.sourceTruth === "first_party_event_fact",
+      missingVsZeroState: guestTrafficRecoveryMetric.missingVsZeroState,
       explanation: diagnostics.estimatedFormula
         ? `${diagnostics.estimatedFormula}. This is an estimated guest-view total, not unique guest users.`
         : "Guest estimate formula unavailable.",

@@ -44,6 +44,13 @@ describe("buildAdminAnalyticsAudienceSnapshotModel", () => {
     expect(model.guestVisits.label).toBe("Estimated guest visits");
     expect(model.guestEstimateFormulaUsed).toBe(true);
     expect(model.guestEstimateClamped).toBe(false);
+    expect(model.guestEstimateMetadata.canonicalSourceTruth).toBe("ga4_evidence_only");
+    expect(model.guestEstimateMetadata.evidenceKind).toBe("modeled");
+    expect(model.guestEstimateMetadata.sourceFreshnessState).toBe("external_evidence_required");
+    expect(model.guestEstimateMetadata.productTruthEligible).toBe(false);
+    expect(model.guestEstimateMetadata.missingVsZeroState).toBe("source_present");
+    expect(model.guestEstimateMetadata.dedupeKey).toContain("launch_recovery|page_view");
+    expect(model.guestEstimateMetadata.lateArrivalWindowDays).toBe(12);
     expect(model.fakeZeroPrevented).toBe(false);
     expect(model.chartSeries[0]).toMatchObject({
       key: "users",
@@ -103,6 +110,10 @@ describe("buildAdminAnalyticsAudienceSnapshotModel", () => {
     expect(model.sourceState).toBe("missing");
     expect(model.totalUsers.truthState).toBe("unavailable");
     expect(model.guestVisits.truthState).toBe("unavailable");
+    expect(model.guestEstimateMetadata.canonicalSourceTruth).toBe("source_missing");
+    expect(model.guestEstimateMetadata.evidenceKind).toBe("missing");
+    expect(model.guestEstimateMetadata.sourceFreshnessState).toBe("source_missing");
+    expect(model.guestEstimateMetadata.missingVsZeroState).toBe("source_missing");
     expect(model.fakeZeroPrevented).toBe(true);
     expect(model.visibleCopy).toContain("Audience snapshot unavailable.");
   });
@@ -144,6 +155,9 @@ describe("buildAdminAnalyticsAudienceSnapshotModel", () => {
 
     expect(model.sourceState).toBe("verified");
     expect(model.guestEstimateMetadata.freshnessState).toBe("refresh_due");
+    expect(model.guestEstimateMetadata.canonicalSourceTruth).toBe("first_party_event_fact");
+    expect(model.guestEstimateMetadata.evidenceKind).toBe("observed");
+    expect(model.guestEstimateMetadata.productTruthEligible).toBe(true);
     expect(model.guestVisits.truthState).toBe("cached");
     expect(model.totalUsers.truthState).toBe("cached");
     expect(model.backendCacheStatus).toBe("refresh_due");
