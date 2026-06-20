@@ -3266,12 +3266,15 @@ export function buildLaunchAnalyticsRecoveryDedupeKey(input: LaunchAnalyticsReco
 
   const windowMs = Math.max(1, input.timestampWindowMs ?? 60_000);
   const timestampBucket = timeBucket(Number.isFinite(input.timestampMs ?? Number.NaN) ? Number(input.timestampMs) : 0, windowMs);
-  const identityKey = input.identityLinkId
-    ? `link:${normalizeDedupePart(input.identityLinkId, "unknown_link")}`
-    : input.userId
-      ? `user:${normalizeDedupePart(input.userId, "unknown_user")}`
-      : input.anonymousVisitorId
-        ? `guest:${normalizeDedupePart(input.anonymousVisitorId, "unknown_guest")}`
+  const identityLinkId = cleanRecoveryMetricStringAnchor(input.identityLinkId);
+  const userId = cleanRecoveryMetricStringAnchor(input.userId);
+  const anonymousVisitorId = cleanRecoveryMetricStringAnchor(input.anonymousVisitorId);
+  const identityKey = identityLinkId
+    ? `link:${normalizeDedupePart(identityLinkId, "unknown_link")}`
+    : userId
+      ? `user:${normalizeDedupePart(userId, "unknown_user")}`
+      : anonymousVisitorId
+        ? `guest:${normalizeDedupePart(anonymousVisitorId, "unknown_guest")}`
         : "actor:unknown";
 
   return [
@@ -3290,8 +3293,8 @@ export function buildRecoveryMetricIdentityStitchingState(input: {
   eventId?: string | null;
   identityLinkId?: string | null;
 }): RecoveryMetricIdentityStitchingState {
-  const usesIdentityLink = Boolean(input.identityLinkId);
-  const doubleCountingPreventedBy = input.eventId
+  const usesIdentityLink = Boolean(cleanRecoveryMetricStringAnchor(input.identityLinkId));
+  const doubleCountingPreventedBy = cleanRecoveryMetricStringAnchor(input.eventId)
     ? "event_id"
     : usesIdentityLink
       ? "identity_link_id"
@@ -3307,6 +3310,10 @@ export function buildRecoveryMetricIdentityStitchingState(input: {
 
 function hasRecoveryMetricStringAnchor(value: string | null | undefined) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function cleanRecoveryMetricStringAnchor(value: string | null | undefined) {
+  return hasRecoveryMetricStringAnchor(value) ? value?.trim() ?? null : null;
 }
 
 export function buildRecoveredLaunchMetricState(input: {

@@ -650,6 +650,36 @@ describe("recovery timeline spine", () => {
     expect(first).toContain("route:/wallet");
   });
 
+  it("does not let blank identity anchors create fake linked-person dedupe", () => {
+    const dedupeKey = buildLaunchAnalyticsRecoveryDedupeKey({
+      semanticAction: "drop_preview",
+      sessionId: "session_1",
+      identityLinkId: " ",
+      userId: " user_1 ",
+      anonymousVisitorId: " guest_1 ",
+      route: "/drops/drop_1",
+      objectId: "drop_1",
+      timestampMs: 120_000,
+      timestampWindowMs: 60_000,
+    });
+    const recovered = buildRecoveredLaunchMetricState({
+      eventName: "drop_preview_opened",
+      identityLinkId: " ",
+      userId: " user_1 ",
+      route: "/drops/drop_1",
+      timestampMs: Date.parse("2026-06-07T00:00:00.000Z"),
+    });
+
+    expect(dedupeKey).toContain("user:user_1");
+    expect(dedupeKey).not.toContain("link:unknown_link");
+    expect(recovered.identityStitching).toMatchObject({
+      usesIdentityLink: false,
+      countsGlobalOnce: true,
+      countsLinkedPersonOnce: false,
+      doubleCountingPreventedBy: "session_semantic_window",
+    });
+  });
+
   it("centralizes identity stitching double-count prevention for recovered metrics", () => {
     expect(buildRecoveryMetricIdentityStitchingState({
       eventId: "event_1",
@@ -667,6 +697,15 @@ describe("recovery timeline spine", () => {
       countsGlobalOnce: true,
       countsLinkedPersonOnce: true,
       doubleCountingPreventedBy: "identity_link_id",
+    });
+    expect(buildRecoveryMetricIdentityStitchingState({
+      eventId: " ",
+      identityLinkId: " ",
+    })).toEqual({
+      usesIdentityLink: false,
+      countsGlobalOnce: true,
+      countsLinkedPersonOnce: false,
+      doubleCountingPreventedBy: "session_semantic_window",
     });
     expect(buildRecoveryMetricIdentityStitchingState({})).toEqual({
       usesIdentityLink: false,
