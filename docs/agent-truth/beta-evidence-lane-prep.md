@@ -1,6 +1,6 @@
 # Beta Evidence Lane Prep
 
-Generated: 2026-06-19T14:36:37.229Z
+Generated: 2026-06-20T17:57:35.536Z
 
 ## Summary
 
@@ -25,20 +25,19 @@ A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is s
 
 ## Stale Supporting Reports
 
+- agent/state/evidence-capture-status.generated.json: No refresh needed.
 - agent/state/source-truth-authority-map.generated.json: No refresh needed.
 - agent/state/final-telemetry-closure-lock.generated.json: No refresh needed.
-- agent/state/mobile-ui-final-lock.generated.json: No refresh needed.
+- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock
 - agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 - agent/state/creator-settings-control-plane.generated.json: No refresh needed.
 - agent/state/creator-drop-status-metrics.generated.json: No refresh needed.
 - agent/state/operator-revenue-smoke.generated.json: No refresh needed.
-- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
-- agent/state/beta-evidence-lane-prep.generated.json: No refresh needed.
 - agent/state/beta-freshness-language.generated.json: No refresh needed.
 - agent/state/final-pr-stale-cleanup.generated.json: No refresh needed.
 - agent/state/overnight-wiring-integrity.generated.json: No refresh needed.
 - agent/state/existing-algorithm-refinement.generated.json: No refresh needed.
-- agent/state/user-loading-wallet-mobile-refinement.generated.json: No refresh needed.
+- agent/state/user-loading-wallet-mobile-refinement.generated.json: User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement
 - agent/state/global-marquee-truncated-titles.generated.json: No refresh needed.
 
 ## Next Exact Steps

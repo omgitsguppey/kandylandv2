@@ -92,6 +92,7 @@ type BuildInput = {
     revenueSmokeStatus: string;
     amountUsdConfirmed: number;
     product: string;
+    plainLanguageNote: string;
     providerArtifactAttached: boolean;
     formalProviderSmokePassed: boolean;
     providerSmokeGateStatus: string;
@@ -111,7 +112,6 @@ const reportRelativePath = "agent/state/beta-evidence-lane-prep.generated.json";
 const docsRelativePath = "docs/agent-truth/beta-evidence-lane-prep.md";
 const reportPath = join(repoRoot, reportRelativePath);
 const docsPath = join(repoRoot, docsRelativePath);
-const operatorPlainLanguageNote = "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.";
 
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
@@ -196,6 +196,7 @@ function readWorkspaceInput(head: string): Required<Pick<BuildInput, "evidenceCa
       revenueSmokeStatus: readString(operatorSummary.revenueSmokeStatus, "not_recorded"),
       amountUsdConfirmed: readNumber(operatorSummary.amountUsdConfirmed, 0),
       product: readString(operatorSummary.product, "unknown"),
+      plainLanguageNote: readString(operator.plainLanguageNote, ""),
       providerArtifactAttached: operatorSummary.providerArtifactAttached === true,
       formalProviderSmokePassed: operatorSummary.formalProviderSmokePassed === true,
       providerSmokeGateStatus: readString(operatorSummary.providerSmokeGateStatus, "missing_formal_evidence"),
@@ -225,6 +226,12 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
   const refreshPlan = input.refreshPlan ?? workspace.refreshPlan;
   const operatorConfirmed = operator.revenueSmokeStatus === "operator_confirmed_revenue_smoke";
   const providerFormalPassed = operator.formalProviderSmokePassed === true || evidence.providerSmokeEvidence === "complete";
+  const operatorPlainLanguageNote = operatorConfirmed
+    ? readString(operator.plainLanguageNote, "")
+      || (readNumber(operator.amountUsdConfirmed, 0) > 0
+        ? `A real $${readNumber(operator.amountUsdConfirmed, 0)} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.`
+        : "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.")
+    : "No operator-confirmed GumDrop revenue smoke is recorded.";
 
   const lanes: BetaEvidenceLanePrepLane[] = [
     lane({
@@ -403,10 +410,8 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
       "Use this lane map before attaching evidence so source-ready, operator-confirmed, formal-missing, and owner-review states stay separate.",
       "Keep operator-confirmed revenue smoke acknowledged without requiring provider screenshots for that acknowledgement.",
       "Attach formal provider/app proof only when the operator chooses to clear the provider smoke gate.",
-      ...uniqueRefreshCommands(buildRefreshPlan(REFRESH_ARTIFACT_REGISTRY.map((entry) => artifactInput(entry.artifactPath, current)), {
-        currentCodeVersion: current,
-        nowUtc: generatedAtUtc,
-      })).map((command) => `Refresh supporting report with ${command}.`),
+      ...Array.from(new Set(refreshPlan.map((entry) => entry.refreshCommand).filter((command): command is string => Boolean(command))))
+        .map((command) => `Refresh supporting report with ${command}.`),
     ],
   };
 }
@@ -474,7 +479,7 @@ export function validateBetaEvidenceLanePrepReport(report: BetaEvidenceLanePrepR
   if (operatorLane?.status === "operator_confirmed" && !report.operatorConfirmedLanes.includes("operator_confirmed_revenue_smoke")) {
     failures.push("operator-confirmed lane must be represented.");
   }
-  if (report.operatorPlainLanguageNote !== operatorPlainLanguageNote) {
+  if (!report.operatorPlainLanguageNote.includes("Formal provider evidence is still separate.")) {
     failures.push("operator plain-language note must separate confirmed revenue from formal provider proof.");
   }
   if (report.nextExactSteps.length === 0) failures.push("nextExactSteps must not be empty.");

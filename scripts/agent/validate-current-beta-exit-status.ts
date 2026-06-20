@@ -594,7 +594,7 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
     operatorRevenueSmokeFormalProviderSmokePassed: operator?.summary?.formalProviderSmokePassed ?? false,
     operatorRevenueSmokeBetaGateImpact: operator?.summary?.betaGateImpact ?? report.summary.operatorRevenueSmokeBetaGateImpact,
     operatorRevenueSmokeNote: operator?.plainLanguageNote
-      ?? "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
     liveRuntimeEvidenceStatus,
     betaExitReviewState: betaExitReviewStateFor({
       launchGateStatus,
@@ -815,10 +815,15 @@ export function validateCurrentBetaExitStatusReport(
   const operatorRevenueSmoke = readOperatorRevenueSmoke();
   if (operatorRevenueSmoke) {
     const summary = operatorRevenueSmoke.summary ?? {};
+    const expectedAmount = typeof summary.amountUsdConfirmed === "number" && Number.isFinite(summary.amountUsdConfirmed) && summary.amountUsdConfirmed > 0
+      ? summary.amountUsdConfirmed
+      : null;
+    const expectedNote = operatorRevenueSmoke.plainLanguageNote
+      ?? (expectedAmount ? `A real $${expectedAmount} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.` : "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.");
     if (report.summary.operatorRevenueSmokeStatus !== "operator_confirmed_revenue_smoke") {
       failures.push("operator-confirmed revenue smoke must be represented in current beta exit status.");
     }
-    if (report.summary.operatorRevenueSmokeAmountUsd !== 50 || report.summary.operatorRevenueSmokeProduct !== "GumDrops") {
+    if (expectedAmount === null || report.summary.operatorRevenueSmokeAmountUsd !== expectedAmount || report.summary.operatorRevenueSmokeProduct !== "GumDrops") {
       failures.push("operator-confirmed revenue smoke amount/product must be represented.");
     }
     if (report.summary.operatorRevenueSmokeConfirmationSource !== "operator_confirmed") {
@@ -835,10 +840,7 @@ export function validateCurrentBetaExitStatusReport(
     if (report.summary.operatorRevenueSmokeBetaGateImpact !== "product_signal_only") {
       failures.push("operator-confirmed revenue smoke betaGateImpact must be product_signal_only.");
     }
-    if (
-      report.summary.operatorRevenueSmokeNote
-      !== "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate."
-    ) {
+    if (report.summary.operatorRevenueSmokeNote !== expectedNote) {
       failures.push("operator-confirmed revenue smoke note must separate product signal from formal provider evidence.");
     }
     if (!["missing_formal_evidence", "operator_reported_not_formal_provider_smoke", "stale_provider_smoke_evidence"].includes(report.summary.providerSmokeStatus)) {

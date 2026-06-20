@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T15:25:13.840Z",
+  "generatedAtUtc": "2026-06-20T17:56:34.597Z",
   "reportKey": "final-morning-beta-lock",
-  "currentHead": "cb7808a6a33fdfdf673d852503bb771ceb4fd207",
+  "currentHead": "f470c3e36bb96c082b52698fe56c9fccfd19cc0f",
   "summary": {
     "openPrsClassified": true,
     "dirtyFilesClassified": true,
@@ -11,7 +11,7 @@
     "uiSourceCoverageStatus": "complete",
     "runtimeEvidenceStatus": "complete",
     "adminTruthEvidenceStatus": "stale",
-    "betaScore": 78.18,
+    "betaScore": 76.88,
     "betaStatus": "External proof required",
     "canStartBetaExitReview": false,
     "chatUntouched": true,
@@ -23,27 +23,47 @@
   "prActions": [],
   "dirtyFileActions": [
     {
-      "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit refreshed source-only status artifact."
     },
     {
-      "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit refreshed source-only status artifact."
     },
     {
-      "path": "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "scripts/agent/score-public-beta-readiness.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     },
     {
-      "path": "scripts/agent/validate-evidence-freshness-index.ts",
+      "path": "scripts/agent/validate-beta-evidence-gap-map.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     },
     {
-      "path": "scripts/agent/validate-final-beta-exit-gate-readiness.ts",
+      "path": "scripts/agent/validate-beta-evidence-lane-prep.ts",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped validator/helper change after focused checks."
+    },
+    {
+      "path": "scripts/agent/validate-current-beta-exit-status.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     },
@@ -53,33 +73,32 @@
       "action": "Commit as this final morning lock."
     },
     {
-      "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
+      "path": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     },
     {
-      "path": "scripts/agent/validate-score-80-path-lock.ts",
+      "path": "scripts/agent/validate-public-beta-score.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     },
     {
-      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
+      "path": "tests/unit/beta-evidence-gap-map.spec.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     },
     {
-      "path": "tests/unit/targeted-behavior-evidence-repair.spec.ts",
+      "path": "tests/unit/beta-evidence-lane-prep.spec.ts",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped validator/helper change after focused checks."
+    },
+    {
+      "path": "tests/unit/current-beta-exit-status.spec.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     }
   ],
   "staleArtifacts": [
-    {
-      "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score",
-      "refreshCommand": "npm run score:beta && npm run check:beta-score"
-    },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "status": "stale_source_version",
@@ -133,18 +152,6 @@
       "status": "stale_source_version",
       "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
       "refreshCommand": "npm run check:operator-revenue-smoke"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "refreshCommand": "npm run check:beta-evidence-gap-map"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
@@ -218,8 +225,8 @@
   "refreshPlan": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run score:beta && npm run check:beta-score"
     },
     {
@@ -278,14 +285,14 @@
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-gap-map"
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
@@ -346,7 +353,7 @@
     }
   ],
   "nextExactSteps": [
-    "Keep operator-confirmed $50 GumDrop revenue smoke represented as product signal only.",
+    "Keep operator-confirmed GumDrop revenue smoke represented as product signal only.",
     "Do not clear formal provider smoke until a formal provider/app artifact exists.",
     "Run UI source coverage first; attach runtime smoke and admin truth sample evidence before beta exit review.",
     "Use stale artifact refresh commands before relying on supporting reports."

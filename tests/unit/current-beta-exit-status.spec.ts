@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -6,6 +9,16 @@ import {
   type CurrentBetaExitProofLane,
   type CurrentBetaExitStatusReport,
 } from "../../scripts/agent/validate-current-beta-exit-status";
+
+const operatorRevenueSmoke = JSON.parse(
+  readFileSync(join(process.cwd(), "agent/state/operator-revenue-smoke.generated.json"), "utf8"),
+) as {
+  summary?: { amountUsdConfirmed?: number };
+  plainLanguageNote?: string;
+};
+const operatorRevenueSmokeAmount = operatorRevenueSmoke.summary?.amountUsdConfirmed ?? null;
+const operatorRevenueSmokeNote = operatorRevenueSmoke.plainLanguageNote
+  ?? "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.";
 
 function proofLanesFor(
   summary: Omit<CurrentBetaExitStatusReport["summary"], "proofLanes">,
@@ -121,13 +134,13 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       visualEvidenceStatus: "source_surface_checks_current",
       providerSmokeStatus: "missing_formal_evidence",
       operatorRevenueSmokeStatus: "operator_confirmed_revenue_smoke",
-      operatorRevenueSmokeAmountUsd: 50,
+      operatorRevenueSmokeAmountUsd: operatorRevenueSmokeAmount,
       operatorRevenueSmokeProduct: "GumDrops",
       operatorRevenueSmokeConfirmationSource: "operator_confirmed",
       operatorRevenueSmokeProviderArtifactAttached: false,
       operatorRevenueSmokeFormalProviderSmokePassed: false,
       operatorRevenueSmokeBetaGateImpact: "product_signal_only",
-      operatorRevenueSmokeNote: "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+      operatorRevenueSmokeNote,
       runtimeSmokeStatus: "runtime_unverified",
       adminTruthSampleStatus: "missing_or_unknown",
       cloudRunCostReadiness: "cost_review_required",

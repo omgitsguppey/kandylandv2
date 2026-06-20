@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T14:36:37.229Z",
+  "generatedAtUtc": "2026-06-20T17:57:35.536Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+  "currentHead": "f470c3e36bb96c082b52698fe56c9fccfd19cc0f",
   "summary": {
     "laneCount": 8,
     "formalMissingCount": 2,
@@ -11,7 +11,7 @@
     "providerSmokeGateCleared": false,
     "p0Count": 0,
     "p1Count": 2,
-    "p2Count": 15
+    "p2Count": 14
   },
   "lanes": [
     {
@@ -203,7 +203,7 @@
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:evidence-capture-status"
     },
@@ -221,8 +221,8 @@
     },
     {
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "current_by_impact",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
       "refreshCommand": "npm run check:mobile-ui-final-lock"
     },
     {
@@ -245,19 +245,19 @@
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "current_by_impact",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-gap-map"
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "current_by_impact",
+      "status": "current",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
@@ -287,8 +287,8 @@
     },
     {
       "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "status": "current_by_impact",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
     },
     {
@@ -299,6 +299,12 @@
     }
   ],
   "staleReports": [
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:evidence-capture-status"
+    },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
       "status": "current_by_impact",
@@ -313,8 +319,8 @@
     },
     {
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "current_by_impact",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
       "refreshCommand": "npm run check:mobile-ui-final-lock"
     },
     {
@@ -337,21 +343,9 @@
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "current_by_impact",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:operator-revenue-smoke"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "refreshCommand": "npm run check:beta-evidence-gap-map"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "current_by_impact",
-      "nextAction": "No refresh needed.",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
@@ -379,8 +373,8 @@
     },
     {
       "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "status": "current_by_impact",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
     },
     {

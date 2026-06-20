@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T17:14:46.065Z",
+  "generatedAtUtc": "2026-06-20T17:56:36.169Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "ac9f9ef6b2cf8489acd1c5a4c1699959ac3103e8",
+  "currentHead": "f470c3e36bb96c082b52698fe56c9fccfd19cc0f",
   "summary": {
     "betaVersion": "1.6.9",
     "betaScore": 76.88,
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-20T17:14:46.065Z",
+      "generatedAtUtc": "2026-06-20T17:56:36.169Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -153,8 +153,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-20T15:23:58.224Z",
-      "ageHours": 0.006527777777777778,
+      "generatedAtUtc": "2026-06-20T17:55:04.748Z",
+      "ageHours": 0.02539472222222222,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -181,31 +181,31 @@
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
       "reportKey": "beta-evidence-gap-map",
       "label": "Beta evidence gap map",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-06-19T14:38:10.570Z",
-      "ageHours": 3.461953888888889,
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-06-20T17:56:19.085Z",
+      "ageHours": 0.004745555555555556,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "formalEvidenceGateCanClear": false
+      "message": "Beta evidence gap map is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
       "reportKey": "beta-evidence-lane-prep",
       "label": "Beta evidence lane prep",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-06-19T14:36:37.229Z",
-      "ageHours": 3.4878819444444447,
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-06-20T17:55:56.255Z",
+      "ageHours": 0.011087222222222222,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "formalEvidenceGateCanClear": false
+      "message": "Beta evidence lane prep is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
     },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
@@ -306,22 +306,6 @@
       "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
       "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
       "refreshCommand": "npm run check:evidence-capture-status"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "reportKey": "beta-evidence-gap-map",
-      "status": "stale_source_version",
-      "message": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "refreshCommand": "npm run check:beta-evidence-gap-map"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "reportKey": "beta-evidence-lane-prep",
-      "status": "stale_source_version",
-      "message": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",

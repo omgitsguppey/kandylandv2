@@ -303,9 +303,19 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   const operatorSmoke = readJsonFile(root, OPERATOR_REVENUE_SMOKE_PATH);
   const operatorSummary = readRecord(operatorSmoke?.summary);
   const operatorSmokeStatus = readString(operatorSummary.revenueSmokeStatus);
+  const operatorSmokeAmount = readNumber(operatorSummary.amountUsdConfirmed);
   const operatorSmokeNote = operatorSmokeStatus === "operator_confirmed_revenue_smoke"
-    ? "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate."
+    ? readString(operatorSmoke?.plainLanguageNote)
+      ?? (operatorSmokeAmount ? `A real $${operatorSmokeAmount} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.` : "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.")
     : undefined;
+  const operatorSmokeEvidence = operatorSmokeNote
+    ? [
+      `operatorRevenueSmoke.status=${operatorSmokeStatus}`,
+      ...(operatorSmokeAmount ? [`operatorRevenueSmoke.amountUsdConfirmed=${operatorSmokeAmount}`] : []),
+      "operatorRevenueSmoke.formalProviderSmokePassed=false",
+      `operatorRevenueSmoke.note=${operatorSmokeNote}`,
+    ]
+    : [];
   if (!parsed) {
     const artifact = readEvidenceArtifact(
       root,
@@ -315,12 +325,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
     );
     if (operatorSmokeNote) {
       artifact.detail = `${operatorSmokeNote} ${artifact.detail}`;
-      artifact.evidence.push(
-        `operatorRevenueSmoke.status=${operatorSmokeStatus}`,
-        "operatorRevenueSmoke.amountUsdConfirmed=50",
-        "operatorRevenueSmoke.formalProviderSmokePassed=false",
-        `operatorRevenueSmoke.note=${operatorSmokeNote}`,
-      );
+      artifact.evidence.push(...operatorSmokeEvidence);
     }
     return artifact;
   }
@@ -355,14 +360,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
       `providerSmoke.status=${providerStatus}`,
       `providerSmoke.passed=${readBoolean(providerSmoke.passed) === true}`,
       `readinessImpact.providerSmokeGatePassed=${readBoolean(readinessImpact.providerSmokeGatePassed) === true}`,
-      ...(operatorSmokeNote
-        ? [
-          `operatorRevenueSmoke.status=${operatorSmokeStatus}`,
-          "operatorRevenueSmoke.amountUsdConfirmed=50",
-          "operatorRevenueSmoke.formalProviderSmokePassed=false",
-          `operatorRevenueSmoke.note=${operatorSmokeNote}`,
-        ]
-        : []),
+      ...operatorSmokeEvidence,
       ...(paypalStatus ? [`paypalRefillSmoke.status=${paypalStatus}`] : []),
       ...(paypalNote ? [`paypalRefillSmoke.note=${paypalNote}`] : []),
       `paypalRefillSmoke.formalRepoArtifactAttached=${readBoolean(paypalRefillSmoke.formalRepoArtifactAttached) === true}`,

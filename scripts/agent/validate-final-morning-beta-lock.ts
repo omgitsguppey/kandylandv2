@@ -345,7 +345,7 @@ export function buildFinalMorningBetaLockReport(input: BuildInput = {}): FinalMo
     refreshPlan,
     remainingBlockers,
     nextExactSteps: [
-      "Keep operator-confirmed $50 GumDrop revenue smoke represented as product signal only.",
+      "Keep operator-confirmed GumDrop revenue smoke represented as product signal only.",
       "Do not clear formal provider smoke until a formal provider/app artifact exists.",
       "Run UI source coverage first; attach runtime smoke and admin truth sample evidence before beta exit review.",
       "Use stale artifact refresh commands before relying on supporting reports.",

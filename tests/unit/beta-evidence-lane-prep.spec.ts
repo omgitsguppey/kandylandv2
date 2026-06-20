@@ -5,34 +5,41 @@ import {
   validateBetaEvidenceLanePrepReport,
 } from "../../scripts/agent/validate-beta-evidence-lane-prep";
 
+const evidenceCaptureSummary = {
+  uiSurfaceCoverageEvidence: "complete" as const,
+  providerSmokeEvidence: "missing" as const,
+  runtimeSmokeEvidence: "missing" as const,
+  adminTruthSampleEvidence: "missing" as const,
+  canStartBetaExitReview: false,
+};
+
+const operatorRevenueSmoke = {
+  revenueSmokeStatus: "operator_confirmed_revenue_smoke",
+  amountUsdConfirmed: 37.5,
+  product: "GumDrops",
+  plainLanguageNote: "A real $37.5 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+  formalProviderSmokePassed: false,
+  providerArtifactAttached: false,
+  providerSmokeGateStatus: "missing_formal_evidence",
+};
+
+const refreshPlan = [
+  {
+    artifactPath: "agent/state/operator-revenue-smoke.generated.json",
+    status: "stale_source_version",
+    nextAction: "Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
+    refreshCommand: "npm run check:operator-revenue-smoke",
+  },
+];
+
 describe("beta evidence lane prep", () => {
   it("maps every beta evidence lane to a folder, template, checklist, validator, and next action", () => {
     const report = buildBetaEvidenceLanePrepReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-20T22:00:00.000Z",
-      evidenceCaptureSummary: {
-        uiSurfaceCoverageEvidence: "complete",
-        providerSmokeEvidence: "missing",
-        runtimeSmokeEvidence: "missing",
-        adminTruthSampleEvidence: "missing",
-        canStartBetaExitReview: false,
-      },
-      operatorRevenueSmoke: {
-        revenueSmokeStatus: "operator_confirmed_revenue_smoke",
-        amountUsdConfirmed: 50,
-        product: "GumDrops",
-        formalProviderSmokePassed: false,
-        providerArtifactAttached: false,
-        providerSmokeGateStatus: "missing_formal_evidence",
-      },
-      refreshPlan: [
-        {
-          artifactPath: "agent/state/operator-revenue-smoke.generated.json",
-          status: "stale_source_version",
-          nextAction: "Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-          refreshCommand: "npm run check:operator-revenue-smoke",
-        },
-      ],
+      evidenceCaptureSummary,
+      operatorRevenueSmoke,
+      refreshPlan,
     });
 
     const laneIds = report.lanes.map((lane) => lane.id);
@@ -62,14 +69,9 @@ describe("beta evidence lane prep", () => {
     const report = buildBetaEvidenceLanePrepReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-20T22:00:00.000Z",
-      operatorRevenueSmoke: {
-        revenueSmokeStatus: "operator_confirmed_revenue_smoke",
-        amountUsdConfirmed: 50,
-        product: "GumDrops",
-        formalProviderSmokePassed: false,
-        providerArtifactAttached: false,
-        providerSmokeGateStatus: "missing_formal_evidence",
-      },
+      evidenceCaptureSummary,
+      operatorRevenueSmoke,
+      refreshPlan,
     });
     const operatorLane = report.lanes.find((lane) => lane.id === "operator_confirmed_revenue_smoke");
     const providerLane = report.lanes.find((lane) => lane.id === "provider_smoke");
@@ -79,13 +81,15 @@ describe("beta evidence lane prep", () => {
     expect(operatorLane?.clearsFormalProviderGate).toBe(false);
     expect(providerLane?.status).toBe("formal_missing");
     expect(report.summary.betaExitReady).toBe(false);
-    expect(report.operatorPlainLanguageNote).toBe("A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.");
+    expect(report.operatorPlainLanguageNote).toBe("A real $37.5 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.");
   });
 
   it("fails validation when a formal lane lacks a source-to-proof checklist or stale action", () => {
     const report = buildBetaEvidenceLanePrepReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-20T22:00:00.000Z",
+      evidenceCaptureSummary,
+      operatorRevenueSmoke,
       refreshPlan: [
         {
           artifactPath: "agent/state/operator-revenue-smoke.generated.json",

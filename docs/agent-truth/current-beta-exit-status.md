@@ -1,15 +1,15 @@
 # Current Beta Exit Status
 
-Generated: 2026-06-19T18:05:53.604Z
+Generated: 2026-06-20T17:56:34.375Z
 
-Latest code version: 79598a740b349732332b6e1751ca9d8f5b3933dc
+Latest code version: f470c3e36bb96c082b52698fe56c9fccfd19cc0f
 
 ## Summary
 
 - Beta version: 1.6.9
-- Beta score: 70.79
+- Beta score: 76.88
 - Beta status: External proof required
-- Visual evidence: source_surface_checks_current
+- Visual evidence: stale_visual_evidence
 - Provider smoke: stale_provider_smoke_evidence
 - Operator revenue smoke: operator_confirmed_revenue_smoke
 - Operator revenue note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
@@ -26,7 +26,7 @@ Latest code version: 79598a740b349732332b6e1751ca9d8f5b3933dc
 
 ## Evidence Truth States
 
-- UI surface coverage: source_ui_surface_current; action=gate_cleared; source=source_surface_checks_current; capture=complete
+- UI surface coverage: stale_evidence; action=refresh_stale_evidence; source=stale_visual_evidence; capture=complete
 - Provider smoke: external_evidence_required; action=refresh_stale_evidence; source=stale_provider_smoke_evidence; capture=missing
 - Runtime smoke: external_evidence_required; action=refresh_stale_evidence; source=stale_runtime_smoke_evidence; capture=complete
 - Admin truth sample: admin_truth_source_required; action=refresh_stale_evidence; source=stale_admin_truth_sample_evidence; capture=stale
@@ -37,8 +37,8 @@ Latest code version: 79598a740b349732332b6e1751ca9d8f5b3933dc
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
 - agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/evidence-capture-status.generated.json: Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
-- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
+- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map is current for the latest code version. Command: `npm run check:beta-evidence-gap-map`.
+- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep is current for the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:source-truth-authority-map`.
 - agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
 - agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.

@@ -407,8 +407,9 @@ if (report) {
     }
     if (operatorRevenueSmokeExists) {
       requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.status=operator_confirmed_revenue_smoke", "runtimeProviderSmoke evidence");
+      requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.amountUsdConfirmed=", "runtimeProviderSmoke evidence");
       requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.formalProviderSmokePassed=false", "runtimeProviderSmoke evidence");
-      requireIncludes(runtimeProviderSmokeGate.detail, "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.", "runtimeProviderSmoke detail");
+      requireIncludes(runtimeProviderSmokeGate.detail, "Formal provider evidence is still separate.", "runtimeProviderSmoke detail");
       if (runtimeProviderSmokeGate.status === "Ready") {
         failures.push("Operator-confirmed revenue smoke must not make runtimeProviderSmoke Ready.");
       }

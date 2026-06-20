@@ -141,15 +141,18 @@ function stringAt(value: unknown, path: string[], fallback = "") {
 function operatorRevenueSmokeSummary() {
   const operatorSmoke = readJson("agent/state/operator-revenue-smoke.generated.json");
   const summary = at<JsonObject>(operatorSmoke, ["summary"], {});
+  const amountUsd = typeof summary.amountUsdConfirmed === "number" ? summary.amountUsdConfirmed : null;
   return {
     status: stringAt(summary, ["revenueSmokeStatus"], "not_recorded"),
-    amountUsd: typeof summary.amountUsdConfirmed === "number" ? summary.amountUsdConfirmed : null,
+    amountUsd,
     product: stringAt(summary, ["product"], "unknown"),
     confirmationSource: stringAt(summary, ["confirmationSource"], "unknown"),
     providerArtifactAttached: summary.providerArtifactAttached === true,
     formalProviderSmokePassed: summary.formalProviderSmokePassed === true,
     betaGateImpact: stringAt(summary, ["betaGateImpact"], "none"),
-    note: "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+    note: stringAt(operatorSmoke, ["plainLanguageNote"], amountUsd
+      ? `A real $${amountUsd} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.`
+      : "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate."),
   };
 }
 
@@ -549,7 +552,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       { command: "npm run check:creator-experience-simplification", status: "passed", evidence: "represented in refreshed source evidence." },
       { command: "npm run check:post-economy-creator-flow-qa", status: "passed", evidence: "represented in refreshed source evidence." },
       { command: "npm run check:release-notes", status: "passed", evidence: "required final validator for same-commit release notes." },
-      { command: "npm run check:operator-revenue-smoke", status: "passed", evidence: operatorSmoke.status === "operator_confirmed_revenue_smoke" ? "operator-confirmed $50 GumDrop payment recorded as product signal only." : "operator revenue smoke not recorded." },
+      { command: "npm run check:operator-revenue-smoke", status: "passed", evidence: operatorSmoke.status === "operator_confirmed_revenue_smoke" ? `operator-confirmed ${operatorSmoke.amountUsd ? `$${operatorSmoke.amountUsd} ` : ""}GumDrop payment recorded as product signal only.` : "operator revenue smoke not recorded." },
       { command: "npm run check:evidence-capture-status", status: "passed", evidence: "templates only; complete evidence remains missing." },
       { command: "npm run check:overnight-beta-readiness-lock", status: "passed", evidence: overnightReportRelativePath },
     ],
@@ -593,7 +596,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       "First evidence lane: deterministic UI source coverage. Use docs/agent-truth/ui-visual-smoke-minimal.md and npm run check:ui-visual-smoke-minimal before optional browser reproduction.",
       "UI route/flow source targets are owned by agent/state/ui-visual-smoke-minimal.generated.json; fix source-reported gaps before optional browser reproduction.",
       "Second lane after UI source coverage: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.",
-      "Revenue smoke note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+      `Revenue smoke note: ${operatorSmoke.note}`,
       "Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.",
       "Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.",
       "Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.",
