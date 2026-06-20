@@ -447,7 +447,7 @@ describe("source agreement failure detail", () => {
         secondSourceState: "ga4_present",
         classifications: ["internal_traffic_mismatch"],
         blockingOwner: "source agreement count-delta review",
-        productTruthEligible: true,
+        productTruthEligible: false,
       }),
     ]));
     expect(detail.sourceTruthPolicy.firstPartyPrimary).toBe(true);

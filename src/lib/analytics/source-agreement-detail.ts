@@ -965,7 +965,7 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
       proofRequired: entry.classifications.includes("internal_traffic_mismatch")
         ? ["internal_traffic_filter_review", "ga4_export_day_bucket_review"]
         : ["route_normalization_mapping_review", "ga4_export_day_bucket_review"],
-      productTruthEligible: true,
+      productTruthEligible: false,
     };
   });
   const metricStatus: SourceAgreementFailureDetail["sourceAgreementStatus"] =
