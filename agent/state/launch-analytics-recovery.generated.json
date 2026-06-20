@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T21:42:00.069Z",
-  "currentHead": "8f5ce31172dade4b9460b4706f749175d497ad6b",
+  "generatedAtUtc": "2026-06-20T21:48:22.785Z",
+  "currentHead": "f47fe78257569f06c94f983adc6187cb17620bc6",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -1022,25 +1022,25 @@
         "path": "agent/evidence/launch-analytics/launch-history-coverage.local.json",
         "state": "missing",
         "proofMode": "none",
-        "nextAction": "Attach an approved local launch-history export at this path before using it as source evidence."
+        "nextAction": "Run `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>` to create agent/evidence/launch-analytics/launch-history-coverage.export.json, or place a complete redacted launchHistoryCoverage export at this path."
       },
       {
         "path": "agent/evidence/launch-analytics/launch-history-coverage.export.json",
         "state": "missing",
         "proofMode": "none",
-        "nextAction": "Attach an approved local launch-history export at this path before using it as source evidence."
+        "nextAction": "Run `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>` to create agent/evidence/launch-analytics/launch-history-coverage.export.json, or place a complete redacted launchHistoryCoverage export at this path."
       },
       {
         "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
         "state": "present_without_launch_history_coverage",
         "proofMode": "none",
-        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery."
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
       },
       {
         "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json",
         "state": "present_without_launch_history_coverage",
         "proofMode": "none",
-        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery."
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
       }
     ],
     "ga4ReadMode": "generated/local evidence only; no provider call performed",
