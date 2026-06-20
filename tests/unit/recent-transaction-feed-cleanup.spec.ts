@@ -67,5 +67,38 @@ describe("recent transaction feed cleanup", () => {
     expect(state.rows[0]?.sourceOfFunds).toBe("unlock_reward_spend");
     expect(state.rows[0]?.sourceLabel).toBe("Reward unlock spend");
     expect(state.rows[0]?.shortUserId).toBe("tlov...-uid");
+    expect(state.rows[0]?.sourceTruth).toBe("server_ledger");
+    expect(state.rows[0]?.freshnessState).toBe("source_current");
+    expect(state.rows[0]?.evidenceKind).toBe("observed");
+    expect(state.rows[0]?.productTruthEligible).toBe(true);
+    expect(state.rows[0]?.missingVsZeroState).toBe("source_present");
+    expect(state.sourceTruth).toBe("server_ledger");
+    expect(state.freshnessState).toBe("source_current");
+  });
+
+  it("keeps missing commerce source metadata distinct from zero or healthy server truth", () => {
+    const state = buildAdminAnalyticsRecentCommerceFeedState({
+      selectedRange: "7d",
+      nowMs: Date.parse("2026-05-24T12:00:00.000Z"),
+      items: [{
+        id: "tx_unknown",
+        userId: "tlove81-full-uid",
+        username: "tlove81",
+        type: "unlock_content",
+        amount: -1000,
+        status: "completed",
+        sourceTruth: "server",
+        timestamp: Date.parse("2026-05-24T11:59:00.000Z"),
+      }],
+    });
+
+    expect(state.rows[0]?.sourceOfFunds).toBe("unknown_missing_metadata");
+    expect(state.rows[0]?.sourceTruth).toBe("source_missing");
+    expect(state.rows[0]?.freshnessState).toBe("source_missing");
+    expect(state.rows[0]?.evidenceKind).toBe("missing");
+    expect(state.rows[0]?.productTruthEligible).toBe(false);
+    expect(state.rows[0]?.missingVsZeroState).toBe("source_missing");
+    expect(state.sourceTruth).toBe("source_missing");
+    expect(state.freshnessState).toBe("source_missing");
   });
 });

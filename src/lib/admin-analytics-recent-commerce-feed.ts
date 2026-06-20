@@ -4,7 +4,12 @@ import type {
   RecentCommerceFeedRow,
   RecentCommerceFeedState,
 } from "@/types/admin-analytics";
-import { classifyTransactionSourceOfFunds, transactionSourceDisplayLabel } from "@/lib/commerce/transaction-source-of-funds-contract";
+import {
+  classifyTransactionSourceOfFunds,
+  transactionSourceDisplayLabel,
+  type TransactionSourceOfFundsClassification,
+} from "@/lib/commerce/transaction-source-of-funds-contract";
+import { buildRecoveredLaunchMetricState, type RecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 
 const SOURCE_LABELS: Record<RecentCommerceFeedRow["sourceOfFunds"], string> = {
   reward_free: "Reward",
@@ -96,8 +101,8 @@ function normalizeDisplayTitle(item: CommerceFeedItem) {
   return rawDescription || "Transaction";
 }
 
-function inferSourceOfFunds(item: CommerceFeedItem): RecentCommerceFeedRow["sourceOfFunds"] {
-  const classification = classifyTransactionSourceOfFunds({
+function classifyFeedItemSourceOfFunds(item: CommerceFeedItem) {
+  return classifyTransactionSourceOfFunds({
     transactionId: item.id,
     userId: item.userId,
     type: item.type,
@@ -114,6 +119,12 @@ function inferSourceOfFunds(item: CommerceFeedItem): RecentCommerceFeedRow["sour
     bonusGumDrops: item.bonusGumDrops,
     sourceTruth: item.sourceTruth,
   });
+}
+
+function inferSourceOfFunds(
+  item: CommerceFeedItem,
+  classification: TransactionSourceOfFundsClassification,
+): RecentCommerceFeedRow["sourceOfFunds"] {
   if (classification.sourceClass !== "unknown_missing_metadata" && classification.sourceClass !== "legacy_unknown") {
     return classification.sourceClass;
   }
@@ -140,6 +151,81 @@ function inferSourceOfFunds(item: CommerceFeedItem): RecentCommerceFeedRow["sour
   if (item.ledgerSource === "purchased") return "paid";
   if (item.ledgerSource === "reward") return "reward_free";
   return classification.sourceClass;
+}
+
+function recoveryEventNameForSourceClass(sourceClass: RecentCommerceFeedRow["sourceOfFunds"]) {
+  switch (sourceClass) {
+    case "paid":
+    case "paid_bonus":
+    case "purchased_base":
+    case "purchased_bonus":
+    case "purchased_mixed":
+      return "gumdrops_purchase_completed";
+    case "drop_unwrap":
+    case "unlock_reward_spend":
+    case "unlock_purchased_spend":
+    case "unlock_mixed_spend":
+      return "drop_unlocked";
+    case "creator_spend":
+    case "creator_paid_spend":
+    case "creator_reward_violation":
+      return "creator_spend";
+    case "admin_adjustment":
+    case "admin_adjustment_positive":
+    case "admin_adjustment_negative":
+      return "admin_adjustment";
+    case "reward_free":
+    case "reward_check_in":
+    case "reward_onboarding":
+    case "reward_task":
+    case "reward_feedback":
+    case "reward_referral":
+      return "reward_granted";
+    case "legacy_unknown":
+      return "legacy_commerce_transaction";
+    case "unknown":
+    case "unknown_missing_metadata":
+    default:
+      return "commerce_transaction";
+  }
+}
+
+function recoverySourceTruthForClassification(
+  classification: TransactionSourceOfFundsClassification,
+): RecoveredLaunchMetricState["sourceTruth"] {
+  if (classification.sourceClass === "unknown_missing_metadata") return "source_missing";
+  if (classification.sourceClass === "legacy_unknown" || classification.sourceTruth === "legacy_missing_split") {
+    return "legacy_directional_only";
+  }
+  if (classification.sourceClass === "admin_adjustment_positive" || classification.sourceClass === "admin_adjustment_negative") {
+    return "admin_action_fact";
+  }
+  return "server_ledger";
+}
+
+function buildCommerceFeedRecoveryMetadata(input: {
+  item: CommerceFeedItem;
+  sourceOfFunds: RecentCommerceFeedRow["sourceOfFunds"];
+  classification: TransactionSourceOfFundsClassification;
+  timestampMs: number;
+}) {
+  const sourceTruth = recoverySourceTruthForClassification(input.classification);
+  const sourceObserved = sourceTruth !== "source_missing";
+  return buildRecoveredLaunchMetricState({
+    eventName: recoveryEventNameForSourceClass(input.sourceOfFunds),
+    sourceObserved,
+    sourceTruth,
+    evidenceKind: sourceTruth === "legacy_directional_only"
+      ? "inferred"
+      : sourceObserved
+        ? "observed"
+        : "missing",
+    eventId: input.item.id,
+    userId: input.item.userId,
+    route: "admin_analytics_recent_commerce_feed",
+    objectId: input.item.id,
+    timestampMs: input.timestampMs,
+  });
 }
 
 function resolveAmountGd(item: CommerceFeedItem) {
@@ -170,23 +256,13 @@ export function buildAdminAnalyticsRecentCommerceFeedState(input: {
 }): RecentCommerceFeedState {
   const rows = input.items.slice(0, 10).map((item): RecentCommerceFeedRow => {
     const timestampMs = normalizeTimestampMs(item);
-    const sourceOfFunds = inferSourceOfFunds(item);
-    const sourceClassification = classifyTransactionSourceOfFunds({
-      transactionId: item.id,
-      userId: item.userId,
-      type: item.type,
-      amount: item.amount,
-      status: item.status,
-      rewardSource: item.rewardSource,
-      ledgerSource: item.ledgerSource,
-      description: item.description,
-      timestamp: item.timestamp,
-      timestampMs: item.timestampMs,
-      purchasedAmountSpent: "purchasedAmountSpent" in item ? (item as CommerceFeedItem & { purchasedAmountSpent?: number }).purchasedAmountSpent : undefined,
-      rewardAmountSpent: "rewardAmountSpent" in item ? (item as CommerceFeedItem & { rewardAmountSpent?: number }).rewardAmountSpent : undefined,
-      paidGumDrops: item.paidGumDrops,
-      bonusGumDrops: item.bonusGumDrops,
-      sourceTruth: item.sourceTruth,
+    const sourceClassification = classifyFeedItemSourceOfFunds(item);
+    const sourceOfFunds = inferSourceOfFunds(item, sourceClassification);
+    const recoveryMetadata = buildCommerceFeedRecoveryMetadata({
+      item,
+      sourceOfFunds,
+      classification: sourceClassification,
+      timestampMs,
     });
     const amountGd = resolveAmountGd(item);
     const createdAtUtc = timestampMs > 0 ? new Date(timestampMs).toISOString() : new Date(0).toISOString();
@@ -204,25 +280,42 @@ export function buildAdminAnalyticsRecentCommerceFeedState(input: {
       status: normalizeStatus(item.status),
       createdAtUtc,
       ageLabel: formatAge(timestampMs, input.nowMs),
-      sourceTruth: item.sourceTruth || "server_transactions",
+      sourceTruth: recoveryMetadata.sourceTruth,
+      freshnessState: recoveryMetadata.freshnessState,
+      confidenceScore: recoveryMetadata.confidenceScore,
+      confidenceBand: recoveryMetadata.confidenceBand,
+      evidenceKind: recoveryMetadata.evidenceKind,
+      dedupeKey: recoveryMetadata.dedupeKey,
+      dedupeDimensions: recoveryMetadata.dedupeDimensions,
+      lateArrivalWindowDays: recoveryMetadata.lateArrivalWindowDays,
+      productTruthEligible: recoveryMetadata.productTruthEligible,
+      missingVsZeroState: recoveryMetadata.missingVsZeroState,
+      mathReason: recoveryMetadata.mathReason,
       userPhoto: item.userPhoto,
       explanation: "Display language uses unwrap; backend entitlement fields may still use unlock.",
     };
   });
   const latestTimestampMs = Math.max(0, ...rows.map((row) => Date.parse(row.createdAtUtc) || 0));
-  const ageMs = latestTimestampMs > 0 && input.nowMs > 0 ? input.nowMs - latestTimestampMs : Number.POSITIVE_INFINITY;
+  const sourceTruths = new Set(rows.map((row) => row.sourceTruth));
+  const sourceTruth: RecentCommerceFeedState["sourceTruth"] = rows.length === 0
+    ? "source_missing"
+    : sourceTruths.size === 1
+      ? rows[0]?.sourceTruth ?? "source_missing"
+      : "mixed";
   const freshnessState: RecentCommerceFeedState["freshnessState"] = rows.length === 0
-    ? "unknown"
-    : ageMs <= 5 * 60_000
-      ? "live"
-      : ageMs <= 60 * 60_000
-        ? "recent"
-        : "stale";
+    ? "source_missing"
+    : rows.some((row) => row.freshnessState === "source_missing")
+      ? "source_missing"
+      : rows.some((row) => row.freshnessState === "external_evidence_required")
+        ? "external_evidence_required"
+        : rows.some((row) => row.freshnessState === "cached" || row.freshnessState === "refresh_due")
+          ? "refresh_due"
+          : "source_current";
 
   return {
     generatedAtUtc: input.generatedAtMs ? new Date(input.generatedAtMs).toISOString() : new Date(0).toISOString(),
     range: input.selectedRange,
-    sourceTruth: rows.length > 0 ? "server_transactions" : "unknown",
+    sourceTruth,
     freshnessState,
     rowCount: rows.length,
     lastTransactionAtUtc: latestTimestampMs > 0 ? new Date(latestTimestampMs).toISOString() : null,

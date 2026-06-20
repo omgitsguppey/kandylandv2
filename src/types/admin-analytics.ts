@@ -308,7 +308,17 @@ export type RecentCommerceFeedRow = {
   status: "completed" | "pending" | "failed" | "reversed";
   createdAtUtc: string;
   ageLabel: string;
-  sourceTruth: string;
+  sourceTruth: RecoveredLaunchMetricState["sourceTruth"];
+  freshnessState: RecoveredLaunchMetricState["freshnessState"];
+  confidenceScore: RecoveredLaunchMetricState["confidenceScore"];
+  confidenceBand: RecoveredLaunchMetricState["confidenceBand"];
+  evidenceKind: RecoveredLaunchMetricState["evidenceKind"];
+  dedupeKey: RecoveredLaunchMetricState["dedupeKey"];
+  dedupeDimensions: RecoveredLaunchMetricState["dedupeDimensions"];
+  lateArrivalWindowDays: RecoveredLaunchMetricState["lateArrivalWindowDays"];
+  productTruthEligible: RecoveredLaunchMetricState["productTruthEligible"];
+  missingVsZeroState: RecoveredLaunchMetricState["missingVsZeroState"];
+  mathReason: RecoveredLaunchMetricState["mathReason"];
   userPhoto?: string;
   explanation: string;
 };
@@ -316,8 +326,8 @@ export type RecentCommerceFeedRow = {
 export type RecentCommerceFeedState = {
   generatedAtUtc: string;
   range: string;
-  sourceTruth: "server_transactions" | "commerce_snapshot" | "mixed" | "unknown";
-  freshnessState: "live" | "recent" | "stale" | "unknown";
+  sourceTruth: RecoveredLaunchMetricState["sourceTruth"] | "server_transactions" | "commerce_snapshot" | "mixed" | "unknown";
+  freshnessState: RecoveredLaunchMetricState["freshnessState"] | "live" | "recent" | "stale" | "unknown";
   rowCount: number;
   lastTransactionAtUtc: string | null;
   rows: RecentCommerceFeedRow[];
