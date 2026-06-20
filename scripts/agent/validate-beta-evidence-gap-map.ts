@@ -297,11 +297,8 @@ function buildFromWorkspace() {
     nowUtc: new Date().toISOString(),
   });
 
-  const operatorRevenueSmokeAmount = readNumber(operatorSummary.amountUsdConfirmed, 0);
   const operatorRevenueSmokeNote = readString(operatorSmoke.plainLanguageNote)
-    || (operatorRevenueSmokeAmount > 0
-      ? `A real $${operatorRevenueSmokeAmount} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.`
-      : "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.");
+    || "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.";
   const revenueProviderStatus = readString(operatorSummary.revenueSmokeStatus) === "operator_confirmed_revenue_smoke"
     ? "operator_confirmed_revenue_smoke"
     : readString(paypal.status) === "operator_reported_not_formal_provider_smoke"

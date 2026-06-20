@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T17:57:35.536Z",
+  "generatedAtUtc": "2026-06-20T18:07:07.437Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "f470c3e36bb96c082b52698fe56c9fccfd19cc0f",
+  "currentHead": "5a0432affe578dbeaa83ad87ee289b9bcc001d6f",
   "summary": {
     "laneCount": 8,
     "formalMissingCount": 2,
@@ -11,7 +11,7 @@
     "providerSmokeGateCleared": false,
     "p0Count": 0,
     "p1Count": 2,
-    "p2Count": 14
+    "p2Count": 16
   },
   "lanes": [
     {
@@ -71,7 +71,7 @@
       "completeAsProductSignal": true,
       "clearsFormalProviderGate": false,
       "scoreImpact": "Improves product confidence notes as real GumDrop revenue signal.",
-      "launchGateImpact": "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. It does not clear formal provider smoke or beta exit.",
+      "launchGateImpact": "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate. It does not clear formal provider smoke or beta exit.",
       "nextAction": "Keep this acknowledged as real product signal; formal provider/app proof is optional for acknowledging the sale."
     },
     {
@@ -187,23 +187,23 @@
     "provider_smoke",
     "admin_truth_sample"
   ],
-  "operatorPlainLanguageNote": "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+  "operatorPlainLanguageNote": "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
   "refreshPlan": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
-      "status": "current",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run score:beta && npm run check:beta-score"
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "current",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:evidence-capture-status"
     },
@@ -245,19 +245,19 @@
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "same_commit_snapshot",
+      "status": "current",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "status": "current",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-gap-map"
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "current",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
@@ -300,10 +300,16 @@
   ],
   "staleReports": [
     {
-      "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "same_commit_snapshot",
+      "artifactPath": "agent/state/public-beta-score.generated.json",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
-      "refreshCommand": "npm run check:evidence-capture-status"
+      "refreshCommand": "npm run score:beta && npm run check:beta-score"
+    },
+    {
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "status": "current_by_impact",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
@@ -342,10 +348,16 @@
       "refreshCommand": "npm run check:creator-drop-status-metrics"
     },
     {
-      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "same_commit_snapshot",
+      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
-      "refreshCommand": "npm run check:operator-revenue-smoke"
+      "refreshCommand": "npm run check:beta-evidence-gap-map"
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
+      "status": "current_by_impact",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",

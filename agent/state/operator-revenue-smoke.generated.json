@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T17:41:56.559Z",
+  "generatedAtUtc": "2026-06-20T18:05:44.270Z",
   "reportKey": "operator-revenue-smoke",
-  "currentHead": "42be9be767fc81370662e9a84f6673b1284d203e",
+  "currentHead": "5a0432affe578dbeaa83ad87ee289b9bcc001d6f",
   "summary": {
     "revenueSmokeStatus": "operator_confirmed_revenue_smoke",
     "amountUsdConfirmed": 50,
@@ -14,7 +14,7 @@
     "canStartBetaExitReview": false,
     "nextAction": "Optional formal provider/app artifact if operator chooses; not required for acknowledging the sale."
   },
-  "plainLanguageNote": "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+  "plainLanguageNote": "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
   "evidenceSeparation": {
     "acknowledgedAsRealProductSignal": true,
     "formalProviderEvidenceRequiredForGate": true,

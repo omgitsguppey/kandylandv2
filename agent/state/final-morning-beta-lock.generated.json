@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T17:56:34.597Z",
+  "generatedAtUtc": "2026-06-20T18:08:08.424Z",
   "reportKey": "final-morning-beta-lock",
-  "currentHead": "f470c3e36bb96c082b52698fe56c9fccfd19cc0f",
+  "currentHead": "5a0432affe578dbeaa83ad87ee289b9bcc001d6f",
   "summary": {
     "openPrsClassified": true,
     "dirtyFilesClassified": true,
@@ -33,6 +33,26 @@
       "action": "Commit refreshed source-only status artifact."
     },
     {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit refreshed source-only status artifact."
@@ -44,6 +64,26 @@
     },
     {
       "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit refreshed source-only status artifact."
     },
@@ -68,17 +108,17 @@
       "action": "Commit scoped validator/helper change after focused checks."
     },
     {
-      "path": "scripts/agent/validate-final-morning-beta-lock.ts",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit as this final morning lock."
-    },
-    {
-      "path": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+      "path": "scripts/agent/validate-evidence-capture-status.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     },
     {
-      "path": "scripts/agent/validate-public-beta-score.ts",
+      "path": "scripts/agent/validate-operator-revenue-smoke.ts",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped validator/helper change after focused checks."
+    },
+    {
+      "path": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
     },
@@ -91,26 +131,9 @@
       "path": "tests/unit/beta-evidence-lane-prep.spec.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator/helper change after focused checks."
-    },
-    {
-      "path": "tests/unit/current-beta-exit-status.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator/helper change after focused checks."
     }
   ],
   "staleArtifacts": [
-    {
-      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
-      "refreshCommand": "npm run check:current-beta-exit-status"
-    },
-    {
-      "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-      "refreshCommand": "npm run check:evidence-capture-status"
-    },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
       "status": "stale_source_version",
@@ -146,12 +169,6 @@
       "status": "stale_source_version",
       "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
       "refreshCommand": "npm run check:creator-drop-status-metrics"
-    },
-    {
-      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
@@ -231,14 +248,14 @@
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:evidence-capture-status"
     },
     {
@@ -279,8 +296,8 @@
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {

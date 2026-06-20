@@ -228,9 +228,7 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
   const providerFormalPassed = operator.formalProviderSmokePassed === true || evidence.providerSmokeEvidence === "complete";
   const operatorPlainLanguageNote = operatorConfirmed
     ? readString(operator.plainLanguageNote, "")
-      || (readNumber(operator.amountUsdConfirmed, 0) > 0
-        ? `A real $${readNumber(operator.amountUsdConfirmed, 0)} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.`
-        : "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.")
+      || "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate."
     : "No operator-confirmed GumDrop revenue smoke is recorded.";
 
   const lanes: BetaEvidenceLanePrepLane[] = [

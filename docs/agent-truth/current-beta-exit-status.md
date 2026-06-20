@@ -1,8 +1,8 @@
 # Current Beta Exit Status
 
-Generated: 2026-06-20T17:56:34.375Z
+Generated: 2026-06-20T18:07:07.207Z
 
-Latest code version: f470c3e36bb96c082b52698fe56c9fccfd19cc0f
+Latest code version: 5a0432affe578dbeaa83ad87ee289b9bcc001d6f
 
 ## Summary
 
@@ -12,7 +12,7 @@ Latest code version: f470c3e36bb96c082b52698fe56c9fccfd19cc0f
 - Visual evidence: stale_visual_evidence
 - Provider smoke: stale_provider_smoke_evidence
 - Operator revenue smoke: operator_confirmed_revenue_smoke
-- Operator revenue note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
+- Operator revenue note: Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.
 - Runtime smoke: stale_runtime_smoke_evidence
 - Admin truth sample: stale_admin_truth_sample_evidence
 - Cloud Run cost readiness: cost_review_required
@@ -35,22 +35,20 @@ Latest code version: f470c3e36bb96c082b52698fe56c9fccfd19cc0f
 ## Refresh Plan
 
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
-- agent/state/evidence-capture-status.generated.json: Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map is current for the latest code version. Command: `npm run check:beta-evidence-gap-map`.
-- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep is current for the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
+- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
+- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
+- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:source-truth-authority-map`.
 - agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
 - agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.
 - agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-settings-control-plane`.
 - agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-drop-status-metrics`.
-- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
+- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke is current for the latest code version. Command: `npm run check:operator-revenue-smoke`.
 
 ## Remaining Blockers
 
-- P1 ui_source_coverage_stale: Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction.
 - P1 provider_smoke_evidence_missing: Attach redacted provider smoke evidence; source checks cannot create provider proof.
-- P1 runtime_smoke_evidence_stale: Attach deployed runtime smoke evidence for required user and creator routes.
 - P1 admin_truth_sample_evidence_missing: Attach a redacted admin truth sample artifact with source freshness.
 - P2 speed_security_owner_review_backlog: Keep speed/security P2 cost and route hardening backlog visible.
 
@@ -59,7 +57,7 @@ Latest code version: f470c3e36bb96c082b52698fe56c9fccfd19cc0f
 - First evidence lane: deterministic UI source coverage. Use docs/agent-truth/ui-visual-smoke-minimal.md and npm run check:ui-visual-smoke-minimal before optional browser reproduction.
 - UI route/flow source targets are owned by agent/state/ui-visual-smoke-minimal.generated.json; fix source-reported gaps before optional browser reproduction.
 - Second lane after UI source coverage: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.
-- Revenue smoke note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
+- Revenue smoke note: Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.
 - Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.
 - Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.
 - Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.

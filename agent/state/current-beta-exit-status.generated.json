@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T17:56:36.169Z",
+  "generatedAtUtc": "2026-06-20T18:08:11.490Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "f470c3e36bb96c082b52698fe56c9fccfd19cc0f",
+  "currentHead": "5a0432affe578dbeaa83ad87ee289b9bcc001d6f",
   "summary": {
     "betaVersion": "1.6.9",
     "betaScore": 76.88,
@@ -30,7 +30,7 @@
     "operatorRevenueSmokeProviderArtifactAttached": false,
     "operatorRevenueSmokeFormalProviderSmokePassed": false,
     "operatorRevenueSmokeBetaGateImpact": "product_signal_only",
-    "operatorRevenueSmokeNote": "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+    "operatorRevenueSmokeNote": "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
     "runtimeSmokeStatus": "stale_runtime_smoke_evidence",
     "adminTruthSampleStatus": "stale_admin_truth_sample_evidence",
     "cloudRunCostReadiness": "cost_review_required",
@@ -118,7 +118,7 @@
     {
       "command": "npm run check:operator-revenue-smoke",
       "status": "passed",
-      "evidence": "operator-confirmed $50 GumDrop payment recorded as product signal only."
+      "evidence": "operator-confirmed GumDrop payment recorded as product signal only."
     },
     {
       "command": "npm run check:evidence-capture-status",
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-20T17:56:36.169Z",
+      "generatedAtUtc": "2026-06-20T18:08:11.490Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -153,8 +153,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-20T17:55:04.748Z",
-      "ageHours": 0.02539472222222222,
+      "generatedAtUtc": "2026-06-20T18:07:06.980Z",
+      "ageHours": 0.017919444444444446,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -166,16 +166,16 @@
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
       "reportKey": "evidence-capture-status",
       "label": "Evidence capture status",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-06-19T17:27:18.603Z",
-      "ageHours": 0.6430558333333334,
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-06-20T18:06:50.034Z",
+      "ageHours": 0.022626666666666666,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-      "formalEvidenceGateCanClear": false
+      "message": "Evidence capture status is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
@@ -183,8 +183,8 @@
       "label": "Beta evidence gap map",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-20T17:56:19.085Z",
-      "ageHours": 0.004745555555555556,
+      "generatedAtUtc": "2026-06-20T18:07:51.283Z",
+      "ageHours": 0.005613055555555555,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -198,8 +198,8 @@
       "label": "Beta evidence lane prep",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-20T17:55:56.255Z",
-      "ageHours": 0.011087222222222222,
+      "generatedAtUtc": "2026-06-20T18:07:07.437Z",
+      "ageHours": 0.0177925,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -214,7 +214,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:55:42.485Z",
-      "ageHours": 10.169755277777778,
+      "ageHours": 34.190200555555556,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -228,8 +228,8 @@
       "label": "Telemetry closure lock",
       "status": "stale_source_version",
       "needsRefresh": true,
-      "generatedAtUtc": "2026-06-19T07:55:48.835Z",
-      "ageHours": 10.16799138888889,
+      "generatedAtUtc": "2026-06-19T18:13:12.649Z",
+      "ageHours": 23.898488333333333,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -244,7 +244,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:55:52.739Z",
-      "ageHours": 10.166906944444445,
+      "ageHours": 34.18735222222222,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -259,7 +259,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:56:20.304Z",
-      "ageHours": 10.15925,
+      "ageHours": 34.179695277777775,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -274,7 +274,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-06-19T07:56:14.715Z",
-      "ageHours": 10.1608025,
+      "ageHours": 34.18124777777778,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -286,27 +286,19 @@
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
       "reportKey": "operator-revenue-smoke",
       "label": "Operator revenue smoke",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-06-19T07:56:42.843Z",
-      "ageHours": 10.152989166666666,
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-06-20T18:05:44.270Z",
+      "ageHours": 0.04089444444444444,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "formalEvidenceGateCanClear": false
+      "message": "Operator revenue smoke is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
     }
   ],
   "staleArtifacts": [
-    {
-      "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "reportKey": "evidence-capture-status",
-      "status": "stale_source_version",
-      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-      "refreshCommand": "npm run check:evidence-capture-status"
-    },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
       "reportKey": "source-truth-authority-map",
@@ -346,14 +338,6 @@
       "message": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
       "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
       "refreshCommand": "npm run check:creator-drop-status-metrics"
-    },
-    {
-      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "reportKey": "operator-revenue-smoke",
-      "status": "stale_source_version",
-      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "refreshCommand": "npm run check:operator-revenue-smoke"
     }
   ],
   "exactRefreshCommands": [
@@ -382,15 +366,6 @@
   ],
   "remainingBlockers": [
     {
-      "id": "ui_source_coverage_stale",
-      "severity": "P1",
-      "status": "stale_evidence",
-      "evidence": [
-        "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3"
-      ],
-      "nextAction": "Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction."
-    },
-    {
       "id": "provider_smoke_evidence_missing",
       "severity": "P1",
       "status": "external_evidence_required",
@@ -398,15 +373,6 @@
         "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3"
       ],
       "nextAction": "Attach redacted provider smoke evidence; source checks cannot create provider proof."
-    },
-    {
-      "id": "runtime_smoke_evidence_stale",
-      "severity": "P1",
-      "status": "stale_evidence",
-      "evidence": [
-        "uiSourceCoverage=complete; provider=missing; runtime=complete; adminTruth=stale; templates=4; complete=3"
-      ],
-      "nextAction": "Attach deployed runtime smoke evidence for required user and creator routes."
     },
     {
       "id": "admin_truth_sample_evidence_missing",

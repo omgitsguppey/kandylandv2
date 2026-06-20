@@ -355,7 +355,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     `live runtime evidence bridge: ${liveRuntimeEvidence.statusSummary}`,
   ];
   const operatorConfirmedEvidence = operatorRevenueSmoke.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
-    ? [`operator-confirmed $${operatorRevenueSmoke.amountUsdConfirmed ?? "unknown"} GumDrop revenue smoke is recorded as product signal only.`]
+    ? ["operator-confirmed GumDrop revenue smoke is recorded as product signal only."]
     : [];
   const protectedProofLanes = [
     "provider",
@@ -512,7 +512,7 @@ export function validateEvidenceCaptureStatusReport(
   }
   const operatorRevenueSmoke = report.summary.operatorRevenueSmoke;
   if (operatorRevenueSmoke?.revenueSmokeStatus === "operator_confirmed_revenue_smoke") {
-    if (!Array.isArray(report.operatorConfirmedEvidence) || !report.operatorConfirmedEvidence.some((entry) => /operator-confirmed \$[0-9.]+ GumDrop revenue smoke/iu.test(entry))) {
+    if (!Array.isArray(report.operatorConfirmedEvidence) || !report.operatorConfirmedEvidence.some((entry) => /operator-confirmed GumDrop revenue smoke/iu.test(entry))) {
       failures.push("operatorConfirmedEvidence must acknowledge operator-confirmed revenue smoke.");
     }
     if (!(typeof operatorRevenueSmoke.amountUsdConfirmed === "number" && operatorRevenueSmoke.amountUsdConfirmed > 0) || operatorRevenueSmoke.product !== "GumDrops") {
@@ -610,7 +610,7 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     `- Formal provider proof from operator smoke: ${report.summary.operatorRevenueSmoke.formalProviderSmokePassed ? "yes" : "no"}.`,
     "",
     report.summary.operatorRevenueSmoke.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
-      ? `A real $${report.summary.operatorRevenueSmoke.amountUsdConfirmed} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.`
+      ? "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate."
       : "No operator-confirmed revenue smoke artifact is recorded.",
     "",
     "Templates are scaffolding only. They use `template_not_evidence` and do not count as complete evidence.",

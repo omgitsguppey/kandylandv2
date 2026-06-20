@@ -150,9 +150,7 @@ function operatorRevenueSmokeSummary() {
     providerArtifactAttached: summary.providerArtifactAttached === true,
     formalProviderSmokePassed: summary.formalProviderSmokePassed === true,
     betaGateImpact: stringAt(summary, ["betaGateImpact"], "none"),
-    note: stringAt(operatorSmoke, ["plainLanguageNote"], amountUsd
-      ? `A real $${amountUsd} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.`
-      : "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate."),
+    note: stringAt(operatorSmoke, ["plainLanguageNote"], "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate."),
   };
 }
 
@@ -552,7 +550,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       { command: "npm run check:creator-experience-simplification", status: "passed", evidence: "represented in refreshed source evidence." },
       { command: "npm run check:post-economy-creator-flow-qa", status: "passed", evidence: "represented in refreshed source evidence." },
       { command: "npm run check:release-notes", status: "passed", evidence: "required final validator for same-commit release notes." },
-      { command: "npm run check:operator-revenue-smoke", status: "passed", evidence: operatorSmoke.status === "operator_confirmed_revenue_smoke" ? `operator-confirmed ${operatorSmoke.amountUsd ? `$${operatorSmoke.amountUsd} ` : ""}GumDrop payment recorded as product signal only.` : "operator revenue smoke not recorded." },
+      { command: "npm run check:operator-revenue-smoke", status: "passed", evidence: operatorSmoke.status === "operator_confirmed_revenue_smoke" ? "operator-confirmed GumDrop payment recorded as product signal only." : "operator revenue smoke not recorded." },
       { command: "npm run check:evidence-capture-status", status: "passed", evidence: "templates only; complete evidence remains missing." },
       { command: "npm run check:overnight-beta-readiness-lock", status: "passed", evidence: overnightReportRelativePath },
     ],

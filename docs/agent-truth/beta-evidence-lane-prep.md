@@ -1,6 +1,6 @@
 # Beta Evidence Lane Prep
 
-Generated: 2026-06-20T17:57:35.536Z
+Generated: 2026-06-20T18:07:07.437Z
 
 ## Summary
 
@@ -10,7 +10,7 @@ Generated: 2026-06-20T17:57:35.536Z
 - Operator-confirmed lanes: operator_confirmed_revenue_smoke
 - Beta exit ready: false
 
-A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
+Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.
 
 ## Lanes
 
@@ -25,14 +25,16 @@ A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is s
 
 ## Stale Supporting Reports
 
-- agent/state/evidence-capture-status.generated.json: No refresh needed.
+- agent/state/public-beta-score.generated.json: No refresh needed.
+- agent/state/current-beta-exit-status.generated.json: No refresh needed.
 - agent/state/source-truth-authority-map.generated.json: No refresh needed.
 - agent/state/final-telemetry-closure-lock.generated.json: No refresh needed.
 - agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock
 - agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 - agent/state/creator-settings-control-plane.generated.json: No refresh needed.
 - agent/state/creator-drop-status-metrics.generated.json: No refresh needed.
-- agent/state/operator-revenue-smoke.generated.json: No refresh needed.
+- agent/state/beta-evidence-gap-map.generated.json: No refresh needed.
+- agent/state/beta-evidence-lane-prep.generated.json: No refresh needed.
 - agent/state/beta-freshness-language.generated.json: No refresh needed.
 - agent/state/final-pr-stale-cleanup.generated.json: No refresh needed.
 - agent/state/overnight-wiring-integrity.generated.json: No refresh needed.

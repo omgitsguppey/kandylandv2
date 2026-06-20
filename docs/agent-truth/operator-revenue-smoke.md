@@ -1,8 +1,8 @@
 # Operator Revenue Smoke
 
-Generated: 2026-06-20T17:41:56.559Z
+Generated: 2026-06-20T18:05:44.270Z
 
-Latest code version: 42be9be767fc81370662e9a84f6673b1284d203e
+Latest code version: 5a0432affe578dbeaa83ad87ee289b9bcc001d6f
 
 ## Status
 
@@ -16,7 +16,7 @@ Latest code version: 42be9be767fc81370662e9a84f6673b1284d203e
 - Beta gate impact: product_signal_only
 - Beta exit review can start from this alone: false
 
-A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
+Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.
 
 This is real product signal and should improve confidence notes. It is not formal provider-attached proof and does not clear the provider smoke gate.
 

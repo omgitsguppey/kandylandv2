@@ -1,8 +1,8 @@
 # Overnight Beta Readiness Lock
 
-Generated: 2026-06-20T17:56:34.375Z
+Generated: 2026-06-20T18:07:07.207Z
 
-Latest code version: f470c3e36bb96c082b52698fe56c9fccfd19cc0f
+Latest code version: 5a0432affe578dbeaa83ad87ee289b9bcc001d6f
 
 ## Status
 
@@ -19,17 +19,15 @@ Latest code version: f470c3e36bb96c082b52698fe56c9fccfd19cc0f
 
 ## Evidence Truth States
 
-- UI source coverage: stale_evidence (complete)
+- UI source coverage: capture_artifact_attached (complete)
 - Provider smoke: external_evidence_required (missing)
-- Runtime smoke: stale_evidence (complete)
+- Runtime smoke: capture_artifact_attached (complete)
 - Admin truth sample: admin_truth_source_required (stale)
 - Beta exit review: blocked_by_formal_evidence
 
 ## Remaining Blockers
 
-- P1 ui_source_coverage_stale: Run deterministic UI source coverage and fix source-reported surface gaps before optional visual reproduction.
 - P1 provider_smoke_evidence_missing: Attach redacted provider smoke evidence; source checks cannot create provider proof.
-- P1 runtime_smoke_evidence_stale: Attach deployed runtime smoke evidence for required user and creator routes.
 - P1 admin_truth_sample_evidence_missing: Attach a redacted admin truth sample artifact with source freshness.
 - P2 speed_security_owner_review_backlog: Keep speed/security P2 cost and route hardening backlog visible.
 - P2 cloud_cost_owner_review: Confirm Cloud Run/App Hosting, Data Connect/Cloud SQL, and Gemini/Vertex cost lanes with owner evidence.

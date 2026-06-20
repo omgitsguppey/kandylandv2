@@ -306,7 +306,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   const operatorSmokeAmount = readNumber(operatorSummary.amountUsdConfirmed);
   const operatorSmokeNote = operatorSmokeStatus === "operator_confirmed_revenue_smoke"
     ? readString(operatorSmoke?.plainLanguageNote)
-      ?? (operatorSmokeAmount ? `A real $${operatorSmokeAmount} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.` : "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.")
+      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate."
     : undefined;
   const operatorSmokeEvidence = operatorSmokeNote
     ? [

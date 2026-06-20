@@ -819,7 +819,7 @@ export function validateCurrentBetaExitStatusReport(
       ? summary.amountUsdConfirmed
       : null;
     const expectedNote = operatorRevenueSmoke.plainLanguageNote
-      ?? (expectedAmount ? `A real $${expectedAmount} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.` : "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.");
+      ?? "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.";
     if (report.summary.operatorRevenueSmokeStatus !== "operator_confirmed_revenue_smoke") {
       failures.push("operator-confirmed revenue smoke must be represented in current beta exit status.");
     }

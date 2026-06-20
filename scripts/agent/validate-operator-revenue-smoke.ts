@@ -51,8 +51,8 @@ function positiveAmount(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : null;
 }
 
-function plainLanguageNote(amountUsdConfirmed: number) {
-  return `A real $${amountUsdConfirmed} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.`;
+function plainLanguageNote() {
+  return "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.";
 }
 
 function currentHead() {
@@ -82,7 +82,7 @@ export function buildOperatorRevenueSmokeReport(options: BuildOptions): Operator
       canStartBetaExitReview: false,
       nextAction: "Optional formal provider/app artifact if operator chooses; not required for acknowledging the sale.",
     },
-    plainLanguageNote: plainLanguageNote(amountUsdConfirmed),
+    plainLanguageNote: plainLanguageNote(),
     evidenceSeparation: {
       acknowledgedAsRealProductSignal: true,
       formalProviderEvidenceRequiredForGate: true,
@@ -141,7 +141,7 @@ export function validateOperatorRevenueSmokeReport(
   if (!summary.nextAction.includes("Optional formal provider/app artifact")) {
     failures.push("nextAction must make formal provider/app artifact optional for acknowledgement.");
   }
-  if (report.plainLanguageNote !== plainLanguageNote(summary.amountUsdConfirmed)) {
+  if (report.plainLanguageNote !== plainLanguageNote()) {
     failures.push("plainLanguageNote must separate operator-confirmed payment context from formal provider evidence.");
   }
   if (!report.evidenceSeparation?.acknowledgedAsRealProductSignal) {

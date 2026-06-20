@@ -2,9 +2,9 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-06-20T17:39:43.262Z
+Generated: 2026-06-20T18:06:50.034Z
 
-Latest code version: `42be9be767fc81370662e9a84f6673b1284d203e`
+Latest code version: `5a0432affe578dbeaa83ad87ee289b9bcc001d6f`
 
 ## Summary
 
@@ -22,7 +22,7 @@ Latest code version: `42be9be767fc81370662e9a84f6673b1284d203e`
 - Operator confirmed amount/product: 50 GumDrops.
 - Formal provider proof from operator smoke: no.
 
-A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
+Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.
 
 Templates are scaffolding only. They use `template_not_evidence` and do not count as complete evidence.
 
@@ -46,7 +46,7 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 ## Operator-Confirmed Evidence
 
-- operator-confirmed $50 GumDrop revenue smoke is recorded as product signal only.
+- operator-confirmed GumDrop revenue smoke is recorded as product signal only.
 
 ## Formal-Missing Evidence
 

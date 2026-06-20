@@ -22,7 +22,7 @@ function reportFixture(overrides: Partial<BetaEvidenceGapMapReport> = {}): BetaE
     },
     runtimeWatchStatus: "source_ready_runtime_watch_v2_runtime_proof_required",
     revenueProviderStatus: "operator_reported_unattached",
-    operatorRevenueSmokeNote: "A real $37.5 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+    operatorRevenueSmokeNote: "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
     finalCostStatus: "owner_review_required",
     speedSecurityStatus: "owner_review_required",
     staleArtifacts: [

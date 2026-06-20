@@ -17,7 +17,7 @@ const operatorRevenueSmoke = {
   revenueSmokeStatus: "operator_confirmed_revenue_smoke",
   amountUsdConfirmed: 37.5,
   product: "GumDrops",
-  plainLanguageNote: "A real $37.5 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+  plainLanguageNote: "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
   formalProviderSmokePassed: false,
   providerArtifactAttached: false,
   providerSmokeGateStatus: "missing_formal_evidence",
@@ -81,7 +81,7 @@ describe("beta evidence lane prep", () => {
     expect(operatorLane?.clearsFormalProviderGate).toBe(false);
     expect(providerLane?.status).toBe("formal_missing");
     expect(report.summary.betaExitReady).toBe(false);
-    expect(report.operatorPlainLanguageNote).toBe("A real $37.5 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.");
+    expect(report.operatorPlainLanguageNote).toBe("Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.");
   });
 
   it("fails validation when a formal lane lacks a source-to-proof checklist or stale action", () => {
