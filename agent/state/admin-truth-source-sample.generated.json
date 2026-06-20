@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-06-03T03:25:31.774Z",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "generatedAtUtc": "2026-06-20T14:24:56.070Z",
+  "currentHead": "47d8ac163a3f5e0fae7f416cd801b6f77a752c28",
   "adminDebugControlTowerModelPresent": true,
   "adminDebugRoutePresent": true,
   "routeDiagnosticsPresent": true,
@@ -47,7 +47,7 @@
   "criticalAdminTruthIssueCount": 0,
   "fakeHealthyStateDetected": false,
   "reportKey": "admin-truth-source-sample",
-  "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "sourceCommit": "47d8ac163a3f5e0fae7f416cd801b6f77a752c28",
   "status": "source_ready_admin_truth_sample",
   "passed": true,
   "launchGateImpact": "partial_source_admin_truth_only",
