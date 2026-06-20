@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-06-19T14:31:43.176Z",
+  "generatedAtUtc": "2026-06-20T15:21:22.515Z",
   "reportKey": "targeted-behavior-evidence",
   "status": "passed",
   "overallStatus": "passed",
   "passed": true,
-  "sourceCommit": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-  "latestCodeVersion": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-  "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
+  "sourceCommit": "192de8745b29bc7f09b396603f1bdeecacfa1de1",
+  "latestCodeVersion": "192de8745b29bc7f09b396603f1bdeecacfa1de1",
+  "currentHead": "192de8745b29bc7f09b396603f1bdeecacfa1de1",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
@@ -213,7 +213,7 @@
       "doesNotProve": "Does not prove provider_smoke, runtime_smoke, admin_truth_sample, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "150f93852f2029bd14694ddfe9fd65ec917c1897"
+      "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
     },
     {
       "id": "person-metrics-hydration",
@@ -229,7 +229,7 @@
       "doesNotProve": "Does not prove provider_smoke, runtime_smoke, admin_truth_sample, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "150f93852f2029bd14694ddfe9fd65ec917c1897"
+      "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
     },
     {
       "id": "surface-state-parity",
