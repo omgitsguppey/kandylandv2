@@ -1,8 +1,19 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 import { TELEMETRY_TRUTH_RECOVERY_FORMULAS, calculateTelemetryTruthRecoveryFormulas } from "@/lib/analytics/telemetry-truth-recovery-formulas";
 import { buildTelemetryTruthRecoveryStatus } from "@/lib/analytics/telemetry-truth-recovery-status";
 
 describe("telemetry truth recovery formulas", () => {
+  it("routes source/evidence classification through the recovery spine", () => {
+    const source = readFileSync(join(process.cwd(), "src/lib/analytics/telemetry-truth-recovery-formulas.ts"), "utf8");
+
+    expect(source).toContain("classifyRecoveryMetricSourceEvidence");
+    expect(source).not.toContain("function sourceTruthForRecoveryFormula");
+    expect(source).not.toContain("function evidenceKindForRecoveryFormula");
+  });
+
   it("documents every required formula", () => {
     expect(TELEMETRY_TRUTH_RECOVERY_FORMULAS.observedViews).toContain("observedViews =");
     expect(TELEMETRY_TRUTH_RECOVERY_FORMULAS.checkedViews).toContain("checkedViews =");

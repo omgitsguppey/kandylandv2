@@ -3396,6 +3396,37 @@ export function buildRecoveredLaunchMetricState(input: {
   };
 }
 
+export function classifyRecoveryMetricSourceEvidence(input: {
+  checkedCount?: number | null;
+  estimatedCount?: number | null;
+  finalCount?: number | null;
+}): {
+  sourceTruth: RecoveryMetricSourceTruth;
+  evidenceKind: RecoveryMetricEvidenceKind;
+  sourceObserved: boolean;
+  productTruthEligible: boolean;
+  missingVsZeroState: RecoveredLaunchMetricState["missingVsZeroState"];
+} {
+  const checkedCount = Math.max(0, input.checkedCount ?? 0);
+  const estimatedCount = Math.max(0, input.estimatedCount ?? 0);
+  const finalCount = Math.max(0, input.finalCount ?? checkedCount + estimatedCount);
+  const sourceTruth: RecoveryMetricSourceTruth = checkedCount > 0
+    ? "first_party_event_fact"
+    : estimatedCount > 0 || finalCount > 0
+      ? "ga4_evidence_only"
+      : "source_missing";
+  const evidenceKind = evidenceKindFromSourceTruth(sourceTruth);
+  const sourceObserved = sourceTruth !== "source_missing";
+
+  return {
+    sourceTruth,
+    evidenceKind,
+    sourceObserved,
+    productTruthEligible: sourceTruth === "first_party_event_fact",
+    missingVsZeroState: sourceObserved ? "source_present" : "source_missing",
+  };
+}
+
 export function buildGuestTrafficRecoveryMetricState(input: {
   truthLabel?: "exact" | "estimated" | "unknown" | null;
   generatedAtUtc?: string | null;

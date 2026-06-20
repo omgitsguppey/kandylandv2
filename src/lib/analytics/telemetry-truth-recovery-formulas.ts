@@ -1,10 +1,9 @@
 import {
   ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
   buildRecoveredLaunchMetricState,
+  classifyRecoveryMetricSourceEvidence,
   classifyRecoveryMetricConfidenceBand,
-  type RecoveryMetricEvidenceKind,
   type RecoveryMetricFreshnessState,
-  type RecoveryMetricSourceTruth,
 } from "@/lib/analytics/recovery-timeline-spine";
 
 export const TELEMETRY_TRUTH_RECOVERY_FORMULAS = {
@@ -16,22 +15,6 @@ export const TELEMETRY_TRUTH_RECOVERY_FORMULAS = {
   confidence: "confidence = local formula quality score from freshness, duplicates, recovery rate, and source completeness; recoverySpineConfidenceScore is the canonical metric confidence from the recovery timeline spine",
   sourceTruth: "sourceTruth/evidenceKind/freshnessState/dedupeKey/lateArrivalWindowDays/recoverySpineConfidenceScore come from the recovery timeline spine",
 } as const;
-
-function sourceTruthForRecoveryFormula(input: {
-  checkedViews: number;
-  estimatedViews: number;
-  finalViews: number;
-}): RecoveryMetricSourceTruth {
-  if (input.checkedViews > 0) return "first_party_event_fact";
-  if (input.estimatedViews > 0 || input.finalViews > 0) return "ga4_evidence_only";
-  return "source_missing";
-}
-
-function evidenceKindForRecoveryFormula(sourceTruth: RecoveryMetricSourceTruth): RecoveryMetricEvidenceKind {
-  if (sourceTruth === "first_party_event_fact") return "observed";
-  if (sourceTruth === "ga4_evidence_only") return "modeled";
-  return "missing";
-}
 
 export function calculateTelemetryTruthRecoveryFormulas(input: {
   observedViews: number;
@@ -58,22 +41,25 @@ export function calculateTelemetryTruthRecoveryFormulas(input: {
   const duplicatePenalty = Math.min(40, duplicateRatePct);
   const formulaConfidenceScore = Math.max(0, Math.round((freshness * 0.3) + (completeness * 0.35) + (recoveryQuality * 0.35) - duplicatePenalty));
   const formulaConfidenceBand = classifyRecoveryMetricConfidenceBand(formulaConfidenceScore);
-  const sourceTruth = sourceTruthForRecoveryFormula({ checkedViews, estimatedViews, finalViews });
-  const evidenceKind = evidenceKindForRecoveryFormula(sourceTruth);
+  const sourceEvidence = classifyRecoveryMetricSourceEvidence({
+    checkedCount: checkedViews,
+    estimatedCount: estimatedViews,
+    finalCount: finalViews,
+  });
   const rebuildTimestampMs = typeof input.lastRebuildAtUtc === "string"
     ? Date.parse(input.lastRebuildAtUtc)
     : Number.NaN;
   const recoveryMetric = buildRecoveredLaunchMetricState({
     eventName: "semantic_page_viewed",
-    sourceTruth,
-    sourceObserved: sourceTruth !== "source_missing",
-    evidenceKind,
+    sourceTruth: sourceEvidence.sourceTruth,
+    sourceObserved: sourceEvidence.sourceObserved,
+    evidenceKind: sourceEvidence.evidenceKind,
     route: "telemetry_truth_recovery",
     objectId: input.sourcePath ?? "view_recovery",
     timestampMs: Number.isFinite(rebuildTimestampMs) ? rebuildTimestampMs : undefined,
     insideLateArrivalWindow: Boolean(input.lastRebuildAtUtc),
   });
-  const freshnessState: RecoveryMetricFreshnessState = sourceTruth === "source_missing"
+  const freshnessState: RecoveryMetricFreshnessState = sourceEvidence.sourceTruth === "source_missing"
     ? "source_missing"
     : input.lastRebuildAtUtc
       ? recoveryMetric.freshnessState
@@ -93,14 +79,14 @@ export function calculateTelemetryTruthRecoveryFormulas(input: {
     formulaConfidenceBand,
     recoverySpineConfidenceScore: recoveryMetric.confidenceScore,
     recoverySpineConfidenceBand: recoveryMetric.confidenceBand,
-    sourceTruth,
+    sourceTruth: sourceEvidence.sourceTruth,
     freshnessState,
-    evidenceKind,
+    evidenceKind: sourceEvidence.evidenceKind,
     dedupeKey: recoveryMetric.dedupeKey,
     dedupeDimensions: recoveryMetric.dedupeDimensions,
     lateArrivalWindowDays: ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
-    productTruthEligible: sourceTruth === "first_party_event_fact",
-    missingVsZeroState: sourceTruth === "source_missing" ? "source_missing" : "source_present",
+    productTruthEligible: sourceEvidence.productTruthEligible,
+    missingVsZeroState: sourceEvidence.missingVsZeroState,
     formulas: TELEMETRY_TRUTH_RECOVERY_FORMULAS,
   };
 }
