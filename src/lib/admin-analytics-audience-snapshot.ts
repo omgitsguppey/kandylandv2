@@ -521,7 +521,7 @@ export function buildAdminAnalyticsAudienceSnapshotModel(input: {
       dedupeKey: guestTrafficRecoveryMetric.dedupeKey,
       dedupeDimensions: guestTrafficRecoveryMetric.dedupeDimensions,
       lateArrivalWindowDays: guestTrafficRecoveryMetric.lateArrivalWindowDays,
-      productTruthEligible: guestTrafficRecoveryMetric.sourceTruth === "first_party_event_fact",
+      productTruthEligible: guestTrafficRecoveryMetric.productTruthEligible,
       missingVsZeroState: guestTrafficRecoveryMetric.missingVsZeroState,
       explanation: guestEstimateFormulaUsed
         ? "Estimated because consented guest batches are unavailable for part of this range."

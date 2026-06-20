@@ -538,6 +538,7 @@ export type RecoveredLaunchMetricState = {
   dedupeDimensions: RecoveryMetricDedupeDimension[];
   lateArrivalWindowDays: typeof ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS;
   missingVsZeroState: "source_present" | "source_missing" | "bounded_zero_proven";
+  productTruthEligible: boolean;
   identityStitching: RecoveryMetricIdentityStitchingState;
   mathReason: string;
 };
@@ -3373,6 +3374,14 @@ export function buildRecoveredLaunchMetricState(input: {
     sourceObserved,
   });
   const confidenceBand = classifyRecoveryMetricConfidenceBand(confidenceScore);
+  const proofBoundary = family ? buildLaunchCriticalFamilyProofBoundary(family) : null;
+  const productTruthEligible = Boolean(
+    proofBoundary
+    && sourceObserved
+    && evidenceKind === "observed"
+    && sourceTruth === proofBoundary.productTruthSource
+    && proofBoundary.productTruthEligibleWhenObserved,
+  );
   const mathReason = !family
     ? `${input.eventName} is not mapped to a launch-critical recovery family; retain it as evidence, but do not use it to clear canonical launch coverage.`
     : sourceObserved
@@ -3391,6 +3400,7 @@ export function buildRecoveredLaunchMetricState(input: {
     dedupeDimensions: family ? getLaunchCriticalDedupeDimensions(family) : [...RECOVERY_METRIC_DEDUPE_DIMENSIONS],
     lateArrivalWindowDays: ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
     missingVsZeroState: sourceObserved ? "source_present" : "source_missing",
+    productTruthEligible,
     identityStitching,
     mathReason,
   };

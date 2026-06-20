@@ -268,7 +268,7 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
       dedupeKey: guestTrafficRecoveryMetric.dedupeKey,
       dedupeDimensions: guestTrafficRecoveryMetric.dedupeDimensions,
       lateArrivalWindowDays: guestTrafficRecoveryMetric.lateArrivalWindowDays,
-      productTruthEligible: guestTrafficRecoveryMetric.sourceTruth === "first_party_event_fact",
+      productTruthEligible: guestTrafficRecoveryMetric.productTruthEligible,
       missingVsZeroState: guestTrafficRecoveryMetric.missingVsZeroState,
       explanation: diagnostics.estimatedFormula
         ? `${diagnostics.estimatedFormula}. This is an estimated guest-view total, not unique guest users.`

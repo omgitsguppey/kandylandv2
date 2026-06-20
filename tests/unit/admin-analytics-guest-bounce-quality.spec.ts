@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import { buildAdminAnalyticsGuestBounceQualityModel } from "@/lib/admin-analytics-guest-bounce-quality";
@@ -34,6 +36,13 @@ function response(guestTraffic: HistoricalAnalyticsResponse["guestTraffic"]): Hi
 }
 
 describe("buildAdminAnalyticsGuestBounceQualityModel", () => {
+  it("delegates estimated guest product-truth eligibility to the recovery spine", () => {
+    const source = readFileSync("src/lib/admin-analytics-guest-bounce-quality.ts", "utf8");
+
+    expect(source).toContain("productTruthEligible: guestTrafficRecoveryMetric.productTruthEligible");
+    expect(source).not.toContain('productTruthEligible: guestTrafficRecoveryMetric.sourceTruth === "first_party_event_fact"');
+  });
+
   it("labels verified guest-quality samples without implying realtime proof", () => {
     const model = buildAdminAnalyticsGuestBounceQualityModel({
       selectedRange: "7d",

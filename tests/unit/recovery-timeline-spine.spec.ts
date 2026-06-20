@@ -577,6 +577,7 @@ describe("recovery timeline spine", () => {
       dedupeDimensions: [...RECOVERY_METRIC_DEDUPE_DIMENSIONS],
       lateArrivalWindowDays: ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
       missingVsZeroState: "source_present",
+      productTruthEligible: true,
       identityStitching: {
         usesIdentityLink: true,
         countsGlobalOnce: true,
@@ -696,6 +697,7 @@ describe("recovery timeline spine", () => {
       confidenceBand: "directional",
       freshnessState: "external_evidence_required",
       missingVsZeroState: "source_present",
+      productTruthEligible: false,
     });
     expect(modeled.confidenceScore).toBeLessThan(70);
     expect(missing).toMatchObject({
@@ -705,6 +707,7 @@ describe("recovery timeline spine", () => {
       evidenceKind: "missing",
       freshnessState: "source_missing",
       missingVsZeroState: "source_missing",
+      productTruthEligible: false,
     });
     expect(missing.mathReason).toContain("keep it missing rather than rendering zero");
   });
@@ -784,6 +787,7 @@ describe("recovery timeline spine", () => {
       sourceTruth: "first_party_event_fact",
       evidenceKind: "observed",
       missingVsZeroState: "source_present",
+      productTruthEligible: false,
     });
     expect(unknownMetric.mathReason).toContain("not mapped to a launch-critical recovery family");
     expect(report.observedFirstPartyFamilyCount).toBe(0);

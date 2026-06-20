@@ -1,9 +1,18 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import { buildAdminAnalyticsAudienceSnapshotModel } from "@/lib/admin-analytics-audience-snapshot";
 import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
 
 describe("buildAdminAnalyticsAudienceSnapshotModel", () => {
+  it("delegates guest product-truth eligibility to the recovery spine", () => {
+    const source = readFileSync("src/lib/admin-analytics-audience-snapshot.ts", "utf8");
+
+    expect(source).toContain("productTruthEligible: guestTrafficRecoveryMetric.productTruthEligible");
+    expect(source).not.toContain('productTruthEligible: guestTrafficRecoveryMetric.sourceTruth === "first_party_event_fact"');
+  });
+
   it("labels GA users and estimated guest visits without fake zeros", () => {
     const response: HistoricalAnalyticsResponse = {
       success: true,
