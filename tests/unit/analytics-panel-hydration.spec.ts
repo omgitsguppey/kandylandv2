@@ -327,7 +327,7 @@ describe("analytics panel hydration", () => {
   it("does not treat optimized task context churn as an analytics artifact to commit", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
 
-    expect(source).toContain('agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore"');
+    expect(source).toContain('normalized.startsWith("agent/context/")) return "unrelated_agent_context_file_to_ignore"');
     expect(source).toContain('^\\.agent\\/workflows\\/[a-z0-9-]+\\.md$');
   });
 
@@ -392,7 +392,9 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("const displaySummary = buildLaunchHistoryDisplaySummaryState");
     expect(source).toContain("const sourceAgreementDisagreements = readRecordArray(sourceAgreement.disagreements)");
     expect(source).toContain("const sourceAgreementMetricDeltas = readRecordArray(sourceAgreement.perDayMetricDeltas)");
-    expect(source).toContain("sourceAgreementMetricDeltas: summarizeRecoveredMetricMetadataCompleteness(sourceAgreementMetricDeltas)");
+    expect(source).toContain("summarizeCurrentLaunchRecoveryMetadata");
+    expect(source).toContain('status: "not_evaluated_stale_artifact"');
+    expect(source).toContain("sourceAgreementMetricDeltas: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, sourceAgreementMetricDeltas)");
     expect(source).toContain("sourceWindowLabel");
     expect(source).toContain("mathReasonSamples: (displaySummary.mathReasonSamples ?? [])");
     expect(source).not.toContain("asRecord(launchHistoryCoverage.displaySummary)");
