@@ -49,14 +49,18 @@ export function mapPanelHydrationToLiveEvidence(panel: AdminAnalyticsPanelHydrat
       nextExactAction: "Keep the source fresh and privacy-redacted.",
     };
   }
-  if (panel.hydrationStatus === "collecting") {
+  if (
+    panel.hydrationStatus === "collecting"
+    || panel.hydrationStatus === "source_ready_waiting_for_activity"
+    || panel.hydrationStatus === "not_observed_but_expected"
+  ) {
     return {
       panelId: panel.panelId,
       panelLabel: panel.panelLabel,
       status: "source_exists_collecting",
       clearsLiveProductEvidence: false,
       betaExitImpact: "source_exists_but_not_recent",
-      reason: `${panel.panelLabel} has a source path but no recent clearing activity or proven zero.`,
+      reason: panel.reason || `${panel.panelLabel} has a source path but no recent clearing activity or proven zero.`,
       nextExactAction: panel.nextExactAction,
     };
   }

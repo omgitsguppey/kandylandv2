@@ -199,6 +199,16 @@ describe("analytics panel hydration", () => {
     expect(report.debugLane.sourceReadyWaitingForActivity).toBeGreaterThanOrEqual(0);
     expect(livePanelEvidence.decisions.length).toBe(report.totalPanels);
     expect(livePanelEvidence.liveEvidencePanelIds).toContain("traffic_overview");
+    expect(livePanelEvidence.decisions.find((decision) => decision.panelId === "drop_opens")).toMatchObject({
+      status: "source_exists_collecting",
+      betaExitImpact: "source_exists_but_not_recent",
+    });
+    expect(livePanelEvidence.decisions.find((decision) => decision.panelId === "package_selections")).toMatchObject({
+      status: "source_exists_collecting",
+      betaExitImpact: "source_exists_but_not_recent",
+    });
+    expect(livePanelEvidence.blockedPanelIds).not.toContain("drop_opens");
+    expect(livePanelEvidence.blockedPanelIds).not.toContain("package_selections");
   });
 
   it("builds launch recovery from source agreement in-process instead of a generated report hop", () => {
