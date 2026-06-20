@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T20:01:50.235Z",
-  "currentHead": "9201ac8b3a77bd68d17f46d5b390502863c03b13",
+  "generatedAtUtc": "2026-06-20T20:31:32.110Z",
+  "currentHead": "8446eba018fbe8694d866aaae2a352c8e260e1b6",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -1463,6 +1463,7 @@
         {
           "familyId": "unlock",
           "canonicalEventNames": [
+            "drop_unlocked",
             "unlock_drop_success",
             "drop_unwrapped",
             "entitlement_granted"
@@ -2180,17 +2181,19 @@
         {
           "familyId": "unlock",
           "canonicalEventNames": [
+            "drop_unlocked",
             "unlock_drop_success",
             "drop_unwrapped",
             "entitlement_granted"
           ],
           "activeSourceEventNames": [
+            "drop_unlocked",
             "unlock_drop_success",
             "drop_unwrapped",
             "entitlement_granted"
           ],
-          "activeSourceReferenceCount": 33,
-          "materializerReferenceCount": 23,
+          "activeSourceReferenceCount": 40,
+          "materializerReferenceCount": 29,
           "sourceCoverageState": "source_connected",
           "sourceTruth": "server_ledger",
           "freshnessState": "source_current",
@@ -2230,7 +2233,7 @@
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "functions/src/analytics-event-facts.ts",
-            "src/app/api/admin/analytics/historical/route.ts"
+            "functions/src/analytics-truth-runtime.ts"
           ],
           "materializerFileCount": 12,
           "materializerFilesTruncated": true
