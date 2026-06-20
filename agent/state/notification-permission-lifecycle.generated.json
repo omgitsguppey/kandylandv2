@@ -1,11 +1,11 @@
 {
-  "generatedAtUtc": "2026-06-09T01:08:18.932Z",
-  "currentHead": "00b18bf22",
+  "generatedAtUtc": "2026-06-20T14:14:35.757Z",
+  "currentHead": "a911e98",
   "productionReadsRequired": false,
   "deployRequired": false,
   "evidenceKind": "source_only",
   "livePushSmoke": "manual_external_required",
-  "dirtyWorktreeProofLimited": true,
+  "dirtyWorktreeProofLimited": false,
   "promptLifecycleEvents": [
     "notification_prompt_eligible",
     "notification_prompt_viewed",
@@ -44,21 +44,21 @@
   },
   "scoreBefore": {
     "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
+    "runtimeHealth": 71.2,
     "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "freshness": 75.63,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 70.79
   },
   "scoreAfter": {
     "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
+    "runtimeHealth": 71.2,
     "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "freshness": 75.63,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 70.79
   },
   "scoreDimensionImpact": {
     "sourceHealth": "Notification prompt lifecycle has explicit source contract, telemetry events, and validator coverage.",
@@ -69,108 +69,12 @@
     "regressionRisk": "Unit and validator checks protect no-auto-prompt, cooldown, telemetry mapping, debug lane, and protected-surface boundaries.",
     "overallHealthScore": "Moves notification readiness evidence without clearing formal runtime/provider gates."
   },
-  "dirtyFilesScannedCount": 282,
-  "dirtyFilesOmittedCount": 257,
+  "dirtyFilesScannedCount": 1,
+  "dirtyFilesOmittedCount": 0,
   "dirtyFiles": [
     {
-      "path": ".agent/workflows/auto-tasks.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": ".agent/workflows/pre-commit.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": ".env.example",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": ".gitignore",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/doctrine.cards.jsonl",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/doctrine.index.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/file-size-budget.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/legacy-registry.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/task-pack.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/context/validator-map.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/blast-radius.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/canonical-helpers.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/dependency-graph.summary.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/governance-truth.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/known-pitfalls.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/package-manager-truth.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/recent-passes.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/repo-inventory.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/index/retrieval-index.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/README.md",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "scripts/agent/validate-notification-permission-lifecycle.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-notification-return-loop.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-push-token-registration.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "tests/unit/notification-permission-lifecycle.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "agent/state/creator-surface-routing.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     }
   ],
   "oldLogicReferences": [

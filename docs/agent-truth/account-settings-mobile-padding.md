@@ -1,8 +1,8 @@
 # Account Settings Mobile Padding
 
-Generated: 2026-05-23T00:43:57.640Z
+Generated: 2026-06-20T14:16:57.350Z
 Status: pass
-Head: 41548a214020ae5be78fc5b546d61b6c5b48fb40
+Head: a911e986de81d6667ab9cc108cacbe3831cd8465
 
 ## Summary
 

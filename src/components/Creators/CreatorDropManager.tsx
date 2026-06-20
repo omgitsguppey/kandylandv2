@@ -116,7 +116,12 @@ export function CreatorDropManager() {
             }
             const loadedDrops = Array.isArray(result.drops) ? result.drops : [];
             setDrops(loadedDrops);
-            const pendingReviewCount = loadedDrops.filter((drop) => classifyDrop(drop) === "pending_review").length;
+            // ⚡ Bolt Optimization: Use a single-pass loop instead of .filter().length
+            // This prevents the allocation of an intermediate array which is immediately garbage collected.
+            let pendingReviewCount = 0;
+            for (const drop of loadedDrops) {
+                if (classifyDrop(drop) === "pending_review") pendingReviewCount++;
+            }
             if (pendingReviewCount > 0) {
                 trackEvent("creator_drop_pending_review_viewed", {
                     source_component: "CreatorDropManager",
@@ -162,11 +167,8 @@ export function CreatorDropManager() {
     }, []);
 
     const tabCounts = useMemo(() => {
-        return REVIEW_TABS.reduce<Record<CreatorDropFilter, number>>((acc, tab) => {
-            acc[tab.id] = tab.id === "all" ? drops.length : drops.filter((drop) => classifyDrop(drop) === tab.id).length;
-            return acc;
-        }, {
-            all: 0,
+        const counts: Record<CreatorDropFilter, number> = {
+            all: drops.length,
             draft: 0,
             submitted: 0,
             pending_review: 0,
@@ -174,7 +176,18 @@ export function CreatorDropManager() {
             needs_changes: 0,
             rejected: 0,
             expired: 0,
-        });
+        };
+
+        // ⚡ Bolt Optimization: Use a single-pass for...of loop instead of M nested .filter() calls
+        // This avoids O(N*M) time complexity and reduces garbage collection pressure by not allocating intermediate arrays.
+        for (const drop of drops) {
+            const status = classifyDrop(drop) as CreatorDropFilter;
+            if (status in counts) {
+                counts[status]++;
+            }
+        }
+
+        return counts;
     }, [drops]);
 
     const visibleDrops = useMemo(

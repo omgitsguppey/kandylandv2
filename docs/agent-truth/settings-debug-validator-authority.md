@@ -1,6 +1,6 @@
 # Settings Debug Validator Authority
 
-Generated: 2026-05-24T16:27:47.899Z
+Generated: 2026-06-20T14:14:52.450Z
 
 ## Status
 

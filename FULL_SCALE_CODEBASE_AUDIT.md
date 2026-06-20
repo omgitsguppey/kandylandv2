@@ -14272,3 +14272,7 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2026-05-18 #Bolt-CreatorDropManager] PRE: Replacing O(N*M) nested filter arrays inside useMemo with O(N) single-pass loops
+
+## [2026-05-18 #Bolt-CreatorDropManager] POST: Optimized tabCounts array reduction in CreatorDropManager.tsx to a single-pass loop, avoiding O(N*M) calculation and GC overhead. Typechecks and existing tests continue to pass.
