@@ -19,7 +19,7 @@ export type LaunchBlockerClassification =
   | "stale_artifact_refresh_needed"
   | "external_review_required"
   | "can_close_now"
-  | "cannot_close_without_manual_or_runtime_artifact";
+  | "external_or_runtime_artifact_required";
 
 export type LaunchBlockerDirtyClassification =
   | "current_generated_artifact_to_commit"
@@ -81,6 +81,8 @@ export type LaunchBlockerEvidenceClosureReport = {
     reportFreshnessPrIntegrity: LaunchBlockerClosure;
   };
   openPrIntegrity: {
+    evidenceSource: "provided" | "gh_opt_in" | "not_requested";
+    evidenceUnavailable: boolean;
     openPrCount: number;
     classifiedOpenPrCount: number;
     unclassifiedOpenPrCount: number;
@@ -279,8 +281,20 @@ function classifyOpenPr(pr: OpenPrSummary): ClassifiedOpenPr {
   };
 }
 
-function readOpenPrsFromGh(): OpenPrSummary[] {
-  if (process.env.ALLOW_GH_PR_LIST !== "1") return [];
+type OpenPrEvidence = {
+  evidenceSource: LaunchBlockerEvidenceClosureReport["openPrIntegrity"]["evidenceSource"];
+  evidenceUnavailable: boolean;
+  openPrs: OpenPrSummary[];
+};
+
+function readOpenPrsFromGh(): OpenPrEvidence {
+  if (process.env.ALLOW_GH_PR_LIST !== "1") {
+    return {
+      evidenceSource: "not_requested",
+      evidenceUnavailable: true,
+      openPrs: [],
+    };
+  }
   const output = shell("gh", [
     "pr",
     "list",
@@ -293,12 +307,26 @@ function readOpenPrsFromGh(): OpenPrSummary[] {
     "--json",
     "number,title,author,mergeStateStatus,isDraft,updatedAt,url",
   ]);
-  if (!output) return [];
+  if (!output) {
+    return {
+      evidenceSource: "gh_opt_in",
+      evidenceUnavailable: true,
+      openPrs: [],
+    };
+  }
   try {
     const parsed = JSON.parse(output) as unknown;
-    return Array.isArray(parsed) ? parsed as OpenPrSummary[] : [];
+    return {
+      evidenceSource: "gh_opt_in",
+      evidenceUnavailable: !Array.isArray(parsed),
+      openPrs: Array.isArray(parsed) ? parsed as OpenPrSummary[] : [],
+    };
   } catch {
-    return [];
+    return {
+      evidenceSource: "gh_opt_in",
+      evidenceUnavailable: true,
+      openPrs: [],
+    };
   }
 }
 
@@ -323,13 +351,13 @@ function buildRuntimeProviderClosure(input: {
     id: "runtimeProviderSmoke",
     label: "Runtime/provider smoke",
     currentStatus: stringValue(arrayValue(input.publicBetaScore.launchBlockers).find((entry) => /Runtime\/provider smoke/iu.test(String(entry))), "Runtime/provider smoke: Runtime unverified"),
-    classification: formalCleared ? "can_close_now" : "cannot_close_without_manual_or_runtime_artifact",
+    classification: formalCleared ? "can_close_now" : "external_or_runtime_artifact_required",
     classificationDetails: [
       ...(providerCleared ? [] : ["formal_artifact_missing" as const]),
       ...(runtimeCleared ? [] : ["formal_artifact_missing" as const]),
       ...(sourceReady ? ["source_confidence_ready" as const] : []),
       ...(operatorReady ? ["operator_confirmed_ready" as const] : []),
-      ...(formalCleared ? ["can_close_now" as const] : ["cannot_close_without_manual_or_runtime_artifact" as const]),
+      ...(formalCleared ? ["can_close_now" as const] : ["external_or_runtime_artifact_required" as const]),
     ],
     canCloseNow: formalCleared,
     formalGateCleared: formalCleared,
@@ -368,9 +396,9 @@ function buildAdminTruthClosure(input: {
     id: "adminTruthSample",
     label: "Admin truth/sample evidence",
     currentStatus: stringValue(arrayValue(input.publicBetaScore.launchBlockers).find((entry) => /Admin truth\/sample evidence/iu.test(String(entry))), "Admin truth/sample evidence: Ready with smoke required"),
-    classification: formalCleared ? "can_close_now" : "cannot_close_without_manual_or_runtime_artifact",
+    classification: formalCleared ? "can_close_now" : "external_or_runtime_artifact_required",
     classificationDetails: [
-      ...(formalCleared ? ["can_close_now" as const] : ["formal_artifact_missing" as const, "cannot_close_without_manual_or_runtime_artifact" as const]),
+      ...(formalCleared ? ["can_close_now" as const] : ["formal_artifact_missing" as const, "external_or_runtime_artifact_required" as const]),
       ...(sourceReady ? ["source_confidence_ready" as const] : []),
     ],
     canCloseNow: formalCleared,
@@ -397,13 +425,17 @@ function buildAdminTruthClosure(input: {
 function buildPrClosure(input: {
   publicBetaScore: JsonRecord;
   openPrs: OpenPrSummary[];
+  evidenceSource: LaunchBlockerEvidenceClosureReport["openPrIntegrity"]["evidenceSource"];
+  evidenceUnavailable: boolean;
 }): { closure: LaunchBlockerClosure; openPrIntegrity: LaunchBlockerEvidenceClosureReport["openPrIntegrity"] } {
   const classifiedOpenPrs = input.openPrs.map(classifyOpenPr);
   const unclassifiedOpenPrCount = classifiedOpenPrs.filter((pr) => pr.classification === "unknown_unclassified").length;
   const openPrCount = classifiedOpenPrs.length;
-  const staleClosed = openPrCount === 0;
+  const staleClosed = !input.evidenceUnavailable && openPrCount === 0;
   const classification: LaunchBlockerClassification = staleClosed
     ? "can_close_now"
+    : input.evidenceUnavailable
+      ? "external_review_required"
     : unclassifiedOpenPrCount > 0
       ? "stale_artifact_refresh_needed"
       : "external_review_required";
@@ -422,9 +454,15 @@ function buildPrClosure(input: {
       sourceConfidenceStatus: "not_applicable",
       operatorConfirmedReady: false,
       staleArtifactRefreshNeeded: unclassifiedOpenPrCount > 0,
-      externalReviewRequired: openPrCount > 0,
-      missingArtifact: staleClosed ? null : "current open PR owner disposition",
+      externalReviewRequired: input.evidenceUnavailable || openPrCount > 0,
+      missingArtifact: staleClosed
+        ? null
+        : input.evidenceUnavailable
+          ? "cached open PR artifact or ALLOW_GH_PR_LIST=1 opt-in"
+          : "current open PR owner disposition",
       evidence: [
+        `openPrEvidenceSource=${input.evidenceSource}`,
+        `openPrEvidenceUnavailable=${input.evidenceUnavailable}`,
         `openPrCount=${openPrCount}`,
         `classifiedOpenPrCount=${classifiedOpenPrs.length - unclassifiedOpenPrCount}`,
         `unclassifiedOpenPrCount=${unclassifiedOpenPrCount}`,
@@ -432,15 +470,21 @@ function buildPrClosure(input: {
       ],
       nextAction: staleClosed
         ? "No open PRs remain; stale PR integrity evidence can close for this launch-blocker pass."
+        : input.evidenceUnavailable
+          ? "Provide a cached open PR artifact or explicitly opt in to GitHub PR listing before treating PR integrity as closed."
         : "Review, merge, port, or close the classified open PRs before treating PR integrity as closed.",
     },
     openPrIntegrity: {
+      evidenceSource: input.evidenceSource,
+      evidenceUnavailable: input.evidenceUnavailable,
       openPrCount,
       classifiedOpenPrCount: classifiedOpenPrs.length - unclassifiedOpenPrCount,
       unclassifiedOpenPrCount,
       stalePrIntegrityBlockerClosed: staleClosed,
       openPrs: classifiedOpenPrs,
       evidence: [
+        `openPrEvidenceSource=${input.evidenceSource}`,
+        `openPrEvidenceUnavailable=${input.evidenceUnavailable}`,
         `openPrCount=${openPrCount}`,
         `unclassifiedOpenPrCount=${unclassifiedOpenPrCount}`,
         ...classifiedOpenPrs.map((pr) => `pr#${pr.number}=${pr.classification}`),
@@ -455,7 +499,13 @@ export function buildLaunchBlockerEvidenceClosureReport(input: BuildInput = {}):
   const formalEvidenceBridge = input.formalEvidenceBridge ?? readJson("agent/state/formal-evidence-bridge.generated.json") ?? {};
   const adminTruthSourceSample = input.adminTruthSourceSample ?? readJson("agent/state/admin-truth-source-sample.generated.json") ?? {};
   const debugRuntimeEvidence = input.debugRuntimeEvidence ?? readJson("agent/state/debug-runtime-evidence.generated.json") ?? {};
-  const openPrs = input.openPrs ?? readOpenPrsFromGh();
+  const openPrEvidence: OpenPrEvidence = Array.isArray(input.openPrs)
+    ? {
+      evidenceSource: "provided",
+      evidenceUnavailable: false,
+      openPrs: input.openPrs,
+    }
+    : readOpenPrsFromGh();
   const before = cloneDimensions(input.scoreBefore);
   const dirtyFiles = (input.dirtyFiles ?? currentDirtyFiles()).map((path) => ({
     path,
@@ -463,7 +513,12 @@ export function buildLaunchBlockerEvidenceClosureReport(input: BuildInput = {}):
   }));
   const runtimeProviderSmoke = buildRuntimeProviderClosure({ publicBetaScore, formalEvidenceBridge, debugRuntimeEvidence });
   const adminTruthSample = buildAdminTruthClosure({ publicBetaScore, formalEvidenceBridge, adminTruthSourceSample });
-  const { closure: reportFreshnessPrIntegrity, openPrIntegrity } = buildPrClosure({ publicBetaScore, openPrs });
+  const { closure: reportFreshnessPrIntegrity, openPrIntegrity } = buildPrClosure({
+    publicBetaScore,
+    openPrs: openPrEvidence.openPrs,
+    evidenceSource: openPrEvidence.evidenceSource,
+    evidenceUnavailable: openPrEvidence.evidenceUnavailable,
+  });
   const blockers = {
     runtimeProviderSmoke,
     adminTruthSample,
@@ -511,7 +566,9 @@ export function buildLaunchBlockerEvidenceClosureReport(input: BuildInput = {}):
       {
         reference: "Report freshness and PR integrity: Stale evidence",
         classification: reportFreshnessPrIntegrity.classification,
-        reason: reportFreshnessPrIntegrity.canCloseNow
+        reason: openPrIntegrity.evidenceUnavailable
+          ? "Open PR evidence was not queried or supplied; source validation cannot close PR integrity by assuming zero open PRs."
+          : reportFreshnessPrIntegrity.canCloseNow
           ? "No open PRs remain in current repository state."
           : "Open PRs are classified but still require owner disposition before integrity can be closed.",
       },
@@ -520,6 +577,8 @@ export function buildLaunchBlockerEvidenceClosureReport(input: BuildInput = {}):
       `currentHead=${currentHead}`,
       `launchGateStatus=${stringValue(publicBetaScore.launchGateStatus, "owner_review")}`,
       `formalEvidenceImpact=classification_only_does_not_clear_formal_gates`,
+      `openPrEvidenceSource=${openPrIntegrity.evidenceSource}`,
+      `openPrEvidenceUnavailable=${openPrIntegrity.evidenceUnavailable}`,
       `openPrCount=${openPrIntegrity.openPrCount}`,
       "productionReadsPerformed=false",
       "providerCallsPerformed=false",
@@ -557,6 +616,9 @@ export function validateLaunchBlockerEvidenceClosureReport(report: LaunchBlocker
   ) failures.push("formal gate falsely cleared.");
   if (report.formalEvidenceImpact !== "classification_only_does_not_clear_formal_gates") failures.push("formal gate falsely cleared.");
   if (report.openPrIntegrity.unclassifiedOpenPrCount > 0) failures.push("open PRs unclassified.");
+  if (report.openPrIntegrity.evidenceUnavailable && report.blockers.reportFreshnessPrIntegrity.classification === "can_close_now") {
+    failures.push("PR integrity falsely cleared without PR evidence.");
+  }
   if (report.blockers.reportFreshnessPrIntegrity.classification === "can_close_now" && report.openPrIntegrity.openPrCount > 0) {
     failures.push("PR freshness stale when no PRs open.");
   }
@@ -585,6 +647,9 @@ function renderDoc(report: LaunchBlockerEvidenceClosureReport) {
   const prRows = report.openPrIntegrity.openPrs
     .map((pr) => `| #${pr.number} | ${pr.title.replace(/\|/gu, "/")} | ${pr.classification} | ${pr.nextAction.replace(/\|/gu, "/")} |`)
     .join("\n");
+  const emptyPrRow = report.openPrIntegrity.evidenceUnavailable
+    ? "| Not checked | - | external_review_required | Provide a cached PR artifact or explicitly opt in to GitHub PR listing. |"
+    : "| None | - | can_close_now | No open PRs remain. |";
   const scoreDimensionRows = Object.entries(report.scoreDimensions)
     .map(([dimension, values]) => `| ${dimension} | ${values.before} | ${values.after} | ${values.target} |`)
     .join("\n");
@@ -602,6 +667,8 @@ Validator: \`npm run check:launch-blocker-evidence-closure\`
 - Current head: \`${report.currentHead}\`
 - Launch gate status: \`${report.launchGateStatus}\`
 - Formal gates cleared by this pass: false
+- Open PR evidence source: \`${report.openPrIntegrity.evidenceSource}\`
+- Open PR evidence unavailable: ${report.openPrIntegrity.evidenceUnavailable}
 - Open PRs: ${report.openPrIntegrity.openPrCount}
 - Unclassified open PRs: ${report.openPrIntegrity.unclassifiedOpenPrCount}
 - Formal evidence impact: \`${report.formalEvidenceImpact}\`
@@ -617,7 +684,7 @@ ${blockerRows}
 
 | PR | Title | Classification | Next action |
 | --- | --- | --- | --- |
-${prRows || "| None | - | can_close_now | No open PRs remain. |"}
+${prRows || emptyPrRow}
 
 ## Score Dimensions
 

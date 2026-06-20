@@ -87,10 +87,10 @@ describe("launch blocker evidence closure", () => {
 
     expect(report.status).toBe("pass");
     expect(report.formalGatesCleared).toBe(false);
-    expect(report.blockers.runtimeProviderSmoke.classification).toBe("cannot_close_without_manual_or_runtime_artifact");
+    expect(report.blockers.runtimeProviderSmoke.classification).toBe("external_or_runtime_artifact_required");
     expect(report.blockers.runtimeProviderSmoke.sourceConfidenceStatus).toBe("source_confidence_ready");
     expect(report.blockers.runtimeProviderSmoke.operatorConfirmedReady).toBe(true);
-    expect(report.blockers.adminTruthSample.classification).toBe("cannot_close_without_manual_or_runtime_artifact");
+    expect(report.blockers.adminTruthSample.classification).toBe("external_or_runtime_artifact_required");
     expect(report.blockers.adminTruthSample.sourceConfidenceStatus).toBe("source_confidence_ready");
     expect(report.blockers.reportFreshnessPrIntegrity.classification).toBe("external_review_required");
     expect(report.openPrIntegrity.unclassifiedOpenPrCount).toBe(0);
@@ -109,6 +109,19 @@ describe("launch blocker evidence closure", () => {
 
     expect(report.blockers.reportFreshnessPrIntegrity.classification).toBe("can_close_now");
     expect(report.openPrIntegrity.stalePrIntegrityBlockerClosed).toBe(true);
+    expect(validateLaunchBlockerEvidenceClosureReport(report)).toEqual([]);
+  });
+
+  it("does not treat unavailable GitHub PR evidence as zero open PRs", () => {
+    const inputWithoutPrEvidence = { ...baseInput(), openPrs: undefined };
+
+    const report = buildLaunchBlockerEvidenceClosureReport(inputWithoutPrEvidence);
+
+    expect(report.openPrIntegrity.evidenceSource).toBe("not_requested");
+    expect(report.openPrIntegrity.evidenceUnavailable).toBe(true);
+    expect(report.blockers.reportFreshnessPrIntegrity.classification).toBe("external_review_required");
+    expect(report.blockers.reportFreshnessPrIntegrity.canCloseNow).toBe(false);
+    expect(report.remainingLaunchBlockers).toContain("open_pr_owner_review");
     expect(validateLaunchBlockerEvidenceClosureReport(report)).toEqual([]);
   });
 
