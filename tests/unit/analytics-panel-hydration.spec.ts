@@ -212,42 +212,85 @@ describe("analytics panel hydration", () => {
     expect(source).not.toContain("validateSourceAgreementFailureDetail();");
   });
 
+  it("uses the central recovery spine for launch-critical source coverage", () => {
+    const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
+    const serverSource = readFileSync("src/lib/server/admin-analytics-historical-validation.ts", "utf8");
+
+    expect(source).toContain("buildLaunchCriticalActiveSourceCoverageReport");
+    expect(source).toContain("buildLaunchHistorySourceCoverageRowsState");
+    expect(serverSource).toContain("buildLaunchHistorySourceCoverageRowsState");
+    expect(source).not.toContain("buildLaunchHistoryDayRecoveryStatesFromSources");
+    expect(serverSource).not.toContain("buildLaunchHistoryDayRecoveryStatesFromSources");
+    expect(source).not.toContain("buildLaunchHistoryDayRecoveryState({");
+    expect(serverSource).not.toContain("function buildLaunchHistoryDayCoverage");
+    expect(source).toContain("buildLaunchCriticalRecoveryCoverageFromEvidence");
+    expect(source).toContain("buildLaunchCriticalActiveSourceReferences");
+    expect(source).not.toContain("buildLaunchCriticalObservedEventNamesFromSourceEvidence");
+    expect(source).not.toContain("buildLaunchCriticalRecoveredMetricsFromSourceEvidence");
+  });
+
   it("uses the canonical source-agreement classifier instead of local drift logic", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
 
     expect(source).toContain("classifySourceAgreementCoverage");
+    expect(source).toContain("buildSourceAgreementCoverageSummaryState");
+    expect(source).toContain("sourceAgreementSummary.sourceAgreementStatus");
     expect(source).not.toContain("function classifySourceAgreementDisagreements");
+    expect(source).not.toContain("sourceAgreementDetail.disagreementCount, 0) > 1");
+    expect(source).not.toContain("sourceAgreementDetail.maxDeltaPct, 0) > 25");
   });
 
   it("keeps launch recovery partial until first-party coverage and source agreement both pass", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
+    const spine = readFileSync("src/lib/analytics/recovery-timeline-spine.ts", "utf8");
 
-    expect(source).toContain('firstPartyCoverageState !== "available"');
-    expect(source).toContain('sourceAgreementState !== "pass"');
+    expect(source).toContain("buildLaunchHistoryCoverageSummaryState");
+    expect(source).toContain("const launchCoverageSummary = buildLaunchHistoryCoverageSummaryState");
+    expect(source).toContain("firstPartyCoverageState: launchCoverageSummary.firstPartyCoverage.state");
+    expect(source).toContain("sourceAgreementState,");
+    expect(source).not.toContain('const firstPartyCoverageState =');
+    expect(source).not.toContain('sourceAgreementState !== "pass"');
+    expect(spine).toContain('const sourceAgreementPassed = input.sourceAgreementState === "pass"');
     expect(source).toContain("allLaunchRangeProven");
-    expect(source).toContain("launchSourceGateCanClear");
-    expect(source).toContain('canClearSourceGate: launchSourceGateCanClear');
+    expect(source).toContain("buildLaunchRecoverySourceGateState");
+    expect(source).toContain("const launchSourceGate = buildLaunchRecoverySourceGateState");
+    expect(source).toContain("canClearSourceGate: launchSourceGate.canClearSourceGate");
+    expect(source).toContain("sourceGateReason: launchSourceGate.sourceGateReason");
+    expect(source).toContain("sourceGateBlockers: launchSourceGate.sourceGateBlockers");
+    expect(source).toContain("input.sourceAgreementResult.inputHead");
+    expect(source).toContain("sourceAgreementEvidence.inputHead");
+    expect(source).toContain("sourceAgreementHead !== input.currentHead");
+    expect(source).not.toContain("const sourceAgreementHead = input.currentHead");
+    expect(source).not.toContain("launchSourceGateCanClear");
+    expect(source).not.toContain("const allLaunchRangeProofReason");
     expect(source).toContain("all-launch range proof exists");
     expect(source).toContain("LAUNCH_ANALYTICS_FIRST_DAY_KEY");
-    expect(source).toContain("publicLaunchRangeSource");
-    expect(source).toContain('if (coverageWindowKind === "caller_supplied_expected_days" || coverageWindowKind === "local_source_window") return "local_source_window"');
+    expect(source).toContain("normalizeLaunchHistoryRangeProofKind");
+    expect(source).not.toContain("function publicLaunchRangeSource");
+    expect(source).not.toContain('if (coverageWindowKind === "caller_supplied_expected_days" || coverageWindowKind === "local_source_window") return "local_source_window"');
     expect(source).toContain("formalLaunchRange");
-    expect(source).toContain('state: allLaunchRangeProven ? "all_launch_range_proven" : "formal_proof_missing"');
+    expect(source).toContain("buildFormalLaunchRangeRecoveryState");
+    expect(source).toContain("buildLaunchHistoryRangeProofState");
+    expect(source).toContain("rangeProof: buildLaunchHistoryRangeProofState");
     expect(source).toContain("localEvidenceDayCount");
     expect(source).toContain("unprovenRanges");
-    expect(source).toContain("formalRangeStartDayKey: formalLaunchRange.launchStartDayKey");
-    expect(source).toContain("formalRangeEndDayKey: formalLaunchRange.expectedThroughDayKey");
-    expect(source).toContain("formalExpectedDayCount: formalLaunchRange.expectedDayCount");
-    expect(source).toContain("evidenceDayCount: formalLaunchRange.localEvidenceDayCount");
+    expect(source).toContain("formalLaunchRange,");
+    expect(source).not.toContain("formalRangeStartDayKey: formalLaunchRange.launchStartDayKey");
+    expect(source).not.toContain("formalRangeEndDayKey: formalLaunchRange.expectedThroughDayKey");
+    expect(source).not.toContain("formalExpectedDayCount: formalLaunchRange.expectedDayCount");
+    expect(source).not.toContain("evidenceDayCount: formalLaunchRange.localEvidenceDayCount");
     expect(source).toContain("launch range proof must expose the formal expected day count.");
-    expect(source).toContain("formalLaunchDayCoverage");
-    expect(source).toContain('formalEvidenceState: "outside_evidence_window"');
-    expect(source).toContain("No approved all-launch evidence covers this day yet; source counts are unknown, not zero.");
+    expect(source).toContain("localEvidenceDays: dayCoverage");
+    expect(source).toContain("formalLaunchDayCoverage: summarizeRecoveredMetricMetadataCompleteness(formalLaunchRange.dayCoverage)");
+    expect(source).not.toContain('sourceCountsKnown: false,');
+    expect(source).not.toContain("No approved all-launch evidence covers this day yet; source counts are unknown, not zero.");
+    expect(source).not.toContain("listInclusiveDays");
+    expect(source).not.toContain("rangeLabel");
     expect(source).toContain("formal launch range must expose one dayCoverage row for every launch day.");
     expect(source).toContain("outside evidence window must use null source counts, not zero.");
     expect(source).toContain("Formal Launch Day Rows");
     expect(source).toContain("formal launch range must list unproven ranges");
-    expect(source).toContain("GA4, historical snapshots, and legacy support remain evidence-only");
+    expect(spine).toContain("GA4, historical snapshots, and legacy support remain evidence-only");
     expect(source).toContain('productTruthRole: "primary_product_truth"');
     expect(source).toContain('productTruthRole: "second_source_evidence_only"');
     expect(source).toContain('productTruthRole: "fallback_evidence_only"');
@@ -283,6 +326,7 @@ describe("analytics panel hydration", () => {
     const source = readFileSync("scripts/agent/validate-analytics-panel-hydration.ts", "utf8");
 
     expect(source).toContain('agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore"');
+    expect(source).toContain('^\\.agent\\/workflows\\/[a-z0-9-]+\\.md$');
   });
 
   it("keeps launch recovery day rows actionable instead of top-level-only", () => {
@@ -293,9 +337,65 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("productTruthRecoveredDayCount");
     expect(source).toContain("evidenceObservedDayCount");
     expect(source).toContain("sourceTruthState");
+    expect(source).toContain("confidenceBand");
+    expect(source).toContain("classifyRecoveryMetricConfidenceBand(day.confidenceScore)");
+    expect(source).toContain("eventFamilyCoverage");
+    expect(source).toContain("activeSourceCoverage");
+    expect(source).toContain("targetCoveragePercent: activeSourceCoverage.targetCoveragePercent");
+    expect(source).toContain("active source coverage must not clear historical launch proof");
+    expect(source).toContain("buildLaunchCriticalRecoveryCoverageFromEvidence");
+    expect(source).toContain("modeled/inferred evidence calibration-only");
+    expect(source).toContain("summarizeRecoveredMetricMetadataCompleteness");
+    expect(source).toContain("recoveredMetricMetadataCompleteness");
+    expect(source).toContain("sourceAgreementDisagreements: summarizeRecoveredMetricMetadataCompleteness(sourceAgreementDisagreements)");
+    expect(source).toContain('"sourceAgreementDisagreements"');
+    expect(source).toContain("RECOVERY_METRIC_DEDUPE_RULES");
+    expect(source).toContain("RECOVERY_METRIC_MODELING_POLICY");
+    expect(source).toContain("RECOVERY_METRIC_POLICY_PROOF_BOUNDARY");
+    expect(source).not.toContain('proofBoundary: "policy_metadata_only_not_runtime_provider_or_admin_truth_proof"');
+    expect(source).toContain("recoveryPolicy");
+    expect(source).toContain("eventIdIsPrimaryWhenPresent");
+    expect(source).toContain("fallbackUsesSessionIdentityRouteObjectAndTimestampWindow");
+    expect(source).toContain("modeled/visibility evidence policy");
+    expect(source).toContain("metadata completeness must stay metadata-only");
+    expect(source).toContain("policy metadata must not clear runtime/provider/admin truth gates");
+    expect(source).toContain("RECOVERED_METRIC_METADATA_PROOF_BOUNDARY");
+    expect(source).not.toContain('proofBoundary: "metadata_completeness_only_not_source_runtime_provider_or_admin_truth_proof"');
+    expect(source).toContain("summarizeLaunchRecoveryFamilySourceStates");
+    expect(source).toContain("displaySummary sourceWindowLabel must come from the recovery spine coverage window");
+    expect(source).toContain("displaySummary sourceRoleCounts must agree with eventFamilyCoverage family source roles");
+    expect(source).toContain("displaySummary must expose mathReasonSamples when launch-critical families are missing product truth");
+    expect(source).toContain("coveredDayCount: sourceDayCounts.firstParty");
+    expect(source).not.toContain("coveredDayCount: firstPartyDays.size");
+    expect(source).toContain("collapseLaunchRecoveryDayRanges");
+    expect(source).not.toContain("function collapseDayRanges");
+    expect(source).toContain("Active source-code coverage");
+    expect(source).toContain("Launch-critical observed first-party coverage");
+    expect(source).toContain("Recovered metric metadata");
+    expect(source).toContain("source-agreement disagreements ${report.recoveredMetricMetadataCompleteness.sourceAgreementDisagreements.status}");
+    expect(source).toContain("Recovery policy");
     expect(source).toContain("launch day ${day.dayKey} cannot be product-truth recovered without first-party evidence.");
     expect(source).toContain("## Daily Recovery Rows");
     expect(source).toContain("perDayMetricDeltas");
     expect(source).toContain("Count delta details");
+    expect(source).toContain("sourceAgreementMetricDeltas");
+    expect(source).toContain("source-agreement count deltas");
+    expect(source).toContain("sourceTruthState: typeof entry.sourceTruthState");
+  });
+
+  it("keeps analytics truth rebuild summary tied to the canonical recovery display summary", () => {
+    const source = readFileSync("scripts/rebuild-analytics-truth.ts", "utf8");
+
+    expect(source).toContain("buildLaunchHistoryDisplaySummaryState");
+    expect(source).toContain("const displaySummary = buildLaunchHistoryDisplaySummaryState");
+    expect(source).toContain("const sourceAgreementDisagreements = readRecordArray(sourceAgreement.disagreements)");
+    expect(source).toContain("const sourceAgreementMetricDeltas = readRecordArray(sourceAgreement.perDayMetricDeltas)");
+    expect(source).toContain("sourceAgreementMetricDeltas: summarizeRecoveredMetricMetadataCompleteness(sourceAgreementMetricDeltas)");
+    expect(source).toContain("sourceWindowLabel");
+    expect(source).toContain("mathReasonSamples: (displaySummary.mathReasonSamples ?? [])");
+    expect(source).not.toContain("asRecord(launchHistoryCoverage.displaySummary)");
+    expect(source).not.toContain("readRecordArray(displaySummary.mathReasonSamples)");
+    expect(source).not.toContain("Launch evidence window since ${");
+    expect(source).not.toContain("Launch history recovered since ${");
   });
 });

@@ -1,5 +1,11 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
+import {
+  LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT,
+  RECOVERY_METRIC_POLICY_PROOF_BOUNDARY,
+} from "@/lib/analytics/recovery-timeline-spine";
 import { buildDataValidationPanelState, buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
 import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
 
@@ -301,11 +307,11 @@ describe("buildHistoricalValidationSummary", () => {
         expectedRangeSource: "all_range_historical_route",
         coverageWindowKind: "all_range_historical_route",
         allLaunchRangeProven: false,
-        formalRangeStartDayKey: "2026-05-01",
+        formalRangeStartDayKey: "2026-02-12",
         formalRangeEndDayKey: "2026-05-03",
-        formalExpectedDayCount: 3,
+        formalExpectedDayCount: 81,
         evidenceDayCount: 3,
-        unprovenRanges: ["2026-05-01..2026-05-03"],
+        unprovenRanges: ["2026-02-12..2026-05-03"],
       },
       firstRecoveredDayKey: "2026-05-01",
       lastRecoveredDayKey: "2026-05-03",
@@ -321,7 +327,7 @@ describe("buildHistoricalValidationSummary", () => {
     expect(summary.analyticsSourceHealth.launchHistoryCoverage?.firstPartyCoverage.canPromoteProductTruth).toBe(false);
     expect(summary.analyticsSourceHealth.continuity.missingDays).toEqual([]);
     expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("partial");
-    expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("first recovered source day");
+    expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("3 of 81 formal launch day");
   });
 
   it("keeps formal launch range proof separate from local source evidence windows", () => {
@@ -347,16 +353,16 @@ describe("buildHistoricalValidationSummary", () => {
       productTruthRecoveredDayCount: 3,
       rangeProof: {
         allLaunchRangeProven: false,
-        formalRangeStartDayKey: "2026-05-01",
+        formalRangeStartDayKey: "2026-02-12",
         formalRangeEndDayKey: "2026-05-05",
-        formalExpectedDayCount: 5,
+        formalExpectedDayCount: 83,
         evidenceDayCount: 3,
-        unprovenRanges: ["2026-05-01..2026-05-05"],
+        unprovenRanges: ["2026-02-12..2026-05-05"],
       },
     });
-    expect(summary.analyticsSourceHealth.launchHistoryCoverage?.rangeProof.reason).toContain("3 of 5 formal launch day");
+    expect(summary.analyticsSourceHealth.launchHistoryCoverage?.rangeProof.reason).toContain("3 of 83 formal launch day");
     expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("partial");
-    expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("3 of 5 formal launch day");
+    expect(summary.analyticsSourceHealth.chartReadiness.reason).toContain("3 of 83 formal launch day");
   });
 
   it("keeps per-day launch recovery source labels without promoting GA4 to product truth", () => {
@@ -387,6 +393,71 @@ describe("buildHistoricalValidationSummary", () => {
       missingRanges: ["2026-05-02..2026-05-03"],
       canPromoteProductTruth: false,
     });
+    expect(coverage?.eventFamilyCoverage).toMatchObject({
+      canonicalMappedFamilyCount: 13,
+      canonicalMappingCoveragePercent: 100,
+      observedFirstPartyFamilyCount: 6,
+      observedFirstPartyCoveragePercent: expect.any(Number),
+      sourceCoverageStatus: "blocked",
+      holdbackValidation: expect.objectContaining({
+        observedFirstPartyRequired: true,
+        modeledOrInferredCanCalibrateOnly: true,
+        minObservedFirstPartyCoveragePercent: LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT,
+        status: "blocked",
+      }),
+    });
+    expect(coverage?.eventFamilyCoverage.observedFirstPartyCoveragePercent).toBe(46.2);
+    expect(coverage?.eventFamilyCoverage.observedFirstPartyCoveragePercent).toBeLessThan(LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT);
+    expect(coverage?.sourceGateBlockers?.map((entry) => entry.blocker)).toEqual(expect.arrayContaining([
+      "all_launch_range_proof_missing",
+      "first_party_coverage_incomplete",
+      "launch_critical_family_coverage_below_floor",
+      "source_agreement_failed",
+      "launch_history_coverage_unavailable",
+    ]));
+    expect(coverage?.eventFamilyCoverage.familySourceStates.find((family) => family.familyId === "page_view")).toMatchObject({
+      observedFirstParty: true,
+      productTruthEligible: true,
+      sourceCoverageState: "observed_first_party",
+    });
+    expect(coverage?.eventFamilyCoverage.familySourceStates.find((family) => family.familyId === "purchase")).toMatchObject({
+      observedFirstParty: true,
+      productTruthEligible: true,
+      strongestSourceTruth: "server_ledger",
+      sourceCoverageState: "observed_first_party",
+    });
+    expect(coverage?.recoveryPolicy).toMatchObject({
+      dedupeRules: {
+        includesEventId: true,
+        includesSessionId: true,
+        includesIdentityLinkId: true,
+        includesUserIdOrGuestId: true,
+        includesRoute: true,
+        includesTimestampWindow: true,
+        includesSemanticAction: true,
+      },
+      productTruthPolicy: {
+        firstPartyPrimary: true,
+        ga4EvidenceOnly: true,
+        legacyEvidenceOnly: true,
+        missingIsNotZero: true,
+        noBalanceOrEntitlementMutation: true,
+      },
+      modelingPolicy: {
+        canonicalModeledSpelling: "modeled",
+        acceptsBritishModelledAlias: true,
+        modeledEvidenceCanCalibrateOnly: true,
+        observedFirstPartyHoldbackRequired: true,
+        consentModeLikeSignalsAreEvidenceOnly: true,
+        lateArrivalWindowDays: 12,
+        visibilityCountingRequiresExplicitThreshold: true,
+        visibilityMinimumVisiblePercent: 50,
+        visibilityMinimumVisibleMs: 1_000,
+        missingSourceNeverBecomesZero: true,
+        productTruthRequiresFirstPartyOrLedgerCorroboration: true,
+      },
+      proofBoundary: RECOVERY_METRIC_POLICY_PROOF_BOUNDARY,
+    });
     expect(coverage).toMatchObject({
       evidenceObservedDayCount: 3,
       productTruthRecoveredDayCount: 1,
@@ -401,6 +472,12 @@ describe("buildHistoricalValidationSummary", () => {
         productTruthRecovered: true,
         sourceTruthState: "mixed_evidence",
         confidence: "mixed",
+        sourceTruth: "first_party_event_fact",
+        freshnessState: "source_current",
+        evidenceKind: "observed",
+        confidenceScore: 95,
+        confidenceBand: "verified",
+        lateArrivalWindowDays: 12,
         sourceCounts: expect.objectContaining({ first_party: 1, ga4: 1 }),
       }),
       expect.objectContaining({
@@ -410,6 +487,11 @@ describe("buildHistoricalValidationSummary", () => {
         productTruthRecovered: false,
         sourceTruthState: "second_source_only",
         confidence: "fallback",
+        sourceTruth: "ga4_evidence_only",
+        freshnessState: "external_evidence_required",
+        evidenceKind: "modeled",
+        confidenceBand: "directional",
+        lateArrivalWindowDays: 12,
         sourceCounts: expect.objectContaining({ first_party: 0, ga4: 1, historicalSnapshot: 1 }),
         nextAction: expect.stringContaining("first-party"),
       }),
@@ -420,10 +502,18 @@ describe("buildHistoricalValidationSummary", () => {
         productTruthRecovered: false,
         sourceTruthState: "second_source_only",
         confidence: "fallback",
+        sourceTruth: "ga4_evidence_only",
+        freshnessState: "external_evidence_required",
+        evidenceKind: "modeled",
+        confidenceBand: "directional",
+        lateArrivalWindowDays: 12,
         sourceCounts: expect.objectContaining({ first_party: 0, ga4: 1, legacySupport: 1 }),
       }),
     ]);
-    expect(coverage?.days[1]?.reason).toContain("Historical snapshot covers this day");
+    expect(coverage?.days[0]?.dedupeKey).toContain("launch_recovery|page_view");
+    expect(coverage?.days[0]?.dedupeKey).toContain("object:2026-05-01");
+    expect(coverage?.days[1]?.confidenceScore).toBeLessThan(coverage?.days[0]?.confidenceScore ?? 0);
+    expect(coverage?.days[1]?.reason).toContain("Historical snapshot evidence is present");
     expect(summary.analyticsSourceHealth.sourceAgreement.state).toBe("failed");
     expect(summary.analyticsSourceHealth.sourceAgreement.classifications).toEqual(expect.arrayContaining([
       "date_range_mismatch",
@@ -431,6 +521,81 @@ describe("buildHistoricalValidationSummary", () => {
       "missing_materializer",
     ]));
     expect(summary.analyticsSourceHealth.sourceAgreement.classifications).not.toContain("duplicate_event");
+  });
+
+  it("uses the recovery spine for launch-history coverage summary math", () => {
+    const source = readFileSync("src/lib/server/admin-analytics-historical-validation.ts", "utf8");
+
+    expect(source).toContain("buildLaunchHistoryCoverageSummaryState");
+    expect(source).toContain("const launchCoverageSummary = buildLaunchHistoryCoverageSummaryState");
+    expect(source).toContain("buildAllLaunchHistoricalRouteRangeProofState");
+    expect(source).toContain("const historicalRouteRangeProof = buildAllLaunchHistoricalRouteRangeProofState");
+    expect(source).toContain("rangeProof: historicalRouteRangeProof.rangeProof");
+    expect(source).toContain("historicalRouteRangeProof.formalLaunchRange.expectedDayCount");
+    expect(source).toContain("recoveredDayCount: launchCoverageSummary.recoveredDayCount");
+    expect(source).toContain("recoveryPolicy");
+    expect(source).toContain("modelingPolicy: RECOVERY_METRIC_MODELING_POLICY");
+    expect(source).toContain("RECOVERY_METRIC_POLICY_PROOF_BOUNDARY");
+    expect(source).not.toContain('proofBoundary: "policy_metadata_only_not_runtime_provider_or_admin_truth_proof"');
+    expect(source).toContain("state: launchCoverageSummary.firstPartyCoverage.state");
+    expect(source).not.toContain("const firstPartyCoverageState");
+    expect(source).not.toContain("const formalRangeEndDayKey");
+    expect(source).not.toContain("const formalExpectedDayCount");
+    expect(source).not.toContain("const evidenceObservedDayCount = launchHistoryDays.filter");
+    expect(source).not.toContain("const secondSourceOnlyDayCount = launchHistoryDays.filter");
+    expect(source).not.toMatch(/rangeProof:\s*\{\s*expectedRangeSource:\s*"all_range_historical_route"/u);
+    expect(source).not.toContain("All-time historical route evidence covers ${expectedDays.length}");
+  });
+
+  it("uses the source-agreement owner for coverage summary and blocking mismatch rules", () => {
+    const source = readFileSync("src/lib/server/admin-analytics-historical-validation.ts", "utf8");
+
+    expect(source).toContain("buildSourceAgreementCoverageSummaryState");
+    expect(source).toContain("@/lib/analytics/source-agreement-detail");
+    expect(source).not.toContain("function hasBlockingSourceCoverageMismatch");
+    expect(source).not.toContain("const hasAnySource = input.hasGa4 || input.hasFirstParty");
+    expect(source).not.toContain("const activeCoverage = coverageBySource.filter");
+    expect(source).not.toContain("const maxCoverage = deltaCoverage.length");
+  });
+
+  it("keeps launch event-family coverage blocked when evidence is modeled-only", () => {
+    const summary = build({
+      selectedRange: "all",
+      gaPresentDayKeys: ["2026-05-01", "2026-05-02", "2026-05-03"],
+      firstPartyPresentDayKeys: [],
+      snapshotPresentDayKeys: [],
+      legacyPresentDayKeys: [],
+      expectedDayKeys: ["2026-05-01", "2026-05-02", "2026-05-03"],
+      recentWindowDayKeys: ["2026-05-01", "2026-05-02", "2026-05-03"],
+      firstPartyPurchaseCount: 0,
+      completedPurchaseTransactionsCount: 0,
+      firstPartyUnlockCount: 0,
+      unlockTransactionsCount: 0,
+      viewerSessionFactCount: 0,
+      viewerSessionStartedLogsLength: 0,
+      watchSessionCount: 0,
+      watchCaptureFullCount: 0,
+    });
+    const coverage = summary.analyticsSourceHealth.launchHistoryCoverage;
+
+    expect(coverage?.firstPartyCoverage).toMatchObject({
+      state: "source_missing",
+      canPromoteProductTruth: false,
+    });
+    expect(coverage?.eventFamilyCoverage).toMatchObject({
+      canonicalMappingCoveragePercent: 100,
+      observedFirstPartyFamilyCount: 0,
+      observedFirstPartyCoveragePercent: 0,
+      sourceCoverageStatus: "blocked",
+    });
+    expect(coverage?.eventFamilyCoverage.holdbackValidation.reason).toContain(`cannot clear the ${LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT}% first-party recovery calibration floor`);
+    expect(coverage?.eventFamilyCoverage.familySourceStates.find((family) => family.familyId === "page_view")).toMatchObject({
+      observedFirstParty: false,
+      strongestSourceTruth: "ga4_evidence_only",
+      strongestEvidenceKind: "modeled",
+      sourceCoverageState: "modeled_second_source",
+      productTruthEligible: false,
+    });
   });
 
   it("names partial or empty module coverage gaps with missing sources and validators", () => {

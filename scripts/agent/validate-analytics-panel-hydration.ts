@@ -9,8 +9,33 @@ import {
 import { classifyGeneratedArtifactFromGit } from "@/lib/agent-score/generated-artifact-version-policy";
 import {
   LAUNCH_ANALYTICS_FIRST_DAY_KEY,
+  buildSourceAgreementCoverageSummaryState,
   classifySourceAgreementCoverage,
 } from "@/lib/analytics/source-agreement-detail";
+import {
+  ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
+  LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT,
+  LAUNCH_CRITICAL_EVENT_FAMILIES,
+  RECOVERED_METRIC_METADATA_PROOF_BOUNDARY,
+  RECOVERY_METRIC_DEDUPE_RULES,
+  RECOVERY_METRIC_MODELING_POLICY,
+  RECOVERY_METRIC_POLICY_PROOF_BOUNDARY,
+  RECOVERY_METRIC_PRODUCT_TRUTH_POLICY,
+  buildFormalLaunchRangeRecoveryState,
+  buildLaunchCriticalActiveSourceCoverageReport,
+  buildLaunchCriticalRecoveryCoverageFromEvidence,
+  buildLaunchHistoryDisplaySummaryState,
+  buildLaunchHistorySourceCoverageRowsState,
+  buildLaunchHistoryCoverageSummaryState,
+  buildLaunchHistoryRangeProofState,
+  buildLaunchRecoverySourceGateState,
+  classifyRecoveryMetricConfidenceBand,
+  collapseLaunchRecoveryDayRanges,
+  getLaunchCriticalActiveSourceEventNames,
+  normalizeLaunchHistoryRangeProofKind,
+  summarizeLaunchRecoveryFamilySourceStates,
+  summarizeRecoveredMetricMetadataCompleteness,
+} from "@/lib/analytics/recovery-timeline-spine";
 import { buildLivePanelEvidenceReport } from "@/lib/release-readiness/live-panel-evidence-resolver";
 import { buildLaunchSourceAgreementDetail } from "./debug-cockpit-batch29-analytics-source-hierarchy-shared";
 
@@ -56,75 +81,72 @@ function asNumber(value: unknown, fallback = 0) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
-function collapseDayRanges(days: string[]) {
-  const sorted = [...new Set(days)].sort();
-  const ranges: string[] = [];
-  let start: string | null = null;
-  let previous: string | null = null;
+function stableNumberRecord(value: Record<string, unknown>) {
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter((entry): entry is [string, number] => typeof entry[1] === "number" && Number.isFinite(entry[1]))
+      .sort(([left], [right]) => left.localeCompare(right)),
+  );
+}
 
-  const nextDay = (dayKey: string) => {
-    const next = new Date(`${dayKey}T00:00:00.000Z`);
-    next.setUTCDate(next.getUTCDate() + 1);
-    return next.toISOString().slice(0, 10);
-  };
+function isActiveAnalyticsSourceFile(path: string) {
+  const normalized = path.replace(/\\/gu, "/");
+  if (!/\.(ts|tsx|js)$/iu.test(normalized)) return false;
+  if (!/^(src|functions\/src|shared)\//u.test(normalized)) return false;
+  if (
+    normalized.includes("telemetry-catalog")
+    || normalized.includes("telemetry-event-manifest")
+    || normalized.includes("recovery-timeline-spine")
+    || normalized.includes("/testing/")
+    || normalized.includes("__tests__")
+  ) {
+    return false;
+  }
+  return true;
+}
 
-  for (const dayKey of sorted) {
-    if (!start) {
-      start = dayKey;
-      previous = dayKey;
+function sourceContainsEventName(source: string, eventName: string) {
+  const escaped = eventName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  return new RegExp(`(^|[^a-zA-Z0-9_])${escaped}([^a-zA-Z0-9_]|$)`, "u").test(source);
+}
+
+function buildLaunchCriticalActiveSourceReferences() {
+  const sourceReferencesByEventName: Record<string, string[]> = {};
+  const materializerReferencesByEventName: Record<string, string[]> = {};
+  const files = run("git", ["ls-files", "src", "functions/src", "shared"])
+    .split(/\r?\n/u)
+    .map((entry) => entry.trim().replace(/\\/gu, "/"))
+    .filter(isActiveAnalyticsSourceFile);
+  const materializerHints = [
+    "analytics_event_facts",
+    "analytics_metric_facts",
+    "analytics_watch_sessions",
+    "materializer",
+    "rollup",
+    "hydrate",
+    "normalizedAction",
+  ];
+
+  for (const path of files) {
+    let source = "";
+    try {
+      source = readFileSync(join(ROOT, path), "utf8");
+    } catch {
       continue;
     }
-
-    if (previous && dayKey === nextDay(previous)) {
-      previous = dayKey;
-      continue;
+    const hasMaterializerHint = materializerHints.some((hint) => source.includes(hint));
+    for (const family of LAUNCH_CRITICAL_EVENT_FAMILIES) {
+      for (const eventName of getLaunchCriticalActiveSourceEventNames(family)) {
+        if (!sourceContainsEventName(source, eventName)) continue;
+        (sourceReferencesByEventName[eventName] ??= []).push(path);
+        if (hasMaterializerHint || source.includes(family.materializerLane)) {
+          (materializerReferencesByEventName[eventName] ??= []).push(path);
+        }
+      }
     }
-
-    ranges.push(start === previous ? start : `${start}..${previous}`);
-    start = dayKey;
-    previous = dayKey;
   }
 
-  if (start) ranges.push(start === previous ? start : `${start}..${previous}`);
-  return ranges;
-}
-
-function dayKeyFromIso(value: string) {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return new Date().toISOString().slice(0, 10);
-  return parsed.toISOString().slice(0, 10);
-}
-
-function inclusiveDayCount(startDayKey: string, endDayKey: string) {
-  const start = Date.parse(`${startDayKey}T00:00:00.000Z`);
-  const end = Date.parse(`${endDayKey}T00:00:00.000Z`);
-  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return 0;
-  return Math.floor((end - start) / 86_400_000) + 1;
-}
-
-function listInclusiveDays(startDayKey: string, endDayKey: string) {
-  const dayCount = inclusiveDayCount(startDayKey, endDayKey);
-  if (dayCount <= 0) return [];
-  return Array.from({ length: dayCount }, (_, index) => {
-    const day = new Date(`${startDayKey}T00:00:00.000Z`);
-    day.setUTCDate(day.getUTCDate() + index);
-    return day.toISOString().slice(0, 10);
-  });
-}
-
-function rangeLabel(startDayKey: string, endDayKey: string) {
-  return startDayKey === endDayKey ? startDayKey : `${startDayKey}..${endDayKey}`;
-}
-
-function publicLaunchRangeSource(
-  coverageWindowKind: string,
-): "all_range_historical_route" | "all_range_historical_export" | "admin_truth_sample" | "fixture_only_local_window" | "local_source_window" | "unknown" {
-  if (coverageWindowKind === "all_range_historical_export" || coverageWindowKind === "admin_truth_sample" || coverageWindowKind === "fixture_only_local_window") {
-    return coverageWindowKind;
-  }
-  if (coverageWindowKind === "all_range_historical_route") return "all_range_historical_route";
-  if (coverageWindowKind === "caller_supplied_expected_days" || coverageWindowKind === "local_source_window") return "local_source_window";
-  return "unknown";
+  return { sourceReferencesByEventName, materializerReferencesByEventName };
 }
 
 function changedFiles() {
@@ -140,6 +162,20 @@ function changedFiles() {
 function classifyDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (
+    normalized === "AGENTS.md"
+    || /^\.agent\/skills\/[a-z0-9-]+\.md$/u.test(normalized)
+    || /^\.agent\/workflows\/[a-z0-9-]+\.md$/u.test(normalized)
+    || normalized === "EVERY_FILE_FUNCTION_CHECKLIST.md"
+    || normalized === "FULL_SCALE_CODEBASE_AUDIT.md"
+    || normalized === "REPO_MEMORY_LEDGER.md"
+    || normalized === "memory.md"
+    || normalized === "docs/agent-truth/current-operator-doctrine.md"
+    || normalized === "control-tower/00-START-HERE.md"
+    || normalized === "control-tower/04-EXECUTION-ORDER.md"
+  ) {
+    return "doctrine_memory_expected";
+  }
   if (normalized === REPORT_PATH) return "analytics_panel_hydration_artifact_expected";
   if (normalized === DOC_PATH) return "analytics_panel_hydration_artifact_expected";
   if (normalized === "src/lib/admin-analytics/panel-hydration-contract.ts") return "real_source_change_needs_review";
@@ -170,6 +206,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "agent/state/live-evidence-gate-replacement.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/live-evidence-gate-replacement.md") return "documentation_artifact_expected";
   if (normalized === "src/app/admin/analytics/page.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/admin-analytics-display-state.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/admin-analytics-source-hierarchy.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
@@ -177,6 +214,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/server/admin-analytics-historical-validation.ts") return "real_source_change_needs_review";
   if (normalized === "src/types/admin-analytics.ts") return "real_source_change_needs_review";
   if (normalized === "tests/unit/admin-data-validation.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/admin-analytics-display-state.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/analytics-validation-semantics.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/chart-readiness-hierarchy-repair.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/data-validation-ui-semantic-cleanup.spec.ts") return "test_artifact_expected";
@@ -188,8 +226,46 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/release-readiness/automated-truth-reconciliation.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/server/admin-analytics-data.ts") return "historical_analytics_source_reader_expected";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "analytics_panel_hydration_artifact_expected";
+  if (
+    normalized === "scripts/agent/validate-recovery-timeline-spine.ts"
+    || normalized === "src/lib/analytics/recovery-timeline-spine.ts"
+    || normalized === "tests/unit/recovery-timeline-spine.spec.ts"
+  ) {
+    return "launch_analytics_recovery_source_expected";
+  }
+  if (
+    normalized === "functions/src/analytics-semantics.ts"
+    || normalized === "src/lib/analytics-semantics.ts"
+    || normalized === "src/lib/server/analytics-semantics.ts"
+  ) {
+    return "analytics_semantics_source_expected";
+  }
+  if (
+    normalized === "scripts/agent/validate-event-catalog-telemetry.ts"
+    || normalized === "scripts/audit-telemetry.ts"
+    || normalized === "shared/runtime/telemetry-event-manifest.ts"
+  ) {
+    return "telemetry_catalog_manifest_expected";
+  }
+  if (
+    normalized === "scripts/agent/validate-admin-browser-surface-smoke.ts"
+    || normalized === "src/lib/admin/admin-browser-surface-map.ts"
+    || normalized === "src/lib/evidence/admin-browser-surface-smoke-contract.ts"
+    || normalized === "tests/unit/admin-browser-surface-smoke.spec.ts"
+  ) {
+    return "admin_browser_source_smoke_expected";
+  }
+  if (
+    normalized === "scripts/agent/validate-drops-mobile-refinement.ts"
+    || normalized === "tests/unit/create-drop-modal-upload-block.spec.tsx"
+    || normalized === "tests/unit/creator-drops-route.spec.ts"
+  ) {
+    return "creator_drop_workflow_expected";
+  }
   if (normalized === "scripts/agent/validate-admin-truth-sample-evidence.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-evidence-capture-status.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-count-deduplication-normalization.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-metric-canonicalization-legacy-recovery.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/evidence-artifact-schemas.spec.ts") return "test_artifact_expected";
   if (normalized === "scripts/agent/validate-admin-debug-control-tower.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-debug-signal-actionability.ts") return "analytics_admin_reorg_validator_expected";
@@ -217,6 +293,8 @@ function classifyDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/admin-surface-modal-replacement.md") return "admin_surface_modal_replacement_artifact_expected";
   if (normalized === "src/app/admin/debug/components/DebugControlTower.tsx") return "admin_debug_truth_display_source_expected";
   if (normalized === "src/app/admin/debug/components/DebugControlTowerCards.tsx") return "admin_debug_truth_display_source_expected";
+  if (normalized === "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts") return "admin_debug_truth_display_source_expected";
+  if (normalized === "tests/unit/debug-control-tower-cards.spec.tsx") return "test_artifact_expected";
   if (normalized === "src/components/Admin/BalanceAdjustmentPanel.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/components/Admin/CreateDropModal.tsx") return "admin_surface_modal_replacement_source_expected";
   if (normalized === "src/components/Admin/TransactionHistoryPanel.tsx") return "admin_surface_modal_replacement_source_expected";
@@ -574,9 +652,11 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   sourceAgreementResult: ReturnType<typeof buildLaunchSourceAgreementDetail>;
 }) {
   const legacyRecovery = compactLegacyRecoverySummary();
-  const sourceAgreementHead = input.currentHead;
   const sourceAgreementDetail = asRecord(input.sourceAgreementResult.detail);
   const sourceAgreementEvidence = asRecord(input.sourceAgreementResult.launchCoverageEvidence);
+  const sourceAgreementHead = typeof input.sourceAgreementResult.inputHead === "string"
+    ? input.sourceAgreementResult.inputHead
+    : sourceAgreementEvidence.inputHead;
   const coverageRows = Array.isArray(sourceAgreementDetail.perSourceCoverage)
     ? sourceAgreementDetail.perSourceCoverage.map((entry) => asRecord(entry))
     : [];
@@ -590,145 +670,65 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   const ga4Days = daysBySource.get("ga4") ?? new Set<string>();
   const historicalSnapshotDays = daysBySource.get("historical_snapshot") ?? new Set<string>();
   const legacySupportDays = daysBySource.get("legacy_support") ?? new Set<string>();
-  const expectedDays = [...new Set([...firstPartyDays, ...ga4Days, ...historicalSnapshotDays, ...legacySupportDays])].sort();
   const perDaySourceCounts = asRecord(sourceAgreementDetail.perDaySourceCounts);
   const internalAdminExcludedCountByDay = asRecord(sourceAgreementDetail.internalAdminExcludedCountByDay);
-  const sourceCountForDay = (
-    dayKey: string,
-    sourceKey: "first_party" | "ga4" | "historicalSnapshot" | "legacySupport",
-    present: boolean,
-  ) => {
-    const counts = asRecord(perDaySourceCounts[dayKey]);
-    const count = asNumber(counts[sourceKey], present ? 1 : 0);
-    return count > 0 ? count : 0;
-  };
-  const dayCoverage = expectedDays.map((dayKey) => {
-    const firstPartyCount = sourceCountForDay(dayKey, "first_party", firstPartyDays.has(dayKey));
-    const ga4Count = sourceCountForDay(dayKey, "ga4", ga4Days.has(dayKey));
-    const historicalSnapshotCount = sourceCountForDay(dayKey, "historicalSnapshot", historicalSnapshotDays.has(dayKey));
-    const legacySupportCount = sourceCountForDay(dayKey, "legacySupport", legacySupportDays.has(dayKey));
-    const hasFirstParty = firstPartyCount > 0;
-    const hasGa4 = ga4Count > 0;
-    const hasHistoricalSnapshot = historicalSnapshotCount > 0;
-    const hasLegacy = legacySupportCount > 0;
-    const hasFallback = hasHistoricalSnapshot || hasLegacy;
-    const sourceCount = Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy);
-    const evidenceObserved = sourceCount > 0;
-    const productTruthRecovered = hasFirstParty;
-    const recovered = evidenceObserved;
-    const sourceTruthState =
-      hasFirstParty && sourceCount > 1
-        ? "mixed_evidence"
-        : hasFirstParty
-          ? "first_party_recovered"
-          : hasGa4
-            ? "second_source_only"
-            : hasFallback
-              ? "fallback_only"
-              : "source_missing";
-    const missingRangesBySource = {
-      first_party: hasFirstParty ? [] : [dayKey],
-      ga4: hasGa4 ? [] : [dayKey],
-      historicalSnapshot: hasHistoricalSnapshot ? [] : [dayKey],
-      legacySupport: hasLegacy ? [] : [dayKey],
-    };
-    const duplicateSourceCount = Math.max(0, sourceCount - 1);
-    const duplicateRanges = duplicateSourceCount > 0 ? [dayKey] : [];
-    const confidence = hasFirstParty && hasGa4 && !hasFallback
-      ? "verified"
-      : hasFirstParty && hasFallback
-        ? "mixed"
-        : hasFirstParty
-          ? "partial"
-          : hasGa4 || hasFallback
-            ? "fallback"
-            : "unknown";
-    return {
-      dayKey,
-      expected: true,
-      recovered,
-      evidenceObserved,
-      productTruthRecovered,
-      sourceTruthState,
-      sourceCounts: {
-        first_party: firstPartyCount,
-        ga4: ga4Count,
-        historicalSnapshot: historicalSnapshotCount,
-        legacySupport: legacySupportCount,
-      },
-      missingRangesBySource,
-      duplicateRanges,
-      internalAdminExcludedCount: typeof internalAdminExcludedCountByDay[dayKey] === "number"
-        ? asNumber(internalAdminExcludedCountByDay[dayKey], 0)
-        : null,
-      duplicateSourceCount,
-      confidence,
-      reason: recovered
-        ? hasFirstParty
-          ? hasFallback
-            ? "First-party event-fact/day-bucket evidence is present with fallback evidence; keep GA4/fallback corroborating until dedupe review is complete."
-            : "First-party event-fact/day-bucket evidence is present for this day; GA4 remains comparison evidence only."
-          : hasHistoricalSnapshot
-            ? "Historical snapshot evidence is present without a first-party event-fact bucket; it can explain gaps but cannot replace product truth."
-            : "Only external or legacy evidence is present for this day; it cannot overwrite first-party product truth."
-        : "No source evidence is present for this day.",
-      nextAction: hasFirstParty
-        ? "Use first-party truth for identity, purchase, unlock, watch, task, creator, and admin metrics; compare GA4 only as second source."
-        : "Recover first-party materialization before promoting this day to canonical product analytics.",
-    };
-  });
-  const sourceDayCounts = {
-    firstParty: firstPartyDays.size,
-    first_party: firstPartyDays.size,
-    ga4: ga4Days.size,
-    historicalSnapshot: historicalSnapshotDays.size,
-    legacySupport: legacySupportDays.size,
-  };
-  const computedMissingDaysBySource = {
-    first_party: expectedDays.filter((dayKey) => !firstPartyDays.has(dayKey)),
-    ga4: expectedDays.filter((dayKey) => !ga4Days.has(dayKey)),
-    historical_snapshot: expectedDays.filter((dayKey) => !historicalSnapshotDays.has(dayKey)),
-    legacy_support: expectedDays.filter((dayKey) => !legacySupportDays.has(dayKey)),
-  };
-  const firstPartyMissingDays = computedMissingDaysBySource.first_party;
-  const sourceMissingDays = expectedDays.filter((dayKey) =>
-    !firstPartyDays.has(dayKey) &&
-    !ga4Days.has(dayKey) &&
-    !historicalSnapshotDays.has(dayKey) &&
-    !legacySupportDays.has(dayKey),
+  const sourceCountsByDay = Object.fromEntries(
+    Object.entries(perDaySourceCounts).map(([dayKey, counts]) => {
+      const record = asRecord(counts);
+      return [dayKey, {
+        first_party: typeof record.first_party === "number" ? record.first_party : undefined,
+        ga4: typeof record.ga4 === "number" ? record.ga4 : undefined,
+        historicalSnapshot: typeof record.historicalSnapshot === "number" ? record.historicalSnapshot : undefined,
+        legacySupport: typeof record.legacySupport === "number" ? record.legacySupport : undefined,
+      }];
+    }),
   );
-  const recoveredDays = dayCoverage.filter((day) => day.recovered);
-  const duplicateDays = dayCoverage.filter((day) => day.duplicateSourceCount > 0).map((day) => day.dayKey);
-  const firstPartyCoverageState = expectedDays.length === 0 || firstPartyDays.size === 0
-    ? "source_missing"
-    : firstPartyMissingDays.length > 0
-      ? "partial"
-      : "available";
+  const sourceCoverageRows = buildLaunchHistorySourceCoverageRowsState({
+    firstPartyDayKeys: firstPartyDays,
+    ga4DayKeys: ga4Days,
+    historicalSnapshotDayKeys: historicalSnapshotDays,
+    legacySupportDayKeys: legacySupportDays,
+    sourceCountsByDay,
+    internalAdminExcludedCountByDay: Object.fromEntries(
+      Object.entries(internalAdminExcludedCountByDay).map(([dayKey, count]) => [
+        dayKey,
+        typeof count === "number" ? asNumber(count, 0) : null,
+      ]),
+    ),
+  });
+  const expectedDays = sourceCoverageRows.expectedDayKeys;
+  const dayCoverage = sourceCoverageRows.dayCoverage;
+  const { sourceDayCounts } = sourceCoverageRows;
+  const computedMissingDaysBySource = sourceCoverageRows.missingDaysBySource;
+  const firstPartyMissingDays = sourceCoverageRows.firstPartyMissingDayKeys;
+  const sourceMissingDays = sourceCoverageRows.sourceMissingDayKeys;
+  const duplicateDays = sourceCoverageRows.duplicateDayKeys;
+  const launchEventFamilyCoverage = buildLaunchCriticalRecoveryCoverageFromEvidence({
+    generatedAtUtc: input.generatedAtUtc,
+    launchHistoryDays: dayCoverage,
+  });
+  const sourceAgreementSummary = buildSourceAgreementCoverageSummaryState({
+    expectedDays,
+    coverageBySource: {
+      first_party: firstPartyDays,
+      ga4: ga4Days,
+      historical_snapshot: historicalSnapshotDays,
+      legacy_support: legacySupportDays,
+    },
+  });
   const rawSourceAgreementState = sourceAgreementDetail.sourceAgreementStatus;
   const sourceAgreementState = typeof rawSourceAgreementState === "string"
     ? rawSourceAgreementState
-    : asNumber(sourceAgreementDetail.disagreementCount, 0) > 1 || asNumber(sourceAgreementDetail.maxDeltaPct, 0) > 25
-      ? "failed"
-      : asNumber(sourceAgreementDetail.disagreementCount, 0) > 0
-      ? "review"
-      : expectedDays.length > 0 ? "pass" : "not_enough_sources";
-  const launchCoverageState = recoveredDays.length === 0
-    ? "source_missing"
-    : firstPartyCoverageState !== "available" ||
-      sourceAgreementState !== "pass" ||
-      sourceMissingDays.length > 0
-      ? "partial"
-      : "available";
-  const launchCoverageReason = launchCoverageState === "source_missing"
-    ? "No launch-history source evidence was observed in the generated source agreement detail."
-    : firstPartyCoverageState !== "available"
-      ? "Launch-history day buckets are only partially first-party backed; GA4, historical snapshots, and legacy support remain evidence-only until first-party product truth covers the range."
-    : sourceAgreementState === "failed" || sourceAgreementState === "fail"
-      ? "Launch-history day buckets exist, but source agreement failed; keep coverage partial until first-party and second-source lanes agree."
-    : launchCoverageState === "partial"
-      ? "Some launch-history day buckets are missing from all local source evidence."
-      : "Every expected launch day is first-party backed and source agreement passed; source agreement still controls when charts can be treated as canonical.";
-  const staleEvidence = sourceAgreementHead !== null && sourceAgreementHead !== input.currentHead;
+    : sourceAgreementSummary.sourceAgreementStatus;
+  const staleEvidence = typeof sourceAgreementHead === "string" && sourceAgreementHead !== input.currentHead;
+  const launchCoverageSummary = buildLaunchHistoryCoverageSummaryState({
+    expectedDayKeys: expectedDays,
+    dayCoverage,
+    firstPartyMissingDayKeys: firstPartyMissingDays,
+    sourceMissingDayKeys: sourceMissingDays,
+    staleEvidence,
+    sourceAgreementState,
+  });
   const status = expectedDays.length === 0
     ? "source_evidence_missing"
     : staleEvidence
@@ -736,8 +736,14 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       : sourceAgreementState === "failed" || sourceAgreementState === "fail"
         ? "source_agreement_failed"
         : "review";
-  const disagreementCount = asNumber(sourceAgreementDetail.disagreementCount, 0);
-  const maxDeltaPct = typeof sourceAgreementDetail.maxDeltaPct === "number" ? sourceAgreementDetail.maxDeltaPct : null;
+  const disagreementCount = typeof sourceAgreementDetail.disagreementCount === "number"
+    ? sourceAgreementDetail.disagreementCount
+    : sourceAgreementSummary.disagreementCount;
+  const maxDeltaPct = typeof sourceAgreementDetail.maxDeltaPct === "number"
+    ? sourceAgreementDetail.maxDeltaPct
+    : sourceAgreementSummary.activeSourceCount > 1
+      ? sourceAgreementSummary.maxDeltaPct
+      : null;
   const sourceAgreementDisagreements = Array.isArray(sourceAgreementDetail.disagreements)
     ? sourceAgreementDetail.disagreements.map((entry) => asRecord(entry))
     : [];
@@ -759,6 +765,15 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   const perDayMetricDeltas = asRecordArray(sourceAgreementDetail.perDayMetricDeltas).map((entry) => ({
     dayKey: typeof entry.dayKey === "string" ? entry.dayKey : "unknown",
     metric: typeof entry.metric === "string" ? entry.metric : "source_count_delta",
+    sourceTruthState: typeof entry.sourceTruthState === "string" ? entry.sourceTruthState : "source_missing",
+    sourceTruth: typeof entry.sourceTruth === "string" ? entry.sourceTruth : "source_missing",
+    freshnessState: typeof entry.freshnessState === "string" ? entry.freshnessState : "source_missing",
+    evidenceKind: typeof entry.evidenceKind === "string" ? entry.evidenceKind : "missing",
+    confidenceScore: asNumber(entry.confidenceScore, 0),
+    confidenceBand: typeof entry.confidenceBand === "string" ? entry.confidenceBand : "missing",
+    dedupeKey: typeof entry.dedupeKey === "string" ? entry.dedupeKey : `source_agreement_delta|${typeof entry.dayKey === "string" ? entry.dayKey : "unknown"}`,
+    dedupeDimensions: asStringArray(entry.dedupeDimensions),
+    lateArrivalWindowDays: asNumber(entry.lateArrivalWindowDays, ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS),
     primarySource: typeof entry.primarySource === "string" ? entry.primarySource : "first_party",
     secondSource: typeof entry.secondSource === "string" ? entry.secondSource : "ga4",
     primaryCount: asNumber(entry.primaryCount, 0),
@@ -775,9 +790,9 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       canonicalFiles: ["src/lib/telemetry-catalog.ts", "src/app/api/analytics/ingest-identified/route.ts"],
       productTruthRole: "primary_product_truth",
       promotionRule: "Promote only when first-party day buckets or analytics_event_facts cover the bounded launch window.",
-      localState: firstPartyDays.size > 0 ? "partial" : "source_missing",
-      coveredDayCount: firstPartyDays.size,
-      missingRanges: collapseDayRanges(computedMissingDaysBySource.first_party),
+      localState: sourceDayCounts.firstParty > 0 ? "partial" : "source_missing",
+      coveredDayCount: sourceDayCounts.firstParty,
+      missingRanges: collapseLaunchRecoveryDayRanges(computedMissingDaysBySource.first_party),
       primaryFor: ["identity", "purchases", "unlocks", "drops", "watch", "tasks", "creator/admin actions"],
       proofBoundary: "Primary product analytics only after first-party materialization; this generated report is not runtime/admin proof.",
     },
@@ -842,7 +857,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       promotionRule: "Use as gap explanation and chart continuity only; never overwrite first-party product truth.",
       localState: historicalSnapshotDays.size > 0 ? "fallback" : "source_missing",
       coveredDayCount: historicalSnapshotDays.size,
-      missingRanges: collapseDayRanges(computedMissingDaysBySource.historical_snapshot),
+      missingRanges: collapseLaunchRecoveryDayRanges(computedMissingDaysBySource.historical_snapshot),
       primaryFor: ["bounded historical chart continuity", "fallback source agreement evidence"],
       proofBoundary: "Historical snapshots explain gaps but do not overwrite first-party product truth.",
     },
@@ -855,7 +870,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       promotionRule: "Use for recovery review only; weak legacy evidence cannot create current product truth.",
       localState: legacySupportDays.size > 0 ? "fallback" : "source_missing",
       coveredDayCount: legacySupportDays.size,
-      missingRanges: collapseDayRanges(computedMissingDaysBySource.legacy_support),
+      missingRanges: collapseLaunchRecoveryDayRanges(computedMissingDaysBySource.legacy_support),
       primaryFor: ["legacy explanation", "manual recovery review"],
       proofBoundary: "Legacy support remains recovery evidence only and cannot create current product truth.",
     },
@@ -868,7 +883,7 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       promotionRule: "Use for sessions, views, device, region, top paths, and acquisition comparison only.",
       localState: ga4Days.size > 0 ? "second_source" : "external_proof_required",
       coveredDayCount: ga4Days.size,
-      missingRanges: collapseDayRanges(computedMissingDaysBySource.ga4),
+      missingRanges: collapseLaunchRecoveryDayRanges(computedMissingDaysBySource.ga4),
       primaryFor: ["sessions", "views", "device mix", "region demand", "top paths", "acquisition-style comparison"],
       proofBoundary: "GA4 is second-source evidence and cannot replace identity, wallet, entitlement, purchase, or creator revenue truth.",
     },
@@ -881,108 +896,40 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       promotionRule: "Use to route recovery work; missing ranges remain missing until bounded source proof exists.",
       localState: sourceMissingDays.length > 0 ? "source_missing" : sourceAgreementState === "failed" || sourceAgreementState === "fail" ? "source_disagreement" : "none_observed",
       coveredDayCount: null,
-      missingRanges: collapseDayRanges(sourceMissingDays),
+      missingRanges: collapseLaunchRecoveryDayRanges(sourceMissingDays),
       primaryFor: ["gap triage", "next recovery action"],
       proofBoundary: "Missing stays missing; zero is allowed only after a bounded source window proves zero.",
     },
   ];
+  const activeSourceReferences = buildLaunchCriticalActiveSourceReferences();
+  const activeSourceCoverage = buildLaunchCriticalActiveSourceCoverageReport({
+    generatedAtUtc: input.generatedAtUtc,
+    sourceReferencesByEventName: activeSourceReferences.sourceReferencesByEventName,
+    materializerReferencesByEventName: activeSourceReferences.materializerReferencesByEventName,
+  });
   const allLaunchRangeProven = sourceAgreementDetail.allLaunchRangeProven === true;
   const coverageWindowKind = typeof sourceAgreementDetail.coverageWindowKind === "string"
     ? sourceAgreementDetail.coverageWindowKind
     : "local_source_window";
-  const formalLaunchEndDayKey = allLaunchRangeProven && expectedDays.length > 0
-    ? expectedDays[expectedDays.length - 1]
-    : dayKeyFromIso(input.generatedAtUtc);
-  const formalLaunchExpectedDayCount = inclusiveDayCount(LAUNCH_ANALYTICS_FIRST_DAY_KEY, formalLaunchEndDayKey);
-  const localEvidenceByDay = new Map(dayCoverage.map((day) => [day.dayKey, day]));
-  const formalLaunchDayCoverage = listInclusiveDays(LAUNCH_ANALYTICS_FIRST_DAY_KEY, formalLaunchEndDayKey).map((dayKey) => {
-    const localDay = localEvidenceByDay.get(dayKey);
-    if (localDay) {
-      return {
-        ...localDay,
-        formalEvidenceState: "local_evidence_window" as const,
-        sourceCountsKnown: true,
-      };
-    }
-
-    return {
-      dayKey,
-      expected: true as const,
-      recovered: false,
-      evidenceObserved: false,
-      productTruthRecovered: false,
-      sourceTruthState: "source_missing" as const,
-      formalEvidenceState: "outside_evidence_window" as const,
-      sourceCountsKnown: false,
-      sourceCounts: {
-        first_party: null,
-        ga4: null,
-        historicalSnapshot: null,
-        legacySupport: null,
-      },
-      missingRangesBySource: {
-        first_party: [],
-        ga4: [],
-        historicalSnapshot: [],
-        legacySupport: [],
-      },
-      duplicateRanges: [],
-      internalAdminExcludedCount: null,
-      duplicateSourceCount: 0,
-      confidence: "unknown" as const,
-      reason: "No approved all-launch evidence covers this day yet; source counts are unknown, not zero.",
-      nextAction: "Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.",
-    };
-  });
-  const formalLaunchRange = {
+  const formalLaunchRange = buildFormalLaunchRangeRecoveryState({
     launchStartDayKey: LAUNCH_ANALYTICS_FIRST_DAY_KEY,
-    expectedThroughDayKey: formalLaunchEndDayKey,
-    expectedDayCount: formalLaunchExpectedDayCount,
+    generatedAtUtc: input.generatedAtUtc,
+    allLaunchRangeProven,
+    expectedDayKeys: expectedDays,
+    localEvidenceDays: dayCoverage,
+  });
+  const launchSourceGate = buildLaunchRecoverySourceGateState({
     localEvidenceDayCount: expectedDays.length,
-    approvedCoverageDayCount: allLaunchRangeProven ? expectedDays.length : 0,
-    localEvidenceRanges: collapseDayRanges(expectedDays),
-    unprovenRanges: allLaunchRangeProven ? [] : [rangeLabel(LAUNCH_ANALYTICS_FIRST_DAY_KEY, formalLaunchEndDayKey)],
-    state: allLaunchRangeProven ? "all_launch_range_proven" : "formal_proof_missing",
-    reason: allLaunchRangeProven
-      ? "Approved launch-history evidence declares the all-launch range and supplies matching day rows."
-      : "Current evidence only covers the local source window; approved all-launch export or admin truth sample is still required.",
-    dayCoverage: formalLaunchDayCoverage,
-    unprovenDayCount: formalLaunchDayCoverage.filter((day) => day.formalEvidenceState === "outside_evidence_window").length,
-  };
-  const allLaunchRangeProofReason = allLaunchRangeProven
-    ? coverageWindowKind === "all_range_historical_export"
-      ? "The source-agreement detail includes explicit all-launch range proof from an approved all-range historical export."
-      : coverageWindowKind === "admin_truth_sample"
-        ? "The source-agreement detail includes explicit all-launch range proof from a formal admin truth sample."
-        : "The source-agreement detail includes explicit all-launch range proof from an approved all-launch source."
-    : coverageWindowKind.includes("fixture")
-      ? "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export."
-      : "The local source-agreement evidence proves only the current evidence window. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.";
-  const launchSourceGateCanClear =
-    expectedDays.length > 0
-    && !staleEvidence
-    && allLaunchRangeProven
-    && launchCoverageState === "available"
-    && firstPartyCoverageState === "available"
-    && sourceAgreementState === "pass";
-  const sourceGateReason = launchSourceGateCanClear
-    ? "First-party coverage is available for the all-launch window, source agreement passed, and evidence is current."
-    : staleEvidence
-      ? "Launch recovery source evidence is stale relative to current HEAD."
-      : !allLaunchRangeProven
-        ? "The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth."
-      : firstPartyCoverageState !== "available"
-        ? "First-party product truth is incomplete; GA4, historical snapshots, and legacy support cannot clear the source gate."
-        : sourceAgreementState !== "pass"
-          ? "Source agreement has not passed; repair the mismatched source lane before clearing source truth."
-          : launchCoverageState !== "available"
-            ? "Launch history coverage is not fully available for the bounded evidence window."
-            : "No launch history evidence window is available.";
+    staleEvidence,
+    allLaunchRangeProven,
+    coverageWindowKind,
+    launchCoverageState: launchCoverageSummary.launchCoverage.state,
+    firstPartyCoverageState: launchCoverageSummary.firstPartyCoverage.state,
+    launchCriticalSourceCoverageStatus: launchEventFamilyCoverage.sourceCoverageStatus,
+    launchCriticalObservedFirstPartyCoveragePercent: launchEventFamilyCoverage.observedFirstPartyCoveragePercent,
+    sourceAgreementState,
+  });
   const sourceAgreementBlockedConsumerDetails = asRecordArray(sourceAgreementDetail.blockedConsumerDetails);
-  const evidenceObservedDayCount = dayCoverage.filter((day) => day.evidenceObserved).length;
-  const productTruthRecoveredDayCount = dayCoverage.filter((day) => day.productTruthRecovered).length;
-  const secondSourceOnlyDayCount = dayCoverage.filter((day) => day.sourceTruthState === "second_source_only").length;
-  const fallbackOnlyDayCount = dayCoverage.filter((day) => day.sourceTruthState === "fallback_only").length;
   const sourceAgreementDisplayStateCounts = sourceAgreementBlockedConsumerDetails.reduce<Record<string, number>>((counts, entry) => {
     const state = typeof entry.allowedDisplayState === "string" ? entry.allowedDisplayState : "review";
     counts[state] = (counts[state] ?? 0) + 1;
@@ -994,11 +941,12 @@ function buildLaunchAnalyticsRecoveryReport(input: {
     generatedAtUtc: input.generatedAtUtc,
     currentHead: input.currentHead,
     evidenceClass: "generated_snapshot",
-    canClearSourceGate: launchSourceGateCanClear,
+    canClearSourceGate: launchSourceGate.canClearSourceGate,
     canClearRuntimeGate: false,
     canClearProviderGate: false,
     canClearAdminTruthGate: false,
-    sourceGateReason,
+    sourceGateReason: launchSourceGate.sourceGateReason,
+    sourceGateBlockers: launchSourceGate.sourceGateBlockers,
     productionReadsPerformed: false,
     providerCallsPerformed: false,
     rawSensitiveDataAllowed: false,
@@ -1030,10 +978,11 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       sourceInventory,
     },
     formalLaunchRange,
+    activeSourceCoverage,
     evidenceProvenance: {
       launchCoverageInput: input.sourceAgreementResult.inputPath ?? "in_process_source_agreement_detail",
       panelHydrationInput: "agent/state/analytics-panel-hydration.generated.json",
-      sourceAgreementInputHead: sourceAgreementHead,
+      sourceAgreementInputHead: typeof sourceAgreementHead === "string" ? sourceAgreementHead : null,
       sourceAgreementInputMode: input.sourceAgreementResult.inputMode,
       sourceAgreementInputPath: input.sourceAgreementResult.inputPath,
       usableLaunchCoverageInputFound: sourceAgreementEvidence.usableInputFound === true,
@@ -1048,52 +997,89 @@ function buildLaunchAnalyticsRecoveryReport(input: {
       firstPartyReadMode: "source-agreement day-bucket evidence only; no production read performed",
       limitation: "This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof.",
     },
-    launchHistoryCoverage: {
-      rangeProof: {
-        expectedRangeSource: publicLaunchRangeSource(coverageWindowKind),
-        coverageWindowKind,
-        allLaunchRangeProven,
-        formalRangeStartDayKey: formalLaunchRange.launchStartDayKey,
-        formalRangeEndDayKey: formalLaunchRange.expectedThroughDayKey,
-        formalExpectedDayCount: formalLaunchRange.expectedDayCount,
-        evidenceDayCount: formalLaunchRange.localEvidenceDayCount,
-        unprovenRanges: formalLaunchRange.unprovenRanges,
-        reason: allLaunchRangeProofReason,
-      },
-      rangeStartDayKey: expectedDays[0] ?? null,
-      rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
-      firstRecoveredDayKey: recoveredDays[0]?.dayKey ?? null,
-      lastRecoveredDayKey: recoveredDays[recoveredDays.length - 1]?.dayKey ?? null,
-      expectedDayCount: expectedDays.length,
-      recoveredDayCount: recoveredDays.length,
-      evidenceObservedDayCount,
-      productTruthRecoveredDayCount,
-      secondSourceOnlyDayCount,
-      fallbackOnlyDayCount,
-      preLaunchIgnoredDayCount: 0,
-      sourceDayCounts,
-      firstPartyCoverage: {
-        state: firstPartyCoverageState,
-        coveredDayCount: firstPartyDays.size,
-        missingRanges: collapseDayRanges(firstPartyMissingDays),
-        canPromoteProductTruth: firstPartyCoverageState === "available" && !staleEvidence && sourceAgreementState === "pass",
-        reason: firstPartyCoverageState === "available"
-          ? "First-party evidence exists for every expected local evidence day."
-          : "First-party product truth is missing for at least one local evidence day; GA4/fallback evidence cannot replace it.",
-      },
-      days: dayCoverage,
-      missingRanges: collapseDayRanges(sourceMissingDays),
-      missingRangesBySource: Object.fromEntries(
-        Object.entries({ ...computedMissingDaysBySource, ...asRecord(sourceAgreementDetail.missingDaysBySource) })
-          .map(([source, days]) => [source, collapseDayRanges(asStringArray(days))]),
-      ),
-      missingDaysBySource: { ...computedMissingDaysBySource, ...asRecord(sourceAgreementDetail.missingDaysBySource) },
-      duplicateRanges: collapseDayRanges(duplicateDays),
-      sourceOverlapRanges: collapseDayRanges(duplicateDays),
-      state: launchCoverageState,
-      reason: launchCoverageReason,
-      staleInputEvidence: staleEvidence,
-      sourceAgreementEvidenceHead: sourceAgreementHead,
+    launchHistoryCoverage: (() => {
+      const coverage = {
+        rangeProof: buildLaunchHistoryRangeProofState({
+          expectedRangeSource: normalizeLaunchHistoryRangeProofKind(coverageWindowKind),
+          coverageWindowKind,
+          allLaunchRangeProven,
+          formalLaunchRange,
+          reason: launchSourceGate.allLaunchRangeProofReason,
+        }),
+        rangeStartDayKey: expectedDays[0] ?? null,
+        rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
+        firstRecoveredDayKey: launchCoverageSummary.firstRecoveredDayKey,
+        lastRecoveredDayKey: launchCoverageSummary.lastRecoveredDayKey,
+        expectedDayCount: expectedDays.length,
+        recoveredDayCount: launchCoverageSummary.recoveredDayCount,
+        evidenceObservedDayCount: launchCoverageSummary.evidenceObservedDayCount,
+        productTruthRecoveredDayCount: launchCoverageSummary.productTruthRecoveredDayCount,
+        secondSourceOnlyDayCount: launchCoverageSummary.secondSourceOnlyDayCount,
+        fallbackOnlyDayCount: launchCoverageSummary.fallbackOnlyDayCount,
+        preLaunchIgnoredDayCount: 0,
+        sourceDayCounts,
+        firstPartyCoverage: {
+          state: launchCoverageSummary.firstPartyCoverage.state,
+          coveredDayCount: sourceDayCounts.firstParty,
+          missingRanges: collapseLaunchRecoveryDayRanges(firstPartyMissingDays),
+          canPromoteProductTruth: launchCoverageSummary.firstPartyCoverage.canPromoteProductTruth,
+          reason: launchCoverageSummary.firstPartyCoverage.reason,
+        },
+        eventFamilyCoverage: {
+          canonicalMappedFamilyCount: launchEventFamilyCoverage.canonicalMappedFamilyCount,
+          canonicalMappingCoveragePercent: launchEventFamilyCoverage.canonicalMappingCoveragePercent,
+          observedFirstPartyFamilyCount: launchEventFamilyCoverage.observedFirstPartyFamilyCount,
+          observedFirstPartyCoveragePercent: launchEventFamilyCoverage.observedFirstPartyCoveragePercent,
+          sourceCoverageStatus: launchEventFamilyCoverage.sourceCoverageStatus,
+          holdbackValidation: launchEventFamilyCoverage.holdbackValidation,
+          familySourceStates: launchEventFamilyCoverage.familySourceStates,
+        },
+        sourceGateBlockers: launchSourceGate.sourceGateBlockers,
+        activeSourceCoverage: {
+          activeSourceFamilyCount: activeSourceCoverage.activeSourceFamilyCount,
+          activeSourceCoveragePercent: activeSourceCoverage.activeSourceCoveragePercent,
+          targetCoveragePercent: activeSourceCoverage.targetCoveragePercent,
+          sourceCoverageStatus: activeSourceCoverage.sourceCoverageStatus,
+          canClearHistoricalLaunchProof: activeSourceCoverage.canClearHistoricalLaunchProof,
+          familySourceStates: activeSourceCoverage.familySourceStates,
+          policy: activeSourceCoverage.policy,
+        },
+        days: dayCoverage,
+        missingRanges: collapseLaunchRecoveryDayRanges(sourceMissingDays),
+        missingRangesBySource: Object.fromEntries(
+          Object.entries({ ...computedMissingDaysBySource, ...asRecord(sourceAgreementDetail.missingDaysBySource) })
+            .map(([source, days]) => [source, collapseLaunchRecoveryDayRanges(asStringArray(days))]),
+        ),
+        missingDaysBySource: { ...computedMissingDaysBySource, ...asRecord(sourceAgreementDetail.missingDaysBySource) },
+        duplicateRanges: collapseLaunchRecoveryDayRanges(duplicateDays),
+        sourceOverlapRanges: collapseLaunchRecoveryDayRanges(duplicateDays),
+        state: launchCoverageSummary.launchCoverage.state,
+        reason: launchCoverageSummary.launchCoverage.reason,
+        staleInputEvidence: staleEvidence,
+        sourceAgreementEvidenceHead: sourceAgreementHead,
+      };
+      return {
+        displaySummary: buildLaunchHistoryDisplaySummaryState({
+          launchHistoryCoverage: coverage,
+          sourceAgreementState,
+        }),
+        ...coverage,
+      };
+    })(),
+    recoveredMetricMetadataCompleteness: {
+      eventFamilySourceStates: summarizeRecoveredMetricMetadataCompleteness(launchEventFamilyCoverage.familySourceStates),
+      activeSourceFamilyStates: summarizeRecoveredMetricMetadataCompleteness(activeSourceCoverage.familySourceStates),
+      localEvidenceDays: summarizeRecoveredMetricMetadataCompleteness(dayCoverage),
+      formalLaunchDayCoverage: summarizeRecoveredMetricMetadataCompleteness(formalLaunchRange.dayCoverage),
+      sourceAgreementDisagreements: summarizeRecoveredMetricMetadataCompleteness(sourceAgreementDisagreements),
+      sourceAgreementMetricDeltas: summarizeRecoveredMetricMetadataCompleteness(perDayMetricDeltas),
+      proofBoundary: RECOVERED_METRIC_METADATA_PROOF_BOUNDARY,
+    },
+    recoveryPolicy: {
+      dedupeRules: RECOVERY_METRIC_DEDUPE_RULES,
+      productTruthPolicy: RECOVERY_METRIC_PRODUCT_TRUTH_POLICY,
+      modelingPolicy: RECOVERY_METRIC_MODELING_POLICY,
+      proofBoundary: RECOVERY_METRIC_POLICY_PROOF_BOUNDARY,
     },
     sourceAgreement: {
       comparedSources: asStringArray(sourceAgreementDetail.comparedSources),
@@ -1194,15 +1180,32 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (report.canClearSourceGate && (
     report.launchHistoryCoverage.state !== "available"
     || report.launchHistoryCoverage.firstPartyCoverage.state !== "available"
+    || report.launchHistoryCoverage.eventFamilyCoverage?.sourceCoverageStatus !== "pass"
+    || report.launchHistoryCoverage.eventFamilyCoverage?.observedFirstPartyCoveragePercent < LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT
     || report.sourceAgreement.state !== "pass"
     || report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== true
     || report.formalLaunchRange.state !== "all_launch_range_proven"
     || report.launchHistoryCoverage.staleInputEvidence
   )) {
-    failures.push("launch recovery cannot clear source gate until first-party coverage is available, source agreement passes, all-launch range proof exists, and evidence is current.");
+    failures.push("launch recovery cannot clear source gate until first-party day coverage and launch-critical family coverage are available, source agreement passes, all-launch range proof exists, and evidence is current.");
   }
   if (!report.canClearSourceGate && (!report.sourceGateReason || !report.sourceGateReason.trim())) {
     failures.push("blocked launch recovery source gate must explain the reason.");
+  }
+  if (report.canClearSourceGate && report.sourceGateBlockers.length > 0) {
+    failures.push("cleared launch recovery source gate must not list blockers.");
+  }
+  if (!report.canClearSourceGate && report.sourceGateBlockers.length === 0) {
+    failures.push("blocked launch recovery source gate must list typed blockers.");
+  }
+  if (report.sourceGateBlockers.some((entry) =>
+    typeof entry.blocker !== "string"
+    || typeof entry.reason !== "string"
+    || typeof entry.nextAction !== "string"
+    || !entry.reason.trim()
+    || !entry.nextAction.trim()
+  )) {
+    failures.push("launch recovery source gate blockers must include blocker, reason, and nextAction.");
   }
   if (report.launchHistoryCoverage.staleInputEvidence && report.status !== "stale_evidence_review") {
     failures.push("stale launch source evidence must surface as stale_evidence_review.");
@@ -1227,6 +1230,102 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   }
   if (!report.launchHistoryCoverage.rangeProof || typeof report.launchHistoryCoverage.rangeProof.allLaunchRangeProven !== "boolean") {
     failures.push("launch recovery must state whether source evidence proves the full all-launch range.");
+  }
+  if (!report.launchHistoryCoverage.displaySummary || typeof report.launchHistoryCoverage.displaySummary.coverageLabel !== "string") {
+    failures.push("launch recovery must expose a canonical displaySummary from the recovery spine.");
+  }
+  const displaySummary = asRecord(report.launchHistoryCoverage.displaySummary);
+  const firstRecoveredDayKey = typeof report.launchHistoryCoverage.firstRecoveredDayKey === "string"
+    ? report.launchHistoryCoverage.firstRecoveredDayKey
+    : "";
+  if (firstRecoveredDayKey) {
+    const sourceWindowLabel = typeof displaySummary.sourceWindowLabel === "string" ? displaySummary.sourceWindowLabel : "";
+    const expectedWindowPrefix = report.launchHistoryCoverage.rangeProof.allLaunchRangeProven
+      ? "Launch history"
+      : "Launch evidence window since";
+    if (!sourceWindowLabel.startsWith(expectedWindowPrefix) || !sourceWindowLabel.includes(firstRecoveredDayKey)) {
+      failures.push("launch recovery displaySummary sourceWindowLabel must come from the recovery spine coverage window.");
+    }
+  } else if (displaySummary.sourceWindowLabel !== null && displaySummary.sourceWindowLabel !== undefined) {
+    failures.push("launch recovery displaySummary sourceWindowLabel must stay null until a recovered source window exists.");
+  }
+  const metadataCompleteness = asRecord(report.recoveredMetricMetadataCompleteness);
+  const metadataProofKeys = [
+    "eventFamilySourceStates",
+    "activeSourceFamilyStates",
+    "localEvidenceDays",
+    "formalLaunchDayCoverage",
+    "sourceAgreementDisagreements",
+    "sourceAgreementMetricDeltas",
+  ];
+  for (const key of metadataProofKeys) {
+    const summary = asRecord(metadataCompleteness[key]);
+    if (summary.status !== "complete") {
+      failures.push(`launch recovery recoveredMetricMetadataCompleteness.${key} must be complete.`);
+    }
+    if (summary.expectedLateArrivalWindowDays !== ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS) {
+      failures.push(`launch recovery recoveredMetricMetadataCompleteness.${key} must enforce the ${ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS}-day late-arrival window.`);
+    }
+    if (!Array.isArray(summary.requiredFields) || !summary.requiredFields.includes("dedupeKey")) {
+      failures.push(`launch recovery recoveredMetricMetadataCompleteness.${key} must declare required metadata fields.`);
+    }
+  }
+  if (metadataCompleteness.proofBoundary !== RECOVERED_METRIC_METADATA_PROOF_BOUNDARY) {
+    failures.push("launch recovery metadata completeness must stay metadata-only and not clear source/runtime/provider/admin truth gates.");
+  }
+  const recoveryPolicy = asRecord(report.recoveryPolicy);
+  const dedupeRules = asRecord(recoveryPolicy.dedupeRules);
+  const productTruthPolicy = asRecord(recoveryPolicy.productTruthPolicy);
+  const modelingPolicy = asRecord(recoveryPolicy.modelingPolicy);
+  if (
+    dedupeRules.includesEventId !== true
+    || dedupeRules.includesSessionId !== true
+    || dedupeRules.includesIdentityLinkId !== true
+    || dedupeRules.includesUserIdOrGuestId !== true
+    || dedupeRules.includesRoute !== true
+    || dedupeRules.includesObjectId !== true
+    || dedupeRules.includesTimestampWindow !== true
+    || dedupeRules.includesSemanticAction !== true
+    || dedupeRules.eventIdIsPrimaryWhenPresent !== true
+    || dedupeRules.identityLinkPrecedesUserOrGuestWhenPresent !== true
+    || dedupeRules.fallbackUsesSessionIdentityRouteObjectAndTimestampWindow !== true
+  ) {
+    failures.push("launch recovery must expose the central event-id-primary dedupe policy.");
+  }
+  if (
+    productTruthPolicy.firstPartyPrimary !== true
+    || productTruthPolicy.ga4EvidenceOnly !== true
+    || productTruthPolicy.legacyEvidenceOnly !== true
+    || productTruthPolicy.missingIsNotZero !== true
+    || productTruthPolicy.noBalanceOrEntitlementMutation !== true
+  ) {
+    failures.push("launch recovery must expose the central product-truth recovery policy.");
+  }
+  if (
+    modelingPolicy.canonicalModeledSpelling !== "modeled"
+    || modelingPolicy.acceptsBritishModelledAlias !== true
+    || modelingPolicy.modeledEvidenceCanCalibrateOnly !== true
+    || modelingPolicy.observedFirstPartyHoldbackRequired !== true
+    || modelingPolicy.consentModeLikeSignalsAreEvidenceOnly !== true
+    || modelingPolicy.lateArrivalWindowDays !== ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS
+    || modelingPolicy.visibilityCountingRequiresExplicitThreshold !== true
+    || modelingPolicy.visibilityMinimumVisiblePercent !== 50
+    || modelingPolicy.visibilityMinimumVisibleMs !== 1_000
+    || modelingPolicy.missingSourceNeverBecomesZero !== true
+    || modelingPolicy.productTruthRequiresFirstPartyOrLedgerCorroboration !== true
+  ) {
+    failures.push("launch recovery must expose the central modeled/visibility evidence policy.");
+  }
+  if (recoveryPolicy.proofBoundary !== RECOVERY_METRIC_POLICY_PROOF_BOUNDARY) {
+    failures.push("launch recovery policy metadata must not clear runtime/provider/admin truth gates.");
+  }
+  if (
+    report.launchHistoryCoverage.displaySummary &&
+    report.launchHistoryCoverage.displaySummary.missingRangeCount !== (
+      report.launchHistoryCoverage.firstPartyCoverage.missingRanges.length || report.launchHistoryCoverage.missingRanges.length
+    )
+  ) {
+    failures.push("launch recovery displaySummary missingRangeCount must agree with first-party/source missing ranges.");
   }
   if (
     report.launchHistoryCoverage.rangeProof.allLaunchRangeProven === true
@@ -1314,6 +1413,92 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
   if (report.launchHistoryCoverage.firstPartyCoverage.state !== "available" && report.launchHistoryCoverage.firstPartyCoverage.canPromoteProductTruth) {
     failures.push("first-party product truth cannot be promoted when firstPartyCoverage is not available.");
   }
+  if (!report.launchHistoryCoverage.eventFamilyCoverage) {
+    failures.push("launch recovery must expose eventFamilyCoverage from the recovery spine.");
+  } else {
+    const eventFamilyCoverage = report.launchHistoryCoverage.eventFamilyCoverage;
+    if (eventFamilyCoverage.canonicalMappingCoveragePercent !== 100 || eventFamilyCoverage.canonicalMappedFamilyCount <= 0) {
+      failures.push("launch recovery eventFamilyCoverage must preserve 100% canonical launch-critical mapping.");
+    }
+    if (
+      eventFamilyCoverage.sourceCoverageStatus === "pass"
+      && eventFamilyCoverage.observedFirstPartyCoveragePercent < LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT
+    ) {
+      failures.push(`launch recovery eventFamilyCoverage cannot pass below the ${LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT}% first-party coverage floor.`);
+    }
+    if (eventFamilyCoverage.holdbackValidation?.modeledOrInferredCanCalibrateOnly !== true) {
+      failures.push("launch recovery eventFamilyCoverage must keep modeled/inferred evidence calibration-only.");
+    }
+    if (!Array.isArray(eventFamilyCoverage.familySourceStates) || eventFamilyCoverage.familySourceStates.length !== 13) {
+      failures.push("launch recovery eventFamilyCoverage must include one source state per launch-critical family.");
+    }
+    if (eventFamilyCoverage.familySourceStates?.some((entry) =>
+      typeof entry.sourceTruth !== "string"
+      || typeof entry.freshnessState !== "string"
+      || typeof entry.confidenceScore !== "number"
+      || typeof entry.evidenceKind !== "string"
+      || typeof entry.dedupeKey !== "string"
+      || entry.lateArrivalWindowDays !== ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS
+    )) {
+      failures.push("launch recovery eventFamilyCoverage rows must expose sourceTruth, freshnessState, confidenceScore, evidenceKind, dedupeKey, and lateArrivalWindowDays.");
+    }
+    if (eventFamilyCoverage.familySourceStates?.some((entry) => entry.observedFirstParty !== true && entry.productTruthEligible === true)) {
+      failures.push("launch recovery eventFamilyCoverage cannot mark non-first-party families product-truth eligible.");
+    }
+    const expectedSourceRoleCounts = summarizeLaunchRecoveryFamilySourceStates(eventFamilyCoverage.familySourceStates).sourceRoleCounts;
+    const actualSourceRoleCounts = stableNumberRecord(asRecord(displaySummary.sourceRoleCounts));
+    if (JSON.stringify(actualSourceRoleCounts) !== JSON.stringify(stableNumberRecord(expectedSourceRoleCounts))) {
+      failures.push("launch recovery displaySummary sourceRoleCounts must agree with eventFamilyCoverage family source roles.");
+    }
+    const mathReasonSamples = asRecordArray(displaySummary.mathReasonSamples);
+    const missingOrUnpromotedFamilies = eventFamilyCoverage.familySourceStates.filter((entry) =>
+      entry.observedFirstParty !== true || entry.productTruthEligible !== true,
+    );
+    if (missingOrUnpromotedFamilies.length > 0 && mathReasonSamples.length === 0) {
+      failures.push("launch recovery displaySummary must expose mathReasonSamples when launch-critical families are missing product truth.");
+    }
+    if (mathReasonSamples.length > 4) {
+      failures.push("launch recovery displaySummary mathReasonSamples must stay compact.");
+    }
+    if (mathReasonSamples.some((entry) =>
+      typeof entry.familyId !== "string"
+      || typeof entry.sourceRole !== "string"
+      || typeof entry.mathReason !== "string"
+      || typeof entry.nextAction !== "string"
+    )) {
+      failures.push("launch recovery displaySummary mathReasonSamples must include familyId, sourceRole, mathReason, and nextAction.");
+    }
+  }
+  if (!report.launchHistoryCoverage.activeSourceCoverage) {
+    failures.push("launch recovery must expose activeSourceCoverage for source-code launch-critical emitters/materializers.");
+  } else {
+    const activeSourceCoverage = report.launchHistoryCoverage.activeSourceCoverage;
+    if (
+      activeSourceCoverage.activeSourceCoveragePercent < LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT
+      || activeSourceCoverage.sourceCoverageStatus !== "pass"
+    ) {
+      failures.push(`launch recovery activeSourceCoverage must reach the ${LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT}% active source coverage floor.`);
+    }
+    if (activeSourceCoverage.canClearHistoricalLaunchProof !== false) {
+      failures.push("active source coverage must not clear historical launch proof.");
+    }
+    if (!Array.isArray(activeSourceCoverage.familySourceStates) || activeSourceCoverage.familySourceStates.length !== 13) {
+      failures.push("active source coverage must include one source state per launch-critical family.");
+    }
+    if (activeSourceCoverage.familySourceStates?.some((entry) =>
+      typeof entry.sourceTruth !== "string"
+      || typeof entry.freshnessState !== "string"
+      || typeof entry.confidenceScore !== "number"
+      || typeof entry.evidenceKind !== "string"
+      || typeof entry.dedupeKey !== "string"
+      || entry.lateArrivalWindowDays !== ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS
+    )) {
+      failures.push("active source coverage rows must expose sourceTruth, freshnessState, confidenceScore, evidenceKind, dedupeKey, and lateArrivalWindowDays.");
+    }
+    if (activeSourceCoverage.familySourceStates?.some((entry) => entry.productTruthEligibleFromSourceScan !== false)) {
+      failures.push("active source scan cannot mark families product-truth eligible by itself.");
+    }
+  }
   if (report.launchHistoryCoverage.recoveredDayCount > 0 && (!report.launchHistoryCoverage.firstRecoveredDayKey || !report.launchHistoryCoverage.lastRecoveredDayKey)) {
     failures.push("launch recovery recovered days require firstRecoveredDayKey and lastRecoveredDayKey.");
   }
@@ -1342,6 +1527,9 @@ function validateLaunchAnalyticsRecoveryReport(report: ReturnType<typeof buildLa
     }
     if (day.sourceCounts.first_party === 0 && day.confidence === "verified") {
       failures.push(`launch day ${day.dayKey} cannot be verified without first-party evidence.`);
+    }
+    if (day.confidenceBand !== classifyRecoveryMetricConfidenceBand(day.confidenceScore)) {
+      failures.push(`launch day ${day.dayKey} confidenceBand must match the canonical confidenceScore classifier.`);
     }
     if (day.sourceCounts.first_party === 0 && day.productTruthRecovered) {
       failures.push(`launch day ${day.dayKey} cannot be product-truth recovered without first-party evidence.`);
@@ -1436,6 +1624,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- First-party read mode: ${report.evidenceProvenance.firstPartyReadMode}`,
     `- Limitation: ${report.evidenceProvenance.limitation}`,
     `- Source gate: ${report.canClearSourceGate ? "clear" : "blocked"} - ${report.sourceGateReason}`,
+    `- Source gate blockers: ${report.sourceGateBlockers.length ? report.sourceGateBlockers.map((entry) => `${entry.blocker}: ${entry.reason}`).join("; ") : "none"}`,
     "",
     "## Canonical Owners",
     "",
@@ -1473,6 +1662,13 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Coverage reason: ${report.launchHistoryCoverage.reason}`,
     `- First-party product truth state: ${report.launchHistoryCoverage.firstPartyCoverage.state}`,
     `- First-party missing ranges: ${report.launchHistoryCoverage.firstPartyCoverage.missingRanges.join(", ") || "none"}`,
+    `- Launch-critical canonical mapping: ${report.launchHistoryCoverage.eventFamilyCoverage.canonicalMappingCoveragePercent}% (${report.launchHistoryCoverage.eventFamilyCoverage.canonicalMappedFamilyCount}/13 families)`,
+    `- Launch-critical observed first-party coverage: ${report.launchHistoryCoverage.eventFamilyCoverage.observedFirstPartyCoveragePercent}% (${report.launchHistoryCoverage.eventFamilyCoverage.observedFirstPartyFamilyCount}/13 families)`,
+    `- Launch-critical holdback: ${report.launchHistoryCoverage.eventFamilyCoverage.holdbackValidation.status} - ${report.launchHistoryCoverage.eventFamilyCoverage.holdbackValidation.reason}`,
+    `- Active source-code coverage: ${report.launchHistoryCoverage.activeSourceCoverage.activeSourceCoveragePercent}% (${report.launchHistoryCoverage.activeSourceCoverage.activeSourceFamilyCount}/13 families)`,
+    `- Active source-code proof clears historical launch rows: ${report.launchHistoryCoverage.activeSourceCoverage.canClearHistoricalLaunchProof ? "yes" : "no"}`,
+    `- Recovered metric metadata: event families ${report.recoveredMetricMetadataCompleteness.eventFamilySourceStates.status}, active sources ${report.recoveredMetricMetadataCompleteness.activeSourceFamilyStates.status}, local days ${report.recoveredMetricMetadataCompleteness.localEvidenceDays.status}, formal days ${report.recoveredMetricMetadataCompleteness.formalLaunchDayCoverage.status}, source-agreement disagreements ${report.recoveredMetricMetadataCompleteness.sourceAgreementDisagreements.status}, source-agreement count deltas ${report.recoveredMetricMetadataCompleteness.sourceAgreementMetricDeltas.status}; boundary=${report.recoveredMetricMetadataCompleteness.proofBoundary}`,
+    `- Recovery policy: event-id-primary dedupe=${report.recoveryPolicy.dedupeRules.eventIdIsPrimaryWhenPresent ? "on" : "off"}; fallback identity/route/window dedupe=${report.recoveryPolicy.dedupeRules.fallbackUsesSessionIdentityRouteObjectAndTimestampWindow ? "on" : "off"}; GA4/legacy evidence-only=${report.recoveryPolicy.productTruthPolicy.ga4EvidenceOnly && report.recoveryPolicy.productTruthPolicy.legacyEvidenceOnly ? "yes" : "no"}; modeled calibration-only=${report.recoveryPolicy.modelingPolicy.modeledEvidenceCanCalibrateOnly ? "yes" : "no"}; visibility threshold=${report.recoveryPolicy.modelingPolicy.visibilityMinimumVisiblePercent}%/${report.recoveryPolicy.modelingPolicy.visibilityMinimumVisibleMs}ms; boundary=${report.recoveryPolicy.proofBoundary}`,
     `- First-party days: ${report.launchHistoryCoverage.sourceDayCounts.first_party}`,
     `- GA4 days: ${report.launchHistoryCoverage.sourceDayCounts.ga4}`,
     `- Historical snapshot days: ${report.launchHistoryCoverage.sourceDayCounts.historicalSnapshot}`,
@@ -1483,7 +1679,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     "## Formal Launch Day Rows",
     "",
     ...report.formalLaunchRange.dayCoverage.slice(0, 14).map((day) =>
-      `- ${day.dayKey}: state=${day.formalEvidenceState}; evidenceObserved=${day.evidenceObserved ? "yes" : "no"}; productTruthRecovered=${day.productTruthRecovered ? "yes" : "no"}; sourceTruthState=${day.sourceTruthState}; sourceCountsKnown=${day.sourceCountsKnown}; first_party=${day.sourceCounts.first_party ?? "unknown"}, ga4=${day.sourceCounts.ga4 ?? "unknown"}, historicalSnapshot=${day.sourceCounts.historicalSnapshot ?? "unknown"}, legacySupport=${day.sourceCounts.legacySupport ?? "unknown"}; confidence=${day.confidence}; next=${day.nextAction}`,
+      `- ${day.dayKey}: state=${day.formalEvidenceState}; evidenceObserved=${day.evidenceObserved ? "yes" : "no"}; productTruthRecovered=${day.productTruthRecovered ? "yes" : "no"}; sourceTruthState=${day.sourceTruthState}; sourceCountsKnown=${day.sourceCountsKnown}; first_party=${day.sourceCounts.first_party ?? "unknown"}, ga4=${day.sourceCounts.ga4 ?? "unknown"}, historicalSnapshot=${day.sourceCounts.historicalSnapshot ?? "unknown"}, legacySupport=${day.sourceCounts.legacySupport ?? "unknown"}; confidence=${day.confidence}; confidenceBand=${day.confidenceBand}; next=${day.nextAction}`,
     ),
     report.formalLaunchRange.dayCoverage.length > 14
       ? `- ${report.formalLaunchRange.dayCoverage.length - 14} additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.`
@@ -1495,7 +1691,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
       const missingSources = Object.entries(day.missingRangesBySource)
         .filter(([, ranges]) => ranges.length > 0)
         .map(([source, ranges]) => `${source}:${ranges.join(",")}`);
-      return `- ${day.dayKey}: evidenceObserved=${day.evidenceObserved ? "yes" : "no"}; productTruthRecovered=${day.productTruthRecovered ? "yes" : "no"}; sourceTruthState=${day.sourceTruthState}; sourceCounts first_party=${day.sourceCounts.first_party}, ga4=${day.sourceCounts.ga4}, historicalSnapshot=${day.sourceCounts.historicalSnapshot}, legacySupport=${day.sourceCounts.legacySupport}; missing=${missingSources.join(" | ") || "none"}; duplicateRanges=${day.duplicateRanges.join(", ") || "none"}; internalAdminExcluded=${day.internalAdminExcludedCount ?? "unknown"}; confidence=${day.confidence}; next=${day.nextAction}`;
+      return `- ${day.dayKey}: evidenceObserved=${day.evidenceObserved ? "yes" : "no"}; productTruthRecovered=${day.productTruthRecovered ? "yes" : "no"}; sourceTruthState=${day.sourceTruthState}; sourceCounts first_party=${day.sourceCounts.first_party}, ga4=${day.sourceCounts.ga4}, historicalSnapshot=${day.sourceCounts.historicalSnapshot}, legacySupport=${day.sourceCounts.legacySupport}; missing=${missingSources.join(" | ") || "none"}; duplicateRanges=${day.duplicateRanges.join(", ") || "none"}; internalAdminExcluded=${day.internalAdminExcludedCount ?? "unknown"}; confidence=${day.confidence}; confidenceBand=${day.confidenceBand}; next=${day.nextAction}`;
     }),
     report.launchHistoryCoverage.days.length > 14
       ? `- ${report.launchHistoryCoverage.days.length - 14} additional days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.`

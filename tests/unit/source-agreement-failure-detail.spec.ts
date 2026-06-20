@@ -1,18 +1,99 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import {
+  LAUNCH_ANALYTICS_SOURCE_TRUTH_POLICY,
   buildLaunchAnalyticsSourceAgreementFailureDetail,
+  buildSourceAgreementCoverageSummaryState,
   buildSourceAgreementFailureDetailFromLaunchHistoryCoverage,
+  hasBlockingSourceCoverageMismatch,
+  launchCoverageInputEvidenceNextAction,
+  summarizeLaunchCoverageInputEvidence,
 } from "@/lib/analytics/source-agreement-detail";
+import {
+  ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
+  RECOVERY_METRIC_DEDUPE_DIMENSIONS,
+} from "@/lib/analytics/recovery-timeline-spine";
 import {
   launchHistoryCoverageInputStatuses,
   launchHistoryCoverageExportPaths,
   isUsableLaunchHistoryCoverageEvidence,
   normalizeLaunchHistoryCoverageExport,
   proofModeForLaunchCoverageExport,
+  readLaunchCoverageInputHead,
 } from "../../scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared";
 
 describe("source agreement failure detail", () => {
+  it("uses the recovery spine source coverage rows helper for launch-history rows", () => {
+    const source = readFileSync("src/lib/analytics/source-agreement-detail.ts", "utf8");
+
+    expect(source).toContain("buildLaunchHistorySourceCoverageRowsState");
+    expect(source).not.toContain("buildLaunchHistoryDayRecoveryStatesFromSources");
+  });
+
+  it("owns blocking source coverage mismatch classification for launch history callers", () => {
+    expect(hasBlockingSourceCoverageMismatch({
+      hasFirstParty: false,
+      hasGa4: false,
+      hasHistoricalSnapshot: false,
+      hasLegacy: false,
+    })).toBe(false);
+    expect(hasBlockingSourceCoverageMismatch({
+      hasFirstParty: true,
+      hasGa4: true,
+      hasHistoricalSnapshot: false,
+      hasLegacy: false,
+    })).toBe(false);
+    expect(hasBlockingSourceCoverageMismatch({
+      hasFirstParty: false,
+      hasGa4: true,
+      hasHistoricalSnapshot: false,
+      hasLegacy: false,
+    })).toBe(true);
+    expect(hasBlockingSourceCoverageMismatch({
+      hasFirstParty: true,
+      hasGa4: false,
+      hasHistoricalSnapshot: false,
+      hasLegacy: false,
+    })).toBe(true);
+    expect(hasBlockingSourceCoverageMismatch({
+      hasFirstParty: false,
+      hasGa4: false,
+      hasHistoricalSnapshot: true,
+      hasLegacy: true,
+    })).toBe(true);
+  });
+
+  it("owns source agreement status thresholds for launch history callers", () => {
+    const failed = buildSourceAgreementCoverageSummaryState({
+      expectedDays: ["2026-02-12", "2026-02-13", "2026-02-14"],
+      coverageBySource: {
+        first_party: ["2026-02-12"],
+        ga4: ["2026-02-12", "2026-02-13", "2026-02-14"],
+        historical_snapshot: ["2026-02-12"],
+        legacy_support: ["2026-02-14"],
+      },
+    });
+    expect(failed).toMatchObject({
+      disagreementCount: 2,
+      maxDeltaPct: 67,
+      sourceAgreementStatus: "failed",
+    });
+
+    const notEnough = buildSourceAgreementCoverageSummaryState({
+      expectedDays: ["2026-02-12"],
+      coverageBySource: {
+        first_party: ["2026-02-12"],
+        ga4: [],
+      },
+    });
+    expect(notEnough).toMatchObject({
+      activeSourceCount: 1,
+      sourceAgreementStatus: "not_enough_sources",
+    });
+  });
+
   it("reports compared sources, disagreement size, tolerance, blocked consumers, and exact next actions", () => {
     const detail = buildLaunchAnalyticsSourceAgreementFailureDetail({
       comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
@@ -22,17 +103,24 @@ describe("source agreement failure detail", () => {
 
     expect(detail.comparedSources).toEqual(["first_party", "ga4", "historical_snapshot", "legacy_support"]);
     expect(detail.sourceAgreementStatus).toBe("failed");
-    expect(detail.rangeStartDayKey).toBe("2026-05-01");
-    expect(detail.rangeEndDayKey).toBe("2026-05-03");
+    expect(detail.rangeStartDayKey).toBe("2026-02-12");
+    expect(detail.rangeEndDayKey).toBe("2026-02-14");
     expect(detail.expectedDayCount).toBe(3);
     expect(detail.expectedRangeSource).toBe("union_of_local_source_days");
     expect(detail.coverageWindowKind).toBe("fixture_only_local_window");
     expect(detail.allLaunchRangeProven).toBe(false);
-    expect(detail.missingDaysBySource.first_party).toEqual(["2026-05-02", "2026-05-03"]);
+    expect(detail.missingDaysBySource.first_party).toEqual(["2026-02-13", "2026-02-14"]);
     expect(detail.disagreements).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        dayKey: "2026-05-02",
+        dayKey: "2026-02-13",
         sourcesPresent: ["ga4"],
+        sourceTruthState: "second_source_only",
+        sourceTruth: "ga4_evidence_only",
+        freshnessState: "external_evidence_required",
+        evidenceKind: "modeled",
+        confidenceBand: "directional",
+        dedupeDimensions: [...RECOVERY_METRIC_DEDUPE_DIMENSIONS],
+        lateArrivalWindowDays: ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
         primarySourceState: "first_party_missing",
         secondSourceState: "ga4_present",
         classifications: expect.arrayContaining(["external_source_gap", "missing_materializer"]),
@@ -49,12 +137,7 @@ describe("source agreement failure detail", () => {
     expect(detail.nextAction).not.toMatch(/^retry$/iu);
     expect(detail.nextAction).toMatch(/first-party/i);
     expect(detail.nextExactSteps.join(" ")).toMatch(/all-range historical analytics route|approved local export path/i);
-    expect(detail.sourceTruthPolicy).toMatchObject({
-      firstPartyPrimary: true,
-      ga4SecondSourceOnly: true,
-      fallbackEvidenceOnly: true,
-      missingIsNotZero: true,
-    });
+    expect(detail.sourceTruthPolicy).toEqual(LAUNCH_ANALYTICS_SOURCE_TRUTH_POLICY);
   });
 
   it("maps blocked launch analytics consumers to truthful display states", () => {
@@ -139,6 +222,11 @@ describe("source agreement failure detail", () => {
     expect(detail.disagreements).toEqual(expect.arrayContaining([
       expect.objectContaining({
         dayKey: "2026-05-02",
+        sourceTruthState: "second_source_only",
+        sourceTruth: "ga4_evidence_only",
+        evidenceKind: "modeled",
+        dedupeDimensions: [...RECOVERY_METRIC_DEDUPE_DIMENSIONS],
+        lateArrivalWindowDays: ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
         recoveryLane: "first_party_materialization",
         productTruthEligible: false,
       }),
@@ -330,6 +418,13 @@ describe("source agreement failure detail", () => {
       expect.objectContaining({
         dayKey: "2026-05-01",
         metric: "source_count_delta",
+        sourceTruthState: "mixed_evidence",
+        sourceTruth: "first_party_event_fact",
+        freshnessState: "source_current",
+        evidenceKind: "observed",
+        confidenceBand: "verified",
+        dedupeDimensions: [...RECOVERY_METRIC_DEDUPE_DIMENSIONS],
+        lateArrivalWindowDays: ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
         primarySource: "first_party",
         secondSource: "ga4",
         primaryCount: 20,
@@ -341,6 +436,13 @@ describe("source agreement failure detail", () => {
     expect(detail.disagreements).toEqual(expect.arrayContaining([
       expect.objectContaining({
         dayKey: "2026-05-01",
+        sourceTruthState: "mixed_evidence",
+        sourceTruth: "first_party_event_fact",
+        freshnessState: "source_current",
+        evidenceKind: "observed",
+        confidenceBand: "verified",
+        dedupeDimensions: [...RECOVERY_METRIC_DEDUPE_DIMENSIONS],
+        lateArrivalWindowDays: ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
         primarySourceState: "first_party_present",
         secondSourceState: "ga4_present",
         classifications: ["internal_traffic_mismatch"],
@@ -408,6 +510,20 @@ describe("source agreement failure detail", () => {
     expect(detail.sourceAgreementStatus).toBe("pass");
     expect(detail.allLaunchRangeProven).toBe(false);
     expect(detail.expectedDayCount).toBe(2);
+  });
+
+  it("uses recovery-spine launch day state instead of local recovered-count math", () => {
+    const source = readFileSync("src/lib/analytics/source-agreement-detail.ts", "utf8");
+
+    expect(source).toContain("buildLaunchHistorySourceCoverageRowsState");
+    expect(source).not.toContain("buildLaunchHistoryDayRecoveryStatesFromSources");
+    expect(source).toContain("buildLaunchHistoryDayRecoveryState");
+    expect(source).toContain("buildLaunchHistoryCoverageSummaryState");
+    expect(source).toContain("buildLaunchHistoryCoverageRangeProofEligibility");
+    expect(source).not.toContain("const recoveredExpectedDayCount = input.launchHistoryCoverage.days");
+    expect(source).not.toContain("Object.values(day.sourceCounts).some");
+    expect(source).not.toContain("function hasExplicitAllLaunchRangeProof");
+    expect(source).not.toContain("function proofModeAllowsLaunchRangeProof");
   });
 
   it("recognizes completed admin truth sample coverage without flattening source counts", () => {
@@ -500,6 +616,53 @@ describe("source agreement failure detail", () => {
     expect(statuses.some((entry) => entry.state === "usable_launch_history_coverage")).toBe(false);
   });
 
+  it("centralizes launch coverage evidence input summaries for dry-run reports", () => {
+    const summary = summarizeLaunchCoverageInputEvidence({
+      sourceAgreementInputMode: "fixture_only_local_window",
+      sourceAgreementInputPath: "none",
+      usableLaunchCoverageInputFound: false,
+      candidateLaunchCoverageInputStatuses: [
+        {
+          path: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+          state: "missing",
+          proofMode: "none",
+          nextAction: "Attach the local export.",
+        },
+        {
+          path: "agent/evidence/admin-truth-sample/sample.redacted.json",
+          state: "present_without_launch_history_coverage",
+          proofMode: "none",
+          nextAction: "Add launchHistoryCoverage rows.",
+        },
+      ],
+    });
+
+    expect(summary).toMatchObject({
+      inputMode: "fixture_only_local_window",
+      inputPath: "none",
+      usableInputFound: false,
+      candidateCount: 2,
+      stateCounts: {
+        missing: 1,
+        present_without_launch_history_coverage: 1,
+      },
+    });
+    expect(launchCoverageInputEvidenceNextAction(summary)).toContain("agent/evidence/launch-analytics/launch-history-coverage.local.json");
+    expect(launchCoverageInputEvidenceNextAction({
+      ...summary,
+      usableInputFound: true,
+    })).toBeNull();
+  });
+
+  it("reads launch coverage evidence head without inventing current-head proof", () => {
+    expect(readLaunchCoverageInputHead({ currentHead: "head-a" })).toBe("head-a");
+    expect(readLaunchCoverageInputHead({ sourceCommit: "head-b" })).toBe("head-b");
+    expect(readLaunchCoverageInputHead({ sourceHead: "head-c" })).toBe("head-c");
+    expect(readLaunchCoverageInputHead({ commit: "head-d" })).toBe("head-d");
+    expect(readLaunchCoverageInputHead({ currentHead: "" })).toBeNull();
+    expect(readLaunchCoverageInputHead({})).toBeNull();
+  });
+
   it("rejects template or malformed launch coverage rows as non-evidence", () => {
     expect(normalizeLaunchHistoryCoverageExport({
       status: "template_not_evidence",
@@ -589,6 +752,44 @@ describe("source agreement failure detail", () => {
     expect(coverage).toMatchObject({
       expectedDayCount: 2,
       recoveredDayCount: 1,
+      state: "partial",
+    });
+  });
+
+  it("normalizes imported launch coverage through the recovery spine so GA4-only evidence stays partial", () => {
+    const source = readFileSync("scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts", "utf8");
+    const coverage = normalizeLaunchHistoryCoverageExport({
+      status: "complete",
+      surface: "admin_truth_sample",
+      launchHistoryCoverage: {
+        expectedDayCount: 2,
+        recoveredDayCount: 2,
+        state: "available",
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 0, ga4: 7, historicalSnapshot: 0, legacySupport: 0 },
+          },
+          {
+            dayKey: "2026-05-02",
+            expected: true,
+            sourceCounts: { first_party: 0, ga4: 5, historicalSnapshot: 0, legacySupport: 0 },
+          },
+        ],
+      },
+    });
+
+    expect(source).toContain("buildLaunchHistorySourceCoverageRowsState");
+    expect(source).not.toContain("buildLaunchHistoryDayRecoveryStatesFromSources");
+    expect(source).not.toContain("buildLaunchHistoryDayRecoveryState({");
+    expect(source).toContain("buildLaunchHistoryCoverageSummaryState");
+    expect(source).not.toContain("const recoveredDayCount = days.filter");
+    expect(source).not.toContain("day.sourceCounts.first_party <= 0");
+    expect(source).not.toContain("!day.evidenceObserved");
+    expect(coverage).toMatchObject({
+      expectedDayCount: 2,
+      recoveredDayCount: 2,
       state: "partial",
     });
   });

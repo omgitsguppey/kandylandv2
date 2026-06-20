@@ -1,3 +1,17 @@
+import {
+  ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
+  buildLaunchHistoryDayRecoveryState,
+  buildLaunchHistoryCoverageRangeProofEligibility,
+  buildLaunchHistoryCoverageSummaryState,
+  buildLaunchHistorySourceCoverageRowsState,
+  type LaunchHistoryDaySourceTruthState,
+  type RecoveryMetricConfidenceBand,
+  type RecoveryMetricDedupeDimension,
+  type RecoveryMetricEvidenceKind,
+  type RecoveryMetricFreshnessState,
+  type RecoveryMetricSourceTruth,
+} from "@/lib/analytics/recovery-timeline-spine";
+
 export type SourceAgreementCoverageInput = {
   source: string;
   days: string[];
@@ -26,6 +40,15 @@ export type SourceAgreementDisagreementDetail = {
   dayKey: string;
   sourcesPresent: string[];
   sourcesMissing: string[];
+  sourceTruthState: LaunchHistoryDaySourceTruthState;
+  sourceTruth: RecoveryMetricSourceTruth;
+  freshnessState: RecoveryMetricFreshnessState;
+  evidenceKind: RecoveryMetricEvidenceKind;
+  confidenceScore: number;
+  confidenceBand: RecoveryMetricConfidenceBand;
+  dedupeKey: string;
+  dedupeDimensions: RecoveryMetricDedupeDimension[];
+  lateArrivalWindowDays: typeof ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS;
   primarySourceState: "first_party_present" | "first_party_missing";
   secondSourceState: "ga4_present" | "ga4_missing";
   fallbackState: "fallback_present" | "fallback_missing";
@@ -53,6 +76,13 @@ export type SourceAgreementBlockedConsumerDetail = {
   blockingOwner: string;
   nextAction: string;
 };
+
+export const LAUNCH_ANALYTICS_SOURCE_TRUTH_POLICY = {
+  firstPartyPrimary: true,
+  ga4SecondSourceOnly: true,
+  fallbackEvidenceOnly: true,
+  missingIsNotZero: true,
+} as const;
 
 export type SourceAgreementFailureDetail = {
   comparedSources: string[];
@@ -82,6 +112,15 @@ export type SourceAgreementFailureDetail = {
   perDayMetricDeltas?: Array<{
     dayKey: string;
     metric: "source_count_delta";
+    sourceTruthState: LaunchHistoryDaySourceTruthState;
+    sourceTruth: RecoveryMetricSourceTruth;
+    freshnessState: RecoveryMetricFreshnessState;
+    evidenceKind: RecoveryMetricEvidenceKind;
+    confidenceScore: number;
+    confidenceBand: RecoveryMetricConfidenceBand;
+    dedupeKey: string;
+    dedupeDimensions: RecoveryMetricDedupeDimension[];
+    lateArrivalWindowDays: typeof ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS;
     primarySource: "first_party";
     secondSource: "ga4";
     primaryCount: number;
@@ -101,12 +140,7 @@ export type SourceAgreementFailureDetail = {
   blockedConsumerDetails: SourceAgreementBlockedConsumerDetail[];
   nextAction: string;
   nextExactSteps: string[];
-  sourceTruthPolicy: {
-    firstPartyPrimary: true;
-    ga4SecondSourceOnly: true;
-    fallbackEvidenceOnly: true;
-    missingIsNotZero: true;
-  };
+  sourceTruthPolicy: typeof LAUNCH_ANALYTICS_SOURCE_TRUTH_POLICY;
 };
 
 export type SourceAgreementCoverageClassificationInput = {
@@ -121,6 +155,88 @@ export type SourceAgreementCoverageClassificationInput = {
   maxDeltaPct?: number | null;
 };
 
+export type SourceAgreementCoveragePresenceInput = {
+  hasGa4: boolean;
+  hasFirstParty: boolean;
+  hasHistoricalSnapshot?: boolean;
+  hasLegacy?: boolean;
+};
+
+export type SourceAgreementCoverageSummaryInput = {
+  expectedDays: string[];
+  perSourceCoverage?: Array<{ source: string; days: Iterable<string>; dayCount?: number }>;
+  coverageBySource?: Record<string, Iterable<string>>;
+  comparisonDayKeys?: string[];
+  blockingContinuityGap?: boolean;
+  tolerance?: { reviewDeltaPct?: number; failDeltaPct?: number };
+  reviewDeltaPct?: number;
+  failDeltaPct?: number;
+};
+
+export type SourceAgreementCoverageSummaryState = {
+  activeSourceCount: number;
+  activeSourceDayCounts: number[];
+  disagreementCount: number;
+  maxDeltaPct: number;
+  reviewDeltaPct: number;
+  failDeltaPct: number;
+  sourceAgreementStatus: SourceAgreementFailureDetail["sourceAgreementStatus"];
+};
+
+type SourceAgreementRecoverySourceCounts = {
+  first_party?: number | null;
+  ga4?: number | null;
+  historicalSnapshot?: number | null;
+  legacySupport?: number | null;
+};
+
+function buildSourceAgreementRecoveredMetricMetadata(input: {
+  dayKey: string;
+  sourceCounts?: SourceAgreementRecoverySourceCounts;
+  defaultCounts?: {
+    first_party?: number;
+    ga4?: number;
+    historicalSnapshot?: number;
+    legacySupport?: number;
+  };
+  internalAdminExcludedCount?: number | null;
+}) {
+  const recoveryState = buildLaunchHistoryDayRecoveryState({
+    dayKey: input.dayKey,
+    firstPartyCount: input.sourceCounts?.first_party ?? input.defaultCounts?.first_party ?? 0,
+    ga4Count: input.sourceCounts?.ga4 ?? input.defaultCounts?.ga4 ?? 0,
+    historicalSnapshotCount: input.sourceCounts?.historicalSnapshot ?? input.defaultCounts?.historicalSnapshot ?? 0,
+    legacySupportCount: input.sourceCounts?.legacySupport ?? input.defaultCounts?.legacySupport ?? 0,
+    internalAdminExcludedCount: input.internalAdminExcludedCount,
+  });
+
+  return {
+    sourceTruthState: recoveryState.sourceTruthState,
+    sourceTruth: recoveryState.sourceTruth,
+    freshnessState: recoveryState.freshnessState,
+    evidenceKind: recoveryState.evidenceKind,
+    confidenceScore: recoveryState.confidenceScore,
+    confidenceBand: recoveryState.confidenceBand,
+    dedupeKey: recoveryState.dedupeKey,
+    dedupeDimensions: [...recoveryState.dedupeDimensions],
+    lateArrivalWindowDays: recoveryState.lateArrivalWindowDays,
+  };
+}
+
+export type LaunchCoverageInputEvidenceSummary = {
+  inputMode: string;
+  inputPath: string;
+  usableInputFound: boolean;
+  candidateCount: number;
+  candidates: Array<{
+    path: string;
+    state: string;
+    proofMode: string;
+    nextAction: string;
+  }>;
+  stateCounts: Record<string, number>;
+};
+
 export const LAUNCH_ANALYTICS_DEFAULT_BLOCKED_CONSUMERS = [
   "admin_analytics_overview",
   "admin_analytics_charts",
@@ -133,7 +249,80 @@ export const LAUNCH_ANALYTICS_DEFAULT_BLOCKED_CONSUMERS = [
   "public_beta_score_evidence",
 ] as const;
 
-export const LAUNCH_ANALYTICS_FIRST_DAY_KEY = "2026-05-01";
+// February 12, 2026 is the earliest source-backed public launch anchor
+// (`src/app/sitemap.ts` and `src/lib/platform-config.ts`). Recovery reports
+// must not silently narrow formal launch proof to later May evidence windows.
+export const LAUNCH_ANALYTICS_FIRST_DAY_KEY = "2026-02-12";
+
+const DEFAULT_LAUNCH_COVERAGE_EXPORT_PATHS = [
+  "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+  "agent/evidence/launch-analytics/launch-history-coverage.export.json",
+] as const;
+
+function asSummaryRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
+
+function readSummaryString(value: unknown, fallback: string) {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
+}
+
+function readSummaryBoolean(value: unknown, fallback = false) {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+export function summarizeLaunchCoverageInputEvidence(
+  evidenceProvenance: Record<string, unknown> | null | undefined,
+): LaunchCoverageInputEvidenceSummary {
+  const provenance = asSummaryRecord(evidenceProvenance);
+  const statuses = Array.isArray(provenance.candidateLaunchCoverageInputStatuses)
+    ? provenance.candidateLaunchCoverageInputStatuses
+    : [];
+  const stateCounts = new Map<string, number>();
+  const candidates = statuses
+    .map((entry) => {
+      const record = asSummaryRecord(entry);
+      const state = readSummaryString(record.state, "unknown");
+      stateCounts.set(state, (stateCounts.get(state) ?? 0) + 1);
+      return {
+        path: readSummaryString(record.path, "unknown"),
+        state,
+        proofMode: readSummaryString(record.proofMode, "none"),
+        nextAction: readSummaryString(record.nextAction, "Attach a launch-history coverage input before promoting analytics truth."),
+      };
+    })
+    .slice(0, 8);
+
+  return {
+    inputMode: readSummaryString(provenance.sourceAgreementInputMode, "unknown"),
+    inputPath: readSummaryString(provenance.sourceAgreementInputPath, "none"),
+    usableInputFound: readSummaryBoolean(provenance.usableLaunchCoverageInputFound, false),
+    candidateCount: statuses.length,
+    candidates,
+    stateCounts: Object.fromEntries(stateCounts),
+  };
+}
+
+export function launchCoverageInputEvidenceNextAction(input: LaunchCoverageInputEvidenceSummary) {
+  if (input.usableInputFound) return null;
+
+  const acceptedPaths = input.candidates
+    .filter((entry) => entry.path.includes("agent/evidence/launch-analytics/launch-history-coverage"))
+    .map((entry) => entry.path);
+  const pathList = acceptedPaths.length > 0
+    ? acceptedPaths.join(" or ")
+    : DEFAULT_LAUNCH_COVERAGE_EXPORT_PATHS.join(" or ");
+
+  return `Attach approved launch-history coverage at ${pathList}, or attach a redacted admin truth sample with launchHistoryCoverage day rows. Then run npm run check:analytics-panel-hydration before treating launch analytics charts as canonical.`;
+}
+
+export function hasBlockingSourceCoverageMismatch(input: SourceAgreementCoveragePresenceInput) {
+  const hasAnySource = input.hasGa4 || input.hasFirstParty || Boolean(input.hasHistoricalSnapshot) || Boolean(input.hasLegacy);
+  if (!hasAnySource) return false;
+  return !input.hasFirstParty || !input.hasGa4;
+}
 
 export function classifySourceAgreementCoverage(input: SourceAgreementCoverageClassificationInput) {
   const classifications = new Set<SourceAgreementFailureClassification>();
@@ -188,6 +377,13 @@ function classifyDayDisagreement(input: {
   dayKey: string;
   sourcesPresent: string[];
   sourcesMissing: string[];
+  sourceCounts?: {
+    first_party?: number | null;
+    ga4?: number | null;
+    historicalSnapshot?: number | null;
+    legacySupport?: number | null;
+  };
+  internalAdminExcludedCount?: number | null;
 }): SourceAgreementDisagreementDetail | null {
   const sourceSet = new Set(input.sourcesPresent);
   const missingSet = new Set(input.sourcesMissing);
@@ -256,11 +452,23 @@ function classifyDayDisagreement(input: {
     ...(!hasGa4 ? ["approved_ga4_export_or_config_evidence"] : []),
     ...(hasFallback ? ["fallback_archive_label_and_dedupe_review"] : []),
   ];
+  const recoveryMetadata = buildSourceAgreementRecoveredMetricMetadata({
+    dayKey: input.dayKey,
+    sourceCounts: input.sourceCounts,
+    defaultCounts: {
+      first_party: hasFirstParty ? 1 : 0,
+      ga4: hasGa4 ? 1 : 0,
+      historicalSnapshot: sourceSet.has("historical_snapshot") ? 1 : 0,
+      legacySupport: sourceSet.has("legacy_support") ? 1 : 0,
+    },
+    internalAdminExcludedCount: input.internalAdminExcludedCount,
+  });
 
   return {
     dayKey: input.dayKey,
     sourcesPresent: input.sourcesPresent,
     sourcesMissing: input.sourcesMissing,
+    ...recoveryMetadata,
     primarySourceState: hasFirstParty ? "first_party_present" : "first_party_missing",
     secondSourceState: hasGa4 ? "ga4_present" : "ga4_missing",
     fallbackState: hasFallback ? "fallback_present" : "fallback_missing",
@@ -280,9 +488,76 @@ function isBlockingCoverageMismatch(input: {
 }) {
   if (input.sourcesPresent.length === 0 || input.sourcesMissing.length === 0) return false;
   const sourceSet = new Set(input.sourcesPresent);
-  const hasFirstParty = sourceSet.has("first_party");
-  const hasGa4 = sourceSet.has("ga4");
-  return !hasFirstParty || !hasGa4;
+  return hasBlockingSourceCoverageMismatch({
+    hasFirstParty: sourceSet.has("first_party"),
+    hasGa4: sourceSet.has("ga4"),
+    hasHistoricalSnapshot: sourceSet.has("historical_snapshot"),
+    hasLegacy: sourceSet.has("legacy_support"),
+  });
+}
+
+export function buildSourceAgreementCoverageSummaryState(
+  input: SourceAgreementCoverageSummaryInput,
+): SourceAgreementCoverageSummaryState {
+  const expectedDays = [...new Set(input.expectedDays.filter(Boolean))].sort();
+  const expectedDaySet = new Set(expectedDays);
+  const perSourceCoverage: Array<{ source: string; days: Iterable<string>; dayCount?: number }> = input.perSourceCoverage
+    ?? Object.entries(input.coverageBySource ?? {}).map(([source, days]) => ({ source, days }));
+  const normalizedCoverage = perSourceCoverage.map((entry) => {
+    const days = [...new Set([...entry.days].filter(Boolean))].sort();
+    return {
+      source: entry.source,
+      days,
+      dayCount: typeof entry.dayCount === "number"
+        ? entry.dayCount
+        : days.filter((dayKey) => expectedDaySet.has(dayKey)).length,
+    };
+  });
+  const sourceDaySets = new Map(normalizedCoverage.map((entry) => [entry.source, new Set(entry.days)]));
+  const comparisonDayKeys = [...new Set((input.comparisonDayKeys ?? expectedDays).filter(Boolean))].sort();
+  const disagreementCount = comparisonDayKeys.filter((dayKey) => isBlockingCoverageMismatch({
+    sourcesPresent: normalizedCoverage
+      .map((entry) => entry.source)
+      .filter((source) => sourceDaySets.get(source)?.has(dayKey)),
+    sourcesMissing: normalizedCoverage
+      .map((entry) => entry.source)
+      .filter((source) => !sourceDaySets.get(source)?.has(dayKey)),
+  })).length;
+  const activeSourceDayCounts = normalizedCoverage
+    .filter((entry) => entry.dayCount > 0)
+    .map((entry) => entry.dayCount);
+  const primarySecondSourceCounts = normalizedCoverage
+    .filter((entry) => entry.source === "first_party" || entry.source === "ga4")
+    .filter((entry) => entry.dayCount > 0)
+    .map((entry) => entry.dayCount);
+  const deltaCounts = primarySecondSourceCounts.length >= 2
+    ? primarySecondSourceCounts
+    : activeSourceDayCounts;
+  const maxCoverage = deltaCounts.length > 0 ? Math.max(...deltaCounts) : 0;
+  const minCoverage = deltaCounts.length > 0 ? Math.min(...deltaCounts) : 0;
+  const maxDeltaPct = deltaCounts.length > 1 && maxCoverage > 0
+    ? Math.round(((maxCoverage - minCoverage) / maxCoverage) * 100)
+    : 0;
+  const reviewDeltaPct = input.tolerance?.reviewDeltaPct ?? input.reviewDeltaPct ?? 10;
+  const failDeltaPct = input.tolerance?.failDeltaPct ?? input.failDeltaPct ?? 25;
+  const sourceAgreementStatus: SourceAgreementFailureDetail["sourceAgreementStatus"] =
+    activeSourceDayCounts.length < 2 || expectedDays.length === 0
+      ? "not_enough_sources"
+      : input.blockingContinuityGap || disagreementCount > 1 || maxDeltaPct > failDeltaPct
+        ? "failed"
+        : disagreementCount > 0 || maxDeltaPct > reviewDeltaPct
+          ? "review"
+          : "pass";
+
+  return {
+    activeSourceCount: activeSourceDayCounts.length,
+    activeSourceDayCounts,
+    disagreementCount,
+    maxDeltaPct,
+    reviewDeltaPct,
+    failDeltaPct,
+    sourceAgreementStatus,
+  };
 }
 
 function labelForBlockedConsumer(consumer: string) {
@@ -353,9 +628,9 @@ function buildBlockedConsumerDetails(
 
 export const LAUNCH_ANALYTICS_SOURCE_AGREEMENT_COVERAGE: Record<string, string[]> = {
   first_party: [LAUNCH_ANALYTICS_FIRST_DAY_KEY],
-  ga4: [LAUNCH_ANALYTICS_FIRST_DAY_KEY, "2026-05-02", "2026-05-03"],
+  ga4: [LAUNCH_ANALYTICS_FIRST_DAY_KEY, "2026-02-13", "2026-02-14"],
   historical_snapshot: [LAUNCH_ANALYTICS_FIRST_DAY_KEY],
-  legacy_support: ["2026-05-03"],
+  legacy_support: ["2026-02-14"],
 };
 
 export const LAUNCH_ANALYTICS_SOURCE_AGREEMENT_SOURCES = [
@@ -390,63 +665,17 @@ export type LaunchHistoryCoverageForSourceAgreement = {
   }>;
 };
 
-function parseDayStartUtc(dayKey: string | null | undefined) {
-  if (!dayKey || !/^\d{4}-\d{2}-\d{2}$/u.test(dayKey)) return null;
-  const timestamp = Date.parse(`${dayKey}T00:00:00.000Z`);
-  if (!Number.isFinite(timestamp)) return null;
-  return new Date(timestamp).toISOString().startsWith(dayKey) ? timestamp : null;
-}
-
-function inclusiveDayCount(startDayKey: string | null | undefined, endDayKey: string | null | undefined) {
-  const start = parseDayStartUtc(startDayKey);
-  const end = parseDayStartUtc(endDayKey);
-  if (start === null || end === null || end < start) return null;
-  return Math.floor((end - start) / 86_400_000) + 1;
-}
-
-function hasExplicitAllLaunchRangeProof(
-  coverage: LaunchHistoryCoverageForSourceAgreement,
-  expectedDays: string[],
-) {
-  if (coverage.rangeProof?.allLaunchRangeProven !== true) return false;
-  if (expectedDays.length === 0) return false;
-  const rangeStartDayKey = coverage.rangeStartDayKey ?? null;
-  const rangeEndDayKey = coverage.rangeEndDayKey ?? null;
-  if (rangeStartDayKey !== expectedDays[0] || rangeEndDayKey !== expectedDays[expectedDays.length - 1]) {
-    return false;
-  }
-  return inclusiveDayCount(rangeStartDayKey, rangeEndDayKey) === expectedDays.length;
-}
-
-function proofModeAllowsLaunchRangeProof(input: {
-  proofMode?: "local_export" | "admin_truth_sample";
-  coverage: LaunchHistoryCoverageForSourceAgreement;
-}) {
-  if (input.proofMode === "admin_truth_sample") return true;
-  if (input.proofMode !== "local_export") return false;
-
-  const rangeProof = input.coverage.rangeProof;
-  return rangeProof?.coverageWindowKind === "all_range_historical_export"
-    || rangeProof?.expectedRangeSource === "approved_all_launch_export";
-}
-
-function coverageWindowKindForLaunchHistoryCoverage(input: {
-  proofMode?: "local_export" | "admin_truth_sample";
-  coverage: LaunchHistoryCoverageForSourceAgreement;
-}): SourceAgreementFailureDetail["coverageWindowKind"] {
-  if (input.proofMode === "admin_truth_sample") return "admin_truth_sample";
-
-  const rangeProof = input.coverage.rangeProof;
-  return rangeProof?.coverageWindowKind === "all_range_historical_export"
-    || rangeProof?.expectedRangeSource === "approved_all_launch_export"
-    ? "all_range_historical_export"
-    : "local_source_window";
-}
-
 export function buildSourceAgreementFailureDetail(input: {
   comparedSources: SourceAgreementCoverageInput[] | string[];
   coverageBySource?: Record<string, string[]>;
   expectedDays?: string[];
+  sourceCountsByDay?: Record<string, {
+    first_party?: number | null;
+    ga4?: number | null;
+    historicalSnapshot?: number | null;
+    legacySupport?: number | null;
+  }>;
+  internalAdminExcludedCountByDay?: Record<string, number | null | undefined>;
   comparedMetrics?: string[];
   tolerance?: { reviewDeltaPct?: number; failDeltaPct?: number };
   reviewDeltaPct?: number;
@@ -481,35 +710,21 @@ export function buildSourceAgreementFailureDetail(input: {
   });
   const sourceDaySets = new Map(perSourceCoverage.map((entry) => [entry.source, new Set(entry.days)]));
   const allDays = [...new Set([...expectedDays, ...perSourceCoverage.flatMap((entry) => entry.days)])].sort();
-  const disagreementCount = allDays.filter((day) => isBlockingCoverageMismatch({
-    sourcesPresent: comparedSources
-      .map((entry) => entry.source)
-      .filter((source) => sourceDaySets.get(source)?.has(day)),
-    sourcesMissing: comparedSources
-      .map((entry) => entry.source)
-      .filter((source) => !sourceDaySets.get(source)?.has(day)),
-  })).length;
-  const activeCounts = perSourceCoverage.filter((entry) => entry.dayCount > 0).map((entry) => entry.dayCount);
-  const primarySecondSourceCounts = perSourceCoverage
-    .filter((entry) => entry.source === "first_party" || entry.source === "ga4")
-    .filter((entry) => entry.dayCount > 0)
-    .map((entry) => entry.dayCount);
-  const deltaCounts = primarySecondSourceCounts.length >= 2 ? primarySecondSourceCounts : activeCounts;
-  const maxCoverage = deltaCounts.length > 0 ? Math.max(...deltaCounts) : 0;
-  const minCoverage = deltaCounts.length > 0 ? Math.min(...deltaCounts) : 0;
-  const maxDeltaPct = deltaCounts.length > 1 && maxCoverage > 0
-    ? Math.round(((maxCoverage - minCoverage) / maxCoverage) * 100)
-    : 0;
-  const reviewDeltaPct = input.tolerance?.reviewDeltaPct ?? input.reviewDeltaPct ?? 10;
-  const failDeltaPct = input.tolerance?.failDeltaPct ?? input.failDeltaPct ?? 25;
-  const sourceAgreementStatus =
-    activeCounts.length < 2 || expectedDays.length === 0
-      ? "not_enough_sources"
-      : disagreementCount > 1 || maxDeltaPct > failDeltaPct
-        ? "failed"
-        : disagreementCount > 0 || maxDeltaPct > reviewDeltaPct
-          ? "review"
-          : "pass";
+  const sourceAgreementSummary = buildSourceAgreementCoverageSummaryState({
+    expectedDays,
+    perSourceCoverage,
+    comparisonDayKeys: allDays,
+    tolerance: input.tolerance,
+    reviewDeltaPct: input.reviewDeltaPct,
+    failDeltaPct: input.failDeltaPct,
+  });
+  const {
+    disagreementCount,
+    maxDeltaPct,
+    reviewDeltaPct,
+    failDeltaPct,
+    sourceAgreementStatus,
+  } = sourceAgreementSummary;
   const disagreements = allDays
     .map((dayKey) => classifyDayDisagreement({
       dayKey,
@@ -519,6 +734,8 @@ export function buildSourceAgreementFailureDetail(input: {
       sourcesMissing: comparedSources
         .map((entry) => entry.source)
         .filter((source) => !sourceDaySets.get(source)?.has(dayKey)),
+      sourceCounts: input.sourceCountsByDay?.[dayKey],
+      internalAdminExcludedCount: input.internalAdminExcludedCountByDay?.[dayKey] ?? null,
     }))
     .filter((entry): entry is SourceAgreementDisagreementDetail => Boolean(entry));
   const missingDaysBySource = Object.fromEntries(
@@ -564,12 +781,7 @@ export function buildSourceAgreementFailureDetail(input: {
       "Keep fallback historical and legacy support rows archive/evidence-only until first-party materialization or dedupe proves the day.",
       "Promote admin charts only after sourceAgreementStatus is pass and first-party product truth covers the bounded window.",
     ],
-    sourceTruthPolicy: {
-      firstPartyPrimary: true,
-      ga4SecondSourceOnly: true,
-      fallbackEvidenceOnly: true,
-      missingIsNotZero: true,
-    },
+    sourceTruthPolicy: LAUNCH_ANALYTICS_SOURCE_TRUTH_POLICY,
   };
 }
 
@@ -597,63 +809,89 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
   tolerance?: { reviewDeltaPct?: number; failDeltaPct?: number };
   blockedConsumers?: string[];
 }): SourceAgreementFailureDetail {
+  const expectedRows = input.launchHistoryCoverage.days.filter((day) => day.expected);
   const expectedDays = [...new Set(
-    input.launchHistoryCoverage.days
-      .filter((day) => day.expected)
+    expectedRows
       .map((day) => day.dayKey)
       .filter(Boolean),
   )].sort();
+  const sourceCountsByDay = Object.fromEntries(
+    expectedRows.map((day) => [
+      day.dayKey,
+      day.sourceCounts,
+    ]),
+  );
+  const sourceStateInternalAdminExcludedCountByDay = Object.fromEntries(
+    expectedRows.map((day) => [
+      day.dayKey,
+      typeof day.internalAdminExcludedCount === "number"
+        ? Math.max(0, day.internalAdminExcludedCount)
+        : null,
+    ]),
+  );
+  const sourceCoverageRows = buildLaunchHistorySourceCoverageRowsState({
+    expectedDayKeys: expectedDays,
+    sourceCountsByDay,
+    internalAdminExcludedCountByDay: sourceStateInternalAdminExcludedCountByDay,
+  });
+  const expectedCoverageRows = sourceCoverageRows.dayCoverage;
+  const initialRangeProofEligibility = buildLaunchHistoryCoverageRangeProofEligibility({
+    proofMode: input.proofMode,
+    expectedDayKeys: expectedDays,
+    declaredExpectedDayCount: input.launchHistoryCoverage.expectedDayCount,
+    declaredRecoveredDayCount: input.launchHistoryCoverage.recoveredDayCount,
+    recoveredDayCount: 0,
+    rangeStartDayKey: input.launchHistoryCoverage.rangeStartDayKey,
+    rangeEndDayKey: input.launchHistoryCoverage.rangeEndDayKey,
+    rangeProof: input.launchHistoryCoverage.rangeProof,
+    launchCoverageState: "source_missing",
+    firstPartyCoverageState: "source_missing",
+    productTruthRecoveredDayCount: 0,
+    sourceAgreementState: "not_enough_sources",
+  });
   const coverageBySource = {
-    first_party: input.launchHistoryCoverage.days
-      .filter((day) => day.expected && day.sourceCounts.first_party > 0)
+    first_party: expectedCoverageRows
+      .filter((day) => day.sourceCounts.first_party > 0)
       .map((day) => day.dayKey),
-    ga4: input.launchHistoryCoverage.days
-      .filter((day) => day.expected && day.sourceCounts.ga4 > 0)
+    ga4: expectedCoverageRows
+      .filter((day) => day.sourceCounts.ga4 > 0)
       .map((day) => day.dayKey),
-    historical_snapshot: input.launchHistoryCoverage.days
-      .filter((day) => day.expected && day.sourceCounts.historicalSnapshot > 0)
+    historical_snapshot: expectedCoverageRows
+      .filter((day) => day.sourceCounts.historicalSnapshot > 0)
       .map((day) => day.dayKey),
-    legacy_support: input.launchHistoryCoverage.days
-      .filter((day) => day.expected && day.sourceCounts.legacySupport > 0)
+    legacy_support: expectedCoverageRows
+      .filter((day) => day.sourceCounts.legacySupport > 0)
       .map((day) => day.dayKey),
   };
   const detail = buildSourceAgreementFailureDetail({
     comparedSources: [...LAUNCH_ANALYTICS_SOURCE_AGREEMENT_SOURCES],
     coverageBySource,
     expectedDays,
+    sourceCountsByDay,
+    internalAdminExcludedCountByDay: sourceStateInternalAdminExcludedCountByDay,
     comparedMetrics: input.comparedMetrics,
     tolerance: input.tolerance,
     blockedConsumers: input.blockedConsumers,
-    coverageWindowKind: coverageWindowKindForLaunchHistoryCoverage({
-      proofMode: input.proofMode,
-      coverage: input.launchHistoryCoverage,
-    }),
+    coverageWindowKind: initialRangeProofEligibility.coverageWindowKind,
   });
   const perDaySourceCounts = Object.fromEntries(
-    input.launchHistoryCoverage.days
-      .filter((day) => day.expected)
+    expectedCoverageRows
       .map((day) => [
         day.dayKey,
-        {
-          first_party: Math.max(0, Number(day.sourceCounts.first_party) || 0),
-          ga4: Math.max(0, Number(day.sourceCounts.ga4) || 0),
-          historicalSnapshot: Math.max(0, Number(day.sourceCounts.historicalSnapshot) || 0),
-          legacySupport: Math.max(0, Number(day.sourceCounts.legacySupport) || 0),
-        },
+        day.sourceCounts,
       ]),
   );
   const internalAdminExcludedCountByDay = Object.fromEntries(
-    input.launchHistoryCoverage.days
-      .filter((day) => day.expected && typeof day.internalAdminExcludedCount === "number")
-      .map((day) => [day.dayKey, Math.max(0, day.internalAdminExcludedCount ?? 0)]),
+    expectedCoverageRows
+      .filter((day) => typeof day.internalAdminExcludedCount === "number")
+      .map((day) => [day.dayKey, day.internalAdminExcludedCount ?? 0]),
   );
   const reviewDeltaPct = input.tolerance?.reviewDeltaPct ?? 10;
   const failDeltaPct = input.tolerance?.failDeltaPct ?? 25;
-  const perDayMetricDeltas = input.launchHistoryCoverage.days
-    .filter((day) => day.expected)
+  const perDayMetricDeltas = expectedCoverageRows
     .map((day) => {
-      const primaryCount = Math.max(0, Number(day.sourceCounts.first_party) || 0);
-      const secondSourceCount = Math.max(0, Number(day.sourceCounts.ga4) || 0);
+      const primaryCount = day.sourceCounts.first_party;
+      const secondSourceCount = day.sourceCounts.ga4;
       const denominator = Math.max(primaryCount, secondSourceCount);
       const deltaPct = denominator > 0
         ? Math.round((Math.abs(primaryCount - secondSourceCount) / denominator) * 100)
@@ -666,9 +904,15 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
             : "route_normalization_mismatch",
         );
       }
+      const recoveryMetadata = buildSourceAgreementRecoveredMetricMetadata({
+        dayKey: day.dayKey,
+        sourceCounts: day.sourceCounts,
+        internalAdminExcludedCount: day.internalAdminExcludedCount ?? null,
+      });
       return {
         dayKey: day.dayKey,
         metric: "source_count_delta" as const,
+        ...recoveryMetadata,
         primarySource: "first_party" as const,
         secondSource: "ga4" as const,
         primaryCount,
@@ -682,8 +926,19 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
     })
     .filter((entry) => entry.classifications.length > 0);
   const metricDisagreements = perDayMetricDeltas.map((entry): SourceAgreementDisagreementDetail => {
-    const row = input.launchHistoryCoverage.days.find((day) => day.dayKey === entry.dayKey);
+    const row = expectedCoverageRows.find((day) => day.dayKey === entry.dayKey);
     const hasFallback = Boolean(row && (row.sourceCounts.historicalSnapshot > 0 || row.sourceCounts.legacySupport > 0));
+    const recoveryMetadata = buildSourceAgreementRecoveredMetricMetadata({
+      dayKey: entry.dayKey,
+      sourceCounts: row?.sourceCounts,
+      defaultCounts: {
+        first_party: 1,
+        ga4: 1,
+        historicalSnapshot: 0,
+        legacySupport: 0,
+      },
+      internalAdminExcludedCount: row?.internalAdminExcludedCount ?? null,
+    });
     return {
       dayKey: entry.dayKey,
       sourcesPresent: [
@@ -696,6 +951,7 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
         ...(row?.sourceCounts.historicalSnapshot ? [] : ["historical_snapshot"]),
         ...(row?.sourceCounts.legacySupport ? [] : ["legacy_support"]),
       ],
+      ...recoveryMetadata,
       primarySourceState: "first_party_present",
       secondSourceState: "ga4_present",
       fallbackState: hasFallback ? "fallback_present" : "fallback_missing",
@@ -725,15 +981,26 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
         ? "review"
         : detail.sourceAgreementStatus;
   const maxMetricDeltaPct = perDayMetricDeltas.reduce((max, entry) => Math.max(max, entry.deltaPct), 0);
-  const recoveredExpectedDayCount = input.launchHistoryCoverage.days
-    .filter((day) =>
-      day.expected &&
-      Object.values(day.sourceCounts).some((count) => Number(count) > 0)
-    ).length;
-  const declaredCountsMatchRows =
-    input.launchHistoryCoverage.expectedDayCount === expectedDays.length &&
-    input.launchHistoryCoverage.recoveredDayCount === recoveredExpectedDayCount;
-  const explicitAllLaunchRangeProof = hasExplicitAllLaunchRangeProof(input.launchHistoryCoverage, expectedDays);
+  const coverageSummary = buildLaunchHistoryCoverageSummaryState({
+    expectedDayKeys: expectedDays,
+    dayCoverage: expectedCoverageRows,
+    staleEvidence: false,
+    sourceAgreementState: sourceAgreementStatus,
+  });
+  const rangeProofEligibility = buildLaunchHistoryCoverageRangeProofEligibility({
+    proofMode: input.proofMode,
+    expectedDayKeys: expectedDays,
+    declaredExpectedDayCount: input.launchHistoryCoverage.expectedDayCount,
+    declaredRecoveredDayCount: input.launchHistoryCoverage.recoveredDayCount,
+    recoveredDayCount: coverageSummary.recoveredDayCount,
+    rangeStartDayKey: input.launchHistoryCoverage.rangeStartDayKey,
+    rangeEndDayKey: input.launchHistoryCoverage.rangeEndDayKey,
+    rangeProof: input.launchHistoryCoverage.rangeProof,
+    launchCoverageState: coverageSummary.launchCoverage.state,
+    firstPartyCoverageState: coverageSummary.firstPartyCoverage.state,
+    productTruthRecoveredDayCount: coverageSummary.productTruthRecoveredDayCount,
+    sourceAgreementState: sourceAgreementStatus,
+  });
 
   return {
     ...detail,
@@ -744,14 +1011,6 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
     perDaySourceCounts,
     internalAdminExcludedCountByDay,
     perDayMetricDeltas,
-    allLaunchRangeProven: proofModeAllowsLaunchRangeProof({
-      proofMode: input.proofMode,
-      coverage: input.launchHistoryCoverage,
-    })
-      && explicitAllLaunchRangeProof
-      && input.launchHistoryCoverage.state === "available"
-      && declaredCountsMatchRows
-      && recoveredExpectedDayCount === expectedDays.length
-      && sourceAgreementStatus === "pass",
+    allLaunchRangeProven: rangeProofEligibility.allLaunchRangeProven,
   };
 }

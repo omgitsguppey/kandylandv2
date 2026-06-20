@@ -6,9 +6,22 @@ import { classifyTaskOnboardingParity } from "@/lib/analytics/task-onboarding-pa
 import { buildTelemetryParityPassGate } from "@/lib/analytics/telemetry-parity-pass-gate";
 import {
   LAUNCH_ANALYTICS_FIRST_DAY_KEY,
+  buildSourceAgreementCoverageSummaryState,
   classifySourceAgreementCoverage,
-  type SourceAgreementFailureClassification,
 } from "@/lib/analytics/source-agreement-detail";
+import {
+  buildAllLaunchHistoricalRouteRangeProofState,
+  buildLaunchHistoryDisplaySummaryState,
+  buildLaunchHistorySourceCoverageRowsState,
+  buildLaunchHistoryCoverageSummaryState,
+  buildLaunchCriticalRecoveryCoverageFromEvidence,
+  buildLaunchRecoverySourceGateState,
+  collapseLaunchRecoveryDayRanges,
+  RECOVERY_METRIC_DEDUPE_RULES,
+  RECOVERY_METRIC_MODELING_POLICY,
+  RECOVERY_METRIC_POLICY_PROOF_BOUNDARY,
+  RECOVERY_METRIC_PRODUCT_TRUTH_POLICY,
+} from "@/lib/analytics/recovery-timeline-spine";
 import {
   buildModuleSourceMap,
   type AnalyticsModuleCoverageId,
@@ -26,6 +39,10 @@ import {
   TASK_GUIDANCE_IMPLEMENTED,
   TASK_GUIDANCE_REQUIRED_IN_BETA,
 } from "@/lib/task-guidance";
+import type {
+  AnalyticsSourceHealth as AdminAnalyticsSourceHealth,
+  AnalyticsSourceHealthSourceCheck,
+} from "@/types/admin-analytics";
 
 import { buildModuleCoverageReport, buildParityInsight, sumCountBuckets } from "./analytics-parity";
 import { sumEventCounts } from "./admin-analytics-shared";
@@ -57,266 +74,8 @@ export interface HistoricalValidationSummary {
 type DataValidationStatus = "pass" | "warn" | "fail" | "unavailable" | "stale" | "unknown";
 type DataValidationCacheState = "hit" | "miss" | "stale" | "unknown" | "not_loaded";
 
-export interface SourceCheck {
-  status: "pass" | "review" | "fail" | "unknown";
-  freshnessState: "fresh" | "stale" | "missing" | "unknown";
-  confidence: number | null;
-  sampleCount: number | null;
-  lastSeenAtUtc: string | null;
-  passAllowed: boolean;
-  reason: string;
-}
-
-export interface AnalyticsSourceHealth {
-  range: "7d" | "30d" | "90d" | string;
-  generatedAtUtc: string;
-  launchHistoryCoverage?: {
-    rangeProof: {
-      expectedRangeSource:
-        | "all_range_historical_route"
-        | "all_range_historical_export"
-        | "admin_truth_sample"
-        | "fixture_only_local_window"
-        | "local_source_window"
-        | "unknown";
-      coverageWindowKind:
-        | "all_range_historical_route"
-        | "all_range_historical_export"
-        | "admin_truth_sample"
-        | "fixture_only_local_window"
-        | "local_source_window"
-        | "unknown";
-      allLaunchRangeProven: boolean;
-      formalRangeStartDayKey: string | null;
-      formalRangeEndDayKey: string | null;
-      formalExpectedDayCount: number;
-      evidenceDayCount: number;
-      unprovenRanges: string[];
-      reason: string;
-    };
-    rangeStartDayKey: string | null;
-    rangeEndDayKey: string | null;
-    firstRecoveredDayKey: string | null;
-    lastRecoveredDayKey: string | null;
-    expectedDayCount: number;
-    recoveredDayCount: number;
-    evidenceObservedDayCount?: number;
-    productTruthRecoveredDayCount?: number;
-    secondSourceOnlyDayCount?: number;
-    fallbackOnlyDayCount?: number;
-    preLaunchIgnoredDayCount: number;
-    sourceDayCounts: {
-      firstParty: number;
-      ga4: number;
-      historicalSnapshot: number;
-      legacySupport: number;
-    };
-    firstPartyCoverage: {
-      state: "available" | "partial" | "source_missing";
-      coveredDayCount: number;
-      missingRanges: string[];
-      canPromoteProductTruth: boolean;
-      reason: string;
-    };
-    missingRanges: string[];
-    duplicateRanges: string[];
-    sourceOverlapRanges: string[];
-    days: Array<{
-      dayKey: string;
-      expected: true;
-      recovered: boolean;
-      evidenceObserved?: boolean;
-      productTruthRecovered?: boolean;
-      sourceTruthState?:
-        | "first_party_recovered"
-        | "mixed_evidence"
-        | "second_source_only"
-        | "fallback_only"
-        | "source_missing";
-      sourceCounts: {
-        first_party: 0 | 1;
-        ga4: 0 | 1;
-        historicalSnapshot: 0 | 1;
-        legacySupport: 0 | 1;
-      };
-      internalAdminExcludedCount: number | null;
-      duplicateSourceCount: number;
-      confidence: "verified" | "mixed" | "partial" | "fallback" | "unknown";
-      reason: string;
-      nextAction: string;
-    }>;
-    state: "available" | "partial" | "source_missing";
-    reason: string;
-  };
-  availability: {
-    ga4: SourceCheck;
-    historicalSnapshot: SourceCheck;
-    legacySupport: SourceCheck;
-  };
-  continuity: {
-    expectedDays: number;
-    presentDays: number;
-    missingDays: string[];
-    recentGapDays: string[];
-    lastCompleteDayUtc: string | null;
-    gapSeverity: "none" | "info" | "review" | "error";
-    gapReason: string;
-  };
-  sourceAgreement: {
-    comparedSources: string[];
-    failedSources: string[];
-    comparedMetrics: string[];
-    tolerance: string;
-    confidence: number | null;
-    disagreementCount: number;
-    maxDeltaPct: number | null;
-    state: "pass" | "review" | "failed" | "not_enough_sources";
-    classifications: SourceAgreementFailureClassification[];
-    reason: string;
-    nextAction: string;
-  };
-  chartReadiness: {
-    state: "ready" | "partial" | "source_disagreement" | "gap_detected" | "unavailable";
-    reason: string;
-  };
-}
-
-type LaunchHistoryDaySourceTruthState = Exclude<
-  NonNullable<AnalyticsSourceHealth["launchHistoryCoverage"]>["days"][number]["sourceTruthState"],
-  undefined
->;
-
-function collapseDayRanges(days: string[]) {
-  const sorted = [...new Set(days)].sort();
-  const ranges: string[] = [];
-  let start: string | null = null;
-  let previous: string | null = null;
-
-  const nextDay = (dayKey: string) => {
-    const next = new Date(`${dayKey}T00:00:00.000Z`);
-    next.setUTCDate(next.getUTCDate() + 1);
-    return next.toISOString().slice(0, 10);
-  };
-
-  for (const dayKey of sorted) {
-    if (!start) {
-      start = dayKey;
-      previous = dayKey;
-      continue;
-    }
-
-    if (previous && dayKey === nextDay(previous)) {
-      previous = dayKey;
-      continue;
-    }
-
-    ranges.push(start === previous ? start : `${start}..${previous}`);
-    start = dayKey;
-    previous = dayKey;
-  }
-
-  if (start) ranges.push(start === previous ? start : `${start}..${previous}`);
-  return ranges;
-}
-
-function dayKeyFromUtcMs(ms: number) {
-  return new Date(ms).toISOString().slice(0, 10);
-}
-
-function inclusiveDayCount(startDayKey: string, endDayKey: string) {
-  const start = Date.parse(`${startDayKey}T00:00:00.000Z`);
-  const end = Date.parse(`${endDayKey}T00:00:00.000Z`);
-  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return 0;
-  return Math.floor((end - start) / 86_400_000) + 1;
-}
-
-function buildLaunchHistoryDayCoverage(input: {
-  expectedDays: string[];
-  gaPresentDays: Set<string>;
-  firstPartyPresentDays: Set<string>;
-  snapshotPresentDays: Set<string>;
-  legacyPresentDays: Set<string>;
-}) {
-  return input.expectedDays.map((dayKey) => {
-    const hasGa4 = input.gaPresentDays.has(dayKey);
-    const hasFirstParty = input.firstPartyPresentDays.has(dayKey);
-    const hasHistoricalSnapshot = input.snapshotPresentDays.has(dayKey);
-    const hasLegacy = input.legacyPresentDays.has(dayKey);
-    const hasFallback = hasHistoricalSnapshot || hasLegacy;
-    const sourceCount = Number(hasFirstParty) + Number(hasGa4) + Number(hasHistoricalSnapshot) + Number(hasLegacy);
-    const evidenceObserved = sourceCount > 0;
-    const productTruthRecovered = hasFirstParty;
-    const recovered = evidenceObserved;
-    const sourceTruthState: LaunchHistoryDaySourceTruthState =
-      hasFirstParty && sourceCount > 1
-        ? "mixed_evidence"
-        : hasFirstParty
-          ? "first_party_recovered"
-          : hasGa4
-            ? "second_source_only"
-            : hasFallback
-              ? "fallback_only"
-              : "source_missing";
-    const confidence: "verified" | "mixed" | "partial" | "fallback" | "unknown" = hasFirstParty && hasGa4 && !hasFallback
-      ? "verified"
-      : hasFirstParty && hasFallback
-        ? "mixed"
-        : hasFirstParty
-          ? "partial"
-          : hasGa4 || hasFallback
-            ? "fallback"
-            : "unknown";
-    const reason = !recovered
-      ? "No launch-history source bucket was found for this day."
-      : hasFirstParty && hasGa4 && !hasFallback
-        ? "First-party event-fact/day-bucket evidence and GA4 second-source evidence both cover this day."
-      : hasFirstParty && hasGa4 && hasFallback
-        ? "First-party and GA4 evidence cover this day, with fallback evidence also present; keep the fallback lane as corroborating evidence until dedupe review is complete."
-      : hasFirstParty
-          ? "First-party event-fact/day-bucket evidence covers this day; second-source agreement is incomplete."
-        : hasHistoricalSnapshot
-          ? "Historical snapshot covers this day as support evidence; first-party product truth is still required."
-          : hasGa4
-            ? "GA4 covers this day as external evidence only; first-party truth is still required for identity, purchase, unlock, watch, and creator metrics."
-            : "Legacy support covers this day as fallback evidence only.";
-    const nextAction = !recovered
-      ? "Recover a first-party daily snapshot or keep this day marked source missing."
-      : hasFirstParty
-        ? "Use first-party truth for product metrics and compare GA4 only as second-source evidence."
-        : "Require first-party materialization before treating this day as canonical product truth.";
-
-    return {
-      dayKey,
-      expected: true as const,
-      recovered,
-      evidenceObserved,
-      productTruthRecovered,
-      sourceTruthState,
-      sourceCounts: {
-        first_party: hasFirstParty ? 1 as const : 0 as const,
-        ga4: hasGa4 ? 1 as const : 0 as const,
-        historicalSnapshot: hasHistoricalSnapshot ? 1 as const : 0 as const,
-        legacySupport: hasLegacy ? 1 as const : 0 as const,
-      },
-      internalAdminExcludedCount: null,
-      duplicateSourceCount: Math.max(0, sourceCount - 1),
-      confidence,
-      reason,
-      nextAction,
-    };
-  });
-}
-
-function hasBlockingSourceCoverageMismatch(input: {
-  hasGa4: boolean;
-  hasFirstParty: boolean;
-  hasHistoricalSnapshot: boolean;
-  hasLegacy: boolean;
-}) {
-  const hasAnySource = input.hasGa4 || input.hasFirstParty || input.hasHistoricalSnapshot || input.hasLegacy;
-  if (!hasAnySource) return false;
-  return !input.hasFirstParty || !input.hasGa4;
-}
+export type SourceCheck = AnalyticsSourceHealthSourceCheck;
+export type AnalyticsSourceHealth = AdminAnalyticsSourceHealth;
 
 export interface DataValidationPanelState {
   status: "loading" | "loaded" | "not_validated" | "stale" | "failed" | "unavailable";
@@ -589,6 +348,8 @@ function buildAnalyticsSourceHealth(input: {
   generatedAtMs: number;
   gaAvailable: boolean;
   gaConfidence: number | null;
+  canonicalEventCounts?: Record<string, number>;
+  telemetryEventCounts?: Record<string, number>;
   gaPresentDayKeys: string[];
   gaLastSeenAtMs: number;
   firstPartyPresentDayKeys?: string[];
@@ -599,6 +360,14 @@ function buildAnalyticsSourceHealth(input: {
   expectedDayKeys: string[];
   recentWindowDayKeys: string[];
   truthState: AnalyticsTruthSummary;
+  firstPartyPurchaseCount?: number;
+  completedPurchaseTransactionsCount?: number;
+  firstPartyUnlockCount?: number;
+  unlockTransactionsCount?: number;
+  viewerSessionFactCount?: number;
+  viewerSessionStartedLogsLength?: number;
+  watchSessionCount?: number;
+  watchCaptureFullCount?: number;
 }) {
   const gaPresentDays = new Set(input.gaPresentDayKeys);
   const firstPartyPresentDayKeys = input.firstPartyPresentDayKeys ?? input.snapshotPresentDayKeys;
@@ -620,26 +389,20 @@ function buildAnalyticsSourceHealth(input: {
     : rawExpectedDays;
   const preLaunchIgnoredDayCount = Math.max(0, rawExpectedDays.length - expectedDays.length);
   const launchStartBoundaryProven = input.selectedRange !== "all" || preLaunchIgnoredDayCount === 0;
-  const formalRangeEndDayKey = input.selectedRange === "all"
-    ? [
-        dayKeyFromUtcMs(input.generatedAtMs),
-        rawExpectedDays[rawExpectedDays.length - 1],
-        expectedDays[expectedDays.length - 1],
-      ]
-        .filter((dayKey): dayKey is string => typeof dayKey === "string" && dayKey.trim().length > 0)
-        .sort()
-        .at(-1) ?? null
-    : expectedDays[expectedDays.length - 1] ?? null;
-  const formalExpectedDayCount = input.selectedRange === "all" && formalRangeEndDayKey
-    ? inclusiveDayCount(LAUNCH_ANALYTICS_FIRST_DAY_KEY, formalRangeEndDayKey)
-    : expectedDays.length;
-  const formalLaunchRangeIncomplete = input.selectedRange === "all" && expectedDays.length < formalExpectedDayCount;
   const expectedDaySet = new Set(expectedDays);
   const unionPresentDays = new Set<string>(observedExpectedDays.filter((dayKey) => expectedDaySet.has(dayKey)));
+  const sourceCoverageRows = buildLaunchHistorySourceCoverageRowsState({
+    expectedDayKeys: expectedDays,
+    firstPartyDayKeys: firstPartyPresentDayKeys,
+    ga4DayKeys: input.gaPresentDayKeys,
+    historicalSnapshotDayKeys: input.snapshotPresentDayKeys,
+    legacySupportDayKeys: input.legacyPresentDayKeys,
+  });
+  const sourceDayCoverage = sourceCoverageRows.sourceDayCoverage;
 
-  const missingDays = expectedDays.filter((dayKey) => !unionPresentDays.has(dayKey));
-  const firstPartyExpectedDayCount = expectedDays.filter((dayKey) => firstPartyPresentDays.has(dayKey)).length;
-  const firstPartyMissingDays = expectedDays.filter((dayKey) => !firstPartyPresentDays.has(dayKey));
+  const missingDays = sourceCoverageRows.sourceMissingDayKeys;
+  const firstPartyExpectedDayCount = sourceDayCoverage.sourceDayCounts.firstParty;
+  const firstPartyMissingDays = sourceCoverageRows.firstPartyMissingDayKeys;
   const recentGapDays = input.recentWindowDayKeys.filter((dayKey) => !unionPresentDays.has(dayKey));
   const lastCompleteDay = [...expectedDays].reverse().find((dayKey) => unionPresentDays.has(dayKey)) ?? null;
   let recentGapStreak = 0;
@@ -671,38 +434,81 @@ function buildAnalyticsSourceHealth(input: {
     { key: "historical_snapshot", days: snapshotPresentDays.size },
     { key: "legacy_support", days: legacyPresentDays.size },
   ];
-  const activeCoverage = coverageBySource.filter((entry) => entry.days > 0);
-  const disagreementCount = expectedDays.filter((dayKey) => hasBlockingSourceCoverageMismatch({
-    hasFirstParty: firstPartyPresentDays.has(dayKey),
-    hasGa4: gaPresentDays.has(dayKey),
-    hasHistoricalSnapshot: snapshotPresentDays.has(dayKey),
-    hasLegacy: legacyPresentDays.has(dayKey),
-  })).length;
-  const primarySecondSourceCoverage = activeCoverage.filter((entry) => entry.key === "first_party" || entry.key === "ga4");
-  const deltaCoverage = primarySecondSourceCoverage.length >= 2 ? primarySecondSourceCoverage : activeCoverage;
-  const maxCoverage = deltaCoverage.length > 0 ? Math.max(...deltaCoverage.map((entry) => entry.days)) : 0;
-  const minCoverage = deltaCoverage.length > 0 ? Math.min(...deltaCoverage.map((entry) => entry.days)) : 0;
-  const maxDeltaPct = deltaCoverage.length > 1 && maxCoverage > 0
-    ? Math.round(((maxCoverage - minCoverage) / maxCoverage) * 100)
+  const sourceAgreementSummary = buildSourceAgreementCoverageSummaryState({
+    expectedDays,
+    perSourceCoverage: coverageBySource.map((entry) => ({
+      source: entry.key,
+      days: [...(entry.key === "first_party"
+        ? firstPartyPresentDays
+        : entry.key === "ga4"
+          ? gaPresentDays
+          : entry.key === "historical_snapshot"
+            ? snapshotPresentDays
+            : legacyPresentDays)],
+      dayCount: entry.days,
+    })),
+    comparisonDayKeys: expectedDays,
+    blockingContinuityGap: recentGapDays.length > 0,
+  });
+  const disagreementCount = sourceAgreementSummary.disagreementCount;
+  const maxDeltaPct = sourceAgreementSummary.activeSourceCount > 1
+    ? sourceAgreementSummary.maxDeltaPct
     : null;
-  const sourceAgreementState: AnalyticsSourceHealth["sourceAgreement"]["state"] =
-    activeCoverage.length < 2
-      ? "not_enough_sources"
-      : recentGapDays.length > 0 || disagreementCount > 1 || (maxDeltaPct ?? 0) > 25
-        ? "failed"
-        : disagreementCount > 0 || (maxDeltaPct ?? 0) > 10
-          ? "review"
-          : "pass";
+  const sourceAgreementState: AnalyticsSourceHealth["sourceAgreement"]["state"] = sourceAgreementSummary.sourceAgreementStatus;
   const sourceAgreementClassifications = classifySourceAgreementCoverage({
     expectedDays,
     ga4Days: gaPresentDays,
     firstPartyDays: firstPartyPresentDays,
     historicalSnapshotDays: snapshotPresentDays,
     legacySupportDays: legacyPresentDays,
-    activeSourceCount: activeCoverage.length,
+    activeSourceCount: sourceAgreementSummary.activeSourceCount,
     disagreementCount,
     maxDeltaPct,
   });
+  const launchHistoryDays = sourceCoverageRows.dayCoverage;
+  const duplicateRangeDays = sourceCoverageRows.duplicateDayKeys;
+  const launchCoverageSummary = buildLaunchHistoryCoverageSummaryState({
+    expectedDayKeys: expectedDays,
+    dayCoverage: launchHistoryDays,
+    firstPartyMissingDayKeys: firstPartyMissingDays,
+    sourceMissingDayKeys: missingDays,
+    staleEvidence: false,
+    sourceAgreementState,
+  });
+  const launchEventFamilyCoverage = buildLaunchCriticalRecoveryCoverageFromEvidence({
+    generatedAtUtc: toUtcString(input.generatedAtMs) ?? new Date(input.generatedAtMs).toISOString(),
+    launchHistoryDays,
+    sourceEvidence: input,
+  });
+  const historicalRouteRangeProof = buildAllLaunchHistoricalRouteRangeProofState({
+    launchStartDayKey: LAUNCH_ANALYTICS_FIRST_DAY_KEY,
+    generatedAtUtc: toUtcString(input.generatedAtMs) ?? new Date(input.generatedAtMs).toISOString(),
+    rawExpectedDayKeys: rawExpectedDays,
+    expectedDayKeys: expectedDays,
+    localEvidenceDays: launchHistoryDays,
+    launchStartBoundaryProven,
+    preLaunchIgnoredDayCount,
+    firstRecoveredDayKey,
+    unionPresentDayCount: unionPresentDays.size,
+    missingDayCount: missingDays.length,
+    firstPartyCoverageState: launchCoverageSummary.firstPartyCoverage.state,
+    sourceAgreementState,
+  });
+  const allLaunchRangeProven = historicalRouteRangeProof.allLaunchRangeProven;
+  const launchSourceGate = buildLaunchRecoverySourceGateState({
+    localEvidenceDayCount: expectedDays.length,
+    staleEvidence: false,
+    allLaunchRangeProven,
+    coverageWindowKind: historicalRouteRangeProof.rangeProof.coverageWindowKind,
+    launchCoverageState: launchCoverageSummary.launchCoverage.state,
+    firstPartyCoverageState: launchCoverageSummary.firstPartyCoverage.state,
+    launchCriticalSourceCoverageStatus: launchEventFamilyCoverage.sourceCoverageStatus,
+    launchCriticalObservedFirstPartyCoveragePercent: launchEventFamilyCoverage.observedFirstPartyCoveragePercent,
+    sourceAgreementState,
+  });
+  const formalLaunchRangeIncomplete =
+    input.selectedRange === "all"
+    && expectedDays.length < historicalRouteRangeProof.formalLaunchRange.expectedDayCount;
   const chartReadinessState: AnalyticsSourceHealth["chartReadiness"]["state"] =
     expectedDays.length === 0
       ? "unavailable"
@@ -719,9 +525,7 @@ function buildAnalyticsSourceHealth(input: {
     chartReadinessState === "gap_detected"
       ? gapReason
       : input.selectedRange === "all" && (!launchStartBoundaryProven || formalLaunchRangeIncomplete)
-        ? formalLaunchRangeIncomplete
-          ? `All-time historical route evidence covers ${expectedDays.length} of ${formalExpectedDayCount} formal launch day(s). Attach launch-start proof or an approved all-launch export before treating this as complete launch history.`
-          : "All-time historical route evidence starts at the first recovered source day. Attach launch-start proof or an approved all-launch export before treating this as complete launch history."
+        ? historicalRouteRangeProof.rangeProof.reason
       : chartReadinessState === "source_disagreement"
         ? "Chart buckets are available, but source lanes do not agree across first-party, GA4, historical snapshot, and legacy support. Keep this chart out of canonical promotion until the mismatched source lane is repaired."
       : chartReadinessState === "partial"
@@ -731,102 +535,64 @@ function buildAnalyticsSourceHealth(input: {
         : chartReadinessState === "unavailable"
           ? "No day-bucket evidence was available for the selected range."
           : "Availability, continuity, and source agreement checks passed for the selected chart range.";
-  const lastRecoveredDayKey = observedExpectedDays[observedExpectedDays.length - 1] ?? null;
-  const firstPartyCoverageState: NonNullable<AnalyticsSourceHealth["launchHistoryCoverage"]>["firstPartyCoverage"]["state"] =
-    expectedDays.length === 0 || firstPartyExpectedDayCount === 0
-      ? "source_missing"
-      : firstPartyMissingDays.length === 0
-        ? "available"
-        : "partial";
-  const launchHistoryDays = buildLaunchHistoryDayCoverage({
-    expectedDays,
-    gaPresentDays,
-    firstPartyPresentDays,
-    snapshotPresentDays,
-    legacyPresentDays,
-  });
-  const duplicateRangeDays = launchHistoryDays
-    .filter((day) => day.duplicateSourceCount > 0)
-    .map((day) => day.dayKey);
-  const evidenceObservedDayCount = launchHistoryDays.filter((day) => day.evidenceObserved).length;
-  const productTruthRecoveredDayCount = launchHistoryDays.filter((day) => day.productTruthRecovered).length;
-  const secondSourceOnlyDayCount = launchHistoryDays.filter((day) => day.sourceTruthState === "second_source_only").length;
-  const fallbackOnlyDayCount = launchHistoryDays.filter((day) => day.sourceTruthState === "fallback_only").length;
-  const allLaunchRangeProven =
-    launchStartBoundaryProven &&
-    expectedDays.length >= formalExpectedDayCount &&
-    unionPresentDays.size > 0 &&
-    missingDays.length === 0 &&
-    firstPartyCoverageState === "available" &&
-    sourceAgreementState === "pass";
   const launchHistoryCoverage: AnalyticsSourceHealth["launchHistoryCoverage"] = input.selectedRange === "all"
-    ? {
-        rangeProof: {
-          expectedRangeSource: "all_range_historical_route",
-          coverageWindowKind: "all_range_historical_route",
-          allLaunchRangeProven,
-          formalRangeStartDayKey: LAUNCH_ANALYTICS_FIRST_DAY_KEY,
-          formalRangeEndDayKey,
-          formalExpectedDayCount,
-          evidenceDayCount: expectedDays.length,
-          unprovenRanges: allLaunchRangeProven
-            ? []
-            : formalRangeEndDayKey
-              ? [`${LAUNCH_ANALYTICS_FIRST_DAY_KEY}..${formalRangeEndDayKey}`]
-              : [LAUNCH_ANALYTICS_FIRST_DAY_KEY],
-          reason:
-            !launchStartBoundaryProven
-              ? `All-time historical route coverage starts at the first recovered source day (${firstRecoveredDayKey}); ${preLaunchIgnoredDayCount} earlier expected day(s) still need launch-start proof or an approved all-launch export.`
-              : formalExpectedDayCount > expectedDays.length
-                ? `All-time historical route evidence covers ${expectedDays.length} of ${formalExpectedDayCount} formal launch day(s). Attach launch-start proof or an approved all-launch export before treating this as complete launch history.`
-              : unionPresentDays.size > 0 &&
-                missingDays.length === 0 &&
-                firstPartyCoverageState === "available" &&
-                sourceAgreementState === "pass"
-                ? "All-time historical route coverage is bounded by recovered first-party days and source agreement passed."
-                : "All-time historical route coverage is not product-truth complete until first-party coverage is available and source agreement passes.",
-        },
+    ? (() => {
+      const coverage = {
+        rangeProof: historicalRouteRangeProof.rangeProof,
         rangeStartDayKey: expectedDays[0] ?? null,
         rangeEndDayKey: expectedDays[expectedDays.length - 1] ?? null,
-        firstRecoveredDayKey,
-        lastRecoveredDayKey,
+        firstRecoveredDayKey: launchCoverageSummary.firstRecoveredDayKey,
+        lastRecoveredDayKey: launchCoverageSummary.lastRecoveredDayKey,
         expectedDayCount: expectedDays.length,
-        recoveredDayCount: unionPresentDays.size,
-        evidenceObservedDayCount,
-        productTruthRecoveredDayCount,
-        secondSourceOnlyDayCount,
-        fallbackOnlyDayCount,
+        recoveredDayCount: launchCoverageSummary.recoveredDayCount,
+        evidenceObservedDayCount: launchCoverageSummary.evidenceObservedDayCount,
+        productTruthRecoveredDayCount: launchCoverageSummary.productTruthRecoveredDayCount,
+        secondSourceOnlyDayCount: launchCoverageSummary.secondSourceOnlyDayCount,
+        fallbackOnlyDayCount: launchCoverageSummary.fallbackOnlyDayCount,
         preLaunchIgnoredDayCount,
-        sourceDayCounts: {
-          firstParty: firstPartyPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
-          ga4: input.gaPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
-          historicalSnapshot: input.snapshotPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
-          legacySupport: input.legacyPresentDayKeys.filter((dayKey) => expectedDaySet.has(dayKey)).length,
-        },
+        sourceDayCounts: sourceDayCoverage.sourceDayCounts,
         firstPartyCoverage: {
-          state: firstPartyCoverageState,
+          state: launchCoverageSummary.firstPartyCoverage.state,
           coveredDayCount: firstPartyExpectedDayCount,
-          missingRanges: collapseDayRanges(firstPartyMissingDays),
-          canPromoteProductTruth: launchStartBoundaryProven && firstPartyCoverageState === "available" && sourceAgreementState === "pass",
-          reason: firstPartyCoverageState === "available"
-            ? "First-party product truth covers every recovered launch-history day."
-            : "First-party product truth is missing for at least one launch-history day; GA4, historical snapshots, and legacy support remain evidence-only.",
+          missingRanges: collapseLaunchRecoveryDayRanges(firstPartyMissingDays),
+          canPromoteProductTruth: launchStartBoundaryProven && launchCoverageSummary.firstPartyCoverage.canPromoteProductTruth,
+          reason: launchCoverageSummary.firstPartyCoverage.reason,
         },
-        missingRanges: collapseDayRanges(missingDays),
+        eventFamilyCoverage: {
+          canonicalMappedFamilyCount: launchEventFamilyCoverage.canonicalMappedFamilyCount,
+          canonicalMappingCoveragePercent: launchEventFamilyCoverage.canonicalMappingCoveragePercent,
+          observedFirstPartyFamilyCount: launchEventFamilyCoverage.observedFirstPartyFamilyCount,
+          observedFirstPartyCoveragePercent: launchEventFamilyCoverage.observedFirstPartyCoveragePercent,
+          sourceCoverageStatus: launchEventFamilyCoverage.sourceCoverageStatus,
+          holdbackValidation: launchEventFamilyCoverage.holdbackValidation,
+          familySourceStates: launchEventFamilyCoverage.familySourceStates,
+        },
+        sourceGateBlockers: launchSourceGate.sourceGateBlockers,
+        recoveryPolicy: {
+          dedupeRules: RECOVERY_METRIC_DEDUPE_RULES,
+          productTruthPolicy: RECOVERY_METRIC_PRODUCT_TRUTH_POLICY,
+          modelingPolicy: RECOVERY_METRIC_MODELING_POLICY,
+          proofBoundary: RECOVERY_METRIC_POLICY_PROOF_BOUNDARY,
+        },
+        missingRanges: collapseLaunchRecoveryDayRanges(missingDays),
         duplicateRanges: [],
-        sourceOverlapRanges: collapseDayRanges(duplicateRangeDays),
+        sourceOverlapRanges: collapseLaunchRecoveryDayRanges(duplicateRangeDays),
         days: launchHistoryDays,
-        state: unionPresentDays.size === 0
-          ? "source_missing"
-          : missingDays.length === 0
-            ? "available"
-            : "partial",
-        reason: unionPresentDays.size === 0
-          ? "No launch-history source evidence was observed for the all-time range."
+        state: launchCoverageSummary.launchCoverage.state,
+        reason: launchCoverageSummary.launchCoverage.state === "source_missing"
+          ? launchCoverageSummary.launchCoverage.reason
           : allRangeLaunchScoped
             ? `All-time continuity starts at the first recovered source day (${firstRecoveredDayKey}); pre-launch days are not counted as missing analytics.`
-            : "All-time continuity uses the configured range because no earlier launch-history source boundary was needed.",
-      }
+            : launchCoverageSummary.launchCoverage.reason,
+      };
+      return {
+        displaySummary: buildLaunchHistoryDisplaySummaryState({
+          launchHistoryCoverage: coverage,
+          sourceAgreementState,
+        }),
+        ...coverage,
+      };
+    })()
     : undefined;
 
   const ga4: SourceCheck = {
@@ -1882,6 +1648,8 @@ export function buildHistoricalValidationSummary(input: {
     generatedAtMs: input.generatedAtMs ?? lastValidatedAt,
     gaAvailable: Boolean(input.propertyId),
     gaConfidence: input.propertyId ? 100 : null,
+    canonicalEventCounts: input.canonicalEventCounts,
+    telemetryEventCounts: input.telemetryEventCounts,
     gaPresentDayKeys: input.gaPresentDayKeys,
     gaLastSeenAtMs: input.gaLastSeenAtMs,
     firstPartyPresentDayKeys: input.firstPartyPresentDayKeys,
@@ -1892,6 +1660,14 @@ export function buildHistoricalValidationSummary(input: {
     expectedDayKeys: input.expectedDayKeys,
     recentWindowDayKeys: input.recentWindowDayKeys,
     truthState: input.truthState,
+    firstPartyPurchaseCount: input.firstPartyPurchaseCount,
+    completedPurchaseTransactionsCount: input.completedPurchaseTransactionsCount,
+    firstPartyUnlockCount: input.firstPartyUnlockCount,
+    unlockTransactionsCount: input.unlockTransactionsCount,
+    viewerSessionFactCount: input.viewerSessionFactCount,
+    viewerSessionStartedLogsLength: input.viewerSessionStartedLogsLength,
+    watchSessionCount: input.watchSessionCount,
+    watchCaptureFullCount: input.watchCaptureFullCount,
   });
   const parityScore = Math.round((
     commerceParityCheck.revenueTruth.confidence
