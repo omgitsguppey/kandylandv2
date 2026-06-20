@@ -161,7 +161,9 @@ function changedFiles() {
 
 function classifyDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
-  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized.startsWith("agent/context/")) return "unrelated_agent_context_file_to_ignore";
+  if (normalized.startsWith("agent/index/")) return "unrelated_agent_index_file_to_ignore";
+  if (normalized.startsWith("agent/prompts/")) return "unrelated_agent_prompt_file_to_ignore";
   if (
     normalized === "AGENTS.md"
     || /^\.agent\/skills\/[a-z0-9-]+\.md$/u.test(normalized)

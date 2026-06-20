@@ -68,13 +68,49 @@ function classifyDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === REPORT_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "current_generated_artifact_to_commit";
+  if (
+    normalized === "AGENTS.md"
+    || /^\.agent\/skills\/[a-z0-9-]+\.md$/u.test(normalized)
+    || /^\.agent\/workflows\/[a-z0-9-]+\.md$/u.test(normalized)
+    || normalized === "EVERY_FILE_FUNCTION_CHECKLIST.md"
+    || normalized === "FULL_SCALE_CODEBASE_AUDIT.md"
+    || normalized === "REPO_MEMORY_LEDGER.md"
+    || normalized === "memory.md"
+    || normalized === "control-tower/00-START-HERE.md"
+    || normalized === "control-tower/04-EXECUTION-ORDER.md"
+  ) return "governance_memory_dirty_expected";
   if (normalized === "src/lib/math/legacy-metric-canonicalization.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/math/legacy-recovery-dry-run-engine.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-metric-canonicalization-legacy-recovery.ts") return "failed_validator_to_repair";
+  if (normalized === "scripts/agent/validate-count-deduplication-normalization.ts") return "count_deduplication_validator_expected";
+  if (normalized === "scripts/agent/validate-recovery-timeline-spine.ts") return "recovery_spine_validator_expected";
+  if (normalized === "scripts/agent/validate-event-catalog-telemetry.ts" || normalized === "scripts/audit-telemetry.ts") return "telemetry_catalog_validator_expected";
+  if (normalized === "scripts/agent/validate-admin-browser-surface-smoke.ts") return "admin_browser_smoke_external_lane";
+  if (normalized === "scripts/agent/validate-drops-mobile-refinement.ts") return "creator_drop_external_lane";
+  if (
+    normalized === "src/lib/admin-debug-control-tower.ts"
+    || normalized === "src/app/admin/debug/components/DebugControlTowerCards.tsx"
+    || normalized === "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts"
+    || normalized === "tests/unit/admin-debug-control-tower.spec.ts"
+    || normalized === "tests/unit/debug-control-tower-cards.spec.tsx"
+  ) return "admin_debug_evidence_boundary_expected";
   if (normalized === "tests/unit/metric-canonicalization-legacy-recovery.spec.ts") return "current_generated_artifact_to_commit";
+  if (normalized === "tests/unit/recovery-timeline-spine.spec.ts") return "recovery_spine_test_expected";
+  if (normalized === "tests/unit/admin-data-validation.spec.ts") return "admin_analytics_source_health_test_expected";
+  if (normalized === "tests/unit/source-agreement-failure-detail.spec.ts") return "source_agreement_test_expected";
+  if (normalized === "tests/unit/admin-browser-surface-smoke.spec.ts") return "admin_browser_smoke_external_lane";
+  if (normalized === "tests/unit/create-drop-modal-upload-block.spec.tsx" || normalized === "tests/unit/creator-drops-route.spec.ts") return "creator_drop_external_lane";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === SCORE_PATH || normalized === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";
-  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized.startsWith("agent/context/")) return "unrelated_agent_context_file_to_ignore";
+  if (normalized.startsWith("agent/index/")) return "unrelated_agent_index_file_to_ignore";
+  if (normalized.startsWith("agent/prompts/")) return "unrelated_agent_prompt_file_to_ignore";
+  if (normalized === "shared/runtime/telemetry-event-manifest.ts") return "telemetry_manifest_generated_expected";
+  if (normalized === "src/lib/telemetry-catalog.ts") return "telemetry_catalog_external_lane";
+  if (normalized === "src/lib/analytics/recovery-timeline-spine.ts") return "recovery_spine_source_expected";
+  if (normalized === "src/lib/analytics/source-agreement-detail.ts") return "source_agreement_source_expected";
+  if (normalized === "src/lib/admin/admin-browser-surface-map.ts" || normalized === "src/lib/evidence/admin-browser-surface-smoke-contract.ts") return "admin_browser_smoke_external_lane";
+  if (normalized === "src/components/Admin/CreateDropModal.tsx") return "creator_drop_external_lane";
   if (
     normalized === "CHANGELOG.md"
     || normalized === "public/kandydrops-release-notes.json"
