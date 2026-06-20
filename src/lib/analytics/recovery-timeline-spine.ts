@@ -572,6 +572,14 @@ export type LaunchCriticalRecoveryCoverageReport = {
   coveragePercent: number;
   observedFirstPartyFamilyCount: number;
   observedFirstPartyCoveragePercent: number;
+  productTruthEligibleFamilyCount: number;
+  modeledCalibrationFamilyCount: number;
+  inferredLegacyFamilyCount: number;
+  cachedSnapshotFamilyCount: number;
+  missingSourceFamilyCount: number;
+  sourceCoverageStateCounts: Record<LaunchCriticalFamilySourceState["sourceCoverageState"], number>;
+  sourceRoleCounts: Record<LaunchCriticalFamilySourceState["sourceRole"], number>;
+  evidenceKindCounts: Record<RecoveryMetricEvidenceKind, number>;
   sourceCoverageStatus: "pass" | "blocked";
   missingFamilies: LaunchCriticalEventFamilyId[];
   familySourceStates: LaunchCriticalFamilySourceState[];
@@ -1745,6 +1753,42 @@ function mathReasonForFamilySourceState(input: {
     return `${input.family.familyId} is represented by cached snapshot evidence; refresh or verify ${input.family.materializerLane} before treating it as current source coverage.`;
   }
   return `${input.family.familyId} has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.`;
+}
+
+function countLaunchCriticalSourceStates(familySourceStates: LaunchCriticalFamilySourceState[]) {
+  const sourceCoverageStateCounts: Record<LaunchCriticalFamilySourceState["sourceCoverageState"], number> = {
+    observed_first_party: 0,
+    modeled_second_source: 0,
+    inferred_legacy: 0,
+    cached_snapshot: 0,
+    source_missing: 0,
+  };
+  const sourceRoleCounts: Record<LaunchCriticalFamilySourceState["sourceRole"], number> = {
+    product_truth: 0,
+    calibration_only: 0,
+    legacy_review: 0,
+    snapshot_review: 0,
+    missing_source: 0,
+  };
+  const evidenceKindCounts: Record<RecoveryMetricEvidenceKind, number> = {
+    observed: 0,
+    modeled: 0,
+    inferred: 0,
+    cached: 0,
+    missing: 0,
+  };
+
+  for (const family of familySourceStates) {
+    sourceCoverageStateCounts[family.sourceCoverageState] += 1;
+    sourceRoleCounts[family.sourceRole] += 1;
+    evidenceKindCounts[family.evidenceKind] += 1;
+  }
+
+  return {
+    sourceCoverageStateCounts,
+    sourceRoleCounts,
+    evidenceKindCounts,
+  };
 }
 
 function sourceEvidenceCount(input: Record<string, number> | undefined, names: string[]) {
@@ -3424,6 +3468,12 @@ export function buildLaunchCriticalRecoveryCoverageReport(input: {
   const coveragePercent = Math.round((mappedFamilyCount / LAUNCH_CRITICAL_EVENT_FAMILIES.length) * 1000) / 10;
   const observedFirstPartyFamilyCount = familySourceStates.filter((family) => family.observedFirstParty).length;
   const observedFirstPartyCoveragePercent = Math.round((observedFirstPartyFamilyCount / LAUNCH_CRITICAL_EVENT_FAMILIES.length) * 1000) / 10;
+  const productTruthEligibleFamilyCount = familySourceStates.filter((family) => family.productTruthEligible).length;
+  const {
+    sourceCoverageStateCounts,
+    sourceRoleCounts,
+    evidenceKindCounts,
+  } = countLaunchCriticalSourceStates(familySourceStates);
   const sourceCoverageStatus = observedFirstPartyCoveragePercent >= LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT ? "pass" : "blocked";
 
   return {
@@ -3439,6 +3489,14 @@ export function buildLaunchCriticalRecoveryCoverageReport(input: {
     coveragePercent,
     observedFirstPartyFamilyCount,
     observedFirstPartyCoveragePercent,
+    productTruthEligibleFamilyCount,
+    modeledCalibrationFamilyCount: sourceCoverageStateCounts.modeled_second_source,
+    inferredLegacyFamilyCount: sourceCoverageStateCounts.inferred_legacy,
+    cachedSnapshotFamilyCount: sourceCoverageStateCounts.cached_snapshot,
+    missingSourceFamilyCount: sourceCoverageStateCounts.source_missing,
+    sourceCoverageStateCounts,
+    sourceRoleCounts,
+    evidenceKindCounts,
     sourceCoverageStatus,
     missingFamilies,
     familySourceStates,

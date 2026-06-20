@@ -1667,6 +1667,32 @@ describe("recovery timeline spine", () => {
       coveragePercent: 100,
       observedFirstPartyFamilyCount: 13,
       observedFirstPartyCoveragePercent: 100,
+      productTruthEligibleFamilyCount: 13,
+      modeledCalibrationFamilyCount: 0,
+      inferredLegacyFamilyCount: 0,
+      cachedSnapshotFamilyCount: 0,
+      missingSourceFamilyCount: 0,
+      sourceCoverageStateCounts: {
+        observed_first_party: 13,
+        modeled_second_source: 0,
+        inferred_legacy: 0,
+        cached_snapshot: 0,
+        source_missing: 0,
+      },
+      sourceRoleCounts: {
+        product_truth: 13,
+        calibration_only: 0,
+        legacy_review: 0,
+        snapshot_review: 0,
+        missing_source: 0,
+      },
+      evidenceKindCounts: {
+        observed: 13,
+        modeled: 0,
+        inferred: 0,
+        cached: 0,
+        missing: 0,
+      },
       sourceCoverageStatus: "pass",
       missingFamilies: [],
       holdbackValidation: {
@@ -1755,6 +1781,32 @@ describe("recovery timeline spine", () => {
     expect(report.canonicalMappingCoveragePercent).toBe(100);
     expect(report.observedFirstPartyFamilyCount).toBe(0);
     expect(report.observedFirstPartyCoveragePercent).toBe(0);
+    expect(report.productTruthEligibleFamilyCount).toBe(0);
+    expect(report.modeledCalibrationFamilyCount).toBe(13);
+    expect(report.inferredLegacyFamilyCount).toBe(0);
+    expect(report.cachedSnapshotFamilyCount).toBe(0);
+    expect(report.missingSourceFamilyCount).toBe(0);
+    expect(report.sourceCoverageStateCounts).toEqual({
+      observed_first_party: 0,
+      modeled_second_source: 13,
+      inferred_legacy: 0,
+      cached_snapshot: 0,
+      source_missing: 0,
+    });
+    expect(report.sourceRoleCounts).toEqual({
+      product_truth: 0,
+      calibration_only: 13,
+      legacy_review: 0,
+      snapshot_review: 0,
+      missing_source: 0,
+    });
+    expect(report.evidenceKindCounts).toEqual({
+      observed: 0,
+      modeled: 13,
+      inferred: 0,
+      cached: 0,
+      missing: 0,
+    });
     expect(report.sourceCoverageStatus).toBe("blocked");
     expect(report.holdbackValidation.status).toBe("blocked");
     expect(report.holdbackValidation.reason).toContain(`cannot clear the ${LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT}% first-party recovery calibration floor`);
