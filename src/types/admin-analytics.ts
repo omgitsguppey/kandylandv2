@@ -166,6 +166,16 @@ export type TopPathRow = {
   sessions?: number | null;
   sourceTruth: string;
   confidenceState: "verified" | "partial" | "estimated" | "unknown";
+  freshnessState?: RecoveredLaunchMetricState["freshnessState"];
+  confidenceScore?: RecoveredLaunchMetricState["confidenceScore"];
+  confidenceBand?: RecoveredLaunchMetricState["confidenceBand"];
+  evidenceKind?: RecoveredLaunchMetricState["evidenceKind"];
+  dedupeKey?: RecoveredLaunchMetricState["dedupeKey"];
+  dedupeDimensions?: RecoveredLaunchMetricState["dedupeDimensions"];
+  lateArrivalWindowDays?: RecoveredLaunchMetricState["lateArrivalWindowDays"];
+  productTruthEligible?: RecoveredLaunchMetricState["productTruthEligible"];
+  missingVsZeroState?: RecoveredLaunchMetricState["missingVsZeroState"];
+  mathReason?: RecoveredLaunchMetricState["mathReason"];
   issueState: "healthy" | "review" | "warning" | "unknown";
   explanation: string;
 };

@@ -1,4 +1,5 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type {
   HistoricalAnalyticsResponse,
   PageItem,
@@ -180,6 +181,23 @@ function buildExplanation(input: {
   return "Views are GA page-path counts for the selected range, with engagement kept separate from share.";
 }
 
+function buildTopPathRecoveryMetadata(input: {
+  path: string;
+  views: number;
+  generatedAtMs: number | null | undefined;
+}) {
+  const sourceObserved = input.views > 0;
+  return buildRecoveredLaunchMetricState({
+    eventName: "page_view",
+    sourceObserved,
+    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
+    evidenceKind: sourceObserved ? "modeled" : "missing",
+    route: "admin_analytics_top_paths",
+    objectId: input.path,
+    timestampMs: input.generatedAtMs ?? null,
+  });
+}
+
 export function buildAdminAnalyticsTopPathsModel(input: {
   response?: Partial<HistoricalAnalyticsResponse> | null;
   selectedRange: RangeOption;
@@ -196,25 +214,45 @@ export function buildAdminAnalyticsTopPathsModel(input: {
   const rows = pages.map<TopPathRow>((item) => {
     const path = normalizePath(item.path);
     const routeGroup = inferRouteGroup(path);
+    const views = Math.max(0, item.views);
     const avgTimeSeconds = Number.isFinite(item.avgTime) ? item.avgTime : null;
     const engagementRatePct = Number.isFinite(item.engagementRate) ? item.engagementRate : null;
+    const recoveryMetadata = buildTopPathRecoveryMetadata({
+      path,
+      views,
+      generatedAtMs: response?.generatedAtMs,
+    });
     return {
       path,
       label: inferLabel(path),
       routeGroup,
-      views: Math.max(0, item.views),
-      viewSharePct: totalViews > 0 ? Math.max(0, item.views) / totalViews : 0,
+      views,
+      viewSharePct: totalViews > 0 ? views / totalViews : 0,
       avgTimeSeconds,
       avgTimeDisplay: formatAvgTimeDisplay(avgTimeSeconds),
       engagementRatePct,
       bounceRatePct: null,
       uniqueUsers: null,
       sessions: null,
-      sourceTruth: "ga4_page_path",
-      confidenceState: "verified",
+      sourceTruth: recoveryMetadata.sourceTruth,
+      confidenceState: recoveryMetadata.confidenceBand === "missing"
+        ? "unknown"
+        : recoveryMetadata.confidenceBand === "verified" || recoveryMetadata.confidenceBand === "strong"
+          ? "verified"
+          : "estimated",
+      freshnessState: recoveryMetadata.freshnessState,
+      confidenceScore: recoveryMetadata.confidenceScore,
+      confidenceBand: recoveryMetadata.confidenceBand,
+      evidenceKind: recoveryMetadata.evidenceKind,
+      dedupeKey: recoveryMetadata.dedupeKey,
+      dedupeDimensions: recoveryMetadata.dedupeDimensions,
+      lateArrivalWindowDays: recoveryMetadata.lateArrivalWindowDays,
+      productTruthEligible: recoveryMetadata.productTruthEligible,
+      missingVsZeroState: recoveryMetadata.missingVsZeroState,
+      mathReason: recoveryMetadata.mathReason,
       issueState: buildIssueState({
         routeGroup,
-        views: item.views,
+        views,
         totalViews,
         avgTimeSeconds,
         engagementRatePct,
@@ -222,7 +260,7 @@ export function buildAdminAnalyticsTopPathsModel(input: {
       explanation: buildExplanation({
         path,
         routeGroup,
-        views: item.views,
+        views,
         totalViews,
         avgTimeSeconds,
         engagementRatePct,

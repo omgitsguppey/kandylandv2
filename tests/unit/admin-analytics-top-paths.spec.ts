@@ -88,6 +88,17 @@ describe("buildAdminAnalyticsTopPathsModel", () => {
     expect(model.totalViews).toBe(100);
     expect(model.rows[0]?.viewSharePct).toBeCloseTo(0.9, 5);
     expect(model.rows[1]?.viewSharePct).toBeCloseTo(0.1, 5);
+    expect(model.rows[0]).toMatchObject({
+      sourceTruth: "ga4_evidence_only",
+      evidenceKind: "modeled",
+      freshnessState: "external_evidence_required",
+      confidenceState: "estimated",
+      confidenceScore: 58,
+      lateArrivalWindowDays: 12,
+      productTruthEligible: false,
+      missingVsZeroState: "source_present",
+    });
+    expect(model.rows[0]?.dedupeKey).toContain("launch_recovery|page_view");
   });
 
   it("assigns route groups for home, drops, dashboard, creator, and legal paths", () => {
@@ -150,5 +161,28 @@ describe("buildAdminAnalyticsTopPathsModel", () => {
     expect(model.snapshotLimited).toBe(true);
     expect(model.warnings.some((warning) => warning.includes("Top 25 snapshot only"))).toBe(true);
     expect(model.hasNextPage).toBe(true);
+  });
+
+  it("keeps zero-view path rows source-missing instead of verified zero", () => {
+    const model = buildAdminAnalyticsTopPathsModel({
+      response: buildResponse({
+        pages: [
+          { path: "/empty", views: 0, avgTime: 0, engagementRate: 0 },
+        ],
+      }),
+      selectedRange: "30d",
+      loading: false,
+    });
+
+    expect(model.rows[0]).toMatchObject({
+      views: 0,
+      sourceTruth: "source_missing",
+      evidenceKind: "missing",
+      freshnessState: "source_missing",
+      confidenceState: "unknown",
+      confidenceScore: 0,
+      productTruthEligible: false,
+      missingVsZeroState: "source_missing",
+    });
   });
 });
