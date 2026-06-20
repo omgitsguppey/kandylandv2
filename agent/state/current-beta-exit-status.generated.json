@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T14:52:55.239Z",
+  "generatedAtUtc": "2026-06-20T15:19:18.928Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "896c3c3b8f60defa403b2106cb349d1998a655b3",
+  "currentHead": "05d526746a18e1bc4f6108cbaba4025f67508544",
   "summary": {
     "betaVersion": "1.6.9",
     "betaScore": 69.57,
@@ -52,9 +52,9 @@
         "sourceStatus": "source_surface_checks_current",
         "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+        "sourceCommit": "05d526746a18e1bc4f6108cbaba4025f67508544",
         "canClearGate": true,
-        "nextAction": "Run deterministic UI surface coverage, admin browser surface smoke, and device UI checks before optional browser reproduction."
+        "nextAction": "Run deterministic UI source coverage and device UI source checks; use browser reproduction only for concrete source-reported UI issues."
       },
       {
         "id": "providerSmoke",
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-20T14:52:55.239Z",
+      "generatedAtUtc": "2026-06-20T15:19:18.928Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -153,8 +153,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-19T18:05:13.031Z",
-      "ageHours": 0.011270277777777778,
+      "generatedAtUtc": "2026-06-20T15:18:17.585Z",
+      "ageHours": 0.017039722222222223,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -467,7 +467,7 @@
     }
   ],
   "nextExactSteps": [
-    "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui; fix any source-reported UI surface issue before optional browser reproduction.",
+    "Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface issue before optional browser reproduction.",
     "Use docs/agent-truth/ui-visual-smoke-minimal.md as the deterministic UI source coverage lane.",
     "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider proof.",
     "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed runtime smoke proof.",

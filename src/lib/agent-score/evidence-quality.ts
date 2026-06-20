@@ -275,7 +275,7 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
       freshnessScore: freshness.freshnessScore,
       partialCredit: round(PUBLIC_BETA_EVIDENCE_QUALITY_SCORES.sourceReady * freshness.freshnessScore),
       blocksLaunch: false,
-      reason: "Source-only behavior evidence earns source credit but does not clear runtime, provider, admin truth, or manual proof gates.",
+      reason: "Source-only behavior evidence earns source credit but does not clear formal runtime, provider, or admin truth gates.",
     };
   }
 

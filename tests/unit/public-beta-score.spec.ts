@@ -395,6 +395,8 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.evidenceQuality).toBe("source_ready");
         expect(targetedGate?.runtimeCredit).toBe(0);
         expect(targetedGate?.detail).toContain("does not prove provider smoke");
+        expect(targetedGate?.partialReason).toContain("formal runtime, provider, or admin truth gates");
+        expect(targetedGate?.partialReason).not.toContain("manual proof");
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
         ]));
