@@ -8,13 +8,13 @@ Run these checks before every `git commit` and `git push` to catch build-breakin
 
 ## Steps
 
-1. For broad, shared-helper, deployment, or continuity-sensitive work, orient first.
+1. For broad, shared-helper, deployment, or continuity-sensitive work, orient compact-first.
 
-- Read `FULL_SCALE_CODEBASE_AUDIT.md`
-- Read `REPO_MEMORY_LEDGER.md`
-- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - Run `git status --short`
-- Run `npm run trace:adjacent -- <path>` for the main touched files
+- Run or read `npm run agent:fast-start -- --task "<task>" --mode=<mode> --file=<path>` or `npm run optimize:doctrine-context -- --task "<task>" --changed <path>`
+- Review the generated task context, verification plan, surface map, and relevant doctrine cards before opening long ledgers
+- Escalate to `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md` only when the generated context marks broad startup as required, the work changes governance/tooling/shared helpers, or source inspection leaves ownership unresolved
+- Run `npm run trace:adjacent -- <path>` for the main touched files when the lane is source-heavy or shared
 
 2. Run the light local gate first.
 
@@ -33,15 +33,22 @@ npm run agent:test <path>
 npx vitest run
 ```
 
-4. Run the surface-specific gates only when the touched files require them.
+4. Run source-first surface gates when the touched files require them.
 
 - UI changed:
+
+```bash
+npm run check:ui:coverage
+npm run check:ui:runtime
+```
+
+- Browser/visual reproduction promoted by source findings, selector policy, current doctrine, or an explicit human request:
 
 ```bash
 npm run check:ui:audits
 ```
 
-- Loading/render/performance-sensitive paths changed:
+- Browser-based performance reproduction promoted by selector policy, current doctrine, a concrete source finding, or an explicit human request:
 
 ```bash
 npm run check:ui:lighthouse
@@ -85,8 +92,10 @@ git push
 | `npm run agent:test <path>` | Targeted test selection for narrow changes |
 | `npm run check` | Broad signoff gate for explicit broad/release-risk work, not the default edit loop |
 | `npx vitest run` | Full unit/contract test sweep for broad changes |
-| `npm run check:ui:audits` | Playwright accessibility and visual regression audits |
-| `npm run check:ui:lighthouse` | Local mobile Lighthouse audit |
+| `npm run check:ui:coverage` | Source-first UI surface coverage and selector/hydration ownership |
+| `npm run check:ui:runtime` | Source-level UI runtime contract and client evidence checks |
+| `npm run check:ui:audits` | Promoted Playwright accessibility and visual regression diagnostics; not the default source-readiness or beta-exit gate |
+| `npm run check:ui:lighthouse` | Promoted local mobile Lighthouse diagnostic; not the default source-readiness or beta-exit gate |
 | `npm run check:firebase:rules` | Emulator-backed Firestore and Storage rules verification |
 | `npm run build:debug` | TypeScript check plus build with full output saved to `build.log` |
 

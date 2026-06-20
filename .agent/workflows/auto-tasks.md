@@ -1,10 +1,12 @@
 ---
+---
 description: "Auto-run standard project commands"
 ---
 
 // light-default
 
 Default to the light path. Use broad checks only when the task is broad, release-risk, or the verification selector explicitly marks them as signoff-required.
+This file is a command menu, not permission to run every listed command. Source-first local checks are the default; browser, provider, GitHub, merge, push, and full-suite commands require an explicit task need, selector promotion, or human instruction.
 
 1. Check git status:
    `git status --short`
@@ -33,7 +35,7 @@ Default to the light path. Use broad checks only when the task is broad, release
    `npm run check:continuity`
    `npm run test:contracts`
 
-8. Browser/provider/deploy-gated checks only when explicitly required:
+8. Promoted external, browser, or broad gates only when explicitly required by current doctrine, selector output, a source finding, or the human operator. These commands are not source-readiness defaults and must not clear runtime/provider/admin truth unless a formal artifact contract says so:
    `npm run check:ui:audits`
    `npm run check:ui:lighthouse`
    `npm run check:firebase:rules`
@@ -56,7 +58,7 @@ Default to the light path. Use broad checks only when the task is broad, release
 13. Run warning-focused dependency and tooling verification when cleanup touches packages or lockfiles:
    `npm run check:deps`
 
-19. Reconcile open PRs against current repo truth:
+19. Reconcile open PRs against current repo truth only when PR triage is the task or the operator explicitly asks for it. Prefer cached/source metadata when available; do not let GitHub auth/network availability decide local source readiness:
    `gh pr list --state open --json number,title,headRefName,baseRefName,author,isDraft,mergeStateStatus,reviewDecision,url`
    `gh pr view <number> --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url`
    `gh pr diff <number>`
@@ -84,7 +86,7 @@ Default to the light path. Use broad checks only when the task is broad, release
    `npm ls punycode`
    `npm --prefix functions ls punycode`
 
-14. Review and resolve open GitHub pull requests before committing local work:
+14. Review and resolve open GitHub pull requests only when explicitly scoped. Do not close, merge, or push from this checklist without current human approval and a clean focused slice:
    `gh pr list --state open`
    `gh pr view <number> --comments --json number,title,headRefName,baseRefName,author,mergeStateStatus,reviewDecision,isDraft,body,files,commits`
    `gh pr checks <number>`
@@ -92,7 +94,7 @@ Default to the light path. Use broad checks only when the task is broad, release
    `gh pr merge <number> --merge --delete-branch`
    `git add -- <explicit-paths>` or `git add -p`
    `git commit -m <message>`
-   `git push origin <branch>:main`
+   `git push origin <branch>:main` only after explicit publish approval
 
 15. Build and verify repo intelligence artifacts when touching `/agent`, `AGENTS.md`, or repo-governance tooling:
    `npm run trace:adjacent -- scripts/repo-inventory.ts`
@@ -132,8 +134,8 @@ Default to the light path. Use broad checks only when the task is broad, release
    `npm run agent:ui-index`
    `npm run check:ui:coverage`
    `npm run check:ui:runtime`
-   `npm run check:ui:audits`
-   `npm run check:ui:lighthouse`
+   `npm run check:ui:audits` only when source coverage or the operator promotes browser reproduction
+   `npm run check:ui:lighthouse` only when selector policy, current doctrine, a concrete source finding, or the operator explicitly promotes browser-based performance reproduction
    `npm run check:ui:continuity`
    `npx vitest run tests/unit/creator-bookings-route.spec.ts tests/unit/creator-subscriptions-route.spec.ts tests/unit/ui-continuity.spec.ts`
    `npm run typecheck`

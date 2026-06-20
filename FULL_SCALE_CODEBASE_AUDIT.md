@@ -1,13 +1,398 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-06-20 #189] External Audit Doctrine Conflict Cleanup
+
+Scope started:
+- Folding a new GPT source/commit audit into doctrine and memory only before returning to runtime coding.
+- This pass intentionally changes no product code, UI components, API routes, telemetry runtime, generated report producers, package dependencies, payment/GumDrop math, provider integrations, deployment config, browser tests, or production evidence collection.
+
+Scope completed:
+- Preserved the audit as planning input, not local proof that tests pass, runtime is healthy, or beta gates can clear.
+- Reaffirmed deletion-first cleanup as a future coding budget while rejecting raw percentage targets as permission to delete connected doctrine, validators, reports, package scripts, UI panels, or Admin Debug consumers without import/caller/script/report-key/release-gate/score-gate searches.
+- Tightened current beta-score doctrine so loose visual/manual evidence is not a default readiness gate; browser or visual diagnostics remain optional reproduction unless a current formal runtime contract promotes them.
+- Clarified that runtime, provider, and admin truth proof must remain typed, schema-backed external evidence, while local source readiness should be proven by source validators, route contracts, selectors, hydration markers, client-error fixtures, and fixture-backed source reports.
+- Accepted the audit's Google/YouTube measurement references as posture input only; before implementation, verify the official sources and map GA4 modeled/behavioral modeling, delayed attribution/freshness, and YouTube visible-impression definitions into KandyDrops-owned source states, confidence, dedupe, and product-truth boundaries.
+- Updated pre-commit workflow guidance to use compact task context before opening broad audit/memory/checklist ledgers, escalating only when broad startup, governance/tooling/shared-helper changes, or unresolved source ownership requires it.
+- Corrected the ledger-sync workflow so the large audit, memory ledger, and file checklist are escalation evidence for explicit governance/ledger maintenance, not mandatory proof theater for ordinary source fixes.
+- Corrected browser-performance language so `check:ui:lighthouse` is a promoted diagnostic, not an automatic source-readiness or beta-exit requirement.
+- Added an explicit override for stale generated selectors, package-script metadata, or older validators that still phrase browser smoke, Playwright, Lighthouse, screenshots, or authenticated sessions as default-required. Current operator doctrine wins until a focused tooling slice corrects those selectors.
+- Clarified that local admin fixtures, generated source-report loaders, selector probes, hydration markers, route contracts, and client-error fixtures clear source-readiness lanes only. They help the codebase identify broken admin surfaces before manual inspection, but they cannot be renamed into deployed runtime smoke, provider smoke, payment proof, admin truth sample evidence, or production operator proof.
+- Added the "one coordinated body" cleanup rule: future audit-driven cleanup should merge callers into canonical owners and retire/demote weaker lanes instead of adding another objective stack, validator family, generated report family, or UI panel to arbitrate existing disagreements.
+- Corrected root `AGENTS.md` conflict points so current operator doctrine outranks broad historical ledgers for Phase 1 operator workflow and Control Tower routing is compact-context-first instead of fixed-read-order-first.
+- Tightened root `AGENTS.md` verification wording so the verification command list is explicitly a selector/doctrine/formal-evidence menu, not automatic authority.
+- Added memory guardrails against rewriting historical/generated report docs merely to replace stale screenshot/browser-proof wording; current operator doctrine overrides stale snapshots until the owning report lane is refreshed, retired, or rewritten with consumer/gate checks.
+- Corrected `.agent/workflows/auto-tasks.md` so command lists are explicit menus, not automatic authority. GitHub PR commands, `git push`, browser audits, Lighthouse, Firebase rules checks, provider checks, deploy-adjacent checks, and full `npm run check` now require explicit scope, selector promotion, release-risk scope, or a formal evidence contract. Missing external command output is classified as optional diagnostic, external evidence required, or tooling debt instead of local source failure.
+- Corrected the remaining Beta badge/release-note conflict: focused source/config/UI patches do not automatically become public Beta badge updates. Public Beta notes track accepted release bundles, and release-note-only recovery commits still require `[skip release-notes]` without creating another Beta badge loop.
+
+Verification:
+- Doctrine/memory-only pass. No runtime validators were run because the requested scope was to change nothing but doctrine and memory before coding resumes.
+
+## [2026-06-19 #188] Structured Admin Truth Evidence Doctrine
+
+Scope started:
+- Folding the latest external source audit into doctrine and memory only, with emphasis on removing screenshot/manual-proof authority from admin truth and readiness gates.
+- This pass intentionally changes no product code, UI code, runtime analytics behavior, validators, package scripts, generated reports, payment/GumDrop math, provider integrations, deploy config, or browser/runtime evidence collection.
+
+Scope completed:
+- Reaffirmed that external audits remain planning input until current local source, configuration, or formal evidence artifacts verify them.
+- Tightened active doctrine so older launch/readiness docs that mention screenshot QA or manual visual proof are historical unless a current validator explicitly promotes a visual contract.
+- Reclassified admin truth samples as structured redacted artifacts first: route/report key, source freshness, sample count, source-state labels, and a validator-consumed artifact path.
+- Clarified that screenshots may accompany an admin truth sample only as optional visual context after source evidence identifies the lane; screenshots alone cannot clear admin truth, runtime, provider, source, payment, wallet, entitlement, GumDrop source-of-funds, creator revenue, or deployment gates.
+- Preserved formal evidence boundaries: removing screenshot authority does not allow source-only checks, generated snapshots, or operator notes to clear runtime/provider/admin/payment/deployment proof.
+- Corrected local workflow notes so routine UI/admin verification starts with source coverage and runtime contracts; `check:ui:audits` is now documented as promoted browser reproduction only when doctrine, selector output, a concrete source finding, or the operator explicitly asks for it.
+- Corrected `.agent/skills/doctrine-consultation.md` and `.agent/workflows/ui-copy-refinement-workflow.md` so doctrine consultation itself uses compact context, current operator doctrine, surface-specific doctrine, source owners, telemetry/admin/debug paths, and source validators before optional browser reproduction.
+
+Verification:
+- Doctrine/memory-only pass. No runtime validators were run because the requested scope was to change nothing but doctrine and memory before coding resumes.
+
+## [2026-06-19 #187] Admin Analytics Launch Coverage Summary Reuse
+
+Scope started:
+- Continuing the February-to-current analytics recovery goal by removing duplicate launch-history coverage summary math from the server Admin Analytics historical validation adapter.
+- This pass is analytics recovery/source validation only: no production reads, provider calls, deploys, browser audits, payment/GumDrop math changes, wallet mutation, entitlement changes, runtime backfill, or UI redesign.
+
+Scope completed:
+- Updated `src/lib/server/admin-analytics-historical-validation.ts` to call `buildLaunchHistoryCoverageSummaryState` from the recovery spine.
+- Replaced route-adapter-local formulas for first-party coverage state, recovered/evidence/product-truth day counts, second-source-only count, fallback-only count, first/last recovered day output, first-party promotion, and launch coverage state with the central recovery-spine summary.
+- Kept route-specific formal range proof and all-time launch-start wording intact while sourcing the underlying coverage math from the canonical recovery owner.
+- Added a guard in `tests/unit/admin-data-validation.spec.ts` preventing the server adapter from reintroducing local coverage-summary formulas.
+- Preserved the formal source gate: `analytics:truth:rebuild` still reports `source_agreement_failed`, `formal_proof_missing`, `observedFirstPartyCoveragePercent: 7.7`, and `sourceCoverageStatus: blocked` until approved all-range first-party/admin truth evidence is attached.
+
+Verification:
+- `npm run agent:test -- tests/unit/admin-data-validation.spec.ts` passed with 17 tests.
+- `npm run agent:test -- tests/unit/source-agreement-failure-detail.spec.ts` passed with 17 tests.
+- `npm run agent:test -- tests/unit/analytics-panel-hydration.spec.ts` passed with 20 tests.
+- `npm run check:analytics-panel-hydration` passed.
+- `npm run check:recovery-timeline-spine` passed.
+- `npm run check:count-deduplication-normalization` passed.
+- `npm run analytics:truth:rebuild` passed as a dry-run and correctly remained blocked on missing all-range launch-history evidence.
+- `npm run telemetry:manifest` passed.
+- `npm run check:telemetry` passed.
+- `npm run check:canonical-math-ledger` passed.
+- `npm run check:metric-canonicalization-legacy-recovery` passed.
+- `npm run typecheck` passed.
+
+## [2026-06-19 #186] Launch History Coverage Summary Centralization
+
+Scope started:
+- Continuing the February-to-current analytics recovery goal by removing the remaining report-local launch coverage summary math from the Admin Analytics hydration generator.
+- This pass is analytics recovery/source validation only: no production reads, provider calls, deploys, browser audits, payment/GumDrop math changes, wallet mutation, entitlement changes, runtime backfill, or UI redesign.
+
+Scope completed:
+- Added `LaunchHistoryCoverageSummaryState` and `buildLaunchHistoryCoverageSummaryState` to `src/lib/analytics/recovery-timeline-spine.ts`.
+- Moved first/last recovered day, recovered day count, evidence-observed count, product-truth recovered count, second-source-only count, fallback-only count, first-party coverage state, launch coverage state, first-party product-truth promotion, and coverage reasons into the recovery spine.
+- Updated `scripts/agent/validate-analytics-panel-hydration.ts` to consume the centralized coverage summary instead of locally composing launch coverage state, first-party coverage state, and count summaries.
+- Updated source guards so future report generators cannot reintroduce local coverage formulas while the recovery spine owns source agreement and first-party coverage decisions.
+- Added regression coverage proving GA4/fallback evidence cannot promote product truth, source-missing days stay missing rather than zero, and full first-party coverage plus source agreement is the only source-clear path.
+- Preserved the formal source gate: `analytics:truth:rebuild` still reports `source_agreement_failed`, `formal_proof_missing`, `observedFirstPartyCoveragePercent: 7.7`, and `sourceCoverageStatus: blocked` until approved all-range first-party/admin truth evidence is attached.
+
+Verification:
+- `npm run agent:test -- tests/unit/recovery-timeline-spine.spec.ts` passed with 29 tests.
+- `npm run agent:test -- tests/unit/analytics-panel-hydration.spec.ts` passed with 20 tests.
+- `npm run check:recovery-timeline-spine` passed.
+- `npm run check:analytics-panel-hydration` passed.
+- `npm run analytics:truth:rebuild` passed as a dry-run and correctly remained blocked on missing all-range launch-history evidence.
+- `npm run telemetry:manifest` passed.
+- `npm run check:telemetry` passed.
+- `npm run check:canonical-math-ledger` passed.
+- `npm run check:metric-canonicalization-legacy-recovery` passed.
+- `npm run check:count-deduplication-normalization` passed.
+- `npm run typecheck` passed.
+
+## [2026-06-19 #185] External Audit Doctrine Boundary Tightening
+
+Scope started:
+- Folding a new external GPT source/commit audit into doctrine and memory only before returning to product/runtime coding.
+- This pass intentionally changes no product code, UI code, telemetry runtime, generated report producer, package script, provider integration, payment/GumDrop math, deploy config, browser/runtime evidence path, or generated artifact.
+
+Scope completed:
+- Reaffirmed that external audits, hosted GitHub observations, quoted score values, and commit summaries are planning signals only until current local source, configuration, or formal evidence artifacts verify them.
+- Tightened the source-first UI/admin rule: manual screenshots and browser smoke must not be first-pass readiness blockers. Local source lanes should identify broken modals, disconnected actions, missing selectors or hydration markers, client-error evidence, stale truth labels, and source gaps before a human inspects the site.
+- Preserved the formal evidence boundary: making browser smoke optional for local source readiness does not make deployed runtime smoke, provider smoke, admin truth samples, payment proof, wallet proof, entitlement proof, GumDrop source-of-funds truth, creator revenue proof, or deployment evidence optional. Those gates must remain typed artifact requirements when they are genuinely formal.
+- Accepted the audit's deletion-first posture as a cleanup budget: future coding should prefer retiring duplicate validators, package-script aliases, generated report lanes, redundant admin panels, and screenshot/manual-proof counters only after import, caller, report-key, release-gate, score-gate, package-script, and Admin Debug consumer searches prove the lane is duplicate, superseded, archive-only, or disconnected.
+- Rejected wholesale doctrine replacement in this pass. The current Product/Source/Engineering/Surface doctrine hierarchy, doctrine registry, cards, AGENTS routing, and current operator doctrine remain active until a focused migration updates consumers and retires the superseded lanes in the same slice.
+- Recorded the audit's future coding slices as hypotheses requiring local issue specs before code changes: admin source-smoke optionality, creator/admin create-drop collapsed-section validation, disconnected admin AI panel removal or diagnostics-only ownership, compact AI repair UI, canonical telemetry spine consolidation, and manifest/registry-driven validator consolidation.
+
+Verification:
+- Doctrine/memory-only review. No runtime validators were run because the requested scope was to change nothing but doctrine and memory before coding resumes.
+
+## [2026-06-19 #184] Launch Recovery Source Gate Centralization
+
+Scope started:
+- Continuing the February-to-current analytics recovery goal by removing the report-local source-gate decision tree from the launch recovery generator.
+- This pass is analytics recovery/source validation only: no production reads, provider calls, deploys, browser audits, payment/GumDrop math changes, wallet mutation, entitlement changes, runtime backfill, or UI redesign.
+
+Scope completed:
+- Added `LaunchRecoveryCoverageState`, `LaunchRecoverySourceGateState`, and `buildLaunchRecoverySourceGateState` to `src/lib/analytics/recovery-timeline-spine.ts`.
+- Moved source gate clearance, source gate reason, and all-launch proof reason into the recovery spine.
+- Updated `scripts/agent/validate-analytics-panel-hydration.ts` to consume the central source-gate helper instead of locally composing the clearance condition and proof reasons.
+- Added regression coverage proving fixture/local evidence cannot clear formal launch proof, stale evidence blocks source clearance even with all-range proof, and an approved admin truth/all-range proof can clear source only when first-party coverage and source agreement are also available.
+- Preserved the formal source gate: `analytics:truth:rebuild` still reports `source_agreement_failed`, `formal_proof_missing`, `observedFirstPartyCoveragePercent: 7.7`, and `sourceCoverageStatus: blocked` until approved all-range first-party/admin truth evidence is attached.
+
+Verification:
+- `npm run agent:test -- tests/unit/recovery-timeline-spine.spec.ts` passed with 28 tests.
+- `npm run agent:test -- tests/unit/analytics-panel-hydration.spec.ts` passed with 20 tests.
+- `npm run check:recovery-timeline-spine` passed.
+- `npm run check:analytics-panel-hydration` passed.
+- `npm run analytics:truth:rebuild` passed as a dry-run and correctly remained blocked on missing all-range launch-history evidence.
+- `npm run telemetry:manifest` passed.
+- `npm run check:telemetry` passed.
+- `npm run check:canonical-math-ledger` passed.
+- `npm run check:metric-canonicalization-legacy-recovery` passed.
+- `npm run check:count-deduplication-normalization` passed.
+- `npm run typecheck` passed.
+
+## [2026-06-19 #183] Formal Launch Range Recovery State Centralization
+
+Scope started:
+- Continuing the February-to-current analytics recovery goal by removing the report-local formal launch range assembly from the launch recovery generator.
+- This pass is analytics recovery/source validation only: no production reads, provider calls, deploys, browser audits, payment/GumDrop math changes, wallet mutation, entitlement changes, runtime backfill, or UI redesign.
+
+Scope completed:
+- Added `FormalLaunchRangeRecoveryState` and `buildFormalLaunchRangeRecoveryState` to `src/lib/analytics/recovery-timeline-spine.ts`.
+- Moved formal launch end-day selection, expected day count, local evidence ranges, unproven formal ranges, approved coverage day count, dayCoverage rows, and unproven day counts into the recovery spine.
+- Updated `scripts/agent/validate-analytics-panel-hydration.ts` to consume the central range helper instead of locally building formal day rows and range metadata.
+- Added regression coverage proving local evidence days do not narrow the formal launch range, outside-evidence days keep null unknown source counts, and approved all-range proof is the only path to `all_launch_range_proven`.
+- Preserved the formal source gate: `analytics:truth:rebuild` still reports `source_agreement_failed`, `formal_proof_missing`, `observedFirstPartyCoveragePercent: 7.7`, and `sourceCoverageStatus: blocked` until approved all-range first-party/admin truth evidence is attached.
+
+Verification:
+- `npm run agent:test -- tests/unit/recovery-timeline-spine.spec.ts` passed with 27 tests.
+- `npm run agent:test -- tests/unit/analytics-panel-hydration.spec.ts` passed with 20 tests.
+- `npm run check:recovery-timeline-spine` passed.
+- `npm run check:analytics-panel-hydration` passed.
+- `npm run analytics:truth:rebuild` passed as a dry-run and correctly remained blocked on missing all-range launch-history evidence.
+- `npm run telemetry:manifest` passed.
+- `npm run check:telemetry` passed.
+- `npm run check:canonical-math-ledger` passed.
+- `npm run check:metric-canonicalization-legacy-recovery` passed.
+- `npm run check:count-deduplication-normalization` passed.
+- `npm run typecheck` passed.
+
+## [2026-06-19 #182] Formal Launch Day Recovery State Centralization
+
+Scope started:
+- Continuing the February-to-current analytics recovery goal by removing the remaining report-local formal launch day shape from the launch recovery generator.
+- This pass is analytics recovery/source validation only: no production reads, provider calls, deploys, browser audits, payment/GumDrop math changes, wallet mutation, entitlement changes, runtime backfill, or UI redesign.
+
+Scope completed:
+- Added `LaunchHistoryFormalDayRecoveryState` and `buildFormalLaunchHistoryDayRecoveryState` to `src/lib/analytics/recovery-timeline-spine.ts`.
+- Moved the "outside evidence window" formal launch day row semantics into the recovery spine so unknown source counts stay `null`, not zero, while still carrying `sourceTruth`, `freshnessState`, `evidenceKind`, `confidenceScore`, `dedupeKey`, and the 12-day late-arrival metadata.
+- Replaced the handcrafted formal day object in `scripts/agent/validate-analytics-panel-hydration.ts` with the central helper.
+- Added regression coverage proving local formal days keep known source counts while outside-evidence days remain `source_missing` with unknown counts and deterministic dedupe metadata.
+- Preserved the formal source gate: `analytics:truth:rebuild` still reports `source_agreement_failed`, `formal_proof_missing`, `observedFirstPartyCoveragePercent: 7.7`, and `sourceCoverageStatus: blocked` until approved all-range first-party/admin truth evidence is attached.
+
+Verification:
+- `npm run agent:test -- tests/unit/recovery-timeline-spine.spec.ts` passed with 26 tests.
+- `npm run agent:test -- tests/unit/analytics-panel-hydration.spec.ts` passed with 20 tests.
+- `npm run agent:test -- tests/unit/admin-data-validation.spec.ts` passed with 16 tests.
+- `npm run check:recovery-timeline-spine` passed.
+- `npm run check:analytics-panel-hydration` passed.
+- `npm run typecheck` passed.
+- `npm run analytics:truth:rebuild` passed in dry-run mode and kept launch recovery source-gated.
+- `npm run telemetry:manifest` passed.
+- `npm run check:telemetry` passed.
+- `npm run check:canonical-math-ledger` passed.
+- `npm run check:metric-canonicalization-legacy-recovery` passed.
+- `npm run check:count-deduplication-normalization` passed.
+
+## [2026-06-19 #181] External Audit Intake Refinement
+
+Scope started:
+- Folding a new GPT source/commit audit into doctrine and memory only, before returning to product/runtime coding.
+- This pass intentionally changes no product code, UI code, telemetry runtime, generated report producer, package script, provider integration, payment/GumDrop math, deploy config, browser/runtime evidence path, or generated artifact.
+
+Scope completed:
+- Reaffirmed that external source reviews, quoted beta score values, hosted GitHub observations, and commit-history summaries are planning signals only until current local source, config, or formal evidence artifacts verify them.
+- Reaffirmed that browser smoke, screenshots, and test accounts are optional diagnostics after source coverage reports a concrete issue, not source-readiness or beta-exit authority.
+- Tightened manual-proof doctrine so generic "manual proof", "unknown evidence", or screenshot-required stats must become typed source-derived states when local source can identify the missing lane.
+- Preserved formal evidence boundaries: source-only checks and generated snapshots cannot clear runtime smoke, provider smoke, admin truth sample, payment, wallet, entitlement, GumDrop source-of-funds, creator revenue, or deployment gates.
+- Accepted the audit's concrete future coding slices as priorities only after local inspection: admin source smoke optionality, creator/admin create-drop collapsed-section validation, disconnected admin AI panel removal, compact AI repair UI, canonical telemetry spine consolidation, and validator/report/script retirement by proven consumer search.
+- Rejected replacing the active doctrine hierarchy with a new simplified objective stack in this pass. Any smaller posture must be a focused migration that updates consumers and retires superseded lanes in source.
+
+Verification:
+- Doctrine/memory-only review. No runtime validators were run because the requested scope was to change nothing but doctrine and memory before coding resumes.
+
+## [2026-06-19 #180] Launch Day Recovery State Spine Consolidation
+
+Scope started:
+- Consolidating duplicate day-level launch analytics source-state math into the central recovery timeline spine while keeping historical February-to-current proof blocked until formal all-range evidence exists.
+- This pass is analytics recovery/source validation only: no production reads, provider calls, deploys, browser audits, payment/GumDrop math changes, wallet mutation, entitlement changes, or runtime backfill.
+
+Scope completed:
+- Added/used `buildLaunchHistoryDayRecoveryState` as the canonical owner for launch-history day state, confidence, source truth, freshness, evidence kind, dedupe key, missing-vs-zero next action, duplicate-source count, and late-arrival metadata.
+- Added/used `buildLaunchCriticalRecoveryCoverageFromEvidence` as the canonical owner for combining launch-history day rows with active source evidence into launch-critical event-family coverage.
+- Replaced the duplicated day-state formula in `scripts/agent/validate-analytics-panel-hydration.ts` with the central recovery-spine helper.
+- Replaced the duplicated day-state formula in `src/lib/server/admin-analytics-historical-validation.ts` with the same helper so Admin Analytics and generated launch recovery reports use identical source state semantics.
+- Replaced the duplicated event-family coverage assembly in both callers so page-view day recovery, first-party source evidence, GA/cached/legacy recovered day evidence, and source-evidence recovered metrics are assembled in one recovery-spine path.
+- Updated the recovery-spine validator sample to exercise `buildLaunchCriticalRecoveryCoverageFromEvidence` instead of keeping a separate event-family coverage assembly example.
+- Widened launch day source counts in `src/types/admin-analytics.ts` from boolean `0 | 1` flags to numbers so generated report counts and admin server rows do not flatten real source evidence into presence-only fields.
+- Added regression coverage for first-party+GA, GA-only, cached-only, and missing day rows. Missing rows remain missing, GA/cached rows remain non-product-truth evidence, and first-party rows keep product-truth eligibility.
+- The local validators still truthfully report the remaining formal launch blocker: active source coverage is strong, but February-to-current all-range first-party/admin truth evidence is not attached.
+
+Verification:
+- `npm run agent:test -- tests/unit/recovery-timeline-spine.spec.ts` passed with 24 tests.
+- `npm run agent:test -- tests/unit/analytics-panel-hydration.spec.ts` passed with 20 tests.
+- `npm run agent:test -- tests/unit/admin-data-validation.spec.ts` passed with 16 tests.
+- `npm run check:analytics-panel-hydration` passed.
+- `npm run check:recovery-timeline-spine` passed.
+- `npm run typecheck` passed.
+- `npm run analytics:truth:rebuild` passed in dry-run mode and kept launch recovery source-gated.
+- `npm run telemetry:manifest` passed.
+- `npm run check:telemetry` passed.
+- `npm run check:canonical-math-ledger` passed.
+- `npm run check:metric-canonicalization-legacy-recovery` passed.
+- `npm run check:count-deduplication-normalization` passed.
+
+## [2026-06-19 #179] External Audit Doctrine Conflict Resolution
+
+Scope started:
+- Reconciling a GPT source/commit audit into doctrine and memory only before returning to product/runtime coding.
+- This pass intentionally changes no product code, UI code, telemetry runtime, generated report producer, provider integration, payment/GumDrop math, deploy config, or browser/runtime evidence path.
+
+Scope completed:
+- Accepted the audit's source-first direction: local source validators, route contracts, selectors/hydration markers, debug/error fixtures, and fixture-backed source reports should identify broken admin surfaces before manual screenshot review.
+- Accepted the deletion/consolidation-first posture for analytics/admin truth, report sprawl, validator aliases, generated evidence, admin AI/dashboard UI, and browser-smoke dependence.
+- Preserved the formal evidence boundary: source-only checks and generated snapshots cannot clear runtime smoke, provider smoke, admin truth sample, payment, wallet, entitlement, GumDrop source-of-funds, or deployment gates.
+- Resolved the doctrine conflict in the audit's proposed "one AGENT/objectives stack" direction. The current Product/Source/Engineering/Surface doctrine hierarchy, doctrine registry, compact cards, AGENTS routing, and current operator doctrine remain active until a focused validator-backed migration retires old consumers in the same lane.
+- Reaffirmed the local analytics vocabulary: `observed`, `modeled`, `inferred`, `cached`, `missing`, `privacy_limited`, and `late_arriving`. External spellings such as `modelled` remain compatibility aliases at boundaries only.
+
+Verification:
+- Doctrine/memory-only review. No runtime validators were run because the requested scope was to change nothing but doctrine and memory before coding resumes.
+
+## [2026-06-19 #178] Launch Analytics Active Source Coverage Guard
+
+Scope started:
+- Tightening the launch analytics recovery source-code coverage lane after discovering that broad GA/evidence vocabulary such as raw `purchase` could be counted as active source coverage when it appeared in unrelated source text.
+- This pass is analytics recovery/source validation only: no production reads, provider calls, deploys, browser audits, payment/GumDrop math changes, wallet mutation, entitlement changes, or runtime backfill.
+
+Scope completed:
+- Added an explicit active-source event-name boundary to `src/lib/analytics/recovery-timeline-spine.ts` so catalog/evidence names can differ from the first-party/server event names that count for active source-code coverage.
+- Kept GA-style `purchase` in the purchase family catalog/evidence mapping, but excluded it from active source-code coverage. The purchase family now counts active source only through `gumdrops_purchase_completed`, `checkout_completed`, and `server_purchase_verified`.
+- Updated `scripts/agent/validate-analytics-panel-hydration.ts` to scan only the active-source event-name set for each launch-critical family.
+- Added regression coverage proving that a raw `purchase` reference alone cannot make the purchase family source-connected.
+- Regenerated launch recovery output. Active source-code coverage is `100% (13/13 families)`, but it explicitly cannot clear historical launch proof. February-to-current launch recovery remains blocked at `7.7% (1/13)` observed first-party family coverage until all-range first-party/admin truth evidence is attached.
+
+Verification:
+- `npm run agent:test -- tests/unit/recovery-timeline-spine.spec.ts` passed with 23 tests.
+- `npm run agent:test -- tests/unit/analytics-panel-hydration.spec.ts` passed with 20 tests.
+- `npm run check:recovery-timeline-spine` passed.
+- `npm run check:analytics-panel-hydration` passed.
+- `npm run typecheck` passed.
+- `npm run analytics:truth:rebuild` passed in dry-run mode and kept launch recovery source-gated.
+- `npm run telemetry:manifest` passed.
+- `npm run check:telemetry` passed.
+- `npm run check:canonical-math-ledger` passed.
+- `npm run check:metric-canonicalization-legacy-recovery` passed.
+- `npm run check:count-deduplication-normalization` passed.
+
+## [2026-06-19 #177] Doctrine Workflow Path Correction
+
+Scope started:
+- Correcting the active doctrine/memory guidance after an external GPT audit intake, without modifying product/runtime code.
+- This pass is doctrine/memory only: no UI edits, product logic, telemetry code, generated report refresh, payment/GumDrop math, provider calls, production reads, deploys, browser audits, Playwright, Cypress, Lighthouse, or full `npm run check`.
+
+Scope completed:
+- Corrected `AGENTS.md` so the mandatory UI/copy prerequisite points to the actual active workflow files: `.agent/skills/doctrine-consultation.md` and `.agent/workflows/ui-copy-refinement-workflow.md`.
+- Updated current operator doctrine and repo memory to treat older root-level `.agent/doctrine-consultation.md` and `.agent/ui-copy-refinement-workflow.md` references as stale path references, not permission to skip doctrine consultation.
+- Preserved the existing source-first rule from the GPT audit intake: browser smoke and screenshots are diagnostic reproduction only, while source validators, route contracts, hydration markers, fixtures, and formal evidence artifacts own readiness boundaries.
+
+Verification:
+- `git diff --check -- AGENTS.md docs/agent-truth/current-operator-doctrine.md REPO_MEMORY_LEDGER.md FULL_SCALE_CODEBASE_AUDIT.md EVERY_FILE_FUNCTION_CHECKLIST.md` passed with line-ending warnings only.
+- `npm run check:doctrine` and `npm run check:repo-doctrine-reset` were not run in this correction pass because they can refresh generated state; this pass was intentionally limited to doctrine and memory files.
+
+## [2026-06-19 #176] Recovery Timeline Holdback Coverage Spine
+
+Scope started:
+- Strengthening the analytics recovery spine so launch-critical event mapping is separated from first-party/source coverage and GA/legacy modeled evidence cannot accidentally clear product-truth promotion.
+- This pass is source/recovery math only: no production reads, provider calls, deploys, browser audits, payment/GumDrop math changes, wallet mutation, entitlement changes, or runtime backfill.
+
+Scope completed:
+- Extended `src/lib/analytics/recovery-timeline-spine.ts` so `buildLaunchCriticalRecoveryCoverageReport` now reports canonical mapping coverage separately from observed first-party coverage.
+- Added per-family source states with `observed_first_party`, `modeled_second_source`, `inferred_legacy`, `cached_snapshot`, and `source_missing` classifications, confidence, product-truth eligibility, and next action.
+- Added holdback-style validation metadata requiring at least 95% observed first-party or server-owned coverage before recovered launch charts can be promoted.
+- Added tests proving all launch-critical families remain canonically mapped while GA/Google modeled evidence alone remains calibration-only and blocked from product-truth/source coverage promotion.
+- Regenerated `agent/state/recovery-timeline-spine.generated.json` through the owning validator.
+- Wired the same event-family coverage and holdback summary into Admin Analytics launch history coverage and the launch recovery generated report, so operators see both `13/13` canonical mapping and the current `1/13` observed first-party source coverage.
+- Updated `scripts/rebuild-analytics-truth.ts` so dry-run output now includes event-family coverage and holdback status instead of only first-party day coverage.
+- Fixed launch-critical family source precedence so first-party observed source evidence wins over GA/Google modeled corroboration when both exist for the same event family. The regenerated launch recovery artifact now reports `page_view` as `first_party_event_fact` / `observed` with confidence `95`, while the overall family source gate remains blocked at `1/13` observed first-party families.
+- Added manifest-backed catalog coverage validation for launch-critical recovery families. `agent/state/recovery-timeline-spine.generated.json` now records `13/13` catalog-mapped families, `100%` catalog mapping, and zero missing families from the catalog-derived telemetry manifest. This proves catalog support separately from observed first-party/source coverage.
+
+Verification:
+- `npm run agent:test -- tests/unit/recovery-timeline-spine.spec.ts` passed with the first-party-over-modeled source precedence case.
+- `npm run agent:test -- tests/unit/admin-data-validation.spec.ts` passed.
+- `npm run agent:test -- tests/unit/analytics-panel-hydration.spec.ts` passed with the central recovery-spine helper guard.
+- `npm run check:recovery-timeline-spine` passed.
+- `npm run typecheck` passed.
+- `npm run telemetry:manifest` passed.
+- `npm run analytics:truth:rebuild` passed in dry-run mode and now reports launch-critical event family coverage as `13/13` mapped but `1/13` observed first-party, keeping February-to-current launch recovery source-gated.
+- `npm run check:telemetry` passed.
+- `npm run check:canonical-math-ledger` passed.
+- `npm run check:analytics-panel-hydration` now passes after classifying the active doctrine, telemetry manifest, recovery spine, admin source-smoke, and creator/drop workflow dirty lanes instead of leaving them as `unsafe_unknown`.
+- `npm run check:metric-canonicalization-legacy-recovery` passed with 12 aliases and 4 dry-run candidates.
+- `npm run check:count-deduplication-normalization` passed.
+- `npm run check:recovery-timeline-spine` passed with 4 compact sample entries.
+
+## [2026-06-19 #175] Analytics Recovery Launch Range Correction
+
+Scope started:
+- Correcting the launch analytics recovery source boundary so formal recovery covers the source-backed February launch window instead of silently narrowing launch proof to the May evidence fixture window.
+- This pass is source/recovery truth only: no production reads, provider calls, deploys, browser audits, payment/GumDrop math changes, wallet mutation, entitlement changes, or runtime backfill.
+
+Scope completed:
+- Updated the canonical launch analytics start day to `2026-02-12`, matching existing source-backed public launch anchors in `src/app/sitemap.ts` and `src/lib/platform-config.ts`.
+- Updated source agreement fixture coverage and tests so local fixture evidence remains only a small source window while formal launch proof now spans `2026-02-12` through the generated report date.
+- Regenerated launch recovery output so formal source proof now reports 128 expected launch days through `2026-06-19`, with only 3 local evidence days and the remaining range labeled source-missing/unknown rather than zero.
+- Preserved first-party as primary product truth, GA4 as second-source evidence only, historical/legacy as fallback evidence only, and all runtime/provider/admin truth gates as uncleared.
+
+Verification:
+- `npm run agent:test -- tests/unit/source-agreement-failure-detail.spec.ts` passed.
+- `npm run agent:test -- tests/unit/admin-data-validation.spec.ts` passed.
+- `npm run agent:test -- tests/unit/analytics-panel-hydration.spec.ts` passed.
+- `npm run agent:test -- tests/unit/recovery-timeline-spine.spec.ts` passed.
+- `npm run telemetry:manifest` passed.
+- `npm run analytics:truth:rebuild` passed in dry-run mode and reported formal launch proof still blocked by missing all-range export/admin truth sample.
+- `npm run check:telemetry` passed.
+- `npm run check:recovery-timeline-spine` passed.
+- `npm run check:canonical-math-ledger` passed.
+- `npm run typecheck` passed.
+- `npm run check:analytics-panel-hydration`, `npm run check:metric-canonicalization-legacy-recovery`, and `npm run check:count-deduplication-normalization` remain blocked by existing dirty-file classification gates, not by the February launch range source contract.
+
+## [2026-06-19 #174] GPT Audit Doctrine/Memo Boundary Correction
+
+Scope started:
+- Folding an external GPT source/commit audit into current doctrine and repo memory without changing product/runtime code.
+- The audit is accepted as planning input only. It does not prove local tests, runtime health, provider proof, admin truth samples, or deployment readiness.
+- This pass is doctrine/memory only: no UI, product logic, admin runtime, telemetry code, payment/GumDrop math, Firebase rules, provider calls, production reads, deploys, browser audits, Playwright, Cypress, Lighthouse, or full `npm run check`.
+
+Scope completed:
+- Tightened source-first UI/admin doctrine so manual screenshots and browser smoke are optional diagnostic reproduction, not beta-exit authority and not standalone source-readiness blockers.
+- Clarified that source smoke lanes must report route, component, selector or hydration marker, sourceTruth, freshnessState, confidence, and nextAction before asking a human to inspect the site.
+- Clarified that when source-smoke and browser-smoke lanes both exist, source-smoke owns local readiness by default; browser smoke is diagnostic unless a formal runtime evidence contract promotes it.
+- Clarified that formal runtime/provider/admin truth evidence remains separate and can honestly stay blocking when absent.
+- Corrected the older UI verification checklist so source UI coverage/runtime checks remain default, while `check:ui:audits`, browser smoke, and screenshot packets are promoted diagnostic/signoff lanes only.
+- Recorded that external audit reduction targets are consolidation pressure, not permission to delete active doctrine, validators, reports, or scripts without import/caller/script/report-key/release-gate/score-gate/Admin Debug consumer searches.
+- Recorded that package-script and validator consolidation should extend existing registries/selectors and retire superseded lanes rather than add another one-off script family.
+- Rejected the literal replacement of current doctrine with a new `agent/objectives` authority stack unless a future validator-backed migration updates consumers and retires superseded authority surfaces.
+- Clarified that third-party analytics modeling/counting patterns are implementation references only after official-source verification and must be mapped into KandyDrops-owned source-state vocabulary instead of creating duplicate formulas or enums.
+- Clarified that generic manual-proof stats should become variable source-derived states with exact artifact/source requirements where local source can know the answer.
+- Clarified that `modeled` is the canonical KandyDrops spelling for model-based evidence states; `modelled` is only a compatibility alias to normalize in a focused future source pass.
+- Added an external-audit intake rule: audit recommendations must become local issue slices with suspected paths, canonical owner, allowed files, forbidden surfaces, evidence boundary, and targeted validator before coding begins.
+- Clarified that numerical reduction targets are advisory cleanup budgets only; they do not authorize deleting active doctrine, reports, scripts, validators, panels, or formal proof gates without consumer and ownership searches.
+- Clarified that future source passes should replace manual screenshot/browser proof blockers with source lanes that detect broken modals, disconnected admin actions, stale truth labels, hydration marker gaps, and client-error evidence before asking anyone to inspect the site.
+
+Verification:
+- `npm run check:doctrine` passed.
+- `npm run check:repo-doctrine-reset` passed.
+- `git diff --check -- AGENTS.md FULL_SCALE_CODEBASE_AUDIT.md REPO_MEMORY_LEDGER.md docs/agent-truth/current-operator-doctrine.md` passed with line-ending warnings only.
+
 ## [2026-05-14 #173] Repo Doctrine Reset + Source-of-Truth Cleanup
 
 Scope started:
-- Consolidating current Phase 1 operator doctrine into `docs/agent-truth/current-operator-doctrine.md` so future agents use direct fix mode, screenshot-first source-rooted debugging, full source-to-UI loop closure, metric cadence/math precision, no additive patch stacking, release-note skip-loop rules, and generated-report snapshot boundaries.
+- Consolidating current Phase 1 operator doctrine into `docs/agent-truth/current-operator-doctrine.md` so future agents use direct fix mode, source-first UI/admin debugging, full source-to-UI loop closure, metric cadence/math precision, no additive patch stacking, release-note skip-loop rules, and generated-report snapshot boundaries.
 - This pass is doctrine/source-of-truth cleanup only: no runtime app behavior, UI redesign, payment/wallet/PayPal runtime, chat internals, AI cover runtime, Firebase rules, Cloud Functions runtime, BigQuery jobs, providers, production reads, Playwright, Cypress, Lighthouse, or full `npm run check`.
 
 Scope completed:
-- Added `docs/agent-truth/current-operator-doctrine.md` as the current Phase 1 operator doctrine for direct fix mode, screenshot-first source-rooted debugging, full-loop closure, metric cadence/math precision, no additive patch stacking, release-note skip-loop rules, generated-report snapshot boundaries, creator/watch/admin/debug/score truth, cost/race guards, and required future prompt structure.
+- Added `docs/agent-truth/current-operator-doctrine.md` as the current Phase 1 operator doctrine for direct fix mode, source-first UI/admin debugging, full-loop closure, metric cadence/math precision, no additive patch stacking, release-note skip-loop rules, generated-report snapshot boundaries, creator/watch/admin/debug/score truth, cost/race guards, and required future prompt structure.
 - Updated `AGENTS.md`, `README.md`, and active agent-truth docs with current/supporting/evidence authority markers and cross-links to the current operator doctrine.
 - Added `scripts/agent/validate-repo-doctrine-reset.ts`, `tests/unit/repo-doctrine-reset.spec.ts`, package script `check:repo-doctrine-reset`, and `agent/state/repo-doctrine-reset.generated.json`.
 
@@ -8460,14 +8845,14 @@ If a future change cannot be explained against this file, the codebase is not fu
 
 Before broad UI work, backend work, shared-helper changes, Firebase work, or audit maintenance:
 
-1. Read `FULL_SCALE_CODEBASE_AUDIT.md`.
-2. Read `REPO_MEMORY_LEDGER.md`.
-3. Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
-4. Run `git status --short`.
-5. Identify touched surfaces and canonical helpers before editing.
-6. Run `npm run trace:adjacent -- <path>` for the highest-risk touched files.
-7. Update this file at the start and again at the end.
-8. For broad UI audits or visual polish passes, create or refresh a dated screenshot packet under `qa-screenshots/ui-review-YYYY-MM-DD/` and record any deferred authenticated surfaces truthfully.
+1. Run `git status --short`.
+2. Start with compact context: `npm run agent:fast-start -- --task="<task>" --mode=<mode> --file=<entrypoint>` or `npm run optimize:doctrine-context -- --task "<task>" --changed <path>`.
+3. Review the generated task context, verification plan, surface map, and relevant doctrine cards.
+4. Identify touched surfaces and canonical helpers before editing.
+5. Run `npm run trace:adjacent -- <path>` for the highest-risk touched files when source ownership or adjacent callers matter.
+6. Escalate to reading `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md` only when compact context requires broad startup, the pass changes governance/tooling/shared helpers, or source inspection leaves ownership unresolved.
+7. Update this file at the start and end of broad governance, audit-maintenance, or multi-surface passes. Do not create audit entries for narrow source fixes unless the lane explicitly owns audit memory.
+8. For broad UI audits or visual polish passes, run source-first UI coverage, route/component contracts, hydration markers, and debug/error fixtures first. Create or refresh a dated screenshot packet under `qa-screenshots/ui-review-YYYY-MM-DD/` only when source coverage reports a concrete visual risk, a selector promotes browser reproduction, or a human explicitly requests it; screenshot packets are evidence artifacts, not source-readiness or beta-exit authority.
 
 ## Non-negotiable repo rules
 

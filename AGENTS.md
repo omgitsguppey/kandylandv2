@@ -2,7 +2,7 @@
 
 ## Antigravity 2.0 Onboarding & Safety Guardrails
 
-Before starting new agent tasks or taking over, verify the safety check, self-knowledge audit, capability policy, and addition bloat parameters. Antigravity must never run deploys, hit live billing/PayPal APIs, mutate production databases, or bypass formal evidence gates via source-only tests. Net additions budget must remain constrained and justified, and new resolvers must prove unique ownership. Memory writeback and release note synchronizations are mandatory.
+Before starting new agent tasks or taking over, verify the safety check, self-knowledge audit, capability policy, and addition bloat parameters. Antigravity must never run deploys, hit live billing/PayPal APIs, mutate production databases, or bypass formal evidence gates via source-only tests. Net additions budget must remain constrained and justified, and new resolvers must prove unique ownership. Release note synchronization is mandatory when a user-facing patch is accepted into a public beta release bundle; ordinary source/config/UI commits do not automatically create Beta badge updates. Durable memory writeback is mandatory only when doctrine/governance changes, an owner or validator lane is promoted or retired, verification policy changes, or an owning validator explicitly requires it.
 
 ## Identity Tracking And Handoff Truth
 
@@ -22,7 +22,21 @@ Doctrine retrieval is an optimization problem. Agents must load the smallest suf
 
 ## Current Operator Doctrine
 
-Current Phase 1 operator doctrine lives at `docs/agent-truth/current-operator-doctrine.md` and wins over older stale docs when they conflict. Future agents must close full source-to-UI loops instead of backend-only or UI-only patches, trace existing measurement paths before adding metrics/events/snapshots, demote stale generated reports to evidence unless fresh and explicitly consumed, and keep missing data distinct from zero. Release-note-only commits must use `[skip release-notes]` and must not create another Beta badge commit. GitHub hosted-runner billing lock is external infrastructure status, not app failure; Firebase App Hosting rollout status and local validators are separate.
+Current Phase 1 operator doctrine lives at `docs/agent-truth/current-operator-doctrine.md` and wins over older stale docs when they conflict. Future agents must close full source-to-UI loops, trace existing measurement paths before adding metrics/events/snapshots, demote stale generated reports to evidence unless fresh and explicitly consumed, keep missing distinct from zero, and prefer source-first UI/admin proof over browser/screenshot proof. Browser smoke and screenshots are optional reproduction after source coverage reports a concrete issue; they are not beta-exit authority and must not be the only source-readiness blocker. Generic manual proof counters must become typed source or formal-artifact states such as source_missing, bridge_missing, materializer_missing, external_proof_required, runtime_proof_required, or admin_truth_required. Local admin fixtures, selector probes, hydration markers, route contracts, and client-error fixtures can clear source-readiness lanes only; they must not be relabeled as runtime, provider, payment, admin truth, or production proof. Admin truth samples must be structured redacted artifacts first; screenshots can only be optional visual context and cannot clear admin truth alone. External analytics patterns must be mapped into KandyDrops-owned contracts, with `modeled` as the canonical analytics evidence spelling and `modelled` as a legacy/external alias only. Release-note-only commits must use `[skip release-notes]` and must not create another Beta badge commit. GitHub hosted-runner billing lock is external infrastructure status, not app failure; Firebase App Hosting rollout status and local validators are separate.
+
+If a generated task context, selector, index, package-script description, or older validator still marks Playwright, Lighthouse, admin browser smoke, screenshots, or logged-in test sessions as default-required for local source readiness, treat that as implementation debt under this doctrine. Current operator doctrine wins until the owning tooling slice updates the selector/registry. Browser diagnostics may be promoted by explicit human request or formal runtime contract, but stale selector language must not override source-first readiness.
+
+Workflow command lists are menus, not automatic authority. GitHub PR commands, `git push`, browser audits, Lighthouse, Firebase rules checks, provider checks, deploy-adjacent checks, and full `npm run check` require explicit scope, selector promotion, release-risk scope, or a formal evidence contract. Missing GitHub/network/browser output is optional diagnostic, external evidence required, or tooling debt, not local source failure.
+
+## Consolidation And Evidence Bloat Budget
+
+External audits, generated reports, and operator observations are planning inputs until verified against local source, config, or formal evidence artifacts. Cleanup, analytics/admin truth, doctrine, and repo-intelligence passes must be deletion/consolidation-first: search for an existing owner, merge into it, retire stale aliases, or mark the lane archive-only before adding a validator, generated report, doctrine file, helper registry, UI panel, or package script. New report families and script aliases are disallowed unless they replace or retire an older lane or prove a unique owner with a retirement rule. File-count or percentage targets from audits are cleanup pressure, not permission to delete connected doctrine, gates, scripts, reports, UI panels, or Admin Debug readers without consumer checks.
+
+When two active lanes describe the same truth differently, do not add a third arbitration layer. Pick the canonical owner by source authority, update callers to read it, and mark the weaker lane as legacy adapter, archive evidence, optional diagnostic, or retired in the same focused slice. A coordinated owner is preferred over several validators, generated reports, or UI panels that keep arguing.
+
+External audit findings must be converted into exact local issue slices before coding: suspected file paths, canonical owner, allowed files, forbidden surfaces, source-derived evidence boundary, and targeted validator. Numerical reduction targets are advisory cleanup budgets until a follow-up source pass proves the connected files/scripts/reports can be merged, archived, or removed. Do not fake consolidation by deleting connected gates, hiding formal runtime/provider/admin evidence, or replacing source-readiness with manual screenshot proof.
+
+External audit score values, commit summaries, hosted-source observations, and numeric targets are not local repo proof. Before coding from them, inspect current source or run the owning local check, then convert the recommendation into a bounded issue slice. Do not replace the active doctrine hierarchy with a new objective stack unless a validator-backed migration retires old consumers in the same lane.
 
 ## Creator Drop Workflow Memory
 
@@ -38,7 +52,7 @@ Before adding a new creator route or component, search for existing creator sett
 
 ## Surface Doctrine Routing
 
-Before editing UI, copy, telemetry, state, admin truth, or server/backend truth, read `agent/context/surface-doctrine-map.json` and `docs/doctrine/03-surface-hierarchy.md`. Resolve exactly one primary surface first, then load the matching doctrine:
+Before editing UI, copy, telemetry, state, admin truth, or server/backend truth, start with the compact context path from the Doctrine Hierarchy Fast Path, then use `agent/context/surface-doctrine-map.json` and `docs/doctrine/03-surface-hierarchy.md` only as needed to resolve the primary surface and conflict winner. Resolve exactly one primary surface first, then load the matching doctrine:
 
 - User UI: `docs/doctrine/surfaces/user-ui-doctrine.md`
 - Creator UI: `docs/doctrine/surfaces/creator-ui-doctrine.md`
@@ -111,16 +125,16 @@ Config, rules, environment, CI, and deployment rules:
 
 > [!CAUTION]
 > **MANDATORY CONTROL TOWER ROUTING:**
-> Before touching UI, copy, telemetry, state, admin truth, or Firebase architecture, you MUST start with /control-tower/00-START-HERE.md.
-> Do not bypass the control tower execution order.
+> Before touching UI, copy, telemetry, state, admin truth, or Firebase architecture, you MUST start with compact context and current operator doctrine, then open `/control-tower/00-START-HERE.md` or the narrower Control Tower entry selected by the generated context.
+> Do not bypass Control Tower ownership, but do not use stale fixed-read-order language to replace compact-context-first doctrine.
 
 > [!CAUTION]
 > **STRICT DOCTRINE ENFORCEMENT:**
-> NO UI, copy, or product-facing adjustment is permitted without first consulting the doctrine files in /docs/doctrine/.
+> NO UI, copy, or product-facing adjustment is permitted without first consulting the smallest sufficient doctrine from compact context and `/docs/doctrine/`.
 > You are explicitly forbidden from freestyling, guessing, or making improvisational "improvements" to the UI or copy.
 > 
 > **MANDATORY PRE-REQUISITE:**
-> Before modifying any user-facing code, you MUST execute the doctrine-consultation.md skill and follow the ui-copy-refinement-workflow.md located in the /.agent/ directory.
+> Before modifying any user-facing code, you MUST read and follow `.agent/skills/doctrine-consultation.md` and `.agent/workflows/ui-copy-refinement-workflow.md`.
 > 
 > **CONFLICT RESOLUTION:**
 > If the doctrine conflicts with your local LLM intuition or generic "best practices," **THE DOCTRINE WINS.** If the doctrine is insufficient, you must intentionally update the doctrine first before implementing the change.
@@ -134,11 +148,12 @@ Use this authority order for every task:
 1. Verified runtime code
 2. Verified configuration
 3. Verified command output
-4. `FULL_SCALE_CODEBASE_AUDIT.md`
-5. `REPO_MEMORY_LEDGER.md`
-6. `EVERY_FILE_FUNCTION_CHECKLIST.md`
-7. `AGENTS.md` and local workflow notes
-8. Prior chat context
+4. `docs/agent-truth/current-operator-doctrine.md` for current Phase 1 operator workflow, source-first proof, and external-audit intake
+5. `FULL_SCALE_CODEBASE_AUDIT.md`
+6. `REPO_MEMORY_LEDGER.md`
+7. `EVERY_FILE_FUNCTION_CHECKLIST.md`
+8. `AGENTS.md` and local workflow notes
+9. Prior chat context
 
 Repo truth outranks chat, memory, generated agent artifacts, and the SQL/Data Connect mirror.
 
@@ -146,13 +161,13 @@ Repo truth outranks chat, memory, generated agent artifacts, and the SQL/Data Co
 
 For broad work, shared helpers, repo tooling, governance, package/lockfile changes, or multi-surface edits, do this before implementation:
 
-1. Read `FULL_SCALE_CODEBASE_AUDIT.md`.
-2. Read `REPO_MEMORY_LEDGER.md`.
-3. Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
-4. Run `git status --short`.
-5. Identify touched surfaces and canonical helpers.
-6. Run `npm run trace:adjacent -- <path>` for the main touched files.
-7. Pre-log the pass at the top of `FULL_SCALE_CODEBASE_AUDIT.md`.
+1. Run `git status --short`.
+2. Use `npm run agent:fast-start -- --task="<task>" --mode=<mode> --file=<entrypoint>` or `npm run optimize:doctrine-context -- --task "<task>" --changed <path>` to get the compact context first.
+3. Review the generated task context, verification plan, surface map, and relevant doctrine cards.
+4. Identify touched surfaces and canonical helpers.
+5. Run `npm run trace:adjacent -- <path>` for the main touched files when the lane is source-heavy or shared.
+6. Escalate to `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md` only when the generated context marks broad startup as required, the work changes governance/tooling/shared helpers, or local source leaves ownership uncertain.
+7. Pre-log broad governance or multi-surface passes at the top of `FULL_SCALE_CODEBASE_AUDIT.md`; do not pre-log narrow source fixes just because a prompt references an external audit.
 
 For narrow work, use the generated agent context first and only escalate to full governance reads if the task is broad, shared-helper heavy, or continuity-sensitive.
 
@@ -170,7 +185,7 @@ KandyDrops layout scoring is deterministic. It detects violations of Google-styl
 
 ## Device UI Dry Audit
 
-Device UI dry auditing is a deterministic source-level prediction system. It does not replace screenshots, but it catches known KandyDrops device physics violations before runtime: safe areas, bottom nav, top nav, chat focus, modal density, preview CTA placement, drop grid behavior, image loading, touch targets, and debug truth markers. Agents must run `npm run score:device-ui` and `npm run check:device-ui` before broad browser audits.
+Device UI dry auditing is a deterministic source-level prediction system. It is the first-pass UI issue detector; browser/screenshots are optional reproduction only after source coverage reports a concrete risk. It catches known KandyDrops device physics violations before runtime: safe areas, bottom nav, top nav, chat focus, modal density, preview CTA placement, drop grid behavior, image loading, touch targets, and debug truth markers. Agents must run `npm run score:device-ui` and `npm run check:device-ui` before broad browser audits.
 
 ## Hydration Performance
 
@@ -206,7 +221,7 @@ The wallet modal uses compact public-beta density. Package cards show total deli
 
 ## Public Beta Score
 
-KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a finding explicitly escalates to runtime visual verification.
+KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a source finding explicitly escalates to runtime visual reproduction. Browser smoke may diagnose a reported issue, but it must not clear source, runtime, provider, admin truth, payment, or beta-exit gates.
 
 ## Codebase Hardening Score
 
@@ -218,7 +233,7 @@ KandyDrops speed and security hardening is deterministic. Public/stable surfaces
 
 ## Backend Consolidation Rules
 
-Routes must be thin and route business work into canonical service, math, normalizer, ledger, telemetry, and debug owner modules. Business math must not live in route handlers when a canonical math/service owner exists. New backend route/helper work requires a backend route inventory entry with canonical owner, source truth, cost class, telemetry path, debug lane, and validator. New service work requires an owner system and cost class. Admin/debug backend output must be summary-first, with raw detail only behind explicit paged drilldown. Generated artifacts should be compact summaries by default; full detail belongs behind drilldown or derived at runtime. Every prompt must end by searching for duplicate/stale/orphaned logic in the touched backend domain and updating Codex memory with mistakes found.
+Routes must be thin and route business work into canonical service, math, normalizer, ledger, telemetry, and debug owner modules. Business math must not live in route handlers when a canonical math/service owner exists. New backend route/helper work requires a backend route inventory entry with canonical owner, source truth, cost class, telemetry path, debug lane, and validator. New service work requires an owner system and cost class. Admin/debug backend output must be summary-first, with raw detail only behind explicit paged drilldown. Generated artifacts should be compact summaries by default; full detail belongs behind drilldown or derived at runtime. Every backend task must end by searching for duplicate/stale/orphaned logic in the touched backend domain; update durable Codex memory only when the pass changes doctrine/governance, promotes or retires an owner/validator lane, changes verification policy, or an owning validator explicitly requires memory writeback.
 
 Required backend memory lessons:
 - Do not add a parallel subsystem when an existing registry/resolver/debug lane already owns the same truth.
@@ -403,20 +418,21 @@ Prefer generated prompts over freeform prose when possible:
 
 Read the three governance files fully when:
 
-- work is broad
-- work touches repo tooling, governance, package/lockfile state, or shared helpers
 - the generated context pack marks broad startup protocol as required
+- work touches repo tooling, governance, package/lockfile state, or shared helpers
+- source inspection leaves ownership, safety, or doctrine conflicts unresolved after compact context
 
 Use selective consultation when:
 
 - the task is narrow and local
 - `/agent/index/*` already identifies the relevant surfaces, helpers, pitfalls, and checks
+- an external audit supplies recommendations but local source still needs bounded issue slices
 
 Historical evidence docs are selective only. Do not over-read them for narrow tasks.
 
 ## Verification And Cleanup
 
-Use existing repo lanes as required by the touched surface:
+Use existing repo lanes through the verification selector, current doctrine, or a formal evidence contract. This list is a command menu, not automatic authority:
 
 - `npm run check:architecture`
 - `npm run check:inventory`
@@ -438,13 +454,13 @@ Rules:
 - Device-level UI and shell changes should run `npm run score:device-ui` and `npm run check:device-ui` before broad browser audits. This deterministic lane predicts known mobile/PWA/tablet/desktop risks from source tokens, component structure, and debug truth markers.
 - Fast-loop verification should stay targeted. Use `npm run agent:test -- <path>` before broad repo sweeps when the work is narrow.
 - Broad signoff checks should remain separate from the implementation loop. `check:continuity`, UI audits, scheduler/runtime continuity, and Firebase rules are signoff lanes unless the touched surface explicitly requires them during iteration.
-- UI/admin UI changes require `npm run check:ui:coverage`, `npm run check:ui:runtime`, and `npm run check:ui:audits`.
+- UI/admin UI changes require source-first coverage and runtime contract checks (`npm run check:ui:coverage` and `npm run check:ui:runtime`). `npm run check:ui:audits` is a promoted signoff or diagnostic lane only when the selector, current doctrine, or an explicit human request requires browser reproduction; it is not the default source-readiness or beta-exit gate.
 - Missing coverage for a blocking UI surface is a signoff failure.
 - Broad UI work must use `agent/index/ui-surface-coverage.json` instead of ad hoc prompting or hand-maintained target lists.
-- Performance-sensitive UI changes require `npm run check:ui:lighthouse`.
+- Performance-sensitive UI changes use deterministic source checks first; `npm run check:ui:lighthouse` is a promoted runtime diagnostic/signoff lane only when the selector, current doctrine, or an explicit human request requires browser-based performance reproduction.
 - Firebase rules or emulator-sensitive changes require `npm run check:firebase:rules`.
 - Functions runtime or manifest changes require `npm --prefix functions run check`.
-- Broad work must update `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md` before signoff.
+- Broad work must update durable memory only when it changes doctrine/governance, retires or promotes an owner, alters verification policy, or a validator explicitly requires memory writeback. Do not touch `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, or `EVERY_FILE_FUNCTION_CHECKLIST.md` just to prove an ordinary source fix happened.
 
 Clean generated noise before completion:
 
@@ -535,7 +551,7 @@ Massive monolithic un-maintainable files are forbidden.
 
 ## Admin Truth UI Rules (SEO, A11y, Perf)
 Operational admin dashboards must explicitly convey exact data source states.
-Labels must be explicit: [live], [cached], [stale], [fallback], [partial], [failed], [unknown]. 
+Labels must be explicit: [live], [cached], [refresh_due], [stale], [fallback], [partial], [failed], [unknown]. Use [cached] or [refresh_due] for verified hot snapshots inside their trust contract; reserve [stale] for expired, source-invalid, or untrustworthy evidence.
 If a check fails or lacks canonical telemetry hooks, the admin UI must strictly fail—NO fake fallback \"green/healthy\" blocks.
 
 ## A/B Testing Readiness & Safety

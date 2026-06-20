@@ -1,27 +1,42 @@
 # Skill: Doctrine Consultation
 
-**Description:** Instructs the agent on how to consult the KandyDrops Doctrine before touching any UI, copy, or product-facing surface.
+**Description:** Consult the smallest sufficient KandyDrops doctrine before touching UI, copy, product-facing state, telemetry labels, or admin truth surfaces.
 
 ## Pre-Requisites
-Before adjusting *any* UI layout, copy text, or interaction logic, you MUST run this consultation skill. Do not rely on your generic LLM intuition.
+
+Before adjusting UI layout, copy text, interaction logic, status labels, or product-facing source-state presentation, run this consultation flow. Do not rely on generic LLM intuition, screenshot-only judgment, or browser smoke as the first detector.
 
 ## Execution Steps
 
-1. **Read Required Files:**
-   Read `/docs/doctrine/kandydrops-product-doctrine.md`, `/docs/doctrine/kandydrops-copy-doctrine.md`, and `/docs/doctrine/kandydrops-ui-doctrine.md`.
-   *Action:* Use `view_file` on these documents.
+1. **Start Compact**
+   Prefer the generated task context or doctrine optimizer first:
+   - `npm run agent:fast-start -- --task="<task>" --mode=<mode> --file=<entrypoint>`
+   - or `npm run optimize:doctrine-context -- --task "<task>" --changed <path>`
 
-2. **Identify the Surface:**
-   Locate the relevant surface in `/docs/doctrine/kandydrops-surface-matrix.md` and identify its Primary Job, Emotional Role, Tone Family, and Allowed Urgency.
+   If those artifacts are already fresh for the task, read them instead of opening broad Markdown by default.
 
-3. **Check Banned Patterns:**
-   Consult `/docs/doctrine/kandydrops-banned-patterns.md` and `/docs/doctrine/kandydrops-vocabulary-index.md` to ensure your proposed changes do not use forbidden terminology or UI anti-patterns.
+2. **Apply Current Operator Doctrine**
+   Read `docs/agent-truth/current-operator-doctrine.md` when the task touches UI/admin truth, evidence boundaries, screenshot/browser proof, analytics source states, or external-audit recommendations. It wins over older stale launch/readiness docs when they conflict.
 
-4. **Identify the Source of Truth:**
-   Determine where the data for this UI comes from (e.g., Firestore, Remote Config). Ensure any visual states accurately reflect this truth (live, stale, fallback, failed).
+3. **Resolve One Surface**
+   Use `agent/context/surface-doctrine-map.json` and `docs/doctrine/03-surface-hierarchy.md` to identify the primary surface. Then read only the matching surface doctrine, such as:
+   - `docs/doctrine/surfaces/admin-ui-doctrine.md`
+   - `docs/doctrine/surfaces/creator-ui-doctrine.md`
+   - `docs/doctrine/surfaces/user-ui-doctrine.md`
+   - `docs/doctrine/surfaces/server-truth-doctrine.md`
+   - `docs/doctrine/surfaces/shared-brand-primitives.md`
 
-5. **Complete the Checklist:**
-   Review `/docs/doctrine/kandydrops-decision-checklist.md`. You must be able to answer every question on that checklist before implementing the code change.
+   Escalate to the older broad files only when the compact context or surface doctrine leaves a real conflict unresolved.
+
+4. **Check Copy And Banned Patterns When Copy Changes**
+   For copy, tone, or vocabulary changes, consult the relevant records from `docs/doctrine/kandydrops-copy-doctrine.md`, `docs/doctrine/kandydrops-banned-patterns.md`, `docs/doctrine/kandydrops-vocabulary-index.md`, and `docs/doctrine/kandydrops-decision-checklist.md`.
+
+5. **Identify Source Truth Before Visual Shape**
+   Determine the owner for the data, action, permission, loading, error, cache, telemetry, and debug/admin evidence path. UI labels must reflect source truth: live, cached, refresh_due, source_missing, bridge_missing, materializer_missing, permission_blocked, external_proof_required, failed, or unavailable. Missing is not zero.
+
+6. **Keep Browser Proof Optional**
+   Source validators, route contracts, selectors, hydration markers, fixtures, and client-error evidence should report broken modals, disconnected actions, and stale labels before browser reproduction. Browser smoke, screenshots, and test accounts are optional diagnostics unless a current formal runtime contract explicitly promotes them.
 
 ## Expected Outcome
-You should now have a concrete understanding of *why* the surface looks the way it does and exactly *how* to modify it without violating the KandyDrops premium aesthetic and truth-first data principles. Proceed to implementation only if all checks pass.
+
+You should know the primary surface, canonical source owner, allowed copy/state vocabulary, telemetry/admin/debug implications, and the smallest verification lane. Proceed only if the planned change follows doctrine and does not create a second truth system.

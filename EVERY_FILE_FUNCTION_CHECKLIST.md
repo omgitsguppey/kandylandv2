@@ -1,13 +1,52 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Mobile Chat Shell Compact Spacing.
+**Current Focus:** Source-first doctrine and workflow command authority.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-06-19 External Audit Intake Doctrine Coverage
+
+- [x] `AGENTS.md` and `docs/agent-truth/current-operator-doctrine.md` now classify external audits as hypothesis input until local source, config, or formal evidence proves the finding.
+- [x] External audit reduction targets are documented as advisory cleanup budgets, not permission to delete active doctrine, validators, reports, scripts, panels, or evidence gates without ownership and consumer searches.
+- [x] `REPO_MEMORY_LEDGER.md` and `FULL_SCALE_CODEBASE_AUDIT.md` record that manual screenshot/browser proof blockers should be replaced by source lanes that report broken modals, disconnected admin actions, stale truth labels, hydration gaps, and client-error evidence before human inspection is requested.
+- [x] `AGENTS.md`, `docs/agent-truth/current-operator-doctrine.md`, and `REPO_MEMORY_LEDGER.md` now point UI/copy doctrine consultation to the active `.agent/skills/doctrine-consultation.md` and `.agent/workflows/ui-copy-refinement-workflow.md` paths instead of stale root-level `.agent` paths.
+- [x] `docs/agent-truth/current-operator-doctrine.md`, `REPO_MEMORY_LEDGER.md`, and `FULL_SCALE_CODEBASE_AUDIT.md` now explicitly accept the audit's source-first/deletion-first analytics posture while rejecting wholesale doctrine replacement unless a validator-backed migration retires current consumers.
+- [x] External beta score values, hosted GitHub source observations, and commit-history summaries are now recorded as planning signals only until current local source or formal evidence artifacts verify them.
+- [x] Manual proof counters are now required to collapse into typed source states such as source_missing, bridge_missing, materializer_missing, route_contract_missing, selector_missing, fixture_missing, external_proof_required, runtime_proof_required, or admin_truth_required when local source can identify the lane.
+- [x] Source-first UI/admin proof is now explicitly separated from formal runtime/provider/admin evidence: browser smoke, screenshots, and test-account sessions are optional diagnostics for local readiness, while formal deployed runtime smoke, provider smoke, admin truth samples, payment/wallet/entitlement/GumDrop source-of-funds proof, creator revenue proof, and deployment evidence remain typed artifact gates when required.
+- [x] `.agent/workflows/pre-commit.md`, `.agent/workflows/auto-tasks.md`, and `.agent/workflows/simulate-ui.md` now route routine UI/admin verification through source coverage/runtime contracts first and document `check:ui:audits` and `check:ui:lighthouse` as promoted browser diagnostics, not the default source-readiness or beta-exit gate.
+- [x] `.agent/workflows/pre-commit.md` now starts broad pre-commit orientation with compact task context and escalates to the large ledgers only when broad startup, governance/tooling/shared helpers, or unresolved source ownership requires it.
+- [x] `.agent/workflows/sync-ledgers.md` now treats large-ledger synchronization as an explicit governance/ledger maintenance lane, not mandatory writeback for ordinary source fixes.
+- [x] `docs/agent-truth/public-beta-score.md` now avoids loose visual/manual evidence wording as a default beta readiness gate; browser or visual diagnostics are optional reproduction unless a current formal runtime contract promotes them.
+- [x] `memory.md`, `REPO_MEMORY_LEDGER.md`, and `FULL_SCALE_CODEBASE_AUDIT.md` record that runtime, provider, and admin truth proof must be typed, schema-backed external evidence while local source readiness comes from source validators, route contracts, selectors, hydration markers, client-error fixtures, and fixture-backed source reports.
+- [x] `AGENTS.md`, `docs/agent-truth/current-operator-doctrine.md`, `REPO_MEMORY_LEDGER.md`, and `memory.md` now clarify that local admin fixtures and generated source-report loaders clear source-readiness only; they do not become deployed runtime smoke, provider smoke, payment proof, admin truth sample proof, or production operator proof.
+- [x] `.agent/skills/doctrine-consultation.md` and `.agent/workflows/ui-copy-refinement-workflow.md` now use compact context, current operator doctrine, surface-specific doctrine, source owners, telemetry/admin/debug paths, and source validators before optional browser reproduction.
+- [x] Admin truth sample evidence is structured-artifact first: redacted JSON/source sample, route/report key, freshness, sample count, and source-state labels. Screenshots are optional context only and cannot clear admin truth by themselves.
+- [x] Repo posture consolidation now routes through the existing doctrine hierarchy and current operator doctrine. A new `agent/objectives` authority stack is disallowed unless a focused migration updates consumers and retires superseded doctrine/report/script lanes in the same slice.
+- [x] `.agent/workflows/auto-tasks.md` now labels GitHub PR commands, `git push`, browser audits, Lighthouse, Firebase rules checks, provider checks, deploy-adjacent checks, and full `npm run check` as promoted or explicitly scoped menu items, not automatic source-readiness authority.
+
+## 2026-06-19 Recovery Timeline Holdback Coverage
+
+- [x] `src/lib/analytics/recovery-timeline-spine.ts` now separates launch-critical canonical mapping coverage from observed first-party/source coverage and emits per-family source states.
+- [x] `buildLaunchCriticalRecoveryCoverageReport` now keeps observed first-party/server-owned source evidence ahead of modeled/GA corroboration for `strongestSourceTruth`, `strongestEvidenceKind`, confidence, and product-truth eligibility.
+- [x] `buildLaunchCriticalCatalogCoverage` validates launch-critical family mapping against the catalog-derived telemetry manifest while keeping catalog support distinct from observed source coverage and runtime proof.
+- [x] `scripts/agent/validate-recovery-timeline-spine.ts`, `tests/unit/recovery-timeline-spine.spec.ts`, and `agent/state/recovery-timeline-spine.generated.json` validate that GA/Google modeled evidence is calibration-only and cannot clear the 95% observed first-party source coverage floor.
+- [x] `src/lib/server/admin-analytics-historical-validation.ts`, `src/types/admin-analytics.ts`, `scripts/agent/validate-analytics-panel-hydration.ts`, `scripts/rebuild-analytics-truth.ts`, and related tests now expose event-family coverage in Admin Analytics launch history and dry-run rebuild output.
+- [x] Active source-code coverage now uses explicit first-party/server event names for broad families. Raw GA/evidence aliases such as `purchase` remain catalog/evidence mappings but cannot by themselves prove active purchase source coverage.
+- [x] `buildLaunchHistoryDayRecoveryState` in `src/lib/analytics/recovery-timeline-spine.ts` now owns day-level launch source states, confidence, source truth, freshness, evidence kind, dedupe key, missing-vs-zero reason, and late-arrival metadata for both Admin Analytics and generated launch recovery reports.
+- [x] `buildLaunchCriticalRecoveryCoverageFromEvidence` in `src/lib/analytics/recovery-timeline-spine.ts` now owns the event-family coverage assembly for launch day rows plus first-party/source evidence, replacing duplicate report/server formulas.
+- [x] `scripts/agent/validate-recovery-timeline-spine.ts` exercises the same central event-family coverage helper instead of keeping a script-local assembly example.
+- [x] `buildFormalLaunchHistoryDayRecoveryState` in `src/lib/analytics/recovery-timeline-spine.ts` now owns formal launch day rows, including local evidence-window rows and outside-evidence-window rows with null unknown source counts, source_missing metadata, dedupe keys, and late-arrival metadata.
+- [x] `buildFormalLaunchRangeRecoveryState` in `src/lib/analytics/recovery-timeline-spine.ts` now owns February-to-current formal range math, local evidence ranges, unproven ranges, approved coverage day counts, formal dayCoverage rows, and unproven day counts.
+- [x] `buildLaunchRecoverySourceGateState` in `src/lib/analytics/recovery-timeline-spine.ts` now owns source-gate clearance, source gate reason, and all-launch proof reason so generated reports cannot locally relax formal launch proof.
+- [x] `buildLaunchHistoryCoverageSummaryState` in `src/lib/analytics/recovery-timeline-spine.ts` now owns recovered day counts, evidence-observed counts, product-truth recovered counts, second-source/fallback-only counts, first/last recovered day, first-party coverage state, launch coverage state, product-truth promotion, and coverage reasons.
+- [x] `scripts/agent/validate-analytics-panel-hydration.ts` now calls the central formal range and source-gate helpers instead of hand-building outside-evidence-window launch day objects or source-gate reasons.
+- [x] `FULL_SCALE_CODEBASE_AUDIT.md` and `REPO_MEMORY_LEDGER.md` record that recovered launch charts remain blocked until first-party/server-owned coverage or approved formal evidence proves the missing February-to-current range.
 
 ## 2026-05-14 Repo Spring Cleaning Rewire Inventory Coverage
 

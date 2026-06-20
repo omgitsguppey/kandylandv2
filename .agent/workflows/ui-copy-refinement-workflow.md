@@ -1,33 +1,49 @@
 # Workflow: UI & Copy Refinement
 
-**Purpose:** To codify the exact loop required when refining or modifying any user-facing UI, copy, or product interaction. **Improvisational "just make it better" changes are strictly forbidden.**
+**Purpose:** Keep UI, copy, and product-facing state changes source-first and doctrine-bound. Improvisational "just make it better" changes are forbidden.
 
-## Step 1: Inspect Surface
-*   Identify the exact React components and CSS files responsible for the surface.
-*   Understand the current state handling.
+## Step 1: Build Compact Context
 
-## Step 2: Consult Doctrine
-*   **MANDATORY:** Execute the `doctrine-consultation` skill.
-*   Read the relevant entries in the `/docs/doctrine` directory.
+- Use `npm run agent:fast-start -- --task="<task>" --mode=<mode> --file=<entrypoint>` or `npm run optimize:doctrine-context -- --task "<task>" --changed <path>` when the task is not already covered by a fresh context pack.
+- Read `docs/agent-truth/current-operator-doctrine.md` for admin truth, analytics/source-state, screenshot/browser-proof, or external-audit work.
 
-## Step 3: Identify State Owner
-*   Determine what hook, context, or data fetcher owns the state for this UI.
-*   Ensure that any new states (loading, error, empty) are handled truthfully.
+## Step 2: Inspect Surface
 
-## Step 4: Identify Telemetry Path
-*   Determine if this UI interaction triggers an analytics event.
-*   If you are changing the conversion flow, you must account for the telemetry implications.
+- Identify the exact React components, hooks, data fetchers, API routes, and source contracts responsible for the surface.
+- Identify whether the change is User UI, Creator UI, Admin UI, Server Truth, or Shared Brand Primitives before choosing doctrine.
 
-## Step 5: Identify Admin/Audit Path
-*   Determine how an admin verifies the state of this UI. Does it report to `AdminTruthSurfaces` or the `_system` feed?
+## Step 3: Consult Doctrine
 
-## Step 6: Patch
-*   Make the code changes using exact vocabulary from `kandydrops-vocabulary-index.md`.
-*   Enforce UI density and hierarchy rules from `kandydrops-ui-doctrine.md`.
+- Follow `.agent/skills/doctrine-consultation.md`.
+- Read only the specific surface doctrine and copy/vocabulary files needed for the task.
+- Do not open the whole doctrine library unless compact context, source inspection, or a validator leaves a real conflict unresolved.
 
-## Step 7: Verify
-*   Ensure the Typescript compiler and ESLint copy-contract rules pass.
-*   Verify the aesthetic matches the "premium candy-coded" mandate.
+## Step 4: Identify State Owner
 
-## Step 8: Report
-*   Document exactly which doctrine rules were applied and why the change was necessary in the task/walkthrough artifact.
+- Determine what hook, context, data fetcher, server route, or generated source report owns the state.
+- Loading, empty, error, unavailable, cached, refresh_due, source_missing, bridge_missing, materializer_missing, permission_blocked, and external_proof_required must remain distinct. Missing is not zero.
+
+## Step 5: Identify Telemetry Path
+
+- Determine if the UI interaction triggers or displays analytics.
+- Components may call semantic helpers, but they must not own retry, cadence, queueing, privacy, identity, or duplicate metric behavior.
+
+## Step 6: Identify Admin/Audit Path
+
+- Determine how Admin Debug or the owning validator sees the state.
+- Source validators, route contracts, selectors, hydration markers, fixtures, and client-error evidence should report broken modals or disconnected actions before browser reproduction.
+
+## Step 7: Patch Or Classify
+
+- Make the smallest connected change, remove/demote stale UI, or classify the formal evidence blocker.
+- Use existing doctrine vocabulary and source-state labels.
+- Browser smoke, screenshots, and test accounts are optional diagnostics unless a formal runtime evidence contract explicitly promotes them.
+
+## Step 8: Verify
+
+- Run the targeted source validator/test lane for the touched surface.
+- Use browser audits only when source findings, selector policy, current doctrine, or the operator explicitly asks for reproduction.
+
+## Step 9: Report
+
+- Document the doctrine files applied, source owner, telemetry/admin/debug impact, verification lane, and any formal runtime/provider/admin evidence that remains outside source proof.

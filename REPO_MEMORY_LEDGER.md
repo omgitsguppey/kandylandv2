@@ -1,8 +1,96 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-05-02
-Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
+Last refreshed: 2026-06-20
+Repo: `C:\Users\uylus\Documents\KandyDrops_Final`
+
+## 2026-06-19 Source-first evidence and consolidation doctrine memory
+
+The 2026-06-19 external audit was accepted as planning input only. It does not prove local tests pass, runtime is healthy, or gates can clear. Future work should use it to reduce sprawl through current source authority, not to add another objective stack, doctrine family, generated report family, validator lane, package-script surface, or UI panel.
+
+The June 2026 GPT source audit follows the same boundary: it is a GitHub/source review, not local runtime or test proof. Its reduction targets are cleanup pressure only. Future agents must convert each recommendation into a bounded source slice, prove consumers/imports/report keys before retiring anything, keep formal runtime/provider/admin evidence gates intact, and avoid adding new validators or generated reports unless the same slice retires the duplicate owner.
+
+Source-first UI/admin proof is the default. The codebase should report broken modals, disconnected actions, missing selectors, hydration gaps, stale truth labels, fixture gaps, route-contract gaps, source_missing, bridge_missing, materializer_missing, runtime_proof_required, provider/external_proof_required, and admin_truth_required before anyone needs screenshots or a logged-in browser session. Browser smoke, screenshots, and test-account sessions remain optional diagnostics unless a formal runtime evidence contract explicitly promotes them. They do not clear source, runtime, provider, admin truth, payment, wallet, entitlement, GumDrop source-of-funds, creator revenue, or deployment gates.
+
+Local workflow notes must match that boundary. Routine UI/admin verification starts with source coverage, route/runtime contracts, selectors, hydration markers, fixtures, and client-error evidence. `check:ui:audits` and `check:ui:lighthouse` are promoted browser reproduction only when doctrine, selector output, a concrete source finding, or the operator explicitly asks for browser evidence.
+
+Known implementation follow-up: some generated selectors, index descriptions, or package-script metadata may still phrase browser smoke, Playwright, Lighthouse, screenshots, or authenticated sessions as required signoff. Until a focused tooling slice corrects those selectors, current operator doctrine wins: those commands are optional diagnostics or formally promoted runtime evidence only, not the default source-readiness gate.
+
+Do not churn historical or generated report docs merely to rewrite stale screenshot/browser-proof wording. Generated reports are evidence snapshots, and older docs lose to current operator doctrine when they conflict. Refresh, retire, or rewrite a report only through its owning validator/report lane, with consumer and gate checks proving the change is useful.
+
+Local admin fixtures, source-report loaders, selector probes, hydration markers, route contracts, and client-error fixtures are source-readiness evidence only. They are how the codebase should tell on broken modals, disconnected actions, stale labels, fixture gaps, and hydration holes before a human looks at the site, but they must not be relabeled as deployed runtime smoke, provider smoke, payment proof, admin truth sample proof, or production operator proof without a separate schema-backed formal artifact.
+
+Doctrine consultation is compact-first. `.agent/skills/doctrine-consultation.md` and `.agent/workflows/ui-copy-refinement-workflow.md` should route through generated task context, current operator doctrine, surface-specific doctrine, source owners, telemetry/admin/debug paths, and source validators before optional browser reproduction. Stale `view_file` instructions or old broad doctrine reads are not the default path.
+
+Admin truth sample evidence is structured-artifact first. A valid admin truth sample must be redacted and machine-readable, with route/report key, source freshness, sample count, source-state labels, and an artifact path consumed by the owning validator. Screenshots may accompany the sample only as visual context after the source lane identifies the issue; screenshots alone cannot clear admin truth, runtime, provider, source, payment, wallet, entitlement, GumDrop source-of-funds, creator revenue, or deployment gates.
+
+Measurement truth uses the local vocabulary `observed`, `modeled`, `inferred`, `cached`, `missing`, `privacy_limited`, `late_arriving`, and `external_proof_required`. Missing is not zero. Verified hot-cache data inside its trust contract is cached/refresh_due/last updated, not stale. GA4, legacy analytics, and recovery evidence may corroborate or explain gaps, but cannot create product truth, wallet truth, entitlement truth, creator revenue truth, or source-of-funds truth. Use `modeled` as the canonical spelling; treat `modelled` as a legacy/external alias at the boundary.
+
+Official Google/YouTube measurement docs can inspire evidence posture but never override local contracts. GA4 modeled key events/behavioral modeling, delayed attribution/freshness, and YouTube visible-impression definitions must be normalized into KandyDrops-owned source states, confidence, dedupe, and source-role metadata before they affect Admin Analytics or recovery reports.
+
+Consolidation is deletion-first but not reckless. Before deleting, retiring, or relabeling docs, reports, scripts, validators, panels, or evidence gates, search imports, callers, package scripts, report keys, release gates, score gates, and Admin Debug consumers. Numeric targets from audits are cleanup pressure only, not acceptance criteria. A lane can retire only when local source proves it is duplicate, superseded, archive-only, disconnected, or safely replaced by an existing canonical owner.
+
+Package-script and validator cleanup should reduce independent truth owners, not just hide commands. Keep human aliases only when they route to a canonical registry, selector, or owner manifest. Retire stale aliases, generated outputs, and report docs in the same source slice that proves their owner has moved or been superseded.
+
+Audit-driven cleanup should leave one coordinated body behind: compact context for startup, current operator doctrine for current posture, surface doctrine for UI/server conflict winners, canonical source modules for runtime truth, generated reports as evidence snapshots, and formal artifacts for runtime/provider/admin proof. If multiple docs, scripts, generated reports, UI panels, or validators describe the same truth, merge callers into the canonical owner and retire, demote, or archive the weaker lane instead of creating another arbiter.
+
+Accepted follow-up direction: make browser/admin smoke optional unless formally promoted; replace generic manual/screenshot blockers with typed source or artifact states; make creator/admin create-drop validation visible in collapsed forms; remove disconnected AI generation panels from core admin create/drop UI; keep AI repair UI action-first; route client telemetry through the canonical event catalog, `trackEvent`, identity handoff, and materializer owners; consolidate doctrine/report/script lanes only after consumer searches prove retirement is safe.
+
+The external audit's concrete cleanup targets are issue candidates, not permission to sweep. Future agents should convert them into source slices in this order when coding resumes: source-first admin smoke boundary; creator/admin Drop creation collapsed-section validation and disabled-reason clarity; AI generation panel removal from ordinary admin create/drop runtime; Admin AI/debug action-first display; telemetry/analytics consolidation through existing catalog, translation bridge, identity handoff, recovery spine, and materializers. Each slice must list allowed files, forbidden protected surfaces, existing owners, consumer searches, targeted validators, and what evidence remains formal runtime/provider/admin proof.
+
+Rejected follow-up direction: do not replace the active Product/Source/Engineering/Surface doctrine hierarchy, AGENTS routing, doctrine registry/cards, current operator doctrine, generated context, package scripts, score gates, or Admin Debug readers with `agent/objectives/*` or another high-level truth stack unless a validator-backed migration updates consumers and retires old lanes in the same slice. Do not delete active evidence gates or protected-domain safeguards for percentage targets.
+
+Compact context remains the startup default. Future agents should start with git status plus `agent:fast-start` or `optimize:doctrine-context`, then read generated task context, verification plan, surface map, and relevant doctrine cards. The large ledgers (`FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md`) are escalation evidence when compact context marks broad startup as required, when work changes governance/tooling/shared helpers, or when source inspection leaves ownership unresolved.
+
+Durable memory writeback should shrink noise, not create it. Update `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, or `EVERY_FILE_FUNCTION_CHECKLIST.md` only when a pass changes doctrine/governance, promotes or retires an owner/validator lane, changes verification policy, or an owning validator explicitly requires memory writeback. Ordinary focused source fixes should rely on the source diff, targeted tests, commit message, and owning compact report rather than adding another broad ledger entry.
+
+The ledger-sync workflow is now explicit maintenance, not a default source-fix ritual. Use it only for real ledger synchronization or governance/owner/verification-policy changes; otherwise leave broad ledgers untouched.
+
+Control Tower remains the gateway for UI, copy, state, telemetry, and admin truth work, but it now routes through compact context first. Do not follow old fixed-read-order language as a reason to open every Control Tower and doctrine file for narrow work. Open the specific Control Tower file, doctrine card, source-of-truth map, or checklist only when the task pack, surface map, owner lookup, or validator requires it.
+
+Root `AGENTS.md` now mirrors that conflict rule: `docs/agent-truth/current-operator-doctrine.md` outranks broad historical ledgers for Phase 1 operator workflow, source-first proof, and external-audit intake, and Control Tower routing starts from compact context before opening the selected Control Tower entry. If a future prompt or old workflow says to start by reading every Control Tower/doctrine file, treat that as stale wording unless a current generated task context or validator explicitly escalates.
+
+Public beta score and pre-commit doctrine must use the same boundary. Browser or visual diagnostics are optional reproduction unless a current formal runtime contract promotes them. Do not describe loose visual/manual evidence as a default readiness gate. Runtime, provider, and admin truth proof must be typed, schema-backed external evidence, while local source readiness should come from source validators, route contracts, selectors, hydration markers, client-error fixtures, and fixture-backed source reports.
+
+Public Beta release notes track accepted release bundles, not raw commits. Focused source/config/UI patches do not automatically update the Beta badge unless the operator accepts them into the public release-note bundle. Release-note-only recovery commits remain `[skip release-notes]` work and must not create another Beta badge loop.
+
+External-audit commit names, score values, package-script inventories, and UI-state claims are never memory truth by themselves. Re-check them against local `git log`, `package.json`, source imports, generated artifacts, and the owning validator before using them in a fix, report, release note, Admin Debug surface, or beta-exit claim.
+
+Workflow command lists are command menus, not automatic authority. GitHub PR inspection, PR close/merge commands, `git push`, browser audits, Lighthouse, Firebase rules checks, provider checks, deploy-adjacent checks, and full `npm run check` are promoted or explicitly scoped lanes only. Missing GitHub/network/browser output should be classified as optional diagnostic, external_evidence_required, or tooling debt, not as a local source-readiness failure. The `.agent/workflows/auto-tasks.md` menu now says this directly.
+
+## 2026-06-19 Analytics recovery launch-range memory
+
+Formal launch analytics recovery starts at `2026-02-12`, not the later May fixture window. This date is source-backed by the public sitemap fallback last-modified value and platform terms date. May evidence rows are local sample/recovery evidence only unless an approved all-range export or redacted admin truth sample proves a wider range. Future agents must not narrow all-launch proof back to `2026-05-01` just because current fixture rows or launch-finalization docs were generated on May 1.
+
+Recovery reports must keep the February-to-now formal range explicit, with days outside approved evidence windows marked source_missing/unknown and source counts null or missing, never zero. First-party `analytics_event_facts` remains primary product truth; GA4 remains second-source evidence only; historical snapshots and legacy rows remain fallback/recovery evidence only. Source-only recovery can update local generated snapshots and dry-run rebuild summaries, but it cannot clear runtime, provider, admin truth, payment, wallet, entitlement, GumDrop source-of-funds, or creator revenue gates.
+
+Launch-critical recovery coverage now has two separate truths: canonical event-family mapping and observed first-party/source coverage. A family can be mapped while still lacking first-party evidence. GA/Google modeled evidence and legacy inferred evidence can calibrate confidence and explain gaps, but they do not clear the 95% observed first-party recovery calibration floor and do not make recovered launch charts product-truth eligible. Future agents must preserve `familySourceStates`, `observedFirstPartyCoveragePercent`, `sourceCoverageStatus`, and holdback validation fields when touching `buildLaunchCriticalRecoveryCoverageReport`.
+
+When both first-party source evidence and modeled/GA corroboration exist for the same launch-critical family, first-party source truth wins. Do not let a higher-looking modeled metric or second-source day row overwrite `strongestSourceTruth`, `strongestEvidenceKind`, `confidenceScore`, or `productTruthEligible` for an observed family. Modeled/GA evidence can remain corroboration, but the recovery spine must report the family as observed first-party/server-owned when that source exists.
+
+Launch-critical catalog mapping must be checked against the catalog-derived telemetry manifest, not by hardcoded confidence. `buildLaunchCriticalCatalogCoverage` proves whether each family has at least one supported telemetry event or alias. A family can be catalog-mapped and still source-missing; a manifest-backed `13/13` catalog mapping does not clear the `95%` observed first-party/source coverage floor or formal runtime/provider/admin evidence gates.
+
+Admin Analytics launch history and `analytics:truth:rebuild` must surface the same event-family coverage truth. It is acceptable and expected for the dry-run summary to show `13/13` launch-critical families canonically mapped while only `1/13` is observed from first-party page-view day evidence. That is a blocked source-coverage state, not a zero and not a telemetry catalog failure. Future work should add actual first-party/server-owned family evidence before promoting launch charts, not average GA/legacy evidence into the gap.
+
+`check:analytics-panel-hydration`, `check:metric-canonicalization-legacy-recovery`, `check:count-deduplication-normalization`, and `check:recovery-timeline-spine` now pass for the current recovery lane. This does not clear the February-to-current launch source gate: `analytics:truth:rebuild` still reports `13/13` launch-critical families canonically mapped but only `1/13` observed from the current first-party launch-history evidence artifact. Treat the remaining gap as missing all-range first-party/admin truth evidence, not as zero and not as a catalog-mapping failure.
+
+Active source-code coverage is now a separate launch recovery signal from historical launch proof. `buildLaunchCriticalActiveSourceCoverageReport` and `check:analytics-panel-hydration` can prove that all 13 launch-critical families still have current first-party/server emitters or materializers in source, but that proof cannot clear historical February-to-now rows, runtime proof, provider proof, or admin truth samples. Future agents must not promote charts just because active source coverage is 100%; all-range first-party/admin truth evidence is still required.
+
+Raw GA/evidence vocabulary must not inflate active source coverage. The purchase family keeps raw `purchase` as a GA/evidence/catalog mapping, but active source-code coverage counts only concrete first-party/server names such as `gumdrops_purchase_completed`, `checkout_completed`, and `server_purchase_verified`. If another broad alias appears in a launch-critical family, add an explicit active-source event-name set rather than letting generic text matches prove coverage.
+
+Day-level launch recovery source state is centralized in `buildLaunchHistoryDayRecoveryState` under `src/lib/analytics/recovery-timeline-spine.ts`. Generated launch recovery reports and server Admin Analytics history must call that helper instead of carrying local formulas for `sourceTruthState`, confidence, `sourceTruth`, `freshnessState`, `evidenceKind`, dedupe keys, missing-vs-zero messaging, or late-arrival metadata. Source counts are numeric evidence counts, not boolean presence flags. If a future pass changes day-level semantics, update the recovery spine first and let report/admin callers inherit it.
+
+Launch-critical event-family recovery coverage is centralized in `buildLaunchCriticalRecoveryCoverageFromEvidence`. Report generators and Admin Analytics server code should pass launch-history day rows plus source-evidence counts into that helper instead of separately composing observed event names, recovered day metrics, and source-evidence recovered metrics. This keeps first-party page-view day recovery, GA/cached/legacy evidence, purchase/unlock/viewer/watch source counts, confidence bands, holdback status, and product-truth eligibility behind one recovery-spine owner.
+
+The recovery-spine validator should also exercise `buildLaunchCriticalRecoveryCoverageFromEvidence` for integrated launch-family coverage. Lower-level helpers may stay directly tested in `tests/unit/recovery-timeline-spine.spec.ts`, but scripts and callers should not recreate the assembly unless the test is explicitly proving lower-level behavior.
+
+Formal February-to-current launch day rows are centralized in `buildFormalLaunchHistoryDayRecoveryState`. Report generators must call that helper for both local evidence-window days and outside-evidence-window days instead of hand-building `formalEvidenceState`, `sourceCountsKnown`, null source counts, source-truth labels, confidence, dedupe keys, or next actions. Outside evidence windows must keep source counts as `null` because the source is unknown, not zero, while still exposing source_missing/freshness/evidence/dedupe/late-arrival metadata from the recovery spine.
+
+Formal February-to-current launch range math is centralized in `buildFormalLaunchRangeRecoveryState`. Report generators must pass launch start day, generated time, proof state, local evidence day keys, and local day rows into that helper instead of locally computing formal end day, expected day count, approved coverage days, local/unproven ranges, dayCoverage, or unproven day counts. A local evidence window must not narrow the formal launch range; all-range proof is required before `all_launch_range_proven` or approved coverage can clear source recovery.
+
+Launch recovery source-gate math is centralized in `buildLaunchRecoverySourceGateState`. Report generators must call that helper for `canClearSourceGate`, source gate reason, and all-launch proof reason instead of locally composing the pass condition or proof wording. Source recovery clears only when local evidence exists, evidence is current, all-launch range proof exists, launch coverage and first-party coverage are available, and source agreement passes. Fixture/local evidence, stale evidence, GA4/fallback-only evidence, source disagreement, or partial launch coverage must remain blocked with the exact reason.
+
+Launch-history coverage summary math is centralized in `buildLaunchHistoryCoverageSummaryState`. Report generators must call that helper for recovered day counts, evidence-observed day counts, product-truth recovered day counts, second-source-only and fallback-only counts, first/last recovered day, first-party coverage state, launch coverage state, first-party product-truth promotion, and coverage reasons. Do not reintroduce local formulas in `validate-analytics-panel-hydration` or Admin Analytics readers. GA4, historical snapshots, and legacy support may explain coverage, but first-party product truth must remain missing/partial until first-party coverage and source agreement pass.
 
 ## 2026-05-28 Identity inflight recovery and lock memory
 
@@ -42,7 +130,7 @@ Config, deployment, environment, CI, package-script, middleware, Firebase rules,
 
 ## 2026-05-14 Repo doctrine reset and source-truth cleanup
 
-KandyDrops now has a current operator doctrine consolidation lane. `docs/agent-truth/current-operator-doctrine.md` is the Phase 1 operator workflow authority for direct fix mode, screenshot-first source-rooted debugging, full source-to-UI loop closure, no additive patch stacking, UI/button/action closure, measurement source-of-truth tracing, metric cadence/math precision, watch-time truth, creator feature connection truth, Admin Debug/Admin Analytics separation, public beta score evidence truth, release-note skip-loop behavior, cost/race guardrails, and required future Codex prompt structure. `scripts/agent/validate-repo-doctrine-reset.ts`, `agent/state/repo-doctrine-reset.generated.json`, package script `check:repo-doctrine-reset`, and `tests/unit/repo-doctrine-reset.spec.ts` validate the lane. Older Phase 1 triage docs are kept as evidence/archive where focused fixes have already superseded them.
+KandyDrops now has a current operator doctrine consolidation lane. `docs/agent-truth/current-operator-doctrine.md` is the Phase 1 operator workflow authority for direct fix mode, source-first UI/admin debugging, full source-to-UI loop closure, no additive patch stacking, UI/button/action closure, measurement source-of-truth tracing, metric cadence/math precision, watch-time truth, creator feature connection truth, Admin Debug/Admin Analytics separation, public beta score evidence truth, release-note skip-loop behavior, cost/race guardrails, and required future Codex prompt structure. `scripts/agent/validate-repo-doctrine-reset.ts`, `agent/state/repo-doctrine-reset.generated.json`, package script `check:repo-doctrine-reset`, and `tests/unit/repo-doctrine-reset.spec.ts` validate the lane. Older Phase 1 triage docs are kept as evidence/archive where focused fixes have already superseded them.
 
 ## 2026-05-14 Repo spring-cleaning rewire inventory
 
@@ -154,7 +242,7 @@ KandyDrops hardening is deterministic first. Agents must score and target the af
 
 ## 2026-05-04 Device UI dry audit
 
-Device UI dry auditing is a deterministic source-level prediction system. It does not replace screenshots, but it catches known KandyDrops device physics violations before runtime: safe areas, bottom nav, top nav, chat focus, modal density, preview CTA placement, drop grid behavior, image loading, touch targets, and debug truth markers. `src/lib/device-ui-dry-audit-rules.ts` owns device profiles, display modes, surface ownership, severity penalties, and command budget. `src/lib/device-ui-dry-audit.ts` owns the hardcoded source scanner and score report. `npm run score:device-ui` writes `agent/state/device-ui-dry-audit.generated.json`; `npm run check:device-ui` validates schema, scores, critical auto-fail, forbidden-command isolation, docs, package scripts, and autofix confidence.
+Device UI dry auditing is the source-first UI issue detector. Browser screenshots are optional reproduction after source coverage reports a concrete risk, not the first-pass gate and not beta-exit authority. The dry audit catches known KandyDrops device physics violations before runtime: safe areas, bottom nav, top nav, chat focus, modal density, preview CTA placement, drop grid behavior, image loading, touch targets, and debug truth markers. `src/lib/device-ui-dry-audit-rules.ts` owns device profiles, display modes, surface ownership, severity penalties, and command budget. `src/lib/device-ui-dry-audit.ts` owns the hardcoded source scanner and score report. `npm run score:device-ui` writes `agent/state/device-ui-dry-audit.generated.json`; `npm run check:device-ui` validates schema, scores, critical auto-fail, forbidden-command isolation, docs, package scripts, and autofix confidence.
 
 ## 2026-05-04 Sitewide image loading policy
 
@@ -234,7 +322,7 @@ KandyDrops debug evidence is structured, fingerprinted, stored, and injected int
 
 ## 2026-05-03 Mathematical public beta scoring
 
-KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a finding explicitly escalates to runtime visual verification. The shared scoring model lives under `src/lib/agent-score/*`; it weights layout, hydration, economy, telemetry, content protection, orphaned logic, accessibility touch, and testing coverage findings with severity, confidence, recency, and blast-radius penalties. `repair:beta` is dry-run by default and can apply only exact high-confidence safe fixes outside payment/auth/economy/unlock/content enforcement.
+KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a source finding explicitly escalates to optional runtime visual reproduction. Browser smoke may diagnose a reported issue, but it must not clear source, runtime, provider, admin truth, or payment gates. The shared scoring model lives under `src/lib/agent-score/*`; it weights layout, hydration, economy, telemetry, content protection, orphaned logic, accessibility touch, and testing coverage findings with severity, confidence, recency, and blast-radius penalties. `repair:beta` is dry-run by default and can apply only exact high-confidence safe fixes outside payment/auth/economy/unlock/content enforcement.
 
 ## 2026-05-03 Paid package bonus source-of-funds truth
 
@@ -850,11 +938,11 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/lib/server/ephemeral-route-cache.ts` provides a stale-while-revalidate route cache with validation and in-flight refresh deduping.
   - `/api/admin/analytics/historical` wraps scoped historical responses in that validated backend cache and returns `cacheState`, `cacheAgeMs`, `cacheSourceLabel`, validation issues, and refresh state.
   - `src/lib/admin-parity.ts`, `AdminStatusBadge`, and `AdminModuleVerificationCard` recognize `[cached]` as distinct from `[live]`, `[fallback]`, and `[stale]`.
-  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` surfaces healthy fresh cache hits as `[cached]` and stale cache hits as `[stale]`.
+  - Superseded by 2026-06-19 doctrine: verified hot-cache snapshots inside their trust contract should surface as `[cached]` or `[refresh_due]`; reserve `[stale]` for expired, source-invalid, or untrustworthy evidence.
 - Consequence for future work:
   - Do not label cached historical analytics as live.
   - Any new admin backend cache must validate payload shape and expose source state to the UI.
-  - Stale-while-revalidate behavior is acceptable only when stale state and refresh status remain visible to admins.
+  - Stale-while-revalidate behavior is acceptable only when cache state and refresh status remain visible to admins; verified cache age alone is not truth failure.
 
 ### 1bi. Legacy page rollups must recover date and view fields before estimation
 
@@ -1534,7 +1622,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Decision made: Add `agent/index/ui-surface-coverage.json` as the canonical machine-readable UI coverage ledger, generate it from repo truth, and require UI-sensitive work to use the generated coverage/runtime lanes before signoff.
 - What became canonical:
   - `agent/index/ui-surface-coverage.json` is the repo-native record of concrete UI surfaces, coverage ownership, hydration mode, runtime canary state, and blocking audit eligibility
-  - `npm run agent:ui-index`, `npm run check:ui:coverage`, and `npm run check:ui:runtime` are required UI continuity lanes alongside existing `check:ui:audits` and `check:ui:lighthouse`
+  - `npm run agent:ui-index`, `npm run check:ui:coverage`, and `npm run check:ui:runtime` are the required source-first UI continuity lanes; `check:ui:audits` and `check:ui:lighthouse` are promoted diagnostic/signoff lanes only when source findings, selector policy, current doctrine, or an explicit human request requires browser-based reproduction
   - blocking public UI surfaces must have generated audit ownership, and missing coverage is a signoff failure
   - the first hardening wave uses `src/lib/ui-continuity.ts` and `src/components/ui/UiContinuityNotice.tsx` for per-module settled loading, visible warnings, and client diagnostics instead of silent all-or-nothing hydration
 - Truth lives in:
@@ -2738,20 +2826,19 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: RTDB presence reads are currently authenticated-wide rather than participant-scoped, and there is no dedicated RTDB-rules test suite yet.
 
-### 32. Broad UI reviews require dated screenshot evidence packets
+### 32. Broad UI review screenshot packets are historical optional reproduction
 
 - Approximate date: Canonicalized and recorded on 2026-04-08
-- Status: Active workflow rule
+- Status: Superseded by 2026-06-19 source-first evidence doctrine
 - Problem/context: Automated UI audits catch regressions, but they do not produce a clean human review packet for desktop, tablet, and mobile. Prior screenshot evidence also accumulated as mixed timestamped folders plus loose top-level images, which made cross-run review noisy and inconsistent.
-- Decision made: Broad UI audits now produce one dated evidence packet under `qa-screenshots/ui-review-YYYY-MM-DD/` with separate `desktop`, `tablet`, and `mobile` page/component screenshots, a capture manifest, contact sheets, and a written review.
+- Decision made: Historical broad UI audits could produce one dated evidence packet under `qa-screenshots/ui-review-YYYY-MM-DD/` with separate `desktop`, `tablet`, and `mobile` page/component screenshots, a capture manifest, contact sheets, and a written review. This is no longer a required beta-exit gate or first-pass detector. Source coverage, route contracts, hydration markers, and debug/error evidence must report a concrete UI issue before browser/screenshot reproduction is requested.
 - What became canonical:
-  - `qa-screenshots/` is the tracked evidence root for manual UI review packets
-  - each visual audit run gets one dated folder
-  - the packet must separate pages from components and separate device classes from each other
+  - UI issue discovery is source-first; screenshots are optional reproduction artifacts only
+  - if screenshots are explicitly requested, `qa-screenshots/` remains the organized review-packet root
   - failed or unavailable captures must be recorded truthfully rather than faked
-  - broad UI signoff should include both automated UI audits and a human-readable screenshot packet when layout/polish work is material
+  - screenshot packets do not clear source, runtime, provider, admin truth, payment, or beta-exit gates
 - What is now disallowed or deprecated:
-  - leaving a broad UI pass without a clean dated evidence packet
+  - blocking broad UI/source readiness solely because no screenshot packet exists
   - mixing duplicate viewport/full-page images of the same surface into the same run
   - leaving partial screenshot runs or loose temporary artifacts in the review folder after signoff
 - Truth lives in:
@@ -3405,4 +3492,3 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   "preventingValidator": "check:identity-mismatch-closure"
 }
 ```
-
