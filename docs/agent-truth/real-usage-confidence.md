@@ -6,9 +6,9 @@ Status: source-only confidence engine. It does not read production data, call pr
 
 - Overall status: source_ready_real_usage_confidence
 - Passed: true
-- Confidence score: 92/100
-- Observed operator-confirmed signals: 1
-- Source-ready signals: 7
+- Confidence score: 72/100
+- Observed proof signals: 0
+- Source-ready signals: 8
 - Ignored unknown usage records: 0
 
 ## Limits
@@ -18,7 +18,7 @@ Status: source-only confidence engine. It does not read production data, call pr
 
 ## Signals
 
-- purchase_flow_seen: observed; contribution=30; source=agent/state/operator-revenue-smoke.generated.json; next=Use this as bounded confidence only; attach formal provider/runtime evidence separately.
+- purchase_flow_seen: source_ready; contribution=10; source=agent/state/operator-revenue-smoke.generated.json; next=Use source-ready purchase telemetry as bounded confidence only; keep operator context separate from observed proof.
 - gumdrop_credit_flow_seen: source_ready; contribution=10; source=src/lib/analytics/materialization-contract.ts; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
 - user_dashboard_seen: source_ready; contribution=8; source=src/lib/analytics/telemetry-dependency-graph.ts; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
 - creator_dashboard_seen: source_ready; contribution=8; source=agent/state/creator-drop-status-metrics.generated.json; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
@@ -29,4 +29,4 @@ Status: source-only confidence engine. It does not read production data, call pr
 
 ## Next Action
 
-Use real usage confidence as source/runtime confidence only; keep formal provider and deployed runtime gates separate.
+Use source-derived real usage confidence only; keep operator context, formal provider, and deployed runtime gates separate.

@@ -5,9 +5,9 @@ Status: source-only calibration for non-UI beta confidence. It does not read pro
 ## Summary
 
 - Status: source_ready_real_usage_confidence_calibrated
-- Calibrated confidence score: 63.27
-- Runtime health credit: 92
-- Evidence completeness credit: 63.27
+- Calibrated confidence score: 62.18
+- Runtime health credit: 72
+- Evidence completeness credit: 62.18
 - Operator-confirmed revenue context recognized: true
 - Operator revenue source truth: operator_context_only
 - Operator revenue source role: confidence_context_not_provider_truth
@@ -25,7 +25,7 @@ Status: source-only calibration for non-UI beta confidence. It does not read pro
 
 ## Per-Flow Confidence
 
-- wallet_refill: observed_operator_confirmed; score=84; observedCount=1; source=agent/state/operator-revenue-smoke.generated.json; next=Keep the operator-confirmed revenue signal separate from formal provider smoke.
+- wallet_refill: observed_telemetry_source_ready; score=72; observedCount=0; source=agent/state/operator-revenue-smoke.generated.json; next=Use source-ready purchase telemetry as bounded confidence; keep operator context separate from formal provider smoke.
 - gumdrop_credit: observed_telemetry_source_ready; score=76; observedCount=0; source=src/lib/analytics/materialization-contract.ts; next=Keep ledger/materializer source readiness as confidence only.
 - user_dashboard: observed_telemetry_source_ready; score=72; observedCount=0; source=src/lib/analytics/telemetry-dependency-graph.ts; next=Use source-backed dashboard telemetry as non-visual confidence.
 - creator_dashboard: observed_telemetry_source_ready; score=72; observedCount=0; source=agent/state/creator-drop-status-metrics.generated.json; next=Use creator dashboard source readiness as non-visual confidence.

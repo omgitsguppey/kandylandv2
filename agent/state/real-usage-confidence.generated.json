@@ -1,12 +1,12 @@
 {
   "reportKey": "real-usage-confidence",
-  "generatedAtUtc": "2026-06-19T16:01:04.591Z",
-  "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
-  "sourceCommit": "036a189a959f392c6eeec496ce112825d50864bb",
+  "generatedAtUtc": "2026-06-20T19:23:29.121Z",
+  "currentHead": "98a767ae8bbcfcaca5374eb269fc921144337367",
+  "sourceCommit": "98a767ae8bbcfcaca5374eb269fc921144337367",
   "status": "source_ready_real_usage_confidence",
   "passed": true,
   "productionReadsRequired": false,
-  "confidenceScore": 92,
+  "confidenceScore": 72,
   "confidenceSignals": [
     "purchase_flow_seen",
     "gumdrop_credit_flow_seen",
@@ -18,9 +18,9 @@
     "wallet_flow_source_ready"
   ],
   "evidence": [
-    "confidenceScore=92",
-    "observedSignals=1",
-    "sourceReadySignals=7",
+    "confidenceScore=72",
+    "observedSignals=0",
+    "sourceReadySignals=8",
     "formalGatesCleared=false",
     "productionReadsRequired=false"
   ],
@@ -37,24 +37,25 @@
     "purchase_flow_seen": {
       "id": "purchase_flow_seen",
       "label": "Purchase flow seen",
-      "status": "observed",
+      "status": "source_ready",
       "telemetryLaneId": "purchase",
       "sourcePath": "agent/state/operator-revenue-smoke.generated.json",
-      "sourcePathStatus": "validated",
+      "sourcePathStatus": "source_ready",
       "materializerPresent": true,
       "operatorConfirmed": true,
-      "confidenceContribution": 30,
+      "confidenceContribution": 10,
       "evidence": [
         "eventName=gumdrops_purchase_completed",
-        "confirmationSource=operator_confirmed",
-        "count=1",
-        "telemetryLane=purchase"
+        "operatorContextOnly=true",
+        "telemetryLane=purchase",
+        "laneStatus=closed",
+        "materializerPresent=true"
       ],
       "limitations": [
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Use this as bounded confidence only; attach formal provider/runtime evidence separately."
+      "nextAction": "Use source-ready purchase telemetry as bounded confidence only; keep operator context separate from observed proof."
     },
     "gumdrop_credit_flow_seen": {
       "id": "gumdrop_credit_flow_seen",
@@ -212,10 +213,10 @@
     }
   },
   "summary": {
-    "observedSignals": 1,
-    "sourceReadySignals": 7,
+    "observedSignals": 0,
+    "sourceReadySignals": 8,
     "ignoredUnknownUsage": 0,
-    "confidenceScore": 92
+    "confidenceScore": 72
   },
-  "nextAction": "Use real usage confidence as source/runtime confidence only; keep formal provider and deployed runtime gates separate."
+  "nextAction": "Use source-derived real usage confidence only; keep operator context, formal provider, and deployed runtime gates separate."
 }

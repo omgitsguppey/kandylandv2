@@ -1,23 +1,22 @@
 {
   "reportKey": "real-usage-confidence-calibration",
-  "generatedAtUtc": "2026-06-20T17:32:48.973Z",
-  "currentHead": "fd1a7917cc7d1cc849245dfd190428150d23d6fa",
-  "sourceCommit": "fd1a7917cc7d1cc849245dfd190428150d23d6fa",
+  "generatedAtUtc": "2026-06-20T19:23:29.187Z",
+  "currentHead": "98a767ae8bbcfcaca5374eb269fc921144337367",
+  "sourceCommit": "98a767ae8bbcfcaca5374eb269fc921144337367",
   "status": "source_ready_real_usage_confidence_calibrated",
-  "detail": "Real usage confidence is calibrated from operator-confirmed usage, behavior math, identity transfer, telemetry closure, and source-ready paths without clearing formal gates.",
+  "detail": "Real usage confidence is calibrated from source-ready telemetry, behavior math, identity transfer, and context-only operator signals without clearing formal gates.",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeUsageCountsUsed": false,
   "confidenceClasses": [
-    "observed_operator_confirmed",
     "observed_telemetry_source_ready",
     "inferred_from_validated_path",
     "unavailable",
     "unknown_legacy"
   ],
-  "calibratedConfidenceScore": 63.27,
-  "runtimeHealthCredit": 92,
-  "evidenceCompletenessCredit": 63.27,
+  "calibratedConfidenceScore": 62.18,
+  "runtimeHealthCredit": 72,
+  "evidenceCompletenessCredit": 62.18,
   "operatorConfirmedRevenueSmoke": {
     "amountUsdConfirmed": 50,
     "recognized": true,
@@ -42,30 +41,32 @@
     "wallet_refill": {
       "flowId": "wallet_refill",
       "label": "Wallet/refill",
-      "confidenceClass": "observed_operator_confirmed",
-      "confidenceScore": 84,
-      "observedCount": 1,
+      "confidenceClass": "observed_telemetry_source_ready",
+      "confidenceScore": 72,
+      "observedCount": 0,
       "sourcePath": "agent/state/operator-revenue-smoke.generated.json",
-      "sourceStatus": "observed",
+      "sourceStatus": "source_ready",
       "telemetryLaneId": "purchase",
       "operatorConfirmed": true,
       "behaviorMathLinked": false,
       "evidence": [
-        "confidenceClass=observed_operator_confirmed",
+        "confidenceClass=observed_telemetry_source_ready",
         "telemetryLane=purchase",
         "telemetryReady=true",
         "sourceSignalReady=true",
-        "observedCount=1",
+        "observedCount=0",
+        "operatorContextOnly=true",
         "eventName=gumdrops_purchase_completed",
-        "confirmationSource=operator_confirmed",
-        "count=1",
-        "telemetryLane=purchase"
+        "operatorContextOnly=true",
+        "telemetryLane=purchase",
+        "laneStatus=closed",
+        "materializerPresent=true"
       ],
       "limitations": [
         "does_not_clear_formal_provider",
         "does_not_clear_deployed_runtime"
       ],
-      "nextAction": "Keep the operator-confirmed revenue signal separate from formal provider smoke."
+      "nextAction": "Use source-ready purchase telemetry as bounded confidence; keep operator context separate from formal provider smoke."
     },
     "gumdrop_credit": {
       "flowId": "gumdrop_credit",
@@ -333,8 +334,8 @@
     }
   },
   "evidence": [
-    "calibratedConfidenceScore=63.27",
-    "runtimeHealthCredit=92",
+    "calibratedConfidenceScore=62.18",
+    "runtimeHealthCredit=72",
     "operatorConfirmedRevenueRecognized=true",
     "disabledTrackingSuppressed=true",
     "unknownLegacyExcluded=true",
