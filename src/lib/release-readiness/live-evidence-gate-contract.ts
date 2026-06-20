@@ -7,7 +7,6 @@ export type LiveEvidenceGateClass =
   | "live_ledger_evidence"
   | "live_route_health_evidence"
   | "live_error_rate_evidence"
-  | "visual_operator_evidence"
   | "external_provider_evidence"
   | "external_billing_evidence"
   | "source_only_evidence";
@@ -16,7 +15,6 @@ export type LiveEvidenceStatus =
   | "live_evidence_replaced"
   | "source_missing_live_evidence"
   | "source_only_evidence"
-  | "visual_only_manual"
   | "external_provider_required"
   | "external_billing_required"
   | "current_warning";
@@ -30,7 +28,6 @@ export type LiveRuntimeEvidenceStatus =
   | "not_observed_but_expected"
   | "future_only_quiet"
   | "runtime_export_required"
-  | "manual_required"
   | "provider_required"
   | "admin_truth_source_required"
   | "billing_required"
@@ -80,7 +77,7 @@ export type LiveEvidenceSystemDecision = {
   privacyRedactionPolicy: string[];
   confidence: LiveEvidenceConfidence;
   scoreImpact: Partial<ScoreDimensions>;
-  betaExitImpact: "can_clear_live_gate" | "blocks_until_live_source_connected" | "operator_visual_only" | "external_required" | "source_confidence_only";
+  betaExitImpact: "can_clear_live_gate" | "blocks_until_live_source_connected" | "external_required" | "source_confidence_only";
   fallbackIfMissing: string;
   reason: string;
   nextExactAction: string;

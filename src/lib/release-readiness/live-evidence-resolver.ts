@@ -421,7 +421,6 @@ function statusFromLiveRuntimeEvidence(input: {
 }): LiveRuntimeEvidenceStatus {
   if (input.seed.gateClass === "external_provider_evidence") return "provider_required";
   if (input.seed.gateClass === "external_billing_evidence") return "billing_required";
-  if (input.seed.gateClass === "visual_operator_evidence") return "manual_required";
   if (input.seed.gateClass === "live_admin_truth_evidence") return "admin_truth_source_required";
   if (input.seed.systemId === "wallet_payment_gumdrop_ledger" || input.seed.systemId === "creator_monetization_fan_pass_entitlements") {
     return "provider_required";
@@ -451,7 +450,6 @@ function liveStatusFromRuntimeStatus(status: LiveRuntimeEvidenceStatus, sources:
   if (status === "source_ready_waiting_for_activity" || status === "future_only_quiet") return "source_only_evidence";
   if (status === "provider_required") return "external_provider_required";
   if (status === "billing_required") return "external_billing_required";
-  if (status === "manual_required") return "visual_only_manual";
   if (status === "admin_truth_source_required") return "source_missing_live_evidence";
   if (sources.some((source) => source.sourceStatus === "operator_confirmed")) return "current_warning";
   if (gateClass === "live_route_health_evidence" && sources.some((source) => source.sourceStatus === "source_only")) return "source_only_evidence";
@@ -518,7 +516,6 @@ function buildDailyActivityEvidenceSources(input: {
 function statusForSources(sources: LiveEvidenceSource[], gateClass: LiveEvidenceGateClass): LiveEvidenceStatus {
   if (gateClass === "external_provider_evidence") return "external_provider_required";
   if (gateClass === "external_billing_evidence") return "external_billing_required";
-  if (gateClass === "visual_operator_evidence") return "visual_only_manual";
   if (sources.some((source) => source.clearsLiveGate)) return "live_evidence_replaced";
   if (sources.some((source) => source.sourceStatus === "operator_confirmed")) return "current_warning";
   if (sources.every((source) => source.sourceStatus === "source_only")) return "source_only_evidence";
@@ -533,7 +530,6 @@ function confidenceForStatus(status: LiveEvidenceStatus): LiveEvidenceSystemDeci
       return "linked";
     case "source_only_evidence":
       return "inferred";
-    case "visual_only_manual":
     case "external_provider_required":
     case "external_billing_required":
       return "unknown";
@@ -558,7 +554,6 @@ function confidenceForRuntimeStatus(input: {
 
 function betaExitImpact(status: LiveEvidenceStatus, gateClass: LiveEvidenceGateClass): LiveEvidenceSystemDecision["betaExitImpact"] {
   if (status === "live_evidence_replaced") return "can_clear_live_gate";
-  if (gateClass === "visual_operator_evidence") return "operator_visual_only";
   if (gateClass === "external_provider_evidence" || gateClass === "external_billing_evidence") return "external_required";
   if (status === "source_only_evidence" || status === "current_warning") return "source_confidence_only";
   return "blocks_until_live_source_connected";
@@ -567,7 +562,6 @@ function betaExitImpact(status: LiveEvidenceStatus, gateClass: LiveEvidenceGateC
 function betaExitImpactForRuntimeStatus(status: LiveRuntimeEvidenceStatus, liveStatus: LiveEvidenceStatus, gateClass: LiveEvidenceGateClass): LiveEvidenceSystemDecision["betaExitImpact"] {
   if (status === "live_activity_confirmed" || status === "aggregate_activity_confirmed") return "can_clear_live_gate";
   if (status === "provider_required" || status === "billing_required") return "external_required";
-  if (status === "manual_required") return "operator_visual_only";
   if (status === "source_ready_waiting_for_activity" || status === "future_only_quiet") return "source_confidence_only";
   if (status === "admin_truth_source_required" || status === "runtime_export_required" || status === "not_observed_but_expected" || status === "source_missing") {
     return "blocks_until_live_source_connected";
@@ -755,8 +749,7 @@ export function buildLiveEvidenceGateReplacementReport(context: ReleaseReadiness
     ...liveEvidenceBySystem
       .filter((system) =>
         system.betaExitImpact === "blocks_until_live_source_connected"
-        || system.betaExitImpact === "external_required"
-        || system.betaExitImpact === "operator_visual_only")
+        || system.betaExitImpact === "external_required")
       .map((system) => `${system.label}: ${system.liveRuntimeEvidenceStatus}`),
     "external provider proof",
     "external billing review",
@@ -768,7 +761,7 @@ export function buildLiveEvidenceGateReplacementReport(context: ReleaseReadiness
     broadManualGatesBefore: BROAD_MANUAL_GATES_BEFORE,
     broadManualGatesAfter: ["external provider proof", "external billing review", "source_missing live evidence lanes"],
     gatesReplacedByLiveEvidence: reductions.filter((reduction) => reduction.gate === "manual production smoke" || reduction.gate === "admin truth/sample evidence" || reduction.gate === "runtime/provider smoke"),
-    visualOnlyManualGatesRemaining: reductions.filter((reduction) => reduction.afterClass === "visual_operator_evidence"),
+    visualOnlyManualGatesRemaining: [],
     externalProviderGatesRemaining: reductions.filter((reduction) => reduction.afterClass === "external_provider_evidence"),
     externalBillingGatesRemaining: reductions.filter((reduction) => reduction.afterClass === "external_billing_evidence"),
     liveEvidenceBySystem,
@@ -812,9 +805,9 @@ export function validateLiveEvidenceGateReplacementReport(report: LiveEvidenceGa
     failures.push("anonymous or aggregate live activity must not become exact user proof.");
   }
   if (report.liveEvidenceBySystem.some((system) =>
-    ["provider_required", "admin_truth_source_required", "billing_required", "manual_required"].includes(system.liveRuntimeEvidenceStatus)
+    ["provider_required", "admin_truth_source_required", "billing_required"].includes(system.liveRuntimeEvidenceStatus)
     && system.betaExitImpact === "can_clear_live_gate")) {
-    failures.push("provider/admin/billing/manual lanes cannot be cleared by generic live activity.");
+    failures.push("provider/admin/billing lanes cannot be cleared by generic live activity.");
   }
   if (report.liveEvidenceBySystem.some((system) => system.privacyRedactionPolicy.length === 0)) failures.push("live evidence source lacks privacy redaction.");
   if (report.liveEvidenceBySystem.some((system) => system.status === "source_missing_live_evidence" && !system.reason)) {

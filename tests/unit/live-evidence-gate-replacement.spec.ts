@@ -66,7 +66,7 @@ describe("live evidence gate replacement", () => {
       replacement: "visual QA proves backend runtime payment behavior",
       reason: "legacy test fixture",
       blocksBetaExit: false,
-    });
+    } as never);
 
     expect(validateLiveEvidenceGateReplacementReport(report)).toContain("visual QA claims to prove backend/runtime/payment behavior.");
   });
