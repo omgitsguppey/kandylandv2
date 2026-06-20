@@ -1,25 +1,25 @@
 {
   "reportKey": "canonical-math-ledger",
-  "generatedAtUtc": "2026-06-20T18:25:34.793Z",
-  "currentHead": "0aef25736e1f14e8f5949bea69e72c424001ee68",
+  "generatedAtUtc": "2026-06-20T20:45:48.396Z",
+  "currentHead": "3b3801dcf4be6ce4c9ba67cb95eabdf8981e90bb",
   "status": "pass",
   "scoreBefore": {
-    "sourceHealth": 99.2,
-    "runtimeHealth": 71.2,
-    "evidenceCompleteness": 58.4,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 60.45,
+    "evidenceCompleteness": 55.11,
     "freshness": 83.75,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 76.88
+    "overallHealthScore": 73.57
   },
   "scoreAfter": {
-    "sourceHealth": 99.2,
-    "runtimeHealth": 71.2,
-    "evidenceCompleteness": 58.4,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 60.45,
+    "evidenceCompleteness": 55.11,
     "freshness": 83.75,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 76.88
+    "overallHealthScore": 73.57
   },
   "scoreDimensions": {
     "sourceHealth": 25,
