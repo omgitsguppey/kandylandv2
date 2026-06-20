@@ -362,6 +362,28 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     });
   });
 
+  it("labels historical overview snapshots as cached instead of live", () => {
+    expect(resolveAdminAnalyticsOverviewMetricState({
+      primaryValue: 481,
+      truthState: "live",
+      sourceTruth: "historical_snapshot",
+    })).toEqual({
+      displayState: "cached",
+      exactness: "exact",
+    });
+  });
+
+  it("labels overview telemetry samples as partial derived evidence", () => {
+    expect(resolveAdminAnalyticsOverviewMetricState({
+      primaryValue: 64,
+      truthState: "live",
+      sourceTruth: "device_sample",
+    })).toEqual({
+      displayState: "partial",
+      exactness: "derived",
+    });
+  });
+
   it("does not treat missing values as fake zero or live overview truth", () => {
     const state = resolveAdminAnalyticsOverviewMetricState({
       primaryValue: null,

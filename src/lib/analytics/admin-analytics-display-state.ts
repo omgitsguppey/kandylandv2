@@ -155,11 +155,20 @@ export function resolveAdminAnalyticsOverviewMetricState(input: {
 
   if (
     input.sourceTruth === "last_verified_snapshot" ||
-    input.sourceTruth === "verified_snapshot"
+    input.sourceTruth === "verified_snapshot" ||
+    input.sourceTruth === "historical_snapshot" ||
+    input.sourceTruth === "commerce_rollup"
   ) {
     return {
       displayState: "cached",
       exactness: "exact",
+    };
+  }
+
+  if (input.sourceTruth === "device_sample" || input.sourceTruth === "telemetry_sample") {
+    return {
+      displayState: "partial",
+      exactness: "derived",
     };
   }
 
