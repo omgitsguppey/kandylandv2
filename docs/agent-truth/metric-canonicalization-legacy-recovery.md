@@ -1,7 +1,7 @@
 # Metric Canonicalization Legacy Recovery
 
-Generated: 2026-06-20T17:25:16.011Z
-Current head: f1f3c52f16b8255d61764cd0c841bc3f76b37294
+Generated: 2026-06-20T18:15:55.246Z
+Current head: 2aa8515d504357c3c3e055fcfc443547d1fe0fc7
 Status: pass
 
 ## Contract
@@ -36,10 +36,7 @@ Status: pass
 
 ## Dirty Files
 
-- scripts/agent/validate-metric-canonicalization-legacy-recovery.ts: failed_validator_to_repair
-- src/lib/math/legacy-metric-canonicalization.ts: real_source_change_needs_review
-- src/lib/math/legacy-recovery-dry-run-engine.ts: real_source_change_needs_review
-- tests/unit/metric-canonicalization-legacy-recovery.spec.ts: current_generated_artifact_to_commit
+- none
 
 ## Open PR Classification
 
