@@ -83,6 +83,10 @@ const LEGACY_PAGE_EVENT_PATHS: Record<string, string> = {
   dashboard_viewed: "/dashboard",
   library_viewed: "/dashboard/library",
   profile_settings_viewed: "/dashboard/profile",
+  user_settings_viewed: "/dashboard/profile",
+  settings_surface_viewed: "/dashboard/profile",
+  creator_broadcast_manager_viewed: "/dashboard/profile/creator",
+  creator_settings_migrated_redirect_viewed: "/dashboard/profile/creator",
   support_inbox_viewed: "/dashboard/support",
   experience_hub_viewed: "/experiences",
   drops_page_viewed: "/drops",
@@ -354,6 +358,10 @@ function buildTelemetrySemanticDelta(input: {
   case "dashboard_viewed":
   case "library_viewed":
   case "profile_settings_viewed":
+  case "user_settings_viewed":
+  case "settings_surface_viewed":
+  case "creator_broadcast_manager_viewed":
+  case "creator_settings_migrated_redirect_viewed":
   case "support_inbox_viewed":
   case "experience_hub_viewed":
   case "drops_page_viewed":

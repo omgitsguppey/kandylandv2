@@ -293,7 +293,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "library_viewed", label: "Library viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content", "navigation"] },
     { eventName: "user_settings_viewed", label: "User settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
     { eventName: "user_settings_creator_tools_cta_clicked", label: "User settings creator tools CTA clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
-    { eventName: "profile_settings_viewed", label: "Account settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], aliases: ["user_settings_viewed"] },
+    { eventName: "profile_settings_viewed", label: "Account settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], aliases: ["user_settings_viewed"], auditCoveredBy: ["user_settings_viewed"] },
   { eventName: "settings_surface_viewed", label: "Settings surface viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "setting_toggle_changed", label: "Setting toggle changed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "setting_action_clicked", label: "Setting action clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
@@ -325,6 +325,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "daily_task_expired", label: "Daily task expired", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
   { eventName: "daily_task_reward_normalized", label: "Daily task reward normalized", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
   { eventName: "daily_task_state_repair_required", label: "Daily task state repair required", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
+  { eventName: "daily_task_assignment_backfilled_on_open", label: "Daily task assignment backfilled on open", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
   { eventName: "wallet_opened", label: "Wallet opened", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "wallet_closed_incomplete", label: "Wallet closed without completion", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"], auditCoveredBy: ["wallet_opened"] },
   { eventName: "purchase_package_selected", label: "Wallet package selected", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
@@ -436,6 +437,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "creator_broadcast_created", label: "Creator broadcast created", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "notifications"] },
     { eventName: "creator_broadcast_creation_failed", label: "Creator broadcast creation failed", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "notifications"] },
     { eventName: "creator_broadcast_detail_viewed", label: "Creator broadcast detail viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+    { eventName: "creator_broadcast_cta_clicked", label: "Creator broadcast CTA clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
     { eventName: "creator_broadcast_empty_state_viewed", label: "Creator broadcast empty state viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
     { eventName: "creator_settings_migrated_redirect_viewed", label: "Creator settings migrated redirect viewed", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
     { eventName: "creator_settings_updated", label: "Creator settings updated", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator"] },
@@ -473,6 +475,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "creator_experience_insufficient_balance", label: "Creator experience blocked by balance", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "creator_experience_request_category_selected", label: "Creator request category selected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_experience_booking_type_selected", label: "Creator booking type selected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+  { eventName: "creator_experience_booking_slot_selected", label: "Creator booking slot selected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "chat_surface_viewed", label: "Chat surface viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "chat_thread_list_loaded", label: "Chat thread list loaded", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
   { eventName: "chat_thread_opened", label: "Chat thread opened", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], aliases: ["creator_private_chat_opened"] },
@@ -625,7 +628,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "beta_badge_clicked", label: "Beta badge clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
   { eventName: "beta_changelog_opened", label: "Beta changelog opened", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
   { eventName: "beta_changelog_closed", label: "Beta changelog closed", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
-  { eventName: "beta_changelog_entry_clicked", label: "Beta changelog entry clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
+  { eventName: "beta_changelog_entry_clicked", label: "Beta changelog entry clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"], auditCoveredBy: ["beta_changelog_opened"] },
   { eventName: "session_started", label: "Session started", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "session_activity_tick", label: "Session activity tick", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation", "runtime"] },
   { eventName: "session_meaningful_interaction", label: "Session meaningful interaction", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
@@ -733,6 +736,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "admin_creator_agreement_countersigned", label: "Admin creator agreement countersigned", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "onboarding"] },
   { eventName: "admin_synthetic_creator_created", label: "Admin synthetic creator created", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "security"] },
   { eventName: "admin_synthetic_creator_marked", label: "Admin synthetic creator marked", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "security"] },
+  { eventName: "admin_creator_notes_updated", label: "Admin creator notes updated", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "onboarding"] },
   { eventName: "admin_view_as_creator_started", label: "Admin view-as creator started", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "security"] },
   { eventName: "admin_view_as_creator_ended", label: "Admin view-as creator ended", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "security"] },
   { eventName: "admin_projection_write_blocked", label: "Admin projection write blocked", category: "security", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "security"], aliases: ["admin_view_as_creator_action_blocked"] },
@@ -770,7 +774,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "confirmed_context_menu_attempt", label: "Context menu attempt blocked", category: "security", sources: DEFAULT_SERVER_SOURCES, modules: ["security", "viewer"], aliases: ["security_context_menu_attempted"] },
   { eventName: "library_search", label: "Library searched", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
   { eventName: "drops_category_selected", label: "Drops category selected", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
-  { eventName: "drops_searched", label: "Drops searched", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
+  { eventName: "drops_searched", label: "Drops searched", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"], auditCoveredBy: ["search_submitted"] },
   { eventName: "search_focused", label: "Search focused", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement"] },
   { eventName: "search_query_changed", label: "Search query changed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement"] },
   { eventName: "search_submitted", label: "Search submitted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement"] },
@@ -887,9 +891,7 @@ export const TELEMETRY_EVENT_OPTIONS_BY_NAME = Object.fromEntries(
 
 export const TELEMETRY_EVENT_ALIAS_MAP = Object.fromEntries(
   TELEMETRY_EVENT_OPTIONS.flatMap((event) => (event.aliases ?? [])
-    .filter((alias) =>
-      !(event.auditCoveredBy?.includes("surface_telemetry_parity") && TELEMETRY_EVENT_NAME_SET.has(alias)),
-    )
+    .filter((alias) => !TELEMETRY_EVENT_NAME_SET.has(alias))
     .map((alias) => [alias, event.eventName] as const)),
 ) as Record<string, string>;
 

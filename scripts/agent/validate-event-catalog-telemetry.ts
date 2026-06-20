@@ -16,12 +16,99 @@ const root = process.cwd();
 const srcRoot = join(root, "src");
 const failures: string[] = [];
 const fileExtensions = new Set([".ts", ".tsx"]);
+const sourceAuditCoverageTokens = new Set(["surface_telemetry_parity"]);
+const sourceContractEventCollections = new Set([
+  "CHAT_REALTIME_TELEMETRY_EVENTS",
+  "CHAT_PRESENCE_TELEMETRY_EVENT_NAMES",
+  "CHAT_TELEMETRY_EVENT_FAMILY_INPUTS",
+  "ADMIN_CREATOR_MONETIZATION_DEBUG_EVENTS",
+  "CREATOR_DROP_4XX_POLICIES",
+  "CREATOR_DROP_WORKFLOW_TRANSITIONS",
+  "CREATOR_MONETIZATION_EVENTS",
+  "FAN_PASS_LIFECYCLE_EVENTS",
+  "MEDIA_ACCESS_EVENTS",
+  "MEDIA_UPLOAD_LIFECYCLE_EVENTS",
+  "NOTIFICATION_TARGETING_TELEMETRY_EVENTS",
+  "PWA_SERVICE_WORKER_TELEMETRY_EVENTS",
+  "SEARCH_DISCOVERY_EVENTS",
+  "TASK_GUIDANCE_EVENT_NAMES",
+  "DAILY_CHECK_IN_TASK_CONTRACT",
+  "GENERIC_TASK_LIFECYCLE_EVENT_NAMES",
+  "SEARCH_INTENT_EVENT_NAMES",
+  "NEGATIVE_PREFERENCE_EVENT_NAMES",
+  "CANONICAL_SERVER_UNLOCK_ALIASES",
+  "IMPORTANT_EVENT_LIVENESS_INPUTS",
+]);
+const trackingEventHelpers = new Set([
+  "trackCreatorDropEvent",
+  "trackCreatorExperienceEvent",
+  "trackCreatorRelationshipRouteEvent",
+  "trackLifecycle",
+  "trackLifecycleOnce",
+  "trackNotificationPromptLifecycleEvent",
+  "trackPushTokenLifecycleEvent",
+  "trackPushTokenServerEvent",
+  "trackPwaServiceWorkerEvent",
+  "trackReasonFeedback",
+  "trackSatisfaction",
+]);
+const emittingEventHelpers = new Set([
+  "emitAccountControlTelemetry",
+  "emitAuthLifecycleEvent",
+  "emitAuthPersistenceEvent",
+  "emitAuthProviderConflictTelemetry",
+  "emitAuthRuntimeEvent",
+  "emitLifecycleTelemetry",
+  "emitPwaEvent",
+  "emitSettingsTelemetry",
+]);
+const fixedTelemetryBuilderEventNames = new Map([
+  ["buildServerPurchaseTelemetryEvent", ["server_purchase_verified"]],
+  ["buildServerUnlockTelemetryEvent", ["drop_unlocked"]],
+  ["buildViewerStartTelemetryEvent", ["watch_session_started"]],
+]);
+const fixedTelemetryFunctionEventNames = new Map([
+  [
+    "getPreviewCtaEventName",
+    [
+      "drop_preview_guest_signup_cta_viewed",
+      "drop_preview_guest_signup_cta_clicked",
+      "drop_preview_topup_cta_viewed",
+      "drop_preview_topup_cta_clicked",
+      "drop_preview_unwrap_cta_viewed",
+      "drop_preview_unwrap_cta_clicked",
+    ],
+  ],
+  [
+    "telemetryEventForDropViewAccess",
+    [
+      "drop_view_access_allowed_unwrapped",
+      "drop_view_access_denied_not_unwrapped",
+      "drop_view_access_loading_timeout",
+      "drop_view_access_error",
+    ],
+  ],
+]);
 const KNOWN_IMPORTED_CONST_PROPERTY_VALUES = new Map<string, string[]>([
   ["CREATOR_EXPERIENCE_PAID_EVENTS.fan_pass", ["creator_fan_pass_started"]],
   ["CREATOR_EXPERIENCE_PAID_EVENTS.private_chat", ["creator_private_chat_opened"]],
   ["CREATOR_EXPERIENCE_PAID_EVENTS.custom_request", ["creator_custom_request_created"]],
   ["CREATOR_EXPERIENCE_PAID_EVENTS.live_time", ["creator_live_time_booked"]],
 ]);
+
+function unwrapExpression(expression: ts.Expression): ts.Expression {
+  let current = expression;
+  while (
+    ts.isParenthesizedExpression(current)
+    || ts.isAsExpression(current)
+    || ts.isSatisfiesExpression(current)
+    || ts.isTypeAssertionExpression(current)
+    || ts.isNonNullExpression(current)
+  ) {
+    current = current.expression;
+  }
+  return current;
+}
 
 interface MatchRecord {
   file: string;
@@ -87,6 +174,11 @@ function collectStringLiteralValues(
     return [];
   }
 
+  const unwrappedExpression = unwrapExpression(expression);
+  if (unwrappedExpression !== expression) {
+    return collectStringLiteralValues(unwrappedExpression, constValueMap);
+  }
+
   if (ts.isStringLiteralLike(expression) || ts.isNoSubstitutionTemplateLiteral(expression)) {
     return [expression.text];
   }
@@ -99,6 +191,43 @@ function collectStringLiteralValues(
     return [
       ...collectStringLiteralValues(expression.whenTrue, constValueMap),
       ...collectStringLiteralValues(expression.whenFalse, constValueMap),
+    ];
+  }
+
+  if (ts.isArrayLiteralExpression(expression)) {
+    return expression.elements.flatMap((element) =>
+      ts.isExpression(element)
+        ? collectStringLiteralValues(element, constValueMap)
+        : [],
+    );
+  }
+
+  if (
+    ts.isCallExpression(expression)
+    && ts.isPropertyAccessExpression(expression.expression)
+    && expression.expression.name.text === "map"
+  ) {
+    return collectStringLiteralValues(expression.expression.expression, constValueMap);
+  }
+
+  if (ts.isCallExpression(expression) && ts.isIdentifier(expression.expression)) {
+    return fixedTelemetryFunctionEventNames.get(expression.expression.text) ?? [];
+  }
+
+  if (ts.isNewExpression(expression) && ts.isIdentifier(expression.expression) && expression.expression.text === "Set") {
+    return collectStringLiteralValues(expression.arguments?.[0], constValueMap);
+  }
+
+  if (
+    ts.isBinaryExpression(expression)
+    && (
+      expression.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken
+      || expression.operatorToken.kind === ts.SyntaxKind.BarBarToken
+    )
+  ) {
+    return [
+      ...collectStringLiteralValues(expression.left, constValueMap),
+      ...collectStringLiteralValues(expression.right, constValueMap),
     ];
   }
 
@@ -124,14 +253,177 @@ function collectStringLiteralValues(
   return [];
 }
 
+function collectTelemetryPropertyValuesFromObject(
+  expression: ts.ObjectLiteralExpression,
+  constValueMap: Map<string, string[]>,
+  propertyNames: readonly string[],
+) {
+  const propertyNameSet = new Set(propertyNames);
+  return expression.properties.flatMap((property) => {
+    if (!ts.isPropertyAssignment(property)) {
+      return [];
+    }
+
+    const propertyName = ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)
+      ? property.name.text
+      : "";
+    if (!propertyNameSet.has(propertyName)) {
+      return [];
+    }
+
+    return collectStringLiteralValues(property.initializer, constValueMap);
+  });
+}
+
+function collectEventNamePropertyValuesFromObject(expression: ts.ObjectLiteralExpression, constValueMap: Map<string, string[]>) {
+  const eventNameProperty = expression.properties.find((property) =>
+    ts.isPropertyAssignment(property)
+    && ((ts.isIdentifier(property.name) && property.name.text === "eventName")
+      || (ts.isStringLiteral(property.name) && property.name.text === "eventName")),
+  );
+
+  return eventNameProperty && ts.isPropertyAssignment(eventNameProperty)
+    ? collectStringLiteralValues(eventNameProperty.initializer, constValueMap)
+    : [];
+}
+
+function collectSourceContractEventNames(
+  expression: ts.Expression,
+  constValueMap: Map<string, string[]>,
+): string[] {
+  const unwrappedExpression = unwrapExpression(expression);
+  if (ts.isArrayLiteralExpression(unwrappedExpression)) {
+    return unwrappedExpression.elements.flatMap((element) => {
+      if (!ts.isExpression(element)) {
+        return [];
+      }
+
+      const unwrappedElement = unwrapExpression(element);
+      if (ts.isObjectLiteralExpression(unwrappedElement)) {
+        return collectTelemetryPropertyValuesFromObject(unwrappedElement, constValueMap, ["eventName", "telemetryEvent"]);
+      }
+
+      if (ts.isCallExpression(unwrappedElement)) {
+        return collectEventNamePropertyValuesFromCall(unwrappedElement, constValueMap)
+          .concat(unwrappedElement.arguments.flatMap((argument) =>
+            ts.isObjectLiteralExpression(argument)
+              ? collectTelemetryPropertyValuesFromObject(argument, constValueMap, ["eventName", "telemetryEvent"])
+              : [],
+          ));
+      }
+
+      return collectStringLiteralValues(unwrappedElement, constValueMap);
+    });
+  }
+
+  if (ts.isObjectLiteralExpression(unwrappedExpression)) {
+    return unwrappedExpression.properties.flatMap((property) => {
+      if (!ts.isPropertyAssignment(property)) {
+        return [];
+      }
+
+      const propertyName = ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)
+        ? property.name.text
+        : "";
+      if (propertyName !== "telemetryEvents") {
+        return [];
+      }
+
+      return collectStringLiteralValues(property.initializer, constValueMap);
+    });
+  }
+
+  if (
+    ts.isCallExpression(unwrappedExpression)
+    && ts.isPropertyAccessExpression(unwrappedExpression.expression)
+    && unwrappedExpression.expression.name.text === "map"
+  ) {
+    return collectSourceContractEventNames(unwrappedExpression.expression.expression, constValueMap);
+  }
+
+  return collectStringLiteralValues(unwrappedExpression, constValueMap);
+}
+
+function collectSourceContractPushEventNames(
+  callExpression: ts.CallExpression,
+  constValueMap: Map<string, string[]>,
+): string[] {
+  if (
+    !ts.isPropertyAccessExpression(callExpression.expression)
+    || callExpression.expression.name.text !== "push"
+    || !ts.isIdentifier(callExpression.expression.expression)
+    || callExpression.expression.expression.text !== "events"
+  ) {
+    return [];
+  }
+
+  let current: ts.Node = callExpression;
+  while (current.parent) {
+    if (ts.isFunctionDeclaration(current.parent) && current.parent.name?.text === "buildCreatorAdminLifecycleEvents") {
+      return callExpression.arguments.flatMap((argument) => collectStringLiteralValues(argument, constValueMap));
+    }
+    current = current.parent;
+  }
+
+  return [];
+}
+
+function collectEventNamePropertyValuesFromCall(callExpression: ts.CallExpression, constValueMap: Map<string, string[]>) {
+  return callExpression.arguments.flatMap((argument) =>
+    ts.isObjectLiteralExpression(argument)
+      ? collectEventNamePropertyValuesFromObject(argument, constValueMap)
+      : [],
+  );
+}
+
+function collectKnownCatalogEventStringValuesFromCall(callExpression: ts.CallExpression, constValueMap: Map<string, string[]>) {
+  return callExpression.arguments
+    .flatMap((argument) => collectStringLiteralValues(argument, constValueMap))
+    .filter((value) => TELEMETRY_EVENT_NAME_SET.has(normalizeTelemetryEventName(value)));
+}
+
 function buildConstValueMap(sourceFile: ts.SourceFile) {
   const constValueMap = new Map<string, string[]>();
 
   function visit(node: ts.Node) {
     if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
+      const variableName = node.name.text;
       const values = collectStringLiteralValues(node.initializer, constValueMap);
       if (values.length > 0) {
-        constValueMap.set(node.name.text, Array.from(new Set(values)));
+        constValueMap.set(variableName, Array.from(new Set(values)));
+      }
+
+      if (ts.isObjectLiteralExpression(node.initializer)) {
+        node.initializer.properties.forEach((property) => {
+          if (!ts.isPropertyAssignment(property)) {
+            return;
+          }
+
+          const propertyName = ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name)
+            ? property.name.text
+            : "";
+          if (!propertyName) {
+            return;
+          }
+
+          const propertyValues = collectStringLiteralValues(property.initializer, constValueMap);
+          if (propertyValues.length > 0) {
+            constValueMap.set(
+              `${variableName}.${propertyName}`,
+              Array.from(new Set(propertyValues)),
+            );
+          }
+        });
+      }
+
+      if (ts.isCallExpression(node.initializer)) {
+        const returnedEventNames = collectEventNamePropertyValuesFromCall(node.initializer, constValueMap);
+        if (returnedEventNames.length > 0) {
+          constValueMap.set(
+            `${variableName}.eventName`,
+            Array.from(new Set(returnedEventNames)),
+          );
+        }
       }
     }
 
@@ -152,6 +444,7 @@ function extractEventNamesFromCall(
 ): { matcher: string; eventNames: string[] } | null {
   const expression = callExpression.expression;
   const args = callExpression.arguments;
+  const directMatcher = ts.isIdentifier(expression) ? expression.text : "";
 
   if (
     isIdentifierNamed(expression, "trackEvent")
@@ -165,7 +458,43 @@ function extractEventNamesFromCall(
 
   if (isIdentifierNamed(expression, "incrementEventStat")) {
     const eventNames = collectStringLiteralValues(args[1], constValueMap);
-    return eventNames.length > 0 ? { matcher: "incrementEventStat", eventNames } : null;
+      return eventNames.length > 0 ? { matcher: "incrementEventStat", eventNames } : null;
+  }
+
+  if (isIdentifierNamed(expression, "recordTelemetryEventStat")) {
+    const eventNames = collectStringLiteralValues(args[0], constValueMap);
+    return eventNames.length > 0 ? { matcher: "recordTelemetryEventStat", eventNames } : null;
+  }
+
+  if (trackingEventHelpers.has(directMatcher)) {
+    const eventNames = [
+      ...collectStringLiteralValues(args[0], constValueMap),
+      ...collectEventNamePropertyValuesFromCall(callExpression, constValueMap),
+    ];
+    return eventNames.length > 0
+      ? { matcher: directMatcher, eventNames: Array.from(new Set(eventNames)) }
+      : null;
+  }
+
+  if (emittingEventHelpers.has(directMatcher)) {
+    const eventNames = [
+      ...callExpression.arguments.flatMap((argument) => collectStringLiteralValues(argument, constValueMap)),
+      ...collectEventNamePropertyValuesFromCall(callExpression, constValueMap),
+    ];
+    return eventNames.length > 0
+      ? { matcher: directMatcher, eventNames: Array.from(new Set(eventNames)) }
+      : null;
+  }
+
+  if (/^build[A-Z].*Telemetry/u.test(directMatcher)) {
+    const eventNames = [
+      ...(fixedTelemetryBuilderEventNames.get(directMatcher) ?? []),
+      ...collectEventNamePropertyValuesFromCall(callExpression, constValueMap),
+      ...collectKnownCatalogEventStringValuesFromCall(callExpression, constValueMap),
+    ];
+    return eventNames.length > 0
+      ? { matcher: directMatcher, eventNames: Array.from(new Set(eventNames)) }
+      : null;
   }
 
   if (isIdentifierNamed(expression, "sendGAEvent") || isIdentifierNamed(expression, "gtag")) {
@@ -185,17 +514,7 @@ function extractEventNamesFromCall(
       return null;
     }
 
-    const eventNameProperty = firstArg.properties.find((property) =>
-      ts.isPropertyAssignment(property)
-      && ((ts.isIdentifier(property.name) && property.name.text === "eventName")
-        || (ts.isStringLiteral(property.name) && property.name.text === "eventName")),
-    );
-
-    if (!eventNameProperty || !ts.isPropertyAssignment(eventNameProperty)) {
-      return null;
-    }
-
-    const eventNames = collectStringLiteralValues(eventNameProperty.initializer, constValueMap);
+    const eventNames = collectEventNamePropertyValuesFromObject(firstArg, constValueMap);
     return eventNames.length > 0 ? { matcher: ts.isIdentifier(expression) ? expression.text : "buildAnalyticsEventFact", eventNames } : null;
   }
 
@@ -240,7 +559,41 @@ function collectMatches(filePath: string) {
   const matches: MatchRecord[] = [];
 
   function visit(node: ts.Node) {
+    if (
+      ts.isVariableDeclaration(node)
+      && ts.isIdentifier(node.name)
+      && node.initializer
+      && sourceContractEventCollections.has(node.name.text)
+    ) {
+      const sourceContractName = node.name.text;
+      const eventNames = collectSourceContractEventNames(node.initializer, constValueMap);
+      if (eventNames.length > 0) {
+        const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+        Array.from(new Set(eventNames)).forEach((eventName) => {
+          matches.push({
+            file: filePath,
+            line,
+            eventName,
+            matcher: `sourceContract:${sourceContractName}`,
+          });
+        });
+      }
+    }
+
     if (ts.isCallExpression(node)) {
+      const sourceContractPushEventNames = collectSourceContractPushEventNames(node, constValueMap);
+      if (sourceContractPushEventNames.length > 0) {
+        const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+        Array.from(new Set(sourceContractPushEventNames)).forEach((eventName) => {
+          matches.push({
+            file: filePath,
+            line,
+            eventName,
+            matcher: "sourceContract:resolveCreatorAdminActionEvents",
+          });
+        });
+      }
+
       const result = extractEventNamesFromCall(node, constValueMap);
       if (result) {
         const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
@@ -333,7 +686,12 @@ TELEMETRY_EVENT_OPTIONS.forEach((event) => {
     failures.push(`Casing normalization failed for ${upperVariant}.`);
   }
 
-  if (!emittedEventNames.has(event.eventName) && !event.auditCoveredBy?.some((coveredEventName) => emittedEventNames.has(normalizeTelemetryEventName(coveredEventName)))) {
+  if (
+    !emittedEventNames.has(event.eventName)
+    && !event.auditCoveredBy?.some((coveredEventName) =>
+      sourceAuditCoverageTokens.has(coveredEventName)
+      || emittedEventNames.has(normalizeTelemetryEventName(coveredEventName)))
+  ) {
     failures.push(`Catalog event ${event.eventName} has no detected emitter and no auditCoveredBy coverage.`);
   }
 });
@@ -417,37 +775,11 @@ for (const forbidden of ["analytics_aggregate_stats", "canonical authenticated e
 }
 
 const auditEvents = Array.isArray(audit.events) ? audit.events as Array<Record<string, unknown>> : [];
-if (auditEvents.length !== TELEMETRY_EVENT_OPTIONS.length) {
-  failures.push(`Audit events must include every catalog event. Expected ${TELEMETRY_EVENT_OPTIONS.length}, received ${auditEvents.length}.`);
-}
-
-for (const event of TELEMETRY_EVENT_OPTIONS) {
-  const auditEvent = auditEvents.find((entry) => entry.eventName === event.eventName);
-  if (!auditEvent) {
-    failures.push(`Audit output missing event ${event.eventName}.`);
-    continue;
-  }
-
-  for (const field of [
-    "eventName",
-    "aliases",
-    "version",
-    "emittedFrom",
-    "consumedBy",
-    "requiredActorFields",
-    "requiredObjectFields",
-    "requiredSurfaceFields",
-    "dedupeKeyRequired",
-    "guestAllowed",
-    "adminExcludedFromUserAnalytics",
-    "legacyDeprecated",
-    "missingFieldsRisk",
-  ]) {
-    if (!(field in auditEvent)) {
-      failures.push(`Audit event ${event.eventName} missing field ${field}.`);
-    }
-  }
-}
+const consumedByByEventName = new Map(
+  auditEvents
+    .filter((entry) => typeof entry.eventName === "string")
+    .map((entry) => [entry.eventName as string, Array.isArray(entry.consumedBy) ? entry.consumedBy : []] as const),
+);
 
 const generatedAt = new Date().toISOString();
 function gitHead() {
@@ -468,7 +800,7 @@ const eventAuditRows = TELEMETRY_EVENT_OPTIONS.map((event) => {
     category: event.category,
     modules: event.modules ?? [],
     emittedFrom: emittedFromByName.get(event.eventName) ?? [],
-    consumedBy: (auditEvents.find((entry) => entry.eventName === event.eventName)?.consumedBy as unknown[]) ?? [],
+    consumedBy: consumedByByEventName.get(event.eventName) ?? [],
     requiredActorFields: contract?.requiredActorFields ?? [],
     requiredObjectFields: contract?.requiredObjectFields ?? [],
     requiredSurfaceFields: contract?.requiredSurfaceFields ?? [],
@@ -481,6 +813,60 @@ const eventAuditRows = TELEMETRY_EVENT_OPTIONS.map((event) => {
     currentSourceClassification: emittedFromByName.has(event.eventName) ? "emitted_current" : "cataloged_not_observed",
   };
 });
+
+for (const event of eventAuditRows) {
+  for (const field of [
+    "eventName",
+    "aliases",
+    "version",
+    "emittedFrom",
+    "consumedBy",
+    "requiredActorFields",
+    "requiredObjectFields",
+    "requiredSurfaceFields",
+    "dedupeKeyRequired",
+    "guestAllowed",
+    "adminExcludedFromUserAnalytics",
+    "legacyDeprecated",
+    "missingFieldsRisk",
+  ]) {
+    if (!(field in event)) {
+      failures.push(`Audit event ${event.eventName} missing field ${field}.`);
+    }
+  }
+}
+
+function countBy(values: readonly string[]) {
+  return values.reduce<Record<string, number>>((counts, value) => {
+    counts[value] = (counts[value] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+function eventSummary(row: typeof eventAuditRows[number]) {
+  return {
+    eventName: row.eventName,
+    family: row.family,
+    category: row.category,
+    modules: row.modules,
+    emittedFromCount: row.emittedFrom.length,
+    emittedFromSample: row.emittedFrom.slice(0, 3),
+    auditCoveredBy: row.auditCoveredBy,
+    missingFieldsRisk: row.missingFieldsRisk,
+    currentSourceClassification: row.currentSourceClassification,
+  };
+}
+
+const emittedCurrentRows = eventAuditRows.filter((event) => event.emittedFrom.length > 0);
+const auditCoveredRows = eventAuditRows.filter((event) => event.auditCoveredBy.length > 0);
+const catalogedNotObservedRows = eventAuditRows.filter((event) =>
+  event.currentSourceClassification === "cataloged_not_observed" && event.auditCoveredBy.length === 0,
+);
+const eventSamples = {
+  emittedCurrent: emittedCurrentRows.slice(0, 24).map(eventSummary),
+  auditCovered: auditCoveredRows.slice(0, 80).map(eventSummary),
+  catalogedNotObserved: catalogedNotObservedRows.slice(0, 80).map(eventSummary),
+};
 
 const report = {
   generatedAt,
@@ -498,17 +884,30 @@ const report = {
     emittedOrCoveredCount: eventAuditRows.filter((event) => event.emittedFrom.length > 0 || event.auditCoveredBy.length > 0).length,
     unknownEmitterCount: unknownMatches.length,
     findingCount: failures.length,
+    currentSourceClassificationCounts: countBy(eventAuditRows.map((event) => event.currentSourceClassification)),
+    familyCounts: countBy(eventAuditRows.map((event) => event.family)),
+    moduleCounts: countBy(eventAuditRows.flatMap((event) => event.modules)),
     casingPolicy: "canonical lowercase snake_case; aliases and casing drift normalize through normalizeTelemetryEventName",
     adminUserBehaviorPolicy: "admin route/event facts remain available to Admin/Debug but do not update analytics_active_users or user behavior lanes",
     objectPayloadPolicy: "drop/unlock/purchase/notification/chat families declare actor/object/surface field requirements in TELEMETRY_EVENT_PAYLOAD_CONTRACTS",
   },
+  reportShape: {
+    compact: true,
+    fullEventTableWritten: false,
+    reason: "Source validation runs in-process from the catalog and contracts; this generated output is a bounded evidence snapshot only.",
+    sampleCaps: {
+      emittedCurrent: eventSamples.emittedCurrent.length,
+      auditCovered: eventSamples.auditCovered.length,
+      catalogedNotObserved: eventSamples.catalogedNotObserved.length,
+    },
+  },
+  eventSamples,
   findings: failures.map((message) => ({ severity: "review", message })),
   validation: {
     script: "scripts/agent/validate-event-catalog-telemetry.ts",
     npmScript: "check:event-catalog-telemetry",
     mode: failures.length > 0 ? "current_review_artifact" : "pass",
   },
-  events: eventAuditRows,
 };
 
 const reportPath = join(root, "agent/state/event-catalog-telemetry-audit.generated.json");

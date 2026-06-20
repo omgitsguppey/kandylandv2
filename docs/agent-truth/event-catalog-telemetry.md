@@ -60,7 +60,7 @@ npm run check:telemetry
 npx vitest run tests/contracts/telemetry-contracts.spec.ts tests/unit/analytics-event-contract.spec.ts
 ```
 
-The generated audit lives at `agent/state/event-catalog-telemetry-audit.generated.json` and includes every catalog event with aliases, field requirements, emitter/consumer evidence, family, dedupe policy, guest allowance, admin exclusion, and missing-field risk.
+The generated audit lives at `agent/state/event-catalog-telemetry-audit.generated.json` and stays compact by default. It stores counts, bounded samples, findings, and report-shape metadata; the full catalog/event-contract table is validated in-process from source instead of being copied into the generated snapshot.
 
 ## Future Agent Rules
 

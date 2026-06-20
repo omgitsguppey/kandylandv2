@@ -169,6 +169,10 @@ function buildTelemetrySemanticDelta(
     case "dashboard_viewed":
     case "library_viewed":
     case "profile_settings_viewed":
+    case "user_settings_viewed":
+    case "settings_surface_viewed":
+    case "creator_broadcast_manager_viewed":
+    case "creator_settings_migrated_redirect_viewed":
     case "support_inbox_viewed":
     case "experience_hub_viewed":
     case "drops_page_viewed":

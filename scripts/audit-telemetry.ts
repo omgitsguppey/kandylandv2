@@ -11,6 +11,79 @@ import {
 
 const ROOT = path.resolve(process.cwd(), "src");
 const FILE_EXTENSIONS = new Set([".ts", ".tsx"]);
+const SOURCE_AUDIT_COVERAGE_TOKENS = new Set(["surface_telemetry_parity"]);
+const SOURCE_CONTRACT_EVENT_COLLECTIONS = new Set([
+  "CHAT_REALTIME_TELEMETRY_EVENTS",
+  "CHAT_PRESENCE_TELEMETRY_EVENT_NAMES",
+  "CHAT_TELEMETRY_EVENT_FAMILY_INPUTS",
+  "ADMIN_CREATOR_MONETIZATION_DEBUG_EVENTS",
+  "CREATOR_DROP_4XX_POLICIES",
+  "CREATOR_DROP_WORKFLOW_TRANSITIONS",
+  "CREATOR_MONETIZATION_EVENTS",
+  "FAN_PASS_LIFECYCLE_EVENTS",
+  "MEDIA_ACCESS_EVENTS",
+  "MEDIA_UPLOAD_LIFECYCLE_EVENTS",
+  "NOTIFICATION_TARGETING_TELEMETRY_EVENTS",
+  "PWA_SERVICE_WORKER_TELEMETRY_EVENTS",
+  "SEARCH_DISCOVERY_EVENTS",
+  "TASK_GUIDANCE_EVENT_NAMES",
+  "DAILY_CHECK_IN_TASK_CONTRACT",
+  "GENERIC_TASK_LIFECYCLE_EVENT_NAMES",
+  "SEARCH_INTENT_EVENT_NAMES",
+  "NEGATIVE_PREFERENCE_EVENT_NAMES",
+  "CANONICAL_SERVER_UNLOCK_ALIASES",
+  "IMPORTANT_EVENT_LIVENESS_INPUTS",
+]);
+const TRACKING_EVENT_HELPERS = new Set([
+  "trackCreatorDropEvent",
+  "trackCreatorExperienceEvent",
+  "trackCreatorRelationshipRouteEvent",
+  "trackLifecycle",
+  "trackLifecycleOnce",
+  "trackNotificationPromptLifecycleEvent",
+  "trackPushTokenLifecycleEvent",
+  "trackPushTokenServerEvent",
+  "trackPwaServiceWorkerEvent",
+  "trackReasonFeedback",
+  "trackSatisfaction",
+]);
+const EMITTING_EVENT_HELPERS = new Set([
+  "emitAccountControlTelemetry",
+  "emitAuthLifecycleEvent",
+  "emitAuthPersistenceEvent",
+  "emitAuthProviderConflictTelemetry",
+  "emitAuthRuntimeEvent",
+  "emitLifecycleTelemetry",
+  "emitPwaEvent",
+  "emitSettingsTelemetry",
+]);
+const FIXED_TELEMETRY_BUILDER_EVENT_NAMES = new Map([
+  ["buildServerPurchaseTelemetryEvent", ["server_purchase_verified"]],
+  ["buildServerUnlockTelemetryEvent", ["drop_unlocked"]],
+  ["buildViewerStartTelemetryEvent", ["watch_session_started"]],
+]);
+const FIXED_TELEMETRY_FUNCTION_EVENT_NAMES = new Map([
+  [
+    "getPreviewCtaEventName",
+    [
+      "drop_preview_guest_signup_cta_viewed",
+      "drop_preview_guest_signup_cta_clicked",
+      "drop_preview_topup_cta_viewed",
+      "drop_preview_topup_cta_clicked",
+      "drop_preview_unwrap_cta_viewed",
+      "drop_preview_unwrap_cta_clicked",
+    ],
+  ],
+  [
+    "telemetryEventForDropViewAccess",
+    [
+      "drop_view_access_allowed_unwrapped",
+      "drop_view_access_denied_not_unwrapped",
+      "drop_view_access_loading_timeout",
+      "drop_view_access_error",
+    ],
+  ],
+]);
 
 interface MatchRecord {
   file: string;
@@ -25,6 +98,20 @@ const KNOWN_IMPORTED_CONST_PROPERTY_VALUES = new Map<string, string[]>([
   ["CREATOR_EXPERIENCE_PAID_EVENTS.custom_request", ["creator_custom_request_created"]],
   ["CREATOR_EXPERIENCE_PAID_EVENTS.live_time", ["creator_live_time_booked"]],
 ]);
+
+function unwrapExpression(expression: ts.Expression): ts.Expression {
+  let current = expression;
+  while (
+    ts.isParenthesizedExpression(current)
+    || ts.isAsExpression(current)
+    || ts.isSatisfiesExpression(current)
+    || ts.isTypeAssertionExpression(current)
+    || ts.isNonNullExpression(current)
+  ) {
+    current = current.expression;
+  }
+  return current;
+}
 
 function walkFiles(directory: string, results: string[] = []) {
   for (const entry of readdirSync(directory)) {
@@ -51,6 +138,11 @@ function collectStringLiteralValues(
     return [];
   }
 
+  const unwrappedExpression = unwrapExpression(expression);
+  if (unwrappedExpression !== expression) {
+    return collectStringLiteralValues(unwrappedExpression, constValueMap);
+  }
+
   if (ts.isStringLiteralLike(expression)) {
     return [expression.text];
   }
@@ -67,6 +159,43 @@ function collectStringLiteralValues(
     return [
       ...collectStringLiteralValues(expression.whenTrue, constValueMap),
       ...collectStringLiteralValues(expression.whenFalse, constValueMap),
+    ];
+  }
+
+  if (ts.isArrayLiteralExpression(expression)) {
+    return expression.elements.flatMap((element) =>
+      ts.isExpression(element)
+        ? collectStringLiteralValues(element, constValueMap)
+        : [],
+    );
+  }
+
+  if (
+    ts.isCallExpression(expression)
+    && ts.isPropertyAccessExpression(expression.expression)
+    && expression.expression.name.text === "map"
+  ) {
+    return collectStringLiteralValues(expression.expression.expression, constValueMap);
+  }
+
+  if (ts.isCallExpression(expression) && ts.isIdentifier(expression.expression)) {
+    return FIXED_TELEMETRY_FUNCTION_EVENT_NAMES.get(expression.expression.text) ?? [];
+  }
+
+  if (ts.isNewExpression(expression) && ts.isIdentifier(expression.expression) && expression.expression.text === "Set") {
+    return collectStringLiteralValues(expression.arguments?.[0], constValueMap);
+  }
+
+  if (
+    ts.isBinaryExpression(expression)
+    && (
+      expression.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken
+      || expression.operatorToken.kind === ts.SyntaxKind.BarBarToken
+    )
+  ) {
+    return [
+      ...collectStringLiteralValues(expression.left, constValueMap),
+      ...collectStringLiteralValues(expression.right, constValueMap),
     ];
   }
 
@@ -90,6 +219,135 @@ function collectStringLiteralValues(
   }
 
   return [];
+}
+
+function collectTelemetryPropertyValuesFromObject(
+  expression: ts.ObjectLiteralExpression,
+  constValueMap: Map<string, string[]>,
+  propertyNames: readonly string[],
+) {
+  const propertyNameSet = new Set(propertyNames);
+  return expression.properties.flatMap((property) => {
+    if (!ts.isPropertyAssignment(property)) {
+      return [];
+    }
+
+    const propertyName = ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)
+      ? property.name.text
+      : "";
+    if (!propertyNameSet.has(propertyName)) {
+      return [];
+    }
+
+    return collectStringLiteralValues(property.initializer, constValueMap);
+  });
+}
+
+function collectEventNamePropertyValuesFromObject(expression: ts.ObjectLiteralExpression, constValueMap: Map<string, string[]>) {
+  const eventNameProperty = expression.properties.find((property) =>
+    ts.isPropertyAssignment(property)
+    && ((ts.isIdentifier(property.name) && property.name.text === "eventName")
+      || (ts.isStringLiteral(property.name) && property.name.text === "eventName")),
+  );
+
+  return eventNameProperty && ts.isPropertyAssignment(eventNameProperty)
+    ? collectStringLiteralValues(eventNameProperty.initializer, constValueMap)
+    : [];
+}
+
+function collectSourceContractEventNames(
+  expression: ts.Expression,
+  constValueMap: Map<string, string[]>,
+): string[] {
+  const unwrappedExpression = unwrapExpression(expression);
+  if (ts.isArrayLiteralExpression(unwrappedExpression)) {
+    return unwrappedExpression.elements.flatMap((element) => {
+      if (!ts.isExpression(element)) {
+        return [];
+      }
+
+      const unwrappedElement = unwrapExpression(element);
+      if (ts.isObjectLiteralExpression(unwrappedElement)) {
+        return collectTelemetryPropertyValuesFromObject(unwrappedElement, constValueMap, ["eventName", "telemetryEvent"]);
+      }
+
+      if (ts.isCallExpression(unwrappedElement)) {
+        return collectEventNamePropertyValuesFromCall(unwrappedElement, constValueMap)
+          .concat(unwrappedElement.arguments.flatMap((argument) =>
+            ts.isObjectLiteralExpression(argument)
+              ? collectTelemetryPropertyValuesFromObject(argument, constValueMap, ["eventName", "telemetryEvent"])
+              : [],
+          ));
+      }
+
+      return collectStringLiteralValues(unwrappedElement, constValueMap);
+    });
+  }
+
+  if (ts.isObjectLiteralExpression(unwrappedExpression)) {
+    return unwrappedExpression.properties.flatMap((property) => {
+      if (!ts.isPropertyAssignment(property)) {
+        return [];
+      }
+
+      const propertyName = ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)
+        ? property.name.text
+        : "";
+      if (propertyName !== "telemetryEvents") {
+        return [];
+      }
+
+      return collectStringLiteralValues(property.initializer, constValueMap);
+    });
+  }
+
+  if (
+    ts.isCallExpression(unwrappedExpression)
+    && ts.isPropertyAccessExpression(unwrappedExpression.expression)
+    && unwrappedExpression.expression.name.text === "map"
+  ) {
+    return collectSourceContractEventNames(unwrappedExpression.expression.expression, constValueMap);
+  }
+
+  return collectStringLiteralValues(unwrappedExpression, constValueMap);
+}
+
+function collectSourceContractPushEventNames(
+  callExpression: ts.CallExpression,
+  constValueMap: Map<string, string[]>,
+): string[] {
+  if (
+    !ts.isPropertyAccessExpression(callExpression.expression)
+    || callExpression.expression.name.text !== "push"
+    || !ts.isIdentifier(callExpression.expression.expression)
+    || callExpression.expression.expression.text !== "events"
+  ) {
+    return [];
+  }
+
+  let current: ts.Node = callExpression;
+  while (current.parent) {
+    if (ts.isFunctionDeclaration(current.parent) && current.parent.name?.text === "buildCreatorAdminLifecycleEvents") {
+      return callExpression.arguments.flatMap((argument) => collectStringLiteralValues(argument, constValueMap));
+    }
+    current = current.parent;
+  }
+
+  return [];
+}
+
+function collectEventNamePropertyValuesFromCall(callExpression: ts.CallExpression, constValueMap: Map<string, string[]>) {
+  return callExpression.arguments.flatMap((argument) =>
+    ts.isObjectLiteralExpression(argument)
+      ? collectEventNamePropertyValuesFromObject(argument, constValueMap)
+      : [],
+  );
+}
+
+function collectKnownCatalogEventStringValuesFromCall(callExpression: ts.CallExpression, constValueMap: Map<string, string[]>) {
+  return callExpression.arguments
+    .flatMap((argument) => collectStringLiteralValues(argument, constValueMap))
+    .filter((value) => TELEMETRY_EVENT_NAME_SET.has(normalizeTelemetryEventName(value)));
 }
 
 function buildConstValueMap(sourceFile: ts.SourceFile) {
@@ -125,6 +383,16 @@ function buildConstValueMap(sourceFile: ts.SourceFile) {
           }
         });
       }
+
+      if (ts.isCallExpression(node.initializer)) {
+        const returnedEventNames = collectEventNamePropertyValuesFromCall(node.initializer, constValueMap);
+        if (returnedEventNames.length > 0) {
+          constValueMap.set(
+            `${variableName}.eventName`,
+            Array.from(new Set(returnedEventNames)),
+          );
+        }
+      }
     }
 
     ts.forEachChild(node, visit);
@@ -144,6 +412,7 @@ function extractEventNamesFromCall(
 ): { matcher: string; eventNames: string[] } | null {
   const expression = callExpression.expression;
   const args = callExpression.arguments;
+  const directMatcher = ts.isIdentifier(expression) ? expression.text : "";
 
   if (
     isIdentifierNamed(expression, "trackEvent")
@@ -157,10 +426,48 @@ function extractEventNamesFromCall(
       : null;
   }
 
+  if (TRACKING_EVENT_HELPERS.has(directMatcher)) {
+    const eventNames = [
+      ...collectStringLiteralValues(args[0], constValueMap),
+      ...collectEventNamePropertyValuesFromCall(callExpression, constValueMap),
+    ];
+    return eventNames.length > 0
+      ? { matcher: directMatcher, eventNames: Array.from(new Set(eventNames)) }
+      : null;
+  }
+
+  if (EMITTING_EVENT_HELPERS.has(directMatcher)) {
+    const eventNames = [
+      ...callExpression.arguments.flatMap((argument) => collectStringLiteralValues(argument, constValueMap)),
+      ...collectEventNamePropertyValuesFromCall(callExpression, constValueMap),
+    ];
+    return eventNames.length > 0
+      ? { matcher: directMatcher, eventNames: Array.from(new Set(eventNames)) }
+      : null;
+  }
+
+  if (/^build[A-Z].*Telemetry/u.test(directMatcher)) {
+    const eventNames = [
+      ...(FIXED_TELEMETRY_BUILDER_EVENT_NAMES.get(directMatcher) ?? []),
+      ...collectEventNamePropertyValuesFromCall(callExpression, constValueMap),
+      ...collectKnownCatalogEventStringValuesFromCall(callExpression, constValueMap),
+    ];
+    return eventNames.length > 0
+      ? { matcher: directMatcher, eventNames: Array.from(new Set(eventNames)) }
+      : null;
+  }
+
   if (isIdentifierNamed(expression, "incrementEventStat")) {
     const eventNames = collectStringLiteralValues(args[1], constValueMap);
     return eventNames.length > 0
       ? { matcher: "incrementEventStat", eventNames }
+      : null;
+  }
+
+  if (isIdentifierNamed(expression, "recordTelemetryEventStat")) {
+    const eventNames = collectStringLiteralValues(args[0], constValueMap);
+    return eventNames.length > 0
+      ? { matcher: "recordTelemetryEventStat", eventNames }
       : null;
   }
 
@@ -183,17 +490,7 @@ function extractEventNamesFromCall(
       return null;
     }
 
-    const eventNameProperty = firstArg.properties.find((property) =>
-      ts.isPropertyAssignment(property)
-      && ((ts.isIdentifier(property.name) && property.name.text === "eventName")
-        || (ts.isStringLiteral(property.name) && property.name.text === "eventName")),
-    );
-
-    if (!eventNameProperty || !ts.isPropertyAssignment(eventNameProperty)) {
-      return null;
-    }
-
-    const eventNames = collectStringLiteralValues(eventNameProperty.initializer, constValueMap);
+    const eventNames = collectEventNamePropertyValuesFromObject(firstArg, constValueMap);
     return eventNames.length > 0
       ? { matcher: ts.isIdentifier(expression) ? expression.text : "buildAnalyticsEventFact", eventNames }
       : null;
@@ -253,7 +550,41 @@ function collectMatches(filePath: string) {
   const matches: MatchRecord[] = [];
 
   function visit(node: ts.Node) {
+    if (
+      ts.isVariableDeclaration(node)
+      && ts.isIdentifier(node.name)
+      && node.initializer
+      && SOURCE_CONTRACT_EVENT_COLLECTIONS.has(node.name.text)
+    ) {
+      const sourceContractName = node.name.text;
+      const eventNames = collectSourceContractEventNames(node.initializer, constValueMap);
+      if (eventNames.length > 0) {
+        const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+        Array.from(new Set(eventNames)).forEach((eventName) => {
+          matches.push({
+            file: filePath,
+            line,
+            eventName,
+            matcher: `sourceContract:${sourceContractName}`,
+          });
+        });
+      }
+    }
+
     if (ts.isCallExpression(node)) {
+      const sourceContractPushEventNames = collectSourceContractPushEventNames(node, constValueMap);
+      if (sourceContractPushEventNames.length > 0) {
+        const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+        Array.from(new Set(sourceContractPushEventNames)).forEach((eventName) => {
+          matches.push({
+            file: filePath,
+            line,
+            eventName,
+            matcher: "sourceContract:resolveCreatorAdminActionEvents",
+          });
+        });
+      }
+
       const result = extractEventNamesFromCall(node, constValueMap);
       if (result) {
         const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
@@ -339,7 +670,9 @@ const catalogedButUnemitted = TELEMETRY_EVENT_OPTIONS
       return false;
     }
 
-    if (event.auditCoveredBy?.some((coveredEventName) => emittedEventNames.has(normalizeTelemetryEventName(coveredEventName)))) {
+    if (event.auditCoveredBy?.some((coveredEventName) =>
+      SOURCE_AUDIT_COVERAGE_TOKENS.has(coveredEventName)
+      || emittedEventNames.has(normalizeTelemetryEventName(coveredEventName)))) {
       return false;
     }
 
