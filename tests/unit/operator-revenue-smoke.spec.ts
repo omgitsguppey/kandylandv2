@@ -10,6 +10,7 @@ function reportFixture(overrides: Partial<OperatorRevenueSmokeReport> = {}): Ope
   const report = buildOperatorRevenueSmokeReport({
     currentHead: "head",
     generatedAtUtc: "2026-05-20T12:00:00.000Z",
+    amountUsdConfirmed: 37.5,
   });
 
   return {
@@ -27,7 +28,7 @@ describe("operator revenue smoke", () => {
     const report = reportFixture();
 
     expect(report.summary.revenueSmokeStatus).toBe("operator_confirmed_revenue_smoke");
-    expect(report.summary.amountUsdConfirmed).toBe(50);
+    expect(report.summary.amountUsdConfirmed).toBe(37.5);
     expect(report.summary.product).toBe("GumDrops");
     expect(report.summary.confirmationSource).toBe("operator_confirmed");
     expect(report.summary.providerArtifactAttached).toBe(false);
@@ -69,7 +70,20 @@ describe("operator revenue smoke", () => {
     });
 
     expect(validateOperatorRevenueSmokeReport(report, "head")).toContain(
-      "plainLanguageNote must separate real $50 payment confirmation from formal provider evidence.",
+      "plainLanguageNote must separate operator-confirmed payment context from formal provider evidence.",
+    );
+  });
+
+  it("requires a positive variable amount instead of a hard-coded amount", () => {
+    const report = reportFixture({
+      summary: {
+        ...reportFixture().summary,
+        amountUsdConfirmed: 0,
+      },
+    });
+
+    expect(validateOperatorRevenueSmokeReport(report, "head")).toContain(
+      "amountUsdConfirmed must be a positive operator-confirmed amount.",
     );
   });
 });

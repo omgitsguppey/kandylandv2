@@ -47,7 +47,7 @@ describe("formal evidence bridge", () => {
           path: "agent/state/operator-revenue-smoke.generated.json",
           status: "operator_confirmed_revenue_smoke",
           passed: true,
-          evidence: ["amountUsdConfirmed=50", "formalProviderSmokePassed=false"],
+          evidence: ["amountUsdConfirmed=37.5", "formalProviderSmokePassed=false"],
         }),
         sourceBackedRuntimeConfidence: artifact({
           path: "agent/state/source-backed-runtime-confidence.generated.json",

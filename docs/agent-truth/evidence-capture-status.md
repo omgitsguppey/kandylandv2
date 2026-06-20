@@ -2,9 +2,9 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-06-19T17:27:18.603Z
+Generated: 2026-06-20T17:39:43.262Z
 
-Latest code version: `31d3c3bfdbca0433d699443795f6c713dc26ceaa`
+Latest code version: `42be9be767fc81370662e9a84f6673b1284d203e`
 
 ## Summary
 
@@ -58,11 +58,11 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 ## Refresh Plan
 
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/current-beta-exit-status.generated.json: Current beta exit status is current as a same-commit generated report snapshot. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score is current as a same-commit generated report snapshot. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:current-beta-exit-status`.
+- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
-- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
+- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke is current for the latest code version. Command: `npm run check:operator-revenue-smoke`.
 - agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
 - agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.
 - agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-settings-control-plane`.
@@ -70,7 +70,7 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 ## Next Exact Steps
 
-1. Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui before manual viewing; fix any source-reported UI surface gaps.
+1. Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface gaps before optional browser reproduction.
 2. Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.
 3. Run npm run capture:truthful-evidence to generate deployed runtime smoke evidence without provider/payment calls.
 4. Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.

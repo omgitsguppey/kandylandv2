@@ -119,7 +119,7 @@ function scoreDimensions(input?: Partial<FormalEvidenceBridgeScoreDimensions>): 
 }
 
 function includesOperatorRevenue(artifact: FormalEvidenceBridgeArtifact | undefined) {
-  return /operator_confirmed|operatorRevenueSmoke|amountUsdConfirmed=50/iu.test(evidenceArtifactText(artifact));
+  return /operator_confirmed|operatorRevenueSmoke|amountUsdConfirmed=[0-9]+(?:\.[0-9]+)?/iu.test(evidenceArtifactText(artifact));
 }
 
 function unique<T>(items: T[]) {

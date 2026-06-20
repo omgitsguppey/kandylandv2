@@ -37,6 +37,7 @@ export type OperatorRevenueSmokeReport = {
 type BuildOptions = {
   currentHead: string;
   generatedAtUtc: string;
+  amountUsdConfirmed: number;
 };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -46,7 +47,13 @@ const reportRelativePath = "agent/state/operator-revenue-smoke.generated.json";
 const reportPath = join(repoRoot, reportRelativePath);
 const docsRelativePath = "docs/agent-truth/operator-revenue-smoke.md";
 const docsPath = join(repoRoot, docsRelativePath);
-const plainLanguageNote = "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.";
+function positiveAmount(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function plainLanguageNote(amountUsdConfirmed: number) {
+  return `A real $${amountUsdConfirmed} GumDrop payment was operator-confirmed. Formal provider evidence is still separate.`;
+}
 
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
@@ -58,13 +65,14 @@ function readReport() {
 }
 
 export function buildOperatorRevenueSmokeReport(options: BuildOptions): OperatorRevenueSmokeReport {
+  const amountUsdConfirmed = positiveAmount(options.amountUsdConfirmed) ?? 0;
   return {
     generatedAtUtc: options.generatedAtUtc,
     reportKey: "operator-revenue-smoke",
     currentHead: options.currentHead,
     summary: {
       revenueSmokeStatus: "operator_confirmed_revenue_smoke",
-      amountUsdConfirmed: 50,
+      amountUsdConfirmed,
       product: "GumDrops",
       confirmationSource: "operator_confirmed",
       providerArtifactAttached: false,
@@ -74,7 +82,7 @@ export function buildOperatorRevenueSmokeReport(options: BuildOptions): Operator
       canStartBetaExitReview: false,
       nextAction: "Optional formal provider/app artifact if operator chooses; not required for acknowledging the sale.",
     },
-    plainLanguageNote,
+    plainLanguageNote: plainLanguageNote(amountUsdConfirmed),
     evidenceSeparation: {
       acknowledgedAsRealProductSignal: true,
       formalProviderEvidenceRequiredForGate: true,
@@ -115,7 +123,7 @@ export function validateOperatorRevenueSmokeReport(
   if (summary.revenueSmokeStatus !== "operator_confirmed_revenue_smoke") {
     failures.push("operator-confirmed payment must be classified as operator_confirmed_revenue_smoke.");
   }
-  if (summary.amountUsdConfirmed !== 50) failures.push("amountUsdConfirmed must be 50.");
+  if (!positiveAmount(summary.amountUsdConfirmed)) failures.push("amountUsdConfirmed must be a positive operator-confirmed amount.");
   if (summary.product !== "GumDrops") failures.push("product must be GumDrops.");
   if (summary.confirmationSource !== "operator_confirmed") failures.push("confirmationSource must be operator_confirmed.");
   if (summary.providerArtifactAttached !== false) {
@@ -133,8 +141,8 @@ export function validateOperatorRevenueSmokeReport(
   if (!summary.nextAction.includes("Optional formal provider/app artifact")) {
     failures.push("nextAction must make formal provider/app artifact optional for acknowledgement.");
   }
-  if (report.plainLanguageNote !== plainLanguageNote) {
-    failures.push("plainLanguageNote must separate real $50 payment confirmation from formal provider evidence.");
+  if (report.plainLanguageNote !== plainLanguageNote(summary.amountUsdConfirmed)) {
+    failures.push("plainLanguageNote must separate operator-confirmed payment context from formal provider evidence.");
   }
   if (!report.evidenceSeparation?.acknowledgedAsRealProductSignal) {
     failures.push("operator payment must be acknowledged as real product signal.");
@@ -201,9 +209,12 @@ ${report.nextExactSteps.map((step) => `- ${step}`).join("\n")}
 }
 
 function main() {
+  const existingAmount = positiveAmount(readReport()?.summary?.amountUsdConfirmed);
+  const envAmount = positiveAmount(Number(process.env.OPERATOR_REVENUE_SMOKE_AMOUNT_USD));
   const report = buildOperatorRevenueSmokeReport({
     currentHead: currentHead(),
     generatedAtUtc: new Date().toISOString(),
+    amountUsdConfirmed: envAmount ?? existingAmount ?? 0,
   });
   mkdirSync(dirname(reportPath), { recursive: true });
   mkdirSync(dirname(docsPath), { recursive: true });
