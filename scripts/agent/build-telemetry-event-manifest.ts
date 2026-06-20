@@ -1,10 +1,12 @@
 import { pathToFileURL } from "node:url";
 
-import { nowIso, readText, writeTextFile } from "./shared";
+import { fileExists, nowIso, readText, writeTextFile } from "./shared";
 
 const TELEMETRY_CATALOG_PATH = "src/lib/telemetry-catalog.ts";
 const SURFACE_CATALOG_PATH = "src/lib/analytics/telemetry/surface-telemetry-catalog-events.ts";
 const OUTPUT_PATH = "shared/runtime/telemetry-event-manifest.ts";
+const GENERATED_AT_EXPORT_PATTERN =
+  /export const TELEMETRY_EVENT_MANIFEST_GENERATED_AT = "([^"]+)";/u;
 
 type ManifestEvent = {
   eventName: string;
@@ -77,6 +79,41 @@ function serializeAliasEntries(entries: Array<[string, string]>) {
   return `[\n${entries.map(([alias, canonical]) => `  [${JSON.stringify(alias)}, ${JSON.stringify(canonical)}],`).join("\n")}\n] as const`;
 }
 
+export function readTelemetryManifestGeneratedAt(source: string) {
+  return GENERATED_AT_EXPORT_PATTERN.exec(source)?.[1] ?? null;
+}
+
+function replaceTelemetryManifestGeneratedAt(source: string, generatedAtUtc: string) {
+  return source.replace(
+    GENERATED_AT_EXPORT_PATTERN,
+    `export const TELEMETRY_EVENT_MANIFEST_GENERATED_AT = ${JSON.stringify(generatedAtUtc)};`,
+  );
+}
+
+function normalizeTelemetryManifestForGeneratedAtComparison(source: string) {
+  return replaceTelemetryManifestGeneratedAt(source, "__GENERATED_AT__").replace(/\r\n/gu, "\n");
+}
+
+export function resolveTelemetryManifestGeneratedAt(input: {
+  existingManifestSource?: string | null;
+  nextManifestSource: string;
+  nextGeneratedAtUtc: string;
+}) {
+  const existingGeneratedAt = input.existingManifestSource
+    ? readTelemetryManifestGeneratedAt(input.existingManifestSource)
+    : null;
+  if (
+    input.existingManifestSource
+    && existingGeneratedAt
+    && normalizeTelemetryManifestForGeneratedAtComparison(input.existingManifestSource)
+      === normalizeTelemetryManifestForGeneratedAtComparison(input.nextManifestSource)
+  ) {
+    return existingGeneratedAt;
+  }
+
+  return input.nextGeneratedAtUtc;
+}
+
 export function buildTelemetryEventManifestSource(input?: {
   telemetryCatalogSource?: string;
   surfaceCatalogSource?: string;
@@ -119,7 +156,29 @@ export function buildTelemetryEventManifestSource(input?: {
 }
 
 export function main() {
-  writeTextFile(OUTPUT_PATH, buildTelemetryEventManifestSource());
+  const nextGeneratedAtUtc = nowIso();
+  const nextManifestSource = buildTelemetryEventManifestSource({ generatedAtUtc: nextGeneratedAtUtc });
+  const existingManifestSource = fileExists(OUTPUT_PATH) ? readText(OUTPUT_PATH) : null;
+  const generatedAtUtc = resolveTelemetryManifestGeneratedAt({
+    existingManifestSource,
+    nextManifestSource,
+    nextGeneratedAtUtc,
+  });
+  const output = generatedAtUtc === nextGeneratedAtUtc
+    ? nextManifestSource
+    : replaceTelemetryManifestGeneratedAt(nextManifestSource, generatedAtUtc);
+  if (
+    existingManifestSource === output
+    || (
+      existingManifestSource
+      && normalizeTelemetryManifestForGeneratedAtComparison(existingManifestSource)
+        === normalizeTelemetryManifestForGeneratedAtComparison(output)
+    )
+  ) {
+    console.log(`Telemetry event manifest unchanged at ${OUTPUT_PATH}.`);
+    return;
+  }
+  writeTextFile(OUTPUT_PATH, output);
   console.log(`Telemetry event manifest written to ${OUTPUT_PATH}.`);
 }
 
