@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T14:21:51.904Z",
-  "currentHead": "823d29b101b7daad9bbba217836cc9a7210eae67",
+  "generatedAtUtc": "2026-06-20T16:11:59.904Z",
+  "currentHead": "a61a78d3686e02ec46411a31c5da09dc8adf58c0",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -1006,7 +1006,7 @@
   },
   "activeSourceCoverage": {
     "reportKey": "launch-critical-active-source-coverage",
-    "generatedAtUtc": "2026-06-20T14:21:51.904Z",
+    "generatedAtUtc": "2026-06-20T16:11:59.904Z",
     "version": "2026.06.recovery-timeline-spine.1",
     "familyCount": 13,
     "activeSourceFamilyCount": 13,
@@ -1039,7 +1039,7 @@
           "sourceRole": "behavior_product_truth",
           "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
         },
-        "activeSourceReferenceCount": 23,
+        "activeSourceReferenceCount": 24,
         "materializerReferenceCount": 15,
         "sourceCoverageState": "source_connected",
         "sourceTruth": "first_party_event_fact",
@@ -2720,7 +2720,7 @@
             "sourceRole": "behavior_product_truth",
             "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
           },
-          "activeSourceReferenceCount": 23,
+          "activeSourceReferenceCount": 24,
           "materializerReferenceCount": 15,
           "sourceCoverageState": "source_connected",
           "sourceTruth": "first_party_event_fact",
