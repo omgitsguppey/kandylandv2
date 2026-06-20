@@ -1,25 +1,25 @@
 {
   "reportKey": "metric-canonicalization-legacy-recovery",
-  "generatedAtUtc": "2026-06-20T18:15:55.246Z",
-  "currentHead": "2aa8515d504357c3c3e055fcfc443547d1fe0fc7",
+  "generatedAtUtc": "2026-06-20T20:55:24.060Z",
+  "currentHead": "6257d0ecfb5935d018a8561dfff05c7d9eea01a7",
   "status": "pass",
   "scoreBefore": {
-    "sourceHealth": 99.2,
-    "runtimeHealth": 71.2,
-    "evidenceCompleteness": 58.4,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 60.45,
+    "evidenceCompleteness": 55.11,
     "freshness": 83.75,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 76.88
+    "overallHealthScore": 73.57
   },
   "scoreAfter": {
-    "sourceHealth": 99.2,
-    "runtimeHealth": 71.2,
-    "evidenceCompleteness": 58.4,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 60.45,
+    "evidenceCompleteness": 55.11,
     "freshness": 83.75,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 76.88
+    "overallHealthScore": 73.57
   },
   "dryRunOnly": true,
   "productionReadsRequired": false,
