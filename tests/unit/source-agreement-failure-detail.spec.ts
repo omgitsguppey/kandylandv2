@@ -620,6 +620,8 @@ describe("source agreement failure detail", () => {
 
   it("classifies candidate launch coverage inputs without treating general samples as proof", () => {
     const statuses = launchHistoryCoverageInputStatuses();
+    const missingLocalExport = statuses.find((entry) => entry.path === "agent/evidence/launch-analytics/launch-history-coverage.local.json");
+    const adminSampleWithoutCoverage = statuses.find((entry) => entry.path === "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json");
 
     expect(statuses).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -633,6 +635,10 @@ describe("source agreement failure detail", () => {
         proofMode: "none",
       }),
     ]));
+    expect(missingLocalExport?.nextAction).toContain("npm run capture:truthful-evidence -- --launch-coverage-from");
+    expect(missingLocalExport?.nextAction).toContain("launch-history-coverage.export.json");
+    expect(adminSampleWithoutCoverage?.nextAction).toContain("lacks launchHistoryCoverage day rows");
+    expect(adminSampleWithoutCoverage?.nextAction).toContain("launch-history-coverage.export.json");
     expect(statuses.some((entry) => entry.state === "usable_launch_history_coverage")).toBe(false);
   });
 

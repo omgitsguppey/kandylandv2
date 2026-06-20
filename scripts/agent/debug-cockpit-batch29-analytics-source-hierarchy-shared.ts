@@ -87,6 +87,8 @@ const LAUNCH_HISTORY_COVERAGE_EXPORT_PATHS = [
   "agent/evidence/launch-analytics/launch-history-coverage.export.json",
 ].filter((value): value is string => Boolean(value && value.trim()));
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_FOLDER = "agent/evidence/admin-truth-sample";
+const LAUNCH_HISTORY_EXPORT_COMMAND = "npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>";
+const LAUNCH_HISTORY_DEFAULT_EXPORT_PATH = "agent/evidence/launch-analytics/launch-history-coverage.export.json";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -307,7 +309,7 @@ export function launchHistoryCoverageInputStatuses(): LaunchHistoryCoverageInput
         path: filePath,
         state: "missing",
         proofMode: "none",
-        nextAction: "Attach an approved local launch-history export at this path before using it as source evidence.",
+        nextAction: `Run \`${LAUNCH_HISTORY_EXPORT_COMMAND}\` to create ${LAUNCH_HISTORY_DEFAULT_EXPORT_PATH}, or place a complete redacted launchHistoryCoverage export at this path.`,
       };
     }
     if (!readResult.parsed) {
@@ -372,7 +374,7 @@ export function launchHistoryCoverageInputStatuses(): LaunchHistoryCoverageInput
       path: filePath,
       state: "present_without_launch_history_coverage",
       proofMode: "none",
-      nextAction: "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery.",
+      nextAction: `This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create ${LAUNCH_HISTORY_DEFAULT_EXPORT_PATH} with \`${LAUNCH_HISTORY_EXPORT_COMMAND}\`.`,
     };
   });
 }
