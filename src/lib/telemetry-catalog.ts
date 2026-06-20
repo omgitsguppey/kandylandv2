@@ -319,7 +319,6 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "daily_task_window_assigned", label: "Daily task window assigned", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
   { eventName: "daily_task_window_repaired", label: "Daily task window repaired", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
   { eventName: "daily_task_progressed", label: "Daily task progressed", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
-  { eventName: "daily_task_completed", label: "Daily task completed", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
   { eventName: "daily_task_claimed", label: "Daily task claimed", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
   { eventName: "daily_task_claim_duplicate_prevented", label: "Daily task claim duplicate prevented", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
   { eventName: "daily_task_expired", label: "Daily task expired", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
@@ -619,7 +618,6 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "daily_deadline_in_app_reminder_opened", label: "In-app deadline reminder opened", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications", "tasks"] },
   { eventName: "daily_deadline_in_app_reminder_dismissed", label: "In-app deadline reminder dismissed", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications", "tasks"] },
   { eventName: "feedback_modal_opened", label: "Feedback modal opened", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"] },
-  { eventName: "feedback_submitted", label: "Feedback submitted", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"], auditCoveredBy: ["bug_report_submitted"] },
   { eventName: "feature_flag_exposed", label: "Feature flag exposed", category: "system", sources: DEFAULT_CLIENT_SOURCES, modules: ["runtime"] },
   { eventName: "experiment_variant_exposed", label: "Experiment variant exposed", category: "system", sources: DEFAULT_CLIENT_SOURCES, modules: ["runtime"] },
   { eventName: "identity_linked", label: "Guest identity linked", category: "auth", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["auth", "engagement"], auditCoveredBy: ["auth_sign_in_success", "auth_sign_up_success"] },
@@ -889,10 +887,18 @@ export const TELEMETRY_EVENT_OPTIONS_BY_NAME = Object.fromEntries(
   TELEMETRY_EVENT_OPTIONS.map((event) => [event.eventName, event]),
 ) as Record<string, TelemetryEventOption>;
 
+const TELEMETRY_EVENT_ALIAS_OVERRIDES: Record<string, string> = {
+  daily_task_completed: "task_completed",
+  feedback_submitted: "bug_report_submitted",
+};
+
 export const TELEMETRY_EVENT_ALIAS_MAP = Object.fromEntries(
-  TELEMETRY_EVENT_OPTIONS.flatMap((event) => (event.aliases ?? [])
-    .filter((alias) => !TELEMETRY_EVENT_NAME_SET.has(alias))
-    .map((alias) => [alias, event.eventName] as const)),
+  [
+    ...TELEMETRY_EVENT_OPTIONS.flatMap((event) => (event.aliases ?? [])
+      .filter((alias) => !TELEMETRY_EVENT_NAME_SET.has(alias))
+      .map((alias) => [alias, event.eventName] as const)),
+    ...Object.entries(TELEMETRY_EVENT_ALIAS_OVERRIDES),
+  ],
 ) as Record<string, string>;
 
 export const TELEMETRY_EVENT_LABELS = Object.fromEntries(
@@ -1847,7 +1853,12 @@ export const TELEMETRY_EVENT_PAYLOAD_CONTRACTS = TELEMETRY_EVENT_OPTIONS.map((ev
 );
 
 export const TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME = Object.fromEntries(
-  TELEMETRY_EVENT_PAYLOAD_CONTRACTS.map((contract) => [contract.eventName, contract]),
+  TELEMETRY_EVENT_PAYLOAD_CONTRACTS.flatMap((contract) => [
+    [contract.eventName, contract] as const,
+    ...contract.aliases
+      .filter((alias) => !TELEMETRY_EVENT_NAME_SET.has(alias) || TELEMETRY_EVENT_ALIAS_OVERRIDES[alias] === contract.eventName)
+      .map((alias) => [alias, contract] as const),
+  ]),
 ) as Record<string, TelemetryEventPayloadContract>;
 
 function deriveTelemetryEventType(eventName: string, family: TelemetryEventFamily): TelemetryEventType {

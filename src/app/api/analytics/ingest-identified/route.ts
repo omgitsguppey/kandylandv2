@@ -19,6 +19,8 @@ import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-w
 import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
 import { materializeUserTrackingIndexes } from "@/lib/server/user-index-materializer";
 import { resolveIdentityTransferTelemetryState } from "@/lib/analytics/identity-transfer";
+import { BEHAVIORAL_EVENT_FACT_VERSION, type BehavioralEventSource } from "@/lib/behavioral/event-fact-contract";
+import { normalizeBehavioralEventFactWithDiagnostics } from "@/lib/behavioral/normalize-event-fact";
 import { buildEventIdentityEnvelope } from "@/lib/analytics/identity-handoff-engine";
 import {
     buildEventEnvelope,
@@ -72,6 +74,13 @@ function normalizeIdentifiedRuntimeFactForIngestWrite(fact: RuntimeFact): Runtim
         normalizedAction: "drop_unlocked",
         metricFamily: "commerce",
     };
+}
+
+function resolveBehavioralEventSource(sourceTruth: RuntimeFact["sourceTruth"]): BehavioralEventSource {
+    if (sourceTruth === "materialized") return "materialized";
+    if (sourceTruth === "legacy") return "legacy";
+    if (sourceTruth === "client" || sourceTruth === "local_projection") return "client";
+    return "server";
 }
 
 function buildIdentifiedIngestClientErrorResponse(input: {
@@ -342,6 +351,24 @@ async function POST_handler(request: NextRequest) {
             }
 
             const ingestRuntimeFact = normalizeIdentifiedRuntimeFactForIngestWrite(runtimeFactResult.fact);
+            // Metric truth is owned by normalizeIdentifiedRuntimeFact -> normalizeIdentifiedMetricEventFact;
+            // this route only persists the canonical behavioral fact snapshot/version for downstream readers.
+            const behavioralEventFactResult = normalizeBehavioralEventFactWithDiagnostics({
+                eventId,
+                eventName: rawEvent.eventName,
+                params: enrichedParams,
+                timestamp,
+                userId: ingestRuntimeFact.actor.actorUserId || caller.uid,
+                sessionId: ingestRuntimeFact.actor.sessionId,
+                anonymousVisitorId: ingestRuntimeFact.actor.anonymousVisitorId,
+                pagePath: ingestRuntimeFact.route,
+                route: ingestRuntimeFact.route,
+                dropId: ingestRuntimeFact.target.targetDropId,
+                creatorId: ingestRuntimeFact.target.targetCreatorId || ingestRuntimeFact.actor.actorCreatorId,
+                assetKey: ingestRuntimeFact.target.targetFileId,
+                source: resolveBehavioralEventSource(ingestRuntimeFact.sourceTruth),
+                confidence: ingestRuntimeFact.confidence,
+            });
             const parityFact: IdentifiedMetricParityFact = {
                 normalizedAction: ingestRuntimeFact.normalizedAction as IdentifiedMetricParityFact["normalizedAction"],
                 metricFamily: ingestRuntimeFact.metricFamily as IdentifiedMetricParityFact["metricFamily"],
@@ -425,12 +452,16 @@ async function POST_handler(request: NextRequest) {
                 eventEnvelopeDedupeKey: `${eventEnvelope.eventName}|${eventEnvelope.sessionId}|${eventEnvelope.eventId}`,
                 normalizedAction: parityFact.normalizedAction,
                 normalizedActionName: parityFact.normalizedAction,
+                behavioralEventFactVersion: behavioralEventFactResult.fact ? BEHAVIORAL_EVENT_FACT_VERSION : "",
+                behavioralFact: behavioralEventFactResult.fact,
+                behavioralFactDiagnostic: behavioralEventFactResult.diagnostic,
                 metricFamily: parityFact.metricFamily,
                 sourceTruth: parityFact.sourceTruth,
                 sourceConfidence: parityFact.sourceConfidence,
                 metricEligible: parityFact.metricEligible,
                 metricExclusionReason: parityFact.metricExclusionReason,
                 analyticsExclusionReason: parityFact.metricExclusionReason,
+                targetUserId: parityFact.targetUserId,
                 sourceIdentity: {
                     anonymousVisitorId: anonymousVisitorId || null,
                     sessionId: sessionId || null,

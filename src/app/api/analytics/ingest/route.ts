@@ -41,6 +41,8 @@ import {
 import { normalizeAnonymousRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
 import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
+import { normalizeBehavioralEventFactWithDiagnostics } from "@/lib/behavioral/normalize-event-fact";
+import { buildBehavioralEventFactRollup } from "@/lib/server/event-fact-rollup";
 import {
     RUNTIME_FACT_CONTRACT_VERSION,
     type RuntimeFact,
@@ -441,6 +443,35 @@ async function POST_handler(request: NextRequest) {
         const runtimeDiagnostics = runtimeFactResults
             .map((result) => result.diagnostic)
             .filter((diagnostic): diagnostic is RuntimeFactDiagnostic => Boolean(diagnostic));
+        const behavioralEventResults = acceptedSanitizedEvents.map((event, index) => normalizeBehavioralEventFactWithDiagnostics({
+            eventId: `${batchId}:${index}`,
+            eventName: resolveGuestEnvelopeEventName(event),
+            params: {
+                route: event.path,
+                page_path: event.path,
+                drop_id: event.dropId,
+                drop_category: event.dropCategory,
+                source_component: event.targetId || event.targetTag || event.semanticSurfaceKey || "guest_runtime_ingest",
+                semantic_surface_key: event.semanticSurfaceKey,
+                semantic_scope_key: event.semanticScopeKey,
+                semantic_category: event.semanticCategory,
+                target_id: event.targetId,
+                target_tag: event.targetTag,
+                duration_ms: event.durationMs,
+            },
+            timestamp: event.timestamp,
+            sessionId: sessionId || sessionKey,
+            anonymousVisitorId: canonicalAnonymousVisitorId,
+            pagePath: event.path,
+            route: event.path,
+            dropId: event.dropId,
+            source: "client",
+            confidence: 0.75,
+        }));
+        const behavioralEventFactRollup = buildBehavioralEventFactRollup({
+            facts: behavioralEventResults.map((result) => result.fact),
+            diagnostics: behavioralEventResults.map((result) => result.diagnostic),
+        });
         const eventContracts = acceptedSanitizedEvents.map((event) => getAnalyticsIngestContract(event.type));
         const ingestDestinations = Array.from(new Set(eventContracts.flatMap((contract) => contract.destinationLanes)));
 
@@ -531,6 +562,11 @@ async function POST_handler(request: NextRequest) {
                 normalizedActionCount: runtimeFacts.length,
                 unknownRuntimeEvents: runtimeDiagnostics.slice(0, 20),
                 unknownRuntimeEventCount: runtimeDiagnostics.length,
+                behavioralEventFactVersion: behavioralEventFactRollup.version,
+                behavioralEventFacts: behavioralEventFactRollup.facts.slice(0, 50),
+                behavioralEventCounts: behavioralEventFactRollup.counts,
+                unknownBehavioralEvents: behavioralEventFactRollup.unknownEvents.slice(0, 20),
+                unknownBehavioralEventCount: behavioralEventFactRollup.diagnostics.length,
                 createdAt: FieldValue.serverTimestamp(),
             });
 

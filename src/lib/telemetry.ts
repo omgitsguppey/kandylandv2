@@ -21,7 +21,7 @@ import {
     type SanitizedTelemetryParams,
     sanitizeTelemetryParamsForBackend,
     sanitizeTelemetryParamsForGa4,
-} from "./telemetry-safety";
+} from "./analytics/telemetry-safety";
 
 /**
  * Fire-and-forget telemetry tracking.
