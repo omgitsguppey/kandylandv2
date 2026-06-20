@@ -10,6 +10,7 @@ import {
 } from "../../scripts/agent/validate-runtime-smoke-evidence";
 import {
   adminTruthSampleEvidenceStaleReasons,
+  adminTruthSampleLaunchHistoryCoverageFailures,
   validateAdminTruthSampleEvidenceDocument,
 } from "../../scripts/agent/validate-admin-truth-sample-evidence";
 
@@ -154,5 +155,87 @@ describe("evidence artifact schemas", () => {
     );
 
     expect(reasons).toEqual([]);
+  });
+
+  it("keeps launch-history coverage proof separate from general admin truth samples", () => {
+    const generalSample = {
+      status: "complete",
+      capturedAtUtc: "2026-05-19T05:30:00.000Z",
+      currentHead: "same-head",
+      surface: "admin_truth_sample",
+      artifactPath: "agent/evidence/admin-truth-sample/sample.redacted.json",
+      sourceFreshnessUtc: "2026-05-19T05:30:00.000Z",
+      redactions: ["no raw user data"],
+      checks: [
+        { id: "source-freshness", status: "pass", notes: "" },
+        { id: "sample-count", status: "pass", notes: "" },
+        { id: "source-state-label", status: "pass", notes: "" },
+        { id: "redacted-artifact-attached", status: "pass", notes: "" },
+      ],
+    };
+
+    expect(validateAdminTruthSampleEvidenceDocument(
+      generalSample,
+      { requireComplete: true, existingPaths: new Set(["agent/evidence/admin-truth-sample/sample.redacted.json"]) },
+    )).toEqual([]);
+    expect(adminTruthSampleLaunchHistoryCoverageFailures(generalSample)).toEqual([]);
+
+    const falseLaunchClaim = {
+      ...generalSample,
+      checks: [
+        ...generalSample.checks,
+        { id: "launch-history-coverage", status: "pass", notes: "" },
+      ],
+      launchHistoryCoverage: {
+        rangeStartDayKey: "2026-02-12",
+        rangeEndDayKey: "2026-02-12",
+        expectedDayCount: 1,
+        days: [],
+        rangeProof: {
+          allLaunchRangeProven: false,
+        },
+      },
+    };
+
+    expect(adminTruthSampleLaunchHistoryCoverageFailures(falseLaunchClaim)).toEqual(expect.arrayContaining([
+      "admin truth launch-history coverage check cannot pass unless rangeProof.allLaunchRangeProven is true.",
+    ]));
+  });
+
+  it("accepts launch-history coverage only when range proof and rows match", () => {
+    const launchSample = {
+      status: "complete",
+      capturedAtUtc: "2026-05-19T05:30:00.000Z",
+      currentHead: "same-head",
+      surface: "admin_truth_sample",
+      artifactPath: "agent/evidence/admin-truth-sample/sample.redacted.json",
+      sourceFreshnessUtc: "2026-05-19T05:30:00.000Z",
+      redactions: ["no raw user data"],
+      checks: [
+        { id: "source-freshness", status: "pass", notes: "" },
+        { id: "sample-count", status: "pass", notes: "" },
+        { id: "source-state-label", status: "pass", notes: "" },
+        { id: "redacted-artifact-attached", status: "pass", notes: "" },
+        { id: "launch-history-coverage", status: "pass", notes: "" },
+      ],
+      launchHistoryCoverage: {
+        rangeStartDayKey: "2026-02-12",
+        rangeEndDayKey: "2026-02-13",
+        expectedDayCount: 2,
+        days: [
+          { dayKey: "2026-02-12", expected: true, sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 0, legacySupport: 0 } },
+          { dayKey: "2026-02-13", expected: true, sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 0, legacySupport: 0 } },
+        ],
+        rangeProof: {
+          allLaunchRangeProven: true,
+        },
+      },
+    };
+
+    expect(adminTruthSampleLaunchHistoryCoverageFailures(launchSample)).toEqual([]);
+    expect(validateAdminTruthSampleEvidenceDocument(
+      launchSample,
+      { requireComplete: true, existingPaths: new Set(["agent/evidence/admin-truth-sample/sample.redacted.json"]) },
+    )).toEqual([]);
   });
 });

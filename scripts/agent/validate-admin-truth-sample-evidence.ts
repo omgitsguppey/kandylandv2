@@ -19,6 +19,7 @@ type LaneEvaluation = {
   evidenceFiles: string[];
   completeArtifacts: string[];
   passingArtifacts: string[];
+  launchHistoryCoverageArtifacts: string[];
   staleArtifacts: string[];
   staleReasons: string[];
   failures: string[];
@@ -30,6 +31,8 @@ const REQUIRED_ADMIN_TRUTH_CHECKS = [
   "source-state-label",
   "redacted-artifact-attached",
 ] as const;
+
+const LAUNCH_HISTORY_COVERAGE_CHECK_ID = "launch-history-coverage";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -120,6 +123,68 @@ export function adminTruthSampleEvidenceStaleReasons(
   return reasons;
 }
 
+function normalizedDayRows(value: unknown) {
+  return array(value)
+    .map(record)
+    .filter((day) => typeof day.dayKey === "string" && day.dayKey.trim().length > 0)
+    .map((day) => ({
+      ...day,
+      dayKey: String(day.dayKey).trim(),
+    }));
+}
+
+export function adminTruthSampleLaunchHistoryCoverageFailures(document: unknown) {
+  const doc = record(document);
+  const checks = array(doc.checks).map(record);
+  const launchCheck = checks.find((check) => check.id === LAUNCH_HISTORY_COVERAGE_CHECK_ID);
+  const coverage = record(doc.launchHistoryCoverage);
+  const hasCoverage = Object.keys(coverage).length > 0;
+  const failures: string[] = [];
+
+  if (!hasCoverage) {
+    if (launchCheck?.status === "pass") {
+      failures.push("admin truth launch-history coverage check cannot pass without launchHistoryCoverage rows.");
+    }
+    return failures;
+  }
+
+  if (!launchCheck) {
+    failures.push('admin truth evidence with launchHistoryCoverage must include check "launch-history-coverage".');
+  }
+
+  const rangeProof = record(coverage.rangeProof);
+  const allLaunchRangeProven = rangeProof.allLaunchRangeProven === true;
+  const dayRows = normalizedDayRows(coverage.days);
+  const expectedDayCount = typeof coverage.expectedDayCount === "number" && Number.isFinite(coverage.expectedDayCount)
+    ? coverage.expectedDayCount
+    : dayRows.length;
+  const rangeStartDayKey = typeof coverage.rangeStartDayKey === "string" ? coverage.rangeStartDayKey.trim() : "";
+  const rangeEndDayKey = typeof coverage.rangeEndDayKey === "string" ? coverage.rangeEndDayKey.trim() : "";
+  const firstDayKey = dayRows[0]?.dayKey ?? "";
+  const lastDayKey = dayRows[dayRows.length - 1]?.dayKey ?? "";
+
+  if (launchCheck?.status === "pass" && !allLaunchRangeProven) {
+    failures.push("admin truth launch-history coverage check cannot pass unless rangeProof.allLaunchRangeProven is true.");
+  }
+  if (allLaunchRangeProven && launchCheck?.status !== "pass") {
+    failures.push("admin truth launchHistoryCoverage cannot claim allLaunchRangeProven without a passing launch-history-coverage check.");
+  }
+  if (allLaunchRangeProven && dayRows.length === 0) {
+    failures.push("admin truth launchHistoryCoverage must include day rows when allLaunchRangeProven is true.");
+  }
+  if (allLaunchRangeProven && expectedDayCount !== dayRows.length) {
+    failures.push("admin truth launchHistoryCoverage expectedDayCount must match day rows when allLaunchRangeProven is true.");
+  }
+  if (allLaunchRangeProven && rangeStartDayKey !== firstDayKey) {
+    failures.push("admin truth launchHistoryCoverage rangeStartDayKey must match the first day row.");
+  }
+  if (allLaunchRangeProven && rangeEndDayKey !== lastDayKey) {
+    failures.push("admin truth launchHistoryCoverage rangeEndDayKey must match the last day row.");
+  }
+
+  return failures;
+}
+
 export function validateAdminTruthSampleEvidenceDocument(
   document: unknown,
   options: ValidationOptions = {},
@@ -168,6 +233,7 @@ export function validateAdminTruthSampleEvidenceDocument(
       failures.push(`admin truth check "${String(check.id ?? "unknown")}" must use pass, fail, or blocked status.`);
     }
   }
+  failures.push(...adminTruthSampleLaunchHistoryCoverageFailures(doc));
 
   return failures;
 }
@@ -189,6 +255,7 @@ export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
   const failures: string[] = [];
   const completeArtifacts: string[] = [];
   const passingArtifacts: string[] = [];
+  const launchHistoryCoverageArtifacts: string[] = [];
   const staleArtifacts: string[] = [];
   const staleReasons: string[] = [];
   const head = currentHead();
@@ -201,6 +268,14 @@ export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
       if (validationFailures.length === 0) {
         completeArtifacts.push(file);
         const checks = array(record(document).checks).map(record);
+        const hasPassingLaunchCoverageCheck = checks.some((check) =>
+          check.id === LAUNCH_HISTORY_COVERAGE_CHECK_ID && check.status === "pass"
+        );
+        const launchCoverage = record(record(document).launchHistoryCoverage);
+        const launchRangeProof = record(launchCoverage.rangeProof);
+        if (hasPassingLaunchCoverageCheck && launchRangeProof.allLaunchRangeProven === true) {
+          launchHistoryCoverageArtifacts.push(file);
+        }
         if (checks.length > 0 && checks.every((check) => check.status === "pass")) {
           const documentStaleReasons = adminTruthSampleEvidenceStaleReasons(document, {
             currentHead: head,
@@ -238,6 +313,7 @@ export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
     evidenceFiles: files,
     completeArtifacts,
     passingArtifacts,
+    launchHistoryCoverageArtifacts,
     staleArtifacts,
     staleReasons,
     failures,
@@ -265,6 +341,8 @@ function writeGeneratedState(result: LaneEvaluation) {
     freshAdminTruthSampleAttached: passed,
     productionSampleAttached: result.completeArtifacts.length > 0,
     formalAdminTruthSamplePassed: passed,
+    launchHistoryCoverageSampleAttached: result.launchHistoryCoverageArtifacts.length > 0,
+    launchHistoryCoverageSampleCount: result.launchHistoryCoverageArtifacts.length,
     sampleCount: result.passingArtifacts.length,
     completeSampleCount: result.completeArtifacts.length,
     staleSampleCount: result.staleArtifacts.length,
@@ -287,10 +365,12 @@ function writeGeneratedState(result: LaneEvaluation) {
       `adminTruthSample.status=${result.status}`,
       `adminTruthSample.completeArtifacts=${result.completeArtifacts.length}`,
       `adminTruthSample.passingArtifacts=${result.passingArtifacts.length}`,
+      `adminTruthSample.launchHistoryCoverageArtifacts=${result.launchHistoryCoverageArtifacts.length}`,
       `adminTruthSample.staleArtifacts=${result.staleArtifacts.length}`,
       `productionSampleAttached=${result.completeArtifacts.length > 0}`,
       `formalAdminTruthSamplePassed=${passed}`,
       ...result.passingArtifacts.map((artifact) => `adminTruthSample.passingArtifact=${artifact}`),
+      ...result.launchHistoryCoverageArtifacts.map((artifact) => `adminTruthSample.launchHistoryCoverageArtifact=${artifact}`),
       ...result.staleArtifacts.map((artifact) => `adminTruthSample.staleArtifact=${artifact}`),
       ...result.staleReasons.map((reason) => `adminTruthSample.staleReason=${reason}`),
     ],
