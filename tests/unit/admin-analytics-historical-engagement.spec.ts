@@ -95,4 +95,34 @@ describe("buildHistoricalEngagementAnalytics auth outcomes", () => {
     expect(result.authOutcomeSummary.sourceMode).toBe("canonical_attempt_chain");
     expect(emailMethod?.failureBreakdown[0]?.failureCode).toBe("failure_code_unavailable");
   });
+
+  it("labels navigation destinations with canonical recovery metadata without losing source mechanism", () => {
+    const result = buildHistoricalEngagementAnalytics(buildInput([
+      record("semantic_target_clicked", {
+        destinationPath: "/drops",
+        destinationLabel: "Drops",
+      }, Date.parse("2026-05-14T11:55:00.000Z")),
+      record("dashboard_viewed", {}, Date.parse("2026-05-14T11:56:00.000Z")),
+    ]));
+
+    const explicitDestination = result.navigationDestinationsState.destinations.find((row) => row.destinationPath === "/drops");
+    const fallbackDestination = result.navigationDestinationsState.destinations.find((row) => row.destinationPath === "/dashboard");
+
+    expect(explicitDestination).toMatchObject({
+      navigationSourceTruth: "semantic_target",
+      sourceTruth: "first_party_event_fact",
+      freshnessState: "source_current",
+      evidenceKind: "observed",
+      missingVsZeroState: "source_present",
+    });
+    expect(explicitDestination?.dedupeKey).toContain("launch_recovery|cta");
+    expect(fallbackDestination).toMatchObject({
+      navigationSourceTruth: "page_view_fallback",
+      sourceTruth: "first_party_event_fact",
+      freshnessState: "source_current",
+      evidenceKind: "observed",
+      missingVsZeroState: "source_present",
+    });
+    expect(fallbackDestination?.dedupeKey).toContain("launch_recovery|page_view");
+  });
 });

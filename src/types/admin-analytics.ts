@@ -554,19 +554,31 @@ export interface DestinationMixItem {
   count: number;
 }
 
+export type NavigationDestinationSourceTruth =
+  | "explicit_tap"
+  | "semantic_target"
+  | "notification_action"
+  | "viewer_related"
+  | "page_view_fallback";
+
 export type NavigationDestinationRow = {
   destinationPath: string;
   destinationLabel: string;
   count: number;
   uniqueActors?: number | null;
-  sourceTruth:
-    | "explicit_tap"
-    | "semantic_target"
-    | "notification_action"
-    | "viewer_related"
-    | "page_view_fallback";
+  navigationSourceTruth: NavigationDestinationSourceTruth;
+  sourceTruth: RecoveredLaunchMetricState["sourceTruth"];
   lastSeenAtUtc: string | null;
-  freshnessState: "live" | "recent" | "stale" | "unknown";
+  freshnessState: RecoveredLaunchMetricState["freshnessState"];
+  confidenceScore: RecoveredLaunchMetricState["confidenceScore"];
+  confidenceBand: RecoveredLaunchMetricState["confidenceBand"];
+  evidenceKind: RecoveredLaunchMetricState["evidenceKind"];
+  dedupeKey: RecoveredLaunchMetricState["dedupeKey"];
+  dedupeDimensions: RecoveredLaunchMetricState["dedupeDimensions"];
+  lateArrivalWindowDays: RecoveredLaunchMetricState["lateArrivalWindowDays"];
+  productTruthEligible: RecoveredLaunchMetricState["productTruthEligible"];
+  missingVsZeroState: RecoveredLaunchMetricState["missingVsZeroState"];
+  mathReason: RecoveredLaunchMetricState["mathReason"];
   topSourceEvents: string[];
   explanation: string;
 };

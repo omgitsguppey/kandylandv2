@@ -21,9 +21,19 @@ describe("buildAdminAnalyticsNavigationDestinationsModel", () => {
               destinationLabel: "Dashboard",
               count: 4,
               uniqueActors: 2,
-              sourceTruth: "page_view_fallback",
+              navigationSourceTruth: "page_view_fallback",
+              sourceTruth: "first_party_event_fact",
               lastSeenAtUtc: "2026-05-06T11:55:00.000Z",
-              freshnessState: "recent",
+              freshnessState: "source_current",
+              confidenceScore: 95,
+              confidenceBand: "verified",
+              evidenceKind: "observed",
+              dedupeKey: "launch_recovery|page_view|route:/dashboard",
+              dedupeDimensions: ["route"],
+              lateArrivalWindowDays: 12,
+              productTruthEligible: true,
+              missingVsZeroState: "source_present",
+              mathReason: "Navigation fallback uses bounded first-party page-view evidence.",
               topSourceEvents: ["dashboard_viewed"],
               explanation: "fallback",
             },
@@ -35,7 +45,8 @@ describe("buildAdminAnalyticsNavigationDestinationsModel", () => {
 
     expect(model.sourceMode).toBe("destination_views_only");
     expect(model.truthState).toBe("degraded");
-    expect(model.destinations[0]?.sourceTruth).toBe("page_view_fallback");
+    expect(model.destinations[0]?.navigationSourceTruth).toBe("page_view_fallback");
+    expect(model.destinations[0]?.sourceTruth).toBe("first_party_event_fact");
     expect(model.visibleCopy).toContain(
       "No explicit navigation tap events found. Showing destination visits from page-view fallback.",
     );

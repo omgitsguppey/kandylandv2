@@ -14,9 +14,11 @@ import type {
   AuthOutcomeSummary,
   NavigationDestinationsState,
   NavigationDestinationRow,
+  NavigationDestinationSourceTruth,
   ReturnCadenceSegment,
   ReturnCadenceState,
 } from "@/types/admin-analytics";
+import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 
 
 export interface HistoricalEngagementAnalytics {
@@ -53,7 +55,7 @@ const AUTH_METHOD_LABELS: Record<AuthMethodKey, string> = {
 const RETURN_CADENCE_DENOMINATOR_EXPLANATION =
   "Tracked authenticated users are users with at least one qualifying authenticated activity day in the selected range. Unique returners are users active on 2+ distinct days. Conversion = unique returners / tracked authenticated users.";
 
-type NavigationSourceTruth = NavigationDestinationRow["sourceTruth"];
+type NavigationSourceTruth = NavigationDestinationSourceTruth;
 type DestinationAccumulator = {
   destinationPath: string;
   destinationLabel: string;
@@ -291,22 +293,6 @@ function resolveFallbackDestinationFromFact(fact: Record<string, unknown>) {
   return null;
 }
 
-function mapNavigationFreshnessState(lastSeenAtMs: number, generatedAtUtc: string): NavigationDestinationRow["freshnessState"] {
-  const generatedAtMs = Date.parse(generatedAtUtc);
-  if (!lastSeenAtMs || !Number.isFinite(generatedAtMs)) {
-    return "unknown";
-  }
-
-  const ageMs = Math.max(0, generatedAtMs - lastSeenAtMs);
-  if (ageMs <= 5 * 60 * 1000) {
-    return "live";
-  }
-  if (ageMs <= 15 * 60 * 1000) {
-    return "recent";
-  }
-  return "stale";
-}
-
 function buildNavigationExplanation(input: {
   sourceTruth: NavigationSourceTruth;
   usedFallback: boolean;
@@ -332,6 +318,44 @@ function buildNavigationExplanation(input: {
   }
 
   return `Destination is proven by explicit navigation tap telemetry for ${input.destinationPath}.`;
+}
+
+function recoveryEventNameForNavigation(input: {
+  sourceTruth: NavigationSourceTruth;
+  topSourceEvents: string[];
+}) {
+  if (input.sourceTruth === "viewer_related" || input.topSourceEvents.includes("viewer_opened")) {
+    return "viewer_opened";
+  }
+  if (input.topSourceEvents.includes("drop_preview_opened")) {
+    return "drop_preview_opened";
+  }
+  if (input.sourceTruth === "page_view_fallback") {
+    return "semantic_page_viewed";
+  }
+  return "semantic_target_clicked";
+}
+
+function buildNavigationDestinationRecoveryMetadata(input: {
+  sourceTruth: NavigationSourceTruth;
+  destinationPath: string;
+  topSourceEvents: string[];
+  count: number;
+  lastSeenAtMs: number;
+}) {
+  const sourceObserved = input.count > 0;
+  return buildRecoveredLaunchMetricState({
+    eventName: recoveryEventNameForNavigation({
+      sourceTruth: input.sourceTruth,
+      topSourceEvents: input.topSourceEvents,
+    }),
+    sourceObserved,
+    sourceTruth: sourceObserved ? "first_party_event_fact" : "source_missing",
+    evidenceKind: sourceObserved ? "observed" : "missing",
+    route: input.destinationPath,
+    objectId: input.destinationPath,
+    timestampMs: input.lastSeenAtMs,
+  });
 }
 
 function buildNavigationDestinationsState(input: {
@@ -456,14 +480,31 @@ function buildNavigationDestinationsState(input: {
       const usedFallback =
         entry.sourceTruthCounts.page_view_fallback > 0
         && sourceTruth !== "page_view_fallback";
+      const recoveryMetadata = buildNavigationDestinationRecoveryMetadata({
+        sourceTruth,
+        destinationPath: entry.destinationPath,
+        topSourceEvents,
+        count: entry.count,
+        lastSeenAtMs: entry.lastSeenAtMs,
+      });
       return {
         destinationPath: entry.destinationPath,
         destinationLabel: entry.destinationLabel,
         count: entry.count,
         uniqueActors: entry.uniqueActors.size > 0 ? entry.uniqueActors.size : null,
-        sourceTruth,
+        navigationSourceTruth: sourceTruth,
+        sourceTruth: recoveryMetadata.sourceTruth,
         lastSeenAtUtc: entry.lastSeenAtMs > 0 ? new Date(entry.lastSeenAtMs).toISOString() : null,
-        freshnessState: mapNavigationFreshnessState(entry.lastSeenAtMs, input.generatedAtUtc),
+        freshnessState: recoveryMetadata.freshnessState,
+        confidenceScore: recoveryMetadata.confidenceScore,
+        confidenceBand: recoveryMetadata.confidenceBand,
+        evidenceKind: recoveryMetadata.evidenceKind,
+        dedupeKey: recoveryMetadata.dedupeKey,
+        dedupeDimensions: recoveryMetadata.dedupeDimensions,
+        lateArrivalWindowDays: recoveryMetadata.lateArrivalWindowDays,
+        productTruthEligible: recoveryMetadata.productTruthEligible,
+        missingVsZeroState: recoveryMetadata.missingVsZeroState,
+        mathReason: recoveryMetadata.mathReason,
         topSourceEvents,
         explanation: buildNavigationExplanation({
           sourceTruth,
