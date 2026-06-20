@@ -17,7 +17,6 @@ import {
   RECOVERY_TIMELINE_SOURCE_PRECEDENCE,
   RECOVERY_TIMELINE_SPINE_VERSION,
   TREASURY_TIMELINE_EVENT_MAP,
-  buildLaunchCriticalFamilyProofBoundary,
   buildLaunchCriticalActiveSourceCoverageReport,
   buildLaunchCriticalCatalogCoverage,
   buildLaunchCriticalRecoveryCoverageReport,
@@ -52,6 +51,7 @@ import {
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/recovery-timeline-spine.generated.json";
+const GA4_MAPPING_PREVIEW_LIMIT = 12;
 
 function read(path: string) {
   return readFileSync(join(ROOT, path), "utf8");
@@ -65,6 +65,42 @@ function writeJson(path: string, value: unknown) {
 
 function exists(path: string) {
   return existsSync(join(ROOT, path));
+}
+
+function compactLaunchCriticalCoverage(coverage: ReturnType<typeof buildLaunchCriticalRecoveryCoverageReport>) {
+  return {
+    reportKey: coverage.reportKey,
+    version: coverage.version,
+    lateArrivalWindowDays: coverage.lateArrivalWindowDays,
+    targetCoveragePercent: coverage.targetCoveragePercent,
+    familyCount: coverage.familyCount,
+    canonicalMappingCoveragePercent: coverage.canonicalMappingCoveragePercent,
+    observedFirstPartyFamilyCount: coverage.observedFirstPartyFamilyCount,
+    observedFirstPartyCoveragePercent: coverage.observedFirstPartyCoveragePercent,
+    productTruthEligibleFamilyCount: coverage.productTruthEligibleFamilyCount,
+    modeledCalibrationFamilyCount: coverage.modeledCalibrationFamilyCount,
+    inferredLegacyFamilyCount: coverage.inferredLegacyFamilyCount,
+    cachedSnapshotFamilyCount: coverage.cachedSnapshotFamilyCount,
+    missingSourceFamilyCount: coverage.missingSourceFamilyCount,
+    sourceCoverageStatus: coverage.sourceCoverageStatus,
+    missingFamilies: coverage.missingFamilies,
+    sourceCoverageStateCounts: coverage.sourceCoverageStateCounts,
+    sourceRoleCounts: coverage.sourceRoleCounts,
+    evidenceKindCounts: coverage.evidenceKindCounts,
+    holdbackValidation: coverage.holdbackValidation,
+    modelingPolicy: coverage.modelingPolicy,
+    familySourceStatePreview: coverage.familySourceStates.map((family) => ({
+      familyId: family.familyId,
+      sourceRole: family.sourceRole,
+      sourceCoverageState: family.sourceCoverageState,
+      evidenceKind: family.evidenceKind,
+      sourceTruth: family.sourceTruth,
+      confidenceScore: family.confidenceScore,
+      confidenceBand: family.confidenceBand,
+      productTruthEligible: family.productTruthEligible,
+      nextAction: family.nextAction,
+    })),
+  };
 }
 
 function buildSampleTimeline(): RecoveryTimelineEntry[] {
@@ -624,6 +660,10 @@ function main() {
     launchRecoveryPoliciesCanonical: JSON.stringify(launchCoverage.dedupeRules) === JSON.stringify(RECOVERY_METRIC_DEDUPE_RULES)
       && JSON.stringify(launchCoverage.productTruthPolicy) === JSON.stringify(RECOVERY_METRIC_PRODUCT_TRUTH_POLICY)
       && JSON.stringify(launchCoverage.modelingPolicy) === JSON.stringify(RECOVERY_METRIC_MODELING_POLICY)
+      && launchCoverage.modelingPolicy.measurementPatternReferences.length === 3
+      && launchCoverage.modelingPolicy.measurementPatternReferences.every((entry) =>
+        entry.proofBoundary === "vendor_pattern_reference_not_vendor_runtime_proof"
+      )
       && launchCoverage.modelingPolicy.lateArrivalWindowDays === ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS
       && launchCoverage.modelingPolicy.visibilityMinimumVisiblePercent === 50
       && launchCoverage.modelingPolicy.visibilityMinimumVisibleMs === 1_000
@@ -783,13 +823,16 @@ function main() {
       modelingPolicy: RECOVERY_METRIC_MODELING_POLICY,
       productTruthEligibleSources: ["first_party_event_fact", "transaction_ledger", "gumdrop_ledger", "unlock_record", "reward_record"],
       evidenceOnlySources: ["ga4_evidence", "legacy_analytics", "unknown_legacy"],
-      ga4EventMappings: GA4_RECOVERY_EVENT_MAPPINGS.map((entry) => ({
+      ga4EventMappingsPreview: GA4_RECOVERY_EVENT_MAPPINGS.slice(0, GA4_MAPPING_PREVIEW_LIMIT).map((entry) => ({
         ga4EventName: entry.ga4EventName,
         canonicalEventName: entry.canonicalEventName,
         confidence: entry.confidence,
         productDomain: entry.productDomain,
         commerceTruthRequiresLedger: entry.commerceTruthRequiresLedger,
       })),
+      ga4EventMappingCount: GA4_RECOVERY_EVENT_MAPPINGS.length,
+      ga4EventMappingPreviewLimit: GA4_MAPPING_PREVIEW_LIMIT,
+      ga4EventMappingOmittedCount: Math.max(0, GA4_RECOVERY_EVENT_MAPPINGS.length - GA4_MAPPING_PREVIEW_LIMIT),
       ga4LaunchCriticalFamilyCoverage: {
         mappedFamilyCount: ga4MappedLaunchCriticalFamilyIds.size,
         requiredFamilyCount: LAUNCH_CRITICAL_EVENT_FAMILIES.length,
@@ -800,9 +843,23 @@ function main() {
       },
     },
     launchCriticalRecovery: {
-      coverage: launchCoverage,
-      catalogCoverage: launchCatalogCoverage,
-      activeSourceCoverage,
+      coverage: compactLaunchCriticalCoverage(launchCoverage),
+      catalogCoverage: {
+        familyCount: launchCatalogCoverage.familyCount,
+        catalogMappedFamilyCount: launchCatalogCoverage.catalogMappedFamilyCount,
+        catalogMappingCoveragePercent: launchCatalogCoverage.catalogMappingCoveragePercent,
+        missingFamilies: launchCatalogCoverage.missingFamilies,
+      },
+      activeSourceCoverage: {
+        familyCount: activeSourceCoverage.familyCount,
+        activeSourceFamilyCount: activeSourceCoverage.activeSourceFamilyCount,
+        activeSourceCoveragePercent: activeSourceCoverage.activeSourceCoveragePercent,
+        sourceCoverageStatus: activeSourceCoverage.sourceCoverageStatus,
+        missingFamilies: activeSourceCoverage.familySourceStates
+          .filter((family) => family.sourceCoverageState === "source_missing")
+          .map((family) => family.familyId),
+        canClearHistoricalLaunchProof: activeSourceCoverage.canClearHistoricalLaunchProof,
+      },
       compactMetricSamples: launchMetricSamples.map((entry) => ({
         metricKey: entry.metricKey,
         eventName: entry.eventName,
@@ -825,11 +882,6 @@ function main() {
         defaultEvidenceKind: family.defaultEvidenceKind,
         productDomain: family.productDomain,
         materializerLane: family.materializerLane,
-        identityScope: family.identityScope,
-        dedupeWindowMs: family.dedupeWindowMs,
-        dedupeDimensions: family.dedupeDimensions ?? RECOVERY_METRIC_DEDUPE_DIMENSIONS,
-        proofBoundary: buildLaunchCriticalFamilyProofBoundary(family),
-        recoveryNotes: family.recoveryNotes,
       })),
     },
     compactTimelineSample: timeline.map((entry) => ({

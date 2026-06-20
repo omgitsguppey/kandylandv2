@@ -170,6 +170,27 @@ export const RECOVERY_METRIC_DEDUPE_RULES = {
   fallbackUsesSessionIdentityRouteObjectAndTimestampWindow: true,
 } as const;
 
+export const RECOVERY_METRIC_MEASUREMENT_PATTERN_REFERENCES = [
+  {
+    patternId: "ga4_modeled_key_events",
+    appliedAs: "modeled evidence needs observed first-party holdback before product-truth promotion",
+    sourceAuthority: "Google Analytics modeled key events",
+    proofBoundary: "vendor_pattern_reference_not_vendor_runtime_proof",
+  },
+  {
+    patternId: "ga4_consent_mode_behavioral_modeling",
+    appliedAs: "consent-limited signals can calibrate aggregate behavior but cannot create user-level product truth",
+    sourceAuthority: "Google Analytics consent mode behavioral modeling",
+    proofBoundary: "vendor_pattern_reference_not_vendor_runtime_proof",
+  },
+  {
+    patternId: "youtube_visibility_counting_threshold",
+    appliedAs: "viewer/impression-style recovery requires explicit visibility and time thresholds",
+    sourceAuthority: "YouTube impressions visibility definition",
+    proofBoundary: "vendor_pattern_reference_not_vendor_runtime_proof",
+  },
+] as const;
+
 export const RECOVERY_METRIC_PRODUCT_TRUTH_POLICY = {
   firstPartyPrimary: true,
   ga4EvidenceOnly: true,
@@ -181,6 +202,7 @@ export const RECOVERY_METRIC_PRODUCT_TRUTH_POLICY = {
 export const RECOVERY_METRIC_MODELING_POLICY = {
   canonicalModeledSpelling: "modeled",
   acceptsBritishModelledAlias: true,
+  measurementPatternReferences: RECOVERY_METRIC_MEASUREMENT_PATTERN_REFERENCES,
   modeledEvidenceCanCalibrateOnly: true,
   observedFirstPartyHoldbackRequired: true,
   consentModeLikeSignalsAreEvidenceOnly: true,

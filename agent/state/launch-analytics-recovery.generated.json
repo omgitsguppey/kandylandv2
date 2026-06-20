@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T16:23:04.420Z",
-  "currentHead": "550f08c08555e49b4268f416196fef7fc1bb934f",
+  "generatedAtUtc": "2026-06-20T16:32:51.179Z",
+  "currentHead": "56a8d36067f76696420dc5de3aa878f5c4a5ee31",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -1006,7 +1006,7 @@
   },
   "activeSourceCoverage": {
     "reportKey": "launch-critical-active-source-coverage",
-    "generatedAtUtc": "2026-06-20T16:23:04.420Z",
+    "generatedAtUtc": "2026-06-20T16:32:51.179Z",
     "version": "2026.06.recovery-timeline-spine.1",
     "familyCount": 13,
     "activeSourceFamilyCount": 13,
@@ -3935,6 +3935,26 @@
     "modelingPolicy": {
       "canonicalModeledSpelling": "modeled",
       "acceptsBritishModelledAlias": true,
+      "measurementPatternReferences": [
+        {
+          "patternId": "ga4_modeled_key_events",
+          "appliedAs": "modeled evidence needs observed first-party holdback before product-truth promotion",
+          "sourceAuthority": "Google Analytics modeled key events",
+          "proofBoundary": "vendor_pattern_reference_not_vendor_runtime_proof"
+        },
+        {
+          "patternId": "ga4_consent_mode_behavioral_modeling",
+          "appliedAs": "consent-limited signals can calibrate aggregate behavior but cannot create user-level product truth",
+          "sourceAuthority": "Google Analytics consent mode behavioral modeling",
+          "proofBoundary": "vendor_pattern_reference_not_vendor_runtime_proof"
+        },
+        {
+          "patternId": "youtube_visibility_counting_threshold",
+          "appliedAs": "viewer/impression-style recovery requires explicit visibility and time thresholds",
+          "sourceAuthority": "YouTube impressions visibility definition",
+          "proofBoundary": "vendor_pattern_reference_not_vendor_runtime_proof"
+        }
+      ],
       "modeledEvidenceCanCalibrateOnly": true,
       "observedFirstPartyHoldbackRequired": true,
       "consentModeLikeSignalsAreEvidenceOnly": true,

@@ -1708,6 +1708,20 @@ describe("recovery timeline spine", () => {
     expect(report.modelingPolicy).toMatchObject({
       canonicalModeledSpelling: "modeled",
       acceptsBritishModelledAlias: true,
+      measurementPatternReferences: [
+        expect.objectContaining({
+          patternId: "ga4_modeled_key_events",
+          proofBoundary: "vendor_pattern_reference_not_vendor_runtime_proof",
+        }),
+        expect.objectContaining({
+          patternId: "ga4_consent_mode_behavioral_modeling",
+          proofBoundary: "vendor_pattern_reference_not_vendor_runtime_proof",
+        }),
+        expect.objectContaining({
+          patternId: "youtube_visibility_counting_threshold",
+          proofBoundary: "vendor_pattern_reference_not_vendor_runtime_proof",
+        }),
+      ],
       modeledEvidenceCanCalibrateOnly: true,
       observedFirstPartyHoldbackRequired: true,
       consentModeLikeSignalsAreEvidenceOnly: true,

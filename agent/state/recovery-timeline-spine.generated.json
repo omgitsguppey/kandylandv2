@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-06-18T08:31:13.886Z",
+  "generatedAtUtc": "2026-06-20T16:32:21.760Z",
   "reportKey": "recovery-timeline-spine",
   "version": "2026.06.recovery-timeline-spine.1",
   "status": "pass",
@@ -38,6 +38,42 @@
       "duplicate_candidate",
       "rejected"
     ],
+    "evidenceKindAliases": {
+      "modelled": "modeled"
+    },
+    "modelingPolicy": {
+      "canonicalModeledSpelling": "modeled",
+      "acceptsBritishModelledAlias": true,
+      "measurementPatternReferences": [
+        {
+          "patternId": "ga4_modeled_key_events",
+          "appliedAs": "modeled evidence needs observed first-party holdback before product-truth promotion",
+          "sourceAuthority": "Google Analytics modeled key events",
+          "proofBoundary": "vendor_pattern_reference_not_vendor_runtime_proof"
+        },
+        {
+          "patternId": "ga4_consent_mode_behavioral_modeling",
+          "appliedAs": "consent-limited signals can calibrate aggregate behavior but cannot create user-level product truth",
+          "sourceAuthority": "Google Analytics consent mode behavioral modeling",
+          "proofBoundary": "vendor_pattern_reference_not_vendor_runtime_proof"
+        },
+        {
+          "patternId": "youtube_visibility_counting_threshold",
+          "appliedAs": "viewer/impression-style recovery requires explicit visibility and time thresholds",
+          "sourceAuthority": "YouTube impressions visibility definition",
+          "proofBoundary": "vendor_pattern_reference_not_vendor_runtime_proof"
+        }
+      ],
+      "modeledEvidenceCanCalibrateOnly": true,
+      "observedFirstPartyHoldbackRequired": true,
+      "consentModeLikeSignalsAreEvidenceOnly": true,
+      "lateArrivalWindowDays": 12,
+      "visibilityCountingRequiresExplicitThreshold": true,
+      "visibilityMinimumVisiblePercent": 50,
+      "visibilityMinimumVisibleMs": 1000,
+      "missingSourceNeverBecomesZero": true,
+      "productTruthRequiresFirstPartyOrLedgerCorroboration": true
+    },
     "productTruthEligibleSources": [
       "first_party_event_fact",
       "transaction_ledger",
@@ -50,7 +86,7 @@
       "legacy_analytics",
       "unknown_legacy"
     ],
-    "ga4EventMappings": [
+    "ga4EventMappingsPreview": [
       {
         "ga4EventName": "page_view",
         "canonicalEventName": "page_viewed",
@@ -81,9 +117,16 @@
       },
       {
         "ga4EventName": "sign_up",
-        "canonicalEventName": "signup_completed",
+        "canonicalEventName": "auth_registration_completed",
         "confidence": "directional",
         "productDomain": "identity_handoff",
+        "commerceTruthRequiresLedger": false
+      },
+      {
+        "ga4EventName": "wallet_opened",
+        "canonicalEventName": "wallet_opened",
+        "confidence": "directional",
+        "productDomain": "gumdrop_economy",
         "commerceTruthRequiresLedger": false
       },
       {
@@ -101,11 +144,563 @@
         "commerceTruthRequiresLedger": true
       },
       {
+        "ga4EventName": "purchase_modal_opened",
+        "canonicalEventName": "purchase_modal_opened",
+        "confidence": "directional",
+        "productDomain": "gumdrop_economy",
+        "commerceTruthRequiresLedger": false
+      },
+      {
+        "ga4EventName": "drop_preview_opened",
+        "canonicalEventName": "drop_preview_opened",
+        "confidence": "directional",
+        "productDomain": "telemetry_behavior",
+        "commerceTruthRequiresLedger": false
+      },
+      {
+        "ga4EventName": "drop_preview_cta_clicked",
+        "canonicalEventName": "drop_preview_cta_clicked",
+        "confidence": "directional",
+        "productDomain": "telemetry_behavior",
+        "commerceTruthRequiresLedger": false
+      },
+      {
         "ga4EventName": "unlock_drop_success",
         "canonicalEventName": "drop_unwrapped",
         "confidence": "low",
         "productDomain": "drop_unlock",
         "commerceTruthRequiresLedger": true
+      }
+    ],
+    "ga4EventMappingCount": 18,
+    "ga4EventMappingPreviewLimit": 12,
+    "ga4EventMappingOmittedCount": 6,
+    "ga4LaunchCriticalFamilyCoverage": {
+      "mappedFamilyCount": 13,
+      "requiredFamilyCount": 13,
+      "mappedFamilies": [
+        "admin_review",
+        "auth_signup",
+        "creator_drop_submit",
+        "creator_follow",
+        "cta",
+        "drop_preview",
+        "page_view",
+        "purchase",
+        "unlock",
+        "viewer_open",
+        "wallet_open",
+        "watch_end",
+        "watch_start"
+      ],
+      "missingFamilies": []
+    }
+  },
+  "launchCriticalRecovery": {
+    "coverage": {
+      "reportKey": "launch-critical-analytics-recovery-coverage",
+      "version": "2026.06.recovery-timeline-spine.1",
+      "lateArrivalWindowDays": 12,
+      "targetCoveragePercent": 95,
+      "familyCount": 13,
+      "canonicalMappingCoveragePercent": 100,
+      "observedFirstPartyFamilyCount": 13,
+      "observedFirstPartyCoveragePercent": 100,
+      "productTruthEligibleFamilyCount": 13,
+      "modeledCalibrationFamilyCount": 0,
+      "inferredLegacyFamilyCount": 0,
+      "cachedSnapshotFamilyCount": 0,
+      "missingSourceFamilyCount": 0,
+      "sourceCoverageStatus": "pass",
+      "missingFamilies": [],
+      "sourceCoverageStateCounts": {
+        "observed_first_party": 13,
+        "modeled_second_source": 0,
+        "inferred_legacy": 0,
+        "cached_snapshot": 0,
+        "source_missing": 0
+      },
+      "sourceRoleCounts": {
+        "product_truth": 13,
+        "calibration_only": 0,
+        "legacy_review": 0,
+        "snapshot_review": 0,
+        "missing_source": 0
+      },
+      "evidenceKindCounts": {
+        "observed": 13,
+        "modeled": 0,
+        "inferred": 0,
+        "cached": 0,
+        "missing": 0
+      },
+      "holdbackValidation": {
+        "observedFirstPartyRequired": true,
+        "modeledOrInferredCanCalibrateOnly": true,
+        "minObservedFirstPartyCoveragePercent": 95,
+        "status": "pass",
+        "reason": "Observed first-party or server-owned launch-critical coverage meets the 95% recovery calibration floor.",
+        "nextAction": "Keep dedupe and identity stitching active while late-arriving evidence remains inside the 12-day window."
+      },
+      "modelingPolicy": {
+        "canonicalModeledSpelling": "modeled",
+        "acceptsBritishModelledAlias": true,
+        "measurementPatternReferences": [
+          {
+            "patternId": "ga4_modeled_key_events",
+            "appliedAs": "modeled evidence needs observed first-party holdback before product-truth promotion",
+            "sourceAuthority": "Google Analytics modeled key events",
+            "proofBoundary": "vendor_pattern_reference_not_vendor_runtime_proof"
+          },
+          {
+            "patternId": "ga4_consent_mode_behavioral_modeling",
+            "appliedAs": "consent-limited signals can calibrate aggregate behavior but cannot create user-level product truth",
+            "sourceAuthority": "Google Analytics consent mode behavioral modeling",
+            "proofBoundary": "vendor_pattern_reference_not_vendor_runtime_proof"
+          },
+          {
+            "patternId": "youtube_visibility_counting_threshold",
+            "appliedAs": "viewer/impression-style recovery requires explicit visibility and time thresholds",
+            "sourceAuthority": "YouTube impressions visibility definition",
+            "proofBoundary": "vendor_pattern_reference_not_vendor_runtime_proof"
+          }
+        ],
+        "modeledEvidenceCanCalibrateOnly": true,
+        "observedFirstPartyHoldbackRequired": true,
+        "consentModeLikeSignalsAreEvidenceOnly": true,
+        "lateArrivalWindowDays": 12,
+        "visibilityCountingRequiresExplicitThreshold": true,
+        "visibilityMinimumVisiblePercent": 50,
+        "visibilityMinimumVisibleMs": 1000,
+        "missingSourceNeverBecomesZero": true,
+        "productTruthRequiresFirstPartyOrLedgerCorroboration": true
+      },
+      "familySourceStatePreview": [
+        {
+          "familyId": "page_view",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "first_party_event_fact",
+          "confidenceScore": 95,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "auth_signup",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "first_party_event_fact",
+          "confidenceScore": 95,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "wallet_open",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "first_party_event_fact",
+          "confidenceScore": 95,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "purchase",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "server_ledger",
+          "confidenceScore": 98,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "drop_preview",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "first_party_event_fact",
+          "confidenceScore": 95,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "cta",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "first_party_event_fact",
+          "confidenceScore": 95,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "unlock",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "server_ledger",
+          "confidenceScore": 98,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "viewer_open",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "first_party_event_fact",
+          "confidenceScore": 95,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "watch_start",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "watch_session_rollup",
+          "confidenceScore": 98,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "watch_end",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "watch_session_rollup",
+          "confidenceScore": 98,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "creator_follow",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "first_party_event_fact",
+          "confidenceScore": 95,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "creator_drop_submit",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "first_party_event_fact",
+          "confidenceScore": 95,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        },
+        {
+          "familyId": "admin_review",
+          "sourceRole": "product_truth",
+          "sourceCoverageState": "observed_first_party",
+          "evidenceKind": "observed",
+          "sourceTruth": "admin_action_fact",
+          "confidenceScore": 98,
+          "confidenceBand": "verified",
+          "productTruthEligible": true,
+          "nextAction": "Use first-party or server-owned facts for source coverage and dedupe."
+        }
+      ]
+    },
+    "catalogCoverage": {
+      "familyCount": 13,
+      "catalogMappedFamilyCount": 13,
+      "catalogMappingCoveragePercent": 100,
+      "missingFamilies": []
+    },
+    "activeSourceCoverage": {
+      "familyCount": 13,
+      "activeSourceFamilyCount": 13,
+      "activeSourceCoveragePercent": 100,
+      "sourceCoverageStatus": "pass",
+      "missingFamilies": [],
+      "canClearHistoricalLaunchProof": false
+    },
+    "compactMetricSamples": [
+      {
+        "metricKey": "page_view",
+        "eventName": "semantic_page_viewed",
+        "sourceTruth": "first_party_event_fact",
+        "freshnessState": "late_arrival_window",
+        "confidenceScore": 97,
+        "confidenceBand": "verified",
+        "evidenceKind": "observed",
+        "dedupeKey": "launch_recovery|page_view|event:event_fact:page",
+        "lateArrivalWindowDays": 12,
+        "missingVsZeroState": "source_present",
+        "identityStitching": {
+          "usesIdentityLink": true,
+          "countsGlobalOnce": true,
+          "countsLinkedPersonOnce": true,
+          "doubleCountingPreventedBy": "event_id"
+        },
+        "mathReason": "semantic_page_viewed is normalized through the page_view launch-critical recovery family; first_party_event_fact supplies observed evidence."
+      },
+      {
+        "metricKey": "page_view",
+        "eventName": "page_viewed",
+        "sourceTruth": "ga4_evidence_only",
+        "freshnessState": "external_evidence_required",
+        "confidenceScore": 58,
+        "confidenceBand": "directional",
+        "evidenceKind": "modeled",
+        "dedupeKey": "launch_recovery|page_view|event:no_event_id|session:ga4_session|guest:ga4_pseudo|route:/drops|object:no_object|bucket:178079046",
+        "lateArrivalWindowDays": 12,
+        "missingVsZeroState": "source_present",
+        "identityStitching": {
+          "usesIdentityLink": false,
+          "countsGlobalOnce": true,
+          "countsLinkedPersonOnce": false,
+          "doubleCountingPreventedBy": "session_semantic_window"
+        },
+        "mathReason": "page_viewed is normalized through the page_view launch-critical recovery family; ga4_evidence_only supplies modeled evidence."
+      },
+      {
+        "metricKey": "creator_drop_submit",
+        "eventName": "creator_drop_submitted",
+        "sourceTruth": "source_missing",
+        "freshnessState": "source_missing",
+        "confidenceScore": 0,
+        "confidenceBand": "missing",
+        "evidenceKind": "missing",
+        "dedupeKey": "launch_recovery|creator_drop_submit|event:no_event_id|session:no_session|actor:unknown|route:no_route|object:no_object|bucket:unknown_time",
+        "lateArrivalWindowDays": 12,
+        "missingVsZeroState": "source_missing",
+        "identityStitching": {
+          "usesIdentityLink": false,
+          "countsGlobalOnce": true,
+          "countsLinkedPersonOnce": false,
+          "doubleCountingPreventedBy": "session_semantic_window"
+        },
+        "mathReason": "creator_drop_submitted has no bounded source evidence; keep it missing rather than rendering zero."
+      }
+    ],
+    "familyMap": [
+      {
+        "familyId": "page_view",
+        "canonicalEventNames": [
+          "semantic_page_viewed",
+          "page_viewed"
+        ],
+        "activeSourceEventNames": [
+          "semantic_page_viewed",
+          "page_viewed"
+        ],
+        "defaultSourceTruth": "first_party_event_fact",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "telemetry_behavior",
+        "materializerLane": "analytics_event_facts"
+      },
+      {
+        "familyId": "auth_signup",
+        "canonicalEventNames": [
+          "auth_email_signup_completed",
+          "auth_google_completed",
+          "auth_registration_completed",
+          "user_registered"
+        ],
+        "activeSourceEventNames": [
+          "auth_email_signup_completed",
+          "auth_google_completed",
+          "auth_registration_completed",
+          "user_registered"
+        ],
+        "defaultSourceTruth": "first_party_event_fact",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "identity_handoff",
+        "materializerLane": "identity_handoff_materializer"
+      },
+      {
+        "familyId": "wallet_open",
+        "canonicalEventNames": [
+          "wallet_opened",
+          "purchase_modal_opened"
+        ],
+        "activeSourceEventNames": [
+          "wallet_opened",
+          "purchase_modal_opened"
+        ],
+        "defaultSourceTruth": "first_party_event_fact",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "gumdrop_economy",
+        "materializerLane": "purchase_integrity_materializer"
+      },
+      {
+        "familyId": "purchase",
+        "canonicalEventNames": [
+          "gumdrops_purchase_completed",
+          "purchase",
+          "checkout_completed"
+        ],
+        "activeSourceEventNames": [
+          "gumdrops_purchase_completed",
+          "checkout_completed",
+          "server_purchase_verified"
+        ],
+        "defaultSourceTruth": "server_ledger",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "wallet_payment",
+        "materializerLane": "treasury_transaction_ledger"
+      },
+      {
+        "familyId": "drop_preview",
+        "canonicalEventNames": [
+          "drop_preview_opened",
+          "drop_preview_page_viewed"
+        ],
+        "activeSourceEventNames": [
+          "drop_preview_opened",
+          "drop_preview_page_viewed"
+        ],
+        "defaultSourceTruth": "first_party_event_fact",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "telemetry_behavior",
+        "materializerLane": "drop_preview_materializer"
+      },
+      {
+        "familyId": "cta",
+        "canonicalEventNames": [
+          "drop_preview_cta_clicked",
+          "semantic_target_clicked"
+        ],
+        "activeSourceEventNames": [
+          "drop_preview_cta_clicked",
+          "semantic_target_clicked"
+        ],
+        "defaultSourceTruth": "first_party_event_fact",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "telemetry_behavior",
+        "materializerLane": "cta_intent_materializer"
+      },
+      {
+        "familyId": "unlock",
+        "canonicalEventNames": [
+          "unlock_drop_success",
+          "drop_unwrapped",
+          "entitlement_granted"
+        ],
+        "activeSourceEventNames": [
+          "unlock_drop_success",
+          "drop_unwrapped",
+          "entitlement_granted"
+        ],
+        "defaultSourceTruth": "server_ledger",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "drop_unlock",
+        "materializerLane": "entitlement_unlock_materializer"
+      },
+      {
+        "familyId": "viewer_open",
+        "canonicalEventNames": [
+          "viewer_opened",
+          "viewer_session_started"
+        ],
+        "activeSourceEventNames": [
+          "viewer_opened",
+          "viewer_session_started"
+        ],
+        "defaultSourceTruth": "first_party_event_fact",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "telemetry_behavior",
+        "materializerLane": "viewer_session_materializer"
+      },
+      {
+        "familyId": "watch_start",
+        "canonicalEventNames": [
+          "watch_session_started",
+          "drop_watch_started"
+        ],
+        "activeSourceEventNames": [
+          "watch_session_started",
+          "drop_watch_started"
+        ],
+        "defaultSourceTruth": "watch_session_rollup",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "telemetry_behavior",
+        "materializerLane": "analytics_watch_sessions"
+      },
+      {
+        "familyId": "watch_end",
+        "canonicalEventNames": [
+          "watch_session_ended",
+          "watch_session_completed"
+        ],
+        "activeSourceEventNames": [
+          "watch_session_ended",
+          "watch_session_completed"
+        ],
+        "defaultSourceTruth": "watch_session_rollup",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "telemetry_behavior",
+        "materializerLane": "analytics_watch_sessions"
+      },
+      {
+        "familyId": "creator_follow",
+        "canonicalEventNames": [
+          "creator_followed",
+          "creator_follow_succeeded"
+        ],
+        "activeSourceEventNames": [
+          "creator_followed",
+          "creator_follow_succeeded"
+        ],
+        "defaultSourceTruth": "first_party_event_fact",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "telemetry_behavior",
+        "materializerLane": "creator_relationship_materializer"
+      },
+      {
+        "familyId": "creator_drop_submit",
+        "canonicalEventNames": [
+          "creator_drop_submitted",
+          "creator_drop_submit_succeeded"
+        ],
+        "activeSourceEventNames": [
+          "creator_drop_submitted",
+          "creator_drop_submit_succeeded"
+        ],
+        "defaultSourceTruth": "first_party_event_fact",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "telemetry_behavior",
+        "materializerLane": "creator_drop_manager_materializer"
+      },
+      {
+        "familyId": "admin_review",
+        "canonicalEventNames": [
+          "admin_creator_drop_review_viewed",
+          "admin_creator_drop_approved",
+          "admin_creator_drop_rejected",
+          "admin_creator_drop_reviewed"
+        ],
+        "activeSourceEventNames": [
+          "admin_creator_drop_review_viewed",
+          "admin_creator_drop_approved",
+          "admin_creator_drop_rejected",
+          "admin_creator_drop_reviewed"
+        ],
+        "defaultSourceTruth": "admin_action_fact",
+        "defaultEvidenceKind": "observed",
+        "productDomain": "admin_debug",
+        "materializerLane": "admin_drop_review_audit"
       }
     ]
   },
@@ -682,6 +1277,28 @@
   "checks": {
     "packageScriptPresent": true,
     "schemaVersioned": true,
+    "lateArrivalWindowDeclared": true,
+    "launchCriticalFamiliesMapped": true,
+    "launchCriticalCatalogMapped": true,
+    "launchCriticalFirstPartyHoldbackRequired": true,
+    "launchFamilySourceRolesAndMathReasons": true,
+    "launchFamilyMetadataComplete": true,
+    "launchDedupeDimensionsCanonical": true,
+    "activeSourceFamilyMetadataComplete": true,
+    "launchRecoveryStatesPresent": true,
+    "launchRecoveryPoliciesCanonical": true,
+    "modelledAliasNormalizesToModeled": true,
+    "launchDedupeEventIdPrimary": true,
+    "launchDedupeFallbackIncludesIdentityRouteObjectAndWindow": true,
+    "launchMetricDedupeDimensionsPresent": true,
+    "launchIdentityStitchingCanonical": true,
+    "launchMetricMissingNotZero": true,
+    "launchHistoryRangeEligibilityCentralized": true,
+    "launchSourceDayCoverageCentralized": true,
+    "launchDayEvidenceSummaryCountsKnownSources": true,
+    "launchHistoryDisplaySummaryCentralized": true,
+    "ga4MetricModeledEvidenceOnly": true,
+    "launchMetricConfidenceBandsCanonical": true,
     "sourcePrecedenceDeclared": true,
     "classificationStatesPresent": true,
     "missingIsNotZeroStatesPresent": true,

@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-20T16:23:04.420Z",
-  "currentHead": "550f08c08555e49b4268f416196fef7fc1bb934f",
+  "generatedAtUtc": "2026-06-20T16:32:51.179Z",
+  "currentHead": "56a8d36067f76696420dc5de3aa878f5c4a5ee31",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,15 +365,28 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 1,
+    "total": 4,
     "byClassification": {
-      "analytics_panel_hydration_artifact_expected": 1
+      "stale_generated_artifact_to_regenerate": 1,
+      "launch_analytics_recovery_source_expected": 3
     },
     "unsafeUnknown": [],
     "sample": [
       {
-        "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-        "classification": "analytics_panel_hydration_artifact_expected"
+        "path": "agent/state/recovery-timeline-spine.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "scripts/agent/validate-recovery-timeline-spine.ts",
+        "classification": "launch_analytics_recovery_source_expected"
+      },
+      {
+        "path": "src/lib/analytics/recovery-timeline-spine.ts",
+        "classification": "launch_analytics_recovery_source_expected"
+      },
+      {
+        "path": "tests/unit/recovery-timeline-spine.spec.ts",
+        "classification": "launch_analytics_recovery_source_expected"
       }
     ],
     "sampleTruncated": false
