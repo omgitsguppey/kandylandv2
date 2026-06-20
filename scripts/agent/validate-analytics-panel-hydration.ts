@@ -664,22 +664,32 @@ function compactDayCoverage<T extends { dayKey: string }>(days: T[]) {
   };
 }
 
-function compactFileList(files: unknown) {
+function compactFileList(files: unknown, sampleLimit = 4) {
   const list = asStringArray(files);
   return {
-    samples: list.slice(0, 4),
+    samples: list.slice(0, sampleLimit),
     count: list.length,
-    truncated: list.length > 4,
+    truncated: list.length > sampleLimit,
   };
 }
 
 function compactSourceFamilyStates(states: unknown) {
   return asRecordArray(states).map((state) => {
-    const { activeSourceFiles, materializerFiles, ...rest } = state;
-    const activeSourceFileSummary = compactFileList(activeSourceFiles);
-    const materializerFileSummary = compactFileList(materializerFiles);
+    const { activeSourceFiles, materializerFiles, proofBoundary, ...rest } = state;
+    const boundary = asRecord(proofBoundary);
+    const activeSourceFileSummary = compactFileList(activeSourceFiles, 2);
+    const materializerFileSummary = compactFileList(materializerFiles, 2);
     return {
       ...rest,
+      proofBoundarySummary: {
+        productTruthSource: typeof boundary.productTruthSource === "string" ? boundary.productTruthSource : "unknown",
+        sourceRole: typeof boundary.sourceRole === "string" ? boundary.sourceRole : "unknown",
+        externalEvidenceCanClearProductTruth: boundary.externalEvidenceCanClearProductTruth === true,
+        missingCanRenderAsZero: boundary.missingCanRenderAsZero === true,
+        requiresLedgerCorroboration: boundary.requiresLedgerCorroboration === true,
+        requiresWatchSessionRollup: boundary.requiresWatchSessionRollup === true,
+        requiresAdminAuditFact: boundary.requiresAdminAuditFact === true,
+      },
       activeSourceFiles: activeSourceFileSummary.samples,
       activeSourceFileCount: activeSourceFileSummary.count,
       activeSourceFilesTruncated: activeSourceFileSummary.truncated,
@@ -695,11 +705,12 @@ function compactLaunchAnalyticsRecoveryReport(
 ) {
   const { dayCoverage: formalDayCoverage, ...formalLaunchRange } = report.formalLaunchRange;
   const { days: localDayCoverage, ...launchHistoryCoverage } = report.launchHistoryCoverage;
+  const { activeSourceCoverage: _topLevelActiveSourceCoverage, ...reportWithoutDuplicatedActiveSourceCoverage } = report;
   const compactFormalDays = compactDayCoverage(formalDayCoverage);
   const compactLocalDays = compactDayCoverage(localDayCoverage);
 
   return {
-    ...report,
+    ...reportWithoutDuplicatedActiveSourceCoverage,
     formalLaunchRange: {
       ...formalLaunchRange,
       dayCoverage: compactFormalDays.days,
@@ -707,10 +718,6 @@ function compactLaunchAnalyticsRecoveryReport(
       dayCoverageTruncated: compactFormalDays.daysTruncated,
       omittedDayCoverageCount: compactFormalDays.omittedDayCount,
       dayCoverageSummary: compactFormalDays.dayCoverageSummary,
-    },
-    activeSourceCoverage: {
-      ...report.activeSourceCoverage,
-      familySourceStates: compactSourceFamilyStates(report.activeSourceCoverage.familySourceStates),
     },
     launchHistoryCoverage: {
       ...launchHistoryCoverage,

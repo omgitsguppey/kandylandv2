@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T16:32:51.179Z",
-  "currentHead": "56a8d36067f76696420dc5de3aa878f5c4a5ee31",
+  "generatedAtUtc": "2026-06-20T16:54:58.685Z",
+  "currentHead": "35913ba553574da8ac2c49a151300ec5af3693f2",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -1004,844 +1004,6 @@
       ]
     }
   },
-  "activeSourceCoverage": {
-    "reportKey": "launch-critical-active-source-coverage",
-    "generatedAtUtc": "2026-06-20T16:32:51.179Z",
-    "version": "2026.06.recovery-timeline-spine.1",
-    "familyCount": 13,
-    "activeSourceFamilyCount": 13,
-    "activeSourceCoveragePercent": 100,
-    "targetCoveragePercent": 95,
-    "sourceCoverageStatus": "pass",
-    "canClearHistoricalLaunchProof": false,
-    "canClearRuntimeGate": false,
-    "canClearProviderGate": false,
-    "canClearAdminTruthGate": false,
-    "familySourceStates": [
-      {
-        "familyId": "page_view",
-        "canonicalEventNames": [
-          "semantic_page_viewed",
-          "page_viewed"
-        ],
-        "activeSourceEventNames": [
-          "semantic_page_viewed",
-          "page_viewed"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "first_party_event_fact",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": false,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "behavior_product_truth",
-          "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-        },
-        "activeSourceReferenceCount": 24,
-        "materializerReferenceCount": 15,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "first_party_event_fact",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 97,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|page_view|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:page_view|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "functions/src/analytics-realtime-summary.ts",
-          "functions/src/analytics-semantics.ts",
-          "src/app/api/admin/debug/route.ts",
-          "src/app/api/admin/user/[userId]/route.ts"
-        ],
-        "activeSourceFileCount": 12,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "functions/src/analytics-realtime-summary.ts",
-          "functions/src/analytics-semantics.ts",
-          "src/app/api/admin/debug/route.ts",
-          "src/app/api/admin/user/[userId]/route.ts"
-        ],
-        "materializerFileCount": 12,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "auth_signup",
-        "canonicalEventNames": [
-          "auth_email_signup_completed",
-          "auth_google_completed",
-          "auth_registration_completed",
-          "user_registered"
-        ],
-        "activeSourceEventNames": [
-          "auth_email_signup_completed",
-          "auth_google_completed",
-          "auth_registration_completed",
-          "user_registered"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "first_party_event_fact",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": false,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "identity_handoff_truth",
-          "recoveryBoundary": "Identity handoff truth requires first-party identity-link facts and must not double-count guest and user activity."
-        },
-        "activeSourceReferenceCount": 12,
-        "materializerReferenceCount": 6,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "first_party_event_fact",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 97,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|auth_signup|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:auth_signup|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/app/api/user/register/route.ts",
-          "src/components/Auth/AuthModal.tsx",
-          "src/lib/admin-analytics-auth-outcome-split.ts"
-        ],
-        "activeSourceFileCount": 12,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/lib/analytics-metric-catalog.ts",
-          "src/lib/analytics/person-metrics-contract.ts",
-          "src/lib/analytics/telemetry-dependency-graph.ts"
-        ],
-        "materializerFileCount": 6,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "wallet_open",
-        "canonicalEventNames": [
-          "wallet_opened",
-          "purchase_modal_opened"
-        ],
-        "activeSourceEventNames": [
-          "wallet_opened",
-          "purchase_modal_opened"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "first_party_event_fact",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": true,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "ledger_protected_truth",
-          "recoveryBoundary": "Payment, GumDrop, unlock, and entitlement truth require server ledger or entitlement corroboration."
-        },
-        "activeSourceReferenceCount": 21,
-        "materializerReferenceCount": 15,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "first_party_event_fact",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 97,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|wallet_open|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:wallet_open|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "functions/src/behavioral-intelligence-runtime.ts",
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/app/api/admin/debug/route.ts",
-          "src/components/Drops/LockedDropPreviewClient.tsx"
-        ],
-        "activeSourceFileCount": 12,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "functions/src/behavioral-intelligence-runtime.ts",
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/app/api/admin/debug/route.ts",
-          "src/lib/analytics/event-liveness-engine.ts"
-        ],
-        "materializerFileCount": 12,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "purchase",
-        "canonicalEventNames": [
-          "gumdrops_purchase_completed",
-          "purchase",
-          "checkout_completed"
-        ],
-        "activeSourceEventNames": [
-          "gumdrops_purchase_completed",
-          "checkout_completed",
-          "server_purchase_verified"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "server_ledger",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": true,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "ledger_protected_truth",
-          "recoveryBoundary": "Payment, GumDrop, unlock, and entitlement truth require server ledger or entitlement corroboration."
-        },
-        "activeSourceReferenceCount": 25,
-        "materializerReferenceCount": 17,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "server_ledger",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 100,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|purchase|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:purchase|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "functions/src/analytics-core.ts",
-          "functions/src/analytics-event-facts.ts",
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/app/api/admin/debug/route.ts"
-        ],
-        "activeSourceFileCount": 12,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "functions/src/analytics-event-facts.ts",
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/app/api/admin/debug/route.ts",
-          "src/app/api/admin/user/[userId]/route.ts"
-        ],
-        "materializerFileCount": 12,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "drop_preview",
-        "canonicalEventNames": [
-          "drop_preview_opened",
-          "drop_preview_page_viewed"
-        ],
-        "activeSourceEventNames": [
-          "drop_preview_opened",
-          "drop_preview_page_viewed"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "first_party_event_fact",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": false,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "behavior_product_truth",
-          "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-        },
-        "activeSourceReferenceCount": 34,
-        "materializerReferenceCount": 23,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "first_party_event_fact",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 97,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|drop_preview|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:drop_preview|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "functions/src/analytics-truth-runtime.ts",
-          "functions/src/behavioral-intelligence-runtime.ts",
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/app/api/admin/debug/route.ts"
-        ],
-        "activeSourceFileCount": 12,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "functions/src/analytics-truth-runtime.ts",
-          "functions/src/behavioral-intelligence-runtime.ts",
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/app/api/admin/debug/route.ts"
-        ],
-        "materializerFileCount": 12,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "cta",
-        "canonicalEventNames": [
-          "drop_preview_cta_clicked",
-          "semantic_target_clicked"
-        ],
-        "activeSourceEventNames": [
-          "drop_preview_cta_clicked",
-          "semantic_target_clicked"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "first_party_event_fact",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": false,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "behavior_product_truth",
-          "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-        },
-        "activeSourceReferenceCount": 16,
-        "materializerReferenceCount": 10,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "first_party_event_fact",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 97,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|cta|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:cta|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "functions/src/analytics-semantics.ts",
-          "src/app/api/analytics/ingest/route.ts",
-          "src/components/Analytics/DeepTracker.tsx",
-          "src/components/Drops/LockedDropPreviewClient.tsx"
-        ],
-        "activeSourceFileCount": 12,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "functions/src/analytics-semantics.ts",
-          "src/app/api/analytics/ingest/route.ts",
-          "src/lib/analytics/telemetry-dependency-graph.ts",
-          "src/lib/behavioral/event-fact-contract.ts"
-        ],
-        "materializerFileCount": 10,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "unlock",
-        "canonicalEventNames": [
-          "unlock_drop_success",
-          "drop_unwrapped",
-          "entitlement_granted"
-        ],
-        "activeSourceEventNames": [
-          "unlock_drop_success",
-          "drop_unwrapped",
-          "entitlement_granted"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "server_ledger",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": true,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "ledger_protected_truth",
-          "recoveryBoundary": "Payment, GumDrop, unlock, and entitlement truth require server ledger or entitlement corroboration."
-        },
-        "activeSourceReferenceCount": 33,
-        "materializerReferenceCount": 23,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "server_ledger",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 100,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|unlock|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:unlock|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "functions/src/analytics-core.ts",
-          "functions/src/analytics-event-facts.ts",
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/app/api/admin/debug/route.ts"
-        ],
-        "activeSourceFileCount": 12,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "functions/src/analytics-event-facts.ts",
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/app/api/admin/debug/route.ts",
-          "src/app/api/admin/user/[userId]/route.ts"
-        ],
-        "materializerFileCount": 12,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "viewer_open",
-        "canonicalEventNames": [
-          "viewer_opened",
-          "viewer_session_started"
-        ],
-        "activeSourceEventNames": [
-          "viewer_opened",
-          "viewer_session_started"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "first_party_event_fact",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": false,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "behavior_product_truth",
-          "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-        },
-        "activeSourceReferenceCount": 22,
-        "materializerReferenceCount": 17,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "first_party_event_fact",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 97,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|viewer_open|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:viewer_open|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "functions/src/analytics-core.ts",
-          "functions/src/analytics-event-facts.ts",
-          "functions/src/analytics-semantics.ts",
-          "src/app/api/admin/analytics/historical/route.ts"
-        ],
-        "activeSourceFileCount": 12,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "functions/src/analytics-event-facts.ts",
-          "functions/src/analytics-semantics.ts",
-          "src/app/api/admin/analytics/historical/route.ts",
-          "src/app/api/admin/debug/route.ts"
-        ],
-        "materializerFileCount": 12,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "watch_start",
-        "canonicalEventNames": [
-          "watch_session_started",
-          "drop_watch_started"
-        ],
-        "activeSourceEventNames": [
-          "watch_session_started",
-          "drop_watch_started"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "watch_session_rollup",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": false,
-          "requiresWatchSessionRollup": true,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "watch_session_truth",
-          "recoveryBoundary": "Watch metrics require watch-session rollups; page duration and legacy estimates stay diagnostic."
-        },
-        "activeSourceReferenceCount": 16,
-        "materializerReferenceCount": 11,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "watch_session_rollup",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 100,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|watch_start|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:watch_start|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "functions/src/analytics-truth-runtime.ts",
-          "functions/src/behavioral-intelligence-runtime.ts",
-          "src/hooks/useViewerWatchSession.ts",
-          "src/lib/analytics/drop-watch-time-contract.ts"
-        ],
-        "activeSourceFileCount": 12,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "functions/src/analytics-truth-runtime.ts",
-          "functions/src/behavioral-intelligence-runtime.ts",
-          "src/lib/analytics/person-metrics-contract.ts",
-          "src/lib/behavioral/event-fact-contract.ts"
-        ],
-        "materializerFileCount": 11,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "watch_end",
-        "canonicalEventNames": [
-          "watch_session_ended",
-          "watch_session_completed"
-        ],
-        "activeSourceEventNames": [
-          "watch_session_ended",
-          "watch_session_completed"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "watch_session_rollup",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": false,
-          "requiresWatchSessionRollup": true,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "watch_session_truth",
-          "recoveryBoundary": "Watch metrics require watch-session rollups; page duration and legacy estimates stay diagnostic."
-        },
-        "activeSourceReferenceCount": 11,
-        "materializerReferenceCount": 10,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "watch_session_rollup",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 100,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|watch_end|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:watch_end|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "src/app/api/admin/user/[userId]/route.ts",
-          "src/hooks/useViewerWatchSession.ts",
-          "src/lib/analytics/person-metrics-contract.ts",
-          "src/lib/behavioral/event-fact-contract.ts"
-        ],
-        "activeSourceFileCount": 11,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "src/app/api/admin/user/[userId]/route.ts",
-          "src/lib/analytics/person-metrics-contract.ts",
-          "src/lib/behavioral/event-fact-contract.ts",
-          "src/lib/behavioral/event-fact-normalizer.ts"
-        ],
-        "materializerFileCount": 10,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "creator_follow",
-        "canonicalEventNames": [
-          "creator_followed",
-          "creator_follow_succeeded"
-        ],
-        "activeSourceEventNames": [
-          "creator_followed",
-          "creator_follow_succeeded"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "first_party_event_fact",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": false,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "behavior_product_truth",
-          "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-        },
-        "activeSourceReferenceCount": 21,
-        "materializerReferenceCount": 15,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "first_party_event_fact",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 97,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|creator_follow|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:creator_follow|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "functions/src/behavioral-intelligence-runtime.ts",
-          "src/app/api/creator/relationships/route.ts",
-          "src/app/api/user/follow/route.ts",
-          "src/app/creators/[username]/CreatorProfileClient.tsx"
-        ],
-        "activeSourceFileCount": 12,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "functions/src/behavioral-intelligence-runtime.ts",
-          "src/app/creators/[username]/CreatorProfileClient.tsx",
-          "src/lib/analytics/person-metrics-contract.ts",
-          "src/lib/behavioral/behavior-math-engine.ts"
-        ],
-        "materializerFileCount": 12,
-        "materializerFilesTruncated": true
-      },
-      {
-        "familyId": "creator_drop_submit",
-        "canonicalEventNames": [
-          "creator_drop_submitted",
-          "creator_drop_submit_succeeded"
-        ],
-        "activeSourceEventNames": [
-          "creator_drop_submitted",
-          "creator_drop_submit_succeeded"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "first_party_event_fact",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": false,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": false,
-          "sourceRole": "behavior_product_truth",
-          "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-        },
-        "activeSourceReferenceCount": 7,
-        "materializerReferenceCount": 3,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "first_party_event_fact",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 97,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|creator_drop_submit|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:creator_drop_submit|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "src/app/api/creator/drops/route.ts",
-          "src/components/Admin/CreateDropModal.tsx",
-          "src/lib/analytics/person-metrics-contract.ts",
-          "src/lib/analytics/telemetry-dependency-graph.ts"
-        ],
-        "activeSourceFileCount": 7,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "src/lib/analytics/person-metrics-contract.ts",
-          "src/lib/analytics/telemetry-dependency-graph.ts",
-          "src/lib/creator/features/creator-feature-parity-map.ts"
-        ],
-        "materializerFileCount": 3,
-        "materializerFilesTruncated": false
-      },
-      {
-        "familyId": "admin_review",
-        "canonicalEventNames": [
-          "admin_creator_drop_review_viewed",
-          "admin_creator_drop_approved",
-          "admin_creator_drop_rejected",
-          "admin_creator_drop_reviewed"
-        ],
-        "activeSourceEventNames": [
-          "admin_creator_drop_review_viewed",
-          "admin_creator_drop_approved",
-          "admin_creator_drop_rejected",
-          "admin_creator_drop_reviewed"
-        ],
-        "proofBoundary": {
-          "productTruthSource": "admin_action_fact",
-          "productTruthEligibleWhenObserved": true,
-          "externalEvidenceCanClearProductTruth": false,
-          "missingCanRenderAsZero": false,
-          "requiresLedgerCorroboration": false,
-          "requiresWatchSessionRollup": false,
-          "requiresAdminAuditFact": true,
-          "sourceRole": "admin_audit_truth",
-          "recoveryBoundary": "Admin review events require admin action facts and must not hydrate user engagement."
-        },
-        "activeSourceReferenceCount": 6,
-        "materializerReferenceCount": 3,
-        "sourceCoverageState": "source_connected",
-        "sourceTruth": "admin_action_fact",
-        "freshnessState": "source_current",
-        "evidenceKind": "observed",
-        "confidenceScore": 98,
-        "confidenceBand": "verified",
-        "dedupeKey": "launch_recovery|admin_review|event:no_event_id|session:no_session|actor:unknown|route:active-source-scan|object:admin_review|bucket:unknown_time",
-        "dedupeDimensions": [
-          "event_id",
-          "session_id",
-          "identity_link_id",
-          "user_id",
-          "guest_id",
-          "route",
-          "object_id",
-          "timestamp_window",
-          "semantic_action"
-        ],
-        "lateArrivalWindowDays": 12,
-        "countsForActiveSourceCoverage": true,
-        "productTruthEligibleFromSourceScan": false,
-        "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
-        "activeSourceFiles": [
-          "src/app/admin/drops/page.tsx",
-          "src/app/api/admin/drops/route.ts",
-          "src/lib/analytics/person-metrics-contract.ts",
-          "src/lib/analytics/telemetry-dependency-graph.ts"
-        ],
-        "activeSourceFileCount": 6,
-        "activeSourceFilesTruncated": true,
-        "materializerFiles": [
-          "src/lib/analytics/person-metrics-contract.ts",
-          "src/lib/analytics/telemetry-dependency-graph.ts",
-          "src/lib/creator/features/creator-feature-parity-map.ts"
-        ],
-        "materializerFileCount": 3,
-        "materializerFilesTruncated": false
-      }
-    ],
-    "policy": {
-      "catalogMappingRequiredSeparately": true,
-      "activeSourceScanIsNotRuntimeProof": true,
-      "historicalRowsStillRequired": true,
-      "missingIsNotZero": true
-    }
-  },
   "evidenceProvenance": {
     "launchCoverageInput": "in_process_source_agreement_detail",
     "panelHydrationInput": "agent/state/analytics-panel-hydration.generated.json",
@@ -2013,17 +1175,6 @@
             "semantic_page_viewed",
             "page_viewed"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "observedFirstParty": true,
           "sourceTruth": "first_party_event_fact",
           "freshnessState": "external_evidence_required",
@@ -2050,6 +1201,15 @@
           "productTruthEligible": true,
           "mathReason": "page_view uses first_party_event_fact as observed product-truth evidence through analytics_event_facts; canonical events: semantic_page_viewed, page_viewed.",
           "nextAction": "Use first-party or server-owned facts for source coverage and dedupe.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2065,17 +1225,6 @@
             "auth_registration_completed",
             "user_registered"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "identity_handoff_truth",
-            "recoveryBoundary": "Identity handoff truth requires first-party identity-link facts and must not double-count guest and user activity."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2102,6 +1251,15 @@
           "productTruthEligible": false,
           "mathReason": "auth_signup has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "identity_handoff_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2115,17 +1273,6 @@
             "wallet_opened",
             "purchase_modal_opened"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": true,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "ledger_protected_truth",
-            "recoveryBoundary": "Payment, GumDrop, unlock, and entitlement truth require server ledger or entitlement corroboration."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2152,6 +1299,15 @@
           "productTruthEligible": false,
           "mathReason": "wallet_open has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "ledger_protected_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": true,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2166,17 +1322,6 @@
             "purchase",
             "checkout_completed"
           ],
-          "proofBoundary": {
-            "productTruthSource": "server_ledger",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": true,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "ledger_protected_truth",
-            "recoveryBoundary": "Payment, GumDrop, unlock, and entitlement truth require server ledger or entitlement corroboration."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2203,6 +1348,15 @@
           "productTruthEligible": false,
           "mathReason": "purchase has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "server_ledger",
+            "sourceRole": "ledger_protected_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": true,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2216,17 +1370,6 @@
             "drop_preview_opened",
             "drop_preview_page_viewed"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2253,6 +1396,15 @@
           "productTruthEligible": false,
           "mathReason": "drop_preview has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2266,17 +1418,6 @@
             "drop_preview_cta_clicked",
             "semantic_target_clicked"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2303,6 +1444,15 @@
           "productTruthEligible": false,
           "mathReason": "cta has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2317,17 +1467,6 @@
             "drop_unwrapped",
             "entitlement_granted"
           ],
-          "proofBoundary": {
-            "productTruthSource": "server_ledger",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": true,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "ledger_protected_truth",
-            "recoveryBoundary": "Payment, GumDrop, unlock, and entitlement truth require server ledger or entitlement corroboration."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2354,6 +1493,15 @@
           "productTruthEligible": false,
           "mathReason": "unlock has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "server_ledger",
+            "sourceRole": "ledger_protected_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": true,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2367,17 +1515,6 @@
             "viewer_opened",
             "viewer_session_started"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2404,6 +1541,15 @@
           "productTruthEligible": false,
           "mathReason": "viewer_open has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2417,17 +1563,6 @@
             "watch_session_started",
             "drop_watch_started"
           ],
-          "proofBoundary": {
-            "productTruthSource": "watch_session_rollup",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": true,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "watch_session_truth",
-            "recoveryBoundary": "Watch metrics require watch-session rollups; page duration and legacy estimates stay diagnostic."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2454,6 +1589,15 @@
           "productTruthEligible": false,
           "mathReason": "watch_start has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "watch_session_rollup",
+            "sourceRole": "watch_session_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": true,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2467,17 +1611,6 @@
             "watch_session_ended",
             "watch_session_completed"
           ],
-          "proofBoundary": {
-            "productTruthSource": "watch_session_rollup",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": true,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "watch_session_truth",
-            "recoveryBoundary": "Watch metrics require watch-session rollups; page duration and legacy estimates stay diagnostic."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2504,6 +1637,15 @@
           "productTruthEligible": false,
           "mathReason": "watch_end has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "watch_session_rollup",
+            "sourceRole": "watch_session_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": true,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2517,17 +1659,6 @@
             "creator_followed",
             "creator_follow_succeeded"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2554,6 +1685,15 @@
           "productTruthEligible": false,
           "mathReason": "creator_follow has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2567,17 +1707,6 @@
             "creator_drop_submitted",
             "creator_drop_submit_succeeded"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2604,6 +1733,15 @@
           "productTruthEligible": false,
           "mathReason": "creator_drop_submit has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2619,17 +1757,6 @@
             "admin_creator_drop_rejected",
             "admin_creator_drop_reviewed"
           ],
-          "proofBoundary": {
-            "productTruthSource": "admin_action_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": true,
-            "sourceRole": "admin_audit_truth",
-            "recoveryBoundary": "Admin review events require admin action facts and must not hydrate user engagement."
-          },
           "observedFirstParty": false,
           "sourceTruth": "source_missing",
           "freshnessState": "source_missing",
@@ -2656,6 +1783,15 @@
           "productTruthEligible": false,
           "mathReason": "admin_review has no bounded source evidence in the recovery window; missing remains missing and must not render as zero.",
           "nextAction": "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.",
+          "proofBoundarySummary": {
+            "productTruthSource": "admin_action_fact",
+            "sourceRole": "admin_audit_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": true
+          },
           "activeSourceFiles": [],
           "activeSourceFileCount": 0,
           "activeSourceFilesTruncated": false,
@@ -2709,17 +1845,6 @@
             "semantic_page_viewed",
             "page_viewed"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "activeSourceReferenceCount": 24,
           "materializerReferenceCount": 15,
           "sourceCoverageState": "source_connected",
@@ -2744,19 +1869,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "functions/src/analytics-realtime-summary.ts",
-            "functions/src/analytics-semantics.ts",
-            "src/app/api/admin/debug/route.ts",
-            "src/app/api/admin/user/[userId]/route.ts"
+            "functions/src/analytics-semantics.ts"
           ],
           "activeSourceFileCount": 12,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "functions/src/analytics-realtime-summary.ts",
-            "functions/src/analytics-semantics.ts",
-            "src/app/api/admin/debug/route.ts",
-            "src/app/api/admin/user/[userId]/route.ts"
+            "functions/src/analytics-semantics.ts"
           ],
           "materializerFileCount": 12,
           "materializerFilesTruncated": true
@@ -2775,17 +1905,6 @@
             "auth_registration_completed",
             "user_registered"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "identity_handoff_truth",
-            "recoveryBoundary": "Identity handoff truth requires first-party identity-link facts and must not double-count guest and user activity."
-          },
           "activeSourceReferenceCount": 12,
           "materializerReferenceCount": 6,
           "sourceCoverageState": "source_connected",
@@ -2810,19 +1929,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "identity_handoff_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "src/app/api/admin/analytics/historical/route.ts",
-            "src/app/api/user/register/route.ts",
-            "src/components/Auth/AuthModal.tsx",
-            "src/lib/admin-analytics-auth-outcome-split.ts"
+            "src/app/api/user/register/route.ts"
           ],
           "activeSourceFileCount": 12,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "src/app/api/admin/analytics/historical/route.ts",
-            "src/lib/analytics-metric-catalog.ts",
-            "src/lib/analytics/person-metrics-contract.ts",
-            "src/lib/analytics/telemetry-dependency-graph.ts"
+            "src/lib/analytics-metric-catalog.ts"
           ],
           "materializerFileCount": 6,
           "materializerFilesTruncated": true
@@ -2837,17 +1961,6 @@
             "wallet_opened",
             "purchase_modal_opened"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": true,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "ledger_protected_truth",
-            "recoveryBoundary": "Payment, GumDrop, unlock, and entitlement truth require server ledger or entitlement corroboration."
-          },
           "activeSourceReferenceCount": 21,
           "materializerReferenceCount": 15,
           "sourceCoverageState": "source_connected",
@@ -2872,19 +1985,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "ledger_protected_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": true,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "functions/src/behavioral-intelligence-runtime.ts",
-            "src/app/api/admin/analytics/historical/route.ts",
-            "src/app/api/admin/debug/route.ts",
-            "src/components/Drops/LockedDropPreviewClient.tsx"
+            "src/app/api/admin/analytics/historical/route.ts"
           ],
           "activeSourceFileCount": 12,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "functions/src/behavioral-intelligence-runtime.ts",
-            "src/app/api/admin/analytics/historical/route.ts",
-            "src/app/api/admin/debug/route.ts",
-            "src/lib/analytics/event-liveness-engine.ts"
+            "src/app/api/admin/analytics/historical/route.ts"
           ],
           "materializerFileCount": 12,
           "materializerFilesTruncated": true
@@ -2901,17 +2019,6 @@
             "checkout_completed",
             "server_purchase_verified"
           ],
-          "proofBoundary": {
-            "productTruthSource": "server_ledger",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": true,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "ledger_protected_truth",
-            "recoveryBoundary": "Payment, GumDrop, unlock, and entitlement truth require server ledger or entitlement corroboration."
-          },
           "activeSourceReferenceCount": 25,
           "materializerReferenceCount": 17,
           "sourceCoverageState": "source_connected",
@@ -2936,19 +2043,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "server_ledger",
+            "sourceRole": "ledger_protected_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": true,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "functions/src/analytics-core.ts",
-            "functions/src/analytics-event-facts.ts",
-            "src/app/api/admin/analytics/historical/route.ts",
-            "src/app/api/admin/debug/route.ts"
+            "functions/src/analytics-event-facts.ts"
           ],
           "activeSourceFileCount": 12,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "functions/src/analytics-event-facts.ts",
-            "src/app/api/admin/analytics/historical/route.ts",
-            "src/app/api/admin/debug/route.ts",
-            "src/app/api/admin/user/[userId]/route.ts"
+            "src/app/api/admin/analytics/historical/route.ts"
           ],
           "materializerFileCount": 12,
           "materializerFilesTruncated": true
@@ -2963,17 +2075,6 @@
             "drop_preview_opened",
             "drop_preview_page_viewed"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "activeSourceReferenceCount": 34,
           "materializerReferenceCount": 23,
           "sourceCoverageState": "source_connected",
@@ -2998,19 +2099,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "functions/src/analytics-truth-runtime.ts",
-            "functions/src/behavioral-intelligence-runtime.ts",
-            "src/app/api/admin/analytics/historical/route.ts",
-            "src/app/api/admin/debug/route.ts"
+            "functions/src/behavioral-intelligence-runtime.ts"
           ],
           "activeSourceFileCount": 12,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "functions/src/analytics-truth-runtime.ts",
-            "functions/src/behavioral-intelligence-runtime.ts",
-            "src/app/api/admin/analytics/historical/route.ts",
-            "src/app/api/admin/debug/route.ts"
+            "functions/src/behavioral-intelligence-runtime.ts"
           ],
           "materializerFileCount": 12,
           "materializerFilesTruncated": true
@@ -3025,17 +2131,6 @@
             "drop_preview_cta_clicked",
             "semantic_target_clicked"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "activeSourceReferenceCount": 16,
           "materializerReferenceCount": 10,
           "sourceCoverageState": "source_connected",
@@ -3060,19 +2155,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "functions/src/analytics-semantics.ts",
-            "src/app/api/analytics/ingest/route.ts",
-            "src/components/Analytics/DeepTracker.tsx",
-            "src/components/Drops/LockedDropPreviewClient.tsx"
+            "src/app/api/analytics/ingest/route.ts"
           ],
           "activeSourceFileCount": 12,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "functions/src/analytics-semantics.ts",
-            "src/app/api/analytics/ingest/route.ts",
-            "src/lib/analytics/telemetry-dependency-graph.ts",
-            "src/lib/behavioral/event-fact-contract.ts"
+            "src/app/api/analytics/ingest/route.ts"
           ],
           "materializerFileCount": 10,
           "materializerFilesTruncated": true
@@ -3089,17 +2189,6 @@
             "drop_unwrapped",
             "entitlement_granted"
           ],
-          "proofBoundary": {
-            "productTruthSource": "server_ledger",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": true,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "ledger_protected_truth",
-            "recoveryBoundary": "Payment, GumDrop, unlock, and entitlement truth require server ledger or entitlement corroboration."
-          },
           "activeSourceReferenceCount": 33,
           "materializerReferenceCount": 23,
           "sourceCoverageState": "source_connected",
@@ -3124,19 +2213,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "server_ledger",
+            "sourceRole": "ledger_protected_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": true,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "functions/src/analytics-core.ts",
-            "functions/src/analytics-event-facts.ts",
-            "src/app/api/admin/analytics/historical/route.ts",
-            "src/app/api/admin/debug/route.ts"
+            "functions/src/analytics-event-facts.ts"
           ],
           "activeSourceFileCount": 12,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "functions/src/analytics-event-facts.ts",
-            "src/app/api/admin/analytics/historical/route.ts",
-            "src/app/api/admin/debug/route.ts",
-            "src/app/api/admin/user/[userId]/route.ts"
+            "src/app/api/admin/analytics/historical/route.ts"
           ],
           "materializerFileCount": 12,
           "materializerFilesTruncated": true
@@ -3151,17 +2245,6 @@
             "viewer_opened",
             "viewer_session_started"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "activeSourceReferenceCount": 22,
           "materializerReferenceCount": 17,
           "sourceCoverageState": "source_connected",
@@ -3186,19 +2269,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "functions/src/analytics-core.ts",
-            "functions/src/analytics-event-facts.ts",
-            "functions/src/analytics-semantics.ts",
-            "src/app/api/admin/analytics/historical/route.ts"
+            "functions/src/analytics-event-facts.ts"
           ],
           "activeSourceFileCount": 12,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "functions/src/analytics-event-facts.ts",
-            "functions/src/analytics-semantics.ts",
-            "src/app/api/admin/analytics/historical/route.ts",
-            "src/app/api/admin/debug/route.ts"
+            "functions/src/analytics-semantics.ts"
           ],
           "materializerFileCount": 12,
           "materializerFilesTruncated": true
@@ -3213,17 +2301,6 @@
             "watch_session_started",
             "drop_watch_started"
           ],
-          "proofBoundary": {
-            "productTruthSource": "watch_session_rollup",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": true,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "watch_session_truth",
-            "recoveryBoundary": "Watch metrics require watch-session rollups; page duration and legacy estimates stay diagnostic."
-          },
           "activeSourceReferenceCount": 16,
           "materializerReferenceCount": 11,
           "sourceCoverageState": "source_connected",
@@ -3248,19 +2325,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "watch_session_rollup",
+            "sourceRole": "watch_session_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": true,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "functions/src/analytics-truth-runtime.ts",
-            "functions/src/behavioral-intelligence-runtime.ts",
-            "src/hooks/useViewerWatchSession.ts",
-            "src/lib/analytics/drop-watch-time-contract.ts"
+            "functions/src/behavioral-intelligence-runtime.ts"
           ],
           "activeSourceFileCount": 12,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "functions/src/analytics-truth-runtime.ts",
-            "functions/src/behavioral-intelligence-runtime.ts",
-            "src/lib/analytics/person-metrics-contract.ts",
-            "src/lib/behavioral/event-fact-contract.ts"
+            "functions/src/behavioral-intelligence-runtime.ts"
           ],
           "materializerFileCount": 11,
           "materializerFilesTruncated": true
@@ -3275,17 +2357,6 @@
             "watch_session_ended",
             "watch_session_completed"
           ],
-          "proofBoundary": {
-            "productTruthSource": "watch_session_rollup",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": true,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "watch_session_truth",
-            "recoveryBoundary": "Watch metrics require watch-session rollups; page duration and legacy estimates stay diagnostic."
-          },
           "activeSourceReferenceCount": 11,
           "materializerReferenceCount": 10,
           "sourceCoverageState": "source_connected",
@@ -3310,19 +2381,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "watch_session_rollup",
+            "sourceRole": "watch_session_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": true,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "src/app/api/admin/user/[userId]/route.ts",
-            "src/hooks/useViewerWatchSession.ts",
-            "src/lib/analytics/person-metrics-contract.ts",
-            "src/lib/behavioral/event-fact-contract.ts"
+            "src/hooks/useViewerWatchSession.ts"
           ],
           "activeSourceFileCount": 11,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "src/app/api/admin/user/[userId]/route.ts",
-            "src/lib/analytics/person-metrics-contract.ts",
-            "src/lib/behavioral/event-fact-contract.ts",
-            "src/lib/behavioral/event-fact-normalizer.ts"
+            "src/lib/analytics/person-metrics-contract.ts"
           ],
           "materializerFileCount": 10,
           "materializerFilesTruncated": true
@@ -3337,17 +2413,6 @@
             "creator_followed",
             "creator_follow_succeeded"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "activeSourceReferenceCount": 21,
           "materializerReferenceCount": 15,
           "sourceCoverageState": "source_connected",
@@ -3372,19 +2437,24 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "functions/src/behavioral-intelligence-runtime.ts",
-            "src/app/api/creator/relationships/route.ts",
-            "src/app/api/user/follow/route.ts",
-            "src/app/creators/[username]/CreatorProfileClient.tsx"
+            "src/app/api/creator/relationships/route.ts"
           ],
           "activeSourceFileCount": 12,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "functions/src/behavioral-intelligence-runtime.ts",
-            "src/app/creators/[username]/CreatorProfileClient.tsx",
-            "src/lib/analytics/person-metrics-contract.ts",
-            "src/lib/behavioral/behavior-math-engine.ts"
+            "src/app/creators/[username]/CreatorProfileClient.tsx"
           ],
           "materializerFileCount": 12,
           "materializerFilesTruncated": true
@@ -3399,17 +2469,6 @@
             "creator_drop_submitted",
             "creator_drop_submit_succeeded"
           ],
-          "proofBoundary": {
-            "productTruthSource": "first_party_event_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": false,
-            "sourceRole": "behavior_product_truth",
-            "recoveryBoundary": "Behavior analytics require first-party event facts; GA4, cache, and legacy rows can only calibrate or corroborate."
-          },
           "activeSourceReferenceCount": 7,
           "materializerReferenceCount": 3,
           "sourceCoverageState": "source_connected",
@@ -3434,21 +2493,27 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "first_party_event_fact",
+            "sourceRole": "behavior_product_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": false
+          },
           "activeSourceFiles": [
             "src/app/api/creator/drops/route.ts",
-            "src/components/Admin/CreateDropModal.tsx",
-            "src/lib/analytics/person-metrics-contract.ts",
-            "src/lib/analytics/telemetry-dependency-graph.ts"
+            "src/components/Admin/CreateDropModal.tsx"
           ],
           "activeSourceFileCount": 7,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "src/lib/analytics/person-metrics-contract.ts",
-            "src/lib/analytics/telemetry-dependency-graph.ts",
-            "src/lib/creator/features/creator-feature-parity-map.ts"
+            "src/lib/analytics/telemetry-dependency-graph.ts"
           ],
           "materializerFileCount": 3,
-          "materializerFilesTruncated": false
+          "materializerFilesTruncated": true
         },
         {
           "familyId": "admin_review",
@@ -3464,17 +2529,6 @@
             "admin_creator_drop_rejected",
             "admin_creator_drop_reviewed"
           ],
-          "proofBoundary": {
-            "productTruthSource": "admin_action_fact",
-            "productTruthEligibleWhenObserved": true,
-            "externalEvidenceCanClearProductTruth": false,
-            "missingCanRenderAsZero": false,
-            "requiresLedgerCorroboration": false,
-            "requiresWatchSessionRollup": false,
-            "requiresAdminAuditFact": true,
-            "sourceRole": "admin_audit_truth",
-            "recoveryBoundary": "Admin review events require admin action facts and must not hydrate user engagement."
-          },
           "activeSourceReferenceCount": 6,
           "materializerReferenceCount": 3,
           "sourceCoverageState": "source_connected",
@@ -3499,21 +2553,27 @@
           "countsForActiveSourceCoverage": true,
           "productTruthEligibleFromSourceScan": false,
           "nextAction": "Keep this active source lane connected to first-party facts, materializers, and dedupe; historical launch rows still need bounded evidence.",
+          "proofBoundarySummary": {
+            "productTruthSource": "admin_action_fact",
+            "sourceRole": "admin_audit_truth",
+            "externalEvidenceCanClearProductTruth": false,
+            "missingCanRenderAsZero": false,
+            "requiresLedgerCorroboration": false,
+            "requiresWatchSessionRollup": false,
+            "requiresAdminAuditFact": true
+          },
           "activeSourceFiles": [
             "src/app/admin/drops/page.tsx",
-            "src/app/api/admin/drops/route.ts",
-            "src/lib/analytics/person-metrics-contract.ts",
-            "src/lib/analytics/telemetry-dependency-graph.ts"
+            "src/app/api/admin/drops/route.ts"
           ],
           "activeSourceFileCount": 6,
           "activeSourceFilesTruncated": true,
           "materializerFiles": [
             "src/lib/analytics/person-metrics-contract.ts",
-            "src/lib/analytics/telemetry-dependency-graph.ts",
-            "src/lib/creator/features/creator-feature-parity-map.ts"
+            "src/lib/analytics/telemetry-dependency-graph.ts"
           ],
           "materializerFileCount": 3,
-          "materializerFilesTruncated": false
+          "materializerFilesTruncated": true
         }
       ],
       "policy": {
