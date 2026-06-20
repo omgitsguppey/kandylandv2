@@ -17,8 +17,8 @@ import {
 } from "@/lib/math/legacy-recovery-dry-run-engine";
 
 describe("metric canonicalization legacy recovery", () => {
-  it("declares March 1 dry-run-only recovery and does not export mutation helpers", () => {
-    expect(recoveryStartDate).toBe("2026-03-01");
+  it("declares launch-start dry-run-only recovery and does not export mutation helpers", () => {
+    expect(recoveryStartDate).toBe("2026-02-12");
     expect(dryRunOnly).toBe(true);
     expect(Object.keys(dryRunModule).join(" ")).not.toMatch(/\b(backfill|mutate|write|commit|apply)\b/iu);
   });
@@ -164,14 +164,14 @@ describe("metric canonicalization legacy recovery", () => {
           eventName: "page_viewed",
           sessionId: "session_before",
           sourceRoute: "/",
-          occurredAt: "2026-02-28T23:59:59.000Z",
+          occurredAt: "2026-02-11T23:59:59.000Z",
         },
       ],
     });
 
     expect(dryRun).toMatchObject({
       mode: "dry_run_only",
-      recoveryStartDate: "2026-03-01",
+      recoveryStartDate: "2026-02-12",
       readsProduction: false,
       mutationsAllowed: false,
     });

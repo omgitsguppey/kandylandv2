@@ -1,9 +1,10 @@
 import type { IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
 import { IDENTITY_CONFIDENCE_WEIGHTS } from "@/lib/math/canonical-math-ledger";
 import type { PersonMetricId } from "@/lib/analytics/person-metrics-contract";
+import { LAUNCH_ANALYTICS_FIRST_DAY_KEY } from "@/lib/analytics/source-agreement-detail";
 
 export const LEGACY_METRIC_CANONICALIZATION_VERSION = "legacy-metric-canonicalization.v1";
-export const LEGACY_RECOVERY_START_DATE = "2026-03-01" as const;
+export const LEGACY_RECOVERY_START_DATE = LAUNCH_ANALYTICS_FIRST_DAY_KEY;
 
 export type LegacyAliasCategory =
   | "watch_page_duration"

@@ -36,7 +36,7 @@ export type LegacyRecoveryDryRunCandidate = {
 
 export type LegacyRecoveryDryRun = {
   mode: "dry_run_only";
-  recoveryStartDate: "2026-03-01";
+  recoveryStartDate: typeof recoveryStartDate;
   readsProduction: false;
   mutationsAllowed: false;
   liveBackfill: false;
@@ -126,7 +126,7 @@ export function buildLegacyRecoveryCandidate(record: LegacyRecoveryDryRunRecord)
     dedupeKey,
     action,
     reason: action === "ignore"
-      ? "Record occurred before the March 1, 2026 recovery boundary."
+      ? `Record occurred before the ${recoveryStartDate} launch recovery boundary.`
       : action === "archive_only"
         ? "Unknown legacy cannot become exact and remains archive_only."
         : mapping.reason,

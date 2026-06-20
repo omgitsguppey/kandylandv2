@@ -1,12 +1,12 @@
 # Metric Canonicalization Legacy Recovery
 
-Generated: 2026-06-20T17:19:07.103Z
-Current head: 6c98d104128d2d14b8f44d3d51c8e02cedc57bf1
+Generated: 2026-06-20T17:25:16.011Z
+Current head: f1f3c52f16b8255d61764cd0c841bc3f76b37294
 Status: pass
 
 ## Contract
 
-- Recovery starts at `2026-03-01`.
+- Recovery starts at the formal launch anchor `2026-02-12`.
 - This is dry-run only: no production reads, writes, mutations, or live backfill.
 - Unknown legacy cannot become exact user truth.
 - Exact legacy identity requires deterministic userId, eventId, timestamp, and source route.
@@ -36,7 +36,10 @@ Status: pass
 
 ## Dirty Files
 
-- none
+- scripts/agent/validate-metric-canonicalization-legacy-recovery.ts: failed_validator_to_repair
+- src/lib/math/legacy-metric-canonicalization.ts: real_source_change_needs_review
+- src/lib/math/legacy-recovery-dry-run-engine.ts: real_source_change_needs_review
+- tests/unit/metric-canonicalization-legacy-recovery.spec.ts: current_generated_artifact_to_commit
 
 ## Open PR Classification
 

@@ -15,6 +15,7 @@ import {
   dryRunOnly,
   recoveryStartDate,
 } from "@/lib/math/legacy-recovery-dry-run-engine";
+import { LAUNCH_ANALYTICS_FIRST_DAY_KEY } from "@/lib/analytics/source-agreement-detail";
 
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/metric-canonicalization-legacy-recovery.generated.json";
@@ -192,7 +193,7 @@ function renderDoc(report: JsonRecord) {
     "",
     "## Contract",
     "",
-    "- Recovery starts at `2026-03-01`.",
+    `- Recovery starts at the formal launch anchor \`${LAUNCH_ANALYTICS_FIRST_DAY_KEY}\`.`,
     "- This is dry-run only: no production reads, writes, mutations, or live backfill.",
     "- Unknown legacy cannot become exact user truth.",
     "- Exact legacy identity requires deterministic userId, eventId, timestamp, and source route.",
@@ -269,7 +270,7 @@ function main() {
         eventName: "page_viewed",
         sessionId: "session_before",
         sourceRoute: "/",
-        occurredAt: "2026-02-28T23:59:59.000Z",
+        occurredAt: "2026-02-11T23:59:59.000Z",
       },
     ],
   });
@@ -287,7 +288,9 @@ function main() {
     "search_discovery",
     "support_settings",
   ];
-  if (LEGACY_RECOVERY_START_DATE !== "2026-03-01" || recoveryStartDate !== "2026-03-01") validationFailures.push("March 1 recovery boundary missing.");
+  if (LEGACY_RECOVERY_START_DATE !== LAUNCH_ANALYTICS_FIRST_DAY_KEY || recoveryStartDate !== LAUNCH_ANALYTICS_FIRST_DAY_KEY) {
+    validationFailures.push("Launch recovery boundary must match the formal launch analytics first day.");
+  }
   if (!dryRunOnly || dryRun.mode !== "dry_run_only" || dryRun.readsProduction || dryRun.mutationsAllowed || dryRun.liveBackfill) {
     validationFailures.push("dryRunOnly/no production mutation contract missing.");
   }
@@ -370,7 +373,7 @@ function main() {
     aliasMappings: LEGACY_EVENT_ALIAS_TABLE,
     dryRun,
     checks: {
-      marchFirstBoundary: recoveryStartDate === "2026-03-01",
+      launchStartBoundary: recoveryStartDate === LAUNCH_ANALYTICS_FIRST_DAY_KEY,
       dryRunOnly: dryRunOnly === true && dryRun.mutationsAllowed === false,
       unknownLegacyCannotBecomeExact: unknown.identityConfidence !== "exact" && unknown.action === "archive_only",
       aliasMappingHasConfidence: LEGACY_EVENT_ALIAS_TABLE.every((entry) => entry.confidenceFloor && entry.reason),
@@ -383,7 +386,7 @@ function main() {
     openPullRequests,
     validationFailures,
     releaseNoteImpact: [
-      "Added dry-run canonicalization for legacy event and metric data from March 1.",
+      `Added dry-run canonicalization for legacy event and metric data from the formal launch anchor ${LAUNCH_ANALYTICS_FIRST_DAY_KEY}.`,
       "Mapped old event aliases into current metrics with confidence and duplicate risk.",
       "Kept unknown legacy data from becoming exact user truth.",
     ],

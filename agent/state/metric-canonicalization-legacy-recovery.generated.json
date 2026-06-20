@@ -1,7 +1,7 @@
 {
   "reportKey": "metric-canonicalization-legacy-recovery",
-  "generatedAtUtc": "2026-06-20T17:19:07.103Z",
-  "currentHead": "6c98d104128d2d14b8f44d3d51c8e02cedc57bf1",
+  "generatedAtUtc": "2026-06-20T17:25:16.011Z",
+  "currentHead": "f1f3c52f16b8255d61764cd0c841bc3f76b37294",
   "status": "pass",
   "scoreBefore": {
     "sourceHealth": 99.2,
@@ -24,7 +24,7 @@
   "dryRunOnly": true,
   "productionReadsRequired": false,
   "mutationsAllowed": false,
-  "recoveryStartDate": "2026-03-01",
+  "recoveryStartDate": "2026-02-12",
   "aliasMappings": [
     {
       "aliases": [
@@ -209,7 +209,7 @@
   ],
   "dryRun": {
     "mode": "dry_run_only",
-    "recoveryStartDate": "2026-03-01",
+    "recoveryStartDate": "2026-02-12",
     "readsProduction": false,
     "mutationsAllowed": false,
     "liveBackfill": false,
@@ -263,16 +263,16 @@
         "canMutateProduction": false
       },
       {
-        "candidateId": "legacy:analytics_event_facts:page_viewed:click_action:page_viewed:session_before:unknown_object:/:354464639",
+        "candidateId": "legacy:analytics_event_facts:page_viewed:click_action:page_viewed:session_before:unknown_object:/:354170879",
         "legacySource": "analytics_event_facts",
         "canonicalEventName": "page_viewed",
         "canonicalMetricId": null,
         "confidenceWeight": 0,
         "identityConfidence": "unknown",
         "duplicateRisk": "high",
-        "dedupeKey": "click_action:page_viewed:session_before:unknown_object:/:354464639",
+        "dedupeKey": "click_action:page_viewed:session_before:unknown_object:/:354170879",
         "action": "ignore",
-        "reason": "Record occurred before the March 1, 2026 recovery boundary.",
+        "reason": "Record occurred before the 2026-02-12 launch recovery boundary.",
         "accuracyImpact": "Maps legacy page_viewed into canonical page_viewed metric evidence with confidence cap 0.",
         "userVisibleImpact": "No production data is changed; this is a dry-run candidate plan for future operator review.",
         "dryRunOnly": true,
@@ -311,7 +311,7 @@
     }
   },
   "checks": {
-    "marchFirstBoundary": true,
+    "launchStartBoundary": true,
     "dryRunOnly": true,
     "unknownLegacyCannotBecomeExact": true,
     "aliasMappingHasConfidence": true,
@@ -320,11 +320,28 @@
     "recoveryCannotMutateProduction": true,
     "accuracyExplanationPresent": true
   },
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "scripts/agent/validate-metric-canonicalization-legacy-recovery.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "src/lib/math/legacy-metric-canonicalization.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/legacy-recovery-dry-run-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/metric-canonicalization-legacy-recovery.spec.ts",
+      "classification": "current_generated_artifact_to_commit"
+    }
+  ],
   "openPullRequests": [],
   "validationFailures": [],
   "releaseNoteImpact": [
-    "Added dry-run canonicalization for legacy event and metric data from March 1.",
+    "Added dry-run canonicalization for legacy event and metric data from the formal launch anchor 2026-02-12.",
     "Mapped old event aliases into current metrics with confidence and duplicate risk.",
     "Kept unknown legacy data from becoming exact user truth."
   ]
