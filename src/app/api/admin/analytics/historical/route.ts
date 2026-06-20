@@ -1739,7 +1739,7 @@ async function GET_handler(request: NextRequest) {
                 ? "max(exact guest views, GA total views - identified first-party views)"
                 : null;
             const guestEstimateSourceTruth = guestTraffic.truthLabel === "estimated"
-                ? "ga4"
+                ? "ga4_evidence_only"
                 : guestTraffic.qualityAvailable
                     ? "event_estimate"
                     : "unknown";

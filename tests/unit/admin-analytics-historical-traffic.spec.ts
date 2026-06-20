@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -487,4 +489,11 @@ describe("admin analytics historical route snapshot authority", () => {
     expect(routeMockState.fetchAdminHistoricalAnalyticsSources).not.toHaveBeenCalled();
     expect(payload.cacheSourceLabel).toBe("analytics_admin_metric_snapshots/audience_snapshot:all");
   }, 15_000);
+
+  it("uses canonical guest estimate source truth labels in route diagnostics", () => {
+    const source = readFileSync("src/app/api/admin/analytics/historical/route.ts", "utf8");
+
+    expect(source).toContain('? "ga4_evidence_only"');
+    expect(source).not.toContain('? "ga4"\n');
+  });
 });
