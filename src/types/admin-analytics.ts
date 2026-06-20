@@ -22,6 +22,7 @@ import type {
   LaunchRecoverySourceGateBlocker,
   LaunchHistoryDisplaySummaryState,
   LaunchHistoryDayRecoveryState,
+  RecoveredLaunchMetricState,
   RecoveryMetricPolicyProofBoundary,
 } from "@/lib/analytics/recovery-timeline-spine";
 
@@ -43,6 +44,17 @@ export interface HistoricalPoint {
   newUsers: number;
   avgSessionDuration: number;
   engagementRate: number;
+  sourceTruth?: RecoveredLaunchMetricState["sourceTruth"];
+  freshnessState?: RecoveredLaunchMetricState["freshnessState"];
+  confidenceScore?: RecoveredLaunchMetricState["confidenceScore"];
+  confidenceBand?: RecoveredLaunchMetricState["confidenceBand"];
+  evidenceKind?: RecoveredLaunchMetricState["evidenceKind"];
+  dedupeKey?: RecoveredLaunchMetricState["dedupeKey"];
+  dedupeDimensions?: RecoveredLaunchMetricState["dedupeDimensions"];
+  lateArrivalWindowDays?: RecoveredLaunchMetricState["lateArrivalWindowDays"];
+  productTruthEligible?: RecoveredLaunchMetricState["productTruthEligible"];
+  missingVsZeroState?: RecoveredLaunchMetricState["missingVsZeroState"];
+  mathReason?: RecoveredLaunchMetricState["mathReason"];
 }
 
 export interface EventBreakdownItem {
