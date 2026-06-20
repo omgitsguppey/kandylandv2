@@ -7,7 +7,7 @@ import {
 } from "@/lib/analytics/real-usage-confidence-engine";
 
 describe("real usage confidence engine", () => {
-  it("converts operator-confirmed usage into bounded confidence without clearing formal gates", () => {
+  it("keeps operator-confirmed usage as context while source telemetry carries confidence", () => {
     const report = buildRealUsageConfidenceReport({
       currentHead: "abc123",
       generatedAtUtc: "2026-05-21T12:00:00.000Z",
@@ -55,10 +55,11 @@ describe("real usage confidence engine", () => {
       ]),
     );
     expect(report.signals.purchase_flow_seen).toMatchObject({
-      status: "observed",
+      status: "source_ready",
       operatorConfirmed: true,
       sourcePath: "agent/state/operator-revenue-smoke.generated.json",
     });
+    expect(report.summary.observedSignals).toBe(0);
     expect(report.signals.wallet_flow_source_ready?.status).toBe("source_ready");
     expect(validateRealUsageConfidenceReport(report)).toEqual([]);
   });
@@ -144,6 +145,7 @@ describe("real usage confidence engine", () => {
         expect.stringContaining("limits must include does_not_clear_formal_provider"),
         expect.stringContaining("purchase_flow_seen lacks source path"),
         expect.stringContaining("purchase_flow_seen lacks next action"),
+        expect.stringContaining("purchase_flow_seen turns operator context into observed proof"),
       ]),
     );
   });

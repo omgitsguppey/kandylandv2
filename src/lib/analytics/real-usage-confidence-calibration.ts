@@ -1,7 +1,6 @@
 import type { TelemetryLaneId } from "@/lib/analytics/telemetry-dependency-graph";
 
 export type RealUsageConfidenceClass =
-  | "observed_operator_confirmed"
   | "observed_telemetry_source_ready"
   | "inferred_from_validated_path"
   | "unavailable"
@@ -172,9 +171,9 @@ const FLOW_CONFIG: Record<RealUsageCalibrationFlowId, {
     lane: "purchase",
     signalId: "purchase_flow_seen",
     sourcePath: "agent/state/operator-revenue-smoke.generated.json",
-    defaultClass: "observed_operator_confirmed",
-    sourceReadyScore: 82,
-    nextAction: "Keep the operator-confirmed revenue signal separate from formal provider smoke.",
+    defaultClass: "observed_telemetry_source_ready",
+    sourceReadyScore: 72,
+    nextAction: "Use source-ready purchase telemetry as bounded confidence; keep operator context separate from formal provider smoke.",
   },
   gumdrop_credit: {
     label: "GumDrop credit",
@@ -330,19 +329,14 @@ function buildFlow(
   const telemetryReady = laneReady(input, config.lane);
   const hasSourceSignal = sourceSignalReady(signal);
   const sourcePath = signal?.sourcePath || config.sourcePath;
-  const operatorObserved = config.defaultClass === "observed_operator_confirmed" && operatorRecognized;
   const unknownLegacy = config.defaultClass === "unknown_legacy" && behaviorConnection.unknownLegacyExcluded;
-  const unavailable = !operatorObserved && !unknownLegacy && !telemetryReady && !hasSourceSignal;
-  const confidenceClass: RealUsageConfidenceClass = operatorObserved
-    ? "observed_operator_confirmed"
-    : unknownLegacy
+  const unavailable = !unknownLegacy && !telemetryReady && !hasSourceSignal;
+  const confidenceClass: RealUsageConfidenceClass = unknownLegacy
       ? "unknown_legacy"
       : unavailable
         ? "unavailable"
         : config.defaultClass;
-  const confidenceScore = confidenceClass === "observed_operator_confirmed"
-    ? Math.max(config.sourceReadyScore, 84)
-    : confidenceClass === "unknown_legacy" || confidenceClass === "unavailable"
+  const confidenceScore = confidenceClass === "unknown_legacy" || confidenceClass === "unavailable"
       ? 0
       : config.sourceReadyScore;
 
@@ -351,11 +345,11 @@ function buildFlow(
     label: config.label,
     confidenceClass,
     confidenceScore: clampScore(confidenceScore),
-    observedCount: confidenceClass === "observed_operator_confirmed" ? 1 : 0,
+    observedCount: 0,
     sourcePath,
     sourceStatus: signal?.status ?? (telemetryReady ? "source_ready_graph_mapped" : "missing_or_unknown"),
     telemetryLaneId: config.lane,
-    operatorConfirmed: confidenceClass === "observed_operator_confirmed",
+    operatorConfirmed: Boolean(operatorRecognized && flowId === "wallet_refill"),
     behaviorMathLinked: config.lane === "behavior_signal"
       || config.lane === "runtime_watch"
       || flowId === "creator_profile_timeline",
@@ -364,7 +358,8 @@ function buildFlow(
       `telemetryLane=${config.lane}`,
       `telemetryReady=${telemetryReady}`,
       `sourceSignalReady=${hasSourceSignal}`,
-      `observedCount=${confidenceClass === "observed_operator_confirmed" ? 1 : 0}`,
+      "observedCount=0",
+      ...(operatorRecognized && flowId === "wallet_refill" ? ["operatorContextOnly=true"] : []),
       ...(signal?.evidence ?? []),
     ],
     limitations: LIMITS,
@@ -399,12 +394,11 @@ export function buildRealUsageConfidenceCalibration(
     currentHead: input.currentHead,
     sourceCommit: input.currentHead,
     status: "source_ready_real_usage_confidence_calibrated",
-    detail: "Real usage confidence is calibrated from operator-confirmed usage, behavior math, identity transfer, telemetry closure, and source-ready paths without clearing formal gates.",
+    detail: "Real usage confidence is calibrated from source-ready telemetry, behavior math, identity transfer, and context-only operator signals without clearing formal gates.",
     productionReadsRequired: false,
     legacyMutationAllowed: false,
     fakeUsageCountsUsed: validationProbe.fakeUsageCountsUsed,
     confidenceClasses: [
-      "observed_operator_confirmed",
       "observed_telemetry_source_ready",
       "inferred_from_validated_path",
       "unavailable",
@@ -497,12 +491,7 @@ export function validateRealUsageConfidenceCalibration(
     }
     if (!flow.sourcePath) failures.push(`${flowId} lacks source path.`);
     if (!flow.nextAction) failures.push(`${flowId} lacks next action.`);
-    if (flow.confidenceClass !== "observed_operator_confirmed" && flow.observedCount !== 0) {
-      failures.push(`${flowId} inferred signals are treated as observed proof.`);
-    }
-    if (flow.confidenceClass === "observed_operator_confirmed" && (!flow.operatorConfirmed || flow.observedCount <= 0)) {
-      failures.push(`${flowId} uses observed proof without operator confirmation.`);
-    }
+    if (flow.observedCount !== 0) failures.push(`${flowId} treats context/source-ready confidence as observed proof.`);
     if (flow.confidenceClass === "unknown_legacy" && flow.confidenceScore !== 0) {
       failures.push(`${flowId} unknown legacy counts as known user behavior.`);
     }

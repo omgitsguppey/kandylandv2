@@ -185,21 +185,22 @@ function buildSignal(input: RealUsageConfidenceInput, id: RealUsageConfidenceSig
     return {
       id,
       label: config.label,
-      status: "observed",
+      status: "source_ready",
       telemetryLaneId: config.lane,
       sourcePath: operatorEvent?.sourcePath || config.sourcePath,
-      sourcePathStatus: "validated",
+      sourcePathStatus: "source_ready",
       materializerPresent: input.materializerPresence[config.lane] === true,
       operatorConfirmed: true,
-      confidenceContribution: config.weight,
+      confidenceContribution: Math.min(config.weight, 10),
       evidence: [
         `eventName=${operatorEvent?.eventName}`,
-        `confirmationSource=${operatorEvent?.confirmationSource}`,
-        `count=${operatorEvent?.count}`,
+        "operatorContextOnly=true",
         `telemetryLane=${config.lane}`,
+        `laneStatus=${input.telemetryLaneStatus[config.lane]}`,
+        `materializerPresent=${input.materializerPresence[config.lane]}`,
       ],
       limitations: LIMITS,
-      nextAction: "Use this as bounded confidence only; attach formal provider/runtime evidence separately.",
+      nextAction: "Use source-ready purchase telemetry as bounded confidence only; keep operator context separate from observed proof.",
     };
   }
 
@@ -281,7 +282,7 @@ export function buildRealUsageConfidenceReport(input: RealUsageConfidenceInput):
   const sourceReadySignals = activeSignals.filter((signal) => signal.status === "source_ready").length;
   const ignored = ignoredUnknownEvents(input);
   const status = confidenceScore > 0
-    ? observedSignals > 0
+    ? sourceReadySignals > 0
       ? "source_ready_real_usage_confidence"
       : "partial_real_usage_confidence"
     : "unavailable";
@@ -316,7 +317,7 @@ export function buildRealUsageConfidenceReport(input: RealUsageConfidenceInput):
       ignoredUnknownUsage: ignored.length,
       confidenceScore,
     },
-    nextAction: "Use real usage confidence as source/runtime confidence only; keep formal provider and deployed runtime gates separate.",
+    nextAction: "Use source-derived real usage confidence only; keep operator context, formal provider, and deployed runtime gates separate.",
   };
 }
 
@@ -335,7 +336,8 @@ export function validateRealUsageConfidenceReport(report: RealUsageConfidenceRep
     if (!signal) continue;
     if (!signal.sourcePath) failures.push(`${signal.id} lacks source path.`);
     if (!signal.nextAction) failures.push(`${signal.id} lacks next action.`);
-    if (signal.status === "observed" && !signal.operatorConfirmed) failures.push(`${signal.id} is observed without operator confirmation.`);
+    if (signal.status === "observed" && signal.operatorConfirmed) failures.push(`${signal.id} turns operator context into observed proof.`);
+    if (signal.status === "observed" && !signal.operatorConfirmed) failures.push(`${signal.id} is observed without formal runtime evidence.`);
     if (signal.status === "observed" && signal.confidenceContribution <= 0) failures.push(`${signal.id} observed signal lacks confidence contribution.`);
     if (signal.status === "ignored_unknown" && signal.confidenceContribution !== 0) failures.push(`${signal.id} unknown usage counted as proof.`);
     if (signal.limitations.length === 0) failures.push(`${signal.id} lacks limitations.`);

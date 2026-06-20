@@ -81,7 +81,7 @@ function input(overrides: Partial<RealUsageConfidenceCalibrationInput> = {}): Re
 }
 
 describe("real usage confidence calibration", () => {
-  it("recognizes operator-confirmed revenue context without clearing formal gates", () => {
+  it("recognizes operator-confirmed revenue context without turning it into observed proof", () => {
     const report = buildRealUsageConfidenceCalibration(input());
 
     expect(report.operatorConfirmedRevenueSmoke).toMatchObject({
@@ -95,8 +95,9 @@ describe("real usage confidence calibration", () => {
       clearsFormalProvider: false,
       clearsDeployedRuntime: false,
     });
-    expect(report.perFlowConfidence.wallet_refill.confidenceClass).toBe("observed_operator_confirmed");
-    expect(report.perFlowConfidence.wallet_refill.observedCount).toBe(1);
+    expect(report.perFlowConfidence.wallet_refill.confidenceClass).toBe("observed_telemetry_source_ready");
+    expect(report.perFlowConfidence.wallet_refill.operatorConfirmed).toBe(true);
+    expect(report.perFlowConfidence.wallet_refill.observedCount).toBe(0);
     expect(validateRealUsageConfidenceCalibration(report)).toEqual([]);
   });
 
@@ -163,7 +164,7 @@ describe("real usage confidence calibration", () => {
         ...report.perFlowConfidence,
         fan_pass_source: {
           ...report.perFlowConfidence.fan_pass_source,
-          confidenceClass: "observed_operator_confirmed" as const,
+          confidenceClass: "observed_telemetry_source_ready" as const,
           observedCount: 12,
         },
       },
@@ -172,7 +173,7 @@ describe("real usage confidence calibration", () => {
     expect(validateRealUsageConfidenceCalibration(invalid)).toEqual(
       expect.arrayContaining([
         expect.stringContaining("must not clear formal provider"),
-        expect.stringContaining("fan_pass_source uses observed proof without operator confirmation"),
+        expect.stringContaining("fan_pass_source treats context/source-ready confidence as observed proof"),
       ]),
     );
   });

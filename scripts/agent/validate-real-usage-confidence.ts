@@ -121,7 +121,7 @@ function renderDoc(report: RealUsageConfidenceReport) {
     `- Overall status: ${report.status}`,
     `- Passed: ${report.passed}`,
     `- Confidence score: ${report.confidenceScore}/100`,
-    `- Observed operator-confirmed signals: ${report.summary.observedSignals}`,
+    `- Observed proof signals: ${report.summary.observedSignals}`,
     `- Source-ready signals: ${report.summary.sourceReadySignals}`,
     `- Ignored unknown usage records: ${report.summary.ignoredUnknownUsage}`,
     "",
