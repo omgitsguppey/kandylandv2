@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-20T22:23:19.851Z",
-  "currentHead": "008c9652d6086658beb509c86239c70caac95786",
+  "generatedAtUtc": "2026-06-20T22:31:40.312Z",
+  "currentHead": "ff8898e94933dd097af1cc587abebf4e9e3189ba",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -357,10 +357,30 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 0,
-    "byClassification": {},
+    "total": 4,
+    "byClassification": {
+      "analytics_panel_hydration_artifact_expected": 2,
+      "launch_analytics_recovery_artifact_expected": 2
+    },
     "unsafeUnknown": [],
-    "sample": [],
+    "sample": [
+      {
+        "path": "agent/state/analytics-panel-hydration.generated.json",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "agent/state/launch-analytics-recovery.generated.json",
+        "classification": "launch_analytics_recovery_artifact_expected"
+      },
+      {
+        "path": "docs/agent-truth/analytics-panel-hydration.md",
+        "classification": "analytics_panel_hydration_artifact_expected"
+      },
+      {
+        "path": "docs/agent-truth/launch-analytics-recovery.md",
+        "classification": "launch_analytics_recovery_artifact_expected"
+      }
+    ],
     "sampleTruncated": false
   },
   "nextExactSteps": [
