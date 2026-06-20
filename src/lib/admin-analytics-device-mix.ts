@@ -1,4 +1,5 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type {
   DeviceMixItem,
   DeviceMixPanelState,
@@ -125,6 +126,23 @@ function formatFreshnessLabel(freshness: DeviceMixPanelState["freshnessState"]) 
   }
 }
 
+function buildDeviceMixRecoveryMetadata(input: {
+  deviceCategory: DeviceMixRow["deviceCategory"];
+  sessions: number;
+  generatedAtMs: number | null | undefined;
+}) {
+  const sourceObserved = input.sessions > 0;
+  return buildRecoveredLaunchMetricState({
+    eventName: "page_view",
+    sourceObserved,
+    sourceTruth: sourceObserved ? "ga4_evidence_only" : "source_missing",
+    evidenceKind: sourceObserved ? "modeled" : "missing",
+    route: "admin_analytics_device_mix",
+    objectId: input.deviceCategory,
+    timestampMs: input.generatedAtMs ?? null,
+  });
+}
+
 export function buildAdminAnalyticsDeviceMixModel(input: {
   response?: Partial<HistoricalAnalyticsResponse> | null;
   selectedRange: RangeOption;
@@ -147,6 +165,11 @@ export function buildAdminAnalyticsDeviceMixModel(input: {
     const engagedSessions =
       engagementRatePct !== null ? Math.round(sessions * engagementRatePct) : null;
     const sharePct = totalSessions > 0 ? sessions / totalSessions : 0;
+    const recoveryMetadata = buildDeviceMixRecoveryMetadata({
+      deviceCategory,
+      sessions,
+      generatedAtMs: response?.generatedAtMs,
+    });
     return {
       deviceCategory,
       sessions,
@@ -160,8 +183,22 @@ export function buildAdminAnalyticsDeviceMixModel(input: {
       purchaseRatePct: null,
       unwraps: null,
       watchSeconds: null,
-      sourceTruth: "ga4_device_category",
-      confidenceState: "verified",
+      sourceTruth: recoveryMetadata.sourceTruth,
+      confidenceState: recoveryMetadata.confidenceBand === "missing"
+        ? "unknown"
+        : recoveryMetadata.confidenceBand === "verified" || recoveryMetadata.confidenceBand === "strong"
+          ? "verified"
+          : "estimated",
+      freshnessState: recoveryMetadata.freshnessState,
+      confidenceScore: recoveryMetadata.confidenceScore,
+      confidenceBand: recoveryMetadata.confidenceBand,
+      evidenceKind: recoveryMetadata.evidenceKind,
+      dedupeKey: recoveryMetadata.dedupeKey,
+      dedupeDimensions: recoveryMetadata.dedupeDimensions,
+      lateArrivalWindowDays: recoveryMetadata.lateArrivalWindowDays,
+      productTruthEligible: recoveryMetadata.productTruthEligible,
+      missingVsZeroState: recoveryMetadata.missingVsZeroState,
+      mathReason: recoveryMetadata.mathReason,
       recommendation: buildRecommendation({
         deviceCategory,
         sharePct,
@@ -172,26 +209,43 @@ export function buildAdminAnalyticsDeviceMixModel(input: {
 
   const rows = sortDeviceRows(
     unknownSessions > 0
-      ? [
-        ...rawRows,
-        {
+      ? (() => {
+        const recoveryMetadata = buildDeviceMixRecoveryMetadata({
           deviceCategory: "unknown",
           sessions: unknownSessions,
-          sessionSharePct: totalSessions > 0 ? unknownSessions / totalSessions : 0,
-          engagedSessions: null,
-          engagementRatePct: null,
-          avgSessionSeconds: null,
-          bounceRatePct: null,
-          views: null,
-          purchases: null,
-          purchaseRatePct: null,
-          unwraps: null,
-          watchSeconds: null,
-          sourceTruth: "ga4_device_category_missing",
-          confidenceState: "partial",
-          recommendation: "Unknown device sessions need classification review before layout decisions assume full coverage.",
-        },
-      ]
+          generatedAtMs: response?.generatedAtMs,
+        });
+        return [
+          ...rawRows,
+          {
+            deviceCategory: "unknown",
+            sessions: unknownSessions,
+            sessionSharePct: totalSessions > 0 ? unknownSessions / totalSessions : 0,
+            engagedSessions: null,
+            engagementRatePct: null,
+            avgSessionSeconds: null,
+            bounceRatePct: null,
+            views: null,
+            purchases: null,
+            purchaseRatePct: null,
+            unwraps: null,
+            watchSeconds: null,
+            sourceTruth: recoveryMetadata.sourceTruth,
+            confidenceState: "partial" as const,
+            freshnessState: recoveryMetadata.freshnessState,
+            confidenceScore: recoveryMetadata.confidenceScore,
+            confidenceBand: recoveryMetadata.confidenceBand,
+            evidenceKind: recoveryMetadata.evidenceKind,
+            dedupeKey: recoveryMetadata.dedupeKey,
+            dedupeDimensions: recoveryMetadata.dedupeDimensions,
+            lateArrivalWindowDays: recoveryMetadata.lateArrivalWindowDays,
+            productTruthEligible: recoveryMetadata.productTruthEligible,
+            missingVsZeroState: recoveryMetadata.missingVsZeroState,
+            mathReason: recoveryMetadata.mathReason,
+            recommendation: "Unknown device sessions need classification review before layout decisions assume full coverage.",
+          },
+        ];
+      })()
       : rawRows,
   );
 

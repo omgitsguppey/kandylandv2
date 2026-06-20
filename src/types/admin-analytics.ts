@@ -84,6 +84,16 @@ export type DeviceMixRow = {
   watchSeconds?: number | null;
   sourceTruth: string;
   confidenceState: "verified" | "partial" | "estimated" | "unknown";
+  freshnessState?: RecoveredLaunchMetricState["freshnessState"];
+  confidenceScore?: RecoveredLaunchMetricState["confidenceScore"];
+  confidenceBand?: RecoveredLaunchMetricState["confidenceBand"];
+  evidenceKind?: RecoveredLaunchMetricState["evidenceKind"];
+  dedupeKey?: RecoveredLaunchMetricState["dedupeKey"];
+  dedupeDimensions?: RecoveredLaunchMetricState["dedupeDimensions"];
+  lateArrivalWindowDays?: RecoveredLaunchMetricState["lateArrivalWindowDays"];
+  productTruthEligible?: RecoveredLaunchMetricState["productTruthEligible"];
+  missingVsZeroState?: RecoveredLaunchMetricState["missingVsZeroState"];
+  mathReason?: RecoveredLaunchMetricState["mathReason"];
   recommendation: string;
 };
 

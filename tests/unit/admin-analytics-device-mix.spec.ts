@@ -74,6 +74,17 @@ describe("buildAdminAnalyticsDeviceMixModel", () => {
     expect(model.rows[0]?.deviceCategory).toBe("mobile");
     expect(model.rows[0]?.sessionSharePct).toBeCloseTo(9019 / 10154, 4);
     expect(model.engagementDefinition).toContain("GA engaged sessions");
+    expect(model.rows[0]).toMatchObject({
+      sourceTruth: "ga4_evidence_only",
+      evidenceKind: "modeled",
+      freshnessState: "external_evidence_required",
+      confidenceState: "estimated",
+      confidenceScore: 58,
+      lateArrivalWindowDays: 12,
+      productTruthEligible: false,
+      missingVsZeroState: "source_present",
+    });
+    expect(model.rows[0]?.dedupeKey).toContain("launch_recovery|page_view");
   });
 
   it("surfaces an unknown device bucket when classified sessions do not cover the denominator", () => {
@@ -90,7 +101,44 @@ describe("buildAdminAnalyticsDeviceMixModel", () => {
     });
 
     expect(model.unknownSessions).toBe(20);
-    expect(model.rows.some((row) => row.deviceCategory === "unknown")).toBe(true);
+    const unknownRow = model.rows.find((row) => row.deviceCategory === "unknown");
+    expect(unknownRow).toMatchObject({
+      sessions: 20,
+      sourceTruth: "ga4_evidence_only",
+      evidenceKind: "modeled",
+      freshnessState: "external_evidence_required",
+      confidenceState: "partial",
+      confidenceScore: 58,
+      lateArrivalWindowDays: 12,
+      productTruthEligible: false,
+      missingVsZeroState: "source_present",
+    });
     expect(model.warnings[0]).toContain("Device classification is partial");
+  });
+
+  it("keeps zero-session device rows source-missing instead of verified zero", () => {
+    const model = buildAdminAnalyticsDeviceMixModel({
+      selectedRange: "30d",
+      loading: false,
+      response: {
+        generatedAtMs: Date.parse("2026-05-06T12:00:00.000Z"),
+        totals: { users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 },
+        devices: [
+          { device: "mobile", users: 0, sessions: 0, engagementRate: 0 },
+        ],
+      },
+    });
+
+    expect(model.rows[0]).toMatchObject({
+      deviceCategory: "mobile",
+      sessions: 0,
+      sourceTruth: "source_missing",
+      evidenceKind: "missing",
+      freshnessState: "source_missing",
+      confidenceState: "unknown",
+      confidenceScore: 0,
+      productTruthEligible: false,
+      missingVsZeroState: "source_missing",
+    });
   });
 });
