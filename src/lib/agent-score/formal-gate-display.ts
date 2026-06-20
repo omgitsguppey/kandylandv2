@@ -41,8 +41,8 @@ export function buildFormalGateDisplay(input: FormalGateDisplayInput): FormalGat
   const runtimeCleared = input.deployedRuntimeSmokeAttached === true;
   const adminCleared = input.formalAdminTruthSampleAttached === true;
   const operatorProduct = /gumdrops/iu.test(input.operatorConfirmedProduct ?? "") ? "GumDrop" : input.operatorConfirmedProduct ?? "operator";
-  const operatorSignal = typeof input.operatorConfirmedPaymentUsd === "number"
-    ? `$${input.operatorConfirmedPaymentUsd} ${operatorProduct} payment operator-confirmed; formal provider artifact remains separate.`
+  const operatorSignal = typeof input.operatorConfirmedPaymentUsd === "number" && Number.isFinite(input.operatorConfirmedPaymentUsd) && input.operatorConfirmedPaymentUsd > 0
+    ? `${operatorProduct} payment operator-confirmed; formal provider artifact remains separate.`
     : null;
   const displayStatus: FormalGateDisplayStatus = input.staleArtifact
     ? "stale_artifact"

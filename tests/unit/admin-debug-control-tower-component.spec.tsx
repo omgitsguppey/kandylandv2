@@ -342,7 +342,7 @@ describe("DebugControlTower", () => {
             const payload = mockState.payload as any;
             payload.canonicalPublicBetaCapDetails = [
                 "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
-                "Stale evidence: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke. Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
+                "Stale evidence: Runtime/provider smoke - Provider smoke: Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke. Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
                 "Stale evidence: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
                 "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
             ];

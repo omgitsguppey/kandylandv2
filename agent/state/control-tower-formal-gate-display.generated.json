@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T05:23:46.818Z",
+  "generatedAtUtc": "2026-06-20T18:01:06.956Z",
   "reportKey": "control-tower-formal-gate-display",
-  "currentHead": "2f9486ad65b037994ac7c6da4e9ddeb2cca63f95",
+  "currentHead": "aa12e6692a62b9749ef6730e4c4331e85a622b43",
   "gates": {
     "runtimeProvider": {
       "gateId": "runtime_provider_smoke",
@@ -12,7 +12,7 @@
         "agent/state/runtime-smoke-evidence.generated.json"
       ],
       "nextAction": "Attach formal provider and deployed runtime smoke artifacts before clearing this gate.",
-      "operatorSignal": "$50 GumDrop payment operator-confirmed; formal provider artifact remains separate.",
+      "operatorSignal": "GumDrop payment operator-confirmed; formal provider artifact remains separate.",
       "formalProviderGateCleared": false,
       "deployedRuntimeGateCleared": false,
       "adminTruthStatus": "not_admin_gate"
@@ -52,7 +52,7 @@
     "admin_truth_sample_artifact"
   ],
   "operatorConfirmedSignals": [
-    "$50 GumDrop payment operator-confirmed; formal provider artifact remains separate."
+    "GumDrop payment operator-confirmed; formal provider artifact remains separate."
   ],
   "sourceBugGateCount": 0
 }

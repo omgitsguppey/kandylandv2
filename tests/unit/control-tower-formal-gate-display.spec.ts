@@ -6,7 +6,7 @@ describe("control tower formal gate display", () => {
   it("keeps operator payment confirmation separate from formal provider and runtime smoke", () => {
     const display = buildFormalGateDisplay({
       gateId: "runtime_provider_smoke",
-      operatorConfirmedPaymentUsd: 50,
+      operatorConfirmedPaymentUsd: 37.5,
       operatorConfirmedProduct: "GumDrops",
       formalProviderArtifactAttached: false,
       deployedRuntimeSmokeAttached: false,
@@ -15,7 +15,8 @@ describe("control tower formal gate display", () => {
 
     expect(display.displayStatus).toBe("operator_confirmed_partial");
     expect(display.notSourceBug).toBe(true);
-    expect(display.operatorSignal).toContain("$50 GumDrop payment");
+    expect(display.operatorSignal).toContain("GumDrop payment operator-confirmed");
+    expect(display.operatorSignal).not.toContain("$37.5");
     expect(display.formalProviderGateCleared).toBe(false);
     expect(display.deployedRuntimeGateCleared).toBe(false);
     expect(display.evidencePaths).toContain("agent/state/provider-smoke-evidence.generated.json");
