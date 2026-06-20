@@ -2,6 +2,7 @@ import "server-only";
 
 import { PLATFORM_ECONOMY_WARNING_FLOOR_USD_PER_100_GD } from "@/lib/platform-economy";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import { mapLegacyEventToCurrentMetric } from "@/lib/math/legacy-metric-canonicalization";
 import type { Drop } from "@/types/db";
 import type { ContentConversionState, PackagePerformanceState } from "@/types/admin-analytics";
 import {
@@ -270,6 +271,47 @@ function registerMetadataGroups(
   ensureContentGroup(groups, "priceBand", metadata, metadata.priceBand, metadata.priceBand === "unknown" ? "Unknown price band" : metadata.priceBand, sourceTruth);
 }
 
+function buildCanonicalTelemetryDedupeKey(canonicalEventName: string, record: TelemetryLogRecord) {
+  const eventId = getTelemetryParamString(record, "event_id")
+    || getTelemetryParamString(record, "eventId")
+    || getTelemetryParamString(record, "idempotency_key")
+    || getTelemetryParamString(record, "idempotencyKey");
+  if (eventId) {
+    return `${canonicalEventName}:event:${eventId}`;
+  }
+
+  const dropId = getTelemetryDropId(record);
+  const actorId = record.userId || getTelemetryParamString(record, "user_id") || getTelemetryParamString(record, "guest_id") || "unknown_actor";
+  const timestampBucket = Number.isFinite(record.timestamp) ? Math.floor(record.timestamp / 30_000) : 0;
+  return `${canonicalEventName}:${actorId}:${dropId || "unknown_drop"}:${timestampBucket}`;
+}
+
+function getCanonicalTelemetryRecords(
+  telemetryLogsByEvent: Record<string, TelemetryLogRecord[]>,
+  canonicalEventName: string,
+) {
+  const seen = new Set<string>();
+  const records: TelemetryLogRecord[] = [];
+
+  for (const [eventName, eventRecords] of Object.entries(telemetryLogsByEvent)) {
+    const mappedEventName = mapLegacyEventToCurrentMetric({ eventName }).canonicalEventName;
+    if (mappedEventName !== canonicalEventName) {
+      continue;
+    }
+
+    for (const record of eventRecords) {
+      const dedupeKey = buildCanonicalTelemetryDedupeKey(canonicalEventName, record);
+      if (seen.has(dedupeKey)) {
+        continue;
+      }
+      seen.add(dedupeKey);
+      records.push(record);
+    }
+  }
+
+  return records;
+}
+
 export function buildHistoricalContentAnalytics(input: {
   telemetryLogsByEvent: Record<string, TelemetryLogRecord[]>;
   eventsData: Record<string, number>;
@@ -495,9 +537,12 @@ export function buildHistoricalContentAnalytics(input: {
     registerMetadataGroups(contentConversionGroups, metadata, "drop_metadata");
   });
 
+  const previewTelemetryRecords = getCanonicalTelemetryRecords(input.telemetryLogsByEvent, "drop_preview_opened");
+  const unlockTelemetryRecords = getCanonicalTelemetryRecords(input.telemetryLogsByEvent, "drop_unlocked");
+
   const previewCountsByDrop = new Map<string, number>();
   let previewMissingDropIdCount = 0;
-  for (const record of input.telemetryLogsByEvent.drop_preview_opened || []) {
+  for (const record of previewTelemetryRecords) {
     const dropId = getTelemetryDropId(record);
     if (!dropId || dropId === "unknown-drop") {
       previewMissingDropIdCount += 1;
@@ -737,13 +782,13 @@ export function buildHistoricalContentAnalytics(input: {
   };
 
   const categoryMixMap = new Map<string, { label: string; previews: number; unlocks: number }>();
-  (input.telemetryLogsByEvent.drop_preview_opened || []).forEach((record) => {
+  previewTelemetryRecords.forEach((record) => {
     const label = getTelemetryParamString(record, "drop_category") || "unknown";
     const current = categoryMixMap.get(label) || { label, previews: 0, unlocks: 0 };
     current.previews += 1;
     categoryMixMap.set(label, current);
   });
-  (input.telemetryLogsByEvent.drop_unwrapped || []).forEach((record) => {
+  unlockTelemetryRecords.forEach((record) => {
     const label = getTelemetryParamString(record, "drop_category") || "unknown";
     const current = categoryMixMap.get(label) || { label, previews: 0, unlocks: 0 };
     current.unlocks += 1;
@@ -808,7 +853,7 @@ export function buildHistoricalContentAnalytics(input: {
   ];
 
   const tagDemandMap = new Map<string, number>();
-  (input.telemetryLogsByEvent.drop_unwrapped || []).forEach((record) => {
+  unlockTelemetryRecords.forEach((record) => {
     const rawTags = getTelemetryParamString(record, "drop_tags");
     rawTags
       .split("|")
