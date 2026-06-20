@@ -79,10 +79,10 @@ function remainingFormalGates(score: Record<string, unknown> | null) {
   const caps = Array.isArray(score?.evidenceCaps)
     ? stringArray(score.evidenceCaps)
     : [];
-  const combined = [...blockers, ...caps].filter((entry) => /visual|manual|runtime|provider|admin truth|sample evidence|smoke/i.test(entry));
+  const combined = [...blockers, ...caps].filter((entry) => /runtime|provider|admin truth|sample evidence/i.test(entry));
   return combined.length > 0
     ? Array.from(new Set(combined))
-    : ["Visual/manual smoke", "Runtime/provider smoke", "Admin truth/sample evidence"];
+    : ["Runtime/provider smoke", "Admin truth/sample evidence"];
 }
 
 function remainingScoreDrag(score: Record<string, unknown> | null) {
@@ -149,7 +149,7 @@ const input: FinalAlgorithmicDebugLockInput = {
   remainingScoreDrag: remainingScoreDrag(score),
   ...counts,
   nextExactSteps: [
-    "Attach targeted visual/manual smoke evidence and run npm run check:evidence-capture-status.",
+    "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI coverage gaps before optional browser reproduction.",
     "Attach runtime/provider smoke evidence and run npm run check:evidence-capture-status.",
     "Attach redacted admin truth sample evidence and run npm run check:admin-truth-source-sample.",
     "Run npm run check:self-healing-refresh-queue before trusting stale generated reports.",

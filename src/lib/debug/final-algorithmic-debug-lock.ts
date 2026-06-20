@@ -56,7 +56,7 @@ const REQUIRED_DEPENDENCIES: Array<keyof FinalAlgorithmicDebugDependencies> = [
   "operatorCockpit",
 ];
 
-const FORMAL_GATE_PATTERN = /visual|manual|runtime|provider|admin truth|sample evidence|smoke/i;
+const FORMAL_GATE_PATTERN = /runtime|provider|admin truth|sample evidence/i;
 
 function hasMissingStatus(report: FinalAlgorithmicDebugLockReport) {
   return [
@@ -110,7 +110,7 @@ export function validateFinalAlgorithmicDebugLock(report: FinalAlgorithmicDebugL
   if (report.refreshQueueStatus === "missing") failures.push("stale refresh queue absent.");
   if (report.orphanMetricStatus === "missing") failures.push("orphan metrics untracked.");
   if (report.remainingFormalEvidenceGates.length === 0 && report.scoreAfter < 80) {
-    failures.push("manual evidence still required but not listed honestly.");
+    failures.push("formal evidence still required but not listed honestly.");
   }
   if (!report.remainingFormalEvidenceGates.some((gate) => FORMAL_GATE_PATTERN.test(gate))) {
     failures.push("formal gates falsely cleared.");

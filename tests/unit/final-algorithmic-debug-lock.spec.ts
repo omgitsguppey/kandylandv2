@@ -19,13 +19,13 @@ const completeInput: FinalAlgorithmicDebugLockInput = {
   refreshQueueStatus: "pass",
   operatorCockpitStatus: "pass",
   manualBottleneckReduction: "manual testing is no longer the default bottleneck; formal evidence gates remain manual",
-  remainingFormalEvidenceGates: ["Visual/manual smoke", "Runtime/provider smoke", "Admin truth/sample evidence"],
+  remainingFormalEvidenceGates: ["Runtime/provider smoke", "Admin truth/sample evidence"],
   remainingScoreDrag: ["runtimeHealth", "evidenceCompleteness", "costRisk"],
   p0Count: 0,
   p1Count: 20,
   p2Count: 70,
   nextExactSteps: [
-    "Attach visual/manual smoke artifact.",
+    "Run UI source coverage.",
     "Attach runtime/provider smoke artifact.",
     "Attach redacted admin truth sample artifact.",
   ],
@@ -51,10 +51,10 @@ describe("final algorithmic debug lock", () => {
 
     expect(lock.overallStatus).toBe("locked_with_formal_gates_remaining");
     expect(lock.remainingFormalEvidenceGates).toEqual(expect.arrayContaining([
-      "Visual/manual smoke",
       "Runtime/provider smoke",
       "Admin truth/sample evidence",
     ]));
+    expect(lock.remainingFormalEvidenceGates).not.toContain("Visual/manual smoke");
     expect(lock.manualBottleneckReduction).toContain("formal evidence gates remain manual");
     expect(validateFinalAlgorithmicDebugLock(lock)).toEqual([]);
   });
@@ -73,7 +73,16 @@ describe("final algorithmic debug lock", () => {
     expect(validateFinalAlgorithmicDebugLock(lock)).toEqual(expect.arrayContaining([
       expect.stringContaining("behavior math unknown"),
       expect.stringContaining("phase missing without dependency status"),
-      expect.stringContaining("manual evidence still required but not listed honestly"),
+      expect.stringContaining("formal evidence still required but not listed honestly"),
     ]));
+  });
+
+  it("does not accept visual/manual smoke as a formal proof gate", () => {
+    const lock = buildFinalAlgorithmicDebugLock({
+      ...completeInput,
+      remainingFormalEvidenceGates: ["Visual/manual smoke"],
+    });
+
+    expect(validateFinalAlgorithmicDebugLock(lock)).toContain("formal gates falsely cleared.");
   });
 });

@@ -1,6 +1,6 @@
 {
-  "scoreBefore": 74.76,
-  "scoreAfter": 74.76,
+  "scoreBefore": 76.88,
+  "scoreAfter": 76.88,
   "debugBacklogStatus": "pass",
   "aiCriticStatus": "pass",
   "behaviorMathStatus": "pass",
@@ -12,20 +12,19 @@
   "operatorCockpitStatus": "pass",
   "manualBottleneckReduction": "manual testing is no longer the default bottleneck; debug panel, telemetry, behavior math, route diagnostics, AI critic, admin truth samples, and refresh queues now drive source confidence while formal evidence gates remain manual",
   "remainingFormalEvidenceGates": [
-    "Runtime/provider smoke: Runtime unverified",
-    "Admin truth/sample evidence: Ready with smoke required"
+    "Runtime/provider smoke: External proof required",
+    "Admin truth/sample evidence: External proof required"
   ],
   "remainingScoreDrag": [
     "runtimeHealth",
     "evidenceCompleteness",
-    "freshness",
     "costRisk"
   ],
   "p0Count": 0,
-  "p1Count": 20,
-  "p2Count": 61,
+  "p1Count": 7,
+  "p2Count": 28,
   "nextExactSteps": [
-    "Attach targeted visual/manual smoke evidence and run npm run check:evidence-capture-status.",
+    "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI coverage gaps before optional browser reproduction.",
     "Attach runtime/provider smoke evidence and run npm run check:evidence-capture-status.",
     "Attach redacted admin truth sample evidence and run npm run check:admin-truth-source-sample.",
     "Run npm run check:self-healing-refresh-queue before trusting stale generated reports."
@@ -41,10 +40,10 @@
     "refreshQueue": true,
     "operatorCockpit": true
   },
-  "generatedAtUtc": "2026-05-21T19:31:27.305Z",
+  "generatedAtUtc": "2026-06-20T16:44:37.192Z",
   "reportKey": "final-algorithmic-debug-lock",
-  "currentHead": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
-  "sourceCommit": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
+  "currentHead": "d250d9d93bda0f265421c91d3bacbfc39ea29832",
+  "sourceCommit": "d250d9d93bda0f265421c91d3bacbfc39ea29832",
   "overallStatus": "locked_with_formal_gates_remaining",
   "algorithmicDebugStatus": "locked",
   "validationFailures": []
