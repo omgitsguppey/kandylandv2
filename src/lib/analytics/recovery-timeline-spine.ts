@@ -502,8 +502,10 @@ export type LaunchCriticalSourceEvidenceCounts = {
   watchCaptureFullCount?: number;
 };
 
+export type RecoveredLaunchMetricKey = LaunchCriticalEventFamilyId | "unknown";
+
 export type RecoveredLaunchMetricState = {
-  metricKey: LaunchCriticalEventFamilyId;
+  metricKey: RecoveredLaunchMetricKey;
   eventName: string;
   sourceTruth: RecoveryMetricSourceTruth;
   freshnessState: RecoveryMetricFreshnessState;
@@ -3271,7 +3273,7 @@ export function buildRecoveredLaunchMetricState(input: {
     insideLateArrivalWindow: input.insideLateArrivalWindow,
     fromCache: input.fromCache,
   });
-  const metricKey = family?.familyId ?? "page_view";
+  const metricKey: RecoveredLaunchMetricKey = family?.familyId ?? "unknown";
   const semanticAction = family?.familyId ?? input.eventName;
   const dedupeKey = buildLaunchAnalyticsRecoveryDedupeKey({
     eventId: input.eventId,
@@ -3296,6 +3298,11 @@ export function buildRecoveredLaunchMetricState(input: {
     sourceObserved,
   });
   const confidenceBand = classifyRecoveryMetricConfidenceBand(confidenceScore);
+  const mathReason = !family
+    ? `${input.eventName} is not mapped to a launch-critical recovery family; retain it as evidence, but do not use it to clear canonical launch coverage.`
+    : sourceObserved
+      ? `${input.eventName} is normalized through the ${semanticAction} launch-critical recovery family; ${sourceTruth} supplies ${evidenceKind} evidence.`
+      : `${input.eventName} has no bounded source evidence; keep it missing rather than rendering zero.`;
 
   return {
     metricKey,
@@ -3310,9 +3317,7 @@ export function buildRecoveredLaunchMetricState(input: {
     lateArrivalWindowDays: ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
     missingVsZeroState: sourceObserved ? "source_present" : "source_missing",
     identityStitching,
-    mathReason: sourceObserved
-      ? `${input.eventName} is normalized through the ${semanticAction} launch-critical recovery family; ${sourceTruth} supplies ${evidenceKind} evidence.`
-      : `${input.eventName} has no bounded source evidence; keep it missing rather than rendering zero.`,
+    mathReason,
   };
 }
 

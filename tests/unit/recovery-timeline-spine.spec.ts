@@ -707,6 +707,39 @@ describe("recovery timeline spine", () => {
     expect(implicit.mathReason).toContain("no bounded source evidence");
   });
 
+  it("keeps unknown recovered events from clearing launch-critical coverage", () => {
+    const unknownMetric = buildRecoveredLaunchMetricState({
+      eventName: "unmapped_legacy_launch_event",
+      sourceTruth: "first_party_event_fact",
+      sourceObserved: true,
+      eventId: "legacy_event_1",
+      sessionId: "legacy_session_1",
+      route: "/legacy",
+      timestampMs: Date.parse("2026-06-07T00:00:00.000Z"),
+    });
+    const report = buildLaunchCriticalRecoveryCoverageReport({
+      generatedAtUtc: "2026-06-07T12:00:00.000Z",
+      observedEventNames: [],
+      recoveredMetrics: [unknownMetric],
+    });
+
+    expect(unknownMetric).toMatchObject({
+      metricKey: "unknown",
+      sourceTruth: "first_party_event_fact",
+      evidenceKind: "observed",
+      missingVsZeroState: "source_present",
+    });
+    expect(unknownMetric.mathReason).toContain("not mapped to a launch-critical recovery family");
+    expect(report.observedFirstPartyFamilyCount).toBe(0);
+    expect(report.sourceCoverageStatus).toBe("blocked");
+    expect(report.familySourceStates.find((family) => family.familyId === "page_view")).toMatchObject({
+      observedFirstParty: false,
+      sourceTruth: "source_missing",
+      sourceCoverageState: "source_missing",
+      productTruthEligible: false,
+    });
+  });
+
   it("normalizes external modelled spelling into the canonical modeled evidence kind", () => {
     expect(normalizeRecoveryMetricEvidenceKind("modelled")).toBe("modeled");
     expect(normalizeRecoveryMetricEvidenceKind("modeled")).toBe("modeled");
