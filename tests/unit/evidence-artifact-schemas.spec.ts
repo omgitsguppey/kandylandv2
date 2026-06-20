@@ -11,6 +11,7 @@ import {
 import {
   adminTruthSampleEvidenceStaleReasons,
   adminTruthSampleLaunchHistoryCoverageFailures,
+  adminTruthSampleReadinessImpact,
   validateAdminTruthSampleEvidenceDocument,
 } from "../../scripts/agent/validate-admin-truth-sample-evidence";
 
@@ -155,6 +156,24 @@ describe("evidence artifact schemas", () => {
     );
 
     expect(reasons).toEqual([]);
+  });
+
+  it("labels missing or incomplete admin truth samples as external proof requirements", () => {
+    expect(adminTruthSampleReadinessImpact({ status: "missing", passingArtifacts: [] })).toMatchObject({
+      phaseOneStatusCap: "External proof required",
+      truthState: "admin_truth_sample_missing",
+      actionState: "attach_admin_truth_sample",
+      canClearAdminTruthGate: false,
+      canClearRuntimeGate: false,
+      canClearProviderGate: false,
+    });
+
+    expect(adminTruthSampleReadinessImpact({ status: "incomplete", passingArtifacts: [] })).toMatchObject({
+      phaseOneStatusCap: "External proof required",
+      truthState: "admin_truth_sample_incomplete",
+      actionState: "repair_incomplete_sample",
+      canClearAdminTruthGate: false,
+    });
   });
 
   it("keeps launch-history coverage proof separate from general admin truth samples", () => {

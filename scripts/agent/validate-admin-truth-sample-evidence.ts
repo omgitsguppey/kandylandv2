@@ -25,6 +25,27 @@ type LaneEvaluation = {
   failures: string[];
 };
 
+type AdminTruthSampleReadinessImpact = {
+  adminTruthSampleGatePassed: boolean;
+  phaseOneStatusCap: "Ready" | "Stale evidence" | "External proof required";
+  truthState:
+    | "formal_admin_truth_sample_passed"
+    | "admin_truth_sample_stale"
+    | "admin_truth_sample_incomplete"
+    | "admin_truth_sample_missing";
+  actionState:
+    | "keep_fresh"
+    | "refresh_stale_evidence"
+    | "repair_incomplete_sample"
+    | "attach_admin_truth_sample";
+  evidenceBoundary: "formal_admin_truth_sample_required";
+  canClearSourceGate: false;
+  canClearRuntimeGate: false;
+  canClearProviderGate: false;
+  canClearAdminTruthGate: boolean;
+  recommendedAction: string;
+};
+
 const REQUIRED_ADMIN_TRUTH_CHECKS = [
   "source-freshness",
   "sample-count",
@@ -185,6 +206,69 @@ export function adminTruthSampleLaunchHistoryCoverageFailures(document: unknown)
   return failures;
 }
 
+export function adminTruthSampleReadinessImpact(
+  result: Pick<LaneEvaluation, "status" | "passingArtifacts">,
+): AdminTruthSampleReadinessImpact {
+  const passed = result.passingArtifacts.length > 0;
+  if (passed) {
+    return {
+      adminTruthSampleGatePassed: true,
+      phaseOneStatusCap: "Ready",
+      truthState: "formal_admin_truth_sample_passed",
+      actionState: "keep_fresh",
+      evidenceBoundary: "formal_admin_truth_sample_required",
+      canClearSourceGate: false,
+      canClearRuntimeGate: false,
+      canClearProviderGate: false,
+      canClearAdminTruthGate: true,
+      recommendedAction: "Keep redacted first-party admin truth JSON sample fresh.",
+    };
+  }
+
+  if (result.status === "stale") {
+    return {
+      adminTruthSampleGatePassed: false,
+      phaseOneStatusCap: "Stale evidence",
+      truthState: "admin_truth_sample_stale",
+      actionState: "refresh_stale_evidence",
+      evidenceBoundary: "formal_admin_truth_sample_required",
+      canClearSourceGate: false,
+      canClearRuntimeGate: false,
+      canClearProviderGate: false,
+      canClearAdminTruthGate: false,
+      recommendedAction: "Refresh the redacted admin truth JSON sample from the current code version before clearing the formal gate.",
+    };
+  }
+
+  if (result.status === "incomplete") {
+    return {
+      adminTruthSampleGatePassed: false,
+      phaseOneStatusCap: "External proof required",
+      truthState: "admin_truth_sample_incomplete",
+      actionState: "repair_incomplete_sample",
+      evidenceBoundary: "formal_admin_truth_sample_required",
+      canClearSourceGate: false,
+      canClearRuntimeGate: false,
+      canClearProviderGate: false,
+      canClearAdminTruthGate: false,
+      recommendedAction: "Repair or replace the incomplete redacted admin truth JSON sample before clearing the formal gate.",
+    };
+  }
+
+  return {
+    adminTruthSampleGatePassed: false,
+    phaseOneStatusCap: "External proof required",
+    truthState: "admin_truth_sample_missing",
+    actionState: "attach_admin_truth_sample",
+    evidenceBoundary: "formal_admin_truth_sample_required",
+    canClearSourceGate: false,
+    canClearRuntimeGate: false,
+    canClearProviderGate: false,
+    canClearAdminTruthGate: false,
+    recommendedAction: "Attach a bounded redacted admin truth JSON sample before clearing the formal gate.",
+  };
+}
+
 export function validateAdminTruthSampleEvidenceDocument(
   document: unknown,
   options: ValidationOptions = {},
@@ -331,6 +415,7 @@ function writeGeneratedState(result: LaneEvaluation) {
       : result.status === "incomplete"
         ? "failed"
         : "missing_or_unknown";
+  const readinessImpact = adminTruthSampleReadinessImpact(result);
   const report = {
     generatedAtUtc,
     reportKey: "admin-truth-sample-evidence",
@@ -352,15 +437,7 @@ function writeGeneratedState(result: LaneEvaluation) {
     passingArtifacts: result.passingArtifacts,
     staleArtifacts: result.staleArtifacts,
     staleReasons: result.staleReasons,
-    readinessImpact: {
-      adminTruthSampleGatePassed: passed,
-      phaseOneStatusCap: passed ? "Ready" : result.status === "stale" ? "Stale evidence" : "Unknown evidence",
-      recommendedAction: passed
-        ? "Keep redacted first-party admin truth JSON sample fresh."
-        : result.status === "stale"
-          ? "Refresh the redacted admin truth JSON sample from the current code version before clearing the formal gate."
-        : "Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.",
-    },
+    readinessImpact,
     adminTruthCommandEvidence: [
       `adminTruthSample.status=${result.status}`,
       `adminTruthSample.completeArtifacts=${result.completeArtifacts.length}`,
