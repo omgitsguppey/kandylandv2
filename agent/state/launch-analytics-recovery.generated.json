@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T19:00:28.970Z",
-  "currentHead": "0192c1bf534f31fb90bd0330686a0ae14a706aea",
+  "generatedAtUtc": "2026-06-20T19:39:22.076Z",
+  "currentHead": "e1fecec0a6d571ce9831cac227dc30b8b3520f4d",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -3165,7 +3165,7 @@
       {
         "consumer": "admin_analytics_device_mix",
         "label": "Device mix",
-        "currentState": "materializer_missing",
+        "currentState": "second_source_only",
         "allowedDisplayState": "second_source_only",
         "blockingOwner": "GA4/external evidence lane, waiting for first-party agreement",
         "nextAction": "Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth."
@@ -3173,7 +3173,7 @@
       {
         "consumer": "admin_analytics_region_demand",
         "label": "Region demand",
-        "currentState": "materializer_missing",
+        "currentState": "second_source_only",
         "allowedDisplayState": "second_source_only",
         "blockingOwner": "GA4/external evidence lane, waiting for first-party agreement",
         "nextAction": "Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth."
@@ -3181,7 +3181,7 @@
       {
         "consumer": "admin_analytics_top_paths",
         "label": "Top paths",
-        "currentState": "materializer_missing",
+        "currentState": "second_source_only",
         "allowedDisplayState": "second_source_only",
         "blockingOwner": "GA4/external evidence lane, waiting for first-party agreement",
         "nextAction": "Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth."
