@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T20:45:02.106Z",
-  "currentHead": "db58df37256ddbe1e3541b38f4f7f906a1f7bf07",
+  "generatedAtUtc": "2026-06-20T20:50:42.454Z",
+  "currentHead": "6a3ca2ed5dfbf4b9cacbc291f571beb44a713cdd",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -3047,8 +3047,7 @@
     "state": "failed",
     "classifications": [
       "date_range_mismatch",
-      "external_source_gap",
-      "missing_materializer"
+      "external_source_gap"
     ],
     "disagreements": [
       {
@@ -3085,8 +3084,7 @@
         "fallbackState": "fallback_missing",
         "classifications": [
           "date_range_mismatch",
-          "external_source_gap",
-          "missing_materializer"
+          "external_source_gap"
         ],
         "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
         "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics.",
@@ -3132,8 +3130,7 @@
         "fallbackState": "fallback_present",
         "classifications": [
           "date_range_mismatch",
-          "external_source_gap",
-          "missing_materializer"
+          "external_source_gap"
         ],
         "likelyRootCause": "GA4 observed the day, but first-party product facts are missing or not materialized.",
         "nextAction": "Recover or repair first-party day-bucket materialization before promoting this day to canonical analytics.",
@@ -3152,17 +3149,17 @@
       {
         "consumer": "admin_analytics_overview",
         "label": "Analytics overview",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "source_missing",
-        "blockingOwner": "analytics_event_facts materialization",
+        "blockingOwner": "source agreement comparison",
         "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "admin_analytics_charts",
         "label": "Analytics charts",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "source_missing",
-        "blockingOwner": "analytics_event_facts materialization",
+        "blockingOwner": "source agreement comparison",
         "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
       },
       {
@@ -3192,33 +3189,33 @@
       {
         "consumer": "admin_analytics_insight_cards",
         "label": "Insight cards",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "source_missing",
-        "blockingOwner": "analytics_event_facts materialization",
+        "blockingOwner": "source agreement comparison",
         "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "admin_analytics_source_health",
         "label": "Source health",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "chart_promotion_blocked",
-        "blockingOwner": "analytics_event_facts materialization",
+        "blockingOwner": "source agreement comparison",
         "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "debug_data_validation",
         "label": "Debug source agreement",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "chart_promotion_blocked",
-        "blockingOwner": "analytics_event_facts materialization",
+        "blockingOwner": "source agreement comparison",
         "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "public_beta_score_evidence",
         "label": "Public beta evidence",
-        "currentState": "materializer_missing",
+        "currentState": "source_agreement_failed",
         "allowedDisplayState": "chart_promotion_blocked",
-        "blockingOwner": "analytics_event_facts materialization",
+        "blockingOwner": "source agreement comparison",
         "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
       }
     ],
