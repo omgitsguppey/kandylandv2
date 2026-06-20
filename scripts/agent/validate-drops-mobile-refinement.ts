@@ -43,9 +43,12 @@ const dropCardLayout = readRequired("src/components/DropCardLayout.tsx");
 const dropCardParts = readRequired("src/components/DropCardParts.tsx");
 const dropCardCta = readRequired("src/components/DropCardCta.tsx");
 const dropImpressionHook = readRequired("src/hooks/useDropCardImpression.ts");
+const dropsSearchTelemetryHook = readRequired("src/hooks/useDropsSearchTelemetry.ts");
 const useDrops = readRequired("src/hooks/useDrops.ts");
 const dropCountdown = readRequired("src/lib/drop-countdown.ts");
 const dropUnlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
+const unlockWatchContract = readRequired("src/lib/commerce/unlock-watch-parity-contract.ts");
+const searchTelemetryContract = readRequired("src/lib/discovery/search-telemetry-contract.ts");
 const uiDoctrine = readRequired("docs/doctrine/kandydrops-ui-doctrine.md");
 const agentDoc = readRequired("docs/agent-truth/drops-mobile-refinement.md");
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
@@ -88,13 +91,30 @@ for (const needle of [
   "DROPS_MOBILE_UI_DENSITY",
   "drops_page_viewed",
   "initial_visible_drop_count",
-  "drops_category_selected",
-  "drops_searched",
-  "result_count",
   "data-drops-page-density=\"compact-mobile\"",
 ] ) {
   requireIncludes(dropsClient, needle, "Drops client compact telemetry path");
 }
+
+for (const needle of [
+  "useDropsSearchTelemetry",
+  "trackCategorySelected",
+  "trackSearchFocus",
+  "trackSearchResultClicked",
+]) {
+  requireIncludes(dropsClient, needle, "Drops client compact search telemetry owner");
+}
+
+for (const needle of [
+  "drops_category_selected",
+  "search_submitted",
+  "search_results_loaded",
+  "resultCount: filteredDrops.length",
+]) {
+  requireIncludes(dropsSearchTelemetryHook, needle, "Drops search telemetry hook");
+}
+
+requireIncludes(searchTelemetryContract, "result_count", "Drops search telemetry contract");
 
 for (const banned of [
   "min-h-[500px]",
@@ -175,11 +195,15 @@ for (const needle of [
 }
 
 for (const needle of [
-  'trackServerEvent("drop_unwrapped"',
+  "buildServerUnlockTelemetryEvent",
+  "trackServerEvent(serverUnlockTelemetry.eventName",
   '"unlock_drop_success"',
 ]) {
   requireIncludes(dropUnlockRoute, needle, "Drop unlock server-truth telemetry path");
 }
+
+requireIncludes(unlockWatchContract, 'CANONICAL_SERVER_UNLOCK_EVENT_NAME = "drop_unlocked"', "Drop unlock server-truth telemetry contract");
+requireIncludes(unlockWatchContract, '"drop_unwrapped"', "Drop unwrap legacy alias classification");
 
 for (const needle of [
   "data-drop-card-density=\"compact-mobile\"",
@@ -214,7 +238,7 @@ for (const needle of [
 
 for (const needle of [
   "pt-[calc(var(--kandy-cookie-offset,0px)+0.75rem)]",
-  "h-44",
+  "h-36",
   "rounded-[1.35rem]",
 ]) {
   requireIncludes(dropsLoading, needle, "Drops loading shell");
