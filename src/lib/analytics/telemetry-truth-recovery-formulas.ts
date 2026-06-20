@@ -13,8 +13,8 @@ export const TELEMETRY_TRUTH_RECOVERY_FORMULAS = {
   finalViews: "finalViews = checkedViews + approved estimated recovery when quality allows",
   estimatedRatio: "estimatedRatio = estimatedViews / max(finalViews, 1)",
   duplicateRate: "duplicateRate = duplicateViews / max(observedViews, 1)",
-  confidence: "confidence = weighted quality score from freshness, duplicates, recovery rate, source completeness, and recovery-spine evidence role",
-  sourceTruth: "sourceTruth/evidenceKind/freshnessState/dedupeKey/lateArrivalWindowDays come from the recovery timeline spine",
+  confidence: "confidence = local formula quality score from freshness, duplicates, recovery rate, and source completeness; recoverySpineConfidenceScore is the canonical metric confidence from the recovery timeline spine",
+  sourceTruth: "sourceTruth/evidenceKind/freshnessState/dedupeKey/lateArrivalWindowDays/recoverySpineConfidenceScore come from the recovery timeline spine",
 } as const;
 
 function sourceTruthForRecoveryFormula(input: {
@@ -56,7 +56,8 @@ export function calculateTelemetryTruthRecoveryFormulas(input: {
   const completeness = Math.max(0, Math.min(100, input.sourceCompletenessScore ?? 0));
   const recoveryQuality = Math.max(0, Math.min(100, input.recoveryQualityScore ?? (estimatedViews > 0 ? 60 : 100)));
   const duplicatePenalty = Math.min(40, duplicateRatePct);
-  const confidenceScore = Math.max(0, Math.round((freshness * 0.3) + (completeness * 0.35) + (recoveryQuality * 0.35) - duplicatePenalty));
+  const formulaConfidenceScore = Math.max(0, Math.round((freshness * 0.3) + (completeness * 0.35) + (recoveryQuality * 0.35) - duplicatePenalty));
+  const formulaConfidenceBand = classifyRecoveryMetricConfidenceBand(formulaConfidenceScore);
   const sourceTruth = sourceTruthForRecoveryFormula({ checkedViews, estimatedViews, finalViews });
   const evidenceKind = evidenceKindForRecoveryFormula(sourceTruth);
   const rebuildTimestampMs = typeof input.lastRebuildAtUtc === "string"
@@ -85,9 +86,13 @@ export function calculateTelemetryTruthRecoveryFormulas(input: {
     estimatedViews,
     estimatedRatioPct,
     duplicateRatePct,
-    confidencePct: confidenceScore,
-    confidenceScore,
-    confidenceBand: classifyRecoveryMetricConfidenceBand(confidenceScore),
+    confidencePct: formulaConfidenceScore,
+    confidenceScore: formulaConfidenceScore,
+    confidenceBand: formulaConfidenceBand,
+    formulaConfidenceScore,
+    formulaConfidenceBand,
+    recoverySpineConfidenceScore: recoveryMetric.confidenceScore,
+    recoverySpineConfidenceBand: recoveryMetric.confidenceBand,
     sourceTruth,
     freshnessState,
     evidenceKind,

@@ -27,7 +27,11 @@ describe("telemetry truth recovery formulas", () => {
     expect(result.evidenceKind).toBe("observed");
     expect(result.freshnessState).toBe("refresh_due");
     expect(result.confidenceScore).toBe(result.confidencePct);
+    expect(result.formulaConfidenceScore).toBe(result.confidenceScore);
     expect(result.confidenceBand).toBe("directional");
+    expect(result.formulaConfidenceBand).toBe("directional");
+    expect(result.recoverySpineConfidenceScore).toBeGreaterThanOrEqual(90);
+    expect(result.recoverySpineConfidenceBand).toBe("verified");
     expect(result.productTruthEligible).toBe(true);
     expect(result.missingVsZeroState).toBe("source_present");
     expect(result.dedupeKey).toContain("launch_recovery|page_view");
@@ -64,6 +68,8 @@ describe("telemetry truth recovery formulas", () => {
     expect(result.productTruthEligible).toBe(false);
     expect(result.missingVsZeroState).toBe("source_present");
     expect(result.confidenceBand).toBe("directional");
+    expect(result.formulaConfidenceBand).toBe("directional");
+    expect(result.recoverySpineConfidenceBand).toBe("directional");
   });
 
   it("keeps empty recovery missing instead of zero-as-truth", () => {
@@ -79,6 +85,8 @@ describe("telemetry truth recovery formulas", () => {
     expect(result.freshnessState).toBe("source_missing");
     expect(result.productTruthEligible).toBe(false);
     expect(result.missingVsZeroState).toBe("source_missing");
+    expect(result.recoverySpineConfidenceScore).toBe(0);
+    expect(result.recoverySpineConfidenceBand).toBe("missing");
   });
 
   it("does not treat missing per-drop/user rows as healthy", () => {
