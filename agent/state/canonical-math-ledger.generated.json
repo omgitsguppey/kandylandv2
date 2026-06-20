@@ -1,7 +1,7 @@
 {
   "reportKey": "canonical-math-ledger",
-  "generatedAtUtc": "2026-06-20T17:19:31.158Z",
-  "currentHead": "6c98d104128d2d14b8f44d3d51c8e02cedc57bf1",
+  "generatedAtUtc": "2026-06-20T18:25:34.793Z",
+  "currentHead": "0aef25736e1f14e8f5949bea69e72c424001ee68",
   "status": "pass",
   "scoreBefore": {
     "sourceHealth": 99.2,
@@ -517,50 +517,10 @@
     "debugLaneGaps": 74,
     "evidenceCompletenessReason": "74 person metric hydration gap(s) still need source or bridge repair."
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/count-deduplication-normalization.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/metric-canonicalization-legacy-recovery.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/count-deduplication-normalization.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/launch-analytics-recovery.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/metric-canonicalization-legacy-recovery.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "shared/runtime/telemetry-event-manifest.ts",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    }
-  ],
-  "dirtyFileCount": 9,
+  "dirtyFiles": [],
+  "dirtyFileCount": 0,
   "dirtyFilesTruncated": false,
-  "dirtyClassificationCounts": {
-    "stale_generated_artifact_to_regenerate": 8,
-    "unrelated_dirty_outside_canonical_math_ledger": 1
-  },
+  "dirtyClassificationCounts": {},
   "protectedManualReviewCount": 0,
   "openPrEvidenceStatus": "not_queried_external_command_opt_in_required",
   "openPullRequests": [],

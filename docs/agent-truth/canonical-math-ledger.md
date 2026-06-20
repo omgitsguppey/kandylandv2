@@ -1,7 +1,7 @@
 # Canonical Math Ledger
 
-Generated: 2026-06-20T17:19:31.158Z
-Current head: 6c98d104128d2d14b8f44d3d51c8e02cedc57bf1
+Generated: 2026-06-20T18:25:34.793Z
+Current head: 0aef25736e1f14e8f5949bea69e72c424001ee68
 Status: pass
 
 ## Score Freeze
@@ -57,20 +57,10 @@ Status: pass
 
 ## Dirty Files
 
-- Count: 9
+- Count: 0
 - Drilldown truncated: false
 - Protected manual review count: 0
-- stale_generated_artifact_to_regenerate: 8
-- unrelated_dirty_outside_canonical_math_ledger: 1
-- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/count-deduplication-normalization.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/metric-canonicalization-legacy-recovery.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/count-deduplication-normalization.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/metric-canonicalization-legacy-recovery.md: stale_generated_artifact_to_regenerate
-- shared/runtime/telemetry-event-manifest.ts: unrelated_dirty_outside_canonical_math_ledger
+- none
 
 ## Open PR Classification
 
