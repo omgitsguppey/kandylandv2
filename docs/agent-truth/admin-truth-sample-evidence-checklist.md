@@ -9,7 +9,7 @@ Required artifact shape:
   "generatedAtUtc": "ISO timestamp",
   "reportKey": "admin-truth-sample-evidence",
   "currentHead": "git sha",
-  "status": "formal_admin_truth_sample_passed | missing_or_unknown | failed",
+  "status": "formal_admin_truth_sample_passed | external_proof_required | stale_admin_truth_sample_evidence | failed",
   "sourceFreshnessUtc": "ISO timestamp",
   "redactionsApplied": true,
   "sampleCount": 1,
@@ -24,14 +24,13 @@ The sample must show:
 - Source freshness timestamp.
 - Sample count.
 - Which admin truth surface or source produced the sample.
-- Whether the source is live, cached, stale, fallback, partial, failed, or unknown.
+- Whether the source is live, cached, refresh_due, source_missing, bridge_missing, materializer_missing, permission_blocked, failed, or unavailable.
 - Enough route or report context to connect the sample to beta exit evidence.
 
 Acceptable evidence:
 
-- Redacted screenshot.
 - Redacted JSON sample.
-- Both screenshot and JSON sample when a visual source-state claim must be verified.
+- Optional redacted screenshot only as corroboration when a visual source-state claim cannot be represented by the JSON sample.
 
 Redaction rules:
 
