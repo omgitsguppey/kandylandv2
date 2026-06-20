@@ -324,6 +324,7 @@ describe("recovery timeline spine", () => {
       sourceCoverageState: "source_missing",
       productTruthEligible: false,
       sourceRole: "missing_source",
+      nextAction: expect.stringContaining("Attach bounded first-party or server-owned launch evidence"),
     });
     expect(report.missingFamilies).toContain("purchase");
     expect(report.sourceCoverageStatus).toBe("blocked");

@@ -1708,7 +1708,7 @@ function nextActionForFamilySourceState(state: LaunchCriticalFamilySourceState["
   if (state === "modeled_second_source") return "Keep GA/Google evidence as modeled calibration until first-party fact coverage exists.";
   if (state === "inferred_legacy") return "Keep legacy evidence in recovery review; do not promote it without first-party corroboration.";
   if (state === "cached_snapshot") return "Refresh the owning snapshot or materializer before using this family as current coverage.";
-  return "Add or repair the first-party emitter, bridge, or materializer for this launch-critical family.";
+  return "Attach bounded first-party or server-owned launch evidence for this family; repair emitters, bridges, or materializers only if active source coverage also reports them disconnected.";
 }
 
 function sourceRoleForFamilySourceState(state: LaunchCriticalFamilySourceState["sourceCoverageState"]): LaunchCriticalFamilySourceState["sourceRole"] {
