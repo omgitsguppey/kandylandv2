@@ -429,7 +429,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     missingEvidence,
     completeEvidence,
     nextExactSteps: [
-      "Run npm run check:ui:coverage, npm run check:admin-browser-surface-smoke, and npm run check:device-ui; fix any source-reported UI surface gaps before optional browser reproduction.",
+      "Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface gaps before optional browser reproduction.",
       "Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.",
       "Run npm run capture:truthful-evidence to generate deployed runtime smoke evidence without provider/payment calls.",
       "Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.",

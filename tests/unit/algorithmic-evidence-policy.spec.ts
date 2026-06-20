@@ -156,6 +156,6 @@ describe("algorithmic evidence policy", () => {
     expect(report.launchBlockers.join("\n")).not.toContain("Visual QA required");
     expect(report.runtimeHealthScore).toBeGreaterThan(55);
     expect(report.evidenceCompletenessScore).toBeGreaterThan(50);
-    expect(report.nuancedScoreExplanation.join("\n")).toContain("Deterministic UI surface coverage runs before browser viewing");
+    expect(report.nuancedScoreExplanation.join("\n")).toContain("Deterministic UI surface coverage is the default UI readiness lane");
   });
 });

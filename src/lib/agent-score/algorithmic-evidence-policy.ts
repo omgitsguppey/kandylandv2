@@ -302,8 +302,8 @@ export function buildAlgorithmicEvidencePolicyReport(
       status: confidenceFromScore(uiSurfaceCoverageGateCleared ? 100 : 0, uiSurfaceCoverageGateCleared),
       sourcePath: pathOf(uiSurfaceCoverageEvidence),
       nextAction: uiSurfaceCoverageGateCleared
-        ? "Deterministic UI surface coverage is current; screenshots are optional only after source-reported UI issues."
-        : "Run UI source coverage, admin browser surface smoke, and device UI checks before optional browser reproduction.",
+        ? "Deterministic UI surface coverage is current; browser or screenshot review is optional only after source-reported UI issues."
+        : "Run deterministic UI source coverage and device UI source checks; use browser reproduction only for concrete source-reported UI issues.",
     },
     nonUiAlgorithmicEvidence: {
       blockedByUiSourceCoverage: false as const,

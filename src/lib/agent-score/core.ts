@@ -588,7 +588,7 @@ function buildScoreExplanation(input: {
     evidenceScoreMeaning: `Evidence score ${input.evidenceScore}/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score ${input.healthScore}/100 currently maps to launch gate ${input.launchGateStatus}.`,
     missingEvidenceCaps: input.evidenceCapDetails,
     staleReportHandling: "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
-    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Deterministic UI surface coverage runs before optional browser reproduction.",
+    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Deterministic UI surface coverage is the default UI readiness lane; browser or screenshot review is optional reproduction only after a source-reported issue.",
     betaExitBlockedBy: blockedBy,
   };
 }
@@ -623,7 +623,7 @@ function buildOperatorFinalChecks(uiSurfaceCoverageEvidence?: PublicBetaEvidence
       needsOperatorReview,
       passedInCodex: sourceChecksPassed,
       sourceChecksPassed,
-      note: "deterministic UI surface coverage runs before browser viewing; browser checks are optional only to reproduce a source-reported UI issue and do not clear provider/runtime/admin truth.",
+      note: "deterministic UI surface coverage is the default UI readiness lane; browser or screenshot review is optional only to reproduce a source-reported UI issue and does not clear provider/runtime/admin truth.",
       sourcePath: uiSurfaceCoverageEvidence?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
       surfaces: surfaceIds.map((surfaceId) => ({
         surfaceId,
@@ -1852,7 +1852,7 @@ export function buildPublicBetaScoreReport(
     "Source-ready evidence earns source health credit without becoming runtime proof.",
     "Future activity placeholders and source-ready lanes waiting for first real user events do not reduce score.",
     "Debug signal score impact is counted from actionable groups, not raw quiet catalog rows.",
-    "Deterministic UI surface coverage runs before browser viewing; screenshots are optional only to reproduce source-reported UI issues.",
+    "Deterministic UI surface coverage is the default UI readiness lane; screenshots are optional only to reproduce source-reported UI issues.",
     "Formal provider, deployed runtime, and admin truth artifacts remain required for launch readiness.",
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes.",
