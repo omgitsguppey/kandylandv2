@@ -287,6 +287,13 @@ describe("resolveAdminAnalyticsDisplayState", () => {
 
   it("formats source truth keys as compact operator labels", () => {
     expect(formatAdminAnalyticsSourceTruthLabel("analytics_event_facts")).toBe("Event facts");
+    expect(formatAdminAnalyticsSourceTruthLabel("first_party_event_fact")).toBe("First-party event facts");
+    expect(formatAdminAnalyticsSourceTruthLabel("server_ledger")).toBe("Server ledger");
+    expect(formatAdminAnalyticsSourceTruthLabel("watch_session_rollup")).toBe("Watch session rollup");
+    expect(formatAdminAnalyticsSourceTruthLabel("ga4_evidence_only")).toBe("Vendor evidence only");
+    expect(formatAdminAnalyticsSourceTruthLabel("legacy_directional_only")).toBe("Legacy evidence only");
+    expect(formatAdminAnalyticsSourceTruthLabel("hot_cache_snapshot")).toBe("Hot cache snapshot");
+    expect(formatAdminAnalyticsSourceTruthLabel("source_missing")).toBe("Source missing");
     expect(formatAdminAnalyticsSourceTruthLabel("ga_total_minus_identified_first_party")).toBe(
       "Vendor estimate minus signed-in traffic",
     );
@@ -302,11 +309,24 @@ describe("resolveAdminAnalyticsDisplayState", () => {
   });
 
   it("formats source state keys as plain status labels", () => {
+    expect(formatAdminAnalyticsSourceStateLabel("source_current")).toBe("Source current");
+    expect(formatAdminAnalyticsSourceStateLabel("late_arrival_window")).toBe("Late arrivals possible");
+    expect(formatAdminAnalyticsSourceStateLabel("source_missing")).toBe("Source missing");
+    expect(formatAdminAnalyticsSourceStateLabel("external_evidence_required")).toBe("External proof required");
     expect(formatAdminAnalyticsSourceStateLabel("verified")).toBe("Verified source");
     expect(formatAdminAnalyticsSourceStateLabel("mixed")).toBe("Mixed sources");
     expect(formatAdminAnalyticsSourceStateLabel("gap_detected")).toBe("Traffic gap detected");
     expect(formatAdminAnalyticsSourceStateLabel("stale")).toBe("Refresh due");
     expect(formatAdminAnalyticsSourceStateLabel(undefined)).toBe("Source missing");
+  });
+
+  it("maps recovery freshness states without calling them unknown or stale truth", () => {
+    expect(resolveAdminAnalyticsOverviewFreshnessState("source_current")).toBe("recent");
+    expect(resolveAdminAnalyticsOverviewFreshnessState("late_arrival_window")).toBe("recent");
+    expect(resolveAdminAnalyticsOverviewFreshnessState("cached")).toBe("recent");
+    expect(resolveAdminAnalyticsOverviewFreshnessState("refresh_due")).toBe("recent");
+    expect(resolveAdminAnalyticsOverviewFreshnessState("source_missing")).toBe("not_observed");
+    expect(resolveAdminAnalyticsOverviewFreshnessState("external_evidence_required")).toBe("not_observed");
   });
 
   it("maps missing overview snapshots to unavailable compact state", () => {

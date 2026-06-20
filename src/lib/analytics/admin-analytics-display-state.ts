@@ -193,11 +193,15 @@ export function resolveAdminAnalyticsOverviewFreshnessState(
   switch (freshnessState) {
     case "live":
       return "live";
+    case "source_current":
+    case "late_arrival_window":
     case "review":
     case "cached":
     case "refresh_due":
     case "stale":
       return "recent";
+    case "source_missing":
+    case "external_evidence_required":
     case "blocked":
     case "unavailable":
       return "not_observed";
@@ -254,6 +258,20 @@ export function formatAdminAnalyticsSourceTruthLabel(
       return "Vendor analytics";
     case "ga4_evidence_only":
       return "Vendor evidence only";
+    case "first_party_event_fact":
+      return "First-party event facts";
+    case "server_ledger":
+      return "Server ledger";
+    case "watch_session_rollup":
+      return "Watch session rollup";
+    case "admin_action_fact":
+      return "Admin action facts";
+    case "legacy_directional_only":
+      return "Legacy evidence only";
+    case "hot_cache_snapshot":
+      return "Hot cache snapshot";
+    case "source_missing":
+      return "Source missing";
     case "ga_estimate":
       return "Vendor estimate";
     case "ga_total_minus_identified_first_party":
@@ -318,6 +336,14 @@ export function formatAdminAnalyticsSourceStateLabel(
   sourceState: string | null | undefined,
 ) {
   switch (sourceState) {
+    case "source_current":
+      return "Source current";
+    case "late_arrival_window":
+      return "Late arrivals possible";
+    case "source_missing":
+      return "Source missing";
+    case "external_evidence_required":
+      return "External proof required";
     case "verified":
       return "Verified source";
     case "mixed":
