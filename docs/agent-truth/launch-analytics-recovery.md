@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-20T21:17:59.626Z
-Current head: 5887f2f7ac7e64fd69d0a3666d05f8d823d32ced
+Generated: 2026-06-20T21:22:54.257Z
+Current head: e3dc8d6950bc25fb8c4856e565e009d3170174fb
 Status: source_agreement_failed
 
 ## Source Order
