@@ -690,6 +690,23 @@ describe("recovery timeline spine", () => {
     expect(missing.mathReason).toContain("keep it missing rather than rendering zero");
   });
 
+  it("does not treat a known launch event name alone as recovered source evidence", () => {
+    const implicit = buildRecoveredLaunchMetricState({
+      eventName: "drop_preview_opened",
+    });
+
+    expect(implicit).toMatchObject({
+      metricKey: "drop_preview",
+      sourceTruth: "source_missing",
+      evidenceKind: "missing",
+      confidenceScore: 0,
+      confidenceBand: "missing",
+      freshnessState: "source_missing",
+      missingVsZeroState: "source_missing",
+    });
+    expect(implicit.mathReason).toContain("no bounded source evidence");
+  });
+
   it("normalizes external modelled spelling into the canonical modeled evidence kind", () => {
     expect(normalizeRecoveryMetricEvidenceKind("modelled")).toBe("modeled");
     expect(normalizeRecoveryMetricEvidenceKind("modeled")).toBe("modeled");

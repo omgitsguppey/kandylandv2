@@ -3248,8 +3248,20 @@ export function buildRecoveredLaunchMetricState(input: {
   evidenceKind?: RecoveryMetricEvidenceKindInput | string | null;
 }): RecoveredLaunchMetricState {
   const family = getLaunchCriticalEventFamily(input.eventName);
-  const sourceTruth = input.sourceTruth ?? family?.defaultSourceTruth ?? "source_missing";
-  const sourceObserved = input.sourceObserved ?? sourceTruth !== "source_missing";
+  const hasEvidenceAnchor = Boolean(
+    input.eventId
+    || input.sessionId
+    || input.identityLinkId
+    || input.userId
+    || input.anonymousVisitorId
+    || input.route
+    || input.objectId
+    || typeof input.timestampMs === "number"
+  );
+  const sourceObserved = input.sourceObserved ?? hasEvidenceAnchor;
+  const sourceTruth = sourceObserved
+    ? input.sourceTruth ?? family?.defaultSourceTruth ?? "source_missing"
+    : "source_missing";
   const evidenceKind = sourceObserved
     ? normalizeRecoveryMetricEvidenceKind(input.evidenceKind ?? evidenceKindFromSourceTruth(sourceTruth))
     : "missing";
