@@ -4733,15 +4733,55 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-check-admin-browser-surface-smoke",
+      "command": "npm run check:admin-browser-surface-smoke",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching admin UI surfaces, admin browser surface map, or admin browser evidence boundary."
+      ],
+      "optionalWhen": [
+        "Non-admin UI changes."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 7,
+      "verifies_runtime": false,
+      "verifies_ui": true,
+      "verifies_rules": false,
+      "verifies_inventory": true,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-browser-surface-smoke-browser",
+      "command": "npm run check:admin-browser-surface-smoke:browser",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Only when a source-reported admin UI issue needs browser reproduction or an explicit runtime visual contract promotes it."
+      ],
+      "optionalWhen": [
+        "Default admin readiness uses source checks, route contracts, selectors, hydration markers, and fixture-backed reports."
+      ],
+      "cleanupExpected": [
+        "May produce Playwright report/test-results and optional evidence fragments."
+      ],
+      "broadSignoffWeight": 3,
+      "verifies_runtime": false,
+      "verifies_ui": true,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-check-ui-audits",
       "command": "npm run check:ui:audits",
       "scopeType": "ui",
       "root_or_functions": "root",
       "requiredWhen": [
-        "Touching user-facing or admin-facing UI surfaces."
+        "Touching public/user-facing UI surfaces when source coverage promotes browser reproduction."
       ],
       "optionalWhen": [
-        "Pure backend or governance-only changes."
+        "Admin UI defaults to source coverage and check:admin-browser-surface-smoke; pure backend or governance-only changes."
       ],
       "cleanupExpected": [
         "Produces .next and Playwright artifacts."

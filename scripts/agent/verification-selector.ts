@@ -290,11 +290,13 @@ export function selectVerificationPlan(input: SelectorInput): VerificationPlan {
   const selections = new Map<string, VerificationSelection>();
   const protectedDomainEscalations: string[] = [];
   const manualEvidenceRequirements: string[] = [];
+  const signoffAdvisories: string[] = [];
   const forbiddenByDefaultCommands = [
     "npm run check",
     "npm run check:ui:audits",
     "npm run check:ui:lighthouse",
     "npm run check:ui:omni",
+    "npm run check:admin-browser-surface-smoke:browser",
     "npx cypress run",
     "playwright",
     "cypress",
@@ -323,8 +325,6 @@ export function selectVerificationPlan(input: SelectorInput): VerificationPlan {
 
   if (touchesAdmin) {
     addSelection(selections, available, "fast", "npm run check:admin-browser-surface-smoke", "Admin browser surface map, selectors, and evidence boundary should stay current.");
-    addSelection(selections, available, "signoff", "npm run check:admin-browser-surface-smoke:browser", "Authenticated admin browser signoff uses the dedicated opt-in surface smoke lane.");
-    pushUnique(manualEvidenceRequirements, "admin_browser_auth: authenticated admin browser signoff requires ADMIN_BROWSER_SMOKE_STORAGE_STATE and does not clear provider/runtime/admin-truth gates.");
   } else if (touchesUi) {
     addSelection(selections, available, "fast", "npm run check:ui:runtime", "Hydration/runtime UI continuity should stay truthful.");
     addSelection(selections, available, "signoff", "npm run check:ui:audits", "Public/user UI signoff requires Playwright audit coverage.");
@@ -374,6 +374,7 @@ export function selectVerificationPlan(input: SelectorInput): VerificationPlan {
     addSelection(selections, available, "fast", "npm run check:debug-evidence-pipeline", "Admin Debug surfaces must preserve debug evidence lanes.");
     addSelection(selections, available, "fast", "npm run check:admin-debug-control-tower", "Admin Debug Control Tower must not show missing/stale data as healthy.");
     pushUnique(manualEvidenceRequirements, "admin_truth_sample: source checks cannot satisfy redacted admin truth sample gates.");
+    signoffAdvisories.push("Run `npm run check:admin-browser-surface-smoke:browser` only when source coverage reports a concrete admin UI issue to reproduce, or a formal runtime visual contract explicitly promotes it.");
   }
 
   if (touchesGeneratedArtifacts) {
@@ -401,7 +402,6 @@ export function selectVerificationPlan(input: SelectorInput): VerificationPlan {
     addSelection(selections, available, "signoff", "npm run check:continuity", "Broad/shared/helper/tooling work requires continuity signoff.");
   }
 
-  const signoffAdvisories: string[] = [];
   if (touchesUi) {
     signoffAdvisories.push("Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.");
   }
