@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T22:40:42.550Z",
-  "currentHead": "67a77d0d6c348c6378631b29ba1814756bd77184",
+  "generatedAtUtc": "2026-06-20T22:49:56.613Z",
+  "currentHead": "8259b341f7db4f6f0dd1ff8237658388b18e85e4",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -2304,8 +2304,8 @@
             "watch_session_started",
             "drop_watch_started"
           ],
-          "activeSourceReferenceCount": 16,
-          "materializerReferenceCount": 11,
+          "activeSourceReferenceCount": 17,
+          "materializerReferenceCount": 12,
           "sourceCoverageState": "source_connected",
           "sourceTruth": "watch_session_rollup",
           "freshnessState": "source_current",
@@ -2347,7 +2347,7 @@
             "functions/src/analytics-truth-runtime.ts",
             "functions/src/behavioral-intelligence-runtime.ts"
           ],
-          "materializerFileCount": 11,
+          "materializerFileCount": 12,
           "materializerFilesTruncated": true
         },
         {
