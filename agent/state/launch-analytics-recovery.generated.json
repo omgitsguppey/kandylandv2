@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T22:31:40.312Z",
-  "currentHead": "ff8898e94933dd097af1cc587abebf4e9e3189ba",
+  "generatedAtUtc": "2026-06-20T22:40:42.550Z",
+  "currentHead": "67a77d0d6c348c6378631b29ba1814756bd77184",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -2076,8 +2076,8 @@
             "drop_preview_opened",
             "drop_preview_page_viewed"
           ],
-          "activeSourceReferenceCount": 34,
-          "materializerReferenceCount": 23,
+          "activeSourceReferenceCount": 35,
+          "materializerReferenceCount": 24,
           "sourceCoverageState": "source_connected",
           "sourceTruth": "first_party_event_fact",
           "freshnessState": "source_current",
@@ -2192,8 +2192,8 @@
             "drop_unwrapped",
             "entitlement_granted"
           ],
-          "activeSourceReferenceCount": 40,
-          "materializerReferenceCount": 29,
+          "activeSourceReferenceCount": 41,
+          "materializerReferenceCount": 30,
           "sourceCoverageState": "source_connected",
           "sourceTruth": "server_ledger",
           "freshnessState": "source_current",
