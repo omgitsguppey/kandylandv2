@@ -44,6 +44,7 @@ import {
   buildRecoveredLaunchMetricState,
   buildRecoveryTimelineEntryFromGa4Event,
   buildRecoveryTimelineEntryFromCanonicalEvent,
+  classifyRecoveryMetricSourceEvidence,
   classifyRecoveryMetricConfidenceBand,
   getLaunchCriticalEventFamily,
   getLaunchCriticalActiveSourceEventNames,
@@ -824,6 +825,39 @@ describe("recovery timeline spine", () => {
     expect(missingWins.evidenceKind).toBe("missing");
     expect(missingWins.confidenceBand).toBe("missing");
     expect(missingWins.missingVsZeroState).toBe("source_missing");
+  });
+
+  it("does not let final-only recovered counts masquerade as GA modeled source evidence", () => {
+    expect(classifyRecoveryMetricSourceEvidence({
+      checkedCount: 4,
+      estimatedCount: 0,
+      finalCount: 4,
+    })).toMatchObject({
+      sourceTruth: "first_party_event_fact",
+      evidenceKind: "observed",
+      productTruthEligible: true,
+      missingVsZeroState: "source_present",
+    });
+    expect(classifyRecoveryMetricSourceEvidence({
+      checkedCount: 0,
+      estimatedCount: 3,
+      finalCount: 3,
+    })).toMatchObject({
+      sourceTruth: "ga4_evidence_only",
+      evidenceKind: "modeled",
+      productTruthEligible: false,
+      missingVsZeroState: "source_present",
+    });
+    expect(classifyRecoveryMetricSourceEvidence({
+      checkedCount: 0,
+      estimatedCount: 0,
+      finalCount: 3,
+    })).toMatchObject({
+      sourceTruth: "legacy_directional_only",
+      evidenceKind: "inferred",
+      productTruthEligible: false,
+      missingVsZeroState: "source_present",
+    });
   });
 
   it("classifies recovered metric confidence bands from canonical score thresholds", () => {

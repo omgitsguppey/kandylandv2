@@ -83,6 +83,28 @@ describe("telemetry truth recovery formulas", () => {
     expect(result.recoverySpineConfidenceBand).toBe("directional");
   });
 
+  it("labels final-count-only recovery as inferred instead of GA-modeled evidence", () => {
+    const result = calculateTelemetryTruthRecoveryFormulas({
+      observedViews: 0,
+      checkedViews: 0,
+      finalViews: 7,
+      estimatedViews: 0,
+      freshnessScore: 80,
+      sourceCompletenessScore: 20,
+      recoveryQualityScore: 40,
+      lastRebuildAtUtc: "2026-06-20T12:00:00.000Z",
+      sourcePath: "legacy recovery summary",
+    });
+
+    expect(result.finalViews).toBe(7);
+    expect(result.sourceTruth).toBe("legacy_directional_only");
+    expect(result.evidenceKind).toBe("inferred");
+    expect(result.freshnessState).toBe("external_evidence_required");
+    expect(result.productTruthEligible).toBe(false);
+    expect(result.missingVsZeroState).toBe("source_present");
+    expect(result.recoverySpineConfidenceBand).toBe("weak");
+  });
+
   it("keeps empty recovery missing instead of zero-as-truth", () => {
     const result = calculateTelemetryTruthRecoveryFormulas({
       observedViews: 0,

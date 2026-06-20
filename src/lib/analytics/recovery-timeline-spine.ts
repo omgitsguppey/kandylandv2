@@ -3422,8 +3422,10 @@ export function classifyRecoveryMetricSourceEvidence(input: {
   const finalCount = Math.max(0, input.finalCount ?? checkedCount + estimatedCount);
   const sourceTruth: RecoveryMetricSourceTruth = checkedCount > 0
     ? "first_party_event_fact"
-    : estimatedCount > 0 || finalCount > 0
+    : estimatedCount > 0
       ? "ga4_evidence_only"
+      : finalCount > 0
+        ? "legacy_directional_only"
       : "source_missing";
   const evidenceKind = evidenceKindFromSourceTruth(sourceTruth);
   const sourceObserved = sourceTruth !== "source_missing";
