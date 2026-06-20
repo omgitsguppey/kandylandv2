@@ -605,4 +605,13 @@ describe("admin analytics historical route snapshot authority", () => {
     expect(source).toContain('? "ga4_evidence_only"');
     expect(source).not.toContain('? "ga4"\n');
   });
+
+  it("routes top drop conversion rows through launch recovery metadata", () => {
+    const source = readFileSync("src/app/api/admin/analytics/historical/route.ts", "utf8");
+
+    expect(source).toContain("buildTopDropConversionRecoveryMetadata");
+    expect(source).toContain('route: "admin_analytics_top_drop_conversion"');
+    expect(source).toContain("sourceTruth: recoveryMetadata.sourceTruth");
+    expect(source).not.toContain('sourceTruth: period === "all" ? "drop_metadata_plus_counters" : "drop_metadata_plus_rollups"');
+  });
 });

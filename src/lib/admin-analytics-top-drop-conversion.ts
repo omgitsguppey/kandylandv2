@@ -6,6 +6,7 @@ import type {
   TopDropItem,
 } from "@/types/admin-analytics";
 import { safeRate } from "@/lib/deterministic-admin-truth";
+import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 
 export type AdminAnalyticsTopDropConversionModel = TopDropConversionState & {
   selectedRange: RangeOption;
@@ -48,6 +49,12 @@ function normalizeRow(drop: TopDropItem): TopDropConversionRow {
     : "resolved";
   const views = Math.max(0, Number(drop.views) || 0);
   const unwraps = Math.max(0, Number(drop.unlocks) || 0);
+  const recoveryMetadata = buildTopDropConversionRecoveryMetadata({
+    views,
+    unwraps,
+    dropId: drop.dropId,
+    generatedAtMs: null,
+  });
   const unwrapRate = safeRate({
     numerator: unwraps,
     denominator: views,
@@ -69,13 +76,41 @@ function normalizeRow(drop: TopDropItem): TopDropConversionRow {
     unwrapRateDisplay: unwrapRate.display,
     revenueUsd: null,
     gumdropsSpent: null,
-    sourceTruth: "drop_metadata_plus_rollups",
-    freshnessState: "partial",
+    sourceTruth: recoveryMetadata.sourceTruth,
+    freshnessState: recoveryMetadata.freshnessState,
+    confidenceScore: recoveryMetadata.confidenceScore,
+    confidenceBand: recoveryMetadata.confidenceBand,
+    evidenceKind: recoveryMetadata.evidenceKind,
+    dedupeKey: recoveryMetadata.dedupeKey,
+    dedupeDimensions: recoveryMetadata.dedupeDimensions,
+    lateArrivalWindowDays: recoveryMetadata.lateArrivalWindowDays,
+    productTruthEligible: recoveryMetadata.productTruthEligible,
+    missingVsZeroState: recoveryMetadata.missingVsZeroState,
+    mathReason: recoveryMetadata.mathReason,
     explanation: views > 0
       ? `Unwrap conversion uses unwraps divided by validated drop views for the selected range. ${unwrapRate.reason}`
       : "Unwrap conversion is unavailable because this row has no validated view denominator.",
     adminDropHref: `/admin/drops?dropId=${encodeURIComponent(drop.dropId)}`,
   };
+}
+
+function buildTopDropConversionRecoveryMetadata(input: {
+  views: number;
+  unwraps: number;
+  dropId: string;
+  generatedAtMs: number | null;
+}) {
+  const sourceObserved = input.views > 0 || input.unwraps > 0;
+  const eventName = input.views > 0 ? "drop_preview_opened" : "drop_unlocked";
+  return buildRecoveredLaunchMetricState({
+    eventName,
+    sourceObserved,
+    sourceTruth: "first_party_event_fact",
+    evidenceKind: sourceObserved ? "observed" : "missing",
+    route: "admin_analytics_top_drop_conversion",
+    objectId: input.dropId,
+    timestampMs: input.generatedAtMs,
+  });
 }
 
 function buildFallbackState(input: {
