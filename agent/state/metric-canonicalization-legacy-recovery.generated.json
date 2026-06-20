@@ -1,25 +1,25 @@
 {
   "reportKey": "metric-canonicalization-legacy-recovery",
-  "generatedAtUtc": "2026-05-26T09:21:14.544Z",
-  "currentHead": "1410a822acc04c6b26de7559d3bb71eeb9c4d4d0",
+  "generatedAtUtc": "2026-06-20T17:19:07.103Z",
+  "currentHead": "6c98d104128d2d14b8f44d3d51c8e02cedc57bf1",
   "status": "pass",
   "scoreBefore": {
-    "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "sourceHealth": 99.2,
+    "runtimeHealth": 71.2,
+    "evidenceCompleteness": 58.4,
+    "freshness": 83.75,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "regressionRisk": 94,
+    "overallHealthScore": 76.88
   },
   "scoreAfter": {
-    "sourceHealth": 100,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "sourceHealth": 99.2,
+    "runtimeHealth": 71.2,
+    "evidenceCompleteness": 58.4,
+    "freshness": 83.75,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "regressionRisk": 94,
+    "overallHealthScore": 76.88
   },
   "dryRunOnly": true,
   "productionReadsRequired": false,
@@ -320,158 +320,8 @@
     "recoveryCannotMutateProduction": true,
     "accuracyExplanationPresent": true
   },
-  "dirtyFiles": [
-    {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/metric-canonicalization-legacy-recovery.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/metric-canonicalization-legacy-recovery.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-metric-canonicalization-legacy-recovery.ts",
-      "classification": "failed_validator_to_repair"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/legacy-metric-canonicalization.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/legacy-recovery-dry-run-engine.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/metric-canonicalization-legacy-recovery.spec.ts",
-      "classification": "current_generated_artifact_to_commit"
-    }
-  ],
-  "openPullRequests": [
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 302,
-      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
-      "classification": "onboarding_telemetry_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 301,
-      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
-      "classification": "doctrine_governance_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 300,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
-      "classification": "architecture_refactor_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 299,
-      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 298,
-      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 297,
-      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 296,
-      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 295,
-      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 294,
-      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 293,
-      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
-      "classification": "security_patch_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 292,
-      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
-      "classification": "performance_patch_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 291,
-      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
-      "classification": "accessibility_patch_external_review_required"
-    }
-  ],
+  "dirtyFiles": [],
+  "openPullRequests": [],
   "validationFailures": [],
   "releaseNoteImpact": [
     "Added dry-run canonicalization for legacy event and metric data from March 1.",

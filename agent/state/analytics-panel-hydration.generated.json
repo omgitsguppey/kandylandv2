@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-20T16:57:38.675Z",
-  "currentHead": "8d5d181090fbb814fb58be8a66a103df8689ba9d",
+  "generatedAtUtc": "2026-06-20T17:19:08.155Z",
+  "currentHead": "6c98d104128d2d14b8f44d3d51c8e02cedc57bf1",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -365,10 +365,29 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 0,
-    "byClassification": {},
+    "total": 4,
+    "byClassification": {
+      "stale_generated_artifact_to_regenerate": 4
+    },
     "unsafeUnknown": [],
-    "sample": [],
+    "sample": [
+      {
+        "path": "agent/state/count-deduplication-normalization.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/metric-canonicalization-legacy-recovery.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "docs/agent-truth/count-deduplication-normalization.md",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "docs/agent-truth/metric-canonicalization-legacy-recovery.md",
+        "classification": "stale_generated_artifact_to_regenerate"
+      }
+    ],
     "sampleTruncated": false
   },
   "nextExactSteps": [

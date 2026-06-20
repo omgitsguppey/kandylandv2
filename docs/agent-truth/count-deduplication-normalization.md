@@ -1,7 +1,7 @@
 # Count Deduplication Normalization
 
-Generated: 2026-05-26T08:42:18.296Z
-Current head: 884fd150a5062368df5ffcfd642484a7a2360b60
+Generated: 2026-06-20T17:19:07.308Z
+Current head: 6c98d104128d2d14b8f44d3d51c8e02cedc57bf1
 Status: pass
 
 ## Contract
@@ -23,33 +23,11 @@ Status: pass
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
-- agent/state/count-deduplication-normalization.generated.json: current_generated_artifact_to_commit
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/count-deduplication-normalization.md: documentation_artifact_expected
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-count-deduplication-normalization.ts: validator_artifact_expected
-- src/lib/analytics/global-user-dedupe-contract.ts: real_source_change_needs_review
-- src/lib/analytics/global-user-dedupe-engine.ts: real_source_change_needs_review
-- src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/count-deduplication-normalization.spec.ts: test_artifact_expected
+- none
 
 ## Open PR Classification
 
-- #302 🧭 Improve onboarding friction visibility and technical rescue signals: onboarding_telemetry_external_review_required
-- #301 📚 Reduce doctrine drift and banned-pattern reintroduction: doctrine_governance_external_review_required
-- #300 🧱 Reduce monolith file risk and clarify responsibility boundaries: architecture_refactor_external_review_required
-- #299 chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates: dependency_update_external_review_required
-- #298 chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1: dependency_update_external_review_required
-- #297 chore(deps): bump knip from 5.88.1 to 6.14.2: dependency_update_external_review_required
-- #296 chore(deps): bump syncpack from 14.3.0 to 15.3.1: dependency_update_external_review_required
-- #295 chore(deps): bump puppeteer from 24.40.0 to 25.0.4: dependency_update_external_review_required
-- #294 chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates: dependency_update_external_review_required
-- #293 🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation: security_patch_external_review_required
-- #292 ⚡ Bolt: Replace array `.find()` with Map lookup in debug route: performance_patch_external_review_required
-- #291 🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons: accessibility_patch_external_review_required
+- none
 
 ## Validation Failures
 

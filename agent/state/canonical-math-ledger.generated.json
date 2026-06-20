@@ -1,25 +1,25 @@
 {
   "reportKey": "canonical-math-ledger",
-  "generatedAtUtc": "2026-06-11T14:07:39.280Z",
-  "currentHead": "fca594c435f4a2418c6d96a10602a2ee422c014e",
+  "generatedAtUtc": "2026-06-20T17:19:31.158Z",
+  "currentHead": "6c98d104128d2d14b8f44d3d51c8e02cedc57bf1",
   "status": "pass",
   "scoreBefore": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "sourceHealth": 99.2,
+    "runtimeHealth": 71.2,
+    "evidenceCompleteness": 58.4,
+    "freshness": 83.75,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 76.88
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "sourceHealth": 99.2,
+    "runtimeHealth": 71.2,
+    "evidenceCompleteness": 58.4,
+    "freshness": 83.75,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 76.88
   },
   "scoreDimensions": {
     "sourceHealth": 25,
@@ -519,339 +519,47 @@
   },
   "dirtyFiles": [
     {
-      "path": "agent/context/doctrine.cards.jsonl",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/context/doctrine.index.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/context/file-size-budget.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/context/legacy-registry.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/task-pack.generated.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/context/validator-map.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/blast-radius.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/canonical-helpers.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/dependency-graph.summary.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/governance-truth.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/known-pitfalls.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/package-manager-truth.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/recent-passes.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/repo-inventory.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/retrieval-index.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/runtime-observability.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/surface-map.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/ui-surface-coverage.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/verification-commands.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/index/workflow-guidance.json",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "agent/state/admin-cms-workflow-audit.generated.json",
+      "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
+      "path": "agent/state/count-deduplication-normalization.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/background-job-idempotency-audit.generated.json",
+      "path": "agent/state/launch-analytics-recovery.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/bug-report-truth-terminal-state.generated.json",
+      "path": "agent/state/metric-canonicalization-legacy-recovery.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/canonical-math-authority-ledger.generated.json",
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/canonical-math-ledger.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/config-env-contract.generated.json",
+      "path": "docs/agent-truth/count-deduplication-normalization.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/content-media-pipeline-audit.generated.json",
+      "path": "docs/agent-truth/launch-analytics-recovery.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/cookie-banner-settings-sync.generated.json",
+      "path": "docs/agent-truth/metric-canonicalization-legacy-recovery.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/debug-evidence-staleness-queue.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/global-cost-surfaces.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/gumdrop-ledger-math.generated.json",
-      "classification": "companion_gumdrop_math_artifact_expected"
-    },
-    {
-      "path": "agent/state/identity-handoff-spine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/media-upload-lifecycle.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/orphaned-logic-score.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/private-media-access.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/provider-smoke-evidence.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/route-sample-freshness-classifier.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-80-reconciliation-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-dimension-80-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/settings-creator-dashboard-split.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/sql-mirror-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/sql-sync.payload.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/stale-route-sample-classification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/support-policy-surface-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-dependency-graph.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-identified-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/treasury-reconciliation-engine.generated.json",
-      "classification": "canonical_owner_platform_economy_treasury_reconciliation"
-    },
-    {
-      "path": "agent/state/treasury-structure-contract.generated.json",
-      "classification": "canonical_owner_platform_economy_treasury_reconciliation"
-    },
-    {
-      "path": "agent/state/user-management-status-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-profile-api-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/admin-cms-drop-workflow.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/background-jobs-idempotency.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/bug-report-truth-terminal-state.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/canonical-math-ledger.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/config-env-contract.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/content-media-pipeline.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/cookie-banner-settings-sync.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/gumdrop-ledger-math.md",
-      "classification": "companion_gumdrop_math_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/media-upload-lifecycle.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/private-media-access.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/route-sample-freshness-classifier.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/score-dimension-80-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/stale-route-sample-classification.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/support-policy-surface-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-dependency-graph.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/treasury-reconciliation-engine.md",
-      "classification": "canonical_owner_platform_economy_treasury_reconciliation"
-    },
-    {
-      "path": "docs/agent-truth/treasury-structure-contract.md",
-      "classification": "canonical_owner_platform_economy_treasury_reconciliation"
-    },
-    {
-      "path": "docs/agent-truth/user-management-status-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/user-profile-api-contract.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "scripts/agent/build-agent-indexes.ts",
-      "classification": "unrelated_dirty_outside_canonical_math_ledger"
-    },
-    {
-      "path": "scripts/agent/chat-cost-status-cleanup-shared.ts",
+      "path": "shared/runtime/telemetry-event-manifest.ts",
       "classification": "unrelated_dirty_outside_canonical_math_ledger"
     }
   ],
-  "dirtyFileCount": 147,
-  "dirtyFilesTruncated": true,
+  "dirtyFileCount": 9,
+  "dirtyFilesTruncated": false,
   "dirtyClassificationCounts": {
-    "unrelated_dirty_outside_canonical_math_ledger": 70,
-    "unrelated_agent_context_file_to_ignore": 1,
-    "stale_generated_artifact_to_regenerate": 48,
-    "current_generated_artifact_to_commit": 2,
-    "companion_gumdrop_math_artifact_expected": 2,
-    "canonical_owner_platform_economy_treasury_reconciliation": 5,
-    "real_source_change_needs_review": 15,
-    "failed_validator_to_repair": 1,
-    "canonical_owner_unlock_spend_and_entitlement": 2,
-    "companion_gumdrop_math_validator_expected": 1
+    "stale_generated_artifact_to_regenerate": 8,
+    "unrelated_dirty_outside_canonical_math_ledger": 1
   },
   "protectedManualReviewCount": 0,
   "openPrEvidenceStatus": "not_queried_external_command_opt_in_required",
