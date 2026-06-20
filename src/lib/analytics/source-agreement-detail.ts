@@ -320,7 +320,7 @@ export function launchCoverageInputEvidenceNextAction(input: LaunchCoverageInput
     ? acceptedPaths.join(" or ")
     : DEFAULT_LAUNCH_COVERAGE_EXPORT_PATHS.join(" or ");
 
-  return `Attach approved launch-history coverage at ${pathList}, or run npm run capture:truthful-evidence -- --launch-coverage-from <redacted all-range historical export> to convert a saved admin historical response into the compact local export. A redacted admin truth sample with launchHistoryCoverage day rows is also accepted. Then run npm run check:analytics-panel-hydration before treating launch analytics charts as canonical.`;
+  return `Attach approved launch-history coverage at ${pathList}, or run npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json> to convert a saved Admin Analytics range=all response into the compact export. A redacted admin truth sample with launchHistoryCoverage day rows is also accepted. Then run npm run check:analytics-panel-hydration before treating launch analytics charts as canonical.`;
 }
 
 export function hasBlockingSourceCoverageMismatch(input: SourceAgreementCoveragePresenceInput) {
