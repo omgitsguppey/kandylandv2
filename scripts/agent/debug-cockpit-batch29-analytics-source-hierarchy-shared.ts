@@ -96,6 +96,14 @@ function asSourceCount(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : 0;
 }
 
+function sourceCountFromAliases(sourceCounts: Record<string, unknown>, keys: readonly string[]): number {
+  for (const key of keys) {
+    const count = asSourceCount(sourceCounts[key]);
+    if (count > 0) return count;
+  }
+  return 0;
+}
+
 function asOptionalString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
@@ -174,10 +182,10 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
 
     const sourceCounts = asRecord(row.sourceCounts);
     const normalizedSourceCounts = {
-      first_party: asSourceCount(sourceCounts.first_party),
-      ga4: asSourceCount(sourceCounts.ga4),
-      historicalSnapshot: asSourceCount(sourceCounts.historicalSnapshot),
-      legacySupport: asSourceCount(sourceCounts.legacySupport),
+      first_party: sourceCountFromAliases(sourceCounts, ["first_party", "firstParty"]),
+      ga4: sourceCountFromAliases(sourceCounts, ["ga4", "googleAnalytics", "google_analytics"]),
+      historicalSnapshot: sourceCountFromAliases(sourceCounts, ["historicalSnapshot", "historical_snapshot"]),
+      legacySupport: sourceCountFromAliases(sourceCounts, ["legacySupport", "legacy_support"]),
     };
     const expected = row.expected !== false;
     const internalAdminExcludedCount = typeof row.internalAdminExcludedCount === "number"

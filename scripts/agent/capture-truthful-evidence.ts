@@ -114,6 +114,30 @@ function arrayValue(value: unknown) {
   return Array.isArray(value) ? value : [];
 }
 
+function normalizeLocalLaunchExportRangeProof(rangeProof: {
+  expectedRangeSource?: string | null;
+  coverageWindowKind?: string | null;
+  allLaunchRangeProven?: boolean | null;
+  reason?: string | null;
+}) {
+  const routeExport =
+    rangeProof.coverageWindowKind === "all_range_historical_route"
+    || rangeProof.expectedRangeSource === "all_range_historical_route";
+  return {
+    expectedRangeSource: routeExport
+      ? "approved_all_launch_export"
+      : rangeProof.expectedRangeSource ?? "approved_all_launch_export",
+    coverageWindowKind: routeExport
+      ? "all_range_historical_export"
+      : rangeProof.coverageWindowKind ?? "all_range_historical_export",
+    allLaunchRangeProven: rangeProof.allLaunchRangeProven === true,
+    reason: rangeProof.reason
+      ?? (routeExport
+        ? "Redacted all-range historical route response converted into a local launch-history export."
+        : "Redacted local historical route export declares all-launch range proof."),
+  };
+}
+
 export function buildLaunchHistoryCoverageLocalExportDocument(input: unknown, options: {
   generatedAtUtc: string;
   sourceInputPath: string;
@@ -142,13 +166,7 @@ export function buildLaunchHistoryCoverageLocalExportDocument(input: unknown, op
       rangeEndDayKey: normalized.rangeEndDayKey,
       expectedDayCount: normalized.expectedDayCount,
       recoveredDayCount: normalized.recoveredDayCount,
-      rangeProof: {
-        expectedRangeSource: normalized.rangeProof?.expectedRangeSource ?? "approved_all_launch_export",
-        coverageWindowKind: normalized.rangeProof?.coverageWindowKind ?? "all_range_historical_export",
-        allLaunchRangeProven: normalized.rangeProof?.allLaunchRangeProven === true,
-        reason: normalized.rangeProof?.reason
-          ?? "Redacted local historical route export declares all-launch range proof.",
-      },
+      rangeProof: normalizeLocalLaunchExportRangeProof(normalized.rangeProof ?? {}),
       days: normalized.days.map((day) => ({
         dayKey: day.dayKey,
         expected: day.expected,

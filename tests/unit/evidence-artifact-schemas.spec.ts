@@ -121,6 +121,53 @@ describe("evidence artifact schemas", () => {
     expect(document.launchHistoryCoverage.days[0]?.sourceCounts.first_party).toBe(12);
   });
 
+  it("converts an all-range admin historical route response into a local launch export", () => {
+    const document = buildLaunchHistoryCoverageLocalExportDocument({
+      analyticsSourceHealth: {
+        launchHistoryCoverage: {
+          rangeStartDayKey: "2026-02-12",
+          rangeEndDayKey: "2026-02-13",
+          rangeProof: {
+            expectedRangeSource: "all_range_historical_route",
+            coverageWindowKind: "all_range_historical_route",
+            allLaunchRangeProven: true,
+            reason: "All-time historical route coverage is bounded by recovered first-party days and source agreement passed.",
+          },
+          days: [
+            {
+              dayKey: "2026-02-12",
+              expected: true,
+              sourceCounts: { firstParty: 12, ga4: 11, historical_snapshot: 2, legacy_support: 1 },
+              internalAdminExcludedCount: 1,
+            },
+            {
+              dayKey: "2026-02-13",
+              expected: true,
+              sourceCounts: { firstParty: 9, googleAnalytics: 10, historicalSnapshot: 2, legacySupport: 1 },
+              internalAdminExcludedCount: 0,
+            },
+          ],
+        },
+      },
+    }, {
+      generatedAtUtc: "2026-06-20T18:00:00.000Z",
+      sourceInputPath: "local/admin-historical-route.redacted.json",
+    });
+
+    expect(document.launchHistoryCoverage.rangeProof).toMatchObject({
+      expectedRangeSource: "approved_all_launch_export",
+      coverageWindowKind: "all_range_historical_export",
+      allLaunchRangeProven: true,
+    });
+    expect(document.launchHistoryCoverage.days[0]?.sourceCounts).toEqual({
+      first_party: 12,
+      ga4: 11,
+      historicalSnapshot: 2,
+      legacySupport: 1,
+    });
+    expect(document.launchHistoryCoverage.days[1]?.sourceCounts.ga4).toBe(10);
+  });
+
   it("rejects launch coverage exports that only prove a local evidence window", () => {
     expect(() => buildLaunchHistoryCoverageLocalExportDocument({
       launchHistoryCoverage: {
