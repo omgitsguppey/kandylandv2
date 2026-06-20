@@ -3907,13 +3907,20 @@ export function inferRecoveryProductDomain(eventName: string, objectType?: strin
 
 export function getGa4RecoveryEventMapping(ga4EventName: string): Ga4RecoveryEventMapping {
   const normalized = ga4EventName.trim().toLowerCase();
-  return GA4_RECOVERY_EVENT_MAPPINGS.find((entry) => entry.ga4EventName === normalized) ?? {
+  const knownMapping = GA4_RECOVERY_EVENT_MAPPINGS.find((entry) => entry.ga4EventName === normalized);
+  if (knownMapping) return knownMapping;
+
+  const productDomain = inferRecoveryProductDomain(normalized || "unknown");
+  return {
     ga4EventName: normalized || "unknown",
     canonicalEventName: normalized || "unknown_ga4_event",
     confidence: "unknown",
     objectType: "unknown",
-    productDomain: "unknown",
-    commerceTruthRequiresLedger: false,
+    productDomain,
+    commerceTruthRequiresLedger:
+      productDomain === "wallet_payment"
+      || productDomain === "gumdrop_economy"
+      || productDomain === "drop_unlock",
   };
 }
 

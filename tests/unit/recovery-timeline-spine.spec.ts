@@ -1818,6 +1818,43 @@ describe("recovery timeline spine", () => {
     expect(validateRecoveryTimelineEntries([entry]).ok).toBe(true);
   });
 
+  it("keeps unmapped GA4 commerce-like events behind the ledger proof boundary", () => {
+    const mapping = getGa4RecoveryEventMapping("gumdrops_purchase_completed");
+    expect(mapping).toMatchObject({
+      ga4EventName: "gumdrops_purchase_completed",
+      canonicalEventName: "gumdrops_purchase_completed",
+      productDomain: "wallet_payment",
+      commerceTruthRequiresLedger: true,
+    });
+
+    const uncorroborated = buildRecoveryTimelineEntryFromGa4Event({
+      ga4EventName: "gumdrops_purchase_completed",
+      ga4EventId: "ga4_custom_purchase",
+      occurredAt: "2026-06-07T00:00:00.000Z",
+      transactionId: "txn_from_custom_ga4",
+    });
+    expect(uncorroborated).toMatchObject({
+      source: "ga4_evidence",
+      productDomain: "wallet_payment",
+      classification: "rejected",
+      recoveryEligibility: "rejected",
+    });
+
+    const ledgerCorroborated = buildRecoveryTimelineEntryFromGa4Event({
+      ga4EventName: "gumdrops_purchase_completed",
+      ga4EventId: "ga4_custom_purchase_with_ledger",
+      occurredAt: "2026-06-07T00:00:00.000Z",
+      transactionId: "txn_from_custom_ga4",
+      ledgerCorroborated: true,
+    });
+    expect(ledgerCorroborated).toMatchObject({
+      source: "ga4_evidence",
+      productDomain: "wallet_payment",
+      recoveryEligibility: "manual_review_required",
+    });
+    expect(validateRecoveryTimelineEntries([uncorroborated, ledgerCorroborated]).ok).toBe(true);
+  });
+
   it("allows ledger-backed payment entries to be product-truth eligible", () => {
     const event = createCanonicalAnalyticsEvent({
       eventId: "transaction:purchase",
