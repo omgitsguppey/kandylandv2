@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T15:24:21.724Z",
+  "generatedAtUtc": "2026-06-20T17:12:26.591Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "6e903936b9ba164bd883dff1e698504e51a4aed0",
+  "currentHead": "6cd5e24b1c1a0ac9634688710f9391f479f3b52b",
   "summary": {
     "betaVersion": "1.6.9",
     "betaScore": 76.88,
@@ -52,7 +52,7 @@
         "sourceStatus": "source_surface_checks_current",
         "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
         "captureStatus": "complete",
-        "sourceCommit": "05d526746a18e1bc4f6108cbaba4025f67508544",
+        "sourceCommit": "d5dbf45c79634cb9e3e569e689454ed17b4d08c2",
         "canClearGate": true,
         "nextAction": "Run deterministic UI source coverage and device UI source checks; use browser reproduction only for concrete source-reported UI issues."
       },
@@ -88,7 +88,7 @@
         "sourceStatus": "stale_admin_truth_sample_evidence",
         "sourcePath": "agent/state/admin-truth-sample-evidence.generated.json",
         "captureStatus": "stale",
-        "sourceCommit": "ec54e34657fe525435ff547994f17f6046c716c7",
+        "sourceCommit": "5948760303e056c8b82448529b828aa29b404979",
         "canClearGate": false,
         "nextAction": "Attach or refresh a redacted admin truth sample for the current code version."
       }
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-20T15:24:21.724Z",
+      "generatedAtUtc": "2026-06-20T17:12:26.591Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
