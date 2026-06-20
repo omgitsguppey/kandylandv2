@@ -363,15 +363,14 @@ export function classifySourceAgreementCoverage(input: SourceAgreementCoverageCl
 
     if (hasGa4 && !hasFirstParty) {
       classifications.add("external_source_gap");
-      classifications.add("missing_materializer");
     }
 
     if (hasLegacy && !hasFirstParty) {
-      classifications.add("missing_materializer");
+      classifications.add("external_source_gap");
     }
 
     if (hasHistoricalSnapshot && !hasFirstParty) {
-      classifications.add("missing_materializer");
+      classifications.add("external_source_gap");
     }
   }
 
@@ -407,13 +406,12 @@ function classifyDayDisagreement(input: {
 
   if (hasGa4 && !hasFirstParty) {
     classifications.add("external_source_gap");
-    classifications.add("missing_materializer");
   }
   if (!hasGa4 && hasFirstParty) {
     classifications.add("external_source_gap");
   }
   if (hasFallback && !hasFirstParty) {
-    classifications.add("missing_materializer");
+    classifications.add("external_source_gap");
   }
   // GA4 plus legacy/fallback overlap can corroborate that a day had activity,
   // but without first-party facts it is not proof of a duplicated product event.

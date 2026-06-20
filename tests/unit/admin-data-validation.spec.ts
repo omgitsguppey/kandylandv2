@@ -518,7 +518,6 @@ describe("buildHistoricalValidationSummary", () => {
     expect(summary.analyticsSourceHealth.sourceAgreement.classifications).toEqual(expect.arrayContaining([
       "date_range_mismatch",
       "external_source_gap",
-      "missing_materializer",
     ]));
     expect(summary.analyticsSourceHealth.sourceAgreement.classifications).not.toContain("duplicate_event");
   });

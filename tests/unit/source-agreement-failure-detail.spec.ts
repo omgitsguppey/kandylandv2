@@ -141,7 +141,7 @@ describe("source agreement failure detail", () => {
         lateArrivalWindowDays: ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
         primarySourceState: "first_party_missing",
         secondSourceState: "ga4_present",
-        classifications: expect.arrayContaining(["external_source_gap", "missing_materializer"]),
+        classifications: expect.arrayContaining(["external_source_gap"]),
         recoveryLane: "first_party_materialization",
         blockingOwner: "analytics_event_facts materialization",
         proofRequired: expect.arrayContaining(["first_party_day_bucket_or_analytics_event_facts_sample"]),
@@ -166,9 +166,9 @@ describe("source agreement failure detail", () => {
     expect(detail.blockedConsumerDetails).toEqual(expect.arrayContaining([
       expect.objectContaining({
         consumer: "admin_analytics_overview",
-        currentState: "materializer_missing",
+        currentState: "source_agreement_failed",
         allowedDisplayState: "source_missing",
-        blockingOwner: "analytics_event_facts materialization",
+        blockingOwner: "source agreement comparison",
       }),
       expect.objectContaining({
         consumer: "admin_analytics_device_mix",
@@ -498,7 +498,7 @@ describe("source agreement failure detail", () => {
         primarySourceState: "first_party_missing",
         secondSourceState: "ga4_present",
         fallbackState: "fallback_present",
-        classifications: expect.arrayContaining(["external_source_gap", "missing_materializer"]),
+        classifications: expect.arrayContaining(["external_source_gap"]),
         productTruthEligible: false,
       }),
     ]);
