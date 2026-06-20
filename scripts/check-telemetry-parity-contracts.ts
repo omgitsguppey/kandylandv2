@@ -3,6 +3,7 @@ import path from "node:path";
 
 import {
   ADMIN_TELEMETRY_LOG_EVENT_NAMES,
+  TELEMETRY_EVENT_ALIAS_MAP,
   TELEMETRY_EVENT_NAME_SET,
   TELEMETRY_EVENT_OPTIONS,
   TELEMETRY_MODULE_INDEXES,
@@ -92,7 +93,7 @@ for (const event of TELEMETRY_EVENT_OPTIONS) {
 
 for (const eventName of ADMIN_TELEMETRY_LOG_EVENT_NAMES) {
   checks += 1;
-  if (!TELEMETRY_EVENT_NAME_SET.has(eventName)) {
+  if (!TELEMETRY_EVENT_NAME_SET.has(eventName) && !TELEMETRY_EVENT_ALIAS_MAP[eventName]) {
     failures.push(`Admin telemetry log references uncataloged event ${eventName}`);
   }
 }
