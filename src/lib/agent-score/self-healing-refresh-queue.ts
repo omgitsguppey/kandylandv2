@@ -63,7 +63,10 @@ export interface SelfHealingRefreshQueueReport {
 type FormalEvidenceKind = "runtime" | "provider" | "admin_truth" | "generic";
 
 const FORMAL_EVIDENCE_PATTERN = /\battach formal|formal provider|formal runtime|admin truth sample|provider smoke|runtime smoke/i;
-const LEGACY_SCREENSHOT_EVIDENCE_PATTERN = /\b(manual screenshot|screenshot evidence|visual\/manual screenshot|targeted visual\/manual|operator screenshot)\b/i;
+const LEGACY_SCREENSHOT_EVIDENCE_PATTERN =
+  /\b(manual screenshot|screenshot evidence|visual\/manual screenshot|targeted visual\/manual|operator screenshot|manual visual|visual manual|visual proof|visual evidence|visual qa|manual ui evidence|manual mobile ui evidence)\b/i;
+const LEGACY_MANUAL_UI_PROOF_PATTERN = /\bmanual proof\b/i;
+const UI_EVIDENCE_CONTEXT_PATTERN = /\b(ui|visual|browser|surface|modal|dialog|drawer|layout|mobile|desktop|screenshot)\b/i;
 const FORBIDDEN_COMMAND_PATTERN = /\b(firebase deploy|gcloud|deploy|production read|paypal|provider call)\b/i;
 const UI_SOURCE_COVERAGE_REFRESH_COMMAND = "npm run check:ui-visual-smoke-minimal";
 
@@ -108,7 +111,8 @@ function isFormalEvidenceRefresh(command: string, artifact: string, status = "")
 }
 
 function isLegacyScreenshotEvidenceText(value: string) {
-  return LEGACY_SCREENSHOT_EVIDENCE_PATTERN.test(value);
+  return LEGACY_SCREENSHOT_EVIDENCE_PATTERN.test(value)
+    || (LEGACY_MANUAL_UI_PROOF_PATTERN.test(value) && UI_EVIDENCE_CONTEXT_PATTERN.test(value));
 }
 
 function normalizeRefreshCommand(command: string, artifact: string, status = "") {

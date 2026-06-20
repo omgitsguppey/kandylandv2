@@ -4,10 +4,10 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 
 ## Summary
 
-- Queue entries: 16
-- Automatic entries: 11
+- Queue entries: 17
+- Automatic entries: 12
 - Blocked entries: 5
-- Estimated score impact: 44.48
+- Estimated score impact: 43.4
 
 ## Queue
 
@@ -16,7 +16,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Owner: repo
 - Stale reason: source_backed
 - Refresh command: `npm run check:beta-score`
-- Score impact estimate: 12
+- Score impact estimate: 8.32
 - Can run automatically: true
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
@@ -31,27 +31,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 3. agent/state/beta-evidence-gap-map.generated.json
-
-- Owner: evidence
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:beta-evidence-gap-map`
-- Score impact estimate: 1.8
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
-
-### 4. agent/state/beta-evidence-lane-prep.generated.json
-
-- Owner: evidence
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:beta-evidence-lane-prep`
-- Score impact estimate: 1.6
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
-
-### 5. agent/state/admin-truth.generated.json
+### 3. agent/state/admin-truth.generated.json
 
 - Owner: admin
 - Stale reason: missing
@@ -61,7 +41,47 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 6. agent/state/user-loading-wallet-mobile-refinement.generated.json
+### 4. agent/state/beta-evidence-gap-map.generated.json
+
+- Owner: evidence
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:beta-evidence-gap-map`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 5. agent/state/beta-evidence-lane-prep.generated.json
+
+- Owner: evidence
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:beta-evidence-lane-prep`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 6. agent/state/evidence-capture-status.generated.json
+
+- Owner: evidence
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:evidence-capture-status`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 7. agent/state/mobile-ui-final-lock.generated.json
+
+- Owner: mobile
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:mobile-ui-final-lock`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 8. agent/state/user-loading-wallet-mobile-refinement.generated.json
 
 - Owner: mobile
 - Stale reason: stale_source_version
@@ -71,7 +91,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 7. agent/state/analytics-rewire-phase-one.generated.json
+### 9. agent/state/analytics-rewire-phase-one.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -81,7 +101,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 8. agent/state/content-protection.generated.json
+### 10. agent/state/content-protection.generated.json
 
 - Owner: repo
 - Stale reason: missing
@@ -91,7 +111,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 9. agent/state/targeted-behavior-evidence.generated.json
+### 11. agent/state/targeted-behavior-evidence.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -101,7 +121,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 10. agent/state/user-facing-feature-connection-audit.generated.json
+### 12. agent/state/user-facing-feature-connection-audit.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -111,27 +131,17 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 11. agent/state/final-telemetry-closure-lock.generated.json
-
-- Owner: telemetry
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:final-telemetry-closure-lock`
-- Score impact estimate: 1
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
-
-### 12. admin_truth_sample_evidence
+### 13. admin_truth_sample_evidence
 
 - Owner: admin
 - Stale reason: Admin sample required
 - Refresh command: `Attach admin truth sample evidence, then run npm run check:evidence-capture-status`
-- Score impact estimate: 8.32
+- Score impact estimate: 11.32
 - Can run automatically: false
 - Blocked reason: blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the admin truth sample artifact.
 
-### 13. runtime_provider_smoke
+### 14. runtime_provider_smoke
 
 - Owner: runtime
 - Stale reason: External proof required
@@ -141,7 +151,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the formal provider smoke artifact.
 
-### 14. agent/state/provider-smoke-evidence.generated.json
+### 15. agent/state/provider-smoke-evidence.generated.json
 
 - Owner: runtime
 - Stale reason: External proof required
@@ -151,7 +161,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the formal provider smoke artifact.
 
-### 15. agent/state/admin-truth-sample-evidence.generated.json
+### 16. agent/state/admin-truth-sample-evidence.generated.json
 
 - Owner: admin
 - Stale reason: Admin sample required
@@ -161,7 +171,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.
 - Expected outcome: Remain blocked until a human attaches the admin truth sample artifact.
 
-### 16. agent/state/runtime-smoke-evidence.generated.json
+### 17. agent/state/runtime-smoke-evidence.generated.json
 
 - Owner: runtime
 - Stale reason: Deployed runtime proof required

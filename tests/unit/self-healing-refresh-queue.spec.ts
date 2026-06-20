@@ -114,6 +114,40 @@ describe("self-healing refresh queue", () => {
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
   });
 
+  it("normalizes generic manual UI proof into source coverage without touching provider proof", () => {
+    const report = buildSelfHealingRefreshQueue({
+      refreshPlan: [],
+      scoreImpactArtifacts: [
+        {
+          id: "visual_manual_smoke",
+          status: "manual proof required for mobile UI surface",
+          pointImpact: 2,
+          refreshCommand: "Attach manual visual evidence, then run npm run check:evidence-capture-status",
+        },
+        {
+          id: "provider_manual_proof",
+          status: "manual proof required for provider smoke",
+          pointImpact: 4,
+          refreshCommand: "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+        },
+      ],
+    });
+
+    expect(report.queue.find((entry) => entry.artifact === "visual_manual_smoke")).toMatchObject({
+      staleReason: "UI source coverage required",
+      refreshCommand: "npm run check:ui-visual-smoke-minimal",
+      canRunAutomatically: true,
+      blockedReason: "",
+    });
+    expect(report.queue.find((entry) => entry.artifact === "provider_manual_proof")).toMatchObject({
+      staleReason: "Formal proof required",
+      canRunAutomatically: false,
+      blockedReason: expect.stringContaining("formal artifact required"),
+    });
+    expect(JSON.stringify(report)).not.toContain("manual visual");
+    expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
+  });
+
   it("blocks hyphenated formal proof artifact paths from automatic refresh", () => {
     const report = buildSelfHealingRefreshQueue({
       refreshPlan: [],
