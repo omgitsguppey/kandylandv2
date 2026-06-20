@@ -172,15 +172,17 @@ describe("source agreement failure detail", () => {
       }),
       expect.objectContaining({
         consumer: "admin_analytics_device_mix",
-        currentState: "materializer_missing",
+        currentState: "second_source_only",
         allowedDisplayState: "second_source_only",
       }),
       expect.objectContaining({
         consumer: "admin_analytics_region_demand",
+        currentState: "second_source_only",
         allowedDisplayState: "second_source_only",
       }),
       expect.objectContaining({
         consumer: "admin_analytics_top_paths",
+        currentState: "second_source_only",
         allowedDisplayState: "second_source_only",
       }),
       expect.objectContaining({

@@ -66,6 +66,7 @@ export type SourceAgreementBlockedConsumerDetail = {
   label: string;
   currentState:
     | "connected"
+    | "second_source_only"
     | "source_agreement_failed"
     | "materializer_missing";
   allowedDisplayState:
@@ -594,7 +595,7 @@ function buildBlockedConsumerDetails(
   disagreements: SourceAgreementDisagreementDetail[],
 ): SourceAgreementBlockedConsumerDetail[] {
   const hasMaterializerGap = disagreements.some((entry) => entry.classifications.includes("missing_materializer"));
-  const currentState: SourceAgreementBlockedConsumerDetail["currentState"] = sourceAgreementStatus === "pass"
+  const defaultCurrentState: SourceAgreementBlockedConsumerDetail["currentState"] = sourceAgreementStatus === "pass"
     ? "connected"
     : hasMaterializerGap
       ? "materializer_missing"
@@ -625,7 +626,7 @@ function buildBlockedConsumerDetails(
     return {
       consumer,
       label: labelForBlockedConsumer(consumer),
-      currentState,
+      currentState: secondSourceOnly ? "second_source_only" : defaultCurrentState,
       allowedDisplayState,
       blockingOwner,
       nextAction,
