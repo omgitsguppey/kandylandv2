@@ -12,6 +12,16 @@ of the accepted paths when an approved export is available. Keep `status:
 "template_not_evidence"` in templates and drafts. Only complete, redacted exports with
 real `launchHistoryCoverage.days` rows can be used as source agreement evidence.
 
+To convert a saved, redacted all-range Admin Analytics historical response into
+the compact local export shape, run:
+
+```bash
+npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>
+```
+
+This command reads a local JSON file only. It rejects local-window evidence and
+does not call production routes, GA, Firebase, or providers.
+
 Rules:
 
 - First-party rows are primary product truth.

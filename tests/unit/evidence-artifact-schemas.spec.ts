@@ -15,6 +15,7 @@ import {
   validateAdminTruthSampleEvidenceDocument,
 } from "../../scripts/agent/validate-admin-truth-sample-evidence";
 import {
+  buildLaunchHistoryCoverageLocalExportDocument,
   buildLaunchHistoryCoverageReadinessForEvidence,
   resolveEvidenceCaptureMode,
 } from "../../scripts/agent/capture-truthful-evidence";
@@ -24,23 +25,125 @@ describe("evidence artifact schemas", () => {
     expect(resolveEvidenceCaptureMode([])).toEqual({
       runtime: false,
       admin: true,
+      launchCoverageInputPath: "",
+      launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
       reason: "source_safe_default",
     });
     expect(resolveEvidenceCaptureMode(["--admin-truth"])).toEqual({
       runtime: false,
       admin: true,
+      launchCoverageInputPath: "",
+      launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
       reason: "explicit_lane",
     });
     expect(resolveEvidenceCaptureMode(["--runtime-smoke"])).toEqual({
       runtime: true,
       admin: false,
+      launchCoverageInputPath: "",
+      launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
       reason: "explicit_lane",
     });
     expect(resolveEvidenceCaptureMode(["--all"])).toEqual({
       runtime: true,
       admin: true,
+      launchCoverageInputPath: "",
+      launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
       reason: "explicit_all",
     });
+    expect(resolveEvidenceCaptureMode(["--launch-coverage-from", "tmp/export.json"])).toEqual({
+      runtime: false,
+      admin: false,
+      launchCoverageInputPath: "tmp/export.json",
+      launchCoverageOutputPath: "agent/evidence/launch-analytics/launch-history-coverage.local.json",
+      reason: "explicit_launch_coverage_export",
+    });
+  });
+
+  it("builds a compact launch coverage artifact from an approved redacted historical route export", () => {
+    const document = buildLaunchHistoryCoverageLocalExportDocument({
+      currentHead: "head-a",
+      analyticsSourceHealth: {
+        launchHistoryCoverage: {
+          rangeStartDayKey: "2026-02-12",
+          rangeEndDayKey: "2026-02-13",
+          rangeProof: {
+            expectedRangeSource: "approved_all_launch_export",
+            coverageWindowKind: "all_range_historical_export",
+            allLaunchRangeProven: true,
+            reason: "Approved redacted all-range historical export.",
+          },
+          days: [
+            {
+              dayKey: "2026-02-12",
+              expected: true,
+              sourceCounts: { first_party: 12, ga4: 11, historicalSnapshot: 0, legacySupport: 0 },
+              internalAdminExcludedCount: 1,
+            },
+            {
+              dayKey: "2026-02-13",
+              expected: true,
+              sourceCounts: { first_party: 9, ga4: 10, historicalSnapshot: 0, legacySupport: 0 },
+              internalAdminExcludedCount: 0,
+            },
+          ],
+        },
+      },
+      rawUserEmail: "must-not-survive@example.test",
+    }, {
+      generatedAtUtc: "2026-06-20T18:00:00.000Z",
+      sourceInputPath: "local/admin-historical-export.redacted.json",
+      sourceInputHead: "head-a",
+    });
+
+    expect(document).toMatchObject({
+      status: "complete",
+      surface: "launch_analytics_recovery",
+      source: "redacted_local_historical_route_export",
+      sourceCommit: "head-a",
+      redaction: {
+        rawUserIdentifiersIncluded: false,
+        rawPaymentDetailsIncluded: false,
+        secretsIncluded: false,
+      },
+      launchHistoryCoverage: {
+        rangeStartDayKey: "2026-02-12",
+        rangeEndDayKey: "2026-02-13",
+        expectedDayCount: 2,
+        recoveredDayCount: 2,
+        rangeProof: {
+          coverageWindowKind: "all_range_historical_export",
+          allLaunchRangeProven: true,
+        },
+      },
+    });
+    expect(JSON.stringify(document)).not.toContain("must-not-survive");
+    expect(document.launchHistoryCoverage.days).toHaveLength(2);
+    expect(document.launchHistoryCoverage.days[0]?.sourceCounts.first_party).toBe(12);
+  });
+
+  it("rejects launch coverage exports that only prove a local evidence window", () => {
+    expect(() => buildLaunchHistoryCoverageLocalExportDocument({
+      launchHistoryCoverage: {
+        rangeStartDayKey: "2026-02-12",
+        rangeEndDayKey: "2026-02-12",
+        rangeProof: {
+          expectedRangeSource: "fixture_only_local_window",
+          coverageWindowKind: "fixture_only_local_window",
+          allLaunchRangeProven: true,
+          reason: "Local fixture only.",
+        },
+        days: [
+          {
+            dayKey: "2026-02-12",
+            expected: true,
+            sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 0, legacySupport: 0 },
+          },
+        ],
+      },
+    }, {
+      generatedAtUtc: "2026-06-20T18:00:00.000Z",
+      sourceInputPath: "local/window.json",
+    })).toThrow(/does not prove the full February-to-current launch range/u);
   });
 
   it("requires provider smoke PayPal, GumDrop, and creator spend checks", () => {

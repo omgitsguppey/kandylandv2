@@ -3,6 +3,10 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import {
+  launchHistoryCoverageHasFormalRangeProof,
+  normalizeLaunchHistoryCoverageExport,
+} from "./debug-cockpit-batch29-analytics-source-hierarchy-shared";
 import { REQUIRED_RUNTIME_SMOKE_CHECKS } from "./validate-runtime-smoke-evidence";
 
 type JsonRecord = Record<string, unknown>;
@@ -12,11 +16,36 @@ const __dirname = dirname(__filename);
 const ROOT = join(__dirname, "..", "..");
 const RUNTIME_FOLDER = "agent/evidence/runtime-smoke";
 const ADMIN_FOLDER = "agent/evidence/admin-truth-sample";
+const LAUNCH_COVERAGE_FOLDER = "agent/evidence/launch-analytics";
 const LAUNCH_RECOVERY_REPORT_PATH = "agent/state/launch-analytics-recovery.generated.json";
+const DEFAULT_LAUNCH_COVERAGE_EXPORT_PATH = `${LAUNCH_COVERAGE_FOLDER}/launch-history-coverage.local.json`;
 const DEFAULT_APP_BASE_URL = "https://kandydrops.com";
+
+function readArgValue(args: readonly string[], name: string) {
+  const prefix = `${name}=`;
+  const inline = args.find((arg) => arg.startsWith(prefix));
+  if (inline) return inline.slice(prefix.length).trim();
+  const index = args.indexOf(name);
+  const value = index >= 0 ? args[index + 1] : "";
+  return typeof value === "string" && !value.startsWith("--") ? value.trim() : "";
+}
 
 export function resolveEvidenceCaptureMode(args = process.argv.slice(2)) {
   const normalizedArgs = new Set(args.map((arg) => arg.trim()));
+  const launchCoverageInputPath = readArgValue(args, "--launch-coverage-from");
+  const launchCoverageOutputPath =
+    readArgValue(args, "--launch-coverage-output")
+    || DEFAULT_LAUNCH_COVERAGE_EXPORT_PATH;
+  if (launchCoverageInputPath) {
+    return {
+      runtime: false,
+      admin: false,
+      launchCoverageInputPath,
+      launchCoverageOutputPath,
+      reason: "explicit_launch_coverage_export",
+    };
+  }
+
   const captureAll = normalizedArgs.has("--all");
   const captureRuntime =
     captureAll
@@ -33,6 +62,8 @@ export function resolveEvidenceCaptureMode(args = process.argv.slice(2)) {
     return {
       runtime: captureRuntime,
       admin: captureAdmin,
+      launchCoverageInputPath: "",
+      launchCoverageOutputPath,
       reason: captureAll
         ? "explicit_all"
         : "explicit_lane",
@@ -42,6 +73,8 @@ export function resolveEvidenceCaptureMode(args = process.argv.slice(2)) {
   return {
     runtime: false,
     admin: true,
+    launchCoverageInputPath: "",
+    launchCoverageOutputPath,
     reason: "source_safe_default",
   };
 }
@@ -79,6 +112,63 @@ function numberValue(value: unknown, fallback = 0) {
 
 function arrayValue(value: unknown) {
   return Array.isArray(value) ? value : [];
+}
+
+export function buildLaunchHistoryCoverageLocalExportDocument(input: unknown, options: {
+  generatedAtUtc: string;
+  sourceInputPath: string;
+  sourceInputHead?: string | null;
+  outputPath?: string;
+}) {
+  const normalized = normalizeLaunchHistoryCoverageExport(input);
+  if (!normalized) {
+    throw new Error("Launch coverage input does not include valid launchHistoryCoverage day rows.");
+  }
+
+  const document = {
+    status: "complete",
+    surface: "launch_analytics_recovery",
+    generatedAtUtc: options.generatedAtUtc,
+    source: "redacted_local_historical_route_export",
+    sourceInputPath: options.sourceInputPath,
+    ...(options.sourceInputHead ? { sourceCommit: options.sourceInputHead } : {}),
+    redaction: {
+      rawUserIdentifiersIncluded: false,
+      rawPaymentDetailsIncluded: false,
+      secretsIncluded: false,
+    },
+    launchHistoryCoverage: {
+      rangeStartDayKey: normalized.rangeStartDayKey,
+      rangeEndDayKey: normalized.rangeEndDayKey,
+      expectedDayCount: normalized.expectedDayCount,
+      recoveredDayCount: normalized.recoveredDayCount,
+      rangeProof: {
+        expectedRangeSource: normalized.rangeProof?.expectedRangeSource ?? "approved_all_launch_export",
+        coverageWindowKind: normalized.rangeProof?.coverageWindowKind ?? "all_range_historical_export",
+        allLaunchRangeProven: normalized.rangeProof?.allLaunchRangeProven === true,
+        reason: normalized.rangeProof?.reason
+          ?? "Redacted local historical route export declares all-launch range proof.",
+      },
+      days: normalized.days.map((day) => ({
+        dayKey: day.dayKey,
+        expected: day.expected,
+        sourceCounts: {
+          first_party: day.sourceCounts.first_party,
+          ga4: day.sourceCounts.ga4,
+          historicalSnapshot: day.sourceCounts.historicalSnapshot,
+          legacySupport: day.sourceCounts.legacySupport,
+        },
+        internalAdminExcludedCount: day.internalAdminExcludedCount,
+      })),
+    },
+  };
+
+  const formalProofPath = options.outputPath ?? DEFAULT_LAUNCH_COVERAGE_EXPORT_PATH;
+  if (!launchHistoryCoverageHasFormalRangeProof(formalProofPath, document)) {
+    throw new Error("Launch coverage input is redacted/usable but does not prove the full February-to-current launch range.");
+  }
+
+  return document;
 }
 
 export function buildLaunchHistoryCoverageReadinessForEvidence(report: unknown) {
@@ -325,6 +415,26 @@ async function main() {
   const generatedAtUtc = new Date().toISOString();
   const evidenceStamp = stamp();
   const mode = resolveEvidenceCaptureMode();
+  if (mode.launchCoverageInputPath) {
+    const input = readJson(mode.launchCoverageInputPath);
+    if (!input) throw new Error(`Launch coverage input is missing or invalid JSON: ${mode.launchCoverageInputPath}`);
+    const document = buildLaunchHistoryCoverageLocalExportDocument(input, {
+      generatedAtUtc,
+      sourceInputPath: mode.launchCoverageInputPath,
+      sourceInputHead: stringValue(record(input).currentHead)
+        || stringValue(record(input).sourceCommit)
+        || stringValue(record(input).sourceHead)
+        || stringValue(record(input).commit)
+        || null,
+      outputPath: mode.launchCoverageOutputPath,
+    });
+    const fullOutputPath = join(ROOT, mode.launchCoverageOutputPath);
+    mkdirSync(dirname(fullOutputPath), { recursive: true });
+    writeFileSync(fullOutputPath, `${JSON.stringify(document, null, 2)}\n`);
+    console.log(`Truthful evidence capture complete. mode=${mode.reason} launchCoverage=${mode.launchCoverageOutputPath}`);
+    return;
+  }
+
   const runtime = mode.runtime
     ? await captureRuntimeEvidence(generatedAtUtc, evidenceStamp)
     : { artifactPath: "skipped", status: "skipped_source_safe_default", failedCount: 0 };
