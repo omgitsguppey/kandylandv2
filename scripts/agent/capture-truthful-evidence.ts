@@ -15,6 +15,37 @@ const ADMIN_FOLDER = "agent/evidence/admin-truth-sample";
 const LAUNCH_RECOVERY_REPORT_PATH = "agent/state/launch-analytics-recovery.generated.json";
 const DEFAULT_APP_BASE_URL = "https://kandydrops.com";
 
+export function resolveEvidenceCaptureMode(args = process.argv.slice(2)) {
+  const normalizedArgs = new Set(args.map((arg) => arg.trim()));
+  const captureAll = normalizedArgs.has("--all");
+  const captureRuntime =
+    captureAll
+    || normalizedArgs.has("--runtime")
+    || normalizedArgs.has("--runtime-smoke")
+    || normalizedArgs.has("--runtime-only");
+  const captureAdmin =
+    captureAll
+    || normalizedArgs.has("--admin")
+    || normalizedArgs.has("--admin-truth")
+    || normalizedArgs.has("--admin-only");
+
+  if (captureRuntime || captureAdmin) {
+    return {
+      runtime: captureRuntime,
+      admin: captureAdmin,
+      reason: captureAll
+        ? "explicit_all"
+        : "explicit_lane",
+    };
+  }
+
+  return {
+    runtime: false,
+    admin: true,
+    reason: "source_safe_default",
+  };
+}
+
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
 }
@@ -293,9 +324,14 @@ function captureAdminTruthEvidence(generatedAtUtc: string, evidenceStamp: string
 async function main() {
   const generatedAtUtc = new Date().toISOString();
   const evidenceStamp = stamp();
-  const runtime = await captureRuntimeEvidence(generatedAtUtc, evidenceStamp);
-  const admin = captureAdminTruthEvidence(generatedAtUtc, evidenceStamp);
-  console.log(`Truthful evidence capture complete. runtime=${runtime.status} (${runtime.artifactPath}) admin=${admin.status} (${admin.artifactPath})`);
+  const mode = resolveEvidenceCaptureMode();
+  const runtime = mode.runtime
+    ? await captureRuntimeEvidence(generatedAtUtc, evidenceStamp)
+    : { artifactPath: "skipped", status: "skipped_source_safe_default", failedCount: 0 };
+  const admin = mode.admin
+    ? captureAdminTruthEvidence(generatedAtUtc, evidenceStamp)
+    : { artifactPath: "skipped", samplePath: "skipped", status: "skipped", failedCount: 0 };
+  console.log(`Truthful evidence capture complete. mode=${mode.reason} runtime=${runtime.status} (${runtime.artifactPath}) admin=${admin.status} (${admin.artifactPath})`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

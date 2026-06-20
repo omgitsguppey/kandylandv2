@@ -16,9 +16,33 @@ import {
 } from "../../scripts/agent/validate-admin-truth-sample-evidence";
 import {
   buildLaunchHistoryCoverageReadinessForEvidence,
+  resolveEvidenceCaptureMode,
 } from "../../scripts/agent/capture-truthful-evidence";
 
 describe("evidence artifact schemas", () => {
+  it("keeps truthful evidence capture source-safe unless runtime smoke is explicit", () => {
+    expect(resolveEvidenceCaptureMode([])).toEqual({
+      runtime: false,
+      admin: true,
+      reason: "source_safe_default",
+    });
+    expect(resolveEvidenceCaptureMode(["--admin-truth"])).toEqual({
+      runtime: false,
+      admin: true,
+      reason: "explicit_lane",
+    });
+    expect(resolveEvidenceCaptureMode(["--runtime-smoke"])).toEqual({
+      runtime: true,
+      admin: false,
+      reason: "explicit_lane",
+    });
+    expect(resolveEvidenceCaptureMode(["--all"])).toEqual({
+      runtime: true,
+      admin: true,
+      reason: "explicit_all",
+    });
+  });
+
   it("requires provider smoke PayPal, GumDrop, and creator spend checks", () => {
     const checks = REQUIRED_PROVIDER_SMOKE_CHECKS
       .filter((id) => id !== "paid-bonus-purchased-balance")

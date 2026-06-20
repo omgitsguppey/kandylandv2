@@ -431,8 +431,8 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     nextExactSteps: [
       "Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface gaps before optional browser reproduction.",
       "Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.",
-      "Run npm run capture:truthful-evidence to generate deployed runtime smoke evidence without provider/payment calls.",
-      "Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.",
+      "Run npm run capture:truthful-evidence -- --runtime-smoke to intentionally generate deployed runtime smoke evidence without provider/payment calls.",
+      "Run npm run capture:truthful-evidence -- --admin-truth to generate a bounded redacted admin truth JSON sample without deployed route probes.",
       `Drop privacy-safe daily aggregate activity export at ${liveRuntimeEvidence.expectedImportPath}.`,
       "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.",

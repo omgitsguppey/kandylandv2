@@ -214,7 +214,7 @@ function writeGeneratedState(result: LaneEvaluation) {
       phaseOneStatusCap: passed ? "Ready" : "Runtime unverified",
       recommendedAction: passed
         ? "Keep automated deployed runtime smoke evidence fresh."
-        : "Run npm run capture:truthful-evidence to generate deployed runtime smoke evidence; do not treat local source validators as deployed runtime proof.",
+        : "Run npm run capture:truthful-evidence -- --runtime-smoke to intentionally generate deployed runtime smoke evidence; do not treat local source validators as deployed runtime proof.",
     },
     evidenceItems: [
       `runtimeEvidence.status=${result.status}`,
