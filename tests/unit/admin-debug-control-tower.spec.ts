@@ -91,7 +91,7 @@ describe("admin debug control tower model", () => {
             evidenceScore: 25,
             evidenceCapDetails: [
                 "Runtime unverified: Runtime/provider smoke - Run formal deployed runtime smoke later.",
-                "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot.",
+                "Unknown evidence: Admin truth/sample evidence - Record a fresh redacted admin truth source sample.",
                 "Stale evidence: Freshness, PR, and HEAD integrity - 3 required generated report(s) are older than the freshness window.",
                 "Needs review: Cost owner evidence - External billing review remains required.",
             ],

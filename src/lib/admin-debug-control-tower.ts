@@ -596,7 +596,7 @@ function normalizePublicBetaCapDetailForAdminModel(detail: string) {
         .trim();
 
     if (lower.includes("targeted behavior tests")) {
-        return `Source validation only: Targeted behavior tests - ${reason || "Implemented behavior checks passed. Runtime smoke, provider smoke, admin samples, and UI visual checks stay separate."}`;
+        return `Source validation only: Targeted behavior tests - ${reason || "Implemented behavior checks passed. Runtime smoke, provider smoke, admin samples, and UI source contract checks stay separate."}`;
     }
 
     if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke")) {
@@ -650,7 +650,7 @@ function normalizePublicBetaEvidenceGateFinding(
             title: "Source-only behavior evidence",
             domain: "beta_readiness",
             filePath: relativePath,
-            humanReadableWarning: "Implemented behavior checks passed, but runtime, provider, screenshot, and admin truth proof still need formal evidence.",
+            humanReadableWarning: "Implemented behavior checks passed; runtime, provider, admin truth, and UI source contract evidence remain separate lanes.",
             suggestedValidator: definition.command,
             evidence: [evidenceDetail],
             truthState: "unknown",

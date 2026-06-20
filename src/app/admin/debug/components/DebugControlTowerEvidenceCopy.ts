@@ -23,7 +23,7 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
         return {
             state: "source_only",
             label: "Source-only evidence",
-            detail: "Implemented behavior checks passed. Runtime smoke, provider smoke, admin samples, and UI visual checks stay separate.",
+            detail: "Implemented behavior checks passed. Runtime smoke, provider smoke, admin samples, and UI source contract checks stay separate.",
         };
     }
 
