@@ -272,8 +272,7 @@ function formalEvidenceGatesUnchanged(betaScore: JsonRecord) {
     ...((Array.isArray(betaScore.evidenceCapsApplied) ? betaScore.evidenceCapsApplied : []) as unknown[]).map(String),
     ...((Array.isArray(betaScore.evidenceCapDetails) ? betaScore.evidenceCapDetails : []) as unknown[]).map(String),
   ].join("\n");
-  return /Visual QA required|Visual\/manual smoke/iu.test(caps)
-    && /Runtime unverified|Runtime\/provider smoke/iu.test(caps)
+  return /Runtime unverified|Runtime\/provider smoke/iu.test(caps)
     && /Unknown evidence|Admin truth\/sample evidence/iu.test(caps)
     && stringValue(betaScore.launchGateStatus) !== "launch_ready";
 }
@@ -364,7 +363,7 @@ export function buildScoreImpactStaleArtifactSweepReport(inputs: BuildInputs): S
       ]
     : [
         "Fix the overnight-final-integration-lock creator drop metrics status blocker before treating that lock as passed.",
-        "Attach formal visual/manual, deployed runtime/provider, and admin truth sample evidence before beta exit review.",
+        "Run deterministic UI source coverage before optional browser reproduction; attach deployed runtime/provider and admin truth sample evidence before beta exit review.",
         "Keep npm run check:refresh-safeguards and npm run score:beta together when score-impact reports change.",
       ];
 
@@ -446,7 +445,7 @@ function renderDoc(report: ScoreImpactStaleArtifactSweepReport) {
     "",
     "## Remaining Formal Evidence Gates",
     "",
-    "- Visual/manual smoke remains formal evidence, not source refresh.",
+    "- UI surface coverage is source-owned; browser or screenshot review is optional reproduction only after a source-reported UI issue.",
     "- Runtime/provider smoke remains formal deployed/provider evidence, not source refresh.",
     "- Admin truth/sample evidence remains formal evidence unless a formal sample is attached.",
     "",

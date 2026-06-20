@@ -10,7 +10,6 @@ const betaScore = {
   healthScore: 59.74,
   launchGateStatus: "owner_review",
   evidenceCapsApplied: [
-    "Visual QA required: Visual/manual smoke",
     "Runtime unverified: Runtime/provider smoke",
     "Unknown evidence: Admin truth/sample evidence",
   ],
@@ -56,6 +55,7 @@ describe("score impact stale artifact sweep", () => {
     expect(report.staleArtifactActions.some((entry) => entry.status === "blocked_failed_refresh")).toBe(true);
     expect(report.staleArtifactActions.some((entry) => entry.artifactPath.includes("current-beta-exit-status"))).toBe(true);
     expect(report.formalEvidenceGatesUnchanged).toBe(true);
+    expect(report.nextExactSteps.join(" ")).not.toContain("formal visual/manual");
     expect(validateScoreImpactStaleArtifactSweepReport(report)).toEqual([]);
   });
 
