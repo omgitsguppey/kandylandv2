@@ -107,11 +107,13 @@ function toUtcIso(dayKey: string | undefined) {
 }
 
 function mapFreshnessState(
-  input: "fresh" | "stale" | "missing" | "unknown" | undefined,
-): "live" | "stale" | "missing" | "unknown" {
+  input: "fresh" | "refresh_due" | "stale" | "missing" | "unknown" | undefined,
+): "live" | "refresh_due" | "stale" | "missing" | "unknown" {
   switch (input) {
     case "fresh":
       return "live";
+    case "refresh_due":
+      return "refresh_due";
     case "stale":
       return "stale";
     case "missing":

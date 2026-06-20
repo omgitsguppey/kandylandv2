@@ -849,7 +849,7 @@ export interface DataValidationPanelState {
 
 export interface AnalyticsSourceHealthSourceCheck {
   status: "pass" | "review" | "fail" | "unknown";
-  freshnessState: "fresh" | "stale" | "missing" | "unknown";
+  freshnessState: "fresh" | "refresh_due" | "stale" | "missing" | "unknown";
   confidence: number | null;
   sampleCount: number | null;
   lastSeenAtUtc: string | null;
@@ -1408,7 +1408,7 @@ export type AudienceSnapshotState = {
     engagementRatePct: number | null;
     avgSessionSeconds: number | null;
     lastSeenAtUtc: string | null;
-    freshnessState: "live" | "stale" | "missing" | "unknown";
+    freshnessState: "live" | "refresh_due" | "stale" | "missing" | "unknown";
   };
   firstParty: {
     identifiedViews: number;
@@ -1416,7 +1416,7 @@ export type AudienceSnapshotState = {
     guestEstimatedVisits: number | null;
     authenticatedEvents: number;
     lastSeenAtUtc: string | null;
-    freshnessState: "live" | "stale" | "missing" | "unknown";
+    freshnessState: "live" | "refresh_due" | "stale" | "missing" | "unknown";
   };
   continuity: {
     expectedDays: number;

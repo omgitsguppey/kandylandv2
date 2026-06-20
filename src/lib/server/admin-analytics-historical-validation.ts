@@ -73,6 +73,7 @@ export interface HistoricalValidationSummary {
 
 type DataValidationStatus = "pass" | "warn" | "fail" | "unavailable" | "stale" | "unknown";
 type DataValidationCacheState = "hit" | "miss" | "stale" | "unknown" | "not_loaded";
+type DataValidationFreshnessState = "fresh" | "refresh_due" | "stale" | "missing" | "unknown";
 
 export type SourceCheck = AnalyticsSourceHealthSourceCheck;
 export type AnalyticsSourceHealth = AdminAnalyticsSourceHealth;
@@ -105,7 +106,7 @@ export interface DataValidationCheck {
   sourceDetails: string;
   selectedRange: string;
   lastValidatedAt: number;
-  freshnessState: "fresh" | "stale" | "unknown";
+  freshnessState: DataValidationFreshnessState;
   confidence: number | null;
   requiredSourcesPresent: boolean;
   sampleRequired: boolean;
@@ -615,7 +616,7 @@ function buildAnalyticsSourceHealth(input: {
     freshnessState: input.truthState.fail > 0
       ? "missing"
       : input.truthState.warn > 0
-        ? "stale"
+        ? "refresh_due"
         : snapshotPresentDays.size > 0
           ? "fresh"
           : "missing",
@@ -626,7 +627,7 @@ function buildAnalyticsSourceHealth(input: {
     reason: input.truthState.fail > 0
       ? "Required historical snapshot sources failed freshness or are missing."
       : input.truthState.warn > 0
-        ? "Historical snapshot sources are available, but some are stale or partial."
+        ? "Historical snapshot sources are available, but some need refresh or are partial."
         : snapshotPresentDays.size > 0
           ? `${snapshotPresentDays.size} snapshot-backed day bucket(s) are present for ${input.selectedRange}.`
           : "Historical snapshot exists, but no day buckets were observed for this range.",
@@ -638,7 +639,7 @@ function buildAnalyticsSourceHealth(input: {
         ? "pass"
         : "unknown",
     freshnessState: input.truthState.legacyCoverageWarnings > 0
-      ? "stale"
+      ? "refresh_due"
       : legacyPresentDays.size > 0
         ? "fresh"
         : "unknown",
@@ -647,7 +648,7 @@ function buildAnalyticsSourceHealth(input: {
     lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs),
     passAllowed: input.truthState.legacyCoverageWarnings === 0,
     reason: input.truthState.legacyCoverageWarnings > 0
-      ? `${input.truthState.legacyCoverageWarnings} legacy support source(s) are stale or missing.`
+      ? `${input.truthState.legacyCoverageWarnings} legacy support source(s) need refresh or are missing.`
       : legacyPresentDays.size > 0
         ? `${legacyPresentDays.size} legacy-support day bucket(s) are available for cross-checking.`
         : "Legacy support did not contribute enough day-bucket evidence in this range.",
@@ -774,7 +775,7 @@ export function buildDataValidationPanelState(input: {
     nextAction: failCount > 0
       ? "Review failed validation rows before trusting analytics parity."
       : staleCount > 0 || warnCount > 0 || blockedPassCount > 0
-        ? "Review warnings, stale checks, or blocked passes before treating validation as clean."
+        ? "Review warnings, refresh-needed checks, or blocked passes before treating validation as clean."
         : "No action required.",
   };
 }
@@ -1049,7 +1050,7 @@ function buildValidationCheck(input: {
   source: string;
   selectedRange: string;
   lastValidatedAt: number;
-  freshnessState?: "fresh" | "stale" | "unknown";
+  freshnessState?: DataValidationFreshnessState;
   confidence?: number | null;
   requiredSourcesPresent?: boolean;
   sampleRequired?: boolean;
@@ -1082,7 +1083,9 @@ function buildValidationCheck(input: {
       ? "required_sample_missing"
       : freshnessState === "stale"
         ? "stale_validation"
-        : null;
+        : freshnessState === "refresh_due"
+          ? "refresh_due_validation"
+          : null;
   const passBlockedReason = input.blockedReason ?? inferredBlockedReason;
   const passAllowed = input.passAllowed ?? (passBlockedReason === null && input.status !== "fail" && input.status !== "unavailable");
   const status = input.status === "pass" && !passAllowed
@@ -2032,22 +2035,22 @@ export function buildHistoricalValidationSummary(input: {
           ? "warn"
           : "pass",
       detail: input.truthState.fail > 0 || input.truthState.warn > 0
-        ? `${input.truthState.fail.toLocaleString()} required analytics source(s) failed freshness and ${input.truthState.warn.toLocaleString()} source(s) are stale or partial. Truth score ${input.truthState.score}%.`
+        ? `${input.truthState.fail.toLocaleString()} required analytics source(s) failed freshness and ${input.truthState.warn.toLocaleString()} source(s) need refresh or are partial. Truth score ${input.truthState.score}%.`
         : `All ${input.truthState.sources.length.toLocaleString()} sampled analytics source(s) are fresh enough for this window. Truth score ${input.truthState.score}%.`,
       source: "analytics truth source freshness",
       selectedRange,
       lastValidatedAt,
       confidence: input.truthState.score,
       requiredSourcesPresent: input.truthState.fail === 0,
-      freshnessState: input.truthState.warn > 0 ? "stale" : "fresh",
-      action: input.truthState.fail > 0 || input.truthState.warn > 0 ? "Refresh or repair stale analytics truth sources." : "No action required.",
+      freshnessState: input.truthState.warn > 0 ? "refresh_due" : "fresh",
+      action: input.truthState.fail > 0 || input.truthState.warn > 0 ? "Refresh or repair analytics truth sources." : "No action required.",
     }),
     buildValidationCheck({
       checkKey: "legacy_support_availability",
       title: "History support",
       status: input.truthState.legacyCoverageWarnings > 0 ? "warn" : "pass",
       detail: input.truthState.legacyCoverageWarnings > 0
-        ? `${input.truthState.legacyCoverageWarnings.toLocaleString()} legacy-history support source(s) are stale or missing, so older trend history may be incomplete until those rollups are refreshed.`
+        ? `${input.truthState.legacyCoverageWarnings.toLocaleString()} legacy-history support source(s) need refresh or are missing, so older trend history may be incomplete until those rollups are refreshed.`
         : "Legacy-history support sources are present and fresh enough to contribute historical analytics truth.",
       source: "legacy historical support rollups",
       selectedRange,

@@ -650,6 +650,46 @@ describe("buildHistoricalValidationSummary", () => {
     expect(["loaded", "stale", "failed"]).toContain(panelState.status);
   });
 
+  it("keeps refresh-needed analytics sources as warnings instead of stale panel truth", () => {
+    const summary = build({
+      truthState: {
+        ...truthState,
+        score: 92,
+        warn: 1,
+        staleRequiredCount: 1,
+        sources: [
+          {
+            ...truthState.sources[0],
+            status: "warn",
+            detail: "refresh due",
+          },
+        ],
+      },
+    });
+    const historicalSnapshot = summary.analyticsSourceHealth.availability.historicalSnapshot;
+    const validation = summary.validations.find((check) => check.checkKey === "historical_snapshot_availability");
+    const panelState = buildDataValidationPanelState({
+      validations: summary.validations,
+      range: "30d",
+      generatedAtMs: 1_700_000_000_000,
+      cacheState: "fresh",
+    });
+
+    expect(historicalSnapshot).toMatchObject({
+      status: "review",
+      freshnessState: "refresh_due",
+    });
+    expect(validation).toMatchObject({
+      status: "warn",
+      freshnessState: "refresh_due",
+      passAllowed: false,
+      passBlockedReason: "refresh_due_validation",
+    });
+    expect(panelState.status).not.toBe("stale");
+    expect(panelState.staleCount).toBe(0);
+    expect(panelState.warnCount).toBeGreaterThan(0);
+  });
+
   it("returns failed when the validation route errors", () => {
     const panelState = buildDataValidationPanelState({
       validations: null,
