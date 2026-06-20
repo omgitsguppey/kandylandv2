@@ -14,6 +14,7 @@ import {
   toNumber,
   toStringValue,
 } from "./admin-analytics-shared";
+import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type { RegionDemandRow } from "@/types/admin-analytics";
 
 const DAY_KEY_PREFIX_PATTERN = /^(\d{4}-\d{2}-\d{2})/u;
@@ -100,6 +101,33 @@ function readSessionKey(data: Record<string, unknown>, fallback: string) {
   const sessionId = readNestedString(data, ["sessionId", "clientSessionId", "sessionKey"]);
   if (sessionId) return `session:${sessionId}`;
   return fallback;
+}
+
+function bucketTimestampMs(bucketKey: string, timelineBucket: "day" | "hour") {
+  const normalized = timelineBucket === "hour"
+    ? bucketKey.replace(/T(\d{2})$/u, "T$1:00:00.000Z")
+    : `${bucketKey}T00:00:00.000Z`;
+  const timestamp = Date.parse(normalized);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function buildTrafficBucketRecoveryMetadata(input: {
+  bucketKey: string;
+  timelineBucket: "day" | "hour";
+  firstPartyCount: number;
+  gaCount: number;
+}) {
+  const hasFirstParty = input.firstPartyCount > 0;
+  const hasGa = input.gaCount > 0;
+  return buildRecoveredLaunchMetricState({
+    eventName: "page_view",
+    sourceObserved: hasFirstParty || hasGa,
+    sourceTruth: hasFirstParty ? "first_party_event_fact" : hasGa ? "ga4_evidence_only" : "source_missing",
+    evidenceKind: hasFirstParty ? "observed" : hasGa ? "modeled" : "missing",
+    route: "admin_analytics_historical_traffic",
+    objectId: input.bucketKey,
+    timestampMs: bucketTimestampMs(input.bucketKey, input.timelineBucket),
+  });
 }
 
 function trimLeadingEmptyLaunchBuckets<T extends {
@@ -438,6 +466,14 @@ export function buildHistoricalTrafficOverview(input: {
     const firstPartyUsers = isHourly
       ? firstPartyActorKeysByHour.get(bucketKey)?.size || 0
       : firstPartyActorKeysByDay.get(bucketKey)?.size || 0;
+    const firstPartyEvidenceCount = Math.max(firstPartyUsers, firstPartySessions, firstPartyViews, rollup?.totalEvents ?? 0);
+    const gaEvidenceCount = Math.max(ga?.users ?? 0, ga?.views ?? 0, ga?.sessions ?? 0);
+    const recoveryMetadata = buildTrafficBucketRecoveryMetadata({
+      bucketKey,
+      timelineBucket,
+      firstPartyCount: firstPartyEvidenceCount,
+      gaCount: gaEvidenceCount,
+    });
 
     return {
       date: isHourly ? hourKeyToLabel(bucketKey) : dayKeyToLabel(bucketKey),
@@ -448,6 +484,15 @@ export function buildHistoricalTrafficOverview(input: {
       newUsers: ga?.newUsers ?? 0,
       avgSessionDuration: ga?.avgSessionDuration ?? 0,
       engagementRate: ga?.engagementRate ?? 0,
+      sourceTruth: recoveryMetadata.sourceTruth,
+      freshnessState: recoveryMetadata.freshnessState,
+      confidenceScore: recoveryMetadata.confidenceScore,
+      evidenceKind: recoveryMetadata.evidenceKind,
+      dedupeKey: recoveryMetadata.dedupeKey,
+      dedupeDimensions: recoveryMetadata.dedupeDimensions,
+      lateArrivalWindowDays: recoveryMetadata.lateArrivalWindowDays,
+      productTruthEligible: recoveryMetadata.productTruthEligible,
+      mathReason: recoveryMetadata.mathReason,
     };
   });
   const chartData = trimLeadingEmptyLaunchBuckets({

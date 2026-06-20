@@ -264,6 +264,50 @@ describe("buildHistoricalTrafficOverview", () => {
     expect(overview.guestTraffic.exactGuestViews).toBe(5);
     expect(overview.guestTraffic.exactGuestSessions).toBe(1);
     expect(overview.guestTraffic.qualityAvailable).toBe(true);
+    expect(overview.chartData[0]).toMatchObject({
+      sourceTruth: "first_party_event_fact",
+      evidenceKind: "observed",
+      freshnessState: "source_current",
+      lateArrivalWindowDays: 12,
+      productTruthEligible: false,
+    });
+    expect(overview.chartData[0]?.dedupeKey).toContain("launch_recovery|page_view");
+  });
+
+  it("labels GA-only traffic chart rows as modeled evidence instead of product truth", () => {
+    const overview = buildHistoricalTrafficOverview({
+      responseRows: [
+        row("20260401", [3, 8, 4, 2, 0, 0]),
+      ],
+      eventRows: [],
+      geoRows: [],
+      geoPathRows: [],
+      deviceRows: [],
+      pageRows: [],
+      dailyRollups: [],
+      pageRollups: [],
+      analyticsEventFacts: [],
+      guestBatchDocs: [],
+      guestSessionDocs: [],
+      sessionFacts: [],
+      startMs: Date.UTC(2026, 3, 1, 0, 0, 0),
+      endMs: Date.UTC(2026, 3, 1, 23, 59, 59),
+      startDayKey: "2026-04-01",
+      endDayKey: "2026-04-01",
+      timelineBucket: "day",
+      authenticatedPageViewEventNames: new Set(["home_page_viewed"]),
+    });
+
+    expect(overview.chartData[0]).toMatchObject({
+      users: 3,
+      views: 8,
+      sessions: 4,
+      sourceTruth: "ga4_evidence_only",
+      evidenceKind: "modeled",
+      freshnessState: "external_evidence_required",
+      lateArrivalWindowDays: 12,
+      productTruthEligible: false,
+    });
   });
 
   it("recovers legacy page rollup dates and view counts from document ids and old fields", () => {
@@ -418,6 +462,13 @@ describe("buildHistoricalTrafficOverview", () => {
     expect(overview.chartData.map((point) => point.rawDate)).not.toContain("20200101");
     expect(overview.chartData.at(-1)?.rawDate).toBe("20240211");
     expect(overview.chartData.at(-1)?.views).toBe(0);
+    expect(overview.chartData.at(-1)).toMatchObject({
+      sourceTruth: "source_missing",
+      evidenceKind: "missing",
+      freshnessState: "source_missing",
+      confidenceScore: 0,
+      productTruthEligible: false,
+    });
     expect(overview.totals.views).toBe(6);
   });
 });
