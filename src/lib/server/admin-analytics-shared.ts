@@ -3,6 +3,7 @@ import * as firebaseAdmin from "firebase-admin";
 
 import { fromCSTInput, getCSTDateKey, getCSTDateParts, shiftCSTDateKey } from "@/lib/timezone";
 import { TELEMETRY_EVENT_ALIAS_MAP } from "@/lib/telemetry-catalog";
+import { mapLegacyEventToCurrentMetric } from "@/lib/math/legacy-metric-canonicalization";
 
 export type RangeWindow = {
   startDate: string;
@@ -577,6 +578,24 @@ export function sumEventCounts(
     }
 
     return total;
+  }, 0);
+}
+
+export function maxCanonicalEventCount(
+  counts: Record<string, number>,
+  canonicalEventName: string,
+  eventNames: string[] = [],
+) {
+  const indexedNames = new Set([canonicalEventName, ...eventNames]);
+
+  return Object.entries(counts).reduce((maxCount, [eventName, value]) => {
+    const catalogAlias = TELEMETRY_EVENT_ALIAS_MAP[eventName] || "";
+    const legacyCanonicalName = mapLegacyEventToCurrentMetric({ eventName }).canonicalEventName;
+    const matchesCanonicalFamily = indexedNames.has(eventName)
+      || indexedNames.has(catalogAlias)
+      || legacyCanonicalName === canonicalEventName;
+
+    return matchesCanonicalFamily ? Math.max(maxCount, toNumber(value)) : maxCount;
   }, 0);
 }
 

@@ -52,6 +52,7 @@ import {
     buildTimelineKeys,
     buildMergedCountMap,
     getRangeWindow,
+    maxCanonicalEventCount,
     rawDateToDayKey,
     safeParams,
     sumEventCounts,
@@ -1569,24 +1570,24 @@ async function GET_handler(request: NextRequest) {
                 ? firstPartyPurchaseCount
                 : telemetryPurchaseCount;
             const telemetryUnlockCount = Math.max(
-                eventsData.drop_unlocked || 0,
-                eventsData.drop_unwrapped || 0,
-                eventsData.entitlement_granted || 0,
-                canonicalEventCounts.drop_unlocked || 0,
-                canonicalEventCounts.drop_unwrapped || 0,
-                canonicalEventCounts.entitlement_granted || 0,
+                maxCanonicalEventCount(eventsData, "drop_unlocked"),
+                maxCanonicalEventCount(canonicalEventCounts, "drop_unlocked"),
             );
             const canonicalUnlockCount = firstPartyUnlockCount > 0
                 ? firstPartyUnlockCount
                 : telemetryUnlockCount;
             const normalizedSignupCount = canonicalRegistrationCount > 0
                 ? canonicalRegistrationCount
-                : eventsData.auth_sign_up_success || 0;
+                : maxCanonicalEventCount(eventsData, "signup_completed", [
+                    "auth_sign_up_success",
+                    "auth_registration_completed",
+                    "user_registered",
+                ]);
             const funnel = {
                 authModalOpens: eventsData.auth_modal_opened || 0,
                 authSignIns: (eventsData.auth_sign_in_success || 0) + (eventsData.auth_google_sign_in_success || 0),
                 authSignUps: normalizedSignupCount,
-                previewOpens: eventsData.drop_preview_opened || 0,
+                previewOpens: maxCanonicalEventCount(eventsData, "drop_preview_opened"),
                 viewerOpens: eventsData.viewer_opened || 0,
                 assetSwitches: eventsData.viewer_asset_changed || 0,
                 unlocks: canonicalUnlockCount,
@@ -1594,7 +1595,7 @@ async function GET_handler(request: NextRequest) {
                 walletOpens: eventsData.wallet_opened || 0,
                 checkoutStarts: eventsData.begin_checkout || 0,
                 purchases,
-                checkIns: eventsData.daily_checkin_claimed || eventsData.daily_check_in_claim || 0,
+                checkIns: maxCanonicalEventCount(eventsData, "daily_checkin_claimed", ["daily_check_in_claim"]),
                 experienceViews: eventsData.experience_hub_viewed || 0,
             };
 
