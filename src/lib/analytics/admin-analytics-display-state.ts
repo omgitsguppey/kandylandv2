@@ -197,6 +197,8 @@ export function formatAdminAnalyticsSourceTruthLabel(
       return "Analytics sessions";
     case "ga4":
       return "Vendor analytics";
+    case "ga4_evidence_only":
+      return "Vendor evidence only";
     case "ga_estimate":
       return "Vendor estimate";
     case "ga_total_minus_identified_first_party":

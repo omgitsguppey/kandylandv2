@@ -110,7 +110,7 @@ function buildDefaultDiagnostics(input: {
   guestTraffic?: GuestTraffic;
 }): GuestQualityDiagnostics {
   return {
-    estimatedSourceTruth: input.guestTraffic?.truthLabel === "estimated" ? "ga4" : "unknown",
+    estimatedSourceTruth: input.guestTraffic?.truthLabel === "estimated" ? "ga4_evidence_only" : "unknown",
     estimatedFormula: input.guestTraffic?.truthLabel === "estimated"
       ? "max(exact guest views, GA total views - identified first-party views)"
       : null,

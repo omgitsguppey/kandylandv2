@@ -27,7 +27,7 @@ type AudienceMetric = {
 };
 
 type AudienceEstimateMetadata = {
-  sourceTruth: "ga4" | "event_estimate" | "server_estimate" | "legacy" | "unknown";
+  sourceTruth: "ga4_evidence_only" | "event_estimate" | "server_estimate" | "legacy" | "unknown";
   formula: string | null;
   confidencePct: number | null;
   freshnessState: "live" | "refresh_due" | "stale" | "unknown";

@@ -198,6 +198,7 @@ describe("buildAdminAnalyticsGuestBounceQualityModel", () => {
 
     expect(model.guestViews.value).toBe(19_200);
     expect(model.guestViewsEstimated).toBe(true);
+    expect(model.estimatedGuestViews.sourceTruth).toBe("ga4_evidence_only");
     expect(model.guestEstimateFormula).toBe("GA total views - identified first-party views");
     expect(model.guestBounce.value).toBeNull();
     expect(model.guestEngaged.value).toBeNull();

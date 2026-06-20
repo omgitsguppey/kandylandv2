@@ -1075,7 +1075,7 @@ export interface HistoricalAnalyticsResponse {
     qualityAvailable: boolean;
   };
   guestQualityDiagnostics?: {
-    estimatedSourceTruth: "ga4" | "event_estimate" | "server_estimate" | "legacy" | "unknown";
+    estimatedSourceTruth: "ga4_evidence_only" | "event_estimate" | "server_estimate" | "legacy" | "unknown";
     estimatedFormula: string | null;
     estimatedFormulaState: "available" | "missing";
     estimatedConfidencePct: number | null;
