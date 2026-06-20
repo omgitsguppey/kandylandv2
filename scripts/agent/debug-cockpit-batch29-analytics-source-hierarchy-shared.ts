@@ -167,7 +167,7 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
   const candidate = asRecord(root.launchHistoryCoverage ?? asRecord(root.analyticsSourceHealth).launchHistoryCoverage ?? root);
   const rangeProof = asRecord(candidate.rangeProof);
   const daysRaw = Array.isArray(candidate.days) ? candidate.days : [];
-  const days: LaunchHistoryCoverageForSourceAgreement["days"] = [];
+  const daysByKey = new Map<string, LaunchHistoryCoverageForSourceAgreement["days"][number]>();
   const expectedDayKeys: string[] = [];
   const sourceCountsByDay: Record<string, {
     first_party: number;
@@ -193,17 +193,37 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
     const internalAdminExcludedCount = typeof row.internalAdminExcludedCount === "number"
       ? Math.max(0, row.internalAdminExcludedCount)
       : null;
-    days.push({
+    const existing = daysByKey.get(dayKey);
+    if (existing) {
+      daysByKey.set(dayKey, {
+        dayKey,
+        expected: existing.expected || expected,
+        sourceCounts: {
+          first_party: Math.max(existing.sourceCounts.first_party, normalizedSourceCounts.first_party),
+          ga4: Math.max(existing.sourceCounts.ga4, normalizedSourceCounts.ga4),
+          historicalSnapshot: Math.max(existing.sourceCounts.historicalSnapshot, normalizedSourceCounts.historicalSnapshot),
+          legacySupport: Math.max(existing.sourceCounts.legacySupport, normalizedSourceCounts.legacySupport),
+        },
+        internalAdminExcludedCount: existing.internalAdminExcludedCount === null && internalAdminExcludedCount === null
+          ? null
+          : Math.max(existing.internalAdminExcludedCount ?? 0, internalAdminExcludedCount ?? 0),
+      });
+      continue;
+    }
+    daysByKey.set(dayKey, {
       dayKey,
       expected,
       sourceCounts: normalizedSourceCounts,
       internalAdminExcludedCount,
     });
-    if (expected) {
-      expectedDayKeys.push(dayKey);
-      sourceCountsByDay[dayKey] = normalizedSourceCounts;
-      internalAdminExcludedCountByDay[dayKey] = internalAdminExcludedCount;
-    }
+  }
+
+  const days = [...daysByKey.values()];
+  for (const day of days) {
+    if (!day.expected) continue;
+    expectedDayKeys.push(day.dayKey);
+    sourceCountsByDay[day.dayKey] = day.sourceCounts;
+    internalAdminExcludedCountByDay[day.dayKey] = day.internalAdminExcludedCount ?? null;
   }
 
   if (days.length === 0) return null;

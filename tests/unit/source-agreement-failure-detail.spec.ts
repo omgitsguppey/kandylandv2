@@ -863,6 +863,54 @@ describe("source agreement failure detail", () => {
     });
   });
 
+  it("collapses duplicate launch coverage day rows before scoring source agreement", () => {
+    const coverage = normalizeLaunchHistoryCoverageExport({
+      status: "complete",
+      surface: "admin_truth_sample",
+      launchHistoryCoverage: {
+        expectedDayCount: 3,
+        recoveredDayCount: 3,
+        state: "available",
+        days: [
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 1, ga4: 2, historicalSnapshot: 0, legacySupport: 0 },
+            internalAdminExcludedCount: 1,
+          },
+          {
+            dayKey: "2026-05-01",
+            expected: true,
+            sourceCounts: { first_party: 5, ga4: 1, historicalSnapshot: 2, legacySupport: 0 },
+            internalAdminExcludedCount: 3,
+          },
+          {
+            dayKey: "2026-05-02",
+            expected: true,
+            sourceCounts: { first_party: 0, ga4: 0, historicalSnapshot: 0, legacySupport: 0 },
+          },
+        ],
+      },
+    });
+
+    expect(coverage).toMatchObject({
+      expectedDayCount: 2,
+      recoveredDayCount: 1,
+      state: "partial",
+    });
+    expect(coverage?.days).toHaveLength(2);
+    expect(coverage?.days[0]).toMatchObject({
+      dayKey: "2026-05-01",
+      sourceCounts: {
+        first_party: 5,
+        ga4: 2,
+        historicalSnapshot: 2,
+        legacySupport: 0,
+      },
+      internalAdminExcludedCount: 3,
+    });
+  });
+
   it("normalizes imported launch coverage through the recovery spine so GA4-only evidence stays partial", () => {
     const source = readFileSync("scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts", "utf8");
     const coverage = normalizeLaunchHistoryCoverageExport({
