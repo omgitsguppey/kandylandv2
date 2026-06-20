@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T16:11:59.904Z",
-  "currentHead": "a61a78d3686e02ec46411a31c5da09dc8adf58c0",
+  "generatedAtUtc": "2026-06-20T16:23:04.420Z",
+  "currentHead": "550f08c08555e49b4268f416196fef7fc1bb934f",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -1006,7 +1006,7 @@
   },
   "activeSourceCoverage": {
     "reportKey": "launch-critical-active-source-coverage",
-    "generatedAtUtc": "2026-06-20T16:11:59.904Z",
+    "generatedAtUtc": "2026-06-20T16:23:04.420Z",
     "version": "2026.06.recovery-timeline-spine.1",
     "familyCount": 13,
     "activeSourceFamilyCount": 13,

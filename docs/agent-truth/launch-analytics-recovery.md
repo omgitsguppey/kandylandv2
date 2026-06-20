@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-20T16:11:59.904Z
-Current head: a61a78d3686e02ec46411a31c5da09dc8adf58c0
+Generated: 2026-06-20T16:23:04.420Z
+Current head: 550f08c08555e49b4268f416196fef7fc1bb934f
 Status: source_agreement_failed
 
 ## Source Order
@@ -84,7 +84,7 @@ Status: source_agreement_failed
 - GA4 days: 3
 - Historical snapshot days: 1
 - Legacy support days: 1
-- Missing ranges: none
+- All-source missing ranges: none
 - Stale input evidence: no
 
 ## Formal Launch Day Rows

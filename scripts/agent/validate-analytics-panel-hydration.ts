@@ -1764,7 +1764,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- GA4 days: ${report.launchHistoryCoverage.sourceDayCounts.ga4}`,
     `- Historical snapshot days: ${report.launchHistoryCoverage.sourceDayCounts.historicalSnapshot}`,
     `- Legacy support days: ${report.launchHistoryCoverage.sourceDayCounts.legacySupport}`,
-    `- Missing ranges: ${report.launchHistoryCoverage.missingRanges.join(", ") || "none"}`,
+    `- All-source missing ranges: ${report.launchHistoryCoverage.missingRanges.join(", ") || "none"}`,
     `- Stale input evidence: ${report.launchHistoryCoverage.staleInputEvidence ? "yes" : "no"}`,
     "",
     "## Formal Launch Day Rows",
