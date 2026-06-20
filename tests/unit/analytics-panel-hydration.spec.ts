@@ -351,6 +351,13 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("recoveredMetricMetadataCompleteness");
     expect(source).toContain("sourceAgreementDisagreements: summarizeRecoveredMetricMetadataCompleteness(sourceAgreementDisagreements)");
     expect(source).toContain('"sourceAgreementDisagreements"');
+    expect(source).toContain("compactLaunchAnalyticsRecoveryReport");
+    expect(source).toContain("dayCoverageCount: compactFormalDays.dayCount");
+    expect(source).toContain("omittedDayCoverageCount: compactFormalDays.omittedDayCount");
+    expect(source).toContain("dayCoverageSummary: compactFormalDays.dayCoverageSummary");
+    expect(source).toContain("compactSourceFamilyStates");
+    expect(source).toContain("activeSourceFileCount: activeSourceFileSummary.count");
+    expect(source).toContain("materializerFileCount: materializerFileSummary.count");
     expect(source).toContain("RECOVERY_METRIC_DEDUPE_RULES");
     expect(source).toContain("RECOVERY_METRIC_MODELING_POLICY");
     expect(source).toContain("RECOVERY_METRIC_POLICY_PROOF_BOUNDARY");
@@ -394,7 +401,10 @@ describe("analytics panel hydration", () => {
     expect(source).toContain("const sourceAgreementMetricDeltas = readRecordArray(sourceAgreement.perDayMetricDeltas)");
     expect(source).toContain("summarizeCurrentLaunchRecoveryMetadata");
     expect(source).toContain('status: "not_evaluated_stale_artifact"');
-    expect(source).toContain("sourceAgreementMetricDeltas: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, sourceAgreementMetricDeltas)");
+    expect(source).toContain("sourceAgreementMetricDeltas: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, sourceAgreementMetricDeltas, asRecord(artifactMetadataCompleteness.sourceAgreementMetricDeltas))");
+    expect(source).toContain("readLaunchRecoveryDaySummary");
+    expect(source).toContain("const artifactMetadataCompleteness = asRecord(report.recoveredMetricMetadataCompleteness)");
+    expect(source).toContain("asRecord(artifactMetadataCompleteness.formalLaunchDayCoverage)");
     expect(source).toContain("sourceWindowLabel");
     expect(source).toContain("mathReasonSamples: (displaySummary.mathReasonSamples ?? [])");
     expect(source).not.toContain("asRecord(launchHistoryCoverage.displaySummary)");

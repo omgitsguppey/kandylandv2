@@ -33,6 +33,7 @@ import {
   collapseLaunchRecoveryDayRanges,
   getLaunchCriticalActiveSourceEventNames,
   normalizeLaunchHistoryRangeProofKind,
+  summarizeLaunchRecoveryDayEvidence,
   summarizeLaunchRecoveryFamilySourceStates,
   summarizeRecoveredMetricMetadataCompleteness,
 } from "@/lib/analytics/recovery-timeline-spine";
@@ -644,6 +645,84 @@ function compactReport(
     },
     nextExactSteps: report.nextExactSteps,
     validationFailures,
+  };
+}
+
+function compactDayCoverage<T extends { dayKey: string }>(days: T[]) {
+  return {
+    days: days.slice(0, 14),
+    dayCount: days.length,
+    daysTruncated: days.length > 14,
+    omittedDayCount: Math.max(0, days.length - 14),
+    dayCoverageSummary: summarizeLaunchRecoveryDayEvidence(days),
+  };
+}
+
+function compactFileList(files: unknown) {
+  const list = asStringArray(files);
+  return {
+    samples: list.slice(0, 4),
+    count: list.length,
+    truncated: list.length > 4,
+  };
+}
+
+function compactSourceFamilyStates(states: unknown) {
+  return asRecordArray(states).map((state) => {
+    const { activeSourceFiles, materializerFiles, ...rest } = state;
+    const activeSourceFileSummary = compactFileList(activeSourceFiles);
+    const materializerFileSummary = compactFileList(materializerFiles);
+    return {
+      ...rest,
+      activeSourceFiles: activeSourceFileSummary.samples,
+      activeSourceFileCount: activeSourceFileSummary.count,
+      activeSourceFilesTruncated: activeSourceFileSummary.truncated,
+      materializerFiles: materializerFileSummary.samples,
+      materializerFileCount: materializerFileSummary.count,
+      materializerFilesTruncated: materializerFileSummary.truncated,
+    };
+  });
+}
+
+function compactLaunchAnalyticsRecoveryReport(
+  report: ReturnType<typeof buildLaunchAnalyticsRecoveryReport>,
+) {
+  const { dayCoverage: formalDayCoverage, ...formalLaunchRange } = report.formalLaunchRange;
+  const { days: localDayCoverage, ...launchHistoryCoverage } = report.launchHistoryCoverage;
+  const compactFormalDays = compactDayCoverage(formalDayCoverage);
+  const compactLocalDays = compactDayCoverage(localDayCoverage);
+
+  return {
+    ...report,
+    formalLaunchRange: {
+      ...formalLaunchRange,
+      dayCoverage: compactFormalDays.days,
+      dayCoverageCount: compactFormalDays.dayCount,
+      dayCoverageTruncated: compactFormalDays.daysTruncated,
+      omittedDayCoverageCount: compactFormalDays.omittedDayCount,
+      dayCoverageSummary: compactFormalDays.dayCoverageSummary,
+    },
+    activeSourceCoverage: {
+      ...report.activeSourceCoverage,
+      familySourceStates: compactSourceFamilyStates(report.activeSourceCoverage.familySourceStates),
+    },
+    launchHistoryCoverage: {
+      ...launchHistoryCoverage,
+      eventFamilyCoverage: {
+        ...launchHistoryCoverage.eventFamilyCoverage,
+        familySourceStates: compactSourceFamilyStates(launchHistoryCoverage.eventFamilyCoverage.familySourceStates),
+      },
+      activeSourceCoverage: {
+        ...launchHistoryCoverage.activeSourceCoverage,
+        familySourceStates: compactSourceFamilyStates(launchHistoryCoverage.activeSourceCoverage.familySourceStates),
+      },
+      days: compactLocalDays.days,
+      dayCount: compactLocalDays.dayCount,
+      daysTruncated: compactLocalDays.daysTruncated,
+      omittedDayCount: compactLocalDays.omittedDayCount,
+      dayCoverageSummary: compactLocalDays.dayCoverageSummary,
+    },
+    compactArtifact: true,
   };
 }
 
@@ -1810,7 +1889,7 @@ function main() {
     ...launchRecoveryReport,
     validationFailures: launchRecoveryValidationFailures,
   };
-  write(LAUNCH_RECOVERY_REPORT_PATH, `${JSON.stringify(finalLaunchRecoveryReport, null, 2)}\n`);
+  write(LAUNCH_RECOVERY_REPORT_PATH, `${JSON.stringify(compactLaunchAnalyticsRecoveryReport(finalLaunchRecoveryReport), null, 2)}\n`);
   write(LAUNCH_RECOVERY_DOC_PATH, renderLaunchRecoveryDoc(finalLaunchRecoveryReport));
 
   if (validationFailures.length > 0 || launchRecoveryValidationFailures.length > 0) {

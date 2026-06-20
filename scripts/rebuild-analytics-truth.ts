@@ -141,7 +141,16 @@ function launchRecoveryEvidenceFreshness(status: string) {
 function summarizeCurrentLaunchRecoveryMetadata(
   artifactCurrent: boolean,
   records: readonly Record<string, unknown>[],
+  artifactSummary?: Record<string, unknown>,
 ) {
+  const summaryStatus = readString(artifactSummary?.status, "")
+  if (artifactCurrent && summaryStatus) {
+    return {
+      ...artifactSummary,
+      evaluated: true,
+    }
+  }
+
   if (artifactCurrent) {
     return {
       ...summarizeRecoveredMetricMetadataCompleteness(records),
@@ -157,8 +166,17 @@ function summarizeCurrentLaunchRecoveryMetadata(
     evaluated: false,
     evidenceFreshness: "stale_generated_snapshot",
     refreshCommand: "npm run check:analytics-panel-hydration",
-    reason: "Launch recovery metadata completeness was not scored because the generated artifact is stale relative to the current source head.",
+      reason: "Launch recovery metadata completeness was not scored because the generated artifact is stale relative to the current source head.",
   }
+}
+
+function readLaunchRecoveryDaySummary(
+  artifactSummary: Record<string, unknown>,
+  records: readonly Record<string, unknown>[],
+) {
+  return Object.keys(artifactSummary).length > 0
+    ? artifactSummary
+    : summarizeLaunchRecoveryDayEvidence(records)
 }
 
 function readLaunchRecoveryDryRunSummary() {
@@ -197,9 +215,12 @@ function readLaunchRecoveryDryRunSummary() {
     const formalLaunchRange = asRecord(report.formalLaunchRange)
     const formalDayCoverage = readRecordArray(formalLaunchRange.dayCoverage)
     const localEvidenceDays = readRecordArray(launchHistoryCoverage.days)
+    const localEvidenceDaySummary = asRecord(launchHistoryCoverage.dayCoverageSummary)
+    const formalLaunchDayCoverageSummary = asRecord(formalLaunchRange.dayCoverageSummary)
     const sourceAgreement = asRecord(report.sourceAgreement)
     const sourceAgreementDisagreements = readRecordArray(sourceAgreement.disagreements)
     const sourceAgreementMetricDeltas = readRecordArray(sourceAgreement.perDayMetricDeltas)
+    const artifactMetadataCompleteness = asRecord(report.recoveredMetricMetadataCompleteness)
     const displaySummary = buildLaunchHistoryDisplaySummaryState({
       launchHistoryCoverage,
       sourceAgreementState: readString(sourceAgreement.state, "unknown"),
@@ -316,15 +337,15 @@ function readLaunchRecoveryDryRunSummary() {
         canClearHistoricalLaunchProof: readBoolean(activeSourceCoverage.canClearHistoricalLaunchProof, false),
         sourceStateSummary: summarizeLaunchActiveSourceFamilyStates(activeSourceFamilyStates),
       },
-      localEvidenceWindowSummary: summarizeLaunchRecoveryDayEvidence(localEvidenceDays),
-      formalLaunchDaySummary: summarizeLaunchRecoveryDayEvidence(formalDayCoverage),
+      localEvidenceWindowSummary: readLaunchRecoveryDaySummary(localEvidenceDaySummary, localEvidenceDays),
+      formalLaunchDaySummary: readLaunchRecoveryDaySummary(formalLaunchDayCoverageSummary, formalDayCoverage),
       recoveredMetricMetadataCompleteness: {
-        eventFamilySourceStates: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, eventFamilySourceStates),
-        activeSourceFamilyStates: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, activeSourceFamilyStates),
-        localEvidenceDays: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, localEvidenceDays),
-        formalLaunchDayCoverage: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, formalDayCoverage),
-        sourceAgreementDisagreements: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, sourceAgreementDisagreements),
-        sourceAgreementMetricDeltas: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, sourceAgreementMetricDeltas),
+        eventFamilySourceStates: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, eventFamilySourceStates, asRecord(artifactMetadataCompleteness.eventFamilySourceStates)),
+        activeSourceFamilyStates: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, activeSourceFamilyStates, asRecord(artifactMetadataCompleteness.activeSourceFamilyStates)),
+        localEvidenceDays: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, localEvidenceDays, asRecord(artifactMetadataCompleteness.localEvidenceDays)),
+        formalLaunchDayCoverage: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, formalDayCoverage, asRecord(artifactMetadataCompleteness.formalLaunchDayCoverage)),
+        sourceAgreementDisagreements: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, sourceAgreementDisagreements, asRecord(artifactMetadataCompleteness.sourceAgreementDisagreements)),
+        sourceAgreementMetricDeltas: summarizeCurrentLaunchRecoveryMetadata(artifactCurrent, sourceAgreementMetricDeltas, asRecord(artifactMetadataCompleteness.sourceAgreementMetricDeltas)),
         proofBoundary: RECOVERED_METRIC_METADATA_PROOF_BOUNDARY,
       },
       recoveryPolicy: {

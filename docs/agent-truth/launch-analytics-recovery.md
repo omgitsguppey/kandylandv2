@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-19T18:24:47.422Z
-Current head: 17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1
+Generated: 2026-06-20T14:21:51.904Z
+Current head: 823d29b101b7daad9bbba217836cc9a7210eae67
 Status: source_agreement_failed
 
 ## Source Order
@@ -22,6 +22,7 @@ Status: source_agreement_failed
 - First-party read mode: source-agreement day-bucket evidence only; no production read performed
 - Limitation: This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof.
 - Source gate: blocked - The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth.
+- Source gate blockers: all_launch_range_proof_missing: The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth.; first_party_coverage_incomplete: First-party product truth is incomplete; GA4, historical snapshots, and legacy support cannot clear the source gate.; launch_critical_family_coverage_below_floor: Launch-critical first-party family coverage is 7.7%; source truth needs at least 95% observed first-party coverage before clearing.; source_agreement_failed: Source agreement has not passed; repair the mismatched source lane before clearing source truth.; launch_history_coverage_unavailable: Launch history coverage is not fully available for the bounded evidence window.
 
 ## Canonical Owners
 
@@ -48,17 +49,17 @@ Status: source_agreement_failed
 
 ## Launch Coverage
 
-- Formal range: 2026-05-01 to 2026-06-19
+- Formal range: 2026-02-12 to 2026-06-20
 - Formal range state: formal_proof_missing
-- Formal expected days: 50
+- Formal expected days: 129
 - Local evidence days: 3
 - Approved coverage days: 0
-- Formal day rows: 50
-- Unproven formal days: 47
-- Local evidence ranges: 2026-05-01..2026-05-03
-- Unproven formal ranges: 2026-05-01..2026-06-19
+- Formal day rows: 129
+- Unproven formal days: 126
+- Local evidence ranges: 2026-02-12..2026-02-14
+- Unproven formal ranges: 2026-02-12..2026-06-20
 - Formal range reason: Current evidence only covers the local source window; approved all-launch export or admin truth sample is still required.
-- Range: 2026-05-01 to 2026-05-03
+- Range: 2026-02-12 to 2026-02-14
 - Range proof: fixture_only_local_window
 - Coverage window: fixture_only_local_window
 - Range proof reason: The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.
@@ -66,12 +67,19 @@ Status: source_agreement_failed
 - Product-truth recovered days: 1/3
 - Second-source-only days: 2
 - Fallback-only days: 0
-- First recovered day: 2026-05-01
-- Last recovered day: 2026-05-03
+- First recovered day: 2026-02-12
+- Last recovered day: 2026-02-14
 - Coverage state: partial
 - Coverage reason: Launch-history day buckets are only partially first-party backed; GA4, historical snapshots, and legacy support remain evidence-only until first-party product truth covers the range.
 - First-party product truth state: partial
-- First-party missing ranges: 2026-05-02..2026-05-03
+- First-party missing ranges: 2026-02-13..2026-02-14
+- Launch-critical canonical mapping: 100% (13/13 families)
+- Launch-critical observed first-party coverage: 7.7% (1/13 families)
+- Launch-critical holdback: blocked - Modeled, inferred, cached, or missing evidence cannot clear the 95% first-party recovery calibration floor.
+- Active source-code coverage: 100% (13/13 families)
+- Active source-code proof clears historical launch rows: no
+- Recovered metric metadata: event families complete, active sources complete, local days complete, formal days complete, source-agreement disagreements complete, source-agreement count deltas complete; boundary=metadata_completeness_only_not_source_runtime_provider_or_admin_truth_proof
+- Recovery policy: event-id-primary dedupe=on; fallback identity/route/window dedupe=on; GA4/legacy evidence-only=yes; modeled calibration-only=yes; visibility threshold=50%/1000ms; boundary=policy_metadata_only_not_runtime_provider_or_admin_truth_proof
 - First-party days: 1
 - GA4 days: 3
 - Historical snapshot days: 1
@@ -81,27 +89,27 @@ Status: source_agreement_failed
 
 ## Formal Launch Day Rows
 
-- 2026-05-01: state=local_evidence_window; evidenceObserved=yes; productTruthRecovered=yes; sourceTruthState=mixed_evidence; sourceCountsKnown=true; first_party=1, ga4=1, historicalSnapshot=1, legacySupport=0; confidence=mixed; next=Use first-party truth for identity, purchase, unlock, watch, task, creator, and admin metrics; compare GA4 only as second source.
-- 2026-05-02: state=local_evidence_window; evidenceObserved=yes; productTruthRecovered=no; sourceTruthState=second_source_only; sourceCountsKnown=true; first_party=0, ga4=1, historicalSnapshot=0, legacySupport=0; confidence=fallback; next=Recover first-party materialization before promoting this day to canonical product analytics.
-- 2026-05-03: state=local_evidence_window; evidenceObserved=yes; productTruthRecovered=no; sourceTruthState=second_source_only; sourceCountsKnown=true; first_party=0, ga4=1, historicalSnapshot=0, legacySupport=1; confidence=fallback; next=Recover first-party materialization before promoting this day to canonical product analytics.
-- 2026-05-04: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 2026-05-05: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 2026-05-06: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 2026-05-07: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 2026-05-08: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 2026-05-09: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 2026-05-10: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 2026-05-11: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 2026-05-12: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 2026-05-13: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 2026-05-14: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 36 additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.
+- 2026-02-12: state=local_evidence_window; evidenceObserved=yes; productTruthRecovered=yes; sourceTruthState=mixed_evidence; sourceCountsKnown=true; first_party=1, ga4=1, historicalSnapshot=1, legacySupport=0; confidence=mixed; confidenceBand=verified; next=Use first-party truth for identity, purchase, unlock, watch, task, creator, and admin metrics; compare GA4 only as second source.
+- 2026-02-13: state=local_evidence_window; evidenceObserved=yes; productTruthRecovered=no; sourceTruthState=second_source_only; sourceCountsKnown=true; first_party=0, ga4=1, historicalSnapshot=0, legacySupport=0; confidence=fallback; confidenceBand=directional; next=Recover first-party materialization before promoting this day to canonical product analytics.
+- 2026-02-14: state=local_evidence_window; evidenceObserved=yes; productTruthRecovered=no; sourceTruthState=second_source_only; sourceCountsKnown=true; first_party=0, ga4=1, historicalSnapshot=0, legacySupport=1; confidence=fallback; confidenceBand=directional; next=Recover first-party materialization before promoting this day to canonical product analytics.
+- 2026-02-15: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 2026-02-16: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 2026-02-17: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 2026-02-18: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 2026-02-19: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 2026-02-20: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 2026-02-21: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 2026-02-22: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 2026-02-23: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 2026-02-24: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 2026-02-25: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
+- 115 additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.
 
 ## Daily Recovery Rows
 
-- 2026-05-01: evidenceObserved=yes; productTruthRecovered=yes; sourceTruthState=mixed_evidence; sourceCounts first_party=1, ga4=1, historicalSnapshot=1, legacySupport=0; missing=legacySupport:2026-05-01; duplicateRanges=2026-05-01; internalAdminExcluded=unknown; confidence=mixed; next=Use first-party truth for identity, purchase, unlock, watch, task, creator, and admin metrics; compare GA4 only as second source.
-- 2026-05-02: evidenceObserved=yes; productTruthRecovered=no; sourceTruthState=second_source_only; sourceCounts first_party=0, ga4=1, historicalSnapshot=0, legacySupport=0; missing=first_party:2026-05-02 | historicalSnapshot:2026-05-02 | legacySupport:2026-05-02; duplicateRanges=none; internalAdminExcluded=unknown; confidence=fallback; next=Recover first-party materialization before promoting this day to canonical product analytics.
-- 2026-05-03: evidenceObserved=yes; productTruthRecovered=no; sourceTruthState=second_source_only; sourceCounts first_party=0, ga4=1, historicalSnapshot=0, legacySupport=1; missing=first_party:2026-05-03 | historicalSnapshot:2026-05-03; duplicateRanges=2026-05-03; internalAdminExcluded=unknown; confidence=fallback; next=Recover first-party materialization before promoting this day to canonical product analytics.
+- 2026-02-12: evidenceObserved=yes; productTruthRecovered=yes; sourceTruthState=mixed_evidence; sourceCounts first_party=1, ga4=1, historicalSnapshot=1, legacySupport=0; missing=legacySupport:2026-02-12; duplicateRanges=2026-02-12; internalAdminExcluded=unknown; confidence=mixed; confidenceBand=verified; next=Use first-party truth for identity, purchase, unlock, watch, task, creator, and admin metrics; compare GA4 only as second source.
+- 2026-02-13: evidenceObserved=yes; productTruthRecovered=no; sourceTruthState=second_source_only; sourceCounts first_party=0, ga4=1, historicalSnapshot=0, legacySupport=0; missing=first_party:2026-02-13 | historicalSnapshot:2026-02-13 | legacySupport:2026-02-13; duplicateRanges=none; internalAdminExcluded=unknown; confidence=fallback; confidenceBand=directional; next=Recover first-party materialization before promoting this day to canonical product analytics.
+- 2026-02-14: evidenceObserved=yes; productTruthRecovered=no; sourceTruthState=second_source_only; sourceCounts first_party=0, ga4=1, historicalSnapshot=0, legacySupport=1; missing=first_party:2026-02-14 | historicalSnapshot:2026-02-14; duplicateRanges=2026-02-14; internalAdminExcluded=unknown; confidence=fallback; confidenceBand=directional; next=Recover first-party materialization before promoting this day to canonical product analytics.
 
 
 ## Source Agreement
@@ -112,8 +120,8 @@ Status: source_agreement_failed
 - Max delta: 67
 - Classifications: date_range_mismatch, external_source_gap, missing_materializer
 - Per-day disagreement details: 2
-  - 2026-05-02: present ga4; missing first_party, historical_snapshot, legacy_support; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
-  - 2026-05-03: present ga4, legacy_support; missing first_party, historical_snapshot; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
+  - 2026-02-13: present ga4; missing first_party, historical_snapshot, legacy_support; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
+  - 2026-02-14: present ga4, legacy_support; missing first_party, historical_snapshot; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
 - Blocked consumers: 9
   - Analytics overview: source_missing; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
   - Analytics charts: source_missing; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
