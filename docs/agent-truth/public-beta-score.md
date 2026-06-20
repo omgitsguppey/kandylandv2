@@ -37,13 +37,15 @@ Honest readiness statuses:
 
 - `Ready`
 - `Ready with smoke required`
+- `Source validation only`
+- `Source evidence required`
+- `External proof required`
 - `Needs review`
 - `Blocked`
-- `Unknown evidence`
 - `Stale evidence`
 - `Runtime unverified`
 
-If UI source coverage reports a gap, readiness is blocked by that source finding. Screenshots or browser viewing are optional reproduction evidence only after a source-reported UI issue exists. If provider smoke is absent, readiness is capped at `Ready with smoke required`. If generated reports are older than 24 hours, readiness is capped at `Stale evidence` or `Needs review`. Empty debug evidence is `Unknown evidence`, not proof of health.
+If UI source coverage reports a gap, readiness is blocked by that source finding. Screenshots or browser viewing are optional reproduction evidence only after a source-reported UI issue exists. Missing local source artifacts are `Source evidence required`. Missing provider, deployed runtime, or admin truth artifacts are `External proof required`. If generated reports are older than 24 hours, readiness is capped at `Stale evidence` or `Needs review`. Empty debug evidence is `Source evidence required`, not proof of health.
 
 Domain weights:
 
@@ -220,9 +222,9 @@ Remaining active caps:
 
 - UI source coverage: deterministic source checks must be current; optional visual reproduction does not clear provider/runtime/admin truth.
 - `Runtime unverified`: provider smoke remains `missing_formal_evidence` and runtime smoke remains `runtime_unverified`.
-- `Unknown evidence`: admin truth sample evidence remains `missing_or_unknown`.
+- `External proof required`: admin truth sample evidence remains `missing_or_unknown`.
 - `Stale evidence`: final launch readiness, launch readiness, and PR triage reports are older than the freshness window.
-- `Unknown evidence`: debug/runtime evidence is empty.
+- `Source evidence required`: debug/runtime evidence is empty.
 
 ## 2026-05-15 Final Cleanup Lock
 
@@ -247,6 +249,6 @@ The remaining blockers are evidence and authority gaps:
 
 Legacy launch/readiness artifacts are retired from required beta score freshness math. They remain historical evidence snapshots only. Current evidence freshness is represented by evidence-capture status, source validators, and the current beta exit status lane.
 
-After this cleanup, the score is `55/100` with `Unknown evidence`. Scanner score remains `100/100 clean`, but that is scanner-only source hygiene. Missing provider smoke, runtime smoke, admin truth sample evidence, and debug/runtime evidence still keep beta exit blocked.
+After this cleanup, the score is `55/100` with typed source and formal evidence blockers. Scanner score remains `100/100 clean`, but that is scanner-only source hygiene. Missing provider smoke, runtime smoke, admin truth sample evidence, and debug/runtime evidence still keep beta exit blocked.
 
 Cost-readiness sublanes are not formal passes. `not_detected_in_repo`, `config_not_in_repo`, and `source_inventory_complete` are source inventory states. `cost_review_required` and `owner_review` remain owner-review states until real provider/runtime/cost evidence exists.

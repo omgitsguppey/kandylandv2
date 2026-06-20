@@ -93,6 +93,7 @@ function validateEvidenceGate(gate: PublicBetaEvidenceGate, index: number) {
     "Ready",
     "Ready with smoke required",
     "Source validation only",
+    "Source evidence required",
     "External proof required",
     "Needs review",
     "Blocked",
@@ -242,6 +243,7 @@ if (report) {
     "Ready",
     "Ready with smoke required",
     "Source validation only",
+    "Source evidence required",
     "External proof required",
     "Needs review",
     "Blocked",
@@ -359,7 +361,7 @@ if (report) {
     failures.push("summary must not present evidence-capped readiness as clean.");
   }
   const hasEmptyDebugGate = report.evidenceGates?.some((gate) =>
-    gate.id === "debugRuntimeEvidence" && gate.status === "Unknown evidence");
+    gate.id === "debugRuntimeEvidence" && gate.status === "Source evidence required");
   const hasSourceBackedDebugGate = report.evidenceGates?.some((gate) =>
     gate.id === "debugRuntimeEvidence"
     && (gate.status === "Ready" || gate.status === "Ready with smoke required")
@@ -374,7 +376,7 @@ if (report) {
   const debugEvidence = report.debugEvidence ?? {};
   const debugEvidenceEmpty = Object.values(debugEvidence).every((entries) => Array.isArray(entries) && entries.length === 0);
   if (debugEvidenceEmpty && !hasEmptyDebugGate && !hasSourceBackedDebugGate) {
-    failures.push("Empty debugEvidence must be represented as Unknown evidence.");
+    failures.push("Empty debugEvidence must be represented as Source evidence required.");
   }
   const debugRuntimeGate = report.evidenceGates?.find((gate) => gate.id === "debugRuntimeEvidence");
   if (

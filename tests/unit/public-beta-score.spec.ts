@@ -252,7 +252,7 @@ describe("public beta scoring math", () => {
         expect(report.overallScore).toBeLessThan(100);
     });
 
-    it("marks empty debug evidence as unknown", () => {
+    it("marks empty debug evidence as source evidence required", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
@@ -263,7 +263,7 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.evidenceGates).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: "debugRuntimeEvidence", status: "Unknown evidence" }),
+            expect.objectContaining({ id: "debugRuntimeEvidence", status: "Source evidence required" }),
         ]));
         expect(report.readinessStatus).not.toBe("Ready");
     });
@@ -365,7 +365,7 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.evidenceGates).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: "targetedBehaviorTests", status: "Unknown evidence", score: 0 }),
+            expect.objectContaining({ id: "targetedBehaviorTests", status: "Source evidence required", score: 0 }),
             expect.objectContaining({ id: "runtimeProviderSmoke", status: "External proof required", score: 0 }),
             expect.objectContaining({ id: "adminTruthSamples", status: "External proof required", score: 0 }),
         ]));
@@ -499,7 +499,7 @@ describe("public beta scoring math", () => {
         });
 
         const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
-        expect(targetedGate?.status).toBe("Unknown evidence");
+        expect(targetedGate?.status).toBe("Source evidence required");
         expect(targetedGate?.score).toBe(0);
         expect(targetedGate?.detail).toContain("No formal targeted behavior evidence artifact");
         expect(targetedGate?.evidence.join("\n")).toContain("artifactStatus=missing_formal_evidence");

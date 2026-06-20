@@ -39,6 +39,7 @@ export type PublicBetaReadinessStatus =
   | "Ready"
   | "Ready with smoke required"
   | "Source validation only"
+  | "Source evidence required"
   | "External proof required"
   | "Needs review"
   | "Blocked"
@@ -401,11 +402,12 @@ const READINESS_STATUS_RANK: Record<PublicBetaReadinessStatus, number> = {
   "Ready with smoke required": 2,
   "Runtime unverified": 3,
   "Visual QA required": 4,
-  "Unknown evidence": 5,
-  "Needs review": 6,
-  "Stale evidence": 7,
-  "External proof required": 8,
-  Blocked: 9,
+  "Source evidence required": 5,
+  "Unknown evidence": 6,
+  "Needs review": 7,
+  "Stale evidence": 8,
+  "External proof required": 9,
+  Blocked: 10,
 };
 
 function mostSevereReadinessStatus(statuses: PublicBetaReadinessStatus[]) {
@@ -416,7 +418,7 @@ function mostSevereReadinessStatus(statuses: PublicBetaReadinessStatus[]) {
 function readinessStatusToLegacyStatus(status: PublicBetaReadinessStatus, score: number, hasCritical: boolean): PublicBetaStatus {
   if (status === "Blocked" || hasCritical) return "fail";
   if (status === "External proof required" || status === "Stale evidence" || status === "Needs review") return "beta-risk";
-  if (status === "Unknown evidence" || status === "Visual QA required" || status === "Runtime unverified") return "warning";
+  if (status === "Source evidence required" || status === "Unknown evidence" || status === "Visual QA required" || status === "Runtime unverified") return "warning";
   if (status === "Source validation only" || status === "Ready with smoke required") return score >= PUBLIC_BETA_STATUS_THRESHOLDS.pass ? "pass" : "warning";
   return resolvePublicBetaStatus(score, hasCritical);
 }
@@ -426,6 +428,8 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
     case "Ready with smoke required":
     case "Source validation only":
       return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.readyWithSmokeRequired;
+    case "Source evidence required":
+      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.unknownEvidence;
     case "External proof required":
       return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.staleEvidence;
     case "Runtime unverified":
@@ -453,7 +457,7 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
     if (gate.status === "Stale evidence") {
       return `${gate.status}: ${gate.label} - Refresh the targeted source validator evidence.`;
     }
-    if (gate.status === "Unknown evidence") {
+    if (gate.status === "Source evidence required" || gate.status === "Unknown evidence") {
       return `${gate.status}: ${gate.label} - Attach targeted source validator evidence.`;
     }
   }
@@ -714,7 +718,7 @@ function summarizeRequiredReportEvidence(reports: PublicBetaGeneratedReportEvide
   }
   if (unknownReports.length > 0) {
     return {
-      status: "Unknown evidence" as const,
+      status: "Source evidence required" as const,
       score: 0,
       detail: `${unknownReports.length} required generated report(s) have unknown freshness.`,
       evidence: unknownReports.map((report) => report.path),
@@ -722,7 +726,7 @@ function summarizeRequiredReportEvidence(reports: PublicBetaGeneratedReportEvide
   }
   if (requiredReports.length === 0) {
     return {
-      status: "Unknown evidence" as const,
+      status: "Source evidence required" as const,
       score: 0,
       detail: "No generated report freshness evidence was supplied.",
       evidence: [],
@@ -796,7 +800,7 @@ export function buildPublicBetaEvidenceGates(input: {
         ? "Source validation only"
         : targetedQuality.quality === "failed"
         ? "Needs review"
-        : "Unknown evidence";
+        : "Source evidence required";
 
   const providerQuality = resolveEvidenceQuality({
     artifact: evidence.providerSmokeEvidence,
@@ -1058,7 +1062,7 @@ export function buildPublicBetaEvidenceGates(input: {
       : "Admin source evidence earns partial bridge confidence but does not clear the production admin truth sample gate.",
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
   const adminTruthSampleFreshnessUnknown = adminBaseQuality.freshness === "unknown";
-  let adminTruthSampleStatusLabel: PublicBetaReadinessStatus = "Unknown evidence";
+  let adminTruthSampleStatusLabel: PublicBetaReadinessStatus = "External proof required";
   if (adminTruthSamplePassed && !adminTruthSampleFreshnessUnknown) {
     adminTruthSampleStatusLabel = "Ready";
   } else if (adminBaseQuality.quality === "failed") {
@@ -1233,7 +1237,7 @@ export function buildPublicBetaEvidenceGates(input: {
       weight: 0,
       status: debugEvidenceAvailable
         ? "Ready"
-        : "Unknown evidence",
+        : "Source evidence required",
       detail: debugRuntimeEvidenceArtifactReady
         ? runtimeQuality.quality === "formal_passed"
           ? "source-backed debug/runtime evidence is current and deployed runtime smoke is attached."
