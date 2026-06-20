@@ -3233,6 +3233,10 @@ export function buildRecoveryMetricIdentityStitchingState(input: {
   };
 }
 
+function hasRecoveryMetricStringAnchor(value: string | null | undefined) {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 export function buildRecoveredLaunchMetricState(input: {
   eventName: string;
   sourceTruth?: RecoveryMetricSourceTruth;
@@ -3251,14 +3255,14 @@ export function buildRecoveredLaunchMetricState(input: {
 }): RecoveredLaunchMetricState {
   const family = getLaunchCriticalEventFamily(input.eventName);
   const hasEvidenceAnchor = Boolean(
-    input.eventId
-    || input.sessionId
-    || input.identityLinkId
-    || input.userId
-    || input.anonymousVisitorId
-    || input.route
-    || input.objectId
-    || typeof input.timestampMs === "number"
+    hasRecoveryMetricStringAnchor(input.eventId)
+    || hasRecoveryMetricStringAnchor(input.sessionId)
+    || hasRecoveryMetricStringAnchor(input.identityLinkId)
+    || hasRecoveryMetricStringAnchor(input.userId)
+    || hasRecoveryMetricStringAnchor(input.anonymousVisitorId)
+    || hasRecoveryMetricStringAnchor(input.route)
+    || hasRecoveryMetricStringAnchor(input.objectId)
+    || (typeof input.timestampMs === "number" && Number.isFinite(input.timestampMs))
   );
   const sourceObserved = input.sourceObserved ?? hasEvidenceAnchor;
   const sourceTruth = sourceObserved

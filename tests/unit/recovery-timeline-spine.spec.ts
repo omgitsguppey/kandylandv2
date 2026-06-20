@@ -707,6 +707,43 @@ describe("recovery timeline spine", () => {
     expect(implicit.mathReason).toContain("no bounded source evidence");
   });
 
+  it("requires real bounded anchors before implicit source observation", () => {
+    const malformedTimestamp = buildRecoveredLaunchMetricState({
+      eventName: "drop_preview_opened",
+      timestampMs: Number.NaN,
+    });
+    const whitespaceAnchors = buildRecoveredLaunchMetricState({
+      eventName: "drop_preview_opened",
+      eventId: " ",
+      sessionId: " ",
+      identityLinkId: " ",
+      userId: " ",
+      anonymousVisitorId: " ",
+      route: " ",
+      objectId: " ",
+    });
+    const finiteTimestamp = buildRecoveredLaunchMetricState({
+      eventName: "drop_preview_opened",
+      timestampMs: Date.parse("2026-06-07T00:00:00.000Z"),
+    });
+
+    expect(malformedTimestamp).toMatchObject({
+      sourceTruth: "source_missing",
+      evidenceKind: "missing",
+      missingVsZeroState: "source_missing",
+    });
+    expect(whitespaceAnchors).toMatchObject({
+      sourceTruth: "source_missing",
+      evidenceKind: "missing",
+      missingVsZeroState: "source_missing",
+    });
+    expect(finiteTimestamp).toMatchObject({
+      sourceTruth: "first_party_event_fact",
+      evidenceKind: "observed",
+      missingVsZeroState: "source_present",
+    });
+  });
+
   it("keeps unknown recovered events from clearing launch-critical coverage", () => {
     const unknownMetric = buildRecoveredLaunchMetricState({
       eventName: "unmapped_legacy_launch_event",
