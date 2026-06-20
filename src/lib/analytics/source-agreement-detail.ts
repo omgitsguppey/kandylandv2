@@ -509,10 +509,13 @@ export function buildSourceAgreementCoverageSummaryState(
     ?? Object.entries(input.coverageBySource ?? {}).map(([source, days]) => ({ source, days }));
   const normalizedCoverage = perSourceCoverage.map((entry) => {
     const days = [...new Set([...entry.days].filter(Boolean))].sort();
+    const expectedWindowDayCount = days.filter((dayKey) => expectedDaySet.has(dayKey)).length;
     return {
       source: entry.source,
       days,
-      dayCount: typeof entry.dayCount === "number"
+      dayCount: expectedDaySet.size > 0
+        ? expectedWindowDayCount
+        : typeof entry.dayCount === "number"
         ? entry.dayCount
         : days.filter((dayKey) => expectedDaySet.has(dayKey)).length,
     };

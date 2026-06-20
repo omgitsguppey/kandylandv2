@@ -95,6 +95,23 @@ describe("source agreement failure detail", () => {
     });
   });
 
+  it("bounds source agreement day counts to the expected launch window", () => {
+    const summary = buildSourceAgreementCoverageSummaryState({
+      expectedDays: ["2026-05-02"],
+      perSourceCoverage: [
+        { source: "first_party", days: ["2026-05-01", "2026-05-02"], dayCount: 99 },
+        { source: "ga4", days: ["2026-05-02"], dayCount: 1 },
+      ],
+    });
+
+    expect(summary).toMatchObject({
+      activeSourceCount: 2,
+      activeSourceDayCounts: [1, 1],
+      maxDeltaPct: 0,
+      sourceAgreementStatus: "pass",
+    });
+  });
+
   it("reports compared sources, disagreement size, tolerance, blocked consumers, and exact next actions", () => {
     const detail = buildLaunchAnalyticsSourceAgreementFailureDetail({
       comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
