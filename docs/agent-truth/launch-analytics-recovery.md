@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-20T21:30:41.934Z
-Current head: ad14b5fe71513600251e0c078c42f373b89c8091
+Generated: 2026-06-20T21:35:59.010Z
+Current head: 7d9ebc601b7ca2ae9a19f0f2ca174c4e8ea4744c
 Status: source_agreement_failed
 
 ## Source Order
@@ -21,8 +21,8 @@ Status: source_agreement_failed
 - GA4 read mode: generated/local evidence only; no provider call performed
 - First-party read mode: source-agreement day-bucket evidence only; no production read performed
 - Limitation: This generated snapshot cannot clear runtime, provider, or admin-truth gates; use the all-range historical route/admin truth sample for formal launch-history proof.
-- Source gate: blocked - The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth.
-- Source gate blockers: all_launch_range_proof_missing: The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth.; first_party_coverage_incomplete: First-party product truth is incomplete; GA4, historical snapshots, and legacy support cannot clear the source gate.; launch_critical_family_coverage_below_floor: Launch-critical first-party family coverage is 7.7%; source truth needs at least 95% observed first-party coverage before clearing.; source_agreement_failed: Source agreement has not passed; repair the mismatched source lane before clearing source truth.; launch_history_coverage_unavailable: Launch history coverage is not fully available for the bounded evidence window.
+- Source gate: blocked - The evidence window is not proven to cover the full launch range; source truth needs a redacted all-range historical export or admin truth sample before clearing.
+- Source gate blockers: all_launch_range_proof_missing: The evidence window is not proven to cover the full launch range; source truth needs a redacted all-range historical export or admin truth sample before clearing.; first_party_coverage_incomplete: First-party product truth is incomplete; GA4, historical snapshots, and legacy support cannot clear the source gate.; launch_critical_family_coverage_below_floor: Launch-critical first-party family coverage is 7.7%; source truth needs at least 95% observed first-party coverage before clearing.; source_agreement_failed: Source agreement has not passed; repair the mismatched source lane before clearing source truth.; launch_history_coverage_unavailable: Launch history coverage is not fully available for the bounded evidence window.
 
 ## Canonical Owners
 
@@ -62,7 +62,7 @@ Status: source_agreement_failed
 - Range: 2026-02-12 to 2026-02-14
 - Range proof: fixture_only_local_window
 - Coverage window: fixture_only_local_window
-- Range proof reason: The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export.
+- Range proof reason: The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Convert a redacted all-range historical route export with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>` or place a complete redacted admin truth sample with launchHistoryCoverage day rows.
 - Evidence-observed days: 3/3
 - Product-truth recovered days: 1/3
 - Second-source-only days: 2

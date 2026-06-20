@@ -1,18 +1,18 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-20T21:30:41.934Z",
-  "currentHead": "ad14b5fe71513600251e0c078c42f373b89c8091",
+  "generatedAtUtc": "2026-06-20T21:35:59.010Z",
+  "currentHead": "7d9ebc601b7ca2ae9a19f0f2ca174c4e8ea4744c",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,
-  "sourceGateReason": "The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth.",
+  "sourceGateReason": "The evidence window is not proven to cover the full launch range; source truth needs a redacted all-range historical export or admin truth sample before clearing.",
   "sourceGateBlockers": [
     {
       "blocker": "all_launch_range_proof_missing",
-      "reason": "The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth.",
-      "nextAction": "Attach approved all-range launch-history evidence or a redacted admin truth sample with launchHistoryCoverage day rows."
+      "reason": "The evidence window is not proven to cover the full launch range; source truth needs a redacted all-range historical export or admin truth sample before clearing.",
+      "nextAction": "Run `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>` from a saved redacted Admin Analytics range=all response, or place the completed export at agent/evidence/launch-analytics/launch-history-coverage.local.json or agent/evidence/launch-analytics/launch-history-coverage.export.json."
     },
     {
       "blocker": "first_party_coverage_incomplete",
@@ -1063,8 +1063,8 @@
       "sourceGateBlockers": [
         {
           "blocker": "all_launch_range_proof_missing",
-          "reason": "The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth.",
-          "nextAction": "Attach approved all-range launch-history evidence or a redacted admin truth sample with launchHistoryCoverage day rows."
+          "reason": "The evidence window is not proven to cover the full launch range; source truth needs a redacted all-range historical export or admin truth sample before clearing.",
+          "nextAction": "Run `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>` from a saved redacted Admin Analytics range=all response, or place the completed export at agent/evidence/launch-analytics/launch-history-coverage.local.json or agent/evidence/launch-analytics/launch-history-coverage.export.json."
         },
         {
           "blocker": "first_party_coverage_incomplete",
@@ -1125,7 +1125,7 @@
       "unprovenRanges": [
         "2026-02-12..2026-06-20"
       ],
-      "reason": "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Formal all-launch recovery still needs the all-range historical route/admin truth sample or an approved export."
+      "reason": "The source-agreement detail is fixture/local-evidence only, not a formal all-launch proof. Convert a redacted all-range historical route export with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>` or place a complete redacted admin truth sample with launchHistoryCoverage day rows."
     },
     "rangeStartDayKey": "2026-02-12",
     "rangeEndDayKey": "2026-02-14",
@@ -1805,8 +1805,8 @@
     "sourceGateBlockers": [
       {
         "blocker": "all_launch_range_proof_missing",
-        "reason": "The evidence window is not proven to cover the full launch range; attach an all-range historical export or admin truth sample before clearing source truth.",
-        "nextAction": "Attach approved all-range launch-history evidence or a redacted admin truth sample with launchHistoryCoverage day rows."
+        "reason": "The evidence window is not proven to cover the full launch range; source truth needs a redacted all-range historical export or admin truth sample before clearing.",
+        "nextAction": "Run `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>` from a saved redacted Admin Analytics range=all response, or place the completed export at agent/evidence/launch-analytics/launch-history-coverage.local.json or agent/evidence/launch-analytics/launch-history-coverage.export.json."
       },
       {
         "blocker": "first_party_coverage_incomplete",
