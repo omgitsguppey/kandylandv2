@@ -47,7 +47,8 @@ describe("admin analytics source hierarchy", () => {
     });
     expect(JSON.stringify(hierarchy)).not.toContain("source agreement failed");
     expect(JSON.stringify(hierarchy)).toContain("source_agreement_failed");
-    expect(hierarchy.nextAction).toContain("Open Debug, restore first-party/materialized coverage");
+    expect(hierarchy.nextAction).toContain("Counts from app events and supporting analytics do not agree yet");
+    expect(hierarchy.nextAction).not.toContain("Open Debug");
   });
 
   it("keeps consumer source mismatch for an Analytics-only local fallback with no source blocker", () => {

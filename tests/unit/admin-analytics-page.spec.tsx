@@ -806,7 +806,7 @@ describe("AdminAnalyticsPage", () => {
       adminAnalyticsSourceHierarchy: {
         status: "source_agreement_failed",
         nextAction:
-          "Open Debug, restore first-party/materialized coverage, then show charts as current.",
+          "Counts from app events and supporting analytics do not agree yet. Keep charts held while app event coverage is repaired.",
         consumerSourceMismatches: [],
         blockedAnalyticsConsumers: [
           "debug_data_validation",
@@ -842,7 +842,7 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).toContain("source missing: Analytics overview, Analytics charts, Insight cards");
     expect(container.textContent).toContain("second-source views: Device mix, Region demand, Top paths");
     expect(container.textContent).toContain("charts waiting for proof: Debug source agreement, Source health, Public beta evidence");
-    expect(container.textContent).toContain("Open Debug, restore first-party/materialized coverage");
+    expect(container.textContent).toContain("Counts from app events and supporting analytics do not agree yet");
     expect(container.textContent).not.toContain("consumer_source_mismatch");
     expect(container.textContent).not.toContain("source_agreement_failed");
     expect(container.textContent).not.toContain("chart promotion held");

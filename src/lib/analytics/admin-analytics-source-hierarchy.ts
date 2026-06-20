@@ -70,6 +70,9 @@ const DEBUG_OR_SIGNOFF_CONSUMERS = new Set<AdminAnalyticsConsumerId>([
   "public_beta_score_evidence",
 ]);
 
+const SOURCE_AGREEMENT_REPAIR_ACTION =
+  "Counts from app events and supporting analytics do not agree yet. Keep charts held while app event coverage is repaired.";
+
 function resolveDisplayState(input: {
   consumerId: AdminAnalyticsConsumerId;
   blockerReason: string | null;
@@ -132,7 +135,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       fallbackAllowed: false,
       emptyStateAllowed: false,
       blockerReason: sourceAgreementFailed ? "source_agreement_failed" : null,
-      nextAction: sourceAgreementFailed ? "Open Debug and reconnect source agreement before showing charts as current." : "No action required.",
+      nextAction: sourceAgreementFailed ? SOURCE_AGREEMENT_REPAIR_ACTION : "No action required.",
     }),
     consumer({
       consumerId: "admin_analytics_overview",
@@ -246,7 +249,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
       fallbackAllowed: false,
       emptyStateAllowed: false,
       blockerReason: sourceAgreementFailed ? "source_agreement_failed" : null,
-      nextAction: sourceAgreementFailed ? "Score source agreement as blocked until mismatched evidence is repaired." : "No action required.",
+      nextAction: sourceAgreementFailed ? "Keep beta evidence blocked until app event coverage and supporting analytics agree." : "No action required.",
     }),
   ];
   const consumerSourceMismatches = mismatch
@@ -282,7 +285,7 @@ export function buildAdminAnalyticsSourceHierarchy(input: {
     blockedAnalyticsConsumers,
     secondSourceAnalyticsConsumers,
     nextAction: sourceAgreementFailed
-      ? "Open Debug, restore first-party/materialized coverage, then show charts as current."
+      ? SOURCE_AGREEMENT_REPAIR_ACTION
       : mismatch
         ? "Align the Analytics tab with the Debug source hierarchy and keep fallback empty states reasoned."
         : "No action required.",

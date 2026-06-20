@@ -1,7 +1,7 @@
 {
   "reportKey": "admin-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-19T05:07:33.782Z",
-  "currentHead": "b52505c555257dfa7ae9fa6ac5decebd04e9340b",
+  "generatedAtUtc": "2026-06-20T17:03:09.082Z",
+  "currentHead": "12db31fcfac9c3aaa78c38cdce0635fc66abfa38",
   "fixtureEvidence": {
     "evidenceKind": "source_fixture",
     "scenario": "debug_has_data_analytics_empty_source_agreement_failed",
@@ -28,7 +28,7 @@
           "fallbackAllowed": false,
           "emptyStateAllowed": false,
           "blockerReason": "source_agreement_failed",
-          "nextAction": "Review source agreement details in Debug before promoting charts.",
+          "nextAction": "Counts from app events and supporting analytics do not agree yet. Keep charts held while app event coverage is repaired.",
           "label": "Debug source agreement",
           "displayState": "chart_promotion_blocked"
         },
@@ -132,7 +132,7 @@
           "fallbackAllowed": false,
           "emptyStateAllowed": false,
           "blockerReason": "source_agreement_failed",
-          "nextAction": "Score source agreement as blocked until mismatched evidence is repaired.",
+          "nextAction": "Keep beta evidence blocked until app event coverage and supporting analytics agree.",
           "label": "Public beta evidence",
           "displayState": "chart_promotion_blocked"
         }
@@ -151,7 +151,7 @@
         "admin_analytics_region_demand",
         "admin_analytics_top_paths"
       ],
-      "nextAction": "Review source details in Debug and restore first-party/materialized coverage before promoting charts."
+      "nextAction": "Counts from app events and supporting analytics do not agree yet. Keep charts held while app event coverage is repaired."
     }
   },
   "validationFailures": []
