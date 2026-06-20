@@ -8,6 +8,10 @@ import {
   buildSourceAgreementFailureDetailFromLaunchHistoryCoverage,
   type LaunchHistoryCoverageForSourceAgreement,
 } from "../../src/lib/analytics/source-agreement-detail";
+import {
+  buildLaunchHistoryCoverageSummaryState,
+  buildLaunchHistorySourceCoverageRowsState,
+} from "../../src/lib/analytics/recovery-timeline-spine";
 import { resolveGa4AvailabilitySemantics } from "../../src/lib/analytics/ga4-availability-semantics";
 import { buildDebugCockpitBatch29AnalyticsSourceHierarchyReport } from "../../src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy";
 
@@ -93,6 +97,15 @@ function asOptionalString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
 
+export function readLaunchCoverageInputHead(raw: unknown) {
+  const root = asRecord(raw);
+  return asOptionalString(root.currentHead)
+    ?? asOptionalString(root.sourceCommit)
+    ?? asOptionalString(root.sourceHead)
+    ?? asOptionalString(root.commit)
+    ?? null;
+}
+
 function hasPassedCheck(root: Record<string, unknown>, checkId: string) {
   const checks = Array.isArray(root.checks) ? root.checks : [];
   return checks.some((entry) => {
@@ -142,6 +155,14 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
   const rangeProof = asRecord(candidate.rangeProof);
   const daysRaw = Array.isArray(candidate.days) ? candidate.days : [];
   const days: LaunchHistoryCoverageForSourceAgreement["days"] = [];
+  const expectedDayKeys: string[] = [];
+  const sourceCountsByDay: Record<string, {
+    first_party: number;
+    ga4: number;
+    historicalSnapshot: number;
+    legacySupport: number;
+  }> = {};
+  const internalAdminExcludedCountByDay: Record<string, number | null> = {};
 
   for (const entry of daysRaw) {
     const row = asRecord(entry);
@@ -149,37 +170,47 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
     if (!isDayKey(dayKey)) continue;
 
     const sourceCounts = asRecord(row.sourceCounts);
+    const normalizedSourceCounts = {
+      first_party: asSourceCount(sourceCounts.first_party),
+      ga4: asSourceCount(sourceCounts.ga4),
+      historicalSnapshot: asSourceCount(sourceCounts.historicalSnapshot),
+      legacySupport: asSourceCount(sourceCounts.legacySupport),
+    };
+    const expected = row.expected !== false;
+    const internalAdminExcludedCount = typeof row.internalAdminExcludedCount === "number"
+      ? Math.max(0, row.internalAdminExcludedCount)
+      : null;
     days.push({
       dayKey,
-      expected: row.expected !== false,
-      sourceCounts: {
-        first_party: asSourceCount(sourceCounts.first_party),
-        ga4: asSourceCount(sourceCounts.ga4),
-        historicalSnapshot: asSourceCount(sourceCounts.historicalSnapshot),
-        legacySupport: asSourceCount(sourceCounts.legacySupport),
-      },
-      internalAdminExcludedCount: typeof row.internalAdminExcludedCount === "number"
-        ? Math.max(0, row.internalAdminExcludedCount)
-        : null,
+      expected,
+      sourceCounts: normalizedSourceCounts,
+      internalAdminExcludedCount,
     });
+    if (expected) {
+      expectedDayKeys.push(dayKey);
+      sourceCountsByDay[dayKey] = normalizedSourceCounts;
+      internalAdminExcludedCountByDay[dayKey] = internalAdminExcludedCount;
+    }
   }
 
   if (days.length === 0) return null;
 
-  const expectedDayCount = days.filter((day) => day.expected).length;
-  const recoveredDayCount = days.filter((day) =>
-    day.expected && Object.values(day.sourceCounts).some((count) => count > 0)
-  ).length;
-  const state = recoveredDayCount === 0
-    ? "source_missing"
-    : recoveredDayCount < expectedDayCount
-      ? "partial"
-      : "available";
+  const sourceCoverageRows = buildLaunchHistorySourceCoverageRowsState({
+    expectedDayKeys,
+    sourceCountsByDay,
+    internalAdminExcludedCountByDay,
+  });
+  const coverageSummary = buildLaunchHistoryCoverageSummaryState({
+    expectedDayKeys: sourceCoverageRows.expectedDayKeys,
+    dayCoverage: sourceCoverageRows.dayCoverage,
+    staleEvidence: false,
+    sourceAgreementState: "pass",
+  });
 
   return {
-    expectedDayCount,
-    recoveredDayCount,
-    state,
+    expectedDayCount: expectedDayKeys.length,
+    recoveredDayCount: coverageSummary.recoveredDayCount,
+    state: coverageSummary.launchCoverage.state,
     rangeStartDayKey: asOptionalString(candidate.rangeStartDayKey),
     rangeEndDayKey: asOptionalString(candidate.rangeEndDayKey),
     rangeProof: {
@@ -288,6 +319,7 @@ function loadLaunchHistoryCoverageExport() {
         filePath,
         coverage,
         proofMode: proofModeForLaunchCoverageExport(filePath, raw),
+        inputHead: readLaunchCoverageInputHead(raw),
       };
     }
   }
@@ -302,9 +334,11 @@ export function buildLaunchSourceAgreementDetail() {
       : "local_export"
     : "fixture_only_local_window";
   const inputPath = localExport?.filePath ?? null;
+  const inputHead = localExport?.inputHead ?? null;
   const launchCoverageEvidence = {
     inputMode,
     inputPath,
+    inputHead,
     usableInputFound: Boolean(inputPath),
     candidateInputPaths: launchHistoryCoverageExportPaths(),
     candidateInputStatuses: launchHistoryCoverageInputStatuses(),
@@ -315,6 +349,7 @@ export function buildLaunchSourceAgreementDetail() {
     return {
       inputMode,
       inputPath,
+      inputHead,
       launchCoverageEvidence,
       detail: buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
         proofMode: localExport.proofMode,
@@ -328,6 +363,7 @@ export function buildLaunchSourceAgreementDetail() {
   return {
     inputMode,
     inputPath,
+    inputHead,
     launchCoverageEvidence,
     detail: buildLaunchAnalyticsSourceAgreementFailureDetail({
       comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
@@ -401,8 +437,16 @@ function dirtyClassifications() {
     .map((line) => {
       const filePath = line.replace(/^[ MADRCU?!]{1,2}\s+/u, "").trim();
       const classification =
-        filePath.includes("chart-readiness-hierarchy") ? "analytics_source_hierarchy_fix_required"
+        filePath === "AGENTS.md" || filePath === "FULL_SCALE_CODEBASE_AUDIT.md" || filePath === "REPO_MEMORY_LEDGER.md" || filePath === "EVERY_FILE_FUNCTION_CHECKLIST.md"
+          ? "doctrine_memory_artifact_expected"
+          : filePath.includes("chart-readiness-hierarchy") ? "analytics_source_hierarchy_fix_required"
           : filePath.includes("ga4-availability-semantics") ? "ga4_availability_semantics_required"
+            : filePath.endsWith("analytics-semantics.ts") ? "analytics_semantics_support_expected"
+              : filePath === "scripts/audit-telemetry.ts" || filePath === "src/lib/telemetry-catalog.ts" || filePath === "shared/runtime/telemetry-event-manifest.ts" ? "telemetry_catalog_support_expected"
+                : filePath === "scripts/rebuild-analytics-truth.ts" ? "analytics_truth_rebuild_support_expected"
+                  : filePath === "src/lib/analytics/recovery-timeline-spine.ts" ? "recovery_timeline_spine_expected"
+                    : filePath === "src/components/Admin/CreateDropModal.tsx" ? "creator_drop_ui_repair_unrelated"
+                      : filePath === "src/lib/admin/admin-browser-surface-map.ts" || filePath === "src/lib/evidence/admin-browser-surface-smoke-contract.ts" ? "admin_browser_source_smoke_support_expected"
             : filePath.includes("admin-analytics-source-hierarchy") ? "analytics_tab_source_truth_mismatch_required"
               : filePath.includes("data-validation-copy-consistency") ? "validation_copy_contradiction_required"
                 : filePath.includes("public-beta-score") || filePath.includes("current-beta-exit-status") || filePath.includes("overnight-beta-readiness-lock") ? "current_generated_artifact_to_commit"

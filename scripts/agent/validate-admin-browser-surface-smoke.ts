@@ -159,6 +159,35 @@ function readBrowserHarnessContract() {
   };
 }
 
+function readSourceSmokeContracts(layoutSelectorContract: ReturnType<typeof readLayoutSelectorContract>) {
+  const controlTowerRouteSource = readFileSync(join(ROOT, "src/app/api/admin/debug/control-tower/route.ts"), "utf8");
+  const routeRuntimeHealthSource = readFileSync(join(ROOT, "src/lib/server/route-runtime-health.ts"), "utf8");
+  const clientErrorReportingSource = readFileSync(join(ROOT, "src/lib/client-error-reporting.ts"), "utf8");
+
+  return {
+    routeContractPresent: ADMIN_BROWSER_SURFACE_DEFINITIONS.length > 0,
+    layoutHydrationMarkerPresent:
+      layoutSelectorContract.hasSurfaceAttribute &&
+      layoutSelectorContract.hasRouteAttribute &&
+      layoutSelectorContract.hasGroupAttribute &&
+      layoutSelectorContract.usesSurfaceResolver,
+    controlTowerFixtureSourceReportsOnly:
+      controlTowerRouteSource.includes("isLocalAdminUiTestSessionRequest") &&
+      controlTowerRouteSource.includes("buildAdminDebugControlTowerModel") &&
+      controlTowerRouteSource.includes("X-Admin-Ui-Test-Session") &&
+      controlTowerRouteSource.includes("source-reports-only"),
+    routeRuntimeHealthVerificationPresent:
+      routeRuntimeHealthSource.includes("injectAdminRouteVerification") &&
+      routeRuntimeHealthSource.includes("buildAdminModuleVerification") &&
+      routeRuntimeHealthSource.includes("Route returned JSON without explicit source-state evidence."),
+    clientErrorFixturePresent:
+      clientErrorReportingSource.includes("reportClientIssue") &&
+      clientErrorReportingSource.includes("queueDebugEvidenceWrite") &&
+      clientErrorReportingSource.includes("buildClientIssueFingerprint") &&
+      clientErrorReportingSource.includes("/api/debug/evidence"),
+  };
+}
+
 function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
   return [
     "# Admin Browser Surface Smoke",
@@ -176,7 +205,7 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Source admin pages: ${report.summary.sourceAdminPageCount}`,
     `- Layout selector contract present: ${report.summary.layoutSelectorContractPresent}`,
     `- Browser harness contract present: ${report.summary.browserHarnessContractPresent}`,
-    `- Required authenticated surface/device checks: ${report.summary.requiredAuthenticatedSurfaceCount}`,
+    `- Optional authenticated reproduction surface/device checks: ${report.summary.optionalAuthenticatedSurfaceCount}`,
     `- Evidence entries: ${report.summary.evidenceCount}`,
     `- Authenticated checks present: ${report.summary.authenticatedSurfaceEvidenceCount}`,
     `- Local fixture checks present: ${report.summary.localFixtureSurfaceEvidenceCount}`,
@@ -196,6 +225,19 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
     `- Evidence base URL: ${report.evidenceProvenance.baseUrl ?? "none"}`,
     `- Evidence captured at: ${report.evidenceProvenance.capturedAtUtc ?? "none"}`,
     `- Protected surfaces: ${report.protectedSurfaceIds.join(", ")}`,
+    "",
+    "## Source Smoke",
+    "",
+    ...report.sourceSmoke.map((surface) =>
+      `- ${surface.surfaceId}: route=${surface.route}; component=${surface.component}; selector=${surface.selector}; marker=${surface.marker}; sourceTruth=${surface.sourceTruth}; freshnessState=${surface.freshnessState}; confidence=${surface.confidence}; next=${surface.nextAction}`),
+    "",
+    "## Source Smoke Contracts",
+    "",
+    `- Route contract present: ${report.sourceSmokeContracts.routeContractPresent}`,
+    `- Layout hydration marker present: ${report.sourceSmokeContracts.layoutHydrationMarkerPresent}`,
+    `- Control Tower fixture source reports only: ${report.sourceSmokeContracts.controlTowerFixtureSourceReportsOnly}`,
+    `- Route runtime health verification present: ${report.sourceSmokeContracts.routeRuntimeHealthVerificationPresent}`,
+    `- Client-error fixture/debug evidence present: ${report.sourceSmokeContracts.clientErrorFixturePresent}`,
     "",
     "## Surfaces",
     "",
@@ -267,14 +309,16 @@ function renderDoc(report: AdminBrowserSurfaceSmokeReport) {
 }
 
 const evidenceFile = readEvidenceInputs();
+const layoutSelectorContract = readLayoutSelectorContract();
 const report = buildAdminBrowserSurfaceSmokeReport({
   currentHead: git(["rev-parse", "HEAD"]),
   generatedAtUtc: new Date().toISOString(),
   evidence: evidenceFile?.evidence,
   evidenceProvenance: evidenceFile?.provenance,
   sourceAdminRoutes: sourceAdminRoutes(),
-  layoutSelectorContract: readLayoutSelectorContract(),
+  layoutSelectorContract,
   browserHarnessContract: readBrowserHarnessContract(),
+  sourceSmokeContracts: readSourceSmokeContracts(layoutSelectorContract),
 });
 const failures = validateAdminBrowserSurfaceSmokeReport(report);
 const output: AdminBrowserSurfaceSmokeReport = {

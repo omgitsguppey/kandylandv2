@@ -22,6 +22,41 @@ export type AdminBrowserSurfaceReportStatus =
   | "local_fixture_browser_covered"
   | "authenticated_browser_covered";
 
+export type AdminBrowserSurfaceSourceTruth =
+  | "source_clear"
+  | "source_reports_only"
+  | "live_admin_required"
+  | "provider_required";
+
+export type AdminBrowserSurfaceFreshnessState =
+  | "source_fresh"
+  | "source_reports_only"
+  | "external_proof_required";
+
+export type AdminBrowserSurfaceSourceConfidence =
+  | "high"
+  | "medium"
+  | "external_required";
+
+export type AdminBrowserSurfaceSourceSmokeRow = {
+  surfaceId: string;
+  route: string;
+  component: string;
+  selector: string;
+  marker: string;
+  sourceTruth: AdminBrowserSurfaceSourceTruth;
+  freshnessState: AdminBrowserSurfaceFreshnessState;
+  confidence: AdminBrowserSurfaceSourceConfidence;
+  nextAction: string;
+  sourceEvidence: {
+    routeContract: boolean;
+    layoutHydrationMarker: boolean;
+    sourceReportFixture: boolean;
+    routeRuntimeHealth: boolean;
+    clientErrorFixture: boolean;
+  };
+};
+
 export type AdminBrowserSurfaceEvidenceInput = Partial<{
   surfaceId: string;
   route: string;
@@ -111,7 +146,7 @@ export type AdminBrowserSurfaceSmokeReport = {
     sourceAdminPageCount: number;
     layoutSelectorContractPresent: boolean;
     browserHarnessContractPresent: boolean;
-    requiredAuthenticatedSurfaceCount: number;
+    optionalAuthenticatedSurfaceCount: number;
     evidenceCount: number;
     authenticatedSurfaceEvidenceCount: number;
     localFixtureSurfaceEvidenceCount: number;
@@ -128,9 +163,15 @@ export type AdminBrowserSurfaceSmokeReport = {
       authenticatedAdminEvidenceMissing: number;
       protectedLabelOnly: number;
     };
+    sourceSmokeRows: number;
+    sourceClearCount: number;
+    sourceReportsOnlyCount: number;
+    liveAdminRequiredCount: number;
+    providerRequiredCount: number;
     protectedSurfaceCount: number;
   };
   surfaces: AdminBrowserSurfaceDefinition[];
+  sourceSmoke: AdminBrowserSurfaceSourceSmokeRow[];
   evidenceProvenance: AdminBrowserSurfaceEvidenceProvenance;
   sourceAdminRoutes: string[];
   missingSourceAdminRoutes: string[];
@@ -155,6 +196,13 @@ export type AdminBrowserSurfaceSmokeReport = {
     checksRouteAttribute: boolean;
     rejectsPublicHomeFallback: boolean;
     writesOptionalEvidenceDir: boolean;
+  };
+  sourceSmokeContracts: {
+    routeContractPresent: boolean;
+    layoutHydrationMarkerPresent: boolean;
+    controlTowerFixtureSourceReportsOnly: boolean;
+    routeRuntimeHealthVerificationPresent: boolean;
+    clientErrorFixturePresent: boolean;
   };
   evidence: AdminBrowserSurfaceEvidence[];
   missingAuthenticatedSurfaceIds: string[];
@@ -198,6 +246,68 @@ function matchesExpectedVisibleMarker(visibleMarker: string | undefined, expecte
   return expectedMarkers.some((marker) => normalized.includes(marker.toLowerCase()));
 }
 
+function resolveSurfaceSourceTruth(surface: AdminBrowserSurfaceDefinition): AdminBrowserSurfaceSourceTruth {
+  if (surface.protectedDomain === "gumdrop_treasury") return "provider_required";
+  if (surface.surfaceId === "admin_debug") return "source_reports_only";
+  return "source_clear";
+}
+
+function resolveSurfaceFreshnessState(sourceTruth: AdminBrowserSurfaceSourceTruth): AdminBrowserSurfaceFreshnessState {
+  if (sourceTruth === "provider_required" || sourceTruth === "live_admin_required") return "external_proof_required";
+  if (sourceTruth === "source_reports_only") return "source_reports_only";
+  return "source_fresh";
+}
+
+function resolveSurfaceConfidence(sourceTruth: AdminBrowserSurfaceSourceTruth): AdminBrowserSurfaceSourceConfidence {
+  if (sourceTruth === "provider_required" || sourceTruth === "live_admin_required") return "external_required";
+  if (sourceTruth === "source_reports_only") return "medium";
+  return "high";
+}
+
+function buildSurfaceNextAction(surface: AdminBrowserSurfaceDefinition, sourceTruth: AdminBrowserSurfaceSourceTruth) {
+  if (sourceTruth === "provider_required") {
+    return `${surface.title} is source-visible only; keep GumDrop/payment proof in the formal provider/admin truth lane.`;
+  }
+  if (sourceTruth === "live_admin_required") {
+    return `${surface.title} requires a formal live admin evidence artifact before claiming runtime/admin truth.`;
+  }
+  if (sourceTruth === "source_reports_only") {
+    return `${surface.title} uses local generated source reports for account-free smoke; use browser only to reproduce a source-reported issue.`;
+  }
+  return `${surface.title} source contract is clear; use browser only to reproduce a source-reported issue.`;
+}
+
+function buildSourceSmokeRows(input: {
+  layoutSelectorContractPresent: boolean;
+  controlTowerFixtureSourceReportsOnly: boolean;
+  routeRuntimeHealthVerificationPresent: boolean;
+  clientErrorFixturePresent: boolean;
+}) {
+  return ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface): AdminBrowserSurfaceSourceSmokeRow => {
+    const sourceTruth = resolveSurfaceSourceTruth(surface);
+    return {
+      surfaceId: surface.surfaceId,
+      route: surface.route,
+      component: surface.sourceComponentPath,
+      selector: surface.authenticatedSelectors[0] ?? "",
+      marker: surface.authenticatedVisibleMarkers[0] ?? "",
+      sourceTruth,
+      freshnessState: resolveSurfaceFreshnessState(sourceTruth),
+      confidence: resolveSurfaceConfidence(sourceTruth),
+      nextAction: buildSurfaceNextAction(surface, sourceTruth),
+      sourceEvidence: {
+        routeContract: true,
+        layoutHydrationMarker: input.layoutSelectorContractPresent,
+        sourceReportFixture: sourceTruth === "source_reports_only"
+          ? input.controlTowerFixtureSourceReportsOnly
+          : true,
+        routeRuntimeHealth: input.routeRuntimeHealthVerificationPresent,
+        clientErrorFixture: input.clientErrorFixturePresent,
+      },
+    };
+  });
+}
+
 export function normalizeAdminBrowserSurfaceEvidence(
   input: AdminBrowserSurfaceEvidenceInput,
 ): AdminBrowserSurfaceEvidence | null {
@@ -229,6 +339,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
   sourceAdminRoutes?: string[];
   layoutSelectorContract?: Partial<AdminBrowserSurfaceSmokeReport["layoutSelectorContract"]>;
   browserHarnessContract?: Partial<AdminBrowserSurfaceSmokeReport["browserHarnessContract"]>;
+  sourceSmokeContracts?: Partial<AdminBrowserSurfaceSmokeReport["sourceSmokeContracts"]>;
 } = {}): AdminBrowserSurfaceSmokeReport {
   const evidence = (input.evidence ?? [])
     .map(normalizeAdminBrowserSurfaceEvidence)
@@ -325,6 +436,23 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
     browserHarnessContract.checksRouteAttribute &&
     browserHarnessContract.rejectsPublicHomeFallback &&
     browserHarnessContract.writesOptionalEvidenceDir;
+  const sourceSmokeContracts = {
+    routeContractPresent: ADMIN_BROWSER_SURFACE_DEFINITIONS.length > 0,
+    layoutHydrationMarkerPresent: layoutSelectorContractPresent,
+    controlTowerFixtureSourceReportsOnly: Boolean(input.sourceSmokeContracts?.controlTowerFixtureSourceReportsOnly),
+    routeRuntimeHealthVerificationPresent: Boolean(input.sourceSmokeContracts?.routeRuntimeHealthVerificationPresent),
+    clientErrorFixturePresent: Boolean(input.sourceSmokeContracts?.clientErrorFixturePresent),
+  };
+  const sourceSmoke = buildSourceSmokeRows({
+    layoutSelectorContractPresent,
+    controlTowerFixtureSourceReportsOnly: sourceSmokeContracts.controlTowerFixtureSourceReportsOnly,
+    routeRuntimeHealthVerificationPresent: sourceSmokeContracts.routeRuntimeHealthVerificationPresent,
+    clientErrorFixturePresent: sourceSmokeContracts.clientErrorFixturePresent,
+  });
+  const sourceClearCount = sourceSmoke.filter((row) => row.sourceTruth === "source_clear").length;
+  const sourceReportsOnlyCount = sourceSmoke.filter((row) => row.sourceTruth === "source_reports_only").length;
+  const liveAdminRequiredCount = sourceSmoke.filter((row) => row.sourceTruth === "live_admin_required").length;
+  const providerRequiredCount = sourceSmoke.filter((row) => row.sourceTruth === "provider_required").length;
   const status: AdminBrowserSurfaceReportStatus = authenticatedSurfaceEvidenceCount === requiredAuthenticated.length
     ? "authenticated_browser_covered"
     : missingAccountFreeFixtureSurfaceIds.length === 0
@@ -384,7 +512,7 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
       sourceAdminPageCount: sourceAdminRoutes.length,
       layoutSelectorContractPresent,
       browserHarnessContractPresent,
-      requiredAuthenticatedSurfaceCount: requiredAuthenticated.length,
+      optionalAuthenticatedSurfaceCount: requiredAuthenticated.length,
       evidenceCount: evidence.length,
       authenticatedSurfaceEvidenceCount,
       localFixtureSurfaceEvidenceCount,
@@ -401,15 +529,22 @@ export function buildAdminBrowserSurfaceSmokeReport(input: {
         authenticatedAdminEvidenceMissing: missingAuthenticatedSurfaceIds.length,
         protectedLabelOnly: protectedSurfaceIds.length,
       },
+      sourceSmokeRows: sourceSmoke.length,
+      sourceClearCount,
+      sourceReportsOnlyCount,
+      liveAdminRequiredCount,
+      providerRequiredCount,
       protectedSurfaceCount: protectedSurfaceIds.length,
     },
     surfaces: [...ADMIN_BROWSER_SURFACE_DEFINITIONS],
+    sourceSmoke,
     evidenceProvenance,
     sourceAdminRoutes,
     missingSourceAdminRoutes,
     extraSurfaceRoutes,
     layoutSelectorContract,
     browserHarnessContract,
+    sourceSmokeContracts,
     evidence,
     missingAuthenticatedSurfaceIds,
     missingAccountFreeFixtureSurfaceIds,
@@ -464,6 +599,71 @@ export function validateAdminBrowserSurfaceSmokeReport(report: AdminBrowserSurfa
   }
   if (Object.prototype.hasOwnProperty.call(report.summary, "manualAdminAuthRequiredCount")) {
     failures.push("admin browser smoke summary must expose sourceTruthStates instead of manualAdminAuthRequiredCount.");
+  }
+  if (report.summary.sourceSmokeRows !== report.sourceSmoke.length) {
+    failures.push("sourceSmokeRows must match sourceSmoke length.");
+  }
+  if (report.summary.sourceSmokeRows !== ADMIN_BROWSER_SURFACE_DEFINITIONS.length) {
+    failures.push("source smoke must include one row for every admin browser surface.");
+  }
+  if (report.summary.sourceClearCount !== report.sourceSmoke.filter((row) => row.sourceTruth === "source_clear").length) {
+    failures.push("sourceClearCount must match source smoke rows.");
+  }
+  if (report.summary.sourceReportsOnlyCount !== report.sourceSmoke.filter((row) => row.sourceTruth === "source_reports_only").length) {
+    failures.push("sourceReportsOnlyCount must match source smoke rows.");
+  }
+  if (report.summary.liveAdminRequiredCount !== report.sourceSmoke.filter((row) => row.sourceTruth === "live_admin_required").length) {
+    failures.push("liveAdminRequiredCount must match source smoke rows.");
+  }
+  if (report.summary.providerRequiredCount !== report.sourceSmoke.filter((row) => row.sourceTruth === "provider_required").length) {
+    failures.push("providerRequiredCount must match source smoke rows.");
+  }
+  if (!report.sourceSmokeContracts.routeContractPresent) {
+    failures.push("source smoke requires canonical route contract entries.");
+  }
+  if (!report.sourceSmokeContracts.layoutHydrationMarkerPresent) {
+    failures.push("source smoke requires shared admin layout hydration markers.");
+  }
+  if (!report.sourceSmokeContracts.controlTowerFixtureSourceReportsOnly) {
+    failures.push("source smoke requires local Control Tower fixture reports to be source_reports_only.");
+  }
+  if (!report.sourceSmokeContracts.routeRuntimeHealthVerificationPresent) {
+    failures.push("source smoke requires route runtime health verification injection.");
+  }
+  if (!report.sourceSmokeContracts.clientErrorFixturePresent) {
+    failures.push("source smoke requires client-error fixture/debug evidence reporting.");
+  }
+  const sourceSmokeBySurface = new Map(report.sourceSmoke.map((row) => [row.surfaceId, row]));
+  for (const surface of ADMIN_BROWSER_SURFACE_DEFINITIONS) {
+    const row = sourceSmokeBySurface.get(surface.surfaceId);
+    if (!row) {
+      failures.push(`source smoke missing surface row: ${surface.surfaceId}`);
+      continue;
+    }
+    if (row.route !== surface.route) failures.push(`${surface.surfaceId} source smoke route must match the canonical route.`);
+    if (row.component !== surface.sourceComponentPath) failures.push(`${surface.surfaceId} source smoke component must match the canonical source component.`);
+    if (!row.selector || !(surface.authenticatedSelectors as readonly string[]).includes(row.selector)) {
+      failures.push(`${surface.surfaceId} source smoke selector must match a canonical selector.`);
+    }
+    if (!row.marker || !(surface.authenticatedVisibleMarkers as readonly string[]).includes(row.marker)) {
+      failures.push(`${surface.surfaceId} source smoke marker must match a canonical marker.`);
+    }
+    if (!row.nextAction.trim()) failures.push(`${surface.surfaceId} source smoke must include a nextAction.`);
+    const expectedTruth = resolveSurfaceSourceTruth(surface);
+    if (row.sourceTruth !== expectedTruth) {
+      failures.push(`${surface.surfaceId} source smoke sourceTruth must be ${expectedTruth}.`);
+    }
+    if (row.freshnessState !== resolveSurfaceFreshnessState(expectedTruth)) {
+      failures.push(`${surface.surfaceId} source smoke freshnessState does not match sourceTruth.`);
+    }
+    if (row.confidence !== resolveSurfaceConfidence(expectedTruth)) {
+      failures.push(`${surface.surfaceId} source smoke confidence does not match sourceTruth.`);
+    }
+    if (!row.sourceEvidence.routeContract) failures.push(`${surface.surfaceId} source smoke requires routeContract evidence.`);
+    if (!row.sourceEvidence.layoutHydrationMarker) failures.push(`${surface.surfaceId} source smoke requires layoutHydrationMarker evidence.`);
+    if (!row.sourceEvidence.sourceReportFixture) failures.push(`${surface.surfaceId} source smoke requires sourceReportFixture evidence.`);
+    if (!row.sourceEvidence.routeRuntimeHealth) failures.push(`${surface.surfaceId} source smoke requires routeRuntimeHealth evidence.`);
+    if (!row.sourceEvidence.clientErrorFixture) failures.push(`${surface.surfaceId} source smoke requires clientErrorFixture evidence.`);
   }
   if (report.summary.sourceTruthStates.authenticatedAdminEvidenceMissing !== report.missingAuthenticatedSurfaceIds.length) {
     failures.push("authenticatedAdminEvidenceMissing must match missingAuthenticatedSurfaceIds.");

@@ -40,6 +40,14 @@ const BROWSER_HARNESS_CONTRACT = {
   writesOptionalEvidenceDir: true,
 };
 
+const SOURCE_SMOKE_CONTRACTS = {
+  routeContractPresent: true,
+  layoutHydrationMarkerPresent: true,
+  controlTowerFixtureSourceReportsOnly: true,
+  routeRuntimeHealthVerificationPresent: true,
+  clientErrorFixturePresent: true,
+};
+
 function fixtureEvidenceForAllDeviceBands() {
   return ADMIN_BROWSER_SURFACE_DEFINITIONS.flatMap((surface) =>
     surface.deviceBands.map((deviceBand) => ({
@@ -62,6 +70,7 @@ describe("admin browser surface smoke contract", () => {
       generatedAtUtc: "2026-06-11T12:00:00.000Z",
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
     });
 
     expect(report.reportKey).toBe("admin-browser-surface-smoke");
@@ -85,7 +94,7 @@ describe("admin browser surface smoke contract", () => {
     expect(report.summary.sourceAdminPageCount).toBe(14);
     expect(report.summary.layoutSelectorContractPresent).toBe(true);
     expect(report.summary.browserHarnessContractPresent).toBe(true);
-    expect(report.summary.requiredAuthenticatedSurfaceCount).toBe(18);
+    expect(report.summary.optionalAuthenticatedSurfaceCount).toBe(18);
     expect(report.summary.localFixtureSurfaceEvidenceCount).toBe(0);
     expect(report.summary.accountFreeFixtureCoveredCount).toBe(0);
     expect(report.summary.accountFreeFixturePendingCount).toBe(18);
@@ -98,7 +107,33 @@ describe("admin browser surface smoke contract", () => {
       authenticatedAdminEvidenceMissing: 18,
       protectedLabelOnly: 1,
     });
+    expect(report.summary.sourceSmokeRows).toBe(14);
+    expect(report.summary.sourceClearCount).toBe(12);
+    expect(report.summary.sourceReportsOnlyCount).toBe(1);
+    expect(report.summary.liveAdminRequiredCount).toBe(0);
+    expect(report.summary.providerRequiredCount).toBe(1);
     expect(report.summary).not.toHaveProperty("manualAdminAuthRequiredCount");
+    expect(report.sourceSmoke).toHaveLength(14);
+    expect(report.sourceSmoke.every((surface) =>
+      surface.route
+      && surface.component.startsWith("src/app/admin/")
+      && surface.selector.startsWith("[data-admin-browser-surface=")
+      && surface.marker
+      && surface.nextAction
+    )).toBe(true);
+    expect(report.sourceSmoke.find((surface) => surface.surfaceId === "admin_debug")).toMatchObject({
+      route: "/admin/debug",
+      component: "src/app/admin/debug/page.tsx",
+      sourceTruth: "source_reports_only",
+      freshnessState: "source_reports_only",
+      confidence: "medium",
+    });
+    expect(report.sourceSmoke.find((surface) => surface.surfaceId === "admin_economy")).toMatchObject({
+      sourceTruth: "provider_required",
+      freshnessState: "external_proof_required",
+      confidence: "external_required",
+    });
+    expect(report.sourceSmokeContracts).toEqual(SOURCE_SMOKE_CONTRACTS);
     expect(report.missingAccountFreeFixtureSurfaceIds).toHaveLength(18);
     expect(report.evidenceProvenance.source).toBe("none");
     expect(report.evidenceProvenance.evidenceMode).toBe("none");
@@ -158,6 +193,7 @@ describe("admin browser surface smoke contract", () => {
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
       evidence: ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => ({
         surfaceId: surface.surfaceId,
         route: surface.route,
@@ -192,6 +228,7 @@ describe("admin browser surface smoke contract", () => {
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
       evidence: ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => ({
         surfaceId: surface.surfaceId,
         route: surface.route,
@@ -224,6 +261,7 @@ describe("admin browser surface smoke contract", () => {
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
       evidence: fixtureEvidenceForAllDeviceBands(),
     });
 
@@ -252,6 +290,7 @@ describe("admin browser surface smoke contract", () => {
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -271,6 +310,7 @@ describe("admin browser surface smoke contract", () => {
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -289,6 +329,7 @@ describe("admin browser surface smoke contract", () => {
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -311,6 +352,7 @@ describe("admin browser surface smoke contract", () => {
       evidenceProvenance: LOCAL_BROWSER_PROVENANCE,
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
       evidence: [{
         surfaceId: "admin_debug",
         route: "/admin/debug",
@@ -355,6 +397,7 @@ describe("admin browser surface smoke contract", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
       browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
       sourceAdminRoutes: [
         ...ADMIN_BROWSER_SURFACE_DEFINITIONS.map((surface) => surface.route),
         "/admin/new-panel",
@@ -370,6 +413,7 @@ describe("admin browser surface smoke contract", () => {
   it("fails when the shared admin layout does not expose browser smoke selectors", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
     });
 
     expect(report.summary.layoutSelectorContractPresent).toBe(false);
@@ -384,6 +428,7 @@ describe("admin browser surface smoke contract", () => {
   it("fails when the opt-in browser harness drifts from the canonical surface contract", () => {
     const report = buildAdminBrowserSurfaceSmokeReport({
       layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
       browserHarnessContract: {
         ...BROWSER_HARNESS_CONTRACT,
         packageScriptPresent: false,
@@ -411,6 +456,47 @@ describe("admin browser surface smoke contract", () => {
       "admin browser smoke browser test must assert data-admin-browser-route.",
       "admin browser smoke browser test must reject public-home fallback content.",
       "admin browser smoke browser test must write optional per-surface evidence only when ADMIN_BROWSER_SMOKE_EVIDENCE_DIR is set.",
+    ]));
+  });
+
+  it("fails if a source smoke row is missing or hides source truth", () => {
+    const report = buildAdminBrowserSurfaceSmokeReport({
+      layoutSelectorContract: LAYOUT_SELECTOR_CONTRACT,
+      browserHarnessContract: BROWSER_HARNESS_CONTRACT,
+      sourceSmokeContracts: SOURCE_SMOKE_CONTRACTS,
+    });
+    const invalid = {
+      ...report,
+      summary: {
+        ...report.summary,
+        sourceSmokeRows: 12,
+      },
+      sourceSmoke: report.sourceSmoke
+        .filter((surface) => surface.surfaceId !== "admin_debug")
+        .map((surface) => surface.surfaceId === "admin_analytics"
+          ? {
+            ...surface,
+            component: "",
+            sourceTruth: "source_clear",
+            freshnessState: "source_fresh",
+            confidence: "high",
+            nextAction: "",
+            sourceEvidence: {
+              ...surface.sourceEvidence,
+              clientErrorFixture: false,
+            },
+          }
+          : surface),
+    } as unknown as AdminBrowserSurfaceSmokeReport;
+
+    expect(validateAdminBrowserSurfaceSmokeReport(invalid)).toEqual(expect.arrayContaining([
+      "sourceSmokeRows must match sourceSmoke length.",
+      "source smoke must include one row for every admin browser surface.",
+      "sourceReportsOnlyCount must match source smoke rows.",
+      "source smoke missing surface row: admin_debug",
+      "admin_analytics source smoke component must match the canonical source component.",
+      "admin_analytics source smoke must include a nextAction.",
+      "admin_analytics source smoke requires clientErrorFixture evidence.",
     ]));
   });
 });
