@@ -370,7 +370,7 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.evidenceGates).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: "targetedBehaviorTests", status: "Source evidence required", score: 0 }),
+            expect.objectContaining({ id: "targetedBehaviorTests", status: "Source validation only", score: 0 }),
             expect.objectContaining({ id: "runtimeProviderSmoke", status: "Source evidence required", score: 0 }),
             expect.objectContaining({ id: "adminTruthSamples", status: "Source evidence required", score: 0 }),
         ]));
@@ -436,12 +436,16 @@ describe("public beta scoring math", () => {
         const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
         const runtimeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
 
-        expect(targetedGate?.status).toBe("Source evidence required");
+        expect(targetedGate?.status).toBe("Source validation only");
         expect(targetedGate?.sourceCredit).toBe(88);
         expect(targetedGate?.runtimeCredit).toBe(0);
+        expect(targetedGate?.detail).toContain("Source-ready behavior math/site activity evidence was supplied");
         expect(targetedGate?.evidence.join("\n")).toContain("behaviorMathSourceCredit=88");
         expect(targetedGate?.evidence.join("\n")).toContain("watch_session_rollups_only_not_page_time");
         expect(runtimeGate?.runtimeCredit).toBe(0);
+        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Source activity evidence is present; attach targeted source validator evidence"),
+        ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.adminTruthSample.cleared).toBe(false);
@@ -574,9 +578,10 @@ describe("public beta scoring math", () => {
         });
 
         const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
-        expect(targetedGate?.status).toBe("Source evidence required");
+        expect(targetedGate?.status).toBe("Source validation only");
         expect(targetedGate?.score).toBe(0);
-        expect(targetedGate?.detail).toContain("No targeted source behavior evidence artifact");
+        expect(targetedGate?.detail).toContain("Source-ready behavior math/site activity evidence was supplied");
+        expect(targetedGate?.detail).toContain("targeted behavior validator evidence is still required");
         expect(targetedGate?.evidence.join("\n")).toContain("artifactStatus=missing_formal_evidence");
     });
 
@@ -621,7 +626,7 @@ describe("public beta scoring math", () => {
 
         expect(report.evidenceCapDetails.length).toBeGreaterThanOrEqual(3);
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            expect.stringContaining("Targeted behavior tests - Attach targeted source validator evidence."),
+            expect.stringContaining("Targeted behavior tests - Source activity evidence is present; attach targeted source validator evidence"),
             expect.stringContaining("Provider-backed site activity + deployed route evidence - Produce provider-backed site activity"),
             expect.stringContaining("Admin source activity sample evidence - Produce a redacted admin source activity sample."),
         ]));

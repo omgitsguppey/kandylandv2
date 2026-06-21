@@ -449,7 +449,9 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
 function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   if (gate.id === "targetedBehaviorTests") {
     if (gate.status === "Source validation only") {
-      return `${gate.status}: ${gate.label} - Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records.`;
+      return gate.sourceCredit > gate.evidenceCredit
+        ? `${gate.status}: ${gate.label} - Source activity evidence is present; attach targeted source validator evidence before treating targeted behavior tests as passed.`
+        : `${gate.status}: ${gate.label} - Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records.`;
     }
     if (gate.status === "Stale evidence") {
       return `${gate.status}: ${gate.label} - Refresh the targeted source validator evidence.`;
@@ -799,12 +801,14 @@ export function buildPublicBetaEvidenceGates(input: {
     },
   });
   const targetedBehaviorPassed = targetedQuality.quality === "formal_passed";
-  const targetedBehaviorDetail = evidenceArtifactDetail(
-    evidence.targetedBehaviorEvidence,
-    targetedBehaviorPassed
-      ? "Targeted behavior evidence was supplied."
-      : "No targeted source behavior evidence artifact was supplied.",
-  );
+  const targetedBehaviorDetail = behaviorMathSourceCredit > 0 && targetedQuality.quality === "missing"
+    ? "Source-ready behavior math/site activity evidence was supplied; targeted behavior validator evidence is still required before treating targeted behavior tests as passed."
+    : evidenceArtifactDetail(
+        evidence.targetedBehaviorEvidence,
+        targetedBehaviorPassed
+          ? "Targeted behavior evidence was supplied."
+          : "No targeted source behavior evidence artifact was supplied.",
+      );
   const behaviorMathTargetedEvidence = evidence.behaviorMathEvidence
     ? [
         `behaviorMathStatus=${behaviorMathStatus}`,
@@ -822,7 +826,7 @@ export function buildPublicBetaEvidenceGates(input: {
     ? "Ready"
     : targetedQuality.freshness === "stale" || targetedQuality.freshness === "head_mismatch"
       ? "Stale evidence"
-      : targetedQuality.quality === "source_ready" || targetedQuality.quality === "formal_partial"
+      : targetedQuality.quality === "source_ready" || targetedQuality.quality === "formal_partial" || behaviorMathSourceCredit > 0
         ? "Source validation only"
         : targetedQuality.quality === "failed"
         ? "Needs review"
