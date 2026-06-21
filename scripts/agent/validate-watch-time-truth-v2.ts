@@ -41,6 +41,7 @@ const behavioralRuntime = read("functions/src/behavioral-intelligence-runtime.ts
 const analyticsMetrics = read("src/lib/server/analytics-metrics.ts");
 const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
 const adminAnalyticsCommerceTab = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const adminAnalyticsContracts = read("src/lib/admin-analytics-contracts.ts");
 const deterministicTruth = read("src/lib/deterministic-admin-truth.ts");
 const docs = read("docs/agent-truth/watch-time-truth.md");
 
@@ -89,10 +90,10 @@ requireIncludes(adminDebugRoute, "stale-open timeout fallback = min(15s, max(3s,
 requireIncludes(adminAnalyticsCommerceTab, "label=\"Total Watch\"", "library viewer drilldown watch card", failures);
 requireIncludes(adminAnalyticsCommerceTab, "Verified ${formatDuration(verifiedWatchSeconds)}; estimated ${formatDuration(estimatedWatchSeconds)}", "library viewer drilldown watch card", failures);
 requireIncludes(adminAnalyticsCommerceTab, "data-library-viewer-source-truth", "library viewer drilldown source attrs", failures);
-requireIncludes(adminAnalyticsCommerceTab, "watch_session_rollup", "library viewer drilldown verified source split", failures);
-requireIncludes(adminAnalyticsCommerceTab, "legacy_page_duration", "library viewer drilldown estimated fallback split", failures);
-requireIncludes(adminAnalyticsCommerceTab, "Monitor live - no recent viewer sessions.", "library viewer drilldown quiet live-pulse copy", failures);
-requireIncludes(adminAnalyticsCommerceTab, "unknown capture transport", "library viewer drilldown capture transport warning", failures);
+requireIncludes(adminAnalyticsContracts, "isVerifiedWatchTimeRollupSource", "library viewer drilldown verified source split", failures);
+requireIncludes(adminAnalyticsContracts, "isLegacyWatchTimeRollupSource", "library viewer drilldown estimated fallback split", failures);
+requireIncludes(adminAnalyticsContracts, "Monitor live - no recent viewer sessions.", "library viewer drilldown quiet live-pulse copy", failures);
+requireIncludes(adminAnalyticsContracts, "unknown capture transport", "library viewer drilldown capture transport warning", failures);
 for (const expected of [
   "resolveWatchTruth",
   "verifiedWatchSeconds",

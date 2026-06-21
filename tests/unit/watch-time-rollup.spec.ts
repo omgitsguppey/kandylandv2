@@ -1,8 +1,42 @@
 import { describe, expect, it } from "vitest";
 
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
+import {
+  buildWatchTimeRollupBehaviorInput,
+  isLegacyWatchTimeRollupSource,
+  isVerifiedWatchTimeRollupSource,
+  normalizeWatchTimeRollupSource,
+} from "@/lib/watch-time-rollup-contract";
 
 describe("buildWatchTimeRollupFromRecords", () => {
+  it("centralizes watch source behavior input classification", () => {
+    expect(normalizeWatchTimeRollupSource("watch_session_rollup")).toBe("watch_session_rollup");
+    expect(normalizeWatchTimeRollupSource("legacy_page_duration")).toBe("legacy_page_duration");
+    expect(normalizeWatchTimeRollupSource("diagnostic_estimate")).toBe("unavailable");
+    expect(isVerifiedWatchTimeRollupSource("watch_session_rollup")).toBe(true);
+    expect(isLegacyWatchTimeRollupSource("legacy_page_duration")).toBe(true);
+    expect(buildWatchTimeRollupBehaviorInput({
+      source: "watch_session_rollup",
+      watchTimeMs: 12_000,
+      watchSecondsTotal: 12,
+    })).toEqual({
+      watchTimeMs: 12_000,
+      watchSecondsTotal: undefined,
+      hasWatchSessions: true,
+      hasLegacyPageDuration: false,
+    });
+    expect(buildWatchTimeRollupBehaviorInput({
+      source: "legacy_page_duration",
+      watchTimeMs: 12_000,
+      watchSecondsTotal: 12,
+    })).toEqual({
+      watchTimeMs: undefined,
+      watchSecondsTotal: 12,
+      hasWatchSessions: false,
+      hasLegacyPageDuration: true,
+    });
+  });
+
   it("aggregates valid watch-session rollups", () => {
     expect(buildWatchTimeRollupFromRecords({
       records: [

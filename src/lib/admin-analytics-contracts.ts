@@ -3,6 +3,10 @@ import type { AdminAnalyticsCommerceSnapshotModel } from "@/lib/admin-analytics-
 import type { AdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pulse";
 import type { AdminAnalyticsReturnCadenceModel } from "@/lib/admin-analytics-return-cadence";
 import type { ContentConversionRow } from "@/types/admin-analytics";
+import {
+  isLegacyWatchTimeRollupSource,
+  isVerifiedWatchTimeRollupSource,
+} from "@/lib/watch-time-rollup-contract";
 
 export type AdminAnalyticsContractKey =
   | "badge_labels"
@@ -219,10 +223,11 @@ type ViewerDrilldownInput = {
 };
 
 export function buildAdminAnalyticsViewerDrilldownContract(input: ViewerDrilldownInput) {
+  const hasVerifiedWatch = isVerifiedWatchTimeRollupSource(input.viewerDrilldownOverview.watchScoreSource);
   const viewerSourceTruth =
-    input.viewerDrilldownOverview.watchScoreSource === "watch_session_rollup"
+    hasVerifiedWatch
       ? "watch_sessions"
-      : input.viewerDrilldownOverview.watchScoreSource === "legacy_page_duration"
+      : isLegacyWatchTimeRollupSource(input.viewerDrilldownOverview.watchScoreSource)
         ? "estimated"
         : input.viewerDrilldownOverview.watchScoreSource || "mixed";
   const viewerFreshnessState =
@@ -234,11 +239,11 @@ export function buildAdminAnalyticsViewerDrilldownContract(input: ViewerDrilldow
           ? "recent"
           : "live";
   const verifiedWatchSeconds =
-    input.viewerDrilldownOverview.watchScoreSource === "watch_session_rollup"
+    hasVerifiedWatch
       ? input.viewerDrilldownOverview.totalWatchSeconds
       : 0;
   const estimatedWatchSeconds =
-    input.viewerDrilldownOverview.watchScoreSource === "watch_session_rollup"
+    hasVerifiedWatch
       ? 0
       : input.viewerDrilldownOverview.totalWatchSeconds;
   const totalViewerWatchSeconds = verifiedWatchSeconds + estimatedWatchSeconds;

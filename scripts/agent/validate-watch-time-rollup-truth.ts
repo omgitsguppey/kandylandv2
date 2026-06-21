@@ -39,6 +39,9 @@ requireIncludes(route, "validWatchMs: sessionWatchScore.validWatchMs", "Viewer w
 
 requireIncludes(rollupContract, "watch_time_missing_despite_views", "Watch rollup contract must expose missing watch-session diagnostic.");
 requireIncludes(rollupContract, "legacy_page_duration", "Watch rollup contract must label legacy fallback explicitly.");
+requireIncludes(rollupContract, "isVerifiedWatchTimeRollupSource", "Watch rollup contract must own verified source classification.");
+requireIncludes(rollupContract, "isLegacyWatchTimeRollupSource", "Watch rollup contract must own legacy source classification.");
+requireIncludes(rollupContract, "buildWatchTimeRollupBehaviorInput", "Watch rollup contract must own behavior input projection.");
 requireIncludes(rollupHelper, "validWatchMs", "Watch rollup helper must aggregate validWatchMs.");
 requireIncludes(rollupHelper, "watchScoreSource", "Watch rollup helper must inspect watch score source.");
 requireIncludes(rollupHelper, "watch_time_missing_despite_views", "Watch rollup helper must flag views without valid watch sessions.");
@@ -57,8 +60,10 @@ requireIncludes(behaviorRuntime, "watchScoreSource === \"watch_session_rollup\""
 requireIncludes(analyticsMetrics, "fact.validWatchMs", "Analytics metrics must use valid watch time.");
 requireIncludes(analyticsMetrics, "legacy_page_duration", "Analytics metrics must label legacy page duration fallback.");
 requireIncludes(adminUsersRoute, "legacy page-duration fallback", "Admin users route copy must distinguish legacy page-duration fallback.");
-requireIncludes(adminUsersRoute, "watch_session_rollup", "Admin users route must preserve watch_session_rollup source labels.");
-requireIncludes(adminUserRoute, "watchTimeRollup.source === \"legacy_page_duration\"", "Admin user detail must preserve legacy fallback labels.");
+requireIncludes(adminUsersRoute, "isVerifiedWatchTimeRollupSource", "Admin users route must use canonical watch source classification.");
+requireIncludes(adminUsersRoute, "isLegacyWatchTimeRollupSource", "Admin users route must use canonical legacy watch classification.");
+requireIncludes(adminUserRoute, "buildWatchTimeRollupBehaviorInput", "Admin user detail must use canonical watch behavior projection.");
+requireIncludes(adminUserRoute, "isLegacyWatchTimeRollupSource", "Admin user detail must use canonical legacy watch classification.");
 requireIncludes(adminMetricsTest, "watchTimeSource: \"unavailable\"", "Admin metrics tests must keep watchSecondsTotal non-canonical without watch sessions.");
 requireIncludes(adminMetricsTest, "watchSessionsByUser", "Admin metrics tests must include a valid watch-session source sample.");
 requireIncludes(adminMetricsTest, "validWatchMs: 90_000", "Admin metrics tests must prove valid watch sessions award canonical watch time.");

@@ -22,6 +22,11 @@ import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 import { toUserBehaviorTruthRollup } from "@/lib/server/user-behavior-truth-rollup";
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
 import {
+    buildWatchTimeRollupBehaviorInput,
+    isLegacyWatchTimeRollupSource,
+    isVerifiedWatchTimeRollupSource,
+} from "@/lib/watch-time-rollup-contract";
+import {
     buildUserEngagementScoreInputFromActivityDays,
     type UserEngagementActivityDay,
 } from "@/lib/behavioral/user-engagement-score";
@@ -774,17 +779,18 @@ async function GET_handler(
             days: userDaily.map((day) => buildUserValueDay(day)),
             nowMs: Date.now(),
         });
+        const watchBehaviorInput = buildWatchTimeRollupBehaviorInput({
+            source: watchTimeRollup.source,
+            watchTimeMs: watchTimeRollup.watchTimeMs,
+            watchSecondsTotal: normalizedWatchSeconds,
+        });
         const behaviorRollup = buildUserBehaviorRollup({
             userId,
             totalActions: normalizedActionCount,
             views: normalizedViewCount,
             unwraps: normalizedUnlockCount,
-            watchTimeMs: watchTimeRollup.source === "watch_session_rollup"
-                ? watchTimeRollup.watchTimeMs
-                : undefined,
-            watchSecondsTotal: watchTimeRollup.source === "legacy_page_duration"
-                ? normalizedWatchSeconds
-                : undefined,
+            watchTimeMs: watchBehaviorInput.watchTimeMs,
+            watchSecondsTotal: watchBehaviorInput.watchSecondsTotal,
             purchasesCount: normalizedPurchaseCount,
             revenueUsd: commerceMetrics.grossRevenueUsd,
             paidGdPurchased: commerceMetrics.paidGumDrops,
@@ -797,8 +803,8 @@ async function GET_handler(
             hasDaily: userDaily.length > 0,
             hasFacts: directEventCount > 0,
             hasSessionFacts: sessionFacts.length > 0,
-            hasWatchSessions: watchTimeRollup.validSessionCount > 0,
-            hasLegacyPageDuration: watchTimeRollup.source === "legacy_page_duration",
+            hasWatchSessions: isVerifiedWatchTimeRollupSource(watchTimeRollup.source),
+            hasLegacyPageDuration: isLegacyWatchTimeRollupSource(watchTimeRollup.source),
             hasTransactions: transactions.length > 0,
             identifiedAnalyticsEnabled: rawUser.privacySettings && typeof rawUser.privacySettings === "object"
                 ? (rawUser.privacySettings as Record<string, unknown>).identifiedAnalyticsEnabled === true

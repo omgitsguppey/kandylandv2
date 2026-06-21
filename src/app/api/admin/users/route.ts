@@ -69,6 +69,11 @@ import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
+import {
+  buildWatchTimeRollupBehaviorInput,
+  isLegacyWatchTimeRollupSource,
+  isVerifiedWatchTimeRollupSource,
+} from "@/lib/watch-time-rollup-contract";
 
 const ADMIN_USERS_LIST_LIMIT = 500;
 const ADMIN_USERS_DAILY_ROLLUP_LIMIT = 1_000;
@@ -258,8 +263,8 @@ function buildAdminUsersKpiCards(input: {
   const watchEstimate = snapshot?.watchTimeDiagnosticEstimate;
   const watchSource = snapshot?.watchTimeSource ?? "unavailable";
   const watchWarnings = snapshot?.watchTimeIssues.map((issue) => issue.message) ?? [];
-  const hasVerifiedWatch = watchSource === "watch_session_rollup";
-  const hasLegacyWatch = watchSource === "legacy_page_duration";
+  const hasVerifiedWatch = isVerifiedWatchTimeRollupSource(watchSource);
+  const hasLegacyWatch = isLegacyWatchTimeRollupSource(watchSource);
   const watchEstimatedDisplay = watchEstimate ? formatHoursOrMinutes(watchEstimate.estimatedWatchMs) : null;
   const watchPrimaryValue = hasVerifiedWatch || hasLegacyWatch
     ? formatHoursOrMinutes(snapshot?.watchTimeMs ?? 0)
@@ -1553,8 +1558,8 @@ async function GET_handler(request: NextRequest) {
         hasRollup: analyticsSnap.exists,
         hasDaily: userDailySnapshot.docs.length > 0,
         hasFacts: false,
-        hasWatchSessions: watchTimeRollup.validSessionCount > 0,
-        hasLegacyPageDuration: watchTimeRollup.source === "legacy_page_duration",
+        hasWatchSessions: isVerifiedWatchTimeRollupSource(watchTimeRollup.source),
+        hasLegacyPageDuration: isLegacyWatchTimeRollupSource(watchTimeRollup.source),
         hasTransactions: false,
         identifiedAnalyticsEnabled: user.privacySettings?.identifiedAnalyticsEnabled === true,
         honorGlobalPrivacyControl: user.privacySettings?.honorGlobalPrivacyControl !== false,
@@ -2196,17 +2201,18 @@ async function GET_handler(request: NextRequest) {
         days: dailyValueDaysByUser.get(user.uid) ?? [],
         nowMs: Date.now(),
       });
+      const watchBehaviorInput = buildWatchTimeRollupBehaviorInput({
+        source: analytics.watchTimeSource,
+        watchTimeMs: metricSnapshot.watchSecondsTotal * 1000,
+        watchSecondsTotal: metricSnapshot.watchSecondsTotal,
+      });
       const behaviorRollup = buildUserBehaviorRollup({
         userId: user.uid,
         totalActions: metricSnapshot.eventCount,
         views: metricSnapshot.viewCount,
         unwraps: metricSnapshot.unwrapCount,
-        watchTimeMs: analytics.watchTimeSource === "watch_session_rollup"
-          ? metricSnapshot.watchSecondsTotal * 1000
-          : undefined,
-        watchSecondsTotal: analytics.watchTimeSource === "legacy_page_duration"
-          ? metricSnapshot.watchSecondsTotal
-          : undefined,
+        watchTimeMs: watchBehaviorInput.watchTimeMs,
+        watchSecondsTotal: watchBehaviorInput.watchSecondsTotal,
         purchasesCount: metricSnapshot.purchaseCount,
         revenueUsd: metricSnapshot.grossRevenueUsd,
         paidGdPurchased: analytics.paidGumDrops,
@@ -2218,8 +2224,8 @@ async function GET_handler(request: NextRequest) {
         hasRollup: rollupUserIds.has(user.uid),
         hasDaily: dailyUserIds.has(user.uid),
         hasFacts: factRecoveredUserIds.has(user.uid),
-        hasWatchSessions: analytics.watchTimeSource === "watch_session_rollup",
-        hasLegacyPageDuration: analytics.watchTimeSource === "legacy_page_duration",
+        hasWatchSessions: watchBehaviorInput.hasWatchSessions,
+        hasLegacyPageDuration: watchBehaviorInput.hasLegacyPageDuration,
         hasTransactions: false,
         identifiedAnalyticsEnabled: user.privacySettings?.identifiedAnalyticsEnabled === true,
         honorGlobalPrivacyControl: user.privacySettings?.honorGlobalPrivacyControl !== false,

@@ -1,4 +1,8 @@
 import type { AdminUserMetricsSnapshot, AdminUserMetricsSnapshotSource } from "@/lib/admin-user-metrics-contract";
+import {
+  isLegacyWatchTimeRollupSource,
+  isVerifiedWatchTimeRollupSource,
+} from "@/lib/watch-time-rollup-contract";
 
 export type AdminUserTruthSourceTruth =
   | "canonical"
@@ -86,11 +90,11 @@ export function mapMetricsSnapshotSourceTruth(
   const purchaseTruth: AdminUserTruthSourceTruth = snapshot.source === "live_fallback"
     ? "legacy_fallback"
     : "canonical";
-  const watchTruth: AdminUserTruthSourceTruth = snapshot.watchTimeSource === "legacy_page_duration"
+  const watchTruth: AdminUserTruthSourceTruth = isLegacyWatchTimeRollupSource(snapshot.watchTimeSource)
     ? "legacy_fallback"
-    : snapshot.watchTimeSource === "unavailable"
-      ? "blocked"
-      : "canonical";
+    : isVerifiedWatchTimeRollupSource(snapshot.watchTimeSource)
+      ? "canonical"
+      : "blocked";
 
   return {
     users: baseTruth,
@@ -100,4 +104,3 @@ export function mapMetricsSnapshotSourceTruth(
     unwraps: purchaseTruth,
   };
 }
-
