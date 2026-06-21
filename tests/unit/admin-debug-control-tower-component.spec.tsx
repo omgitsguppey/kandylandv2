@@ -278,7 +278,7 @@ describe("DebugControlTower", () => {
             const publicBetaText = publicBetaCards.map((entry) => entry.textContent ?? "").join(" ");
 
             expect(publicBetaText).toContain("Site activity evidence required");
-            expect(publicBetaText).toContain("Evidence gate");
+            expect(publicBetaText).toContain("Source evidence lane");
             expect(container.textContent).toContain("Site activity evidence required");
             expect(container.textContent).toContain("source evidence gates");
             expect(container.textContent).toContain("Site activity evidence required - Produce redacted provider-backed site activity evidence");
@@ -319,6 +319,36 @@ describe("DebugControlTower", () => {
             expect(container.textContent).not.toContain("Stale evidence: Report freshness and PR integrity");
             expect(container.textContent).not.toContain("manual proof");
             expect(container.textContent).not.toContain("Proof required");
+        } finally {
+            Object.assign(mockState.payload, originalPayload);
+        }
+    });
+
+    it("formats current provider-backed site activity caps without legacy smoke wording", async () => {
+        const originalPayload = JSON.parse(JSON.stringify(mockState.payload));
+
+        try {
+            const payload = mockState.payload as any;
+            payload.canonicalPublicBetaCapDetails = [
+                "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
+            ];
+            payload.canonicalPublicBetaReadinessStatus = "Source evidence required";
+            payload.canonicalPublicBetaReadinessReason = payload.canonicalPublicBetaCapDetails[0];
+
+            await act(async () => {
+                root.render(<DebugControlTower />);
+            });
+
+            await act(async () => {
+                await Promise.resolve();
+            });
+
+            expect(container.textContent).toContain("Site activity evidence required");
+            expect(container.textContent).toContain("Produce redacted provider-backed site activity evidence");
+            expect(container.textContent).toContain("Deployed route evidence is recorded; keep it fresh.");
+            expect(container.textContent).not.toContain("Runtime/provider smoke");
+            expect(container.textContent).not.toContain("deployed runtime smoke");
+            expect(container.textContent).not.toContain("formal provider");
         } finally {
             Object.assign(mockState.payload, originalPayload);
         }
@@ -365,7 +395,7 @@ describe("DebugControlTower", () => {
             const publicBetaText = publicBetaCards.map((entry) => entry.textContent ?? "").join(" ");
 
             expect(publicBetaText).toContain("Site activity evidence required");
-            expect(publicBetaText).toContain("4 evidence gates");
+            expect(publicBetaText).toContain("4 source evidence lanes");
             expect(container.textContent).toContain("Source-only evidence - Implemented behavior checks passed");
             expect(container.textContent).toContain("Site activity evidence required - Produce redacted provider-backed site activity evidence");
             expect(container.textContent).toContain("Deployed route evidence is recorded; keep it fresh.");

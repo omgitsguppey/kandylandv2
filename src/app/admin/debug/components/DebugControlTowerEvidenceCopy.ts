@@ -27,8 +27,8 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
         };
     }
 
-    if (/runtime\/provider smoke|provider smoke|runtime smoke/iu.test(normalized)) {
-        const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true/iu.test(normalized);
+    if (/runtime\/provider smoke|provider smoke|runtime smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence/iu.test(normalized)) {
+        const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true|deployed (runtime )?route evidence (is )?(current|recorded)|deployed route evidence is recorded/iu.test(normalized);
         const providerProofDetail = runtimeRecorded
             ? "Produce redacted provider-backed site activity evidence. Deployed route evidence is recorded; keep it fresh."
             : "Produce redacted provider-backed site activity evidence and deployed route evidence.";
@@ -101,7 +101,7 @@ export function formatPublicBetaReadinessStatusForAdmin(input: { status?: string
     const status = String(input.status ?? "").trim();
     const combined = [status, input.reason, ...(input.capDetails ?? [])].filter(Boolean).join(" ");
     if (!combined.trim()) return "Readiness unavailable";
-    if (/runtime\/provider smoke|provider smoke|runtime smoke|admin truth|sample evidence|truth sample|external proof|proof required|source evidence required/iu.test(combined)) return "Site activity evidence required";
+    if (/runtime\/provider smoke|provider smoke|runtime smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence|admin truth|sample evidence|truth sample|external proof|proof required|source evidence required/iu.test(combined)) return "Site activity evidence required";
     if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older/iu.test(combined)) return "Report refresh needed";
     if (/targeted behavior tests|source checks/iu.test(combined)) return "Source checks only";
     if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";
