@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-21T19:16:51.278Z",
+  "generatedAtUtc": "2026-06-21T19:43:49.028Z",
   "reportKey": "debug-recovery-playbooks",
-  "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
-  "sourceCommit": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+  "currentHead": "5e8738095e5fcc3b214c7a579f2f662adc32dc03",
+  "sourceCommit": "5e8738095e5fcc3b214c7a579f2f662adc32dc03",
   "overallStatus": "pass",
   "playbookCount": 12,
   "validationFailures": [],

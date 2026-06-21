@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T18:03:19.454Z",
+  "generatedAtUtc": "2026-06-21T19:43:49.226Z",
   "reportKey": "recovery-playbook-cta-cleanup",
-  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
+  "currentHead": "5e8738095e5fcc3b214c7a579f2f662adc32dc03",
   "recoveryPlaybookStatusBefore": "degraded",
   "recoveryPlaybookStatusAfter": "collapsed_no_active_issue",
   "visiblePlaybooksBefore": 3,
