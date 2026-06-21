@@ -183,6 +183,15 @@ const uiSurfaceCoverageOwnedInputPaths = [
   "scripts/agent/check-ui-surface-coverage.ts",
   "src/lib/evidence/ui-visual-smoke-contract.ts",
 ] as const;
+const adminTruthSampleOwnedInputPaths = [
+  "scripts/agent/validate-admin-truth-sample-evidence.ts",
+  "scripts/agent/validate-admin-truth-source-sample.ts",
+  "scripts/agent/capture-truthful-evidence.ts",
+  "agent/evidence/admin-truth-sample",
+  adminTruthSampleEvidenceRelativePath,
+  "agent/state/admin-truth-source-sample.generated.json",
+  "docs/agent-truth/admin-truth-source-sample.md",
+] as const;
 
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
@@ -361,6 +370,18 @@ function uiSurfaceCoverageIsCurrentByImpact(artifact: Record<string, unknown> | 
   return isGeneratedArtifactCurrent(version);
 }
 
+function adminTruthSampleIsCurrentByImpact(artifact: Record<string, unknown> | null) {
+  const commit = artifactCommit(artifact);
+  if (!commit) return false;
+  const version = classifyGeneratedArtifactFromGit({
+    cwd: repoRoot,
+    artifactPath: adminTruthSampleEvidenceRelativePath,
+    artifactHead: commit,
+    ownedSourcePaths: [...adminTruthSampleOwnedInputPaths],
+  });
+  return isGeneratedArtifactCurrent(version);
+}
+
 function clearingStatusPassed(id: CurrentBetaExitProofLaneId, status: string) {
   if (id === "uiSurfaceCoverage") return /source_surface_checks_current|source_ui_surface_current|not_required/iu.test(status);
   if (id === "providerSmoke") return /formal_provider_smoke_passed|passed_formal_evidence/iu.test(status);
@@ -380,6 +401,7 @@ function proofTruthStateFor(input: {
   const isStaleSource = (
     artifactIsStale(input.artifact, input.head)
     && !(input.id === "uiSurfaceCoverage" && uiSurfaceCoverageIsCurrentByImpact(input.artifact))
+    && !(input.id === "adminTruthSample" && adminTruthSampleIsCurrentByImpact(input.artifact))
   ) || /^stale_/iu.test(input.sourceStatus);
 
   if (input.id === "uiSurfaceCoverage") {
@@ -541,7 +563,10 @@ function refreshReportFromCurrentArtifacts(report: CurrentBetaExitStatusReport, 
   const generatedAtUtc = new Date().toISOString();
   const providerSmokeStatus = sourceArtifactStatus(provider, head, report.summary.providerSmokeStatus, "stale_provider_smoke_evidence");
   const runtimeSmokeStatus = sourceArtifactStatus(runtime, head, report.summary.runtimeSmokeStatus, "stale_runtime_smoke_evidence");
-  const adminTruthSampleStatus = sourceArtifactStatus(admin, head, report.summary.adminTruthSampleStatus, "stale_admin_truth_sample_evidence");
+  const adminTruthSampleStatus = sourceArtifactStatus(admin, head, report.summary.adminTruthSampleStatus, "stale_admin_truth_sample_evidence", {
+    artifactPath: adminTruthSampleEvidenceRelativePath,
+    ownedSourcePaths: adminTruthSampleOwnedInputPaths,
+  });
   const visualEvidenceStatus = sourceArtifactStatus(uiSurfaceCoverage, head, report.summary.visualEvidenceStatus, "stale_visual_evidence", {
     artifactPath: uiSurfaceCoverageRelativePath,
     ownedSourcePaths: uiSurfaceCoverageOwnedInputPaths,

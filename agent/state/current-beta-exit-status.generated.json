@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T13:20:03.718Z",
+  "generatedAtUtc": "2026-06-21T13:24:06.858Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "87092d734183d25d0f9b20a3f37db8efde568598",
+  "currentHead": "a6fc5e1289ad6ce654bf63ab0ed916dc217faaf9",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 84,
@@ -32,7 +32,7 @@
     "operatorRevenueSmokeBetaGateImpact": "product_signal_only",
     "operatorRevenueSmokeNote": "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.",
     "runtimeSmokeStatus": "stale_runtime_smoke_evidence",
-    "adminTruthSampleStatus": "stale_admin_truth_sample_evidence",
+    "adminTruthSampleStatus": "formal_admin_truth_sample_passed",
     "cloudRunCostReadiness": "cost_review_required",
     "cloudSqlCostReadiness": "owner_review_external_billing_required",
     "geminiCloudAssistCostReadiness": "cost_review_required",
@@ -83,13 +83,13 @@
       {
         "id": "adminTruthSample",
         "label": "Admin source activity sample evidence",
-        "truthState": "admin_truth_source_required",
-        "actionState": "refresh_stale_evidence",
-        "sourceStatus": "stale_admin_truth_sample_evidence",
+        "truthState": "current_source_evidence",
+        "actionState": "gate_cleared",
+        "sourceStatus": "formal_admin_truth_sample_passed",
         "sourcePath": "agent/state/admin-truth-sample-evidence.generated.json",
         "captureStatus": "complete",
         "sourceCommit": "73f4d06e142ee28bd277282b015c01b0502d1acc",
-        "canClearGate": false,
+        "canClearGate": true,
         "nextAction": "Produce or refresh a redacted admin source activity sample for the current code version."
       }
     ]
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-21T13:20:03.718Z",
+      "generatedAtUtc": "2026-06-21T13:24:06.858Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
