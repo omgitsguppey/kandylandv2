@@ -98,7 +98,7 @@ function readProviderSmoke(root: string): PublicBetaEvidenceArtifact {
     root,
     "agent/state/provider-smoke-evidence.generated.json",
     "missing_formal_evidence",
-    "No formal provider smoke evidence artifact was supplied.",
+    "No provider-backed site activity artifact was supplied.",
   );
   const operator = readOperatorRevenueSmoke(root);
   return {
@@ -138,12 +138,12 @@ function writeDoc(root: string, report: ReturnType<typeof buildAlgorithmicEviden
     ...report.coverage.map((item) =>
       `- ${item.category}: ${item.confidence}; score=${item.score}; source=\`${item.sourcePath}\`; ${item.distinction}`),
     "",
-    "## Formal Gates",
+    "## Evidence Boundaries",
     "",
     `- UI surface coverage clears only the UI source gate: ${report.formalGateImpact.uiVisualGateCleared}`,
-    `- Deployed runtime smoke cleared: ${report.formalGateImpact.deployedRuntimeSmokeCleared}`,
-    `- Formal provider gate cleared: ${report.formalGateImpact.formalProviderGateCleared}`,
-    `- Formal admin runtime sample cleared: ${report.formalGateImpact.formalAdminRuntimeSampleCleared}`,
+    `- Deployed route evidence cleared: ${report.formalGateImpact.deployedRuntimeSmokeCleared}`,
+    `- Provider-backed site activity cleared: ${report.formalGateImpact.formalProviderGateCleared}`,
+    `- Admin source activity sample cleared: ${report.formalGateImpact.formalAdminRuntimeSampleCleared}`,
     "",
     "## Remaining Evidence",
     "",
@@ -169,7 +169,7 @@ function main() {
       root,
       "agent/state/runtime-smoke-evidence.generated.json",
       "runtime_unverified",
-      "No deployed runtime smoke evidence artifact was supplied.",
+      "No deployed route evidence artifact was supplied.",
     ),
     providerSmokeEvidence: readProviderSmoke(root),
     debugRuntimeEvidence: readArtifact(
@@ -235,7 +235,7 @@ function main() {
         root,
         "agent/state/runtime-smoke-evidence.generated.json",
         "runtime_unverified",
-        "No deployed runtime smoke evidence artifact was supplied.",
+        "No deployed route evidence artifact was supplied.",
       ),
       debugRuntimeEvidenceArtifact: readArtifact(
         root,
@@ -292,13 +292,13 @@ function main() {
     failures.push("score report hides partial-vs-formal evidence distinction.");
   }
   if (report.formalGateImpact.formalProviderGateCleared && report.providerConfidence.confidence !== "formal") {
-    failures.push("operator revenue smoke must not clear formal provider gate.");
+    failures.push("operator revenue smoke must not clear provider-backed site activity lane.");
   }
   if (report.formalGateImpact.deployedRuntimeSmokeCleared && report.runtimeSourceConfidence.confidence !== "formal") {
-    failures.push("source-backed runtime confidence must not clear deployed runtime smoke.");
+    failures.push("source-backed runtime confidence must not clear deployed route evidence.");
   }
   if (report.formalGateImpact.formalAdminRuntimeSampleCleared && report.adminTruthConfidence.confidence !== "formal") {
-    failures.push("admin source sample must not clear formal admin runtime sample.");
+    failures.push("admin source sample must not clear the admin source activity lane.");
   }
 
   const overallStatus: ReturnType<typeof buildAlgorithmicEvidencePolicyReport>["overallStatus"] = failures.length > 0

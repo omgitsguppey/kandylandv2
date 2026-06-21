@@ -199,11 +199,11 @@ export function buildAlgorithmicEvidencePolicyReport(
       evidenceArtifactStatusText(input.realUsageConfidenceCalibrationEvidence, "missing_or_unknown"),
     ].join(";"),
     distinction: deployedRuntimeSmokeCleared
-      ? "formal deployed runtime smoke is attached"
-      : "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
+      ? "current deployed route source evidence is attached"
+      : "source-backed runtime confidence improves runtime health but does not clear deployed route evidence",
     formalGateCleared: deployedRuntimeSmokeCleared,
     nextAction: deployedRuntimeSmokeCleared
-      ? "Keep runtime smoke artifact fresh."
+      ? "Keep deployed route evidence fresh."
       : "Produce deployed runtime route evidence before clearing the runtime lane.",
   });
 
@@ -236,7 +236,7 @@ export function buildAlgorithmicEvidencePolicyReport(
       : "admin source sample earns partial confidence; clearing needs a matching source activity sample",
     formalGateCleared: formalAdminRuntimeSampleCleared,
     nextAction: formalAdminRuntimeSampleCleared
-      ? "Keep admin truth sample fresh."
+      ? "Keep admin source activity sample fresh."
       : "Produce a redacted admin source activity sample before clearing the admin lane.",
   });
 
@@ -256,7 +256,7 @@ export function buildAlgorithmicEvidencePolicyReport(
     formalGateCleared: formalProviderGateCleared,
     nextAction: formalProviderGateCleared
       ? "Keep provider artifact fresh."
-      : "Produce provider-backed site activity evidence before clearing provider smoke.",
+      : "Produce provider-backed site activity evidence before clearing the provider lane.",
   });
 
   const costConfidence = buildCoverageItem({
@@ -291,9 +291,9 @@ export function buildAlgorithmicEvidencePolicyReport(
     (coverage.reduce((sum, item) => sum + item.score, 0) / coverage.length) * 100,
   ) / 100;
   const remainingFormalEvidenceGates = [
-    ...(deployedRuntimeSmokeCleared ? [] : ["Deployed runtime smoke requires current route evidence."]),
-    ...(formalProviderGateCleared ? [] : ["Provider smoke requires provider-backed site activity evidence."]),
-    ...(formalAdminRuntimeSampleCleared ? [] : ["Admin truth sample requires a redacted source activity sample."]),
+    ...(deployedRuntimeSmokeCleared ? [] : ["Runtime lane requires current deployed route evidence."]),
+    ...(formalProviderGateCleared ? [] : ["Provider lane requires provider-backed site activity evidence."]),
+    ...(formalAdminRuntimeSampleCleared ? [] : ["Admin lane requires a redacted source activity sample."]),
   ];
   const uiSurfaceCoverageScope = {
     uiSurfaceCoverageGate: {
@@ -358,7 +358,7 @@ export function validateAlgorithmicEvidencePolicyReport(report: AlgorithmicEvide
     failures.push("operator-confirmed provider confidence must not clear provider-backed source gate.");
   }
   if (report.runtimeSourceConfidence.confidence === "partial" && report.formalGateImpact.deployedRuntimeSmokeCleared) {
-    failures.push("source-backed runtime confidence must not clear deployed runtime smoke.");
+    failures.push("source-backed runtime confidence must not clear deployed route evidence.");
   }
   if (report.adminTruthConfidence.confidence === "partial" && report.formalGateImpact.formalAdminRuntimeSampleCleared) {
     failures.push("admin source sample must not clear admin runtime sample.");

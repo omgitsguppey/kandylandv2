@@ -152,7 +152,7 @@ describe("algorithmic evidence policy", () => {
       },
     });
 
-    expect(report.readinessStatus).toBe("External proof required");
+    expect(report.readinessStatus).toBe("Source evidence required");
     expect(report.launchBlockers.join("\n")).not.toContain("Visual QA required");
     expect(report.runtimeHealthScore).toBeGreaterThan(55);
     expect(report.evidenceCompletenessScore).toBeGreaterThan(50);

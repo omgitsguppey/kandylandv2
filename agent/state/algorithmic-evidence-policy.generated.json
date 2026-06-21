@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-06-21T02:06:35.328Z",
+  "generatedAtUtc": "2026-06-21T04:58:42.241Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "uiSurfaceCoverageScope": {
@@ -20,20 +20,20 @@
         "cost_gate",
         "refresh_gate"
       ],
-      "score": 60.43,
+      "score": 64.5,
       "note": "UI source coverage is the default readiness evidence; optional browser reproduction must follow a source-reported UI issue and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
     }
   },
   "runtimeSourceConfidence": {
     "category": "runtime_source_gate",
     "label": "Runtime source confidence",
-    "confidence": "partial",
-    "score": 75.56,
+    "confidence": "formal",
+    "score": 100,
     "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
     "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;failed;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
-    "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
-    "formalGateCleared": false,
-    "nextAction": "Attach deployed runtime smoke before clearing the formal runtime gate."
+    "distinction": "current deployed route source evidence is attached",
+    "formalGateCleared": true,
+    "nextAction": "Keep deployed route evidence fresh."
   },
   "telemetryConfidence": {
     "category": "telemetry_gate",
@@ -42,7 +42,7 @@
     "score": 72,
     "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
     "sourceStatus": "live;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
-    "distinction": "telemetry and behavior math can satisfy non-UI confidence without clearing UI source coverage or runtime proof",
+    "distinction": "telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence",
     "formalGateCleared": false,
     "nextAction": "Keep behavior math and real usage confidence artifacts current."
   },
@@ -53,9 +53,9 @@
     "score": 55,
     "sourcePath": "agent/state/admin-truth-source-sample.generated.json",
     "sourceStatus": "source_ready_admin_truth_sample",
-    "distinction": "admin source sample earns partial confidence but does not clear formal admin runtime sample",
+    "distinction": "admin source sample earns partial confidence; clearing needs a matching source activity sample",
     "formalGateCleared": false,
-    "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin gate."
+    "nextAction": "Produce a redacted admin source activity sample before clearing the admin lane."
   },
   "providerConfidence": {
     "category": "provider_gate",
@@ -66,7 +66,7 @@
     "sourceStatus": "operator_confirmed_revenue_smoke",
     "distinction": "operator-confirmed revenue smoke is partial product confidence only",
     "formalGateCleared": false,
-    "nextAction": "Attach formal provider evidence before clearing provider smoke."
+    "nextAction": "Produce provider-backed site activity evidence before clearing the provider lane."
   },
   "costConfidence": {
     "category": "cost_gate",
@@ -86,33 +86,32 @@
     "score": 75,
     "sourcePath": "agent/state/self-healing-refresh-queue.generated.json",
     "sourceStatus": "source_path_available",
-    "distinction": "current refresh queue can satisfy source freshness ordering without creating runtime proof",
+    "distinction": "current refresh queue can satisfy source freshness ordering without creating deployed runtime truth",
     "formalGateCleared": false,
     "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
   },
-  "nonUiAlgorithmicCoverageScore": 60.43,
+  "nonUiAlgorithmicCoverageScore": 64.5,
   "formalGateImpact": {
     "uiVisualGateCleared": false,
-    "deployedRuntimeSmokeCleared": false,
+    "deployedRuntimeSmokeCleared": true,
     "formalProviderGateCleared": false,
     "formalAdminRuntimeSampleCleared": false
   },
   "remainingFormalEvidenceGates": [
-    "Deployed runtime smoke requires a formal runtime artifact.",
-    "Provider smoke requires a formal provider artifact.",
-    "Admin truth sample requires a formal runtime/sample artifact."
+    "Provider lane requires provider-backed site activity evidence.",
+    "Admin lane requires a redacted source activity sample."
   ],
   "coverage": [
     {
       "category": "runtime_source_gate",
       "label": "Runtime source confidence",
-      "confidence": "partial",
-      "score": 75.56,
+      "confidence": "formal",
+      "score": 100,
       "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
       "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;failed;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
-      "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
-      "formalGateCleared": false,
-      "nextAction": "Attach deployed runtime smoke before clearing the formal runtime gate."
+      "distinction": "current deployed route source evidence is attached",
+      "formalGateCleared": true,
+      "nextAction": "Keep deployed route evidence fresh."
     },
     {
       "category": "telemetry_gate",
@@ -121,7 +120,7 @@
       "score": 72,
       "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
       "sourceStatus": "live;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
-      "distinction": "telemetry and behavior math can satisfy non-UI confidence without clearing UI source coverage or runtime proof",
+      "distinction": "telemetry and behavior math can satisfy non-UI confidence while UI and runtime lanes keep their own source evidence",
       "formalGateCleared": false,
       "nextAction": "Keep behavior math and real usage confidence artifacts current."
     },
@@ -132,9 +131,9 @@
       "score": 55,
       "sourcePath": "agent/state/admin-truth-source-sample.generated.json",
       "sourceStatus": "source_ready_admin_truth_sample",
-      "distinction": "admin source sample earns partial confidence but does not clear formal admin runtime sample",
+      "distinction": "admin source sample earns partial confidence; clearing needs a matching source activity sample",
       "formalGateCleared": false,
-      "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin gate."
+      "nextAction": "Produce a redacted admin source activity sample before clearing the admin lane."
     },
     {
       "category": "provider_gate",
@@ -145,7 +144,7 @@
       "sourceStatus": "operator_confirmed_revenue_smoke",
       "distinction": "operator-confirmed revenue smoke is partial product confidence only",
       "formalGateCleared": false,
-      "nextAction": "Attach formal provider evidence before clearing provider smoke."
+      "nextAction": "Produce provider-backed site activity evidence before clearing the provider lane."
     },
     {
       "category": "cost_gate",
@@ -165,20 +164,20 @@
       "score": 75,
       "sourcePath": "agent/state/self-healing-refresh-queue.generated.json",
       "sourceStatus": "source_path_available",
-      "distinction": "current refresh queue can satisfy source freshness ordering without creating runtime proof",
+      "distinction": "current refresh queue can satisfy source freshness ordering without creating deployed runtime truth",
       "formalGateCleared": false,
       "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
     }
   ],
   "validationFailures": [],
-  "currentHead": "aee603932b2588451bdb06dbe17fe6bdd13917b3",
+  "currentHead": "e16a2ab4b02e3466204598a15222cd1ee498e086",
   "scoreProbe": {
-    "runtimeHealthScore": 60.45,
-    "evidenceCompletenessScore": 38.4,
-    "readinessStatus": "External proof required",
+    "runtimeHealthScore": 83.74,
+    "evidenceCompletenessScore": 72,
+    "readinessStatus": "Source evidence required",
     "launchBlockers": [
-      "Runtime/provider smoke: External proof required",
-      "Admin truth/sample evidence: External proof required",
+      "Provider-backed site activity + deployed route evidence: Source evidence required",
+      "Admin source sample evidence: Source evidence required",
       "Report freshness and PR integrity: Source evidence required"
     ]
   }
