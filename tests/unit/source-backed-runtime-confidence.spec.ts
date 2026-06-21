@@ -19,6 +19,7 @@ describe("source-backed runtime confidence", () => {
       telemetryPipelineSourceReady: true,
       walletLoadingSourceReady: true,
       creatorDropStatusRuntimeSourceReady: true,
+      globalUserDedupeSourceReady: true,
       operatorRevenueSmokeSourceSignal: true,
       scoringModelSupportsRuntimePartialCredit: true,
       validatorResults: [
@@ -43,6 +44,7 @@ describe("source-backed runtime confidence", () => {
       telemetryPipelineSourceReady: true,
       walletLoadingSourceReady: true,
       creatorDropStatusRuntimeSourceReady: true,
+      globalUserDedupeSourceReady: true,
       operatorRevenueSmokeSourceSignal: true,
       validatorResults: [
         { command: "npm run check:runtime-watch-time-v2", status: "pass", artifactPath: "agent/state/runtime-watch-time-v2.generated.json" },
@@ -65,6 +67,7 @@ describe("source-backed runtime confidence", () => {
       telemetryPipelineSourceReady: false,
       walletLoadingSourceReady: false,
       creatorDropStatusRuntimeSourceReady: true,
+      globalUserDedupeSourceReady: true,
       operatorRevenueSmokeSourceSignal: true,
       scoringModelSupportsRuntimePartialCredit: true,
       validatorResults: [
@@ -76,6 +79,45 @@ describe("source-backed runtime confidence", () => {
     expect(report.passed).toBe(false);
     expect(report.runtimeConfidenceScore).toBeGreaterThan(0);
     expect(validateSourceBackedRuntimeConfidenceReport(report)).toEqual([]);
+  });
+
+  it("weights actual user dedupe source evidence above context-only revenue", () => {
+    const withDedupe = buildSourceBackedRuntimeConfidenceReport({
+      generatedAtUtc: "2026-05-20T00:00:00.000Z",
+      currentHead: head,
+      runtimeContractsPresent: false,
+      deployedSmokePresent: false,
+      watchTimeRuntimeSourceReady: false,
+      telemetryPipelineSourceReady: false,
+      walletLoadingSourceReady: false,
+      creatorDropStatusRuntimeSourceReady: false,
+      globalUserDedupeSourceReady: true,
+      operatorRevenueSmokeSourceSignal: false,
+      scoringModelSupportsRuntimePartialCredit: true,
+      validatorResults: [
+        { command: "npm run check:global-user-dedupe-normalization", status: "pass", artifactPath: "agent/state/global-user-dedupe-normalization.generated.json" },
+      ],
+    });
+    const withRevenueContext = buildSourceBackedRuntimeConfidenceReport({
+      generatedAtUtc: "2026-05-20T00:00:00.000Z",
+      currentHead: head,
+      runtimeContractsPresent: false,
+      deployedSmokePresent: false,
+      watchTimeRuntimeSourceReady: false,
+      telemetryPipelineSourceReady: false,
+      walletLoadingSourceReady: false,
+      creatorDropStatusRuntimeSourceReady: false,
+      globalUserDedupeSourceReady: false,
+      operatorRevenueSmokeSourceSignal: true,
+      scoringModelSupportsRuntimePartialCredit: true,
+      validatorResults: [
+        { command: "npm run check:operator-revenue-smoke", status: "pass", artifactPath: "agent/state/operator-revenue-smoke.generated.json" },
+      ],
+    });
+
+    expect(withDedupe.runtimeConfidenceScore).toBeGreaterThan(withRevenueContext.runtimeConfidenceScore);
+    expect(withDedupe.evidence).toContain("globalUserDedupeSourceReady=true");
+    expect(withDedupe.launchGateImpact).toBe("does_not_clear_runtime_smoke");
   });
 
   it("gives runtime health source credit while route/provider evidence remains unverified", () => {

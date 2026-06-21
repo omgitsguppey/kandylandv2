@@ -28,6 +28,7 @@ export type SourceBackedRuntimeConfidenceReport = {
   telemetryPipelineSourceReady: boolean;
   walletLoadingSourceReady: boolean;
   creatorDropStatusRuntimeSourceReady: boolean;
+  globalUserDedupeSourceReady: boolean;
   operatorRevenueSmokeSourceSignal: boolean;
   runtimeConfidenceScore: number;
   launchGateImpact: "does_not_clear_runtime_smoke" | string;
@@ -55,6 +56,7 @@ export type BuildSourceBackedRuntimeConfidenceInputs = {
   telemetryPipelineSourceReady: boolean;
   walletLoadingSourceReady: boolean;
   creatorDropStatusRuntimeSourceReady: boolean;
+  globalUserDedupeSourceReady: boolean;
   operatorRevenueSmokeSourceSignal: boolean;
   validatorResults: SourceRuntimeValidatorResult[];
   scoringModelSupportsRuntimePartialCredit?: boolean;
@@ -96,6 +98,12 @@ const DEPENDENCY_OWNED_SOURCE_PATHS: Record<string, string[]> = {
     "scripts/agent/validate-creator-drop-status-metrics.ts",
     "src/app/api/creator",
     "src/components/Creators",
+  ],
+  "agent/state/global-user-dedupe-normalization.generated.json": [
+    "scripts/agent/validate-global-user-dedupe-normalization.ts",
+    "src/lib/analytics/global-user-dedupe-engine.ts",
+    "src/lib/behavioral/normalize-event-fact.ts",
+    "src/lib/debug/debug-panel-tracking-summary.ts",
   ],
   "agent/state/operator-revenue-smoke.generated.json": [
     "scripts/agent/validate-operator-revenue-smoke.ts",
@@ -189,6 +197,8 @@ function sourceFlags(head: string) {
   const walletSummary = record(wallet?.summary);
   const drops = readJson("agent/state/creator-drop-status-metrics.generated.json");
   const dropsSummary = record(drops?.summary);
+  const globalUserDedupe = readJson("agent/state/global-user-dedupe-normalization.generated.json");
+  const globalUserDedupeDebugLane = record(globalUserDedupe?.debugLane);
   const operator = readJson("agent/state/operator-revenue-smoke.generated.json");
   const operatorSummary = record(operator?.summary);
 
@@ -210,6 +220,14 @@ function sourceFlags(head: string) {
     && dropsSummary.statusResolverReady === true
     && dropsSummary.metricsResolverReady === true
     && dropsSummary.metricsUnavailableNotZero === true;
+  const globalUserDedupeSourceReady = currentReport("agent/state/global-user-dedupe-normalization.generated.json")
+    && globalUserDedupe?.status === "pass"
+    && globalUserDedupe.productionReadsRequired === false
+    && globalUserDedupe.legacyMutationAllowed === false
+    && globalUserDedupe.fakeActivityUsed === false
+    && globalUserDedupeDebugLane.linkedGuestUserDedupeHealth === "healthy"
+    && globalUserDedupeDebugLane.globalUserMismatchCount === 0
+    && globalUserDedupeDebugLane.sqlExportParityStatus === "mapped";
   const operatorRevenueSmokeSourceSignal = currentReport("agent/state/operator-revenue-smoke.generated.json")
     && operatorSummary.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
     && operatorSummary.formalProviderSmokePassed === false;
@@ -219,6 +237,7 @@ function sourceFlags(head: string) {
     telemetryPipelineSourceReady,
     walletLoadingSourceReady,
     creatorDropStatusRuntimeSourceReady,
+    globalUserDedupeSourceReady,
     operatorRevenueSmokeSourceSignal,
   };
 }
@@ -229,15 +248,17 @@ function score(flags: {
   telemetryPipelineSourceReady: boolean;
   walletLoadingSourceReady: boolean;
   creatorDropStatusRuntimeSourceReady: boolean;
+  globalUserDedupeSourceReady: boolean;
   operatorRevenueSmokeSourceSignal: boolean;
 }) {
   return [
-    flags.runtimeContractsPresent ? 15 : 0,
+    flags.runtimeContractsPresent ? 10 : 0,
     flags.watchTimeRuntimeSourceReady ? 20 : 0,
     flags.telemetryPipelineSourceReady ? 25 : 0,
-    flags.walletLoadingSourceReady ? 15 : 0,
+    flags.walletLoadingSourceReady ? 10 : 0,
     flags.creatorDropStatusRuntimeSourceReady ? 15 : 0,
-    flags.operatorRevenueSmokeSourceSignal ? 10 : 0,
+    flags.globalUserDedupeSourceReady ? 15 : 0,
+    flags.operatorRevenueSmokeSourceSignal ? 5 : 0,
   ].reduce((sum, value) => sum + value, 0);
 }
 
@@ -261,6 +282,7 @@ export function buildSourceBackedRuntimeConfidenceReport(
     `telemetryPipelineSourceReady=${inputs.telemetryPipelineSourceReady}`,
     `walletLoadingSourceReady=${inputs.walletLoadingSourceReady}`,
     `creatorDropStatusRuntimeSourceReady=${inputs.creatorDropStatusRuntimeSourceReady}`,
+    `globalUserDedupeSourceReady=${inputs.globalUserDedupeSourceReady}`,
     `operatorRevenueSmokeSourceSignal=${inputs.operatorRevenueSmokeSourceSignal}`,
     `runtimeConfidenceScore=${runtimeConfidenceScore}`,
     "launchGateImpact=does_not_clear_runtime_smoke",
@@ -279,6 +301,7 @@ export function buildSourceBackedRuntimeConfidenceReport(
     telemetryPipelineSourceReady: inputs.telemetryPipelineSourceReady,
     walletLoadingSourceReady: inputs.walletLoadingSourceReady,
     creatorDropStatusRuntimeSourceReady: inputs.creatorDropStatusRuntimeSourceReady,
+    globalUserDedupeSourceReady: inputs.globalUserDedupeSourceReady,
     operatorRevenueSmokeSourceSignal: inputs.operatorRevenueSmokeSourceSignal,
     runtimeConfidenceScore,
     launchGateImpact: "does_not_clear_runtime_smoke",
@@ -342,6 +365,7 @@ Latest code version: ${report.currentHead}
 - Telemetry pipeline source ready: ${report.telemetryPipelineSourceReady}
 - Wallet loading source ready: ${report.walletLoadingSourceReady}
 - Creator drop status runtime source ready: ${report.creatorDropStatusRuntimeSourceReady}
+- Global user dedupe source ready: ${report.globalUserDedupeSourceReady}
 - Operator revenue smoke source signal: ${report.operatorRevenueSmokeSourceSignal}
 
 ## Validators
@@ -362,7 +386,8 @@ function main() {
   const runtimeContractsPresent = flags.watchTimeRuntimeSourceReady
     && flags.telemetryPipelineSourceReady
     && flags.walletLoadingSourceReady
-    && flags.creatorDropStatusRuntimeSourceReady;
+    && flags.creatorDropStatusRuntimeSourceReady
+    && flags.globalUserDedupeSourceReady;
   const report = buildSourceBackedRuntimeConfidenceReport({
     generatedAtUtc: new Date().toISOString(),
     currentHead: head,
@@ -372,6 +397,7 @@ function main() {
     telemetryPipelineSourceReady: flags.telemetryPipelineSourceReady,
     walletLoadingSourceReady: flags.walletLoadingSourceReady,
     creatorDropStatusRuntimeSourceReady: flags.creatorDropStatusRuntimeSourceReady,
+    globalUserDedupeSourceReady: flags.globalUserDedupeSourceReady,
     operatorRevenueSmokeSourceSignal: flags.operatorRevenueSmokeSourceSignal,
     scoringModelSupportsRuntimePartialCredit: sourceCodeWiresRuntimeConfidence(),
     validatorResults: [
@@ -381,6 +407,7 @@ function main() {
       validatorResult("npm run check:mobile-loading-hydration-stability", "agent/state/mobile-loading-hydration-stability.generated.json"),
       validatorResult("npm run check:user-loading-wallet-mobile-refinement", "agent/state/user-loading-wallet-mobile-refinement.generated.json"),
       validatorResult("npm run check:creator-drop-status-metrics", "agent/state/creator-drop-status-metrics.generated.json"),
+      validatorResult("npm run check:global-user-dedupe-normalization", "agent/state/global-user-dedupe-normalization.generated.json"),
       validatorResult("npm run check:operator-revenue-smoke", "agent/state/operator-revenue-smoke.generated.json"),
     ],
   });
