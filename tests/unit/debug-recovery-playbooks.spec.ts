@@ -80,7 +80,7 @@ describe("debug recovery playbooks", () => {
         expect.stringContaining("missing playbook"),
         expect.stringContaining("lacks exact commands"),
         expect.stringContaining("lacks forbidden actions"),
-        expect.stringContaining("cannot clear formal evidence"),
+        expect.stringContaining("cannot clear typed evidence gates"),
         expect.stringContaining("touches protected default source file"),
       ]),
     );

@@ -531,10 +531,10 @@ export function validateDebugRecoveryPlaybooks(playbooks: readonly DebugRecovery
       failures.push(`${playbook.id} touches protected default source file.`);
     }
     if (!playbook.scoringImpactEstimate.doesNotClearFormalGates) {
-      failures.push(`${playbook.id} cannot clear formal evidence without artifact.`);
+      failures.push(`${playbook.id} cannot clear typed evidence gates without artifacts.`);
     }
     if (/(^|[.;]\s*)(clears formal|clear formal|clears typed evidence|clear typed evidence|provider gate passed|provider-backed site activity passed|deployed route evidence passed|admin source activity sample passed|runtime smoke passed|manual smoke passed)/iu.test(playbook.evidenceOutcome)) {
-      failures.push(`${playbook.id} cannot clear formal evidence without artifact.`);
+      failures.push(`${playbook.id} cannot clear typed evidence gates without artifacts.`);
     }
     if (!playbook.evidenceOutcome.includes("does not clear formal") && !/does not clear (provider-backed site activity|deployed route|admin source activity sample|external owner-review|typed evidence|typed beta evidence)/iu.test(playbook.evidenceOutcome)) {
       failures.push(`${playbook.id} evidence outcome must state it does not clear typed evidence gates.`);

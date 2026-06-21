@@ -48,7 +48,7 @@ function collapseReason(input: RecoveryPlaybookVisibilityInput, playbookId: stri
     return "admin truth is source-ready/formal-sample-required, not unknown.";
   }
   if (/formal|provider|runtime_smoke|admin_truth_sample/iu.test(playbookId)) {
-    return "formal evidence playbook belongs in collapsed formal evidence drilldown.";
+    return "typed evidence playbook belongs in collapsed evidence-boundary drilldown.";
   }
   return "no active matching issue.";
 }
