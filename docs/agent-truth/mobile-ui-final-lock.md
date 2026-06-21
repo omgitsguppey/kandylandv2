@@ -1,7 +1,7 @@
 # Mobile UI Final Lock
 
-Generated: 2026-06-19T07:55:52.739Z
-Current code version: 0659a3764bcb3ada363f4a30e741d6e59743781f
+Generated: 2026-06-21T18:39:12.859Z
+Current code version: a72e819a487f49eec2d0611fffb8b5728c1bbb1c
 
 ## Summary
 
@@ -52,4 +52,4 @@ Current code version: 0659a3764bcb3ada363f4a30e741d6e59743781f
 
 1. Run check:mobile-ui-final-lock before future mobile UI cleanup signoff.
 2. When a future UI pass touches admin, user, or creator screens, run the matching mobile phase check before release notes.
-3. Escalate to manual mobile screenshots only after source readiness is green and the user requests visual evidence.
+3. Escalate to browser reproduction only after source readiness is green and the user requests visual evidence.

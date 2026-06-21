@@ -1,7 +1,7 @@
 {
   "reportKey": "final-parity-telemetry-lock",
-  "generatedAtUtc": "2026-06-20T15:23:40.305Z",
-  "currentHead": "6e903936b9ba164bd883dff1e698504e51a4aed0",
+  "generatedAtUtc": "2026-06-21T18:40:54.129Z",
+  "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c",
   "currentHeadSource": "git",
   "gitStatus": "available",
   "toolingDegraded": false,
@@ -1013,8 +1013,8 @@
       ]
     }
   ],
-  "scoreBefore": 70.79,
-  "scoreAfter": 70.79,
+  "scoreBefore": 83.39,
+  "scoreAfter": 83.39,
   "scoreDimensions": [
     "sourceHealth",
     "runtimeHealth",
@@ -1076,11 +1076,59 @@
   ],
   "dirtyFiles": [
     {
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/creator-experience-simplification.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/user-creator-ui-parity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/mobile-ui-final-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     }
   ],

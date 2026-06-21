@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T18:24:35.393Z",
+  "generatedAtUtc": "2026-06-21T18:39:13.169Z",
   "reportKey": "overnight-final-integration-lock",
-  "currentHead": "17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1",
+  "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c",
   "summary": {
     "wiringIntegrityStatus": "stale",
     "telemetryOrphanStatus": "stale",
@@ -15,11 +15,11 @@
     "navUntouched": true,
     "openPrCount": 0,
     "dirtyFileStatus": "classified",
-    "betaScore": 70.79,
-    "betaStatus": "External proof required",
+    "betaScore": 84,
+    "betaStatus": "Source evidence required",
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 9
+    "p2Count": 7
   },
   "dependencyStatus": [
     {
@@ -40,7 +40,7 @@
       "id": "user-loading-wallet-mobile-refinement",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 0659a3764bcb3ada363f4a30e741d6e59743781f.",
+      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 0d37de032350c8cf27a328de002c5e96f9c06f82.",
       "nextAction": "Run the owner check for user-loading-wallet-mobile-refinement from current HEAD."
     },
     {
@@ -52,16 +52,16 @@
     },
     {
       "id": "mobile-ui-final-lock",
-      "status": "stale",
+      "status": "passed",
       "required": true,
-      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for 0659a3764bcb3ada363f4a30e741d6e59743781f.",
-      "nextAction": "Run the owner check for mobile-ui-final-lock from current HEAD."
+      "detail": "agent/state/mobile-ui-final-lock.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
     },
     {
       "id": "final-telemetry-closure-lock",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 79598a740b349732332b6e1751ca9d8f5b3933dc.",
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for a9f39a0099cec5fcc649a288d00b9c70b05143ff.",
       "nextAction": "Run the owner check for final-telemetry-closure-lock from current HEAD."
     },
     {
@@ -101,16 +101,16 @@
     },
     {
       "id": "public-beta-score",
-      "status": "stale",
+      "status": "passed",
       "required": true,
-      "detail": "agent/state/public-beta-score.generated.json is stale for 79598a740b349732332b6e1751ca9d8f5b3933dc.",
-      "nextAction": "Run the owner check for public-beta-score from current HEAD."
+      "detail": "agent/state/public-beta-score.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
     },
     {
       "id": "current-beta-exit-status",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 79598a740b349732332b6e1751ca9d8f5b3933dc.",
+      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 0d37de032350c8cf27a328de002c5e96f9c06f82.",
       "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
     }
   ],
@@ -132,7 +132,7 @@
     {
       "severity": "P2",
       "id": "user-loading-wallet-mobile-refinement",
-      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 0659a3764bcb3ada363f4a30e741d6e59743781f.",
+      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 0d37de032350c8cf27a328de002c5e96f9c06f82.",
       "nextAction": "Run the owner check for user-loading-wallet-mobile-refinement from current HEAD."
     },
     {
@@ -143,26 +143,14 @@
     },
     {
       "severity": "P2",
-      "id": "mobile-ui-final-lock",
-      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for 0659a3764bcb3ada363f4a30e741d6e59743781f.",
-      "nextAction": "Run the owner check for mobile-ui-final-lock from current HEAD."
-    },
-    {
-      "severity": "P2",
       "id": "final-telemetry-closure-lock",
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 79598a740b349732332b6e1751ca9d8f5b3933dc.",
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for a9f39a0099cec5fcc649a288d00b9c70b05143ff.",
       "nextAction": "Run the owner check for final-telemetry-closure-lock from current HEAD."
     },
     {
       "severity": "P2",
-      "id": "public-beta-score",
-      "detail": "agent/state/public-beta-score.generated.json is stale for 79598a740b349732332b6e1751ca9d8f5b3933dc.",
-      "nextAction": "Run the owner check for public-beta-score from current HEAD."
-    },
-    {
-      "severity": "P2",
       "id": "current-beta-exit-status",
-      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 79598a740b349732332b6e1751ca9d8f5b3933dc.",
+      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 0d37de032350c8cf27a328de002c5e96f9c06f82.",
       "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
     },
     {
@@ -186,14 +174,7 @@
     "Run npm run check:overnight-final-integration-lock after any follow-up lock refresh."
   ],
   "changedFiles": [
-    "agent/state/blocked-refresh-queue-resolver.generated.json",
-    "agent/state/debug-signal-actionability.generated.json",
-    "agent/state/score-80-path-lock.generated.json",
-    "agent/state/score-80-refresh-queue-execution.generated.json",
-    "docs/agent-truth/blocked-refresh-queue-resolver.md",
-    "docs/agent-truth/debug-signal-actionability.md",
-    "docs/agent-truth/score-80-path-lock.md",
-    "docs/agent-truth/score-80-refresh-queue-execution.md"
+    "agent/state/public-beta-score.generated.json"
   ],
   "untrackedFiles": [],
   "openPrs": []

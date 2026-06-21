@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T07:55:52.739Z",
+  "generatedAtUtc": "2026-06-21T18:39:12.859Z",
   "reportKey": "mobile-ui-final-lock",
-  "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+  "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c",
   "summary": {
     "scalingDoctrineReady": true,
     "hardcodedCssScanReady": true,
@@ -70,6 +70,6 @@
   "nextExactSteps": [
     "Run check:mobile-ui-final-lock before future mobile UI cleanup signoff.",
     "When a future UI pass touches admin, user, or creator screens, run the matching mobile phase check before release notes.",
-    "Escalate to manual mobile screenshots only after source readiness is green and the user requests visual evidence."
+    "Escalate to browser reproduction only after source readiness is green and the user requests visual evidence."
   ]
 }

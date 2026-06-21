@@ -1,6 +1,6 @@
 # Beta Evidence Lane Prep
 
-Generated: 2026-06-21T04:50:12.696Z
+Generated: 2026-06-21T18:39:25.929Z
 
 ## Summary
 
@@ -25,23 +25,18 @@ Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site acti
 
 ## Stale Supporting Reports
 
-- agent/state/public-beta-score.generated.json: No refresh needed.
-- agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status
-- agent/state/evidence-capture-status.generated.json: No refresh needed.
 - agent/state/source-truth-authority-map.generated.json: No refresh needed.
 - agent/state/final-telemetry-closure-lock.generated.json: No refresh needed.
-- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock
-- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 - agent/state/creator-settings-control-plane.generated.json: No refresh needed.
 - agent/state/creator-drop-status-metrics.generated.json: No refresh needed.
 - agent/state/operator-revenue-smoke.generated.json: No refresh needed.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
-- agent/state/beta-evidence-lane-prep.generated.json: No refresh needed.
+- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep
 - agent/state/beta-freshness-language.generated.json: No refresh needed.
 - agent/state/final-pr-stale-cleanup.generated.json: No refresh needed.
 - agent/state/overnight-wiring-integrity.generated.json: No refresh needed.
 - agent/state/existing-algorithm-refinement.generated.json: No refresh needed.
-- agent/state/user-loading-wallet-mobile-refinement.generated.json: User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement
+- agent/state/user-loading-wallet-mobile-refinement.generated.json: No refresh needed.
 - agent/state/global-marquee-truncated-titles.generated.json: No refresh needed.
 
 ## Next Exact Steps
