@@ -449,7 +449,8 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
 function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   if (gate.id === "targetedBehaviorTests") {
     if (gate.status === "Source validation only") {
-      return gate.sourceCredit > gate.evidenceCredit
+      const targetedArtifactMissing = gate.evidence.some((entry) => /targetedBehaviorArtifactStatus=missing_formal_evidence/iu.test(entry));
+      return targetedArtifactMissing && gate.sourceCredit > gate.evidenceCredit
         ? `${gate.status}: ${gate.label} - Source activity evidence is present; attach targeted source validator evidence before treating targeted behavior tests as passed.`
         : `${gate.status}: ${gate.label} - Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records.`;
     }

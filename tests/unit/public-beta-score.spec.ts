@@ -437,6 +437,10 @@ describe("public beta scoring math", () => {
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
         ]));
+        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records."),
+        ]));
+        expect(report.evidenceCapDetails.join("\n")).not.toContain("attach targeted source validator evidence");
         expect(report.evidenceCapDetails.join("\n")).not.toContain("does not prove visual review");
         expect(targetedGate?.detail).toContain("does not close provider-backed site activity");
     });
