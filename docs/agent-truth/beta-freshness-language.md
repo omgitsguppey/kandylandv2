@@ -1,13 +1,13 @@
 # Beta Freshness Language
 
-Generated: 2026-06-19T07:57:00.111Z
-Latest code version: 0659a3764bcb3ada363f4a30e741d6e59743781f
+Generated: 2026-06-21T14:18:30.556Z
+Latest code version: c2543ed35c89fc3350585c2d1951528ca4d7c0ff
 
 ## Doctrine
 
 - Internal freshness metadata remains available for validators.
 - User and operator report copy uses plain language such as latest code version, refresh this report, evidence is current, and evidence is outdated.
-- Formal beta exit gates remain strict. Plain language does not turn missing evidence into proof.
+- Beta exit source lanes remain strict. Plain language does not turn missing evidence into source evidence.
 
 ## Summary
 

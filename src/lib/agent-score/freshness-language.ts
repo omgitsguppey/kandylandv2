@@ -56,7 +56,7 @@ export function describeCommitFreshness(context: FreshnessPlainLanguageContext):
     return description(context, {
       internalStatus: "source_version_mismatch",
       userTitle: "Evidence needs refresh",
-      userMessage: "This report was generated before the latest code changes, so it cannot be used as current beta proof yet.",
+      userMessage: "This report was generated before the latest code changes, so it cannot be used as current beta source evidence yet.",
       operatorMessage: "Refresh the generated report from the latest code version, then rerun the beta score check.",
       actionLabel: "Refresh report",
       actionDetail: context.reportPath
@@ -80,7 +80,7 @@ export function describeReportFreshness(context: FreshnessPlainLanguageContext):
     return description(context, {
       internalStatus: "missing",
       userTitle: "Evidence is missing",
-      userMessage: "This report is missing, so it cannot be used as beta proof yet.",
+      userMessage: "This report is missing, so it cannot be used as beta source evidence yet.",
       operatorMessage: "Create or refresh this report from the latest code version, then rerun the related check.",
       actionLabel: "Create report",
       actionDetail: context.reportPath
@@ -93,7 +93,7 @@ export function describeReportFreshness(context: FreshnessPlainLanguageContext):
     return description(context, {
       internalStatus: "stale",
       userTitle: "Evidence is outdated",
-      userMessage: "This report is older than the freshness window. Refresh it before using it for beta exit.",
+      userMessage: "This report is older than the freshness window. Refresh it before using it as beta source evidence.",
       operatorMessage: "Refresh this report from the latest code version before using it for beta readiness.",
       actionLabel: "Refresh evidence",
       actionDetail: context.reportPath
@@ -177,9 +177,9 @@ export function normalizeTechnicalFreshnessTerms(value: string): string {
     .replace(/formal evidence gates/giu, "source evidence lanes")
     .replace(/formal evidence gate/giu, "source evidence lane")
     .replace(/formal evidence/giu, "source evidence")
-    .replace(/formal proof/giu, "source proof")
+    .replace(/formal proof/giu, "source evidence")
     .replace(/formal launch proof/giu, "site activity launch proof")
-    .replace(/not formal provider proof/giu, "not provider-backed source proof")
+    .replace(/not formal provider proof/giu, "not provider-backed source evidence")
     .replace(/Attach real redacted provider smoke evidence/gu, "Produce provider-backed source evidence")
     .replace(/Attach a redacted production admin truth sample/gu, "Produce a redacted admin source activity sample")
     .replace(/Attach redacted production admin truth sample evidence/gu, "Produce redacted admin source activity sample evidence")

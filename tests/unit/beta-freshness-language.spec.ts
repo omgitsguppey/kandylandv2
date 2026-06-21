@@ -22,6 +22,7 @@ describe("beta freshness language", () => {
 
     expect(message.userTitle).toBe("Evidence needs refresh");
     expect(message.userMessage).toContain("before the latest code changes");
+    expect(message.userMessage).toContain("beta source evidence");
     expect(message.userMessage).not.toMatch(/\bHEAD\b|currentHead|sourceCommit/u);
     expect(message.operatorMessage).toContain("latest code version");
     expect(message.operatorMessage).not.toMatch(/\bHEAD\b|currentHead|sourceCommit/u);
@@ -38,6 +39,7 @@ describe("beta freshness language", () => {
 
     expect(message.userTitle).toBe("Evidence is outdated");
     expect(message.userMessage).toContain("older than the freshness window");
+    expect(message.userMessage).toContain("beta source evidence");
     expect(message.actionLabel).toBe("Refresh evidence");
   });
 

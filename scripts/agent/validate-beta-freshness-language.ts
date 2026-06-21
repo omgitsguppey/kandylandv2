@@ -217,7 +217,7 @@ function writeDocs(report: BetaFreshnessLanguageReport) {
     "",
     "- Internal freshness metadata remains available for validators.",
     "- User and operator report copy uses plain language such as latest code version, refresh this report, evidence is current, and evidence is outdated.",
-    "- Formal beta exit gates remain strict. Plain language does not turn missing evidence into proof.",
+    "- Beta exit source lanes remain strict. Plain language does not turn missing evidence into source evidence.",
     "",
     "## Summary",
     "",
