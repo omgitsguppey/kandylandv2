@@ -1,7 +1,7 @@
 {
   "reportKey": "telemetry-parity-pass-gate",
-  "generatedAtUtc": "2026-06-21T04:33:29.039Z",
-  "currentHead": "89ee7595b232c449cf94ad88a0b9b208d81c3c20",
+  "generatedAtUtc": "2026-06-21T04:36:40.639Z",
+  "currentHead": "d79560b6ad17fca9f01f51247641577bc8d8dfe9",
   "gate": {
     "status": "fail",
     "sourceParityStatus": "fail",
