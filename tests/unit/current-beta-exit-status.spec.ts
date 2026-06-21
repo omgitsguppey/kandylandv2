@@ -46,7 +46,7 @@ function proofLanesFor(
     },
     {
       id: "providerSmoke",
-      label: "Provider smoke",
+      label: "Provider-backed site activity evidence",
       truthState: summary.providerSmokeStatus.startsWith("stale_")
         ? "external_evidence_required"
         : summary.providerSmokeStatus.includes("formal_provider_smoke_passed")
@@ -62,11 +62,11 @@ function proofLanesFor(
       captureStatus: summary.providerSmokeStatus.includes("formal_provider_smoke_passed") ? "complete" : "missing",
       sourceCommit: "head",
       canClearGate: summary.providerSmokeStatus.includes("formal_provider_smoke_passed"),
-      nextAction: "Attach redacted provider smoke evidence; operator confirmation alone cannot clear provider proof.",
+      nextAction: "Attach redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate.",
     },
     {
       id: "runtimeSmoke",
-      label: "Runtime smoke",
+      label: "Deployed route evidence",
       truthState: summary.runtimeSmokeStatus.startsWith("stale_")
         ? "external_evidence_required"
         : summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed")
@@ -82,11 +82,11 @@ function proofLanesFor(
       captureStatus: summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed") ? "complete" : "missing",
       sourceCommit: "head",
       canClearGate: summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed"),
-      nextAction: "Attach or refresh deployed runtime smoke evidence for the current code version.",
+      nextAction: "Attach or refresh deployed route evidence for the current code version.",
     },
     {
       id: "adminTruthSample",
-      label: "Admin truth sample",
+      label: "Admin source sample evidence",
       truthState: summary.adminTruthSampleStatus.startsWith("stale_")
         ? "admin_truth_source_required"
         : summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed")
@@ -102,7 +102,7 @@ function proofLanesFor(
       captureStatus: summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed") ? "complete" : "missing",
       sourceCommit: "head",
       canClearGate: summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed"),
-      nextAction: "Attach or refresh a redacted admin truth sample for the current code version.",
+      nextAction: "Attach or refresh a redacted admin source sample for the current code version.",
     },
   ];
 }
@@ -309,14 +309,14 @@ describe("current beta exit status validator", () => {
         {
           artifactPath: "agent/state/provider-smoke-evidence.generated.json",
           reportKey: "provider-smoke-evidence",
-          label: "Provider smoke evidence",
+          label: "Provider-backed site activity evidence",
           status: "stale_source_version",
           needsRefresh: true,
           generatedAtUtc: "2026-06-18T12:00:00.000Z",
           ageHours: 24,
           refreshCommand: "npm run check:provider-smoke-evidence",
-          message: "Provider smoke evidence was generated from an older code version.",
-          nextAction: "Attach provider evidence.",
+          message: "Provider-backed site activity evidence was generated from an older code version.",
+        nextAction: "Attach provider-backed site activity evidence.",
           formalEvidenceGateCanClear: false,
           owner: "evidence",
           maxAgeHours: 24,
