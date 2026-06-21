@@ -2306,81 +2306,7 @@ export function useAdminAnalyticsState() {
       }),
     [funnel.authSignUps, onboardingDurationBuckets, onboardingStats, onboardingStepStats],
   );
-  const globalSemantics = semanticCategories.find(
-    (item) => item.key === "global",
-  );
-  const userSemantics = semanticCategories.find((item) => item.key === "user");
-  const adminSemantics = semanticCategories.find(
-    (item) => item.key === "admin",
-  );
-  const dropSemantics = semanticCategories.find((item) => item.key === "drop");
   const guestTraffic = livePulseGuestTraffic;
-  const guestViewsDisplayCount =
-    guestTraffic?.truthLabel === "estimated"
-      ? guestTraffic.estimatedGuestViews
-      : guestTraffic?.exactGuestViews ?? globalSemantics?.viewCount ?? 0;
-  const guestViewsHint =
-    guestTraffic?.truthLabel === "estimated"
-      ? `Estimated from GA totals minus identified first-party traffic (${formatCompactNumber(guestTraffic.estimatedGuestViews)} views)`
-      : `${(globalSemantics?.clickCount ?? 0).toLocaleString()} tracked public clicks`;
-  const guestQualityUnavailable =
-    guestTraffic?.truthLabel === "estimated" && !guestTraffic.qualityAvailable;
-  const guestBounceRate =
-    globalSemantics && globalSemantics.viewCount > 0
-      ? globalSemantics.bounceCount / Math.max(1, globalSemantics.viewCount)
-      : 0;
-  const guestEngagedRate = globalSemantics?.engagedRate ?? 0;
-  const guestBounceRateDisplay = guestQualityUnavailable
-    ? "Unknown"
-    : formatPercent(guestBounceRate);
-  const guestEngagedRateDisplay = guestQualityUnavailable
-    ? "Unknown"
-    : formatPercent(guestEngagedRate);
-  const guestBounceHint = guestQualityUnavailable
-    ? "Anonymous quality metrics are unavailable until consented guest semantic batches land."
-    : `${(globalSemantics?.bounceCount ?? 0).toLocaleString()} bounced exits`;
-  const guestEngagedHint = guestQualityUnavailable
-    ? "Guest engagement quality waits for consented guest semantic batches."
-    : `${(globalSemantics?.engagedViewCount ?? 0).toLocaleString()} engaged sessions`;
-  const identifiedBounceRate =
-    userSemantics && userSemantics.viewCount > 0
-      ? userSemantics.bounceCount / Math.max(1, userSemantics.viewCount)
-      : 0;
-  const semanticQualityCards = [
-    {
-      key: "global",
-      label: "Guest / Public",
-      views: guestViewsDisplayCount,
-      engaged: globalSemantics?.engagedViewCount ?? 0,
-      bounced: globalSemantics?.bounceCount ?? 0,
-      exits: globalSemantics?.exitCount ?? 0,
-      truthLabel: guestTraffic?.truthLabel ?? "unknown",
-    },
-    {
-      key: "user",
-      label: "Signed-in",
-      views: userSemantics?.viewCount ?? 0,
-      engaged: userSemantics?.engagedViewCount ?? 0,
-      bounced: userSemantics?.bounceCount ?? 0,
-      exits: userSemantics?.exitCount ?? 0,
-    },
-    {
-      key: "admin",
-      label: "Admin",
-      views: adminSemantics?.viewCount ?? 0,
-      engaged: adminSemantics?.engagedViewCount ?? 0,
-      bounced: adminSemantics?.bounceCount ?? 0,
-      exits: adminSemantics?.exitCount ?? 0,
-    },
-    {
-      key: "drop",
-      label: "Viewer",
-      views: dropSemantics?.viewCount ?? 0,
-      engaged: dropSemantics?.engagedViewCount ?? 0,
-      bounced: dropSemantics?.bounceCount ?? 0,
-      exits: dropSemantics?.exitCount ?? 0,
-    },
-  ];
 
   const topEvents = eventBreakdown.slice(0, 8).map((entry) => ({
     ...entry,
@@ -2549,74 +2475,6 @@ export function useAdminAnalyticsState() {
   const guestBounceTraffic = guestBounceQualityData?.guestTraffic ?? guestTraffic;
   const guestBounceSemantics =
     guestBounceQualityData?.semanticCategories ?? semanticCategories;
-  const guestBounceGlobalSemantics = guestBounceSemantics.find(
-    (item) => item.key === "global",
-  );
-  const guestBounceUserSemantics = guestBounceSemantics.find(
-    (item) => item.key === "user",
-  );
-  const guestBounceAdminSemantics = guestBounceSemantics.find(
-    (item) => item.key === "admin",
-  );
-  const guestBounceDropSemantics = guestBounceSemantics.find(
-    (item) => item.key === "drop",
-  );
-  const guestBounceGuestRate =
-    guestBounceGlobalSemantics && guestBounceGlobalSemantics.viewCount > 0
-      ? guestBounceGlobalSemantics.bounceCount /
-        Math.max(1, guestBounceGlobalSemantics.viewCount)
-      : 0;
-  const guestBounceIdentifiedRate =
-    guestBounceUserSemantics && guestBounceUserSemantics.viewCount > 0
-      ? guestBounceUserSemantics.bounceCount /
-        Math.max(1, guestBounceUserSemantics.viewCount)
-      : 0;
-  const guestBounceEngagedRate =
-    guestBounceGlobalSemantics && guestBounceGlobalSemantics.viewCount > 0
-      ? guestBounceGlobalSemantics.engagedViewCount /
-        Math.max(1, guestBounceGlobalSemantics.viewCount)
-      : 0;
-  const guestBounceQualityUnavailable =
-    guestBounceTraffic?.truthLabel === "estimated"
-      && !guestBounceTraffic.qualityAvailable;
-  const guestBounceQualityCards = [
-    {
-      key: "global",
-      label: "Guest / Public",
-      views:
-        guestBounceTraffic?.truthLabel === "estimated"
-          ? guestBounceTraffic.estimatedGuestViews
-          : guestBounceGlobalSemantics?.viewCount ?? 0,
-      engaged: guestBounceGlobalSemantics?.engagedViewCount ?? 0,
-      bounced: guestBounceGlobalSemantics?.bounceCount ?? 0,
-      exits: guestBounceGlobalSemantics?.exitCount ?? 0,
-      truthLabel: guestBounceTraffic?.truthLabel ?? "unknown",
-    },
-    {
-      key: "user",
-      label: "Signed-in",
-      views: guestBounceUserSemantics?.viewCount ?? 0,
-      engaged: guestBounceUserSemantics?.engagedViewCount ?? 0,
-      bounced: guestBounceUserSemantics?.bounceCount ?? 0,
-      exits: guestBounceUserSemantics?.exitCount ?? 0,
-    },
-    {
-      key: "admin",
-      label: "Admin",
-      views: guestBounceAdminSemantics?.viewCount ?? 0,
-      engaged: guestBounceAdminSemantics?.engagedViewCount ?? 0,
-      bounced: guestBounceAdminSemantics?.bounceCount ?? 0,
-      exits: guestBounceAdminSemantics?.exitCount ?? 0,
-    },
-    {
-      key: "drop",
-      label: "Viewer",
-      views: guestBounceDropSemantics?.viewCount ?? 0,
-      engaged: guestBounceDropSemantics?.engagedViewCount ?? 0,
-      bounced: guestBounceDropSemantics?.bounceCount ?? 0,
-      exits: guestBounceDropSemantics?.exitCount ?? 0,
-    },
-  ];
   const guestBounceQualityModel = useMemo(
     () => buildAdminAnalyticsGuestBounceQualityModel({
       selectedRange: guestBounceQualityRange,
@@ -3410,10 +3268,9 @@ export function useAdminAnalyticsState() {
     adminAnalyticsSourceHierarchy, panelHydration,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals, authOutcomeModel,
     authOnboardingDiscrepancies, onboardingVelocityModel, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
-    guestBounceQualityCards, guestBounceQualityModel, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
-    guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint, guestQualityUnavailable,
+    guestBounceQualityModel,
     topEvents, liveInteractionStreamRange, liveInteractionStreamData, liveInteractionEvents, liveInteractionStreamModel,
-    totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
+    totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange,
     audienceTotals, audienceHistorySeries, audienceSnapshotModel,
     returnCadenceRange, returnCadenceData, returnCadenceSegments, returnCadenceSummary, returnCadenceModel,
     navigationDestinationsRange, destinationMix, navigationDestinationsMix, navigationDestinationsModel, deviceMixRange, getDeviceIcon, deviceMixDevices, deviceMixTotalUsers, deviceMixModel, topPathsRange, topPathsPages, topPathsModel, regionsRange, regionsGeo, regionsModel,

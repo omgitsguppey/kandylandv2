@@ -39,12 +39,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     authOutcomeModel,
     authOnboardingDiscrepancies, onboardingVelocityModel, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
-    guestBounceQualityCards, guestBounceQualityModel, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
-    guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint,
+    guestBounceQualityModel,
     topEvents,
     
     // Audience Tab
-    totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
+    totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange,
     returnCadenceSegments,
     navigationDestinationsRange, destinationMix,
     deviceMixRange, devices, getDeviceIcon,

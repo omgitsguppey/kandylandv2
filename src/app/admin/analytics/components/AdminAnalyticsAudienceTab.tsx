@@ -37,11 +37,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
     authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
-    guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     topEvents,
     
     // Audience Tab
-    totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate, historicalOverviewTruthState,
+    totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, historicalOverviewTruthState,
     navigationDestinationsRange,
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,

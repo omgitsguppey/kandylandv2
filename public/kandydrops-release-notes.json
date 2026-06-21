@@ -1,11 +1,61 @@
 {
-  "currentVersion": "1.6.14",
-  "betaReleaseCounter": 614,
+  "currentVersion": "1.6.15",
+  "betaReleaseCounter": 615,
   "channel": "beta",
-  "generatedAt": "2026-06-21T00:40:07.574Z",
-  "generatedAtUtc": "2026-06-21T00:40:07.574Z",
-  "lastCommitSha": "7170164cafcfefe2dbec48c6f23c444c365d17d3",
+  "generatedAt": "2026-06-21T00:47:21.406Z",
+  "generatedAtUtc": "2026-06-21T00:47:21.406Z",
+  "lastCommitSha": "957c0f083a87a0138147dbe9baf0da05fcc99715",
   "notes": [
+    {
+      "version": "1.6.15",
+      "previousVersion": "1.6.14",
+      "betaReleaseCounter": 615,
+      "previousBetaReleaseCounter": 614,
+      "commitSha": "957c0f083a87a0138147dbe9baf0da05fcc99715",
+      "commitTitle": "analytics: remove duplicate guest quality formulas",
+      "commitCount": 2,
+      "commitShas": [
+        "237414f675dd42616f00530a35f8fe1c322e3ee8",
+        "957c0f083a87a0138147dbe9baf0da05fcc99715"
+      ],
+      "committedAt": "2026-06-21T00:47:07.000Z",
+      "generatedAt": "2026-06-21T00:47:21.404Z",
+      "committedAtUtc": "2026-06-21T00:47:07.000Z",
+      "generatedAtUtc": "2026-06-21T00:47:21.404Z",
+      "updatedAtUtc": "2026-06-21T00:47:21.404Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.utils.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-operations-mobile.spec.ts"
+      ],
+      "sourceCommit": "957c0f083a87a0138147dbe9baf0da05fcc99715"
+    },
     {
       "version": "1.6.14",
       "previousVersion": "1.6.13",
@@ -2173,91 +2223,6 @@
         "tests/unit/admin-analytics-page.spec.tsx"
       ],
       "sourceCommit": "edcc1b76f3c3f12aded0051b5cd9f4d3743bad93"
-    },
-    {
-      "version": "1.5.90",
-      "previousVersion": "1.5.89",
-      "betaReleaseCounter": 590,
-      "previousBetaReleaseCounter": 589,
-      "commitSha": "404d9037c67fdad6398e002b31985b2c31c62b12",
-      "commitTitle": "fix(admin): simplify surface actions",
-      "commitCount": 5,
-      "commitShas": [
-        "6cd20ca9ab677996e9a22af28a97e4c1177e55c0",
-        "889367e7f7863e2684264003cbb4a133c63891ef",
-        "76843f60d482cf7bbe05c9e5f404858fe04782aa",
-        "80d1eec4ad6f6140871934d0d6effca5551188cc",
-        "404d9037c67fdad6398e002b31985b2c31c62b12"
-      ],
-      "committedAt": "2026-06-18T10:18:19.000Z",
-      "generatedAt": "2026-06-18T10:27:15.177Z",
-      "committedAtUtc": "2026-06-18T10:18:19.000Z",
-      "generatedAtUtc": "2026-06-18T10:27:15.177Z",
-      "updatedAtUtc": "2026-06-18T10:27:15.177Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 5 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "account-onboarding",
-        "admin",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/admin-surface-modal-replacement.generated.json",
-        "agent/state/analytics-panel-hydration.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/launch-analytics-recovery.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/source-agreement-failure-detail.generated.json",
-        "docs/agent-truth/admin-surface-modal-replacement.md",
-        "docs/agent-truth/analytics-panel-hydration.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/launch-analytics-recovery.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "docs/agent-truth/source-agreement-failure-detail.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-analytics-panel-hydration.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx",
-        "src/lib/admin-analytics-auth-outcome-split.ts",
-        "src/lib/admin-analytics-contracts.ts",
-        "src/lib/admin-analytics-event-mix.ts",
-        "src/lib/admin-analytics-guest-bounce-quality.ts",
-        "src/lib/admin-analytics-journey-funnel.ts",
-        "src/lib/admin-analytics-live-interaction-stream.ts",
-        "src/lib/admin-analytics-live-pulse.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-analytics-historical-validation.ts",
-        "src/types/admin-analytics.ts",
-        "tests/unit/admin-analytics-event-mix.spec.ts",
-        "tests/unit/admin-analytics-guest-bounce-quality.spec.ts",
-        "tests/unit/admin-analytics-journey-funnel.spec.ts",
-        "tests/unit/admin-analytics-live-interaction-stream.spec.ts",
-        "tests/unit/admin-analytics-page.spec.tsx",
-        "tests/unit/admin-data-validation.spec.ts",
-        "tests/unit/admin-onboarding-analytics-mobile.spec.ts",
-        "tests/unit/analytics-panel-hydration.spec.ts"
-      ],
-      "sourceCommit": "404d9037c67fdad6398e002b31985b2c31c62b12"
     }
   ]
 }

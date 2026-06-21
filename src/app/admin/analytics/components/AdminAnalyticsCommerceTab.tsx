@@ -53,11 +53,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
     authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
-    guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     topEvents,
     
     // Audience Tab
-    totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
+    totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange,
     returnCadenceSegments,
     navigationDestinationsRange, destinationMix,
     deviceMixRange, devices, getDeviceIcon,
