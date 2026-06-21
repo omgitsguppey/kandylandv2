@@ -311,7 +311,7 @@ export function buildScore80CostReadinessReport(input: {
         detail: cloudGuardsCurrent ? "Current Cloud SQL/Gemini guard report is available." : "Cloud SQL/Gemini guard report is missing or stale.",
       },
       {
-        command: "npm run check:global-cost-surfaces",
+        command: "npm run check:global-cost",
         status: globalCostClean ? "pass" : "failed_or_not_run",
         artifactPath: "agent/state/global-cost-surfaces.generated.json",
         detail: globalCostClean

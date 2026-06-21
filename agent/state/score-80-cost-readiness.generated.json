@@ -1,21 +1,21 @@
 {
-  "generatedAtUtc": "2026-06-21T03:58:41.666Z",
+  "generatedAtUtc": "2026-06-21T14:21:57.999Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "c53978beb10283d481e7a0d5c1e943fb01056eab",
-  "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
+  "currentHead": "a9f39a0099cec5fcc649a288d00b9c70b05143ff",
+  "sourceCommit": "a9f39a0099cec5fcc649a288d00b9c70b05143ff",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
-    "sourceCostReadinessScore": 68.5,
-    "costRiskScore": 68.5,
-    "staleCreatorDashboardInventoryIgnored": true,
+    "sourceCostReadinessScore": 92.5,
+    "costRiskScore": 92.5,
+    "staleCreatorDashboardInventoryIgnored": false,
     "cloudRunSourceReady": true,
     "cloudSqlOwnerReview": true,
     "geminiOwnerReview": true,
     "route4xxSourceReady": true,
     "p0Count": 0,
     "p1Count": 3,
-    "p2Count": 5
+    "p2Count": 0
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
@@ -34,10 +34,10 @@
       "blocksBetaExit": false
     },
     "cloudSqlCostReadiness": {
-      "status": "owner_review_external_billing_required",
-      "detail": "Cloud SQL/Data Connect source or external billing state still needs owner review.",
+      "status": "source_ready_no_runtime_usage_detected",
+      "detail": "Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.",
       "evidence": [
-        "cloudSqlGuardReportCurrent=false",
+        "cloudSqlGuardReportCurrent=true",
         "cloudSqlRuntimeDetected=false",
         "sqlMirrorScriptsGuarded=true",
         "sqlMirrorRequiresExplicitApproval=true",
@@ -51,10 +51,10 @@
       "blocksBetaExit": false
     },
     "geminiCloudAssistCostReadiness": {
-      "status": "cost_review_required",
-      "detail": "AI cost lane lacks enough source guard evidence for refinement.",
+      "status": "source_guarded_external_review_remaining",
+      "detail": "AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.",
       "evidence": [
-        "cloudSqlGeminiGuardCurrent=false",
+        "cloudSqlGeminiGuardCurrent=true",
         "geminiRuntimeDetected=true",
         "aiCallsRequireExplicitAction=true",
         "aiCallsHaveRateOrCacheGuard=true",
@@ -85,29 +85,21 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 68.5,
-  "costRiskScoreExplanation": "Cost risk score 68.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.",
+  "costRiskScore": 92.5,
+  "costRiskScoreExplanation": "Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.",
   "externalOwnerReviewStillRequired": true,
   "sourceReadinessSignals": [
-    "cloudRunSourceReady=false",
-    "route4xxSourceReady=false",
+    "cloudRunSourceReady=true",
+    "route4xxSourceReady=true",
     "globalCostClean=true",
-    "finalCostCurrent=false",
-    "telemetryCurrent=false",
-    "costOwnerReviewSourceClosureCurrent=true",
+    "finalCostCurrent=true",
+    "telemetryCurrent=true",
+    "costOwnerReviewSourceClosureCurrent=false",
     "costRiskOwnerReviewClosureCurrent=false",
     "costRiskExitPassCurrent=false"
   ],
-  "staleArtifacts": [
-    "agent/state/final-cost-audit-lock.generated.json",
-    "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-    "agent/state/analytics-cost-runtime-inventory.generated.json",
-    "agent/state/final-telemetry-closure-lock.generated.json",
-    "agent/state/creator-dashboard-error-cost-inventory.generated.json"
-  ],
-  "ignoredLegacyArtifacts": [
-    "agent/state/creator-dashboard-error-cost-inventory.generated.json"
-  ],
+  "staleArtifacts": [],
+  "ignoredLegacyArtifacts": [],
   "ownerReviewLanes": [
     "cloudRunCostReadiness",
     "cloudSqlCostReadiness",
@@ -116,9 +108,9 @@
   "validatorResults": [
     {
       "command": "npm run check:final-cost-audit-lock",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/final-cost-audit-lock.generated.json",
-      "detail": "Final cost lock is missing or stale."
+      "detail": "Current final cost lock is available."
     },
     {
       "command": "npm run check:cost-risk-exit-pass",
@@ -134,18 +126,18 @@
     },
     {
       "command": "npm run check:cost-owner-review-source-closure",
-      "status": "pass",
+      "status": "failed_or_not_run",
       "artifactPath": "agent/state/cost-owner-review-source-closure.generated.json",
-      "detail": "Current cost owner-review source closure is available."
+      "detail": "Cost owner-review source closure is missing or stale."
     },
     {
       "command": "npm run check:cloud-sql-gemini-cost-guards",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "detail": "Cloud SQL/Gemini guard report is missing or stale."
+      "detail": "Current Cloud SQL/Gemini guard report is available."
     },
     {
-      "command": "npm run check:global-cost-surfaces",
+      "command": "npm run check:global-cost",
       "status": "pass",
       "artifactPath": "agent/state/global-cost-surfaces.generated.json",
       "detail": "Global cost source surfaces are clean supporting context; this is not external billing evidence."
@@ -158,7 +150,7 @@
     },
     {
       "command": "npm run check:analytics-cost-runtime-inventory",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/analytics-cost-runtime-inventory.generated.json",
       "detail": "Analytics cost runtime inventory refresh is tracked separately from external billing evidence."
     }

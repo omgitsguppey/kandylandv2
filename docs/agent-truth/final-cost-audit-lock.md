@@ -1,7 +1,7 @@
 # Final Cost Audit Lock
 
-Generated: 2026-06-19T15:04:43.514Z
-Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
+Generated: 2026-06-21T14:21:46.572Z
+Current head: a9f39a0099cec5fcc649a288d00b9c70b05143ff
 
 ## Summary
 
@@ -19,7 +19,7 @@ Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
 - Route 4xx: source_inventory_complete
 - Open PR count: 0
 - Working tree clean at report generation: false
-- Beta score/status: 76.88/External proof required
+- Beta score/status: 84/Source evidence required
 - Beta exit review ready: false
 
 ## Audit Item Coverage
@@ -94,7 +94,7 @@ Current head: e947d82891dfc7957cb4b9b9972d6378605a927d
 
 ## Next Exact Steps
 
-1. Run UI source coverage before optional browser or screenshot reproduction; beta exit remains blocked until formal provider/runtime/admin evidence exists.
+1. Run UI source coverage before optional browser reproduction; beta exit remains blocked until formal provider/runtime/admin evidence exists.
 2. Capture deployed runtime watch-time v2 media playback evidence before claiming live watch accuracy.
 3. Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing in Google Cloud; do not mark not-detected/source-only lanes as pass.
 4. After deployment, verify Cloud Scheduler/Functions cadence externally so source guards match live schedules.

@@ -1,38 +1,38 @@
 # Score 80 Cost Readiness
 
-Generated: 2026-06-21T03:58:41.666Z
+Generated: 2026-06-21T14:21:57.999Z
 
-Latest code version: c53978beb10283d481e7a0d5c1e943fb01056eab
+Latest code version: a9f39a0099cec5fcc649a288d00b9c70b05143ff
 
 ## Summary
 
-- Cost risk score: 68.5
+- Cost risk score: 92.5
 - Latest cost locks preferred: true
 - External owner review still required: true
-- Stale creator dashboard inventory ignored: true
-- Explanation: Cost risk score 68.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.
+- Stale creator dashboard inventory ignored: false
+- Explanation: Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.
 
 ## Cost Lanes
 
 | Lane | Status | Detail |
 | --- | --- | --- |
 | cloudRunCostReadiness | source_guarded_external_review_remaining | Cloud Run/App Hosting has source guard coverage; deployed billing review remains external. |
-| cloudSqlCostReadiness | owner_review_external_billing_required | Cloud SQL/Data Connect source or external billing state still needs owner review. |
-| geminiCloudAssistCostReadiness | cost_review_required | AI cost lane lacks enough source guard evidence for refinement. |
+| cloudSqlCostReadiness | source_ready_no_runtime_usage_detected | Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review. |
+| geminiCloudAssistCostReadiness | source_guarded_external_review_remaining | AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review. |
 | route4xxReadiness | source_ready_retry_storm_guarded | Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review. |
 
 ## Validator Inputs
 
 | Command | Status | Artifact | Detail |
 | --- | --- | --- | --- |
-| npm run check:final-cost-audit-lock | failed_or_not_run | agent/state/final-cost-audit-lock.generated.json | Final cost lock is missing or stale. |
+| npm run check:final-cost-audit-lock | pass | agent/state/final-cost-audit-lock.generated.json | Current final cost lock is available. |
 | npm run check:cost-risk-exit-pass | failed_or_not_run | agent/state/cost-risk-exit-pass.generated.json | Cost risk exit pass is missing or stale. |
 | npm run check:cost-risk-owner-review-closure | failed_or_not_run | agent/state/cost-risk-owner-review-closure.generated.json | Cost risk owner-review closure is missing or stale. |
-| npm run check:cost-owner-review-source-closure | pass | agent/state/cost-owner-review-source-closure.generated.json | Current cost owner-review source closure is available. |
-| npm run check:cloud-sql-gemini-cost-guards | failed_or_not_run | agent/state/cloud-sql-gemini-cost-guards.generated.json | Cloud SQL/Gemini guard report is missing or stale. |
-| npm run check:global-cost-surfaces | pass | agent/state/global-cost-surfaces.generated.json | Global cost source surfaces are clean supporting context; this is not external billing evidence. |
+| npm run check:cost-owner-review-source-closure | failed_or_not_run | agent/state/cost-owner-review-source-closure.generated.json | Cost owner-review source closure is missing or stale. |
+| npm run check:cloud-sql-gemini-cost-guards | pass | agent/state/cloud-sql-gemini-cost-guards.generated.json | Current Cloud SQL/Gemini guard report is available. |
+| npm run check:global-cost | pass | agent/state/global-cost-surfaces.generated.json | Global cost source surfaces are clean supporting context; this is not external billing evidence. |
 | npm run check:billing-spike-radar | pass | agent/state/billing-spike-radar.generated.json | Billing spike radar is supporting watchlist context; warnings do not become external billing evidence. |
-| npm run check:analytics-cost-runtime-inventory | failed_or_not_run | agent/state/analytics-cost-runtime-inventory.generated.json | Analytics cost runtime inventory refresh is tracked separately from external billing evidence. |
+| npm run check:analytics-cost-runtime-inventory | pass | agent/state/analytics-cost-runtime-inventory.generated.json | Analytics cost runtime inventory refresh is tracked separately from external billing evidence. |
 
 ## Boundary
 

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T15:04:43.514Z",
+  "generatedAtUtc": "2026-06-21T14:21:46.572Z",
   "reportKey": "final-cost-audit-lock",
-  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "currentHead": "a9f39a0099cec5fcc649a288d00b9c70b05143ff",
   "summary": {
     "totalAuditItems": 50,
     "fixedCount": 44,
@@ -17,8 +17,8 @@
     "route4xxReadiness": "source_inventory_complete",
     "openPrCount": 0,
     "workingTreeClean": false,
-    "betaScore": 76.88,
-    "betaStatus": "External proof required",
+    "betaScore": 84,
+    "betaStatus": "Source evidence required",
     "canStartBetaExitReview": false,
     "p0Count": 0,
     "p1Count": 6,
@@ -974,164 +974,64 @@
   ],
   "dirtyFileActions": [
     {
-      "path": "agent/evidence/manual-screenshot-qa/README.md",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "agent/evidence/manual-screenshot-qa/evidence.template.json",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "agent/evidence/manual-screenshot-qa/screenshots/.gitkeep",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/analytics-semantics-final-lock.generated.json",
+      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
+      "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/debug-backlog-engine.generated.json",
+      "path": "agent/state/package-script-consolidation.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/event-translation-bridge.generated.json",
+      "path": "agent/state/score-80-cost-readiness.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/evidence-capture-status.generated.json",
+      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/launch-analytics-recovery.generated.json",
+      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "path": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/person-metrics-hydration.generated.json",
+      "path": "docs/agent-truth/package-script-consolidation.md",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/score-80-path-lock.generated.json",
+      "path": "docs/agent-truth/score-80-cost-readiness.md",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/analytics-semantics-final-lock.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/debug-backlog-engine.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/launch-analytics-recovery.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/manual-screenshot-qa-checklist.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/overnight-final-integration-lock.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/score-80-path-lock.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "eslint-errors.log",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
     },
     {
       "path": "package.json",
@@ -1139,132 +1039,7 @@
       "action": "commit scoped validator/package source change after targeted checks."
     },
     {
-      "path": "scripts/agent/validate-analytics-semantics-final-lock.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-beta-score-cleanup.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-creator-surface-routing.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-debug-backlog-engine.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-evidence-readiness-checklists.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-final-beta-exit-gate-readiness.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-final-cost-audit-lock.ts",
-      "status": "report_artifact_to_commit",
-      "action": "commit final cost audit lock artifact."
-    },
-    {
-      "path": "scripts/agent/validate-final-morning-beta-lock.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-manual-screenshot-evidence.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-score-80-path-lock.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "scripts/agent/validate-user-creator-visual-confirmation.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugOperatorCockpit.tsx",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "src/lib/debug/debug-backlog-builder.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "test-failures.log",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tests/unit/beta-score-cleanup.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tests/unit/blocked-refresh-queue-resolver.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tests/unit/debug-backlog-engine.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tests/unit/evidence-artifact-schemas.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tests/unit/evidence-readiness-checklists.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tests/unit/final-morning-beta-lock.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tests/unit/overnight-beta-readiness-lock.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "tsc-errors.log",
+      "path": "scripts/agent/validate-score-80-cost-readiness.ts",
       "status": "real_source_change_needs_review",
       "action": "commit scoped validator/package source change after targeted checks."
     }
@@ -1290,7 +1065,7 @@
     }
   ],
   "nextExactSteps": [
-    "Run UI source coverage before optional browser or screenshot reproduction; beta exit remains blocked until formal provider/runtime/admin evidence exists.",
+    "Run UI source coverage before optional browser reproduction; beta exit remains blocked until formal provider/runtime/admin evidence exists.",
     "Capture deployed runtime watch-time v2 media playback evidence before claiming live watch accuracy.",
     "Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing in Google Cloud; do not mark not-detected/source-only lanes as pass.",
     "After deployment, verify Cloud Scheduler/Functions cadence externally so source guards match live schedules."
