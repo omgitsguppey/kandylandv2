@@ -68,13 +68,13 @@ export function buildAiDebugCriticReport(input: AiDebugCriticInput): AiDebugCrit
       title: "Stale debug logic is still active",
       detail: actionClass === "needs_code_change"
         ? "Open stale backlog items include source-fixable work and must be resolved before the patch can claim completion."
-        : "Open stale backlog items are classified as refresh, formal evidence, or operator confirmation work; they must stay visible but do not imply a source code request-change.",
+        : "Open stale backlog items are classified as refresh, source evidence, or operator context work; they must stay visible but do not imply a source code request-change.",
       sourceFiles: staleItems.flatMap((item) => item.sourceFiles),
       requiredFix: actionClass === "needs_code_change"
         ? "Fix the source-owned stale backlog item or defer it with an exact owner and reason."
         : "Keep the stale backlog item visible in the owning evidence or refresh lane until the required artifact changes.",
       blockedReason: actionClass === "blocked_formal_evidence" || actionClass === "needs_operator_ui_confirmation"
-        ? "This critic finding requires formal/manual evidence, not source code changes."
+        ? "This critic finding requires source evidence or operator context, not source code changes."
         : undefined,
       validators: ["npm run check:debug-backlog-engine"],
     }));
@@ -94,15 +94,15 @@ export function buildAiDebugCriticReport(input: AiDebugCriticInput): AiDebugCrit
   }
 
   if (FAKE_EVIDENCE_PATTERN.test(proposedText) || (input.evidenceStatus?.sourceOnlyClaims ?? []).some((claim) => FAKE_EVIDENCE_PATTERN.test(claim))) {
-    evidenceMisclassificationRisks.push("source-only claim presented as formal/runtime evidence");
+    evidenceMisclassificationRisks.push("source-only claim presented as deployed runtime or provider-backed evidence");
     addFinding(findings, finding({
       check: "no_fake_evidence",
       severity: "blocker",
       actionClass: "blocked_formal_evidence",
       title: "Fake evidence claim detected",
-      detail: "The critic found language that claims runtime, provider, smoke, deployed, screenshot, manual QA, or formal proof without matching evidence.",
+      detail: "The critic found language that claims runtime, provider-backed, smoke, deployed, screenshot, or source proof without matching evidence.",
       sourceFiles: changedFiles,
-      requiredFix: "Downgrade the claim to source-only evidence or attach the formal artifact that proves the gate.",
+      requiredFix: "Downgrade the claim to source-only evidence or produce the matching source activity record.",
       validators: ["npm run check:beta-score"],
     }));
   }
@@ -114,10 +114,10 @@ export function buildAiDebugCriticReport(input: AiDebugCriticInput): AiDebugCrit
       check: "no_formal_gate_cleared_without_artifact",
       severity: "blocker",
       actionClass: "blocked_formal_evidence",
-      title: "Formal gate lacks required artifact",
-      detail: `Missing formal artifact(s): ${missingFormalGates.map((gate) => gate.requiredArtifact).join(", ")}.`,
+      title: "Source evidence gate lacks required record",
+      detail: `Missing source evidence record(s): ${missingFormalGates.map((gate) => gate.requiredArtifact).join(", ")}.`,
       sourceFiles: missingFormalGates.map((gate) => gate.requiredArtifact),
-      requiredFix: "Do not clear the beta gate until the formal artifact exists and the beta score validator consumes it.",
+      requiredFix: "Do not clear the beta gate until the source record exists and the beta score validator consumes it.",
       validators: ["npm run score:beta", "npm run check:beta-score"],
     }));
   }
@@ -158,7 +158,7 @@ export function buildAiDebugCriticReport(input: AiDebugCriticInput): AiDebugCrit
       severity: "blocker",
       actionClass: "needs_code_change",
       title: "Protected payment or GumDrop math path changed",
-      detail: "Payment, wallet, PayPal, and GumDrop math changes require explicit prompt scope and formal evidence.",
+      detail: "Payment, wallet, PayPal, and GumDrop math changes require explicit prompt scope and source-backed evidence.",
       sourceFiles: protectedPaymentMath,
       requiredFix: "Remove the protected change from this patch or run an explicitly authorized economy/payment lane.",
       validators: ["npm run check:beta-score"],
@@ -226,15 +226,15 @@ export function buildAiDebugCriticReport(input: AiDebugCriticInput): AiDebugCrit
   }
 
   if (SOURCE_RUNTIME_PATTERN.test(proposedText)) {
-    evidenceMisclassificationRisks.push("source readiness presented as runtime proof");
+    evidenceMisclassificationRisks.push("source readiness presented as deployed runtime truth");
     addFinding(findings, finding({
       check: "no_source_ready_as_runtime_proof",
       severity: "blocker",
       actionClass: "blocked_formal_evidence",
-      title: "Source readiness is not runtime proof",
-      detail: "Local source checks cannot clear deployed runtime, provider, or formal smoke gates.",
+      title: "Source readiness is not deployed runtime truth",
+      detail: "Local source checks cannot clear deployed runtime, provider-backed, or smoke gates.",
       sourceFiles: changedFiles,
-      requiredFix: "Keep source readiness separate from runtime proof and leave formal gates blocked until artifacts exist.",
+      requiredFix: "Keep source readiness separate from deployed runtime truth and leave source evidence gates blocked until records exist.",
       validators: ["npm run score:beta", "npm run check:beta-score"],
     }));
   }

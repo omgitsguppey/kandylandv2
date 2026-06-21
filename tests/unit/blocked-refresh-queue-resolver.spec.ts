@@ -10,38 +10,38 @@ const blockedQueue = [
   {
     artifact: "debug_runtime_evidence",
     staleReason: "Unknown evidence: Debug/runtime evidence",
-    refreshCommand: "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status",
+    refreshCommand: "Produce deployed runtime route evidence, then run npm run check:evidence-capture-status",
     scoreImpactEstimate: 16.33,
     owner: "runtime",
     dependencyOrder: 51,
     canRunAutomatically: false,
-    blockedReason: "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
+    blockedReason: "blocked_formal_evidence: deployed runtime route evidence required; source/debug evidence is partial only.",
     source: "score_impact",
-    expectedOutcome: "Remain blocked until a human attaches the deployed runtime smoke artifact.",
+    expectedOutcome: "Remain blocked until deployed runtime route evidence is produced.",
   },
   {
     artifact: "runtime_provider_smoke",
     staleReason: "Runtime unverified: Runtime/provider smoke",
-    refreshCommand: "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+    refreshCommand: "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
     scoreImpactEstimate: 16.33,
     owner: "runtime",
     dependencyOrder: 52,
     canRunAutomatically: false,
-    blockedReason: "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
+    blockedReason: "blocked_formal_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.",
     source: "score_impact",
-    expectedOutcome: "Remain blocked until a human attaches the formal provider smoke artifact.",
+    expectedOutcome: "Remain blocked until provider-backed site activity evidence is produced.",
   },
   {
     artifact: "admin_truth_sample_evidence",
     staleReason: "Unknown evidence: Admin truth/sample evidence",
-    refreshCommand: "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
+    refreshCommand: "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status",
     scoreImpactEstimate: 12,
     owner: "admin",
     dependencyOrder: 53,
     canRunAutomatically: false,
-    blockedReason: "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
+    blockedReason: "blocked_formal_evidence: redacted admin source activity sample required; source samples remain partial confidence only.",
     source: "score_impact",
-    expectedOutcome: "Remain blocked until a human attaches the admin truth sample artifact.",
+    expectedOutcome: "Remain blocked until a redacted admin source activity sample is produced.",
   },
   {
     artifact: "ui_source_coverage",
@@ -58,7 +58,7 @@ const blockedQueue = [
 ] as const;
 
 describe("blocked refresh queue resolver", () => {
-  it("classifies the four formal/manual blockers with exact next actions", () => {
+  it("classifies the four source-evidence blockers with exact next actions", () => {
     const report = buildBlockedRefreshQueueResolverReport({
       generatedAtUtc: "2026-05-21T19:00:00.000Z",
       currentHead: "head",
@@ -118,9 +118,9 @@ describe("blocked refresh queue resolver", () => {
           owner: "runtime",
           scoreImpactEstimate: 16.33,
           classification: "blocked_formal_evidence",
-          originalBlockedReason: "Formal evidence artifact required; source queue cannot generate proof.",
-          resolvedBlockedReason: "Formal evidence artifact required; source queue cannot generate proof.",
-          nextAction: "Attach formal provider smoke evidence.",
+          originalBlockedReason: "Source evidence record required; source queue cannot generate it automatically.",
+          resolvedBlockedReason: "Source evidence record required; source queue cannot generate it automatically.",
+          nextAction: "Produce provider-backed site activity evidence.",
           canRunAutomatically: true,
           formalGate: "provider",
           scoreTreatment: "blocked_formal_evidence_not_auto_refreshable",
@@ -147,7 +147,7 @@ describe("blocked refresh queue resolver", () => {
 
     expect(validateBlockedRefreshQueueResolverReport(report)).toEqual(expect.arrayContaining([
       expect.stringContaining("blocked entries remain generic"),
-      expect.stringContaining("manual/formal evidence blocker is treated as auto-refreshable"),
+      expect.stringContaining("source-evidence blocker is treated as auto-refreshable"),
       expect.stringContaining("dirty files are unclassified"),
     ]));
   });

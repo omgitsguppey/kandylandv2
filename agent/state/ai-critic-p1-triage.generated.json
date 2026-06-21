@@ -1,26 +1,26 @@
 {
-  "generatedAtUtc": "2026-05-21T14:22:31.506Z",
+  "generatedAtUtc": "2026-06-21T03:25:26.722Z",
   "reportKey": "ai-critic-p1-triage",
-  "currentHead": "bbd8d8c7da74cf60bb978373242a76e5e0f305d7",
-  "scoreBefore": 77.76,
-  "scoreAfter": 77.76,
+  "currentHead": "bb7e2c67c3df73feccad7418321e51101d1f86e4",
+  "scoreBefore": 73.57,
+  "scoreAfter": 73.57,
   "criticStatusBefore": "pass",
   "criticStatusAfter": "pass",
-  "p1Count": 20,
-  "p2Count": 61,
+  "p1Count": 8,
+  "p2Count": 26,
   "p1FixedCount": 1,
-  "p1DeferredCount": 20,
-  "p2DeferredCount": 61,
+  "p1DeferredCount": 8,
+  "p2DeferredCount": 26,
   "p1Ranking": [
     {
       "rank": 1,
-      "id": "beta-cap-runtime-unverified-runtime-provider-smoke-1",
-      "title": "Runtime unverified: Runtime/provider smoke",
+      "id": "beta-cap-external-proof-required-runtime-provider-smoke-1",
+      "title": "Runtime and provider proof required",
       "severity": "p1",
       "owner": "provider_evidence",
       "surface": "runtime_evidence",
-      "scoreImpact": 75.5,
-      "weightedScoreImpact": 302,
+      "scoreImpact": 60.45,
+      "weightedScoreImpact": 241.8,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -28,7 +28,7 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
@@ -36,35 +36,13 @@
     },
     {
       "rank": 2,
-      "id": "beta-cap-visual-qa-required-ui-visual-manual-smoke-0",
-      "title": "Visual QA required: UI visual/manual smoke",
-      "severity": "p1",
-      "owner": "runtime_evidence",
-      "surface": "runtime_evidence",
-      "scoreImpact": 75.5,
-      "weightedScoreImpact": 302,
-      "fixClass": "manual_required",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 3,
-      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2",
-      "title": "Ready with smoke required: Admin truth/sample evidence",
+      "id": "beta-cap-external-proof-required-admin-truth-sample-evidence-2",
+      "title": "Admin truth sample required",
       "severity": "p1",
       "owner": "admin_debug",
       "surface": "admin_debug",
-      "scoreImpact": 63.75,
-      "weightedScoreImpact": 255,
+      "scoreImpact": 55.11,
+      "weightedScoreImpact": 220.44,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -72,21 +50,21 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ]
     },
     {
-      "rank": 4,
-      "id": "score-drag-runtimehealthscore",
-      "title": "Score drag: runtimeHealthScore",
+      "rank": 3,
+      "id": "formal-evidence-admin-truth-sample-evidence",
+      "title": "Admin truth sample required",
       "severity": "p1",
-      "owner": "runtime_evidence",
-      "surface": "beta_score",
-      "scoreImpact": 16.33,
-      "weightedScoreImpact": 65.32,
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 11.32,
+      "weightedScoreImpact": 45.28,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -94,65 +72,21 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
+        "admin_truth_sample_evidence"
       ]
     },
     {
-      "rank": 5,
-      "id": "stale-artifact-debug-runtime-evidence",
-      "title": "Stale artifact: debug_runtime_evidence",
-      "severity": "p1",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 16.33,
-      "weightedScoreImpact": 65.32,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
-      "sourceFiles": [
-        "debug_runtime_evidence"
-      ]
-    },
-    {
-      "rank": 6,
-      "id": "stale-artifact-runtime-provider-smoke",
-      "title": "Stale artifact: runtime_provider_smoke",
-      "severity": "p1",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 16.33,
-      "weightedScoreImpact": 65.32,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
-      "sourceFiles": [
-        "runtime_provider_smoke"
-      ]
-    },
-    {
-      "rank": 7,
+      "rank": 4,
       "id": "score-drag-evidencecompletenessscore",
       "title": "Score drag: evidenceCompletenessScore",
       "severity": "p1",
       "owner": "beta_score",
       "surface": "beta_score",
-      "scoreImpact": 12,
-      "weightedScoreImpact": 48,
+      "scoreImpact": 11.32,
+      "weightedScoreImpact": 45.28,
       "fixClass": "evidence_refresh",
       "actionClass": "needs_refresh",
       "sourceFixable": false,
@@ -167,51 +101,29 @@
       ]
     },
     {
-      "rank": 8,
-      "id": "stale-artifact-admin-truth-sample-evidence",
-      "title": "Stale artifact: admin_truth_sample_evidence",
+      "rank": 5,
+      "id": "formal-evidence-runtime-provider-smoke",
+      "title": "Runtime and provider proof required",
       "severity": "p1",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 12,
-      "weightedScoreImpact": 48,
-      "fixClass": "evidence_refresh",
+      "owner": "provider_evidence",
+      "surface": "runtime_evidence",
+      "scoreImpact": 5.76,
+      "weightedScoreImpact": 23.04,
+      "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
       "evidenceFixable": false,
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "sourceFiles": [
-        "admin_truth_sample_evidence"
+        "runtime_provider_smoke"
       ]
     },
     {
-      "rank": 9,
-      "id": "stale-artifact-visual-manual-smoke",
-      "title": "Stale artifact: visual_manual_smoke",
-      "severity": "p1",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 12,
-      "weightedScoreImpact": 48,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
-      "sourceFiles": [
-        "visual_manual_smoke"
-      ]
-    },
-    {
-      "rank": 10,
+      "rank": 6,
       "id": "admin-truth-formal-sample-required",
       "title": "Admin truth sample requires formal proof",
       "severity": "p1",
@@ -226,7 +138,7 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach a redacted production admin truth sample before clearing the formal admin truth gate.",
       "sourceFiles": [
         "agent/state/admin-truth-source-sample.generated.json",
@@ -234,95 +146,7 @@
       ]
     },
     {
-      "rank": 11,
-      "id": "debug-panel-admin-truth-samples",
-      "title": "Admin truth samples",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
-      "sourceFiles": [
-        "agent/state/admin-truth-sample-evidence.generated.json"
-      ]
-    },
-    {
-      "rank": 12,
-      "id": "debug-panel-final-launch-readiness",
-      "title": "Final launch readiness",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.",
-      "sourceFiles": [
-        "agent/state/final-launch-readiness-report.generated.json"
-      ]
-    },
-    {
-      "rank": 13,
-      "id": "debug-panel-launch-pr-triage",
-      "title": "Launch PR triage",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed.",
-      "sourceFiles": [
-        "agent/state/launch-pr-triage.generated.json"
-      ]
-    },
-    {
-      "rank": 14,
-      "id": "debug-panel-launch-readiness",
-      "title": "Launch readiness",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed.",
-      "sourceFiles": [
-        "agent/state/launch-readiness-report.generated.json"
-      ]
-    },
-    {
-      "rank": 15,
+      "rank": 7,
       "id": "debug-panel-provider-smoke",
       "title": "Provider smoke",
       "severity": "p1",
@@ -337,102 +161,14 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
       "sourceFiles": [
         "agent/state/provider-smoke-evidence.generated.json"
       ]
     },
     {
-      "rank": 16,
-      "id": "debug-panel-public-beta-score",
-      "title": "Public beta score",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 17,
-      "id": "debug-panel-runtime-evidence",
-      "title": "Runtime evidence",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
-      "sourceFiles": [
-        "agent/state/runtime-smoke-evidence.generated.json"
-      ]
-    },
-    {
-      "rank": 18,
-      "id": "debug-panel-score-cap-reasons",
-      "title": "Score cap reasons",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 19,
-      "id": "route-diagnostic-runtime-evidence",
-      "title": "Runtime smoke is unverified; local validators remain diagnostic only.",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 2,
-      "weightedScoreImpact": 8,
-      "fixClass": "route_fix",
-      "actionClass": "needs_code_change",
-      "sourceFixable": true,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
-      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceFiles": [
-        "agent/state/runtime-smoke-evidence.generated.json"
-      ]
-    },
-    {
-      "rank": 20,
+      "rank": 8,
       "id": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
       "title": "Stale artifact: agent/state/overnight-final-integration-lock.generated.json",
       "severity": "p1",
@@ -457,13 +193,57 @@
   "p2Ranking": [
     {
       "rank": 1,
+      "id": "score-drag-costriskscore",
+      "title": "Score drag: costRiskScore",
+      "severity": "p2",
+      "owner": "cost",
+      "surface": "cost",
+      "scoreImpact": 5.8,
+      "weightedScoreImpact": 17.4,
+      "fixClass": "cost_guard",
+      "actionClass": "needs_code_change",
+      "sourceFixable": true,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
+      ]
+    },
+    {
+      "rank": 2,
+      "id": "score-drag-runtimehealthscore",
+      "title": "Score drag: runtimeHealthScore",
+      "severity": "p2",
+      "owner": "runtime_evidence",
+      "surface": "beta_score",
+      "scoreImpact": 5.76,
+      "weightedScoreImpact": 17.28,
+      "fixClass": "manual_required",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
+      ]
+    },
+    {
+      "rank": 3,
       "id": "score-drag-freshnessscore",
       "title": "Score drag: freshnessScore",
       "severity": "p2",
       "owner": "beta_score",
       "surface": "beta_score",
-      "scoreImpact": 7.07,
-      "weightedScoreImpact": 21.21,
+      "scoreImpact": 3.66,
+      "weightedScoreImpact": 10.98,
       "fixClass": "evidence_refresh",
       "actionClass": "needs_refresh",
       "sourceFixable": false,
@@ -478,75 +258,31 @@
       ]
     },
     {
-      "rank": 2,
-      "id": "score-drag-costriskscore",
-      "title": "Score drag: costRiskScore",
+      "rank": 4,
+      "id": "score-drag-sourcehealthscore",
+      "title": "Score drag: sourceHealthScore",
       "severity": "p2",
-      "owner": "cost",
-      "surface": "cost",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 12,
-      "fixClass": "cost_guard",
-      "actionClass": "needs_code_change",
-      "sourceFixable": true,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "scoreImpact": 2.08,
+      "weightedScoreImpact": 6.24,
+      "fixClass": "evidence_refresh",
+      "actionClass": "needs_refresh",
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleRefreshFixable": true,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
       "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "sourceFiles": [
         "agent/state/score-80-path-lock.generated.json"
       ]
     },
     {
-      "rank": 3,
-      "id": "cost-cost-risk-0",
-      "title": "cloudRunCostReadiness remains owner-review (cost_review_required).",
-      "severity": "p2",
-      "owner": "cost",
-      "surface": "cost",
-      "scoreImpact": 2,
-      "weightedScoreImpact": 6,
-      "fixClass": "cost_guard",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 4,
-      "id": "cost-cost-risk-1",
-      "title": "cloudSqlCostReadiness remains owner-review (owner_review).",
-      "severity": "p2",
-      "owner": "cost",
-      "surface": "cost",
-      "scoreImpact": 2,
-      "weightedScoreImpact": 6,
-      "fixClass": "cost_guard",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
       "rank": 5,
-      "id": "cost-cost-risk-2",
-      "title": "geminiCloudAssistCostReadiness remains owner-review (cost_review_required).",
+      "id": "cost-cost-risk-0",
+      "title": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
       "severity": "p2",
       "owner": "cost",
       "surface": "cost",
@@ -559,7 +295,7 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
@@ -567,28 +303,6 @@
     },
     {
       "rank": 6,
-      "id": "cost-cost-risk-3",
-      "title": "route4xxReadiness remains owner-review (cost_review_required).",
-      "severity": "p2",
-      "owner": "cost",
-      "surface": "cost",
-      "scoreImpact": 2,
-      "weightedScoreImpact": 6,
-      "fixClass": "cost_guard",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 7,
       "id": "telemetry-lane-telemetry-lane-admin-snapshots",
       "title": "Telemetry lane needs closure: telemetry-lane-admin-snapshots",
       "severity": "p2",
@@ -603,14 +317,14 @@
       "staleRefreshFixable": false,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
       "exactNextAction": "Run the admin analytics refresh lane before treating this as current.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
-      "rank": 8,
+      "rank": 7,
       "id": "telemetry-lane-telemetry-lane-bigquery-export",
       "title": "Telemetry lane needs closure: telemetry-lane-bigquery-export",
       "severity": "p2",
@@ -625,14 +339,14 @@
       "staleRefreshFixable": false,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
       "exactNextAction": "Configure export only in an owner-approved cloud pipeline pass.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
-      "rank": 9,
+      "rank": 8,
       "id": "telemetry-lane-telemetry-lane-ingest",
       "title": "Telemetry lane needs closure: telemetry-lane-ingest",
       "severity": "p2",
@@ -647,14 +361,14 @@
       "staleRefreshFixable": false,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
       "exactNextAction": "Open the route runtime drilldown or wait for runtime samples before treating ingest as proven.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
-      "rank": 10,
+      "rank": 9,
       "id": "telemetry-lane-telemetry-lane-materializers",
       "title": "Telemetry lane needs closure: telemetry-lane-materializers",
       "severity": "p2",
@@ -669,14 +383,14 @@
       "staleRefreshFixable": false,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
       "exactNextAction": "Use snapshot metadata before raw collections.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
-      "rank": 11,
+      "rank": 10,
       "id": "telemetry-lane-telemetry-lane-user-events",
       "title": "Telemetry lane needs closure: telemetry-lane-user-events",
       "severity": "p2",
@@ -691,14 +405,14 @@
       "staleRefreshFixable": false,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
       "exactNextAction": "Refresh admin analytics snapshots before reading user-event health.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
-      "rank": 12,
+      "rank": 11,
       "id": "telemetry-lane-telemetry-lane-watch-time",
       "title": "Telemetry lane needs closure: telemetry-lane-watch-time",
       "severity": "p2",
@@ -713,102 +427,36 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach or verify deployed runtime watch-session evidence before treating watch time as proven.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
+      "rank": 12,
+      "id": "debug-panel-admin-truth-samples",
+      "title": "Admin truth samples",
+      "severity": "p2",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 1,
+      "weightedScoreImpact": 3,
+      "fixClass": "evidence_refresh",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
+      "sourceFiles": [
+        "agent/state/admin-truth-sample-evidence.generated.json"
+      ]
+    },
+    {
       "rank": 13,
-      "id": "stale-artifact-agent-state-beta-evidence-gap-map-generated-json",
-      "title": "Stale artifact: agent/state/beta-evidence-gap-map.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1.8,
-      "weightedScoreImpact": 5.4,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "sourceFiles": [
-        "agent/state/beta-evidence-gap-map.generated.json"
-      ]
-    },
-    {
-      "rank": 14,
-      "id": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
-      "title": "Stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1.6,
-      "weightedScoreImpact": 4.8,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "sourceFiles": [
-        "agent/state/beta-evidence-lane-prep.generated.json"
-      ]
-    },
-    {
-      "rank": 15,
-      "id": "stale-artifact-agent-state-beta-freshness-language-generated-json",
-      "title": "Stale artifact: agent/state/beta-freshness-language.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1.4,
-      "weightedScoreImpact": 4.2,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
-      "sourceFiles": [
-        "agent/state/beta-freshness-language.generated.json"
-      ]
-    },
-    {
-      "rank": 16,
-      "id": "stale-artifact-agent-state-final-pr-stale-cleanup-generated-json",
-      "title": "Stale artifact: agent/state/final-pr-stale-cleanup.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1.2,
-      "weightedScoreImpact": 3.6,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
-      "sourceFiles": [
-        "agent/state/final-pr-stale-cleanup.generated.json"
-      ]
-    },
-    {
-      "rank": 17,
       "id": "debug-panel-analytics-rewire",
       "title": "Analytics rewire",
       "severity": "p2",
@@ -826,11 +474,25 @@
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
       "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
       "sourceFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json"
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "agent/state/codebase-hardening.generated.json",
+        "agent/state/device-ui-dry-audit.generated.json",
+        "agent/state/device-layout-score.generated.json",
+        "agent/state/hydration-performance.generated.json",
+        "agent/state/sitewide-image-optimization.generated.json",
+        "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
+        "agent/state/sql-mirror-status.generated.json",
+        "agent/state/telemetry-parity-score.generated.json",
+        "agent/state/precatch-runtime-issues.generated.json",
+        "agent/state/creator-lane-debug-parity.generated.json",
+        "agent/state/creator-lane-legacy-truth-inventory.generated.json",
+        "agent/state/orphaned-logic-score.generated.json"
       ]
     },
     {
-      "rank": 18,
+      "rank": 14,
       "id": "debug-panel-creator-connection-audit",
       "title": "Creator connection audit",
       "severity": "p2",
@@ -852,15 +514,15 @@
       ]
     },
     {
-      "rank": 19,
-      "id": "debug-panel-recovery-evidence",
-      "title": "Recovery evidence",
+      "rank": 15,
+      "id": "debug-panel-public-beta-score",
+      "title": "Public beta score",
       "severity": "p2",
       "owner": "admin_debug",
       "surface": "admin_debug",
       "scoreImpact": 1,
       "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
+      "fixClass": "evidence_refresh",
       "actionClass": "needs_refresh",
       "sourceFixable": false,
       "evidenceFixable": true,
@@ -868,57 +530,13 @@
       "manualOnly": false,
       "status": "deferred",
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
+      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
       "sourceFiles": [
-        "agent/state/lost-data-recovery-dry-run.generated.json"
+        "agent/state/public-beta-score.generated.json"
       ]
     },
     {
-      "rank": 20,
-      "id": "debug-panel-report-cloud-cost",
-      "title": "Generated report freshness: Cloud cost",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/cloudrun-sql-bigquery-guardrails.generated.json"
-      ]
-    },
-    {
-      "rank": 21,
-      "id": "debug-panel-report-codebase-hardening",
-      "title": "Generated report freshness: codebase hardening",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/codebase-hardening.generated.json"
-      ]
-    },
-    {
-      "rank": 22,
+      "rank": 16,
       "id": "debug-panel-report-content-protection",
       "title": "Generated report freshness: content protection",
       "severity": "p2",
@@ -936,253 +554,16 @@
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
       "exactNextAction": "Keep missing state visible until an owning generator is identified.",
       "sourceFiles": [
-        "agent/state/content-protection.generated.json"
+        "agent/state/content-protection.generated.json",
+        "agent/state/gumdrop-economy.generated.json",
+        "agent/state/event-catalog-telemetry.generated.json",
+        "agent/state/watch-time-rollup-truth.generated.json",
+        "agent/state/debug-evidence-pipeline.generated.json",
+        "agent/state/support-recovery-flows.generated.json"
       ]
     },
     {
-      "rank": 23,
-      "id": "debug-panel-report-creator-lane",
-      "title": "Generated report freshness: creator lane parity",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/creator-lane-debug-parity.generated.json"
-      ]
-    },
-    {
-      "rank": 24,
-      "id": "debug-panel-report-creator-lane-legacy",
-      "title": "Generated report freshness: creator lane legacy",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/creator-lane-legacy-truth-inventory.generated.json"
-      ]
-    },
-    {
-      "rank": 25,
-      "id": "debug-panel-report-debug-evidence",
-      "title": "Generated report freshness: debug evidence pipeline",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceFiles": [
-        "agent/state/debug-evidence-pipeline.generated.json"
-      ]
-    },
-    {
-      "rank": 26,
-      "id": "debug-panel-report-device-layout",
-      "title": "Generated report freshness: device layout score",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/device-layout-score.generated.json"
-      ]
-    },
-    {
-      "rank": 27,
-      "id": "debug-panel-report-device-ui",
-      "title": "Generated report freshness: device UI dry audit",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/device-ui-dry-audit.generated.json"
-      ]
-    },
-    {
-      "rank": 28,
-      "id": "debug-panel-report-event-catalog",
-      "title": "Generated report freshness: event catalog",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceFiles": [
-        "agent/state/event-catalog-telemetry.generated.json"
-      ]
-    },
-    {
-      "rank": 29,
-      "id": "debug-panel-report-google-cost",
-      "title": "Generated report freshness: Google cost",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/google-cost-bleed.generated.json"
-      ]
-    },
-    {
-      "rank": 30,
-      "id": "debug-panel-report-gumdrop-economy",
-      "title": "Generated report freshness: GumDrop economy",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceFiles": [
-        "agent/state/gumdrop-economy.generated.json"
-      ]
-    },
-    {
-      "rank": 31,
-      "id": "debug-panel-report-hydration",
-      "title": "Generated report freshness: hydration performance",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/hydration-performance.generated.json"
-      ]
-    },
-    {
-      "rank": 32,
-      "id": "debug-panel-report-orphaned-logic",
-      "title": "Generated report freshness: orphaned logic",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/orphaned-logic-score.generated.json"
-      ]
-    },
-    {
-      "rank": 33,
-      "id": "debug-panel-report-precatch-runtime",
-      "title": "Generated report freshness: precatch runtime issues",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/precatch-runtime-issues.generated.json"
-      ]
-    },
-    {
-      "rank": 34,
+      "rank": 17,
       "id": "debug-panel-report-public-beta-score",
       "title": "Generated report freshness: public beta score",
       "severity": "p2",
@@ -1204,9 +585,31 @@
       ]
     },
     {
-      "rank": 35,
-      "id": "debug-panel-report-sitewide-image",
-      "title": "Generated report freshness: sitewide image optimization",
+      "rank": 18,
+      "id": "debug-panel-runtime-evidence",
+      "title": "Runtime evidence",
+      "severity": "p2",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 1,
+      "weightedScoreImpact": 3,
+      "fixClass": "evidence_refresh",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
+      "sourceFiles": [
+        "agent/state/runtime-smoke-evidence.generated.json"
+      ]
+    },
+    {
+      "rank": 19,
+      "id": "debug-panel-score-cap-reasons",
+      "title": "Score cap reasons",
       "severity": "p2",
       "owner": "admin_debug",
       "surface": "admin_debug",
@@ -1220,123 +623,13 @@
       "manualOnly": false,
       "status": "deferred",
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
+      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
       "sourceFiles": [
-        "agent/state/sitewide-image-optimization.generated.json"
+        "agent/state/public-beta-score.generated.json"
       ]
     },
     {
-      "rank": 36,
-      "id": "debug-panel-report-speed-security",
-      "title": "Generated report freshness: speed/security hardening",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/speed-security-hardening.generated.json"
-      ]
-    },
-    {
-      "rank": 37,
-      "id": "debug-panel-report-sql-mirror",
-      "title": "Generated report freshness: SQL mirror",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/sql-mirror-status.generated.json"
-      ]
-    },
-    {
-      "rank": 38,
-      "id": "debug-panel-report-support-recovery",
-      "title": "Generated report freshness: support recovery",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceFiles": [
-        "agent/state/support-recovery-flows.generated.json"
-      ]
-    },
-    {
-      "rank": 39,
-      "id": "debug-panel-report-telemetry-parity",
-      "title": "Generated report freshness: telemetry parity",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/telemetry-parity-score.generated.json"
-      ]
-    },
-    {
-      "rank": 40,
-      "id": "debug-panel-report-watch-time-truth",
-      "title": "Generated report freshness: watch-time truth",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceFiles": [
-        "agent/state/watch-time-rollup-truth.generated.json"
-      ]
-    },
-    {
-      "rank": 41,
+      "rank": 20,
       "id": "debug-panel-system-health",
       "title": "System health",
       "severity": "p2",
@@ -1358,34 +651,12 @@
       ]
     },
     {
-      "rank": 42,
+      "rank": 21,
       "id": "debug-panel-targeted-behavior-evidence",
       "title": "Targeted behavior evidence",
       "severity": "p2",
       "owner": "admin_debug",
       "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_operator_ui_confirmation",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate.",
-      "sourceFiles": [
-        "agent/state/targeted-behavior-evidence.generated.json"
-      ]
-    },
-    {
-      "rank": 43,
-      "id": "score-drag-regressionriskscore",
-      "title": "Score drag: regressionRiskScore",
-      "severity": "p2",
-      "owner": "beta_score",
-      "surface": "beta_score",
       "scoreImpact": 1,
       "weightedScoreImpact": 3,
       "fixClass": "evidence_refresh",
@@ -1396,13 +667,13 @@
       "manualOnly": false,
       "status": "deferred",
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "exactNextAction": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate.",
       "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
+        "agent/state/targeted-behavior-evidence.generated.json"
       ]
     },
     {
-      "rank": 44,
+      "rank": 22,
       "id": "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json",
       "title": "Refresh stale artifact: agent/state/beta-evidence-gap-map.generated.json",
       "severity": "p2",
@@ -1424,7 +695,7 @@
       ]
     },
     {
-      "rank": 45,
+      "rank": 23,
       "id": "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json",
       "title": "Refresh stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
       "severity": "p2",
@@ -1446,205 +717,7 @@
       ]
     },
     {
-      "rank": 46,
-      "id": "stale-refresh-plan-agent-state-beta-freshness-language-generated-json",
-      "title": "Refresh stale artifact: agent/state/beta-freshness-language.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
-      "sourceFiles": [
-        "agent/state/beta-freshness-language.generated.json"
-      ]
-    },
-    {
-      "rank": 47,
-      "id": "stale-refresh-plan-agent-state-creator-drop-status-metrics-generated-json",
-      "title": "Refresh stale artifact: agent/state/creator-drop-status-metrics.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-      "sourceFiles": [
-        "agent/state/creator-drop-status-metrics.generated.json"
-      ]
-    },
-    {
-      "rank": 48,
-      "id": "stale-refresh-plan-agent-state-creator-settings-control-plane-generated-json",
-      "title": "Refresh stale artifact: agent/state/creator-settings-control-plane.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
-      "sourceFiles": [
-        "agent/state/creator-settings-control-plane.generated.json"
-      ]
-    },
-    {
-      "rank": 49,
-      "id": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
-      "title": "Refresh stale artifact: agent/state/current-beta-exit-status.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
-      "sourceFiles": [
-        "agent/state/current-beta-exit-status.generated.json"
-      ]
-    },
-    {
-      "rank": 50,
-      "id": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",
-      "title": "Refresh stale artifact: agent/state/evidence-capture-status.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-      "sourceFiles": [
-        "agent/state/evidence-capture-status.generated.json"
-      ]
-    },
-    {
-      "rank": 51,
-      "id": "stale-refresh-plan-agent-state-existing-algorithm-refinement-generated-json",
-      "title": "Refresh stale artifact: agent/state/existing-algorithm-refinement.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
-      "sourceFiles": [
-        "agent/state/existing-algorithm-refinement.generated.json"
-      ]
-    },
-    {
-      "rank": 52,
-      "id": "stale-refresh-plan-agent-state-final-pr-stale-cleanup-generated-json",
-      "title": "Refresh stale artifact: agent/state/final-pr-stale-cleanup.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
-      "sourceFiles": [
-        "agent/state/final-pr-stale-cleanup.generated.json"
-      ]
-    },
-    {
-      "rank": 53,
-      "id": "stale-refresh-plan-agent-state-final-telemetry-closure-lock-generated-json",
-      "title": "Refresh stale artifact: agent/state/final-telemetry-closure-lock.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
-      "sourceFiles": [
-        "agent/state/final-telemetry-closure-lock.generated.json"
-      ]
-    },
-    {
-      "rank": 54,
-      "id": "stale-refresh-plan-agent-state-global-marquee-truncated-titles-generated-json",
-      "title": "Refresh stale artifact: agent/state/global-marquee-truncated-titles.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
-      "sourceFiles": [
-        "agent/state/global-marquee-truncated-titles.generated.json"
-      ]
-    },
-    {
-      "rank": 55,
+      "rank": 24,
       "id": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
       "title": "Refresh stale artifact: agent/state/mobile-ui-final-lock.generated.json",
       "severity": "p2",
@@ -1666,95 +739,7 @@
       ]
     },
     {
-      "rank": 56,
-      "id": "stale-refresh-plan-agent-state-operator-revenue-smoke-generated-json",
-      "title": "Refresh stale artifact: agent/state/operator-revenue-smoke.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "sourceFiles": [
-        "agent/state/operator-revenue-smoke.generated.json"
-      ]
-    },
-    {
-      "rank": 57,
-      "id": "stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json",
-      "title": "Refresh stale artifact: agent/state/overnight-final-integration-lock.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
-      "sourceFiles": [
-        "agent/state/overnight-final-integration-lock.generated.json"
-      ]
-    },
-    {
-      "rank": 58,
-      "id": "stale-refresh-plan-agent-state-overnight-wiring-integrity-generated-json",
-      "title": "Refresh stale artifact: agent/state/overnight-wiring-integrity.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
-      "sourceFiles": [
-        "agent/state/overnight-wiring-integrity.generated.json"
-      ]
-    },
-    {
-      "rank": 59,
-      "id": "stale-refresh-plan-agent-state-source-truth-authority-map-generated-json",
-      "title": "Refresh stale artifact: agent/state/source-truth-authority-map.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
-      "sourceFiles": [
-        "agent/state/source-truth-authority-map.generated.json"
-      ]
-    },
-    {
-      "rank": 60,
+      "rank": 25,
       "id": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
       "title": "Refresh stale artifact: agent/state/user-loading-wallet-mobile-refinement.generated.json",
       "severity": "p2",
@@ -1776,14 +761,14 @@
       ]
     },
     {
-      "rank": 61,
-      "id": "score-drag-sourcehealthscore",
-      "title": "Score drag: sourceHealthScore",
+      "rank": 26,
+      "id": "score-drag-regressionriskscore",
+      "title": "Score drag: regressionRiskScore",
       "severity": "p2",
       "owner": "beta_score",
       "surface": "beta_score",
-      "scoreImpact": 0,
-      "weightedScoreImpact": 0,
+      "scoreImpact": 0.6,
+      "weightedScoreImpact": 1.8,
       "fixClass": "evidence_refresh",
       "actionClass": "needs_refresh",
       "sourceFixable": false,
@@ -1825,13 +810,13 @@
   "deferred": [
     {
       "rank": 1,
-      "id": "beta-cap-runtime-unverified-runtime-provider-smoke-1",
-      "title": "Runtime unverified: Runtime/provider smoke",
+      "id": "beta-cap-external-proof-required-runtime-provider-smoke-1",
+      "title": "Runtime and provider proof required",
       "severity": "p1",
       "owner": "provider_evidence",
       "surface": "runtime_evidence",
-      "scoreImpact": 75.5,
-      "weightedScoreImpact": 302,
+      "scoreImpact": 60.45,
+      "weightedScoreImpact": 241.8,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -1839,7 +824,7 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
@@ -1847,35 +832,13 @@
     },
     {
       "rank": 2,
-      "id": "beta-cap-visual-qa-required-ui-visual-manual-smoke-0",
-      "title": "Visual QA required: UI visual/manual smoke",
-      "severity": "p1",
-      "owner": "runtime_evidence",
-      "surface": "runtime_evidence",
-      "scoreImpact": 75.5,
-      "weightedScoreImpact": 302,
-      "fixClass": "manual_required",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 3,
-      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2",
-      "title": "Ready with smoke required: Admin truth/sample evidence",
+      "id": "beta-cap-external-proof-required-admin-truth-sample-evidence-2",
+      "title": "Admin truth sample required",
       "severity": "p1",
       "owner": "admin_debug",
       "surface": "admin_debug",
-      "scoreImpact": 63.75,
-      "weightedScoreImpact": 255,
+      "scoreImpact": 55.11,
+      "weightedScoreImpact": 220.44,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -1883,21 +846,21 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ]
     },
     {
-      "rank": 4,
-      "id": "score-drag-runtimehealthscore",
-      "title": "Score drag: runtimeHealthScore",
+      "rank": 3,
+      "id": "formal-evidence-admin-truth-sample-evidence",
+      "title": "Admin truth sample required",
       "severity": "p1",
-      "owner": "runtime_evidence",
-      "surface": "beta_score",
-      "scoreImpact": 16.33,
-      "weightedScoreImpact": 65.32,
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 11.32,
+      "weightedScoreImpact": 45.28,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -1905,65 +868,21 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
+        "admin_truth_sample_evidence"
       ]
     },
     {
-      "rank": 5,
-      "id": "stale-artifact-debug-runtime-evidence",
-      "title": "Stale artifact: debug_runtime_evidence",
-      "severity": "p1",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 16.33,
-      "weightedScoreImpact": 65.32,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
-      "sourceFiles": [
-        "debug_runtime_evidence"
-      ]
-    },
-    {
-      "rank": 6,
-      "id": "stale-artifact-runtime-provider-smoke",
-      "title": "Stale artifact: runtime_provider_smoke",
-      "severity": "p1",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 16.33,
-      "weightedScoreImpact": 65.32,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
-      "sourceFiles": [
-        "runtime_provider_smoke"
-      ]
-    },
-    {
-      "rank": 7,
+      "rank": 4,
       "id": "score-drag-evidencecompletenessscore",
       "title": "Score drag: evidenceCompletenessScore",
       "severity": "p1",
       "owner": "beta_score",
       "surface": "beta_score",
-      "scoreImpact": 12,
-      "weightedScoreImpact": 48,
+      "scoreImpact": 11.32,
+      "weightedScoreImpact": 45.28,
       "fixClass": "evidence_refresh",
       "actionClass": "needs_refresh",
       "sourceFixable": false,
@@ -1978,51 +897,29 @@
       ]
     },
     {
-      "rank": 8,
-      "id": "stale-artifact-admin-truth-sample-evidence",
-      "title": "Stale artifact: admin_truth_sample_evidence",
+      "rank": 5,
+      "id": "formal-evidence-runtime-provider-smoke",
+      "title": "Runtime and provider proof required",
       "severity": "p1",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 12,
-      "weightedScoreImpact": 48,
-      "fixClass": "evidence_refresh",
+      "owner": "provider_evidence",
+      "surface": "runtime_evidence",
+      "scoreImpact": 5.76,
+      "weightedScoreImpact": 23.04,
+      "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
       "evidenceFixable": false,
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "sourceFiles": [
-        "admin_truth_sample_evidence"
+        "runtime_provider_smoke"
       ]
     },
     {
-      "rank": 9,
-      "id": "stale-artifact-visual-manual-smoke",
-      "title": "Stale artifact: visual_manual_smoke",
-      "severity": "p1",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 12,
-      "weightedScoreImpact": 48,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
-      "sourceFiles": [
-        "visual_manual_smoke"
-      ]
-    },
-    {
-      "rank": 10,
+      "rank": 6,
       "id": "admin-truth-formal-sample-required",
       "title": "Admin truth sample requires formal proof",
       "severity": "p1",
@@ -2037,7 +934,7 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach a redacted production admin truth sample before clearing the formal admin truth gate.",
       "sourceFiles": [
         "agent/state/admin-truth-source-sample.generated.json",
@@ -2045,95 +942,7 @@
       ]
     },
     {
-      "rank": 11,
-      "id": "debug-panel-admin-truth-samples",
-      "title": "Admin truth samples",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
-      "sourceFiles": [
-        "agent/state/admin-truth-sample-evidence.generated.json"
-      ]
-    },
-    {
-      "rank": 12,
-      "id": "debug-panel-final-launch-readiness",
-      "title": "Final launch readiness",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.",
-      "sourceFiles": [
-        "agent/state/final-launch-readiness-report.generated.json"
-      ]
-    },
-    {
-      "rank": 13,
-      "id": "debug-panel-launch-pr-triage",
-      "title": "Launch PR triage",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed.",
-      "sourceFiles": [
-        "agent/state/launch-pr-triage.generated.json"
-      ]
-    },
-    {
-      "rank": 14,
-      "id": "debug-panel-launch-readiness",
-      "title": "Launch readiness",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed.",
-      "sourceFiles": [
-        "agent/state/launch-readiness-report.generated.json"
-      ]
-    },
-    {
-      "rank": 15,
+      "rank": 7,
       "id": "debug-panel-provider-smoke",
       "title": "Provider smoke",
       "severity": "p1",
@@ -2148,102 +957,14 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
       "sourceFiles": [
         "agent/state/provider-smoke-evidence.generated.json"
       ]
     },
     {
-      "rank": 16,
-      "id": "debug-panel-public-beta-score",
-      "title": "Public beta score",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 17,
-      "id": "debug-panel-runtime-evidence",
-      "title": "Runtime evidence",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
-      "sourceFiles": [
-        "agent/state/runtime-smoke-evidence.generated.json"
-      ]
-    },
-    {
-      "rank": 18,
-      "id": "debug-panel-score-cap-reasons",
-      "title": "Score cap reasons",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 16,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 19,
-      "id": "route-diagnostic-runtime-evidence",
-      "title": "Runtime smoke is unverified; local validators remain diagnostic only.",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 2,
-      "weightedScoreImpact": 8,
-      "fixClass": "route_fix",
-      "actionClass": "needs_code_change",
-      "sourceFixable": true,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
-      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceFiles": [
-        "agent/state/runtime-smoke-evidence.generated.json"
-      ]
-    },
-    {
-      "rank": 20,
+      "rank": 8,
       "id": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
       "title": "Stale artifact: agent/state/overnight-final-integration-lock.generated.json",
       "severity": "p1",
@@ -2266,13 +987,57 @@
     },
     {
       "rank": 1,
+      "id": "score-drag-costriskscore",
+      "title": "Score drag: costRiskScore",
+      "severity": "p2",
+      "owner": "cost",
+      "surface": "cost",
+      "scoreImpact": 5.8,
+      "weightedScoreImpact": 17.4,
+      "fixClass": "cost_guard",
+      "actionClass": "needs_code_change",
+      "sourceFixable": true,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": false,
+      "status": "deferred",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
+      ]
+    },
+    {
+      "rank": 2,
+      "id": "score-drag-runtimehealthscore",
+      "title": "Score drag: runtimeHealthScore",
+      "severity": "p2",
+      "owner": "runtime_evidence",
+      "surface": "beta_score",
+      "scoreImpact": 5.76,
+      "weightedScoreImpact": 17.28,
+      "fixClass": "manual_required",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
+      ]
+    },
+    {
+      "rank": 3,
       "id": "score-drag-freshnessscore",
       "title": "Score drag: freshnessScore",
       "severity": "p2",
       "owner": "beta_score",
       "surface": "beta_score",
-      "scoreImpact": 7.07,
-      "weightedScoreImpact": 21.21,
+      "scoreImpact": 3.66,
+      "weightedScoreImpact": 10.98,
       "fixClass": "evidence_refresh",
       "actionClass": "needs_refresh",
       "sourceFixable": false,
@@ -2287,75 +1052,31 @@
       ]
     },
     {
-      "rank": 2,
-      "id": "score-drag-costriskscore",
-      "title": "Score drag: costRiskScore",
+      "rank": 4,
+      "id": "score-drag-sourcehealthscore",
+      "title": "Score drag: sourceHealthScore",
       "severity": "p2",
-      "owner": "cost",
-      "surface": "cost",
-      "scoreImpact": 4,
-      "weightedScoreImpact": 12,
-      "fixClass": "cost_guard",
-      "actionClass": "needs_code_change",
-      "sourceFixable": true,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "scoreImpact": 2.08,
+      "weightedScoreImpact": 6.24,
+      "fixClass": "evidence_refresh",
+      "actionClass": "needs_refresh",
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleRefreshFixable": true,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
       "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "sourceFiles": [
         "agent/state/score-80-path-lock.generated.json"
       ]
     },
     {
-      "rank": 3,
-      "id": "cost-cost-risk-0",
-      "title": "cloudRunCostReadiness remains owner-review (cost_review_required).",
-      "severity": "p2",
-      "owner": "cost",
-      "surface": "cost",
-      "scoreImpact": 2,
-      "weightedScoreImpact": 6,
-      "fixClass": "cost_guard",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 4,
-      "id": "cost-cost-risk-1",
-      "title": "cloudSqlCostReadiness remains owner-review (owner_review).",
-      "severity": "p2",
-      "owner": "cost",
-      "surface": "cost",
-      "scoreImpact": 2,
-      "weightedScoreImpact": 6,
-      "fixClass": "cost_guard",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
       "rank": 5,
-      "id": "cost-cost-risk-2",
-      "title": "geminiCloudAssistCostReadiness remains owner-review (cost_review_required).",
+      "id": "cost-cost-risk-0",
+      "title": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
       "severity": "p2",
       "owner": "cost",
       "surface": "cost",
@@ -2368,7 +1089,7 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
@@ -2376,28 +1097,6 @@
     },
     {
       "rank": 6,
-      "id": "cost-cost-risk-3",
-      "title": "route4xxReadiness remains owner-review (cost_review_required).",
-      "severity": "p2",
-      "owner": "cost",
-      "surface": "cost",
-      "scoreImpact": 2,
-      "weightedScoreImpact": 6,
-      "fixClass": "cost_guard",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 7,
       "id": "telemetry-lane-telemetry-lane-admin-snapshots",
       "title": "Telemetry lane needs closure: telemetry-lane-admin-snapshots",
       "severity": "p2",
@@ -2412,14 +1111,14 @@
       "staleRefreshFixable": false,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
       "exactNextAction": "Run the admin analytics refresh lane before treating this as current.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
-      "rank": 8,
+      "rank": 7,
       "id": "telemetry-lane-telemetry-lane-bigquery-export",
       "title": "Telemetry lane needs closure: telemetry-lane-bigquery-export",
       "severity": "p2",
@@ -2434,14 +1133,14 @@
       "staleRefreshFixable": false,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
       "exactNextAction": "Configure export only in an owner-approved cloud pipeline pass.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
-      "rank": 9,
+      "rank": 8,
       "id": "telemetry-lane-telemetry-lane-ingest",
       "title": "Telemetry lane needs closure: telemetry-lane-ingest",
       "severity": "p2",
@@ -2456,14 +1155,14 @@
       "staleRefreshFixable": false,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
       "exactNextAction": "Open the route runtime drilldown or wait for runtime samples before treating ingest as proven.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
-      "rank": 10,
+      "rank": 9,
       "id": "telemetry-lane-telemetry-lane-materializers",
       "title": "Telemetry lane needs closure: telemetry-lane-materializers",
       "severity": "p2",
@@ -2478,14 +1177,14 @@
       "staleRefreshFixable": false,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
       "exactNextAction": "Use snapshot metadata before raw collections.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
-      "rank": 11,
+      "rank": 10,
       "id": "telemetry-lane-telemetry-lane-user-events",
       "title": "Telemetry lane needs closure: telemetry-lane-user-events",
       "severity": "p2",
@@ -2500,14 +1199,14 @@
       "staleRefreshFixable": false,
       "manualOnly": false,
       "status": "deferred",
-      "deferredReason": "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane.",
+      "deferredReason": "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane.",
       "exactNextAction": "Refresh admin analytics snapshots before reading user-event health.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
-      "rank": 12,
+      "rank": 11,
       "id": "telemetry-lane-telemetry-lane-watch-time",
       "title": "Telemetry lane needs closure: telemetry-lane-watch-time",
       "severity": "p2",
@@ -2522,102 +1221,36 @@
       "staleRefreshFixable": false,
       "manualOnly": true,
       "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach or verify deployed runtime watch-session evidence before treating watch time as proven.",
       "sourceFiles": [
         "agent/state/telemetry-admin-debug-truth.generated.json"
       ]
     },
     {
+      "rank": 12,
+      "id": "debug-panel-admin-truth-samples",
+      "title": "Admin truth samples",
+      "severity": "p2",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 1,
+      "weightedScoreImpact": 3,
+      "fixClass": "evidence_refresh",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
+      "sourceFiles": [
+        "agent/state/admin-truth-sample-evidence.generated.json"
+      ]
+    },
+    {
       "rank": 13,
-      "id": "stale-artifact-agent-state-beta-evidence-gap-map-generated-json",
-      "title": "Stale artifact: agent/state/beta-evidence-gap-map.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1.8,
-      "weightedScoreImpact": 5.4,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "sourceFiles": [
-        "agent/state/beta-evidence-gap-map.generated.json"
-      ]
-    },
-    {
-      "rank": 14,
-      "id": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
-      "title": "Stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1.6,
-      "weightedScoreImpact": 4.8,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "sourceFiles": [
-        "agent/state/beta-evidence-lane-prep.generated.json"
-      ]
-    },
-    {
-      "rank": 15,
-      "id": "stale-artifact-agent-state-beta-freshness-language-generated-json",
-      "title": "Stale artifact: agent/state/beta-freshness-language.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1.4,
-      "weightedScoreImpact": 4.2,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
-      "sourceFiles": [
-        "agent/state/beta-freshness-language.generated.json"
-      ]
-    },
-    {
-      "rank": 16,
-      "id": "stale-artifact-agent-state-final-pr-stale-cleanup-generated-json",
-      "title": "Stale artifact: agent/state/final-pr-stale-cleanup.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1.2,
-      "weightedScoreImpact": 3.6,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
-      "sourceFiles": [
-        "agent/state/final-pr-stale-cleanup.generated.json"
-      ]
-    },
-    {
-      "rank": 17,
       "id": "debug-panel-analytics-rewire",
       "title": "Analytics rewire",
       "severity": "p2",
@@ -2635,11 +1268,25 @@
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
       "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
       "sourceFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json"
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "agent/state/codebase-hardening.generated.json",
+        "agent/state/device-ui-dry-audit.generated.json",
+        "agent/state/device-layout-score.generated.json",
+        "agent/state/hydration-performance.generated.json",
+        "agent/state/sitewide-image-optimization.generated.json",
+        "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
+        "agent/state/sql-mirror-status.generated.json",
+        "agent/state/telemetry-parity-score.generated.json",
+        "agent/state/precatch-runtime-issues.generated.json",
+        "agent/state/creator-lane-debug-parity.generated.json",
+        "agent/state/creator-lane-legacy-truth-inventory.generated.json",
+        "agent/state/orphaned-logic-score.generated.json"
       ]
     },
     {
-      "rank": 18,
+      "rank": 14,
       "id": "debug-panel-creator-connection-audit",
       "title": "Creator connection audit",
       "severity": "p2",
@@ -2661,15 +1308,15 @@
       ]
     },
     {
-      "rank": 19,
-      "id": "debug-panel-recovery-evidence",
-      "title": "Recovery evidence",
+      "rank": 15,
+      "id": "debug-panel-public-beta-score",
+      "title": "Public beta score",
       "severity": "p2",
       "owner": "admin_debug",
       "surface": "admin_debug",
       "scoreImpact": 1,
       "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
+      "fixClass": "evidence_refresh",
       "actionClass": "needs_refresh",
       "sourceFixable": false,
       "evidenceFixable": true,
@@ -2677,57 +1324,13 @@
       "manualOnly": false,
       "status": "deferred",
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
+      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
       "sourceFiles": [
-        "agent/state/lost-data-recovery-dry-run.generated.json"
+        "agent/state/public-beta-score.generated.json"
       ]
     },
     {
-      "rank": 20,
-      "id": "debug-panel-report-cloud-cost",
-      "title": "Generated report freshness: Cloud cost",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/cloudrun-sql-bigquery-guardrails.generated.json"
-      ]
-    },
-    {
-      "rank": 21,
-      "id": "debug-panel-report-codebase-hardening",
-      "title": "Generated report freshness: codebase hardening",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/codebase-hardening.generated.json"
-      ]
-    },
-    {
-      "rank": 22,
+      "rank": 16,
       "id": "debug-panel-report-content-protection",
       "title": "Generated report freshness: content protection",
       "severity": "p2",
@@ -2745,253 +1348,16 @@
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
       "exactNextAction": "Keep missing state visible until an owning generator is identified.",
       "sourceFiles": [
-        "agent/state/content-protection.generated.json"
+        "agent/state/content-protection.generated.json",
+        "agent/state/gumdrop-economy.generated.json",
+        "agent/state/event-catalog-telemetry.generated.json",
+        "agent/state/watch-time-rollup-truth.generated.json",
+        "agent/state/debug-evidence-pipeline.generated.json",
+        "agent/state/support-recovery-flows.generated.json"
       ]
     },
     {
-      "rank": 23,
-      "id": "debug-panel-report-creator-lane",
-      "title": "Generated report freshness: creator lane parity",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/creator-lane-debug-parity.generated.json"
-      ]
-    },
-    {
-      "rank": 24,
-      "id": "debug-panel-report-creator-lane-legacy",
-      "title": "Generated report freshness: creator lane legacy",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/creator-lane-legacy-truth-inventory.generated.json"
-      ]
-    },
-    {
-      "rank": 25,
-      "id": "debug-panel-report-debug-evidence",
-      "title": "Generated report freshness: debug evidence pipeline",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceFiles": [
-        "agent/state/debug-evidence-pipeline.generated.json"
-      ]
-    },
-    {
-      "rank": 26,
-      "id": "debug-panel-report-device-layout",
-      "title": "Generated report freshness: device layout score",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/device-layout-score.generated.json"
-      ]
-    },
-    {
-      "rank": 27,
-      "id": "debug-panel-report-device-ui",
-      "title": "Generated report freshness: device UI dry audit",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/device-ui-dry-audit.generated.json"
-      ]
-    },
-    {
-      "rank": 28,
-      "id": "debug-panel-report-event-catalog",
-      "title": "Generated report freshness: event catalog",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceFiles": [
-        "agent/state/event-catalog-telemetry.generated.json"
-      ]
-    },
-    {
-      "rank": 29,
-      "id": "debug-panel-report-google-cost",
-      "title": "Generated report freshness: Google cost",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/google-cost-bleed.generated.json"
-      ]
-    },
-    {
-      "rank": 30,
-      "id": "debug-panel-report-gumdrop-economy",
-      "title": "Generated report freshness: GumDrop economy",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceFiles": [
-        "agent/state/gumdrop-economy.generated.json"
-      ]
-    },
-    {
-      "rank": 31,
-      "id": "debug-panel-report-hydration",
-      "title": "Generated report freshness: hydration performance",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/hydration-performance.generated.json"
-      ]
-    },
-    {
-      "rank": 32,
-      "id": "debug-panel-report-orphaned-logic",
-      "title": "Generated report freshness: orphaned logic",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/orphaned-logic-score.generated.json"
-      ]
-    },
-    {
-      "rank": 33,
-      "id": "debug-panel-report-precatch-runtime",
-      "title": "Generated report freshness: precatch runtime issues",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/precatch-runtime-issues.generated.json"
-      ]
-    },
-    {
-      "rank": 34,
+      "rank": 17,
       "id": "debug-panel-report-public-beta-score",
       "title": "Generated report freshness: public beta score",
       "severity": "p2",
@@ -3013,9 +1379,31 @@
       ]
     },
     {
-      "rank": 35,
-      "id": "debug-panel-report-sitewide-image",
-      "title": "Generated report freshness: sitewide image optimization",
+      "rank": 18,
+      "id": "debug-panel-runtime-evidence",
+      "title": "Runtime evidence",
+      "severity": "p2",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 1,
+      "weightedScoreImpact": 3,
+      "fixClass": "evidence_refresh",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Source evidence or operator context is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
+      "sourceFiles": [
+        "agent/state/runtime-smoke-evidence.generated.json"
+      ]
+    },
+    {
+      "rank": 19,
+      "id": "debug-panel-score-cap-reasons",
+      "title": "Score cap reasons",
       "severity": "p2",
       "owner": "admin_debug",
       "surface": "admin_debug",
@@ -3029,123 +1417,13 @@
       "manualOnly": false,
       "status": "deferred",
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
+      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
       "sourceFiles": [
-        "agent/state/sitewide-image-optimization.generated.json"
+        "agent/state/public-beta-score.generated.json"
       ]
     },
     {
-      "rank": 36,
-      "id": "debug-panel-report-speed-security",
-      "title": "Generated report freshness: speed/security hardening",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/speed-security-hardening.generated.json"
-      ]
-    },
-    {
-      "rank": 37,
-      "id": "debug-panel-report-sql-mirror",
-      "title": "Generated report freshness: SQL mirror",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/sql-mirror-status.generated.json"
-      ]
-    },
-    {
-      "rank": 38,
-      "id": "debug-panel-report-support-recovery",
-      "title": "Generated report freshness: support recovery",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceFiles": [
-        "agent/state/support-recovery-flows.generated.json"
-      ]
-    },
-    {
-      "rank": 39,
-      "id": "debug-panel-report-telemetry-parity",
-      "title": "Generated report freshness: telemetry parity",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "stale_retire",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceFiles": [
-        "agent/state/telemetry-parity-score.generated.json"
-      ]
-    },
-    {
-      "rank": 40,
-      "id": "debug-panel-report-watch-time-truth",
-      "title": "Generated report freshness: watch-time truth",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceFiles": [
-        "agent/state/watch-time-rollup-truth.generated.json"
-      ]
-    },
-    {
-      "rank": 41,
+      "rank": 20,
       "id": "debug-panel-system-health",
       "title": "System health",
       "severity": "p2",
@@ -3167,34 +1445,12 @@
       ]
     },
     {
-      "rank": 42,
+      "rank": 21,
       "id": "debug-panel-targeted-behavior-evidence",
       "title": "Targeted behavior evidence",
       "severity": "p2",
       "owner": "admin_debug",
       "surface": "admin_debug",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_operator_ui_confirmation",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate.",
-      "sourceFiles": [
-        "agent/state/targeted-behavior-evidence.generated.json"
-      ]
-    },
-    {
-      "rank": 43,
-      "id": "score-drag-regressionriskscore",
-      "title": "Score drag: regressionRiskScore",
-      "severity": "p2",
-      "owner": "beta_score",
-      "surface": "beta_score",
       "scoreImpact": 1,
       "weightedScoreImpact": 3,
       "fixClass": "evidence_refresh",
@@ -3205,13 +1461,13 @@
       "manualOnly": false,
       "status": "deferred",
       "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "exactNextAction": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate.",
       "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
+        "agent/state/targeted-behavior-evidence.generated.json"
       ]
     },
     {
-      "rank": 44,
+      "rank": 22,
       "id": "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json",
       "title": "Refresh stale artifact: agent/state/beta-evidence-gap-map.generated.json",
       "severity": "p2",
@@ -3233,7 +1489,7 @@
       ]
     },
     {
-      "rank": 45,
+      "rank": 23,
       "id": "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json",
       "title": "Refresh stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
       "severity": "p2",
@@ -3255,205 +1511,7 @@
       ]
     },
     {
-      "rank": 46,
-      "id": "stale-refresh-plan-agent-state-beta-freshness-language-generated-json",
-      "title": "Refresh stale artifact: agent/state/beta-freshness-language.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
-      "sourceFiles": [
-        "agent/state/beta-freshness-language.generated.json"
-      ]
-    },
-    {
-      "rank": 47,
-      "id": "stale-refresh-plan-agent-state-creator-drop-status-metrics-generated-json",
-      "title": "Refresh stale artifact: agent/state/creator-drop-status-metrics.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-      "sourceFiles": [
-        "agent/state/creator-drop-status-metrics.generated.json"
-      ]
-    },
-    {
-      "rank": 48,
-      "id": "stale-refresh-plan-agent-state-creator-settings-control-plane-generated-json",
-      "title": "Refresh stale artifact: agent/state/creator-settings-control-plane.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
-      "sourceFiles": [
-        "agent/state/creator-settings-control-plane.generated.json"
-      ]
-    },
-    {
-      "rank": 49,
-      "id": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
-      "title": "Refresh stale artifact: agent/state/current-beta-exit-status.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
-      "sourceFiles": [
-        "agent/state/current-beta-exit-status.generated.json"
-      ]
-    },
-    {
-      "rank": 50,
-      "id": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",
-      "title": "Refresh stale artifact: agent/state/evidence-capture-status.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-      "sourceFiles": [
-        "agent/state/evidence-capture-status.generated.json"
-      ]
-    },
-    {
-      "rank": 51,
-      "id": "stale-refresh-plan-agent-state-existing-algorithm-refinement-generated-json",
-      "title": "Refresh stale artifact: agent/state/existing-algorithm-refinement.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
-      "sourceFiles": [
-        "agent/state/existing-algorithm-refinement.generated.json"
-      ]
-    },
-    {
-      "rank": 52,
-      "id": "stale-refresh-plan-agent-state-final-pr-stale-cleanup-generated-json",
-      "title": "Refresh stale artifact: agent/state/final-pr-stale-cleanup.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
-      "sourceFiles": [
-        "agent/state/final-pr-stale-cleanup.generated.json"
-      ]
-    },
-    {
-      "rank": 53,
-      "id": "stale-refresh-plan-agent-state-final-telemetry-closure-lock-generated-json",
-      "title": "Refresh stale artifact: agent/state/final-telemetry-closure-lock.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
-      "sourceFiles": [
-        "agent/state/final-telemetry-closure-lock.generated.json"
-      ]
-    },
-    {
-      "rank": 54,
-      "id": "stale-refresh-plan-agent-state-global-marquee-truncated-titles-generated-json",
-      "title": "Refresh stale artifact: agent/state/global-marquee-truncated-titles.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
-      "sourceFiles": [
-        "agent/state/global-marquee-truncated-titles.generated.json"
-      ]
-    },
-    {
-      "rank": 55,
+      "rank": 24,
       "id": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
       "title": "Refresh stale artifact: agent/state/mobile-ui-final-lock.generated.json",
       "severity": "p2",
@@ -3475,95 +1533,7 @@
       ]
     },
     {
-      "rank": 56,
-      "id": "stale-refresh-plan-agent-state-operator-revenue-smoke-generated-json",
-      "title": "Refresh stale artifact: agent/state/operator-revenue-smoke.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "sourceFiles": [
-        "agent/state/operator-revenue-smoke.generated.json"
-      ]
-    },
-    {
-      "rank": 57,
-      "id": "stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json",
-      "title": "Refresh stale artifact: agent/state/overnight-final-integration-lock.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
-      "sourceFiles": [
-        "agent/state/overnight-final-integration-lock.generated.json"
-      ]
-    },
-    {
-      "rank": 58,
-      "id": "stale-refresh-plan-agent-state-overnight-wiring-integrity-generated-json",
-      "title": "Refresh stale artifact: agent/state/overnight-wiring-integrity.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
-      "sourceFiles": [
-        "agent/state/overnight-wiring-integrity.generated.json"
-      ]
-    },
-    {
-      "rank": 59,
-      "id": "stale-refresh-plan-agent-state-source-truth-authority-map-generated-json",
-      "title": "Refresh stale artifact: agent/state/source-truth-authority-map.generated.json",
-      "severity": "p2",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "scoreImpact": 1,
-      "weightedScoreImpact": 3,
-      "fixClass": "evidence_refresh",
-      "actionClass": "needs_refresh",
-      "sourceFixable": false,
-      "evidenceFixable": true,
-      "staleRefreshFixable": true,
-      "manualOnly": false,
-      "status": "deferred",
-      "deferredReason": "Refresh required; do not treat stale evidence as a code defect.",
-      "exactNextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
-      "sourceFiles": [
-        "agent/state/source-truth-authority-map.generated.json"
-      ]
-    },
-    {
-      "rank": 60,
+      "rank": 25,
       "id": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
       "title": "Refresh stale artifact: agent/state/user-loading-wallet-mobile-refinement.generated.json",
       "severity": "p2",
@@ -3585,14 +1555,14 @@
       ]
     },
     {
-      "rank": 61,
-      "id": "score-drag-sourcehealthscore",
-      "title": "Score drag: sourceHealthScore",
+      "rank": 26,
+      "id": "score-drag-regressionriskscore",
+      "title": "Score drag: regressionRiskScore",
       "severity": "p2",
       "owner": "beta_score",
       "surface": "beta_score",
-      "scoreImpact": 0,
-      "weightedScoreImpact": 0,
+      "scoreImpact": 0.6,
+      "weightedScoreImpact": 1.8,
       "fixClass": "evidence_refresh",
       "actionClass": "needs_refresh",
       "sourceFixable": false,
@@ -3608,22 +1578,21 @@
     }
   ],
   "topRemainingScoreDrag": [
-    "beta-cap-runtime-unverified-runtime-provider-smoke-1: 75.5 (blocked_formal_evidence)",
-    "beta-cap-visual-qa-required-ui-visual-manual-smoke-0: 75.5 (blocked_formal_evidence)",
-    "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2: 63.75 (blocked_formal_evidence)",
-    "score-drag-runtimehealthscore: 16.33 (blocked_formal_evidence)",
-    "stale-artifact-debug-runtime-evidence: 16.33 (blocked_formal_evidence)",
-    "stale-artifact-runtime-provider-smoke: 16.33 (blocked_formal_evidence)",
-    "score-drag-evidencecompletenessscore: 12 (needs_refresh)",
-    "stale-artifact-admin-truth-sample-evidence: 12 (blocked_formal_evidence)"
+    "beta-cap-external-proof-required-runtime-provider-smoke-1: 60.45 (blocked_formal_evidence)",
+    "beta-cap-external-proof-required-admin-truth-sample-evidence-2: 55.11 (blocked_formal_evidence)",
+    "formal-evidence-admin-truth-sample-evidence: 11.32 (blocked_formal_evidence)",
+    "score-drag-evidencecompletenessscore: 11.32 (needs_refresh)",
+    "formal-evidence-runtime-provider-smoke: 5.76 (blocked_formal_evidence)",
+    "admin-truth-formal-sample-required: 4.5 (blocked_formal_evidence)",
+    "debug-panel-provider-smoke: 4 (blocked_formal_evidence)",
+    "stale-artifact-agent-state-overnight-final-integration-lock-generated-json: 2 (needs_refresh)"
   ],
   "duplicateSystemsTracked": true,
   "monolithRisksTracked": true,
   "fakeEvidenceBlocked": true,
   "formalEvidenceGates": [
-    "UI visual/manual smoke: Visual QA required",
-    "Runtime/provider smoke: Runtime unverified",
-    "Admin truth/sample evidence: Ready with smoke required"
+    "Runtime/provider smoke: External proof required",
+    "Admin truth/sample evidence: External proof required"
   ],
   "requiredValidators": [
     "npm run check:ai-critic-p1-triage",
@@ -3633,8 +1602,8 @@
     "npm run check:beta-score"
   ],
   "notes": [
-    "AI critic request_changes was caused by stale/formal/manual evidence items being treated as code-change work.",
-    "Formal provider, runtime, visual/manual, and admin truth sample gates remain blocked until real artifacts exist.",
-    "P2 work is deferred while P1 formal evidence and score-impact lanes remain higher priority."
+    "AI critic request_changes was caused by stale/source-evidence items being treated as code-change work.",
+    "Provider-backed, runtime, UI source, and admin truth sample gates remain blocked until matching source records exist.",
+    "P2 work is deferred while P1 source evidence and score-impact lanes remain higher priority."
   ]
 }

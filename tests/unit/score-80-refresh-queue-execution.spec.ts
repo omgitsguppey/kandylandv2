@@ -22,11 +22,11 @@ const commandResults: Score80RefreshCommandResult[] = [
     reason: "Refresh safeguards validator is safe and source-only.",
   },
   {
-    command: "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+    command: "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
     status: "blocked",
     queueArtifact: "runtime_provider_smoke",
     classification: "blocked_formal_evidence",
-    reason: "Formal provider artifact required; source queue cannot generate proof.",
+    reason: "Provider-backed site activity evidence required; source queue cannot generate it automatically.",
   },
   {
     command: "npm run check:provider-smoke-evidence",
@@ -38,7 +38,7 @@ const commandResults: Score80RefreshCommandResult[] = [
 ];
 
 describe("score 80 refresh queue execution", () => {
-  it("classifies queue execution without clearing formal evidence gates", () => {
+  it("classifies queue execution without clearing source evidence gates", () => {
     const report = buildScore80RefreshQueueExecutionReport({
       generatedAtUtc: "2026-05-21T18:00:00.000Z",
       currentHead: "head",

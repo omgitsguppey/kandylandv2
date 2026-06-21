@@ -76,11 +76,11 @@ function defaultNextAction(classification: FutureActivitySignalClassification) {
     case "broken_debug_mapping":
       return "Expose the mapped event path in the owning debug lane.";
     case "blocked_formal_evidence":
-      return "Keep this in the formal evidence gate; do not list it as an activity signal issue.";
+      return "Keep this in the source evidence gate; do not list it as an activity signal issue.";
     case "stale_artifact":
       return "Refresh or retire the stale artifact only if it still impacts score.";
     case "unsafe_unknown":
-      return "Classify the exact producer, bridge, materializer, metric consumer, or formal gate before hiding this signal.";
+      return "Classify the exact producer, bridge, materializer, metric consumer, or source evidence gate before hiding this signal.";
   }
 }
 

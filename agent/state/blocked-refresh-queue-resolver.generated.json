@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T02:17:57.543Z",
+  "generatedAtUtc": "2026-06-21T03:24:22.437Z",
   "reportKey": "blocked-refresh-queue-resolver",
-  "currentHead": "a264c232bdfaea10532430a688c0b80e56d7cf2b",
+  "currentHead": "bb7e2c67c3df73feccad7418321e51101d1f86e4",
   "status": "pass",
   "oldScore": 73.57,
   "newScore": 73.57,
@@ -12,9 +12,9 @@
       "owner": "admin",
       "scoreImpactEstimate": 11.32,
       "classification": "blocked_formal_evidence",
-      "originalBlockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
-      "resolvedBlockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
-      "nextAction": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status.",
+      "originalBlockedReason": "blocked_source_evidence: redacted admin source activity sample required; source samples remain partial confidence only.",
+      "resolvedBlockedReason": "blocked_formal_evidence: redacted admin source activity sample required; source samples remain partial confidence only.",
+      "nextAction": "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status.",
       "canRunAutomatically": false,
       "formalGate": "admin_truth",
       "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
@@ -24,9 +24,9 @@
       "owner": "runtime",
       "scoreImpactEstimate": 5.76,
       "classification": "blocked_formal_evidence",
-      "originalBlockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
-      "resolvedBlockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
-      "nextAction": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status.",
+      "originalBlockedReason": "blocked_source_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.",
+      "resolvedBlockedReason": "blocked_formal_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.",
+      "nextAction": "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status.",
       "canRunAutomatically": false,
       "formalGate": "provider",
       "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
@@ -36,11 +36,11 @@
       "owner": "runtime",
       "scoreImpactEstimate": 4,
       "classification": "blocked_formal_evidence",
-      "originalBlockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
-      "resolvedBlockedReason": "blocked_formal_evidence: formal artifact required; source queue cannot generate proof.",
-      "nextAction": "npm run check:provider-smoke-evidence",
+      "originalBlockedReason": "blocked_source_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.",
+      "resolvedBlockedReason": "blocked_formal_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.",
+      "nextAction": "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status.",
       "canRunAutomatically": false,
-      "formalGate": "none",
+      "formalGate": "provider",
       "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
     },
     {
@@ -48,11 +48,11 @@
       "owner": "admin",
       "scoreImpactEstimate": 1,
       "classification": "blocked_formal_evidence",
-      "originalBlockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
-      "resolvedBlockedReason": "blocked_formal_evidence: formal artifact required; source queue cannot generate proof.",
-      "nextAction": "npm run check:admin-truth-sample-evidence",
+      "originalBlockedReason": "blocked_source_evidence: redacted admin source activity sample required; source samples remain partial confidence only.",
+      "resolvedBlockedReason": "blocked_formal_evidence: redacted admin source activity sample required; source samples remain partial confidence only.",
+      "nextAction": "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status.",
       "canRunAutomatically": false,
-      "formalGate": "none",
+      "formalGate": "admin_truth",
       "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
     },
     {
@@ -60,11 +60,11 @@
       "owner": "runtime",
       "scoreImpactEstimate": 1,
       "classification": "blocked_formal_evidence",
-      "originalBlockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
-      "resolvedBlockedReason": "blocked_formal_evidence: formal artifact required; source queue cannot generate proof.",
-      "nextAction": "npm run check:runtime-smoke-evidence",
+      "originalBlockedReason": "blocked_source_evidence: deployed runtime route evidence required; source/debug evidence is partial only.",
+      "resolvedBlockedReason": "blocked_formal_evidence: deployed runtime route evidence required; source/debug evidence is partial only.",
+      "nextAction": "Produce deployed runtime route evidence, then run npm run check:evidence-capture-status.",
       "canRunAutomatically": false,
-      "formalGate": "none",
+      "formalGate": "runtime",
       "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
     }
   ],
@@ -78,17 +78,22 @@
   },
   "dirtyFiles": [
     {
+      "path": "agent/state/ai-critic-p1-triage.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "agent/state/ai-debug-critic.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
       "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated score/debug evidence artifact refreshed by this resolver."
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
-    },
-    {
-      "path": "agent/state/live-evidence-gate-replacement.generated.json",
+      "path": "agent/state/future-activity-signal-reclassification.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated score/debug evidence artifact refreshed by this resolver."
     },
@@ -98,12 +103,17 @@
       "reason": "Generated score/debug evidence artifact refreshed by this resolver."
     },
     {
+      "path": "docs/agent-truth/ai-critic-p1-triage.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Agent-truth documentation for the blocked refresh resolver."
+    },
+    {
       "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
       "classification": "documentation_artifact_expected",
       "reason": "Agent-truth documentation for the blocked refresh resolver."
     },
     {
-      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
+      "path": "docs/agent-truth/future-activity-signal-reclassification.md",
       "classification": "documentation_artifact_expected",
       "reason": "Agent-truth documentation for the blocked refresh resolver."
     },
@@ -118,7 +128,7 @@
       "reason": "Dedicated validator requested by this batch."
     },
     {
-      "path": "scripts/agent/validate-current-beta-exit-status.ts",
+      "path": "scripts/agent/validate-future-activity-signal-reclassification.ts",
       "classification": "validator_artifact_expected",
       "reason": "Dedicated validator requested by this batch."
     },
@@ -128,14 +138,34 @@
       "reason": "Dedicated validator requested by this batch."
     },
     {
-      "path": "src/lib/debug/debug-operator-cockpit.ts",
+      "path": "src/lib/debug/ai-critic-p1-triage.ts",
       "classification": "real_source_change_needs_review",
-      "reason": "Admin/debug copy now routes browser diagnostics through UI source coverage instead of proof shortcuts."
+      "reason": "Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums."
     },
     {
-      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
+      "path": "src/lib/debug/ai-debug-critic-rules.ts",
       "classification": "real_source_change_needs_review",
-      "reason": "Admin/debug copy now routes browser diagnostics through UI source coverage instead of proof shortcuts."
+      "reason": "Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums."
+    },
+    {
+      "path": "src/lib/debug/ai-debug-critic.ts",
+      "classification": "real_source_change_needs_review",
+      "reason": "Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums."
+    },
+    {
+      "path": "src/lib/debug/future-activity-classifier.ts",
+      "classification": "real_source_change_needs_review",
+      "reason": "Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums."
+    },
+    {
+      "path": "tests/unit/ai-critic-p1-triage.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated unit coverage requested by this batch."
+    },
+    {
+      "path": "tests/unit/ai-debug-critic.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated source-evidence wording coverage for debug critic compatibility."
     },
     {
       "path": "tests/unit/blocked-refresh-queue-resolver.spec.ts",
@@ -143,17 +173,7 @@
       "reason": "Dedicated unit coverage requested by this batch."
     },
     {
-      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated unit coverage requested by this batch."
-    },
-    {
       "path": "tests/unit/score-80-refresh-queue-execution.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated unit coverage requested by this batch."
-    },
-    {
-      "path": "tests/unit/self-healing-refresh-queue.spec.ts",
       "classification": "test_artifact_expected",
       "reason": "Dedicated unit coverage requested by this batch."
     }

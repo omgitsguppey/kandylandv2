@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 
 import {
   summarizeActionableActivitySignals,
+  type ActionableActivitySignalSummary,
 } from "@/lib/debug/actionable-signal-filter";
 import {
   classifyFutureActivitySignal,
@@ -17,6 +18,7 @@ import {
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/future-activity-signal-reclassification.generated.json";
 const DOC_PATH = "docs/agent-truth/future-activity-signal-reclassification.md";
+const SIGNAL_SAMPLE_LIMIT = 25;
 
 type JsonRecord = Record<string, unknown>;
 type ScoreDimension = typeof FINAL_LOCK_DIMENSIONS[number];
@@ -51,7 +53,7 @@ export type FutureActivitySignalReclassificationReport = {
   scoreBefore: Record<ScoreDimension, number>;
   scoreAfter: Record<ScoreDimension, number>;
   metrics: Record<ScoreDimension, FinalLockMetric>;
-  activitySignalSummary: ReturnType<typeof summarizeActionableActivitySignals>;
+  activitySignalSummary: CompactActivitySignalSummary;
   debugPanel: {
     futureActivityCatalogDefaultOpen: false;
     hiddenFromDefaultWarnings: true;
@@ -60,6 +62,19 @@ export type FutureActivitySignalReclassificationReport = {
   oldLogicClassification: Array<{ path: string; classification: "still_required" | "quiet_catalog_only" | "stale_logic_removed" | "unsafe_unknown" }>;
   dirtyFiles: Array<{ path: string; classification: DirtyFileClassification }>;
   validationFailures: string[];
+};
+
+type CompactActivitySignalSummary = Omit<ActionableActivitySignalSummary, "classifiedSignals" | "actionableSignals" | "quietFutureCatalog"> & {
+  sampleLimit: number;
+  samplesTruncated: boolean;
+  classifiedSignals: ActionableActivitySignalSummary["classifiedSignals"];
+  actionableSignals: ActionableActivitySignalSummary["actionableSignals"];
+  quietFutureCatalog: ActionableActivitySignalSummary["quietFutureCatalog"];
+  fullSignalCounts: {
+    classifiedSignals: number;
+    actionableSignals: number;
+    quietFutureCatalog: number;
+  };
 };
 
 function git(args: readonly string[]) {
@@ -97,6 +112,29 @@ function objectValue(value: unknown): JsonRecord {
 
 function arrayValue<T = unknown>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
+}
+
+function compactActivitySignalSummary(summary: ActionableActivitySignalSummary): CompactActivitySignalSummary {
+  return {
+    totalSignalCount: summary.totalSignalCount,
+    actionableActivitySignalCount: summary.actionableActivitySignalCount,
+    quietFutureActivityCount: summary.quietFutureActivityCount,
+    brokenActivityPathCount: summary.brokenActivityPathCount,
+    scoreDragActivityCount: summary.scoreDragActivityCount,
+    evidenceGateOnlyCount: summary.evidenceGateOnlyCount,
+    sampleLimit: SIGNAL_SAMPLE_LIMIT,
+    samplesTruncated: summary.classifiedSignals.length > SIGNAL_SAMPLE_LIMIT
+      || summary.actionableSignals.length > SIGNAL_SAMPLE_LIMIT
+      || summary.quietFutureCatalog.length > SIGNAL_SAMPLE_LIMIT,
+    classifiedSignals: summary.classifiedSignals.slice(0, SIGNAL_SAMPLE_LIMIT),
+    actionableSignals: summary.actionableSignals.slice(0, SIGNAL_SAMPLE_LIMIT),
+    quietFutureCatalog: summary.quietFutureCatalog.slice(0, SIGNAL_SAMPLE_LIMIT),
+    fullSignalCounts: {
+      classifiedSignals: summary.classifiedSignals.length,
+      actionableSignals: summary.actionableSignals.length,
+      quietFutureCatalog: summary.quietFutureCatalog.length,
+    },
+  };
 }
 
 function numberValue(value: unknown, fallback = 0) {
@@ -141,12 +179,23 @@ export function classifyFutureActivitySignalDirtyFile(path: string): DirtyFileCl
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-person-metrics-hydration.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-telemetry-trigger-test-matrix.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-blocked-refresh-queue-resolver.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-score-80-refresh-queue-execution.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-ai-debug-critic.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-ai-critic-p1-triage.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/future-activity-signal-reclassification.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/event-liveness-audit.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/debug-signal-actionability.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/debug-backlog-engine.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/final-testing-tracking-telemetry-lock.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/blocked-refresh-queue-resolver.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/score-80-refresh-queue-execution.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/ai-debug-critic.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/ai-critic-p1-triage.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/debug/future-activity-classifier.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/ai-debug-critic-rules.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/ai-debug-critic.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/ai-critic-p1-triage.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/actionable-signal-filter.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-signal-actionability.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-backlog-builder.ts") return "real_source_change_needs_review";
@@ -199,7 +248,7 @@ function buildScores(finalLock: JsonRecord | undefined, publicBetaScore: JsonRec
       status: after >= 80 ? "target_met" : "below_target",
       nextExactAction: after >= 80
         ? "No score-80 action required for this dimension."
-        : stringValue(prior.nextExactAction) || "Resolve the existing formal evidence or freshness gate; quiet future activity is not score drag.",
+        : stringValue(prior.nextExactAction) || "Resolve the existing source-evidence or freshness gate; quiet future activity is not score drag.",
     };
   }
   return { scoreBefore, scoreAfter, metrics };
@@ -211,19 +260,41 @@ function classifyOldLogicReferences() {
     "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
     "scripts/agent/validate-event-translation-bridge.ts",
     "scripts/agent/validate-telemetry-trigger-test-matrix.ts",
+    "scripts/agent/score-public-beta-readiness.ts",
+    "scripts/agent/validate-evidence-capture-status.ts",
     "tests/unit/future-activity-signal-reclassification.spec.ts",
     "tests/unit/final-testing-tracking-telemetry-lock.spec.ts",
     "tests/unit/event-translation-bridge.spec.ts",
+    "tests/unit/analytics-panel-hydration.spec.ts",
+    "tests/unit/current-beta-exit-status.spec.ts",
+    "tests/unit/debug-cockpit-batch31-task-guidance-parity.spec.ts",
+    "tests/unit/event-liveness-audit.spec.ts",
+    "tests/unit/live-evidence-gate-replacement.spec.ts",
+    "tests/unit/score-dimension-80-lock.spec.ts",
+    "docs/agent-truth/current-beta-exit-status.md",
+    "docs/agent-truth/evidence-capture-status.md",
+    "docs/agent-truth/future-activity-catalog-status-cleanup.md",
     "docs/agent-truth/future-activity-signal-reclassification.md",
     "docs/agent-truth/final-testing-tracking-telemetry-lock.md",
     "docs/agent-truth/person-metrics-hydration.md",
     "scripts/agent/validate-person-metrics-hydration.ts",
+    "src/lib/admin-analytics/panel-hydration-contract.ts",
+    "src/lib/admin-analytics/panel-hydration-resolver.ts",
+    "src/lib/agent-score/score-dimension-80-lock.ts",
+    "src/lib/analytics/event-liveness-contract.ts",
     "src/lib/debug/future-activity-classifier.ts",
     "src/lib/debug/actionable-signal-filter.ts",
+    "src/lib/debug/debug-cockpit-batch31-task-guidance-parity.ts",
     "src/lib/debug/debug-panel-tracking-summary.ts",
     "src/lib/analytics/activity-verification-engine.ts",
     "src/lib/analytics/event-translation-bridge.ts",
     "src/lib/analytics/person-metrics-hydration.ts",
+    "src/lib/identity-truth/analytic-algorithm-audit.ts",
+    "src/lib/release-readiness/live-evidence-gate-contract.ts",
+    "src/lib/release-readiness/live-evidence-resolver.ts",
+    "src/lib/release-readiness/live-panel-evidence-resolver.ts",
+    "src/lib/tasks/task-guidance-history-recovery.ts",
+    "src/lib/tasks/task-guidance-telemetry-contract.ts",
   ]);
   return trackedFiles().flatMap<FutureActivitySignalReclassificationReport["oldLogicClassification"][number]>((path) => {
     if (!existsSync(join(ROOT, path))) return [];
@@ -274,13 +345,13 @@ export function buildFutureActivitySignalReclassificationReport(input: {
     scoreBefore,
     scoreAfter,
     metrics,
-    activitySignalSummary,
     debugPanel: {
       futureActivityCatalogDefaultOpen: false,
       hiddenFromDefaultWarnings: true,
       sourceOfTruth: "src/lib/debug/future-activity-classifier.ts",
     },
     oldLogicClassification,
+    activitySignalSummary: compactActivitySignalSummary(activitySignalSummary),
     dirtyFiles,
     validationFailures: [],
   };

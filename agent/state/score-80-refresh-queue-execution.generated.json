@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T02:17:58.923Z",
+  "generatedAtUtc": "2026-06-21T03:24:28.434Z",
   "reportKey": "score-80-refresh-queue-execution",
-  "currentHead": "a264c232bdfaea10532430a688c0b80e56d7cf2b",
+  "currentHead": "bb7e2c67c3df73feccad7418321e51101d1f86e4",
   "status": "pass",
   "oldScore": 77.76,
   "newScore": 73.57,
@@ -21,7 +21,7 @@
       "status": "passed",
       "queueArtifact": "agent/state/self-healing-refresh-queue.generated.json",
       "classification": "safe_automatic_refresh",
-      "reason": "Regenerated the ordered source-only queue and preserved 4 blocked formal/manual entries."
+      "reason": "Regenerated the ordered source-only queue and preserved 4 blocked source-evidence entries."
     },
     {
       "command": "npm run check:refresh-safeguards",
@@ -147,42 +147,42 @@
       "status": "failed",
       "queueArtifact": "agent/state/debug-runtime-evidence.generated.json",
       "classification": "blocked_formal_evidence",
-      "reason": "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime proof."
+      "reason": "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime truth."
     },
     {
       "command": "npm run check:provider-smoke-evidence",
       "status": "skipped",
       "queueArtifact": "agent/state/provider-smoke-evidence.generated.json",
       "classification": "blocked_formal_evidence",
-      "reason": "Provider smoke evidence requires a real formal artifact; this pass cannot generate or clear it."
+      "reason": "Provider smoke evidence requires provider-backed site activity; this pass cannot generate or clear it."
     },
     {
       "command": "npm run check:runtime-smoke-evidence",
       "status": "skipped",
       "queueArtifact": "agent/state/runtime-smoke-evidence.generated.json",
       "classification": "blocked_formal_evidence",
-      "reason": "Runtime smoke evidence requires deployed runtime proof; this pass cannot generate or clear it."
+      "reason": "Runtime smoke evidence requires deployed runtime route evidence; this pass cannot generate or clear it."
     },
     {
-      "command": "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status",
+      "command": "Produce deployed runtime route evidence, then run npm run check:evidence-capture-status",
       "status": "blocked",
       "queueArtifact": "debug_runtime_evidence",
       "classification": "blocked_formal_evidence",
-      "reason": "Formal deployed runtime artifact required; source queue cannot generate proof."
+      "reason": "Deployed runtime route evidence required; source queue cannot generate it automatically."
     },
     {
-      "command": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+      "command": "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
       "status": "blocked",
       "queueArtifact": "runtime_provider_smoke",
       "classification": "blocked_formal_evidence",
-      "reason": "Formal provider artifact required; source queue cannot generate proof."
+      "reason": "Provider-backed site activity evidence required; source queue cannot generate it automatically."
     },
     {
-      "command": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
+      "command": "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status",
       "status": "blocked",
       "queueArtifact": "admin_truth_sample_evidence",
       "classification": "blocked_formal_evidence",
-      "reason": "Formal admin truth sample artifact required; source queue cannot generate proof."
+      "reason": "Admin source activity sample evidence required; source queue cannot generate it automatically."
     },
     {
       "command": "npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status",
@@ -237,42 +237,42 @@
       "status": "failed",
       "queueArtifact": "agent/state/debug-runtime-evidence.generated.json",
       "classification": "blocked_formal_evidence",
-      "reason": "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime proof."
+      "reason": "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime truth."
     },
     {
       "command": "npm run check:provider-smoke-evidence",
       "status": "skipped",
       "queueArtifact": "agent/state/provider-smoke-evidence.generated.json",
       "classification": "blocked_formal_evidence",
-      "reason": "Provider smoke evidence requires a real formal artifact; this pass cannot generate or clear it."
+      "reason": "Provider smoke evidence requires provider-backed site activity; this pass cannot generate or clear it."
     },
     {
       "command": "npm run check:runtime-smoke-evidence",
       "status": "skipped",
       "queueArtifact": "agent/state/runtime-smoke-evidence.generated.json",
       "classification": "blocked_formal_evidence",
-      "reason": "Runtime smoke evidence requires deployed runtime proof; this pass cannot generate or clear it."
+      "reason": "Runtime smoke evidence requires deployed runtime route evidence; this pass cannot generate or clear it."
     },
     {
-      "command": "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status",
+      "command": "Produce deployed runtime route evidence, then run npm run check:evidence-capture-status",
       "status": "blocked",
       "queueArtifact": "debug_runtime_evidence",
       "classification": "blocked_formal_evidence",
-      "reason": "Formal deployed runtime artifact required; source queue cannot generate proof."
+      "reason": "Deployed runtime route evidence required; source queue cannot generate it automatically."
     },
     {
-      "command": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+      "command": "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
       "status": "blocked",
       "queueArtifact": "runtime_provider_smoke",
       "classification": "blocked_formal_evidence",
-      "reason": "Formal provider artifact required; source queue cannot generate proof."
+      "reason": "Provider-backed site activity evidence required; source queue cannot generate it automatically."
     },
     {
-      "command": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
+      "command": "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status",
       "status": "blocked",
       "queueArtifact": "admin_truth_sample_evidence",
       "classification": "blocked_formal_evidence",
-      "reason": "Formal admin truth sample artifact required; source queue cannot generate proof."
+      "reason": "Admin source activity sample evidence required; source queue cannot generate it automatically."
     },
     {
       "command": "npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status",
@@ -298,17 +298,22 @@
   },
   "dirtyFiles": [
     {
+      "path": "agent/state/ai-critic-p1-triage.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/ai-debug-critic.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
       "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "agent/state/live-evidence-gate-replacement.generated.json",
+      "path": "agent/state/future-activity-signal-reclassification.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
     },
@@ -318,12 +323,17 @@
       "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
     },
     {
+      "path": "docs/agent-truth/ai-critic-p1-triage.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
       "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
       "classification": "documentation_artifact_expected",
       "reason": "Generated agent-truth documentation refreshed by queue validators."
     },
     {
-      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
+      "path": "docs/agent-truth/future-activity-signal-reclassification.md",
       "classification": "documentation_artifact_expected",
       "reason": "Generated agent-truth documentation refreshed by queue validators."
     },
@@ -338,7 +348,7 @@
       "reason": "Dedicated queue execution validator requested by this pass."
     },
     {
-      "path": "scripts/agent/validate-current-beta-exit-status.ts",
+      "path": "scripts/agent/validate-future-activity-signal-reclassification.ts",
       "classification": "validator_artifact_expected",
       "reason": "Dedicated queue execution validator requested by this pass."
     },
@@ -348,14 +358,34 @@
       "reason": "Dedicated queue execution validator requested by this pass."
     },
     {
-      "path": "src/lib/debug/debug-operator-cockpit.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Admin/debug source wording now routes UI work through source coverage."
+      "path": "src/lib/debug/ai-critic-p1-triage.ts",
+      "classification": "real_source_change_needs_review",
+      "reason": "Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums."
     },
     {
-      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Admin/debug source wording now routes UI work through source coverage."
+      "path": "src/lib/debug/ai-debug-critic-rules.ts",
+      "classification": "real_source_change_needs_review",
+      "reason": "Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums."
+    },
+    {
+      "path": "src/lib/debug/ai-debug-critic.ts",
+      "classification": "real_source_change_needs_review",
+      "reason": "Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums."
+    },
+    {
+      "path": "src/lib/debug/future-activity-classifier.ts",
+      "classification": "real_source_change_needs_review",
+      "reason": "Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums."
+    },
+    {
+      "path": "tests/unit/ai-critic-p1-triage.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated queue execution unit coverage requested by this pass."
+    },
+    {
+      "path": "tests/unit/ai-debug-critic.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated queue execution unit coverage requested by this pass."
     },
     {
       "path": "tests/unit/blocked-refresh-queue-resolver.spec.ts",
@@ -363,17 +393,7 @@
       "reason": "Dedicated queue execution unit coverage requested by this pass."
     },
     {
-      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated queue execution unit coverage requested by this pass."
-    },
-    {
       "path": "tests/unit/score-80-refresh-queue-execution.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated queue execution unit coverage requested by this pass."
-    },
-    {
-      "path": "tests/unit/self-healing-refresh-queue.spec.ts",
       "classification": "test_artifact_expected",
       "reason": "Dedicated queue execution unit coverage requested by this pass."
     }

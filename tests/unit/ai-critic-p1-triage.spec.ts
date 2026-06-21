@@ -31,9 +31,9 @@ function backlogItem(overrides: Partial<DebugBacklogItem>): DebugBacklogItem {
 }
 
 describe("ai critic p1 triage", () => {
-  it("classifies formal gates away from source request changes while UI coverage remains source-refreshable", () => {
+  it("classifies source evidence gates away from source request changes while UI coverage remains source-refreshable", () => {
     expect(classifyBacklogAction(backlogItem({
-      exactNextAction: "Attach formal deployed runtime smoke evidence.",
+      exactNextAction: "Produce deployed runtime route evidence.",
     }))).toBe("blocked_formal_evidence");
     expect(classifyBacklogAction(backlogItem({
       exactNextAction: "Run UI source coverage before optional visual reproduction.",
@@ -43,7 +43,7 @@ describe("ai critic p1 triage", () => {
   it("ranks P1/P2 by score impact and keeps P2 deferred while P1 remains", () => {
     const aiCritic = buildAiDebugCriticReport({
       changedFiles: ["src/lib/debug/ai-critic-p1-triage.ts"],
-      proposedFixSummary: "Classifies formal evidence without clearing formal gates.",
+      proposedFixSummary: "Classifies source evidence without clearing source gates.",
       debugBacklog: [],
       betaScoreBlockers: [],
       evidenceStatus: { formalArtifacts: [], sourceOnlyClaims: [] },
@@ -74,7 +74,7 @@ describe("ai critic p1 triage", () => {
       scoreBefore: 65.8,
       scoreAfter: 65.8,
       currentHead: "test",
-      formalEvidenceGates: ["Visual/manual smoke", "Runtime/provider smoke"],
+      formalEvidenceGates: ["UI source coverage", "Runtime/provider smoke"],
       resolvedSourceFixes: [{
         id: "source-route",
         title: "Route diagnostic mapping fixed",
@@ -99,7 +99,7 @@ describe("ai critic p1 triage", () => {
   it("fails if critic still requests changes for evidence-only work", () => {
     const aiCritic = buildAiDebugCriticReport({
       changedFiles: ["src/lib/debug/ai-critic-p1-triage.ts"],
-      proposedFixSummary: "Classifies formal evidence without clearing formal gates.",
+      proposedFixSummary: "Classifies source evidence without clearing source gates.",
       debugBacklog: [],
       betaScoreBlockers: [],
       evidenceStatus: { formalArtifacts: [], sourceOnlyClaims: [] },
@@ -117,6 +117,6 @@ describe("ai critic p1 triage", () => {
       criticStatusAfter: "request_changes" as const,
     };
 
-    expect(validateAiCriticP1TriageReport(report)).toContain("aiCriticStatus remains request_changes after formal/manual evidence classification.");
+    expect(validateAiCriticP1TriageReport(report)).toContain("aiCriticStatus remains request_changes after source-evidence classification.");
   });
 });

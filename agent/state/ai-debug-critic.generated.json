@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-21T14:22:31.420Z",
+  "generatedAt": "2026-06-21T03:25:26.586Z",
   "reportKey": "ai-debug-critic",
   "criticStatus": "pass",
   "checks": [
@@ -16,12 +16,12 @@
     {
       "id": "no_fake_evidence",
       "label": "Do not fake evidence",
-      "failureMode": "Source-only output is described as runtime, provider, smoke, screenshot, or formal proof."
+      "failureMode": "Source-only output is described as runtime, provider, smoke, screenshot, or source proof."
     },
     {
       "id": "no_formal_gate_cleared_without_artifact",
-      "label": "Do not clear formal gates without artifacts",
-      "failureMode": "A formal beta gate is marked resolved without the required generated artifact."
+      "label": "Do not clear source evidence gates without records",
+      "failureMode": "A beta evidence gate is marked resolved without the required generated source record."
     },
     {
       "id": "no_monolith_growth_without_split_plan",
@@ -60,49 +60,30 @@
     },
     {
       "id": "no_source_ready_as_runtime_proof",
-      "label": "Do not present source readiness as runtime proof",
+      "label": "Do not present source readiness as deployed runtime truth",
       "failureMode": "Local source checks are used to claim deployed runtime/provider evidence."
     }
   ],
   "findings": [
     {
-      "id": "no_patch_on_top_of_stale_logic-417073463",
+      "id": "no_patch_on_top_of_stale_logic-32762012",
       "check": "no_patch_on_top_of_stale_logic",
       "severity": "warning",
       "actionClass": "needs_refresh",
       "title": "Stale debug logic is still active",
-      "detail": "Open stale backlog items are classified as refresh, formal evidence, or operator confirmation work; they must stay visible but do not imply a source code request-change.",
+      "detail": "Open stale backlog items are classified as refresh, source evidence, or operator context work; they must stay visible but do not imply a source code request-change.",
       "sourceFiles": [
-        "admin_truth_sample_evidence",
         "agent/state/admin-truth-sample-evidence.generated.json",
         "agent/state/beta-evidence-gap-map.generated.json",
         "agent/state/beta-evidence-lane-prep.generated.json",
-        "agent/state/beta-freshness-language.generated.json",
-        "agent/state/creator-drop-status-metrics.generated.json",
-        "agent/state/creator-settings-control-plane.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/evidence-capture-status.generated.json",
-        "agent/state/existing-algorithm-refinement.generated.json",
-        "agent/state/final-launch-readiness-report.generated.json",
-        "agent/state/final-pr-stale-cleanup.generated.json",
-        "agent/state/final-telemetry-closure-lock.generated.json",
-        "agent/state/global-marquee-truncated-titles.generated.json",
-        "agent/state/launch-pr-triage.generated.json",
-        "agent/state/launch-readiness-report.generated.json",
         "agent/state/mobile-ui-final-lock.generated.json",
-        "agent/state/operator-revenue-smoke.generated.json",
         "agent/state/overnight-final-integration-lock.generated.json",
-        "agent/state/overnight-wiring-integrity.generated.json",
         "agent/state/provider-smoke-evidence.generated.json",
         "agent/state/public-beta-score.generated.json",
         "agent/state/runtime-smoke-evidence.generated.json",
-        "agent/state/source-truth-authority-map.generated.json",
         "agent/state/targeted-behavior-evidence.generated.json",
         "agent/state/user-facing-feature-connection-audit.generated.json",
-        "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-        "debug_runtime_evidence",
-        "runtime_provider_smoke",
-        "visual_manual_smoke"
+        "agent/state/user-loading-wallet-mobile-refinement.generated.json"
       ],
       "requiredFix": "Keep the stale backlog item visible in the owning evidence or refresh lane until the required artifact changes.",
       "suggestedValidators": [

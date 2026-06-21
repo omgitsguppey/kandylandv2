@@ -19,7 +19,7 @@ describe("ai debug critic", () => {
       fileLineCounts: {
         "src/components/AdminHugePanel.tsx": 735,
       },
-      proposedFixSummary: "Clears provider smoke and runtime proof from source validators only.",
+      proposedFixSummary: "Source validators mark provider smoke verified and deployed runtime truth ready.",
       debugBacklog: [
         {
           id: "provider-smoke",
@@ -35,8 +35,8 @@ describe("ai debug critic", () => {
           sourceFiles: ["agent/state/provider-smoke-evidence.generated.json"],
           sourceRoute: "runtime/provider-smoke",
           evidenceStatus: "formal_missing",
-          evidenceReason: "Formal provider artifact is missing.",
-          exactNextAction: "Run the formal provider smoke artifact lane.",
+          evidenceReason: "Provider-backed source artifact is missing.",
+          exactNextAction: "Run the provider-backed site activity evidence lane.",
           sourceMessage: "Runtime unverified.",
         },
       ],
@@ -50,7 +50,7 @@ describe("ai debug critic", () => {
       ],
       evidenceStatus: {
         formalArtifacts: [],
-        sourceOnlyClaims: ["provider smoke", "runtime proof"],
+        sourceOnlyClaims: ["provider smoke verified", "deployed runtime truth ready"],
       },
       telemetryGraph: {
         canonicalEventFiles: ["src/lib/behavioral/event-fact-normalizer.ts"],
@@ -84,10 +84,10 @@ describe("ai debug critic", () => {
     ]));
   });
 
-  it("does not request source changes for formal-only stale evidence gates", () => {
+  it("does not request source changes for source-evidence-only stale gates", () => {
     const report = buildAiDebugCriticReport({
       changedFiles: ["src/lib/debug/ai-debug-critic.ts"],
-      proposedFixSummary: "Separates formal evidence gates from code changes without clearing runtime gates.",
+      proposedFixSummary: "Separates source evidence gates from code changes without clearing runtime gates.",
       debugBacklog: [
         {
           id: "stale-runtime-smoke",
@@ -103,8 +103,8 @@ describe("ai debug critic", () => {
           sourceFiles: ["agent/state/runtime-smoke-evidence.generated.json"],
           sourceRoute: "agent/state/runtime-smoke-evidence.generated.json",
           evidenceStatus: "stale",
-          evidenceReason: "Formal runtime smoke artifact is stale.",
-          exactNextAction: "Attach formal deployed runtime smoke evidence before clearing this beta gate.",
+          evidenceReason: "Deployed runtime route evidence is stale.",
+          exactNextAction: "Produce deployed runtime route evidence before clearing this beta gate.",
           sourceMessage: "Runtime smoke is unverified.",
           refreshCommand: "npm run check:runtime-smoke-evidence",
         },

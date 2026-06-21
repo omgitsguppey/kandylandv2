@@ -102,7 +102,7 @@ export type Score80RefreshQueueExecutionReport = {
 };
 
 const DEFAULT_COMMAND_RESULTS: Score80RefreshCommandResult[] = [
-  result("npm run check:self-healing-refresh-queue", "passed", "agent/state/self-healing-refresh-queue.generated.json", "safe_automatic_refresh", "Regenerated the ordered source-only queue and preserved 4 blocked formal/manual entries."),
+  result("npm run check:self-healing-refresh-queue", "passed", "agent/state/self-healing-refresh-queue.generated.json", "safe_automatic_refresh", "Regenerated the ordered source-only queue and preserved 4 blocked source-evidence entries."),
   result("npm run check:refresh-safeguards", "passed", "agent/state/refresh-safeguards.generated.json", "safe_automatic_refresh", "Refreshed registered stale-artifact safeguards and exact refresh commands."),
   result("npm run check:overnight-final-integration-lock", "failed", "agent/state/overnight-final-integration-lock.generated.json", "blocked_dirty_or_pr_classification", "Optional lock failed before this execution report existed because dirty files and open PRs were intentionally unclassified until this pass."),
   result("npm run check:beta-evidence-gap-map", "passed", "agent/state/beta-evidence-gap-map.generated.json", "safe_automatic_refresh", "Refreshed beta evidence gap map from current source."),
@@ -120,12 +120,12 @@ const DEFAULT_COMMAND_RESULTS: Score80RefreshCommandResult[] = [
   result("npm run check:global-marquee-truncated-titles", "passed", "agent/state/global-marquee-truncated-titles.generated.json", "safe_automatic_refresh", "Refreshed global marquee title rollout."),
   result("npm run check:evidence-capture-status", "passed", "agent/state/evidence-capture-status.generated.json", "safe_automatic_refresh", "Refreshed evidence capture status while keeping provider/runtime/admin evidence missing and UI coverage source-owned."),
   result("npm run check:operator-revenue-smoke", "passed", "agent/state/operator-revenue-smoke.generated.json", "safe_automatic_refresh", "Refreshed operator-confirmed revenue smoke as product signal only; provider gate remains missing_formal_evidence."),
-  result("npm run check:debug-runtime-evidence", "failed", "agent/state/debug-runtime-evidence.generated.json", "blocked_formal_evidence", "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime proof."),
-  result("npm run check:provider-smoke-evidence", "skipped", "agent/state/provider-smoke-evidence.generated.json", "blocked_formal_evidence", "Provider smoke evidence requires a real formal artifact; this pass cannot generate or clear it."),
-  result("npm run check:runtime-smoke-evidence", "skipped", "agent/state/runtime-smoke-evidence.generated.json", "blocked_formal_evidence", "Runtime smoke evidence requires deployed runtime proof; this pass cannot generate or clear it."),
-  result("Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status", "blocked", "debug_runtime_evidence", "blocked_formal_evidence", "Formal deployed runtime artifact required; source queue cannot generate proof."),
-  result("Attach formal provider smoke evidence, then run npm run check:evidence-capture-status", "blocked", "runtime_provider_smoke", "blocked_formal_evidence", "Formal provider artifact required; source queue cannot generate proof."),
-  result("Attach admin truth sample evidence, then run npm run check:evidence-capture-status", "blocked", "admin_truth_sample_evidence", "blocked_formal_evidence", "Formal admin truth sample artifact required; source queue cannot generate proof."),
+  result("npm run check:debug-runtime-evidence", "failed", "agent/state/debug-runtime-evidence.generated.json", "blocked_formal_evidence", "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime truth."),
+  result("npm run check:provider-smoke-evidence", "skipped", "agent/state/provider-smoke-evidence.generated.json", "blocked_formal_evidence", "Provider smoke evidence requires provider-backed site activity; this pass cannot generate or clear it."),
+  result("npm run check:runtime-smoke-evidence", "skipped", "agent/state/runtime-smoke-evidence.generated.json", "blocked_formal_evidence", "Runtime smoke evidence requires deployed runtime route evidence; this pass cannot generate or clear it."),
+  result("Produce deployed runtime route evidence, then run npm run check:evidence-capture-status", "blocked", "debug_runtime_evidence", "blocked_formal_evidence", "Deployed runtime route evidence required; source queue cannot generate it automatically."),
+  result("Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status", "blocked", "runtime_provider_smoke", "blocked_formal_evidence", "Provider-backed site activity evidence required; source queue cannot generate it automatically."),
+  result("Produce redacted admin source activity sample, then run npm run check:evidence-capture-status", "blocked", "admin_truth_sample_evidence", "blocked_formal_evidence", "Admin source activity sample evidence required; source queue cannot generate it automatically."),
   result("npm run check:ui-visual-smoke-minimal, then npm run check:evidence-capture-status", "blocked", "ui_source_coverage", "safe_automatic_refresh", "UI issues must be discovered by deterministic source coverage before optional browser reproduction."),
 ];
 
@@ -192,19 +192,23 @@ function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
   if (/^docs\/agent-truth\//u.test(path)) {
     return { path, classification: "documentation_artifact_expected", reason: "Generated agent-truth documentation refreshed by queue validators." };
   }
-  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|current-beta-exit-status|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)) {
+  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|ai-critic-p1-triage|ai-debug-critic|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|current-beta-exit-status|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|future-activity-signal-reclassification|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)) {
     return { path, classification: "validator_artifact_expected", reason: "Dedicated queue execution validator requested by this pass." };
   }
-  if (/^tests\/unit\/(beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|live-evidence-gate-replacement|overnight-beta-readiness-lock|score-80-refresh-queue-execution|self-healing-refresh-queue)\.spec\.ts$/u.test(path)) {
+  if (/^tests\/unit\/(ai-critic-p1-triage|ai-debug-critic|beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|future-activity-signal-reclassification|live-evidence-gate-replacement|overnight-beta-readiness-lock|score-80-refresh-queue-execution|self-healing-refresh-queue)\.spec\.ts$/u.test(path)) {
     return { path, classification: "test_artifact_expected", reason: "Dedicated queue execution unit coverage requested by this pass." };
   }
   if (
     path === "src/app/admin/debug/components/DebugOperatorCockpit.tsx"
+    || path === "src/lib/debug/ai-critic-p1-triage.ts"
+    || path === "src/lib/debug/ai-debug-critic-rules.ts"
+    || path === "src/lib/debug/ai-debug-critic.ts"
     || path === "src/lib/debug/debug-backlog-builder.ts"
     || path === "src/lib/debug/debug-operator-cockpit.ts"
+    || path === "src/lib/debug/future-activity-classifier.ts"
     || path === "src/lib/release-readiness/live-evidence-resolver.ts"
   ) {
-    return { path, classification: "validator_artifact_expected", reason: "Admin/debug source wording now routes UI work through source coverage." };
+    return { path, classification: "real_source_change_needs_review", reason: "Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums." };
   }
   if (path === "package.json") {
     return { path, classification: "real_source_change_needs_review", reason: "Scoped package script wiring for the new validator." };
@@ -318,7 +322,7 @@ export function validateScore80RefreshQueueExecutionReport(report: Score80Refres
   }
   const formalCleared = Object.entries(report.formalGateImpact).filter(([, value]) => value);
   if (formalCleared.length > 0) {
-    failures.push(`formal/manual gates were cleared: ${formalCleared.map(([key]) => key).join(", ")}`);
+    failures.push(`source evidence gates were cleared: ${formalCleared.map(([key]) => key).join(", ")}`);
   }
   const staleWithoutCommand = report.staleArtifactsStillTracked.filter((entry) => !entry.refreshCommand || !entry.nextAction);
   if (staleWithoutCommand.length > 0) {

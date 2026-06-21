@@ -105,7 +105,7 @@ export interface BuildBlockedRefreshQueueResolverInput {
   rootDir?: string;
 }
 
-const GENERIC_BLOCKED_REASON = /^formal evidence artifact required; source queue cannot generate proof\.?$/iu;
+const GENERIC_BLOCKED_REASON = /^(formal evidence artifact required; source queue cannot generate proof|source evidence record required; source queue cannot generate it automatically)\.?$/iu;
 const PROTECTED_DIRTY_PATTERN = /(^|\/)(chat|topnav|bottomnav|navbar)|paypal|wallet|gumdrop|src\/lib\/privacy|src\/lib\/behavioral|src\/lib\/analytics\/identity/iu;
 
 function git(args: string[], rootDir = ROOT) {
@@ -189,23 +189,29 @@ function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
   if (/^docs\/agent-truth\//u.test(path)) {
     return { path, classification: "documentation_artifact_expected", reason: "Agent-truth documentation for the blocked refresh resolver." };
   }
-  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-health-algorithm-v2|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|current-beta-exit-status|debug-backlog-engine|evidence-freshness-index|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|final-phase-cleanup-lock|final-telemetry-closure-lock|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-ui-parity|user-creator-visual-confirmation|user-loading-wallet-mobile-refinement)\.ts$/u.test(path)) {
+  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|beta-health-algorithm-v2|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|current-beta-exit-status|debug-backlog-engine|evidence-freshness-index|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|final-phase-cleanup-lock|final-telemetry-closure-lock|future-activity-signal-reclassification|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-ui-parity|user-creator-visual-confirmation|user-loading-wallet-mobile-refinement)\.ts$/u.test(path)) {
     return { path, classification: "validator_artifact_expected", reason: "Dedicated validator requested by this batch." };
   }
   if (/^tests\/unit\/(ai-critic-p1-triage|beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-freshness-index|evidence-readiness-checklists|final-morning-beta-lock|final-phase-cleanup-lock|live-evidence-gate-replacement|overnight-beta-readiness-lock|score-80-refresh-queue-execution|self-healing-refresh-queue|targeted-behavior-evidence-repair)\.spec\.ts$/u.test(path)) {
     return { path, classification: "test_artifact_expected", reason: "Dedicated unit coverage requested by this batch." };
+  }
+  if (path === "tests/unit/ai-debug-critic.spec.ts") {
+    return { path, classification: "test_artifact_expected", reason: "Dedicated source-evidence wording coverage for debug critic compatibility." };
   }
   if (
     path === "src/app/admin/debug/components/DebugOperatorCockpit.tsx"
     || path === "src/app/admin/debug/components/DebugControlTowerEvidenceCopy.ts"
     || path === "src/lib/admin-debug-control-tower.ts"
     || path === "src/lib/debug/ai-critic-p1-triage.ts"
+    || path === "src/lib/debug/ai-debug-critic-rules.ts"
+    || path === "src/lib/debug/ai-debug-critic.ts"
     || path === "src/lib/debug/debug-backlog-builder.ts"
     || path === "src/lib/debug/debug-operator-cockpit.ts"
+    || path === "src/lib/debug/future-activity-classifier.ts"
     || path === "src/lib/debug/recovery-playbooks.ts"
     || path === "src/lib/release-readiness/live-evidence-resolver.ts"
   ) {
-    return { path, classification: "real_source_change_needs_review", reason: "Admin/debug copy now routes browser diagnostics through UI source coverage instead of proof shortcuts." };
+    return { path, classification: "real_source_change_needs_review", reason: "Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums." };
   }
   if (path === "src/lib/agent-score/self-healing-refresh-queue.ts" || path === "package.json") {
     return { path, classification: "real_source_change_needs_review", reason: "Scoped queue/source wiring needed to replace generic blocked reasons." };
@@ -238,21 +244,25 @@ function readOpenPrs(): OpenPrClassification[] {
 function exactReason(entry: QueueEntryInput) {
   switch (entry.artifact) {
     case "debug_runtime_evidence":
+    case "agent/state/debug-runtime-evidence.generated.json":
+    case "agent/state/runtime-smoke-evidence.generated.json":
       return {
-        reason: "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
-        action: "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status.",
+        reason: "blocked_formal_evidence: deployed runtime route evidence required; source/debug evidence is partial only.",
+        action: "Produce deployed runtime route evidence, then run npm run check:evidence-capture-status.",
         gate: "runtime" as const,
       };
     case "runtime_provider_smoke":
+    case "agent/state/provider-smoke-evidence.generated.json":
       return {
-        reason: "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
-        action: "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status.",
+        reason: "blocked_formal_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.",
+        action: "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status.",
         gate: "provider" as const,
       };
     case "admin_truth_sample_evidence":
+    case "agent/state/admin-truth-sample-evidence.generated.json":
       return {
-        reason: "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
-        action: "Attach admin truth sample evidence, then run npm run check:evidence-capture-status.",
+        reason: "blocked_formal_evidence: redacted admin source activity sample required; source samples remain partial confidence only.",
+        action: "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status.",
         gate: "admin_truth" as const,
       };
     case "ui_source_coverage":
@@ -305,22 +315,22 @@ function classifyBlockedEntry(entry: QueueEntryInput): ResolvedBlockedRefreshQue
       scoreImpactEstimate: entry.scoreImpactEstimate,
       classification: "manual_evidence",
       originalBlockedReason: entry.blockedReason,
-      resolvedBlockedReason: "manual_evidence: operator artifact required; source queue cannot generate it.",
-      nextAction: entry.refreshCommand || "Attach manual/operator evidence.",
+      resolvedBlockedReason: "manual_evidence: operator source context required; source queue cannot generate it.",
+      nextAction: entry.refreshCommand || "Produce operator source context.",
       canRunAutomatically: entry.canRunAutomatically,
       formalGate: "none",
       scoreTreatment: "blocked_formal_evidence_not_auto_refreshable",
     };
   }
-  if (/formal|provider|runtime smoke|admin truth sample/u.test(text)) {
+  if (/formal|source evidence|source activity|provider|provider-backed|runtime smoke|runtime route|admin truth sample|admin source activity/u.test(text)) {
     return {
       artifact: entry.artifact,
       owner: entry.owner,
       scoreImpactEstimate: entry.scoreImpactEstimate,
       classification: "blocked_formal_evidence",
       originalBlockedReason: entry.blockedReason,
-      resolvedBlockedReason: "blocked_formal_evidence: formal artifact required; source queue cannot generate proof.",
-      nextAction: entry.refreshCommand || "Attach the required formal evidence artifact.",
+      resolvedBlockedReason: "blocked_formal_evidence: source evidence record required; source queue cannot generate it automatically.",
+      nextAction: entry.refreshCommand || "Produce the required source evidence record.",
       canRunAutomatically: entry.canRunAutomatically,
       formalGate: "none",
       scoreTreatment: "blocked_formal_evidence_not_auto_refreshable",
@@ -411,7 +421,7 @@ export function validateBlockedRefreshQueueResolverReport(report: BlockedRefresh
     entry.canRunAutomatically
     && ["blocked_formal_evidence", "manual_evidence"].includes(entry.classification));
   if (autoFormal.length > 0) {
-    failures.push(`manual/formal evidence blocker is treated as auto-refreshable: ${autoFormal.map((entry) => entry.artifact).join(", ")}`);
+    failures.push(`source-evidence blocker is treated as auto-refreshable: ${autoFormal.map((entry) => entry.artifact).join(", ")}`);
   }
   const obsoleteImpact = report.obsoleteEntriesRetired.filter((entry) => entry.scoreImpactEstimate > 0);
   if (obsoleteImpact.length > 0) {
@@ -419,7 +429,7 @@ export function validateBlockedRefreshQueueResolverReport(report: BlockedRefresh
   }
   const formalCleared = Object.entries(report.formalGateImpact).filter(([, cleared]) => cleared);
   if (formalCleared.length > 0) {
-    failures.push(`formal gates were falsely cleared: ${formalCleared.map(([gate]) => gate).join(", ")}`);
+    failures.push(`source evidence gates were falsely cleared: ${formalCleared.map(([gate]) => gate).join(", ")}`);
   }
   const unsafeDirty = report.dirtyFiles.filter((entry) => entry.classification === "unsafe_unknown" || !entry.reason);
   if (unsafeDirty.length > 0) {
@@ -449,7 +459,7 @@ function renderDoc(report: BlockedRefreshQueueResolverReport) {
     "",
     `Status: ${report.status}`,
     "",
-    "This pass resolves the blocked self-healing refresh queue rows by routing UI source checks through deterministic source coverage first and keeping runtime, provider, and admin truth blockers non-automatic.",
+    "This pass resolves the blocked self-healing refresh queue rows by routing UI source checks through deterministic source coverage first and keeping runtime, provider, and admin truth source-evidence blockers non-automatic.",
     "",
     "## Score",
     "",

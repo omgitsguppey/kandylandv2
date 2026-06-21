@@ -126,9 +126,9 @@ function toTriageItem(item: DebugBacklogItem, rank: number): AiCriticP1TriageIte
     manualOnly,
     status,
     deferredReason: sourceFixable
-      ? "Source-fixable P1 remains only if a higher-impact formal/manual/evidence gate blocks score movement; handle in its owner lane."
+      ? "Source-fixable P1 remains only if a higher-impact source-evidence gate blocks score movement; handle in its owner lane."
       : manualOnly
-        ? "Formal/manual evidence is required and cannot be produced by source-only validation."
+        ? "Source evidence or operator context is required and cannot be produced by source-only validation."
         : staleRefreshFixable
           ? "Refresh required; do not treat stale evidence as a code defect."
           : "Evidence artifact is required before this can move score.",
@@ -211,9 +211,9 @@ export function buildAiCriticP1TriageReport(input: AiCriticP1TriageInput): AiCri
       "npm run check:beta-score",
     ],
     notes: [
-      "AI critic request_changes was caused by stale/formal/manual evidence items being treated as code-change work.",
-      "Formal provider, runtime, visual/manual, and admin truth sample gates remain blocked until real artifacts exist.",
-      "P2 work is deferred while P1 formal evidence and score-impact lanes remain higher priority.",
+      "AI critic request_changes was caused by stale/source-evidence items being treated as code-change work.",
+      "Provider-backed, runtime, UI source, and admin truth sample gates remain blocked until matching source records exist.",
+      "P2 work is deferred while P1 source evidence and score-impact lanes remain higher priority.",
     ],
   };
 }
@@ -221,7 +221,7 @@ export function buildAiCriticP1TriageReport(input: AiCriticP1TriageInput): AiCri
 export function validateAiCriticP1TriageReport(report: AiCriticP1TriageReport): string[] {
   const failures: string[] = [];
   if (report.criticStatusAfter === "request_changes") {
-    failures.push("aiCriticStatus remains request_changes after formal/manual evidence classification.");
+    failures.push("aiCriticStatus remains request_changes after source-evidence classification.");
   }
   for (const item of report.p1Ranking) {
     if (!Number.isFinite(item.rank) || !Number.isFinite(item.scoreImpact)) {
@@ -238,6 +238,6 @@ export function validateAiCriticP1TriageReport(report: AiCriticP1TriageReport): 
   if (!report.duplicateSystemsTracked) failures.push("duplicate systems remain untracked.");
   if (!report.monolithRisksTracked) failures.push("monolith risks lack owner/split plan tracking.");
   if (!report.fakeEvidenceBlocked) failures.push("fake evidence risk is not blocked.");
-  if (report.formalEvidenceGates.length === 0) failures.push("formal evidence gates are not listed honestly.");
+  if (report.formalEvidenceGates.length === 0) failures.push("source evidence gates are not listed honestly.");
   return failures;
 }
