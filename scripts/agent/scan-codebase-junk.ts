@@ -24,6 +24,11 @@ type JunkReport = {
   status: "pass" | "warning" | "fail";
   summary: string;
   records: JunkRecord[];
+  recordsTotalCount: number;
+  recordsEmittedCount: number;
+  recordsOmittedCount: number;
+  recordCountsByClassification: Record<Classification, number>;
+  recordsCapReason: string;
   removedFiles: string[];
   deprecatedFiles: string[];
   blockedLegacyPaths: string[];
@@ -127,6 +132,52 @@ function classifyFile(
   return { file, classification, reasons };
 }
 
+function countByClassification(records: JunkRecord[]) {
+  const counts = {
+    canonical: 0,
+    supporting: 0,
+    generated_snapshot: 0,
+    legacy_fallback: 0,
+    deprecated: 0,
+    blocked: 0,
+    orphan_candidate: 0,
+    safe_to_remove: 0,
+  } satisfies Record<Classification, number>;
+
+  for (const record of records) {
+    counts[record.classification] += 1;
+  }
+
+  return counts;
+}
+
+function rankRecord(record: JunkRecord) {
+  switch (record.classification) {
+    case "safe_to_remove":
+      return 0;
+    case "orphan_candidate":
+      return 1;
+    case "deprecated":
+      return 2;
+    case "blocked":
+      return 3;
+    case "legacy_fallback":
+      return 4;
+    case "generated_snapshot":
+      return 5;
+    case "supporting":
+      return 6;
+    case "canonical":
+      return 7;
+  }
+}
+
+function compactRecords(records: JunkRecord[], cap = 80) {
+  return [...records]
+    .sort((left, right) => rankRecord(left) - rankRecord(right) || left.file.localeCompare(right.file))
+    .slice(0, cap);
+}
+
 function main() {
   const packageJsonPath = repoPath("package.json");
   const packageJson = existsSync(packageJsonPath)
@@ -148,12 +199,18 @@ function main() {
 
   const status: JunkReport["status"] = orphanCandidates.length > 0 ? "warning" : "pass";
   const summary = `classified=${records.length}, orphanCandidates=${orphanCandidates.length}, deprecated=${deprecatedFiles.length}, blocked=${blockedLegacyPaths.length}`;
+  const compactedRecords = compactRecords(records);
 
   const report: JunkReport = {
     generatedAt: nowIso(),
     status,
     summary,
-    records,
+    records: compactedRecords,
+    recordsTotalCount: records.length,
+    recordsEmittedCount: compactedRecords.length,
+    recordsOmittedCount: Math.max(0, records.length - compactedRecords.length),
+    recordCountsByClassification: countByClassification(records),
+    recordsCapReason: "full tracked-file scan is computed in memory; generated artifact keeps actionable/noncanonical samples plus complete counts and action lists",
     removedFiles: [],
     deprecatedFiles,
     blockedLegacyPaths,

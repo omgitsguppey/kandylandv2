@@ -27,8 +27,16 @@ requireIncludes(packageJson, "\"scan:codebase-junk\"", "package.json");
 requireIncludes(packageJson, "\"check:codebase-junk-cleanup\"", "package.json");
 requireIncludes(scanScript, "orphan_candidate", "scan-codebase-junk.ts");
 requireIncludes(scanScript, "generated_snapshot", "scan-codebase-junk.ts");
+requireIncludes(scanScript, "recordsTotalCount", "scan-codebase-junk.ts");
+requireIncludes(scanScript, "recordCountsByClassification", "scan-codebase-junk.ts");
+requireIncludes(scanScript, "compactRecords", "scan-codebase-junk.ts");
 requireIncludes(report, "\"status\"", "codebase junk report");
 requireIncludes(report, "\"records\"", "codebase junk report");
+requireIncludes(report, "\"recordsTotalCount\"", "codebase junk report");
+requireIncludes(report, "\"recordsEmittedCount\"", "codebase junk report");
+requireIncludes(report, "\"recordsOmittedCount\"", "codebase junk report");
+requireIncludes(report, "\"recordCountsByClassification\"", "codebase junk report");
+requireIncludes(report, "\"recordsCapReason\"", "codebase junk report");
 requireIncludes(doc, "Codebase junk cleanup", "docs/agent-truth/codebase-junk-cleanup.md");
 requireIncludes(doc, "Classification", "docs/agent-truth/codebase-junk-cleanup.md");
 
