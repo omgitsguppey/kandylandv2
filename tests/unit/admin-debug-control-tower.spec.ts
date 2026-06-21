@@ -138,9 +138,9 @@ describe("admin debug control tower model", () => {
             readinessStatus: "Source evidence required",
             readinessStatusReason: "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed.",
             evidenceCapDetails: [
-                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source sample evidence.",
+                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source activity sample evidence.",
                 "Stale evidence: Runtime/provider smoke - Provider smoke: Payment context was recorded. Provider-backed site activity evidence is still separate.",
-                "Stale evidence: Admin truth/sample evidence - Attach a redacted admin source sample before clearing the admin source sample gate.",
+                "Stale evidence: Admin truth/sample evidence - Produce a redacted admin source activity sample before clearing the admin source activity gate.",
                 "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
             ],
             sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",

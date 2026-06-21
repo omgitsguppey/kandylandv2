@@ -44,7 +44,7 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
     if (/admin truth|sample evidence|truth sample/iu.test(normalized)) {
         return {
             state: "admin_truth_sample_required",
-            label: "Admin source sample required",
+            label: "Admin source activity sample required",
             detail: "Produce a fresh redacted admin source activity sample before clearing this gate.",
         };
     }

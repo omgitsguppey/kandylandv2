@@ -259,9 +259,9 @@ describe("DebugControlTower", () => {
             const payload = mockState.payload as any;
             payload.canonicalPublicBetaCapDetails = [
                 "Stale evidence: Runtime/provider smoke - Provider-backed site activity evidence is missing.",
-                "Stale evidence: Admin truth/sample evidence - Attach a redacted admin source sample.",
+                "Stale evidence: Admin truth/sample evidence - Produce a redacted admin source activity sample.",
             ];
-            payload.canonicalPublicBetaReadinessReason = "Provider-backed site activity and admin source samples remain required.";
+            payload.canonicalPublicBetaReadinessReason = "Provider-backed site activity and admin source activity samples remain required.";
             payload.canonicalPublicBetaTruthState = "live";
             payload.reports = [proofReport];
             payload.sections.beta_readiness = [proofReport];
@@ -282,7 +282,7 @@ describe("DebugControlTower", () => {
             expect(container.textContent).toContain("Site activity evidence required");
             expect(container.textContent).toContain("source evidence gates");
             expect(container.textContent).toContain("Site activity evidence required - Produce redacted provider-backed site activity evidence");
-            expect(container.textContent).toContain("Admin source sample required");
+            expect(container.textContent).toContain("Admin source activity sample required");
             expect(publicBetaText).not.toContain("0 findings");
             expect(publicBetaText).not.toContain("ERROR");
             expect(container.textContent).not.toContain("Stale evidence: Runtime/provider smoke");
@@ -298,10 +298,10 @@ describe("DebugControlTower", () => {
         try {
             const payload = mockState.payload as any;
             payload.canonicalPublicBetaCapDetails = [
-                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source sample evidence.",
+                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source activity sample evidence.",
                 "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
             ];
-            payload.canonicalPublicBetaReadinessReason = "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source sample evidence.";
+            payload.canonicalPublicBetaReadinessReason = "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source activity sample evidence.";
 
             await act(async () => {
                 root.render(<DebugControlTower />);
@@ -341,9 +341,9 @@ describe("DebugControlTower", () => {
         try {
             const payload = mockState.payload as any;
             payload.canonicalPublicBetaCapDetails = [
-                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source sample evidence.",
+                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source activity sample evidence.",
                 "Stale evidence: Runtime/provider smoke - Provider smoke: Payment context was recorded. Provider-backed site activity evidence is still separate. Attach redacted provider-backed site activity evidence. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
-                "Stale evidence: Admin truth/sample evidence - Attach a redacted admin source sample before clearing the admin source sample gate.",
+                "Stale evidence: Admin truth/sample evidence - Produce a redacted admin source activity sample before clearing the admin source activity gate.",
                 "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
             ];
             payload.canonicalPublicBetaStatus = "ERROR";
@@ -369,7 +369,7 @@ describe("DebugControlTower", () => {
             expect(container.textContent).toContain("Source-only evidence - Implemented behavior checks passed");
             expect(container.textContent).toContain("Site activity evidence required - Produce redacted provider-backed site activity evidence");
             expect(container.textContent).toContain("Deployed route evidence is recorded; keep it fresh.");
-            expect(container.textContent).toContain("Admin source sample required");
+            expect(container.textContent).toContain("Admin source activity sample required");
             expect(container.textContent).toContain("Refresh due - 6 required generated reports are outside the freshness window.");
             expect(publicBetaText).not.toContain("0 findings");
             expect(container.textContent).not.toContain("ERROR");
