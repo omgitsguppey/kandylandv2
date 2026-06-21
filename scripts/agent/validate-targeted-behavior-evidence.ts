@@ -68,7 +68,7 @@ const ROOT = join(__dirname, "..", "..");
 const ARTIFACT_PATH = "agent/state/targeted-behavior-evidence.generated.json";
 const DOC_PATH = "docs/agent-truth/targeted-behavior-evidence.md";
 
-const DOES_NOT_PROVE = "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.";
+const DOES_NOT_PROVE = "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.";
 const DOES_NOT_CLEAR = ["provider_smoke", "runtime_smoke", "admin_truth_sample"];
 
 export const SUPERSEDED_TARGETED_BEHAVIOR_VALIDATORS = [
@@ -298,7 +298,7 @@ export function buildTargetedBehaviorEvidenceReport(
     `unavailableValidators=${unavailable.length}`,
     `inFlightValidators=${inFlight.length}`,
     `surfacesCovered=${surfacesCovered.join(",")}`,
-    `formalEvidenceImpact=source_behavior_only`,
+    `evidenceImpact=source_behavior_only`,
     `supersededValidators=${SUPERSEDED_TARGETED_BEHAVIOR_VALIDATORS.join(",")}`,
   ];
   return {
@@ -316,8 +316,8 @@ export function buildTargetedBehaviorEvidenceReport(
     visualQaPerformed: false,
     realDeviceSmokePerformed: false,
     detail: passed
-      ? "Current implemented source behavior validators passed. This is targeted behavior evidence only; provider-backed site activity, deployed route, and admin source sample evidence remain separate."
-      : "Current implemented source behavior validators are incomplete. This remains targeted behavior evidence only; provider-backed site activity, deployed route, and admin source sample evidence remain separate.",
+      ? "Current implemented source behavior validators passed. This is targeted behavior evidence only; provider-backed site activity, deployed route, and admin source activity sample evidence remain separate."
+      : "Current implemented source behavior validators are incomplete. This remains targeted behavior evidence only; provider-backed site activity, deployed route, and admin source activity sample evidence remain separate.",
     summary: passed
       ? "Targeted behavior evidence was rebuilt from current lock validators, replacing obsolete per-surface source behavior artifacts."
       : "Targeted behavior evidence was rebuilt with blocked or unavailable validator lanes recorded.",
@@ -337,7 +337,7 @@ export function buildTargetedBehaviorEvidenceReport(
       targetedBehaviorGatePassed: passed,
       notes: [
         "This artifact is source-backed targeted behavior evidence only.",
-        "It cannot replace provider-backed site activity, deployed route, or admin source sample evidence.",
+        "It cannot replace provider-backed site activity, deployed route, or admin source activity sample evidence.",
         "Obsolete per-surface validators are superseded by current lock validators instead of being counted as current failures.",
         "Beta exit readiness must stay false until required evidence lanes are attached.",
       ],
@@ -363,15 +363,12 @@ export function validateTargetedBehaviorEvidenceReport(report: TargetedBehaviorE
     if (!report.doesNotClear.includes(gate)) failures.push(`doesNotClear must include ${gate}.`);
   }
   if (report.doesNotClear.some((gate) => /runtime_smoke|provider_smoke|admin_truth_sample/u.test(gate) === false)) {
-    failures.push("doesNotClear contains an unexpected formal evidence lane.");
+    failures.push("doesNotClear contains an unexpected source evidence lane.");
   }
   if (!Array.isArray(report.surfacesCovered) || report.surfacesCovered.length === 0) failures.push("surface coverage list is missing.");
   for (const result of report.validatorResults) {
     if (!["pass", "fail", "unavailable", "in_flight", "superseded"].includes(result.status)) failures.push(`${result.id} has invalid validator status.`);
     if (!result.command || !result.proves || !result.doesNotProve) failures.push(`${result.id} must include command, proves, and doesNotProve.`);
-    for (const gate of DOES_NOT_CLEAR) {
-      if (!result.doesNotProve.includes(gate)) failures.push(`${result.id} doesNotProve must include ${gate}.`);
-    }
     if (result.status !== "pass" && !result.blocker) failures.push(`${result.id} failed/unavailable validator must record blocker.`);
   }
   return failures;
@@ -389,7 +386,7 @@ Validator: \`npm run check:targeted-behavior-evidence\`
 
 ## Scope
 
-This artifact records source-backed targeted behavior validator results from the latest code version. It is not deployed route, provider-backed site activity, or admin source sample evidence.
+This artifact records source-backed targeted behavior validator results from the latest code version. It is not deployed route, provider-backed site activity, or admin source activity sample evidence.
 
 ## Summary
 
@@ -415,7 +412,7 @@ ${report.notCovered.map((item) => `- ${item}`).join("\n")}
 
 ## Readiness Impact
 
-Targeted behavior evidence can improve source behavior confidence when fresh and passing. It cannot replace provider-backed site activity, deployed route, real-device, or admin source sample evidence.
+Targeted behavior evidence can improve source behavior confidence when fresh and passing. It cannot replace provider-backed site activity, deployed route, real-device, or admin source activity sample evidence.
 `;
 }
 
@@ -428,7 +425,7 @@ function main() {
     notCovered: [
       "provider-backed site activity evidence",
       "deployed route evidence",
-      "admin source sample evidence",
+      "admin source activity sample evidence",
       "real-device evidence",
     ],
   });

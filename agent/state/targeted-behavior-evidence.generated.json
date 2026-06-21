@@ -1,18 +1,18 @@
 {
-  "generatedAtUtc": "2026-06-21T04:35:25.376Z",
+  "generatedAtUtc": "2026-06-21T12:46:57.621Z",
   "reportKey": "targeted-behavior-evidence",
   "status": "passed",
   "overallStatus": "passed",
   "passed": true,
-  "sourceCommit": "4cee1833d522ade76f48746ab5427938657c18f8",
-  "latestCodeVersion": "4cee1833d522ade76f48746ab5427938657c18f8",
-  "currentHead": "4cee1833d522ade76f48746ab5427938657c18f8",
+  "sourceCommit": "85941b670184f7ea84ba7850ddd9a7d58f9a1352",
+  "latestCodeVersion": "85941b670184f7ea84ba7850ddd9a7d58f9a1352",
+  "currentHead": "85941b670184f7ea84ba7850ddd9a7d58f9a1352",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
   "visualQaPerformed": false,
   "realDeviceSmokePerformed": false,
-  "detail": "Current implemented source behavior validators passed. This is targeted behavior evidence only; provider-backed site activity, deployed route, and admin source sample evidence remain separate.",
+  "detail": "Current implemented source behavior validators passed. This is targeted behavior evidence only; provider-backed site activity, deployed route, and admin source activity sample evidence remain separate.",
   "summary": "Targeted behavior evidence was rebuilt from current lock validators, replacing obsolete per-surface source behavior artifacts.",
   "validatorResults": [
     {
@@ -27,7 +27,7 @@
         "role_permission"
       ],
       "proves": "Surface parity, telemetry parity, state feedback, and role permission locks are registered as the current parity behavior validator.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "replacementFor": [
@@ -49,7 +49,7 @@
         "search_discovery"
       ],
       "proves": "Media, private access, discovery, relationship, and search behavior validators are registered as the current media/discovery behavior validator.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "replacementFor": [
@@ -71,7 +71,7 @@
         "admin_debug"
       ],
       "proves": "Creator monetization readiness is source-validated across Fan Pass, settings, entitlements, chat pricing, admin debug, telemetry, and person metrics.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "replacementFor": [
@@ -92,7 +92,7 @@
         "account_access"
       ],
       "proves": "Authentication readiness is registered as the current source behavior validator when the auth phase has landed.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0"
@@ -108,7 +108,7 @@
         "service_worker"
       ],
       "proves": "Notification and PWA readiness is registered as the current source behavior validator when the notification phase has landed.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "replacementFor": [
@@ -127,7 +127,7 @@
         "debug"
       ],
       "proves": "Daily task lifecycle, reward, telemetry, and debug behavior are registered as the current task behavior validator when landed.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "currentHead": "225f9e53"
@@ -143,7 +143,7 @@
         "chat_realtime"
       ],
       "proves": "Chat functionality score lock is registered as the current chat behavior validator when landed.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "currentHead": "c755f63fefff812038edb484ff5577fea601631c"
@@ -159,7 +159,7 @@
         "telemetry"
       ],
       "proves": "Final testing/tracking telemetry lock is registered as the current testing and tracking behavior validator when landed.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "replacementFor": [
@@ -178,7 +178,7 @@
         "telemetry"
       ],
       "proves": "Feature registration behavior is source-validated for registered routes and telemetry.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "currentHead": "7cf1ea434bab50842a223111f99d5e10c215b49e"
@@ -194,7 +194,7 @@
         "telemetry"
       ],
       "proves": "Activity verification behavior is source-validated without provider or production reads.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "currentHead": "5bd37e429242d5c9ebb2cfb75d84061c49af7991"
@@ -210,7 +210,7 @@
         "feature_activity"
       ],
       "proves": "Telemetry event translation behavior is source-validated.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
@@ -226,7 +226,7 @@
         "analytics"
       ],
       "proves": "Person metrics hydration behavior is source-validated.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d"
@@ -244,7 +244,7 @@
         "permission"
       ],
       "proves": "Surface state behavior is source-validated across loading, empty, error, degraded, permission, and not-configured states.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "replacementFor": [
@@ -266,7 +266,7 @@
         "guest"
       ],
       "proves": "Role permission behavior is source-validated across user, creator, admin, guest, and system roles.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts.",
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
       "currentHead": "c5e5f6fccd93481f42b0da25a10f85ae0df6f0a8"
@@ -277,85 +277,85 @@
       "command": "npm run check:final-parity-telemetry-lock",
       "status": "pass",
       "proves": "Surface parity, telemetry parity, state feedback, and role permission locks are registered as the current parity behavior validator.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:media-discovery-score-lock",
       "status": "pass",
       "proves": "Media, private access, discovery, relationship, and search behavior validators are registered as the current media/discovery behavior validator.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:creator-monetization-readiness-lock",
       "status": "pass",
       "proves": "Creator monetization readiness is source-validated across Fan Pass, settings, entitlements, chat pricing, admin debug, telemetry, and person metrics.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:auth-readiness-lock",
       "status": "pass",
       "proves": "Authentication readiness is registered as the current source behavior validator when the auth phase has landed.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:notification-pwa-score-lock",
       "status": "pass",
       "proves": "Notification and PWA readiness is registered as the current source behavior validator when the notification phase has landed.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:daily-task-debug-score-lock",
       "status": "pass",
       "proves": "Daily task lifecycle, reward, telemetry, and debug behavior are registered as the current task behavior validator when landed.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:chat-functionality-score-lock",
       "status": "pass",
       "proves": "Chat functionality score lock is registered as the current chat behavior validator when landed.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:final-testing-tracking-telemetry-lock",
       "status": "pass",
       "proves": "Final testing/tracking telemetry lock is registered as the current testing and tracking behavior validator when landed.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:feature-registration-gate",
       "status": "pass",
       "proves": "Feature registration behavior is source-validated for registered routes and telemetry.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:activity-verification-engine",
       "status": "pass",
       "proves": "Activity verification behavior is source-validated without provider or production reads.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:event-translation-bridge",
       "status": "pass",
       "proves": "Telemetry event translation behavior is source-validated.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:person-metrics-hydration",
       "status": "pass",
       "proves": "Person metrics hydration behavior is source-validated.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:surface-state-parity",
       "status": "pass",
       "proves": "Surface state behavior is source-validated across loading, empty, error, degraded, permission, and not-configured states.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     },
     {
       "command": "npm run check:role-permission-parity",
       "status": "pass",
       "proves": "Role permission behavior is source-validated across user, creator, admin, guest, and system roles.",
-      "doesNotProve": "Does not prove provider_smoke, runtime_smoke, or admin_truth_sample lanes; provider-backed site activity, deployed route, real-device, and admin source sample evidence still need their own source artifacts."
+      "doesNotProve": "Does not prove provider-backed site activity, deployed route, real-device, or admin source activity sample lanes; those evidence lanes need their own source artifacts."
     }
   ],
   "surfacesCovered": [
@@ -406,7 +406,7 @@
   "notCovered": [
     "provider-backed site activity evidence",
     "deployed route evidence",
-    "admin source sample evidence",
+    "admin source activity sample evidence",
     "real-device evidence"
   ],
   "formalEvidenceImpact": "source_behavior_only",
@@ -422,14 +422,14 @@
     "unavailableValidators=0",
     "inFlightValidators=0",
     "surfacesCovered=account_access,activity_verification,admin,admin_debug,analytics,auth,behavioral_intelligence,chat,chat_gating,chat_pricing,chat_realtime,creator,creator_discovery,creator_monetization,daily_tasks,debug,empty,entitlements,error,event_translation,fan_pass,feature_activity,feature_registration,guest,loading,media_upload,notifications,parity,permission,person_metrics,private_media_access,pwa,role_permission,routes,search_discovery,service_worker,session,surface_state,task_rewards,telemetry,testing,tracking,user",
-    "formalEvidenceImpact=source_behavior_only",
+    "evidenceImpact=source_behavior_only",
     "supersededValidators=creator-settings-control-plane,creator-pricing-wiring,creator-broadcast-timeline-prep,creator-profile-mobile-timeline,global-marquee-truncated-titles,creator-drop-status-metrics,user-loading-wallet-mobile-refinement,existing-algorithm-refinement,overnight-wiring-integrity,final-telemetry-closure-lock,mobile-ui-final-lock,user-creator-ui-parity,source-truth-authority-map,gumdrop-economy-accuracy,creator-drop-management-approval,creator-drop-manager-mobile-refinement"
   ],
   "readinessImpact": {
     "targetedBehaviorGatePassed": true,
     "notes": [
       "This artifact is source-backed targeted behavior evidence only.",
-      "It cannot replace provider-backed site activity, deployed route, or admin source sample evidence.",
+      "It cannot replace provider-backed site activity, deployed route, or admin source activity sample evidence.",
       "Obsolete per-surface validators are superseded by current lock validators instead of being counted as current failures.",
       "Beta exit readiness must stay false until required evidence lanes are attached."
     ]
