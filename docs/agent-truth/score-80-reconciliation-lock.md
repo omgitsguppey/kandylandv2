@@ -55,9 +55,7 @@ Status: score-80 path reconciled after AI critic, algorithmic evidence, real usa
 
 ## Dirty File Classification
 
-- scripts/agent/validate-score-80-reconciliation-lock.ts: validator_artifact_expected; Scoped score/evidence validator updated for this score cleanup batch.
-- src/lib/agent-score/score-80-reconciliation-lock.ts: real_source_change_needs_review; Scoped score/evidence source wiring required for this cleanup batch.
-- tests/unit/score-80-reconciliation-lock.spec.ts: test_artifact_expected; Dedicated score/evidence unit coverage for this batch.
+- Clean at validator read time.
 
 ## Open PR Classification
 

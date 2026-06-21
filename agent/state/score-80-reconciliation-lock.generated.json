@@ -1,8 +1,8 @@
 {
   "reportKey": "score-80-reconciliation-lock",
-  "generatedAtUtc": "2026-06-21T04:43:53.435Z",
-  "currentHead": "4c3840aa14a0d0a8134851fe95071bbbd9142ec7",
-  "sourceCommit": "4c3840aa14a0d0a8134851fe95071bbbd9142ec7",
+  "generatedAtUtc": "2026-06-21T04:44:57.120Z",
+  "currentHead": "ca094913ccd1a51fba335eebc166840a87f2d188",
+  "sourceCommit": "ca094913ccd1a51fba335eebc166840a87f2d188",
   "status": "locked_with_formal_gates_remaining",
   "previousScore": 76.88,
   "currentScore": 84,
@@ -154,23 +154,7 @@
     "nonUiAlgorithmicEvidenceAllowed": true,
     "sourceBackedRuntimePartialCredit": true
   },
-  "dirtyFiles": [
-    {
-      "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "src/lib/agent-score/score-80-reconciliation-lock.ts",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
-    },
-    {
-      "path": "tests/unit/score-80-reconciliation-lock.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated score/evidence unit coverage for this batch."
-    }
-  ],
+  "dirtyFiles": [],
   "openPrs": [
     {
       "number": 0,
