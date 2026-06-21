@@ -1,4 +1,5 @@
 import type { IdentityConfidence, IdentityState } from "@/lib/analytics/identity-handoff-contract";
+import { normalizeIdentityTransferState } from "@/lib/analytics/analytics-identity-link";
 import {
   inferCountDomain,
   normalizeCountInput,
@@ -36,6 +37,9 @@ function normalizeConfidence(value: unknown): IdentityConfidence {
 }
 
 function normalizeIdentityState(value: unknown): IdentityState | "unknown" {
+  const transferState = normalizeIdentityTransferState(value);
+  if (transferState === "guest_linked_to_user") return "logged_in_linked_guest";
+  if (transferState === "unknown_legacy") return "legacy_unknown";
   const candidate = cleanString(value) as IdentityState;
   return candidate || "unknown";
 }

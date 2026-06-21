@@ -1,7 +1,7 @@
 # Global User Counting Math
 
-Generated: 2026-06-11T14:23:47.117Z
-Current head: b9ac75131b40cfbb312fcede79377bf896cbd50d
+Generated: 2026-06-21T21:45:48.038Z
+Current head: 2cb7d4c056b8ae36044f523a38222516ffc81179
 Status: pass
 
 ## Contract
@@ -29,71 +29,23 @@ Status: pass
 
 ## Dirty Files
 
-Total dirty files seen: 116
-Examples shown: 50 (truncated)
+Total dirty files seen: 6
+Examples shown: 6
 
 ### Dirty File Classifications
 
-- unrelated_agent_context_file_to_ignore: 7
-- unrelated_agent_index_file_to_review: 14
-- stale_generated_artifact_to_regenerate: 34
 - current_generated_artifact_to_commit: 2
-- unrelated_agent_validator_tooling_to_review: 57
-- validator_artifact_expected: 1
-- unrelated_agent_index_tooling_to_review: 1
+- stale_generated_artifact_to_regenerate: 2
+- real_source_change_needs_review: 2
 
 ### Dirty File Examples
 
-- agent/context/doctrine.cards.jsonl: unrelated_agent_context_file_to_ignore
-- agent/context/doctrine.index.json: unrelated_agent_context_file_to_ignore
-- agent/context/file-size-budget.json: unrelated_agent_context_file_to_ignore
-- agent/context/legacy-registry.json: unrelated_agent_context_file_to_ignore
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/context/task-pack.generated.json: unrelated_agent_context_file_to_ignore
-- agent/context/validator-map.json: unrelated_agent_context_file_to_ignore
-- agent/index/blast-radius.json: unrelated_agent_index_file_to_review
-- agent/index/canonical-helpers.json: unrelated_agent_index_file_to_review
-- agent/index/dependency-graph.summary.json: unrelated_agent_index_file_to_review
-- agent/index/governance-truth.json: unrelated_agent_index_file_to_review
-- agent/index/known-pitfalls.json: unrelated_agent_index_file_to_review
-- agent/index/package-manager-truth.json: unrelated_agent_index_file_to_review
-- agent/index/recent-passes.json: unrelated_agent_index_file_to_review
-- agent/index/repo-inventory.json: unrelated_agent_index_file_to_review
-- agent/index/retrieval-index.json: unrelated_agent_index_file_to_review
-- agent/index/runtime-observability.json: unrelated_agent_index_file_to_review
-- agent/index/surface-map.json: unrelated_agent_index_file_to_review
-- agent/index/ui-surface-coverage.json: unrelated_agent_index_file_to_review
-- agent/index/verification-commands.json: unrelated_agent_index_file_to_review
-- agent/index/workflow-guidance.json: unrelated_agent_index_file_to_review
-- agent/state/admin-cms-workflow-audit.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/analytics-legacy-recovery-reconciliation.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/auth-provider-conflict-resolution.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/canonical-math-authority-ledger.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/config-env-contract.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-evidence-staleness-queue.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/global-cost-surfaces.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/global-user-counting-math.generated.json: current_generated_artifact_to_commit
-- agent/state/identity-handoff-spine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/provider-smoke-evidence.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/score-80-reconciliation-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/score-dimension-80-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/settings-creator-dashboard-split.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/sql-mirror-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/sql-sync.payload.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/support-policy-surface-cleanup.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/treasury-reconciliation-engine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/treasury-structure-contract.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/user-management-status-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/user-profile-api-contract.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/admin-cms-drop-workflow.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/analytics-legacy-recovery-reconciliation.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/auth-provider-conflict-resolution.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/canonical-math-authority-ledger.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/config-env-contract.md: stale_generated_artifact_to_regenerate
+- agent/state/global-user-dedupe-normalization.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/global-user-counting-math.md: current_generated_artifact_to_commit
-- docs/agent-truth/identity-handoff-spine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/global-user-dedupe-normalization.md: stale_generated_artifact_to_regenerate
+- src/lib/analytics/global-user-dedupe-engine.ts: real_source_change_needs_review
+- tests/unit/global-user-dedupe-normalization.spec.ts: real_source_change_needs_review
 
 ## Open PR Classification
 

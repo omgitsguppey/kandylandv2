@@ -1,7 +1,7 @@
 {
   "reportKey": "global-user-counting-math",
-  "generatedAtUtc": "2026-06-11T14:23:47.117Z",
-  "currentHead": "b9ac75131b40cfbb312fcede79377bf896cbd50d",
+  "generatedAtUtc": "2026-06-21T21:45:48.038Z",
+  "currentHead": "2cb7d4c056b8ae36044f523a38222516ffc81179",
   "status": "pass",
   "productionReadsRequired": false,
   "mutationAllowed": false,
@@ -122,221 +122,37 @@
     "rawDetailsDefaultOpen": false
   },
   "scoreBefore": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 91.11,
+    "evidenceCompleteness": 95.2,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 90.16
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 72.8,
-    "evidenceCompleteness": 43.4,
-    "freshness": 59.38,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 91.11,
+    "evidenceCompleteness": 95.2,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 68.67
+    "overallHealthScore": 90.16
   },
-  "dirtyFileCount": 116,
-  "dirtyFilesTruncated": true,
+  "dirtyFileCount": 6,
+  "dirtyFilesTruncated": false,
   "dirtyFileClassificationCounts": {
-    "unrelated_agent_context_file_to_ignore": 7,
-    "unrelated_agent_index_file_to_review": 14,
-    "stale_generated_artifact_to_regenerate": 34,
     "current_generated_artifact_to_commit": 2,
-    "unrelated_agent_validator_tooling_to_review": 57,
-    "validator_artifact_expected": 1,
-    "unrelated_agent_index_tooling_to_review": 1
+    "stale_generated_artifact_to_regenerate": 2,
+    "real_source_change_needs_review": 2
   },
   "dirtyFiles": [
-    {
-      "path": "agent/context/doctrine.cards.jsonl",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/doctrine.index.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/file-size-budget.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/legacy-registry.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/task-pack.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/context/validator-map.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/index/blast-radius.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/canonical-helpers.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/dependency-graph.summary.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/governance-truth.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/known-pitfalls.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/package-manager-truth.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/recent-passes.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/repo-inventory.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/retrieval-index.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/runtime-observability.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/surface-map.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/ui-surface-coverage.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/verification-commands.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/index/workflow-guidance.json",
-      "classification": "unrelated_agent_index_file_to_review"
-    },
-    {
-      "path": "agent/state/admin-cms-workflow-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/auth-provider-conflict-resolution.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/canonical-math-authority-ledger.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/config-env-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-evidence-staleness-queue.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/global-cost-surfaces.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
     {
       "path": "agent/state/global-user-counting-math.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/identity-handoff-spine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/provider-smoke-evidence.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-80-reconciliation-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/score-dimension-80-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/settings-creator-dashboard-split.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/sql-mirror-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/sql-sync.payload.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/support-policy-surface-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/treasury-reconciliation-engine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/treasury-structure-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-management-status-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-profile-api-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/admin-cms-drop-workflow.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/auth-provider-conflict-resolution.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/config-env-contract.md",
+      "path": "agent/state/global-user-dedupe-normalization.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -344,12 +160,16 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
+      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "src/lib/analytics/global-user-dedupe-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/global-user-dedupe-normalization.spec.ts",
+      "classification": "real_source_change_needs_review"
     }
   ],
   "openPullRequests": [],

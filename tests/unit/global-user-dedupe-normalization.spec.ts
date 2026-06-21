@@ -31,7 +31,30 @@ describe("global user dedupe normalization", () => {
     expect(decision.linkedPerson.count).toBe(true);
     expect(decision.duplicateRisk).toBe("linked_guest_user_duplicate_risk_suppressed");
     expect(decision.suppressedDuplicateKeys).toContain("guest:guest_1");
-    expect(explainDedupeDecision(decision)).toContain("linked guest");
+    expect(explainDedupeDecision(decision)).toContain("best user identity");
+  });
+
+  it("normalizes guest_linked_to_user transfer alias to the linked guest dedupe policy", () => {
+    const decision = normalizeGlobalUserMetric({
+      eventId: "evt_alias_linked",
+      eventName: "drop_preview_opened",
+      featureId: "drops",
+      surface: "drop-preview",
+      sessionId: "session_alias",
+      guestId: "guest_alias",
+      userId: "user_alias",
+      linkedPersonId: "person_alias",
+      linkId: "link_alias",
+      identityState: "guest_linked_to_user",
+      identityConfidence: "linked",
+      idempotencyKey: "drop_preview_opened:alias_drop",
+    });
+
+    expect(decision.global.count).toBe(true);
+    expect(decision.user.count).toBe(true);
+    expect(decision.guest.count).toBe(false);
+    expect(decision.linkedPerson.count).toBe(true);
+    expect(decision.duplicateRisk).toBe("linked_guest_user_duplicate_risk_suppressed");
   });
 
   it("blocks unknown legacy from becoming exact user truth while preserving raw SQL facts", () => {
@@ -53,6 +76,24 @@ describe("global user dedupe normalization", () => {
     expect(decision.sql.policy).toBe("preserve_raw_fact_normalized_summary");
     expect(decision.duplicateRisk).toBe("unknown_legacy_archived");
     expect(decision.debug.explanation).toContain("legacy");
+  });
+
+  it("normalizes unknown_legacy transfer alias to archived legacy evidence", () => {
+    const decision = normalizeGlobalUserMetric({
+      eventId: "legacy_alias",
+      eventName: "semantic_page_viewed",
+      featureId: "legacy",
+      surface: "legacy-import",
+      sessionId: "legacy_session",
+      userId: "maybe_user",
+      identityState: "unknown_legacy",
+      identityConfidence: "unknown",
+    });
+
+    expect(decision.global.count).toBe(false);
+    expect(decision.user.count).toBe(false);
+    expect(decision.sql.count).toBe(true);
+    expect(decision.duplicateRisk).toBe("unknown_legacy_archived");
   });
 
   it("prevents retry and replay events from inflating metrics", () => {
