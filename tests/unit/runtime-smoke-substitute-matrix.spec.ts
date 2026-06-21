@@ -55,7 +55,7 @@ function buildReport() {
 }
 
 describe("runtime smoke substitute matrix", () => {
-  it("creates one proof-classified row for every required runtime smoke surface", () => {
+  it("creates one proof-classified row for every required deployed route evidence surface", () => {
     const report = buildReport();
 
     expect(Object.keys(report.rows).sort()).toEqual([...RUNTIME_SMOKE_SUBSTITUTE_ROW_IDS].sort());
@@ -67,7 +67,7 @@ describe("runtime smoke substitute matrix", () => {
     expect(validateRuntimeSmokeSubstituteMatrix(report)).toEqual([]);
   });
 
-  it("keeps source and telemetry rows out of manual UI requirements", () => {
+  it("keeps source and telemetry rows out of optional visual requirements", () => {
     const report = buildReport();
     const sourceRows = Object.values(report.rows).filter((row) =>
       row.canBeSourceProven || row.canBeTelemetryProven || row.canBeDebugProven,
@@ -78,7 +78,7 @@ describe("runtime smoke substitute matrix", () => {
     expect(report.currentProofSummary.formalRuntimeRequiredRows).toBeGreaterThan(0);
   });
 
-  it("does not clear the formal deployed runtime gate", () => {
+  it("does not clear the deployed route evidence lane", () => {
     const report = buildReport();
 
     expect(report.formalGateImpact.clearsDeployedRuntime).toBe(false);
@@ -87,12 +87,12 @@ describe("runtime smoke substitute matrix", () => {
     expect(report.matrixRuntimeHealthCredit).toBeGreaterThan(0);
   });
 
-  it("requires exact next actions for rows needing deployed runtime evidence", () => {
+  it("requires exact next actions for rows needing deployed route evidence", () => {
     const report = buildReport();
 
     const formalRows = Object.values(report.rows).filter((row) => row.requiresFormalRuntime);
     expect(formalRows.length).toBeGreaterThan(0);
-    expect(formalRows.every((row) => row.nextAction.includes("deployed runtime"))).toBe(true);
+    expect(formalRows.every((row) => row.nextAction.includes("deployed"))).toBe(true);
   });
 
   it("fails validation when the matrix overclaims runtime proof or leaves rows unclassified", () => {
@@ -118,9 +118,9 @@ describe("runtime smoke substitute matrix", () => {
 
     expect(validateRuntimeSmokeSubstituteMatrix(invalid)).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("must not clear deployed runtime gate"),
+        expect.stringContaining("must not clear deployed route evidence lane"),
         expect.stringContaining("telemetry_ingest lacks proof type"),
-        expect.stringContaining("route_loads requires formal runtime evidence but lacks next action"),
+        expect.stringContaining("route_loads requires deployed route evidence but lacks next action"),
       ]),
     );
   });

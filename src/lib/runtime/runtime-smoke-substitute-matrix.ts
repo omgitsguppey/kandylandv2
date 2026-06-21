@@ -167,7 +167,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     evidencePaths: ["agent/state/debug-runtime-evidence.generated.json"],
     sourceRoute: "src/app/api/admin/debug/route.ts",
     sourceCredit: 84,
-    nextAction: "Attach deployed runtime route-load smoke before clearing the formal deployed runtime gate.",
+    nextAction: "Attach deployed route-load evidence before clearing the deployed route evidence lane.",
   },
   auth_state: {
     id: "auth_state",
@@ -182,7 +182,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     evidencePaths: ["agent/state/identity-transfer-telemetry-closure.generated.json", "agent/state/debug-runtime-evidence.generated.json"],
     lane: "identity_link",
     sourceCredit: 80,
-    nextAction: "Attach deployed runtime auth-state smoke before clearing the formal deployed runtime gate.",
+    nextAction: "Attach deployed auth-state evidence before clearing the deployed route evidence lane.",
   },
   wallet_balance_display: {
     id: "wallet_balance_display",
@@ -211,7 +211,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     evidencePaths: ["agent/state/operator-revenue-smoke.generated.json", "agent/state/real-usage-confidence-calibration.generated.json"],
     lane: "purchase",
     sourceCredit: 92,
-    nextAction: "Attach deployed runtime/provider refill smoke before clearing the formal deployed runtime gate.",
+    nextAction: "Attach provider-backed refill evidence and deployed route evidence before clearing protected source-evidence lanes.",
   },
   creator_dashboard_load: {
     id: "creator_dashboard_load",
@@ -226,7 +226,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     evidencePaths: ["agent/state/real-usage-confidence-calibration.generated.json"],
     lane: "creator_experience",
     sourceCredit: 72,
-    nextAction: "Attach deployed runtime creator dashboard smoke before clearing the formal deployed runtime gate.",
+    nextAction: "Attach deployed creator dashboard evidence before clearing the deployed route evidence lane.",
   },
   creator_settings_save: {
     id: "creator_settings_save",
@@ -242,7 +242,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     lane: "creator_experience",
     sourceRoute: "/api/creator/settings",
     sourceCredit: 58,
-    nextAction: "Attach deployed runtime creator settings save smoke before clearing the formal deployed runtime gate.",
+    nextAction: "Attach deployed creator settings save evidence before clearing the deployed route evidence lane.",
   },
   creator_drop_manager_load: {
     id: "creator_drop_manager_load",
@@ -257,7 +257,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     evidencePaths: ["agent/state/creator-drop-status-metrics.generated.json", "agent/state/real-usage-confidence-calibration.generated.json"],
     lane: "creator_drop_submission",
     sourceCredit: 76,
-    nextAction: "Attach deployed runtime creator drop manager smoke before clearing the formal deployed runtime gate.",
+    nextAction: "Attach deployed creator drop manager evidence before clearing the deployed route evidence lane.",
   },
   creator_drop_status_metrics: {
     id: "creator_drop_status_metrics",
@@ -316,7 +316,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     sourceFiles: ["src/lib/release-tracking.ts", "src/lib/debug-evidence-contract.ts"],
     evidencePaths: ["agent/state/debug-runtime-evidence.generated.json"],
     sourceCredit: 55,
-    nextAction: "Attach deployed runtime notification queue smoke before clearing the formal deployed runtime gate.",
+    nextAction: "Attach deployed notification queue evidence before clearing the deployed route evidence lane.",
   },
   telemetry_ingest: {
     id: "telemetry_ingest",
@@ -361,7 +361,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     evidencePaths: ["agent/state/final-telemetry-closure-lock.generated.json"],
     lane: "bigquery_export",
     sourceCredit: 55,
-    nextAction: "Attach deployed runtime/provider BigQuery export evidence before clearing the formal deployed runtime gate.",
+    nextAction: "Attach deployed BigQuery export evidence before clearing protected source-evidence lanes.",
   },
   ga4_external_truth: {
     id: "ga4_external_truth",
@@ -405,7 +405,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     evidencePaths: ["agent/state/admin-truth-source-sample.generated.json"],
     lane: "admin_evidence",
     sourceCredit: 55,
-    nextAction: "Attach deployed runtime admin truth sample before clearing the formal deployed runtime gate.",
+    nextAction: "Attach deployed admin source sample evidence before clearing the deployed route evidence lane.",
   },
   watch_time_runtime_source: {
     id: "watch_time_runtime_source",
@@ -420,7 +420,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     evidencePaths: ["agent/state/runtime-watch-time-v2.generated.json", "agent/state/real-usage-confidence-calibration.generated.json"],
     lane: "runtime_watch",
     sourceCredit: 78,
-    nextAction: "Attach deployed runtime watch-time smoke before clearing the formal deployed runtime gate.",
+    nextAction: "Attach deployed watch-time evidence before clearing the deployed route evidence lane.",
   },
   error_dictionary_route_diagnostics: {
     id: "error_dictionary_route_diagnostics",
@@ -434,7 +434,7 @@ const ROW_CONFIG: Record<RuntimeSmokeSubstituteRowId, RowConfig & {
     sourceFiles: ["src/lib/server/route-diagnostics.ts", "src/lib/errors/error-dictionary.ts"],
     evidencePaths: ["agent/state/debug-runtime-evidence.generated.json"],
     sourceCredit: 88,
-    nextAction: "Keep route diagnostics and error dictionary mapped before runtime smoke triage.",
+    nextAction: "Keep route diagnostics and error dictionary mapped before deployed route evidence triage.",
   },
 };
 
@@ -559,7 +559,7 @@ export function buildRuntimeSmokeSubstituteMatrix(input: RuntimeSmokeSubstituteI
       "productionReadsRequired=false",
       "deployRequired=false",
     ],
-    nextAction: "Use this matrix to substitute source/debug/telemetry checks only where truthfully supported; attach deployed runtime smoke before clearing the formal runtime gate.",
+    nextAction: "Use this matrix to substitute source/debug/telemetry checks only where truthfully supported; attach deployed route evidence before clearing the deployed route lane.",
     validationFailures: [],
   };
   const validationFailures = validateRuntimeSmokeSubstituteMatrix(report);
@@ -578,9 +578,9 @@ export function validateRuntimeSmokeSubstituteMatrix(report: RuntimeSmokeSubstit
   if (report.sourceCommit !== report.currentHead) failures.push("sourceCommit must match currentHead.");
   if (report.productionReadsRequired !== false) failures.push("runtime smoke substitute matrix must not require production reads.");
   if (report.deployRequired !== false) failures.push("runtime smoke substitute matrix must not require deploy.");
-  if (report.formalGateImpact.clearsDeployedRuntime) failures.push("matrix must not clear deployed runtime gate.");
+  if (report.formalGateImpact.clearsDeployedRuntime) failures.push("matrix must not clear deployed route evidence lane.");
   if (report.formalGateImpact.clearsFormalProvider) failures.push("matrix must not clear formal provider gate.");
-  if (!report.deployedRuntimeSmokeStillRequired) failures.push("deployed runtime smoke must remain required.");
+  if (!report.deployedRuntimeSmokeStillRequired) failures.push("deployed route evidence must remain required.");
   for (const id of RUNTIME_SMOKE_SUBSTITUTE_ROW_IDS) {
     const row = report.rows[id];
     if (!row) {
@@ -591,8 +591,8 @@ export function validateRuntimeSmokeSubstituteMatrix(report: RuntimeSmokeSubstit
     if (row.currentProofLevel === "unknown") failures.push(`${id} has unknown proof level.`);
     if (!row.scoreDimension) failures.push(`${id} lacks score dimension.`);
     if (!row.nextAction) failures.push(`${id} lacks next action.`);
-    if (row.requiresFormalRuntime && !/deployed runtime/u.test(row.nextAction)) {
-      failures.push(`${id} requires formal runtime evidence but lacks next action.`);
+    if (row.requiresFormalRuntime && !/deployed /u.test(row.nextAction)) {
+      failures.push(`${id} requires deployed route evidence but lacks next action.`);
     }
   }
   return failures;

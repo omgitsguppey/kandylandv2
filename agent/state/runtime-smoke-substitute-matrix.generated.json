@@ -1,8 +1,8 @@
 {
   "reportKey": "runtime-smoke-substitute-matrix",
-  "generatedAtUtc": "2026-06-19T16:00:55.778Z",
-  "currentHead": "036a189a959f392c6eeec496ce112825d50864bb",
-  "sourceCommit": "036a189a959f392c6eeec496ce112825d50864bb",
+  "generatedAtUtc": "2026-06-21T04:38:00.842Z",
+  "currentHead": "a3ad7ae618751c13b08b66e937b5b1b74cd97a59",
+  "sourceCommit": "a3ad7ae618751c13b08b66e937b5b1b74cd97a59",
   "status": "source_ready_runtime_smoke_substitute_matrix",
   "productionReadsRequired": false,
   "deployRequired": false,
@@ -30,7 +30,7 @@
       ],
       "sourceRoute": "src/app/api/admin/debug/route.ts",
       "sourceCredit": 84,
-      "nextAction": "Attach deployed runtime route-load smoke before clearing the formal deployed runtime gate.",
+      "nextAction": "Attach deployed route-load evidence before clearing the deployed route evidence lane.",
       "currentProofLevel": "source_proven",
       "proofTypes": [
         "source",
@@ -58,7 +58,7 @@
       ],
       "lane": "identity_link",
       "sourceCredit": 80,
-      "nextAction": "Attach deployed runtime auth-state smoke before clearing the formal deployed runtime gate.",
+      "nextAction": "Attach deployed auth-state evidence before clearing the deployed route evidence lane.",
       "currentProofLevel": "source_proven",
       "proofTypes": [
         "source",
@@ -111,7 +111,7 @@
       ],
       "lane": "purchase",
       "sourceCredit": 92,
-      "nextAction": "Attach deployed runtime/provider refill smoke before clearing the formal deployed runtime gate.",
+      "nextAction": "Attach provider-backed refill evidence and deployed route evidence before clearing protected source-evidence lanes.",
       "currentProofLevel": "operator_confirmed",
       "proofTypes": [
         "source",
@@ -138,7 +138,7 @@
       ],
       "lane": "creator_experience",
       "sourceCredit": 72,
-      "nextAction": "Attach deployed runtime creator dashboard smoke before clearing the formal deployed runtime gate.",
+      "nextAction": "Attach deployed creator dashboard evidence before clearing the deployed route evidence lane.",
       "currentProofLevel": "telemetry_proven",
       "proofTypes": [
         "source",
@@ -167,7 +167,7 @@
       "lane": "creator_experience",
       "sourceRoute": "/api/creator/settings",
       "sourceCredit": 58,
-      "nextAction": "Attach deployed runtime creator settings save smoke before clearing the formal deployed runtime gate.",
+      "nextAction": "Attach deployed creator settings save evidence before clearing the deployed route evidence lane.",
       "currentProofLevel": "source_proven",
       "proofTypes": [
         "source",
@@ -195,7 +195,7 @@
       ],
       "lane": "creator_drop_submission",
       "sourceCredit": 76,
-      "nextAction": "Attach deployed runtime creator drop manager smoke before clearing the formal deployed runtime gate.",
+      "nextAction": "Attach deployed creator drop manager evidence before clearing the deployed route evidence lane.",
       "currentProofLevel": "telemetry_proven",
       "proofTypes": [
         "source",
@@ -296,7 +296,7 @@
         "agent/state/debug-runtime-evidence.generated.json"
       ],
       "sourceCredit": 55,
-      "nextAction": "Attach deployed runtime notification queue smoke before clearing the formal deployed runtime gate.",
+      "nextAction": "Attach deployed notification queue evidence before clearing the deployed route evidence lane.",
       "currentProofLevel": "source_proven",
       "proofTypes": [
         "source",
@@ -374,7 +374,7 @@
       ],
       "lane": "bigquery_export",
       "sourceCredit": 55,
-      "nextAction": "Attach deployed runtime/provider BigQuery export evidence before clearing the formal deployed runtime gate.",
+      "nextAction": "Attach deployed BigQuery export evidence before clearing protected source-evidence lanes.",
       "currentProofLevel": "source_proven",
       "proofTypes": [
         "source",
@@ -452,7 +452,7 @@
       ],
       "lane": "admin_evidence",
       "sourceCredit": 55,
-      "nextAction": "Attach deployed runtime admin truth sample before clearing the formal deployed runtime gate.",
+      "nextAction": "Attach deployed admin source sample evidence before clearing the deployed route evidence lane.",
       "currentProofLevel": "source_proven",
       "proofTypes": [
         "source",
@@ -480,7 +480,7 @@
       ],
       "lane": "runtime_watch",
       "sourceCredit": 78,
-      "nextAction": "Attach deployed runtime watch-time smoke before clearing the formal deployed runtime gate.",
+      "nextAction": "Attach deployed watch-time evidence before clearing the deployed route evidence lane.",
       "currentProofLevel": "telemetry_proven",
       "proofTypes": [
         "source",
@@ -506,7 +506,7 @@
         "agent/state/debug-runtime-evidence.generated.json"
       ],
       "sourceCredit": 88,
-      "nextAction": "Keep route diagnostics and error dictionary mapped before runtime smoke triage.",
+      "nextAction": "Keep route diagnostics and error dictionary mapped before deployed route evidence triage.",
       "currentProofLevel": "source_proven",
       "proofTypes": [
         "source",
@@ -543,6 +543,6 @@
     "productionReadsRequired=false",
     "deployRequired=false"
   ],
-  "nextAction": "Use this matrix to substitute source/debug/telemetry checks only where truthfully supported; attach deployed runtime smoke before clearing the formal runtime gate.",
+  "nextAction": "Use this matrix to substitute source/debug/telemetry checks only where truthfully supported; attach deployed route evidence before clearing the deployed route lane.",
   "validationFailures": []
 }
