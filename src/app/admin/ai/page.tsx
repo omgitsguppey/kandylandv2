@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from "react";
 import { Activity, ClipboardList, History, Power, RefreshCw, SlidersHorizontal, WandSparkles } from "lucide-react";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerificationCard";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { AdminAiDescriptionOperations } from "@/components/Admin/AdminAiDescriptionOperations";
 import { Button } from "@/components/ui/Button";
@@ -133,15 +132,6 @@ export default function AIAdminPage() {
                     </div>
                 </nav>
 
-                {state.data?.verification ? (
-                    <div className="mb-4">
-                        <AdminModuleVerificationCard 
-                            verification={state.data.verification} 
-                            title="Cover Ops Verification" 
-                            description="Source-of-truth diagnostic for the AI Cover Ops pipeline."
-                        />
-                    </div>
-                ) : null}
                 <section className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                     <MetricCard
                         label="Runtime"
