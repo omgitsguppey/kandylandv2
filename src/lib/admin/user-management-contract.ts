@@ -390,14 +390,14 @@ export function buildUserManagementSummary(input: UserManagementSummaryInput): U
       source: analytics?.commerceSourceLabel ?? "person_metrics_hydration",
     },
     dropUnwrapMetrics: {
-      dropOpens: metricCount(personMetricsHydration, "drop_opens"),
-      unwraps: metricCount(personMetricsHydration, "unwraps") ?? analytics?.unwrapCount ?? null,
-      creatorProfileViews: metricCount(personMetricsHydration, "creator_profile_views"),
+      dropOpens: userScopedMetricCount(personMetricsHydration, "drop_opens"),
+      unwraps: userScopedMetricCount(personMetricsHydration, "unwraps", analytics?.unwrapCount ?? null),
+      creatorProfileViews: userScopedMetricCount(personMetricsHydration, "creator_profile_views"),
       source: "person_metrics_hydration+analytics_users_rollup",
     },
     supportAccountSafety: {
       status: securityFlags > 0 ? "review" : "clean",
-      supportAccountActions: metricCount(personMetricsHydration, "support_account_actions"),
+      supportAccountActions: userScopedMetricCount(personMetricsHydration, "support_account_actions"),
       securityFlags,
       source: "users.securityFlags+person_metrics_hydration",
     },

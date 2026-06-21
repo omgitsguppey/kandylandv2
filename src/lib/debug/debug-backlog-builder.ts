@@ -288,9 +288,18 @@ function stripBetaCapPrefix(detail: string) {
 function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string) {
   const normalized = stripBetaCapPrefix(`${rawTitle}${rawReason ? ` - ${rawReason}` : ""}` || cap);
   const lower = normalized.toLowerCase();
-  const runtime = lower.includes("runtime/provider smoke") || lower.includes("runtime smoke") || lower.includes("debug/runtime evidence") || lower.includes("deployed runtime");
-  const provider = lower.includes("provider smoke");
-  const adminTruth = lower.includes("admin truth") || lower.includes("truth sample") || lower.includes("sample evidence");
+  const runtime = lower.includes("runtime/provider smoke")
+    || lower.includes("runtime smoke")
+    || lower.includes("debug/runtime evidence")
+    || lower.includes("deployed runtime")
+    || lower.includes("deployed route evidence")
+    || lower.includes("deployed runtime route evidence");
+  const provider = lower.includes("provider smoke") || lower.includes("provider-backed site activity");
+  const adminTruth = lower.includes("admin truth")
+    || lower.includes("truth sample")
+    || lower.includes("sample evidence")
+    || lower.includes("admin source activity sample")
+    || lower.includes("admin source sample");
   const visual = lower.includes("visual") || lower.includes("ui source coverage");
   const refresh = lower.includes("report freshness") || lower.includes("pr integrity") || lower.includes("freshness window");
   const sourceOnly = lower.includes("targeted behavior tests");
@@ -304,8 +313,8 @@ function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string
       evidenceStatus: "source_backed" as const,
       owner: "beta_score",
       surface: "beta_score",
-      exactNextAction: "Keep targeted behavior checks as source-only evidence; clear runtime, provider, and admin truth gates separately.",
-      evidenceReason: "Implemented behavior validators passed. This does not prove runtime, provider, admin truth, or optional visual confirmation evidence.",
+      exactNextAction: "Keep targeted behavior checks as source-only evidence; keep provider-backed site activity, runtime/deployed route evidence, and admin source activity sample gates separate.",
+      evidenceReason: "Implemented behavior validators passed. This does not prove runtime/deployed route evidence, provider-backed site activity, admin source activity sample, or optional visual confirmation evidence.",
       sourceMessage: "Source-only behavior evidence is present.",
     };
   }
@@ -329,7 +338,7 @@ function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string
 
   if (adminTruth) {
     return {
-      title: "Admin truth sample required",
+      title: "Admin source activity sample required",
       severity: "p1" as const,
       status: "blocked_manual" as const,
       fixClass: "manual_required" as const,
@@ -411,7 +420,7 @@ function buildBetaCapItems(publicBetaScore?: PublicBetaScoreInput | null): Debug
       exactNextAction: copy.exactNextAction,
       sourceMessage: copy.sourceMessage,
       sourceValidator: "npm run check:beta-score",
-      blockedReason: copy.fixClass === "manual_required" ? "Formal evidence is required and cannot be generated from source-only validation." : undefined,
+      blockedReason: copy.fixClass === "manual_required" ? "Typed provider-backed site activity, deployed route, or admin source activity evidence is required and cannot be generated from source-only validation." : undefined,
     });
   });
 }
@@ -499,8 +508,8 @@ function buildDebugRuntimeItems(debugRuntimeEvidence?: DebugRuntimeEvidenceInput
     sourceFiles: ["agent/state/debug-runtime-evidence.generated.json"],
     sourceRoute: "/admin/debug",
     evidenceStatus: "unknown",
-    evidenceReason: `${debugRuntimeEvidence.unknownEvidenceCount} unknown debug/runtime evidence lane(s) remain classified as source-backed but not deployed runtime proof.`,
-    exactNextAction: toText(debugRuntimeEvidence.nextAction, "Classify the unknown evidence lane and keep deployed runtime smoke separate."),
+    evidenceReason: `${debugRuntimeEvidence.unknownEvidenceCount} unknown debug/runtime evidence lane(s) remain classified as source-backed but not deployed route evidence.`,
+    exactNextAction: toText(debugRuntimeEvidence.nextAction, "Classify the unknown evidence lane and keep deployed route evidence separate."),
     sourceMessage: "Unknown debug/runtime evidence remains.",
     sourceValidator: "npm run check:debug-runtime-evidence",
   })];
@@ -525,9 +534,9 @@ function buildAdminTruthItems(adminTruthSample?: AdminTruthSampleInput | null): 
     sourceFiles: ["agent/state/admin-truth-source-sample.generated.json", "src/lib/admin-debug-control-tower.ts"],
     sourceRoute: "/admin/debug",
     evidenceStatus: "formal_missing",
-    evidenceReason: "Source-ready admin truth exists, but no redacted admin source sample is attached.",
-    exactNextAction: "Attach a redacted admin source sample before clearing the admin source sample gate.",
-    sourceMessage: toText(adminTruthSample.status, "admin truth sample is source-ready only"),
+    evidenceReason: "Source-ready admin model evidence exists, but no redacted admin source activity sample is attached.",
+    exactNextAction: "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
+    sourceMessage: toText(adminTruthSample.status, "admin source activity sample is source-ready only"),
     sourceValidator: "npm run check:admin-truth-source-sample",
     blockedReason: "Redacted admin source sample evidence is required.",
   })];

@@ -322,6 +322,74 @@ describe("user management refactor contract", () => {
     expect(model.activitySummary.missingSource).toContain("page_views: bridge_missing");
   });
 
+  it("blocks non-payment user-scoped drop and support counts when user parity is missing", () => {
+    const model = buildUserManagementSummary({
+      user: user(),
+      analytics: analytics({ unwrapCount: 2 }),
+      summary: summary(),
+      personMetricsHydration: hydration({
+        userParityStatus: {
+          drop_opens: {
+            metricId: "drop_opens",
+            state: "bridge_missing",
+            globalCount: 3,
+            guestCount: 0,
+            signedInCount: 0,
+            linkedPersonCount: 0,
+            creatorRoleCount: 0,
+            provenZero: false,
+            blocksUserParity: true,
+            debugNextAction: "Global drop_opens activity exists, but guest/signed-in/linked-person scopes are empty; inspect identity handoff and event actor bridge.",
+          },
+          unwraps: {
+            metricId: "unwraps",
+            state: "bridge_missing",
+            globalCount: 2,
+            guestCount: 0,
+            signedInCount: 0,
+            linkedPersonCount: 0,
+            creatorRoleCount: 0,
+            provenZero: false,
+            blocksUserParity: true,
+            debugNextAction: "Global unwraps activity exists, but guest/signed-in/linked-person scopes are empty; inspect identity handoff and event actor bridge.",
+          },
+          creator_profile_views: {
+            metricId: "creator_profile_views",
+            state: "bridge_missing",
+            globalCount: 1,
+            guestCount: 0,
+            signedInCount: 0,
+            linkedPersonCount: 0,
+            creatorRoleCount: 0,
+            provenZero: false,
+            blocksUserParity: true,
+            debugNextAction: "Global creator_profile_views activity exists, but guest/signed-in/linked-person scopes are empty; inspect identity handoff and event actor bridge.",
+          },
+          support_account_actions: {
+            metricId: "support_account_actions",
+            state: "bridge_missing",
+            globalCount: 1,
+            guestCount: 0,
+            signedInCount: 0,
+            linkedPersonCount: 0,
+            creatorRoleCount: 0,
+            provenZero: false,
+            blocksUserParity: true,
+            debugNextAction: "Global support_account_actions activity exists, but guest/signed-in/linked-person scopes are empty; inspect identity handoff and event actor bridge.",
+          },
+        } as PersonMetricsHydrationReport["userParityStatus"],
+      }),
+      generatedAtUtc: "2026-05-23T12:00:00.000Z",
+    });
+
+    expect(model.dropUnwrapMetrics.dropOpens).toBeNull();
+    expect(model.dropUnwrapMetrics.unwraps).toBeNull();
+    expect(model.dropUnwrapMetrics.creatorProfileViews).toBeNull();
+    expect(model.supportAccountSafety.supportAccountActions).toBeNull();
+    expect(model.walletPaymentConfidence.walletOpens).toBe(1);
+    expect(model.walletPaymentConfidence.paymentApprovals).toBe(1);
+  });
+
   it("reports the refactor lane and score impact without protected runtime changes", () => {
     const report = buildUserManagementRefactorReport({
       users: [user()],

@@ -147,7 +147,7 @@ function formatAnalyticsShellStateLabel(value: string | null | undefined) {
     case "source_agreement_failed":
       return "Source needs repair";
     case "not_enough_sources":
-      return "More source evidence needed";
+      return "Collecting source coverage";
     case "failed":
       return "Not connected";
     case "unavailable":
@@ -171,7 +171,7 @@ function labelForSourceHierarchyDisplayState(state: AdminAnalyticsConsumerDispla
     case "second_source_only":
       return "second-source views";
     case "chart_promotion_blocked":
-      return "charts waiting for source evidence";
+      return "charts waiting for source coverage";
     case "consumer_source_mismatch":
       return "source mismatch";
     case "source_missing":
@@ -336,7 +336,7 @@ function formatLaunchRecoveryStatusLine(
   }
 
   if (summary.sourceAgreementState === "not_enough_sources" || summary.confidenceLabel === "unknown") {
-    return `${label} is collecting source evidence. Missing stays labeled; estimates are not zero.${suffix}`;
+    return `${label} is collecting source coverage. Missing stays labeled; estimates are not zero.${suffix}`;
   }
 
   return `${label} shows launch evidence under review. First-party gaps stay labeled until sources agree.${suffix}`;

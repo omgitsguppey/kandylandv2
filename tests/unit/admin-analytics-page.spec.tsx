@@ -793,10 +793,10 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).toContain("Operations view - No historical snapshot yet");
     expect(container.textContent).toContain("Source: Collecting");
     expect(container.textContent).toContain("Confidence: Partial");
-    expect(container.textContent).toContain("Launch history is collecting source evidence");
+    expect(container.textContent).toContain("Launch history is collecting source coverage");
     expect(container.textContent).not.toContain("Source: Unknown");
     expect(container.textContent).not.toContain("Confidence: unknown");
-    expect(container.textContent).not.toContain("All is waiting for launch source evidence");
+    expect(container.textContent).not.toContain("All is waiting for launch source coverage");
     expect(container.textContent).not.toContain("Source: Unavailable");
     expect(container.textContent).not.toContain("Confidence: Unavailable");
   });
@@ -839,10 +839,10 @@ describe("AdminAnalyticsPage", () => {
     });
 
     expect(container.textContent).toContain("Source state: Source needs repair");
-    expect(container.textContent).toContain("Source needs repair; 3 source missing, 3 second-source views, 3 charts waiting for source evidence.");
+    expect(container.textContent).toContain("Source needs repair; 3 source missing, 3 second-source views, 3 charts waiting for source coverage.");
     expect(container.textContent).toContain("source missing: Analytics overview, Analytics charts, Insight cards");
     expect(container.textContent).toContain("second-source views: Device mix, Region demand, Top paths");
-    expect(container.textContent).toContain("charts waiting for source evidence: Debug source agreement, Source health, Public beta evidence");
+    expect(container.textContent).toContain("charts waiting for source coverage: Debug source agreement, Source health, Public beta evidence");
     expect(container.textContent).toContain("Counts from app events and supporting analytics do not agree yet");
     expect(container.textContent).not.toContain("consumer_source_mismatch");
     expect(container.textContent).not.toContain("source_agreement_failed");

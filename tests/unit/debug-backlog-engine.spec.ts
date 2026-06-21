@@ -43,11 +43,11 @@ describe("debug backlog engine", () => {
         regressionRiskScore: 90,
         launchBlockers: [
           "Visual/manual smoke: Visual QA required",
-          "Runtime/provider smoke: Runtime unverified",
+          "Provider-backed site activity + deployed route evidence: Source evidence required",
         ],
         evidenceCapDetails: [
-          "Runtime unverified: Runtime/provider smoke - Attach deployed route evidence; do not treat local static validators as route evidence.",
-          "Ready with smoke required: Admin truth/sample evidence - Attach a redacted admin source sample before clearing the admin source sample gate.",
+          "Source evidence required: Provider-backed site activity + deployed route evidence - Attach deployed route evidence; do not treat local static validators as route evidence.",
+          "Source evidence required: Admin source activity sample - Attach a redacted admin source activity sample before clearing the admin source sample gate.",
           "UI source coverage required: Source coverage - Run deterministic UI source checks before optional visual reproduction.",
         ],
       },
@@ -56,7 +56,7 @@ describe("debug backlog engine", () => {
           {
             dimension: "runtimeHealthScore",
             weightedPointImpact: 16.33,
-            reason: "Source-backed runtime confidence helps, but deployed runtime smoke remains missing.",
+            reason: "Source-backed runtime confidence helps, but deployed route evidence remains missing.",
           },
         ],
         artifactsBlocking80: [
@@ -105,7 +105,7 @@ describe("debug backlog engine", () => {
     expect(backlog.every((item) => item.owner && item.surface && item.sourceFiles.length > 0 && item.scoreDimensionImpact.length > 0)).toBe(true);
     expect(backlog.map((item) => item.title)).toEqual(expect.arrayContaining([
       "Provider and route evidence required",
-      "Admin source sample required",
+      "Admin source activity sample required",
       "UI source coverage required",
     ]));
     expect(JSON.stringify(backlog)).not.toContain("Unknown evidence:");
@@ -128,7 +128,7 @@ describe("debug backlog engine", () => {
       publicBetaScore: {
         evidenceCompletenessScore: 80,
         evidenceCapDetails: [
-          "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
+          "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, runtime/deployed route evidence, or admin source activity sample evidence.",
         ],
       },
     });
@@ -142,7 +142,9 @@ describe("debug backlog engine", () => {
       evidenceStatus: "source_backed",
     });
     expect(backlog[0].evidenceReason).toContain("does not prove runtime");
+    expect(backlog[0].evidenceReason).toContain("provider-backed site activity");
     expect(backlog[0].evidenceReason).not.toContain("screenshot");
+    expect(JSON.stringify(backlog)).not.toMatch(/deployed runtime smoke|runtime\/provider smoke|formal evidence is required/i);
     expect(JSON.stringify(backlog)).not.toContain("Unknown evidence:");
     expect(validateDebugBacklog(backlog)).toEqual([]);
   });
