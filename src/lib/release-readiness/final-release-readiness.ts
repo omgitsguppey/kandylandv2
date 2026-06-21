@@ -885,7 +885,7 @@ function criticalRuntimeRoutes(): RuntimeSmokeRoute[] {
     { routeId: "notifications", route: "/api/notifications/register", method: "POST", routeClass: "api_mutation", authRequirement: "signed in user", expectedStatusClass: "2xx/4xx typed", expectedErrorShape: "typed notification failure", expectedHumanErrorCopy: "Notifications could not be updated.", telemetryDebugMapping: "notification_debug_lane", costClass: "bounded_write", providerDependencyStatus: "mock_required", mutationSafety: "mock_only", ...base },
     { routeId: "support", route: "/api/support", method: "POST", routeClass: "api_mutation", authRequirement: "signed in or scoped guest", expectedStatusClass: "2xx/4xx typed", expectedErrorShape: "typed support failure", expectedHumanErrorCopy: "Support request could not be sent.", telemetryDebugMapping: "support_debug_lane", costClass: "bounded_write", providerDependencyStatus: "mock_required", mutationSafety: "mock_only", ...base },
     { routeId: "admin-debug", route: "/admin/debug", method: "GET", routeClass: "admin_page", authRequirement: "admin", expectedStatusClass: "2xx or admin redirect", expectedErrorShape: "admin-safe state", expectedHumanErrorCopy: "Admin debug is unavailable.", telemetryDebugMapping: "admin_debug_control_tower", costClass: "summary_first", providerDependencyStatus: "none", mutationSafety: "read_only", ...base },
-    { routeId: "provider-webhook", route: "/api/paypal/webhook", method: "POST", routeClass: "api_webhook_or_provider", authRequirement: "provider signature", expectedStatusClass: "unsupported in local harness", expectedErrorShape: "not run by source harness", expectedHumanErrorCopy: "Provider webhook is excluded from local smoke harness.", telemetryDebugMapping: "provider_webhook_lane", costClass: "provider_runtime", providerDependencyStatus: "unsupported_without_provider", mutationSafety: "provider_forbidden", ...base },
+    { routeId: "provider-webhook", route: "/api/paypal/webhook", method: "POST", routeClass: "api_webhook_or_provider", authRequirement: "provider signature", expectedStatusClass: "unsupported in source-safe harness", expectedErrorShape: "not run by source harness", expectedHumanErrorCopy: "Provider webhook is excluded from the source-safe harness.", telemetryDebugMapping: "provider_webhook_lane", costClass: "provider_runtime", providerDependencyStatus: "unsupported_without_provider", mutationSafety: "provider_forbidden", ...base },
   ];
 }
 
@@ -1031,8 +1031,8 @@ export function buildRuntimeSmokeHarnessReport(context: ReleaseReadinessContext)
 
 export function validateRuntimeSmokeHarnessReport(report: RuntimeSmokeHarnessReport) {
   const failures: string[] = [];
-  if (report.claimsDeployedRuntimeProof) failures.push("harness claims deployed runtime proof.");
-  if (report.providerCallsPerformed) failures.push("provider/webhook call runs.");
+  if (report.claimsDeployedRuntimeProof) failures.push("harness claims deployed route evidence.");
+  if (report.providerCallsPerformed) failures.push("provider/webhook call ran inside the source-safe harness.");
   if (report.routes.some((route) => route.routeClass === "api_mutation" && route.mutationSafety !== "mock_only")) failures.push("mutation route runs without mock/safety.");
   if (report.routes.some((route) => !route.routeClass)) failures.push("critical route lacks route class.");
   if (report.routes.some((route) => !route.expectedStatusClass || !route.expectedErrorShape)) failures.push("route lacks expected status/error shape.");

@@ -7,7 +7,7 @@ import {
 } from "@/lib/release-readiness/final-release-readiness";
 
 describe("runtime smoke harness", () => {
-  it("is source-safe and never claims deployed runtime proof", () => {
+  it("is source-safe and never claims deployed route evidence", () => {
     const context = buildReleaseReadinessContext(process.cwd(), { currentHead: "head", openPrs: [], artifacts: [], dirtyFiles: [] });
     const report = buildRuntimeSmokeHarnessReport(context);
 

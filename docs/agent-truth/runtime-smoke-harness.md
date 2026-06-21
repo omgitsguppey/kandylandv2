@@ -5,8 +5,8 @@ Validator: `npm run check:runtime-smoke-harness`
 
 ## Summary
 
-- Generated: `2026-06-01T00:00:56.708Z`
-- Current head: `9795630e505231581241589fe40debd01b23d9b0`
+- Generated: `2026-06-21T15:01:32.428Z`
+- Current head: `8b7541713aa9e996a592b7e2c5af9024b57002f4`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:runtime-smoke-harness`
 ```json
 {
   "reportKey": "runtime-smoke-harness",
-  "generatedAtUtc": "2026-06-01T00:00:56.708Z",
-  "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+  "generatedAtUtc": "2026-06-21T15:01:32.428Z",
+  "currentHead": "8b7541713aa9e996a592b7e2c5af9024b57002f4",
   "claimsDeployedRuntimeProof": false,
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -251,9 +251,9 @@ Validator: `npm run check:runtime-smoke-harness`
       "method": "POST",
       "routeClass": "api_webhook_or_provider",
       "authRequirement": "provider signature",
-      "expectedStatusClass": "unsupported in local harness",
+      "expectedStatusClass": "unsupported in source-safe harness",
       "expectedErrorShape": "not run by source harness",
-      "expectedHumanErrorCopy": "Provider webhook is excluded from local smoke harness.",
+      "expectedHumanErrorCopy": "Provider webhook is excluded from the source-safe harness.",
       "telemetryDebugMapping": "provider_webhook_lane",
       "costClass": "provider_runtime",
       "providerDependencyStatus": "unsupported_without_provider",
@@ -265,13 +265,28 @@ Validator: `npm run check:runtime-smoke-harness`
   "unsupportedWithoutProvider": [
     "provider-webhook"
   ],
-  "validationFailures": []
+  "validationFailures": [],
+  "status": "pass",
+  "evidenceClass": "source_snapshot",
+  "canClearSourceGate": true,
+  "canClearRuntimeGate": false,
+  "canClearProviderGate": false,
+  "canClearAdminTruthGate": false,
+  "nextExactSteps": [
+    "Use the owning release-readiness validator, then attach source/site-activity/deployed-route/admin-source evidence separately."
+  ],
+  "doesNotProve": [
+    "Does not prove deployed runtime behavior.",
+    "Does not prove provider-backed site activity.",
+    "Does not prove current admin source activity samples.",
+    "Does not prove external billing or GitHub PR state unless an opt-in fresh evidence artifact says so."
+  ]
 }
 ```
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional UI browser reproduction unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider-backed site activity, billing, admin source activity, or optional visual reproduction unless the report explicitly includes a matching typed evidence artifact for that category.
 
 ## Validation
 
