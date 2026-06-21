@@ -58,7 +58,7 @@ function sourceTruthStateLabel(state: unknown) {
         case "manual_visual_required":
             return "UI source coverage required";
         case "protected_manual_review":
-            return "Protected review required";
+            return "Protected source review";
         case "stale_evidence_archive":
             return "Archive evidence only";
         case "not_actionable":
