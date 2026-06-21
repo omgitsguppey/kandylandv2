@@ -3,6 +3,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { launchHistoryCoverageHasFormalRangeProof } from "./debug-cockpit-batch29-analytics-source-hierarchy-shared";
+
 type EvidenceStatus = "missing" | "incomplete" | "complete" | "stale";
 
 type ValidationOptions = {
@@ -201,6 +203,12 @@ export function adminTruthSampleLaunchHistoryCoverageFailures(document: unknown)
   }
   if (allLaunchRangeProven && rangeEndDayKey !== lastDayKey) {
     failures.push("admin truth launchHistoryCoverage rangeEndDayKey must match the last day row.");
+  }
+  if (allLaunchRangeProven && !launchHistoryCoverageHasFormalRangeProof(
+    typeof doc.artifactPath === "string" ? doc.artifactPath : "agent/evidence/admin-truth-sample/sample.redacted.json",
+    doc,
+  )) {
+    failures.push("admin truth launchHistoryCoverage must prove the full February-to-current launch range; short sampled windows cannot clear launch-history coverage.");
   }
 
   return failures;

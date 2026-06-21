@@ -430,14 +430,14 @@ describe("evidence artifact schemas", () => {
     ]));
   });
 
-  it("accepts launch-history coverage only when range proof and rows match", () => {
+  it("accepts launch-history coverage only when range proof covers the freshness window", () => {
     const launchSample = {
       status: "complete",
-      capturedAtUtc: "2026-05-19T05:30:00.000Z",
+      capturedAtUtc: "2026-02-13T05:30:00.000Z",
       currentHead: "same-head",
       surface: "admin_truth_sample",
       artifactPath: "agent/evidence/admin-truth-sample/sample.redacted.json",
-      sourceFreshnessUtc: "2026-05-19T05:30:00.000Z",
+      sourceFreshnessUtc: "2026-02-13T05:30:00.000Z",
       redactions: ["no raw user data"],
       checks: [
         { id: "source-freshness", status: "pass", notes: "" },
@@ -465,6 +465,15 @@ describe("evidence artifact schemas", () => {
       launchSample,
       { requireComplete: true, existingPaths: new Set(["agent/evidence/admin-truth-sample/sample.redacted.json"]) },
     )).toEqual([]);
+
+    const shortCurrentSample = {
+      ...launchSample,
+      capturedAtUtc: "2026-05-19T05:30:00.000Z",
+      sourceFreshnessUtc: "2026-05-19T05:30:00.000Z",
+    };
+    expect(adminTruthSampleLaunchHistoryCoverageFailures(shortCurrentSample)).toContain(
+      "admin truth launchHistoryCoverage must prove the full February-to-current launch range; short sampled windows cannot clear launch-history coverage.",
+    );
   });
 
   it("exposes launch-history readiness without promoting source-only recovery evidence", () => {

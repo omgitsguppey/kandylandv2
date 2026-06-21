@@ -1,5 +1,6 @@
 import {
   ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS,
+  LAUNCH_ANALYTICS_FIRST_DAY_KEY,
   buildLaunchHistoryDayRecoveryState,
   buildLaunchHistoryCoverageRangeProofEligibility,
   buildLaunchHistoryCoverageSummaryState,
@@ -11,6 +12,8 @@ import {
   type RecoveryMetricFreshnessState,
   type RecoveryMetricSourceTruth,
 } from "@/lib/analytics/recovery-timeline-spine";
+
+export { LAUNCH_ANALYTICS_FIRST_DAY_KEY };
 
 export type SourceAgreementCoverageInput = {
   source: string;
@@ -249,11 +252,6 @@ export const LAUNCH_ANALYTICS_DEFAULT_BLOCKED_CONSUMERS = [
   "debug_data_validation",
   "public_beta_score_evidence",
 ] as const;
-
-// February 12, 2026 is the earliest source-backed public launch anchor
-// (`src/app/sitemap.ts` and `src/lib/platform-config.ts`). Recovery reports
-// must not silently narrow formal launch proof to later May evidence windows.
-export const LAUNCH_ANALYTICS_FIRST_DAY_KEY = "2026-02-12";
 
 const DEFAULT_LAUNCH_COVERAGE_EXPORT_PATHS = [
   "agent/evidence/launch-analytics/launch-history-coverage.local.json",

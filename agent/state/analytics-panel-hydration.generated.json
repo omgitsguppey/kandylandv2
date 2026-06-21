@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-21T01:05:53.189Z",
-  "currentHead": "f60efcd1446fc90e432f1eac5bb06fbf7bd948a3",
+  "generatedAtUtc": "2026-06-21T01:12:06.045Z",
+  "currentHead": "6e27a8290729f24a26801bc4434e723033a5b383",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -357,15 +357,30 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 3,
+    "total": 6,
     "byClassification": {
+      "current_generated_artifact_to_commit": 1,
+      "validator_artifact_expected": 1,
+      "launch_analytics_recovery_source_expected": 1,
       "source_agreement_failure_classification_required": 1,
       "test_artifact_expected": 2
     },
     "unsafeUnknown": [],
     "sample": [
       {
-        "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+        "path": "agent/state/admin-truth-sample-evidence.generated.json",
+        "classification": "current_generated_artifact_to_commit"
+      },
+      {
+        "path": "scripts/agent/validate-admin-truth-sample-evidence.ts",
+        "classification": "validator_artifact_expected"
+      },
+      {
+        "path": "src/lib/analytics/recovery-timeline-spine.ts",
+        "classification": "launch_analytics_recovery_source_expected"
+      },
+      {
+        "path": "src/lib/analytics/source-agreement-detail.ts",
         "classification": "source_agreement_failure_classification_required"
       },
       {

@@ -9,6 +9,10 @@ import type { GumdropLedgerSourceBucket } from "@/lib/math/gumdrop-ledger-math";
 
 export const RECOVERY_TIMELINE_SPINE_VERSION = "2026.06.recovery-timeline-spine.1";
 export const ANALYTICS_RECOVERY_LATE_ARRIVAL_WINDOW_DAYS = 12;
+// February 12, 2026 is the earliest source-backed public launch anchor
+// (`src/app/sitemap.ts` and `src/lib/platform-config.ts`). Recovery reports
+// must not silently narrow formal launch proof to later evidence windows.
+export const LAUNCH_ANALYTICS_FIRST_DAY_KEY = "2026-02-12";
 export const LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT = 95;
 
 export const RECOVERY_TIMELINE_SOURCE_PRECEDENCE = [
@@ -2920,6 +2924,7 @@ export function buildLaunchHistoryCoverageRangeProofEligibility(input: {
   const explicitAllLaunchRangeProof =
     input.rangeProof?.allLaunchRangeProven === true
     && expectedDayKeys.length > 0
+    && rangeStartDayKey === LAUNCH_ANALYTICS_FIRST_DAY_KEY
     && rangeStartDayKey === expectedFirstDayKey
     && rangeEndDayKey === expectedLastDayKey
     && declaredDayCount === expectedDayKeys.length;

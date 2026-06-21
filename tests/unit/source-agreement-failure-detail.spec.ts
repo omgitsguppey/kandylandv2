@@ -307,15 +307,15 @@ describe("source agreement failure detail", () => {
     expect(detail.disagreementCount).toBe(0);
   });
 
-  it("allows an admin truth sample to prove all-launch range only when declared range matches rows", () => {
+  it("allows an admin truth sample to prove all-launch range only when it starts at launch and declared range matches rows", () => {
     const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
       proofMode: "admin_truth_sample",
       launchHistoryCoverage: {
         expectedDayCount: 2,
         recoveredDayCount: 2,
         state: "available",
-        rangeStartDayKey: "2026-05-01",
-        rangeEndDayKey: "2026-05-02",
+        rangeStartDayKey: "2026-02-12",
+        rangeEndDayKey: "2026-02-13",
         rangeProof: {
           allLaunchRangeProven: true,
           expectedRangeSource: "admin_truth_sample",
@@ -323,12 +323,12 @@ describe("source agreement failure detail", () => {
         },
         days: [
           {
-            dayKey: "2026-05-01",
+            dayKey: "2026-02-12",
             expected: true,
             sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 1, legacySupport: 1 },
           },
           {
-            dayKey: "2026-05-02",
+            dayKey: "2026-02-13",
             expected: true,
             sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 1, legacySupport: 1 },
           },
@@ -342,15 +342,15 @@ describe("source agreement failure detail", () => {
     expect(detail.disagreementCount).toBe(0);
   });
 
-  it("allows an approved all-range local export to prove launch range when declared range matches rows", () => {
+  it("allows an approved all-range local export to prove launch range when it starts at launch and declared range matches rows", () => {
     const detail = buildSourceAgreementFailureDetailFromLaunchHistoryCoverage({
       proofMode: "local_export",
       launchHistoryCoverage: {
         expectedDayCount: 2,
         recoveredDayCount: 2,
         state: "available",
-        rangeStartDayKey: "2026-05-01",
-        rangeEndDayKey: "2026-05-02",
+        rangeStartDayKey: "2026-02-12",
+        rangeEndDayKey: "2026-02-13",
         rangeProof: {
           allLaunchRangeProven: true,
           expectedRangeSource: "approved_all_launch_export",
@@ -358,12 +358,12 @@ describe("source agreement failure detail", () => {
         },
         days: [
           {
-            dayKey: "2026-05-01",
+            dayKey: "2026-02-12",
             expected: true,
             sourceCounts: { first_party: 8, ga4: 8, historicalSnapshot: 1, legacySupport: 0 },
           },
           {
-            dayKey: "2026-05-02",
+            dayKey: "2026-02-13",
             expected: true,
             sourceCounts: { first_party: 5, ga4: 5, historicalSnapshot: 0, legacySupport: 1 },
           },
