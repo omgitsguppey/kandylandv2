@@ -22,6 +22,7 @@ type EvidenceSystemSeed = {
   label: string;
   gateClass: LiveEvidenceGateClass;
   liveActivityEvents: string[];
+  clearingLiveActivityEvents?: string[];
   expectedLiveEvidenceSource: string;
   artifacts: Array<Pick<LiveEvidenceSource, "artifactPath" | "sourceKind">>;
   freshnessWindowHours: number;
@@ -51,6 +52,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     label: "Wallet/payment/GumDrop ledger",
     gateClass: "live_ledger_evidence",
     liveActivityEvents: ["wallet_opened", "purchase_package_selected", "begin_checkout", "server_purchase_verified", "gumdrops_purchase_completed"],
+    clearingLiveActivityEvents: ["server_purchase_verified", "gumdrops_purchase_completed"],
     expectedLiveEvidenceSource: "redacted wallet ledger summary plus provider evidence for payment proof",
     artifacts: [
       { artifactPath: "agent/state/real-usage-confidence.generated.json", sourceKind: "ledger_summary" },
@@ -97,6 +99,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     label: "Creator monetization/Fan Pass/entitlements",
     gateClass: "live_ledger_evidence",
     liveActivityEvents: ["creator_fan_pass_viewed", "creator_fan_pass_started", "creator_entitlement_checked"],
+    clearingLiveActivityEvents: ["creator_fan_pass_started", "creator_entitlement_checked"],
     expectedLiveEvidenceSource: "redacted entitlement/revenue ledger summary",
     artifacts: [
       { artifactPath: "agent/state/real-usage-confidence.generated.json", sourceKind: "ledger_summary" },
@@ -382,7 +385,7 @@ function matchingActivity(input: {
   seed: EvidenceSystemSeed;
   generatedAtUtc: string;
 }) {
-  const events = new Set(input.seed.liveActivityEvents);
+  const events = new Set(input.seed.clearingLiveActivityEvents ?? input.seed.liveActivityEvents);
   const exports = readDailyActivityExports(input.root);
   const matches = exports.flatMap((artifact) =>
     artifact.activity
@@ -423,7 +426,8 @@ function statusFromLiveRuntimeEvidence(input: {
   if (input.seed.gateClass === "external_billing_evidence") return "billing_required";
   if (input.seed.gateClass === "live_admin_truth_evidence") return "admin_truth_source_required";
   if (input.seed.systemId === "wallet_payment_gumdrop_ledger" || input.seed.systemId === "creator_monetization_fan_pass_entitlements") {
-    return "provider_required";
+    const { matches } = matchingActivity(input);
+    return matches.length > 0 ? confirmedActivityStatus(matches) : "provider_required";
   }
   if (input.seed.systemId === "cost_runtime_4xx_summaries") return "billing_required";
   if (input.seed.gateClass === "live_route_health_evidence" || input.seed.gateClass === "live_runtime_evidence") {
@@ -662,25 +666,39 @@ export function resolveLiveEvidenceForGate(input: { root: string; currentHead: s
 export function classifyManualGateReducibility(input: { gate: string; liveEvidenceBySystem: LiveEvidenceSystemDecision[] }): ManualGateReduction {
   const gate = input.gate;
   if (gate === "external billing review") {
+    const billingRequired = input.liveEvidenceBySystem.some((system) => system.liveRuntimeEvidenceStatus === "billing_required");
     return {
       gate,
       beforeClass: "mixed_manual_formal",
       afterClass: "external_billing_evidence",
-      status: "external_billing_required",
-      replacement: "external billing review note separated from source cost guards",
-      reason: "Source cost guards do not prove Cloud/Firebase/AI provider spend.",
-      blocksBetaExit: true,
+      status: billingRequired ? "external_billing_required" : "source_only_evidence",
+      replacement: "site cost activity and source guards, with external billing only when spend proof is required",
+      reason: billingRequired
+        ? "Source cost guards do not prove Cloud/Firebase/AI provider spend."
+        : "No current lane requires external billing proof; source cost activity stays separated from spend proof.",
+      blocksBetaExit: billingRequired,
     };
   }
   if (gate === "runtime/provider smoke") {
+    const providerRequired = input.liveEvidenceBySystem.some((system) => system.liveRuntimeEvidenceStatus === "provider_required");
+    const runtimeMissing = input.liveEvidenceBySystem.some((system) =>
+      system.liveRuntimeEvidenceStatus === "runtime_export_required"
+      || system.liveRuntimeEvidenceStatus === "not_observed_but_expected"
+      || system.liveRuntimeEvidenceStatus === "source_missing");
     return {
       gate,
       beforeClass: "mixed_manual_formal",
-      afterClass: "external_provider_evidence",
-      status: "external_provider_required",
-      replacement: "deployed route health/live runtime evidence plus external provider proof for PayPal/provider flows",
-      reason: "Route/product behavior can use live summaries when available; PayPal/provider proof remains external.",
-      blocksBetaExit: true,
+      afterClass: providerRequired ? "external_provider_evidence" : "live_runtime_evidence",
+      status: providerRequired
+        ? "external_provider_required"
+        : runtimeMissing
+          ? "source_missing_live_evidence"
+          : "live_evidence_replaced",
+      replacement: "first-party site activity, deployed route health, and provider proof only for provider-specific claims",
+      reason: providerRequired
+        ? "No clearing first-party payment/ledger activity is present for every provider-adjacent lane."
+        : "Clearing first-party site activity can replace broad runtime/provider smoke for app-owned behavior.",
+      blocksBetaExit: providerRequired || runtimeMissing,
     };
   }
   if (gate === "manual production smoke") {
@@ -712,11 +730,11 @@ export function explainEvidenceDecision(input: LiveEvidenceSystemDecision) {
 
 function reasonForDecision(seed: EvidenceSystemSeed, status: LiveEvidenceStatus) {
   if (status === "live_evidence_replaced") return `${seed.minimumAcceptableSignal} is represented by a clearing live evidence source.`;
-  if (status === "source_only_evidence") return "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.";
-  if (status === "current_warning") return "An operator-confirmed or bounded signal exists, but it is not formal provider/deployed-runtime proof.";
+  if (status === "source_only_evidence") return "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear site-activity gates by itself.";
+  if (status === "current_warning") return "A bounded signal exists, but it still needs a clearing first-party activity, route-health, provider, or billing source for this lane.";
   if (status === "source_missing_live_evidence") return `No clearing live evidence source was found. ${seed.sourceOnlyFallback}.`;
-  if (status === "external_provider_required") return "Provider/payment UI or webhook proof must come from external provider evidence.";
-  if (status === "external_billing_required") return "Actual spend proof must come from external billing review.";
+  if (status === "external_provider_required") return "No clearing first-party server ledger/webhook activity was found; provider-specific claims still need redacted provider evidence.";
+  if (status === "external_billing_required") return "Actual spend proof must come from external billing review unless a first-party billing export is attached.";
   return "Optional browser reproduction cannot prove backend behavior.";
 }
 
@@ -724,8 +742,8 @@ function nextActionForDecision(seed: EvidenceSystemSeed, status: LiveEvidenceSta
   if (status === "live_evidence_replaced") return "Keep the live evidence source fresh and redacted.";
   if (status === "source_only_evidence" || status === "current_warning") return `Connect or attach ${seed.expectedLiveEvidenceSource}; keep source-only evidence labeled as source-only.`;
   if (status === "source_missing_live_evidence") return `Add or attach ${seed.expectedLiveEvidenceSource}; classify missing lanes as source_missing, not browser-diagnostic blockers.`;
-  if (status === "external_provider_required") return "Attach redacted provider/payment proof without exposing raw provider IDs.";
-  if (status === "external_billing_required") return "Attach external billing review for cost lanes.";
+  if (status === "external_provider_required") return "Attach redacted provider/payment proof or first-party server-confirmed ledger/webhook activity without exposing raw provider IDs.";
+  if (status === "external_billing_required") return "Attach external billing review or a redacted first-party billing export for cost lanes.";
   return "Use browser reproduction only after source coverage reports a concrete UI issue.";
 }
 
@@ -745,37 +763,48 @@ export function buildLiveEvidenceGateReplacementReport(context: ReleaseReadiness
     || system.liveRuntimeEvidenceStatus === "runtime_export_required"
     || system.liveRuntimeEvidenceStatus === "admin_truth_source_required"
     || system.liveRuntimeEvidenceStatus === "source_missing");
-  const remainingBlockers = [
-    ...liveEvidenceBySystem
-      .filter((system) =>
-        system.betaExitImpact === "blocks_until_live_source_connected"
-        || system.betaExitImpact === "external_required")
-      .map((system) => `${system.label}: ${system.liveRuntimeEvidenceStatus}`),
-    "external provider proof",
-    "external billing review",
+  const externalProviderSystems = liveEvidenceBySystem.filter((system) => system.liveRuntimeEvidenceStatus === "provider_required");
+  const externalBillingSystems = liveEvidenceBySystem.filter((system) => system.liveRuntimeEvidenceStatus === "billing_required");
+  const remainingBlockers = liveEvidenceBySystem
+    .filter((system) =>
+      system.betaExitImpact === "blocks_until_live_source_connected"
+      || system.betaExitImpact === "external_required")
+    .map((system) => `${system.label}: ${system.liveRuntimeEvidenceStatus}`);
+  const broadManualGatesAfter = [
+    ...(externalProviderSystems.length > 0 ? ["provider/payment source evidence required"] : []),
+    ...(externalBillingSystems.length > 0 ? ["external billing source evidence required"] : []),
+    ...(sourceMissingLiveEvidence.length > 0 ? ["source_missing site activity lanes"] : []),
+    ...(liveEvidenceBySystem.some((system) => system.betaExitImpact === "can_clear_live_gate") ? ["first-party site activity clears connected live lanes"] : []),
+  ];
+  const nextExactSteps = [
+    ...(sourceMissingLiveEvidence.length > 0 ? ["Connect safe lastSeen/live event summaries for source_missing product systems."] : []),
+    ...(liveEvidenceBySystem.some((system) => system.liveRuntimeEvidenceStatus === "runtime_export_required")
+      ? ["Attach redacted deployed route/runtime evidence for route health."]
+      : []),
+    ...(externalProviderSystems.length > 0
+      ? ["Attach redacted provider/payment proof or first-party server-confirmed ledger/webhook activity for provider-specific lanes."]
+      : []),
+    ...(externalBillingSystems.length > 0
+      ? ["Attach external billing review or redacted first-party billing export for cost lanes."]
+      : []),
+    "Keep deterministic UI source coverage current; use browser reproduction only for source-reported issues.",
   ];
   const report: LiveEvidenceGateReplacementReport = {
     reportKey: "live-evidence-gate-replacement",
     generatedAtUtc: context.generatedAtUtc,
     currentHead: context.currentHead,
     broadManualGatesBefore: BROAD_MANUAL_GATES_BEFORE,
-    broadManualGatesAfter: ["external provider proof", "external billing review", "source_missing live evidence lanes"],
+    broadManualGatesAfter,
     gatesReplacedByLiveEvidence: reductions.filter((reduction) => reduction.gate === "manual production smoke" || reduction.gate === "admin truth/sample evidence" || reduction.gate === "runtime/provider smoke"),
     visualOnlyManualGatesRemaining: [],
-    externalProviderGatesRemaining: reductions.filter((reduction) => reduction.afterClass === "external_provider_evidence"),
-    externalBillingGatesRemaining: reductions.filter((reduction) => reduction.afterClass === "external_billing_evidence"),
+    externalProviderGatesRemaining: externalProviderSystems.length > 0 ? reductions.filter((reduction) => reduction.afterClass === "external_provider_evidence") : [],
+    externalBillingGatesRemaining: externalBillingSystems.length > 0 ? reductions.filter((reduction) => reduction.afterClass === "external_billing_evidence") : [],
     liveEvidenceBySystem,
     sourceMissingLiveEvidence,
     betaExitReadyBefore: context.betaExitReadyFromSource,
     betaExitReadyAfter: false,
     remainingBlockers,
-    nextExactSteps: [
-      "Connect safe lastSeen/live event summaries for source_missing product systems.",
-      "Attach redacted deployed route/runtime evidence for route health.",
-      "Attach redacted provider/payment proof for PayPal/provider flows.",
-      "Attach external billing review for cost lanes.",
-      "Keep deterministic UI source coverage current; use browser reproduction only for source-reported issues.",
-    ],
+    nextExactSteps,
     validationFailures: [],
   };
   report.validationFailures = validateLiveEvidenceGateReplacementReport(report);

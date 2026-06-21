@@ -1194,7 +1194,13 @@ export function buildPublicBetaEvidenceGates(input: {
       recommendedAction: "Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
       quality: runtimeProviderQuality,
       gateRequiredForExit: true,
-      sourceCredit: runtimeQuality.quality === "source_ready" ? runtimeQuality.partialCredit * 100 : runtimeProviderQuality.partialCredit * 100,
+      sourceCredit: Math.max(
+        runtimeQuality.quality === "source_ready" ? runtimeQuality.partialCredit * 100 : 0,
+        sourceBackedRuntimeConfidenceCredit,
+        realUsageConfidenceCredit,
+        runtimeSmokeSubstituteMatrixCredit,
+        runtimeProviderQuality.partialCredit * 100,
+      ),
       runtimeCredit: runtimeProviderRuntimeCredit,
     }),
     buildEvidenceGate({

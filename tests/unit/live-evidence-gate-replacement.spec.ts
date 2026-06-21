@@ -264,4 +264,46 @@ describe("live evidence gate replacement", () => {
       systemId: "cost_runtime_4xx_summaries",
     }).liveRuntimeEvidenceStatus).toBe("billing_required");
   });
+
+  it("lets first-party server-confirmed ledger activity clear the wallet site-activity lane", () => {
+    const root = tempRoot();
+    writeJson(root, "agent/evidence/live-runtime-activity/recent-activity.export.json", {
+      reportKey: "live-runtime-activity-export",
+      generatedAtUtc: "2026-05-31T12:00:00.000Z",
+      sourceWindow: {
+        fromUtc: "2026-05-31T00:00:00.000Z",
+        toUtc: "2026-05-31T12:00:00.000Z",
+      },
+      privacy: {
+        piiRedacted: true,
+        aggregateOnly: true,
+        rawProviderIdsExcluded: true,
+        rawPaymentDataExcluded: true,
+      },
+      activity: [
+        {
+          eventName: "server_purchase_verified",
+          count: 1,
+          lastSeenAtUtc: "2026-05-31T11:55:00.000Z",
+          source: "analytics_event_facts",
+          identityScope: "linked_person",
+          identityConfidence: "linked",
+          countsGlobal: true,
+          countsForExactUser: false,
+        },
+      ],
+    });
+
+    const decision = resolveLiveEvidenceForGate({
+      root,
+      currentHead: "head",
+      generatedAtUtc: "2026-05-31T12:00:00.000Z",
+      systemId: "wallet_payment_gumdrop_ledger",
+    });
+
+    expect(decision.liveRuntimeEvidenceStatus).toBe("live_activity_confirmed");
+    expect(decision.status).toBe("live_evidence_replaced");
+    expect(decision.betaExitImpact).toBe("can_clear_live_gate");
+    expect(decision.nextExactAction).toBe("Keep the live evidence source fresh and redacted.");
+  });
 });

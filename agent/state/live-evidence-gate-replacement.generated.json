@@ -1,7 +1,7 @@
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-06-21T02:17:58.943Z",
-  "currentHead": "a264c232bdfaea10532430a688c0b80e56d7cf2b",
+  "generatedAtUtc": "2026-06-21T02:33:07.326Z",
+  "currentHead": "4acbc4963ec602ac4f4a23226265a27536aec59e",
   "broadManualGatesBefore": [
     "manual production smoke",
     "admin truth/sample evidence",
@@ -9,9 +9,9 @@
     "external billing review"
   ],
   "broadManualGatesAfter": [
-    "external provider proof",
-    "external billing review",
-    "source_missing live evidence lanes"
+    "provider/payment source evidence required",
+    "external billing source evidence required",
+    "source_missing site activity lanes"
   ],
   "gatesReplacedByLiveEvidence": [
     {
@@ -37,8 +37,8 @@
       "beforeClass": "mixed_manual_formal",
       "afterClass": "external_provider_evidence",
       "status": "external_provider_required",
-      "replacement": "deployed route health/live runtime evidence plus external provider proof for PayPal/provider flows",
-      "reason": "Route/product behavior can use live summaries when available; PayPal/provider proof remains external.",
+      "replacement": "first-party site activity, deployed route health, and provider proof only for provider-specific claims",
+      "reason": "No clearing first-party payment/ledger activity is present for every provider-adjacent lane.",
       "blocksBetaExit": true
     }
   ],
@@ -49,8 +49,8 @@
       "beforeClass": "mixed_manual_formal",
       "afterClass": "external_provider_evidence",
       "status": "external_provider_required",
-      "replacement": "deployed route health/live runtime evidence plus external provider proof for PayPal/provider flows",
-      "reason": "Route/product behavior can use live summaries when available; PayPal/provider proof remains external.",
+      "replacement": "first-party site activity, deployed route health, and provider proof only for provider-specific claims",
+      "reason": "No clearing first-party payment/ledger activity is present for every provider-adjacent lane.",
       "blocksBetaExit": true
     }
   ],
@@ -60,7 +60,7 @@
       "beforeClass": "mixed_manual_formal",
       "afterClass": "external_billing_evidence",
       "status": "external_billing_required",
-      "replacement": "external billing review note separated from source cost guards",
+      "replacement": "site cost activity and source guards, with external billing only when spend proof is required",
       "reason": "Source cost guards do not prove Cloud/Firebase/AI provider spend.",
       "blocksBetaExit": true
     }
@@ -166,8 +166,8 @@
       },
       "betaExitImpact": "external_required",
       "fallbackIfMissing": "keep provider proof external and classify ledger live source as source_missing or source_only",
-      "reason": "Provider/payment UI or webhook proof must come from external provider evidence.",
-      "nextExactAction": "Attach redacted provider/payment proof without exposing raw provider IDs."
+      "reason": "No clearing first-party server ledger/webhook activity was found; provider-specific claims still need redacted provider evidence.",
+      "nextExactAction": "Attach redacted provider/payment proof or first-party server-confirmed ledger/webhook activity without exposing raw provider IDs."
     },
     {
       "systemId": "drops_open_unlock_unwrap_watch",
@@ -328,8 +328,8 @@
       },
       "betaExitImpact": "external_required",
       "fallbackIfMissing": "do not let screenshots prove entitlement or revenue math",
-      "reason": "Provider/payment UI or webhook proof must come from external provider evidence.",
-      "nextExactAction": "Attach redacted provider/payment proof without exposing raw provider IDs."
+      "reason": "No clearing first-party server ledger/webhook activity was found; provider-specific claims still need redacted provider evidence.",
+      "nextExactAction": "Attach redacted provider/payment proof or first-party server-confirmed ledger/webhook activity without exposing raw provider IDs."
     },
     {
       "systemId": "chat_open_thread_message_block_error",
@@ -729,7 +729,7 @@
       },
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source-safe route harness cannot clear deployed route runtime gate",
-      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
+      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear site-activity gates by itself.",
       "nextExactAction": "Connect or attach deployed route health or runtime summary; keep source-only evidence labeled as source-only."
     },
     {
@@ -779,8 +779,8 @@
       },
       "betaExitImpact": "external_required",
       "fallbackIfMissing": "cost source guards do not become billing proof",
-      "reason": "Actual spend proof must come from external billing review.",
-      "nextExactAction": "Attach external billing review for cost lanes."
+      "reason": "Actual spend proof must come from external billing review unless a first-party billing export is attached.",
+      "nextExactAction": "Attach external billing review or a redacted first-party billing export for cost lanes."
     }
   ],
   "sourceMissingLiveEvidence": [
@@ -1345,7 +1345,7 @@
       },
       "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source-safe route harness cannot clear deployed route runtime gate",
-      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
+      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear site-activity gates by itself.",
       "nextExactAction": "Connect or attach deployed route health or runtime summary; keep source-only evidence labeled as source-only."
     }
   ],
@@ -1365,15 +1365,13 @@
     "Search/discovery: runtime_export_required",
     "Admin/debug/user management: admin_truth_source_required",
     "Route runtime/error health: runtime_export_required",
-    "Cost/runtime/4xx summaries: billing_required",
-    "external provider proof",
-    "external billing review"
+    "Cost/runtime/4xx summaries: billing_required"
   ],
   "nextExactSteps": [
     "Connect safe lastSeen/live event summaries for source_missing product systems.",
     "Attach redacted deployed route/runtime evidence for route health.",
-    "Attach redacted provider/payment proof for PayPal/provider flows.",
-    "Attach external billing review for cost lanes.",
+    "Attach redacted provider/payment proof or first-party server-confirmed ledger/webhook activity for provider-specific lanes.",
+    "Attach external billing review or redacted first-party billing export for cost lanes.",
     "Keep deterministic UI source coverage current; use browser reproduction only for source-reported issues."
   ],
   "validationFailures": [],

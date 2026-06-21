@@ -578,6 +578,35 @@ describe("public beta scoring math", () => {
         expect(smokeGate?.evidence.join("\n")).toContain("providerArtifactStatus=missing_formal_evidence");
     });
 
+    it("credits first-party site activity evidence without requiring a manual formal artifact for that source lane", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: missingProviderSmokeEvidence,
+                runtimeSmokeEvidence: runtimeUnverifiedEvidence,
+                sourceBackedRuntimeConfidenceEvidence: {
+                    path: "agent/state/live-evidence-gate-replacement.generated.json",
+                    status: "source_ready_live_activity_confirmed",
+                    passed: true,
+                    detail: "First-party site activity is present and can clear connected site-activity/runtime lanes.",
+                    evidence: [
+                        "liveRuntimeEvidence.firstPartySiteActivityConfirmed=3",
+                        "liveRuntimeEvidence.providerRequired=0",
+                        "liveRuntimeEvidence.blockedSiteActivityLanes=0",
+                        "launchGateImpact=site_activity_can_clear_connected_site_activity_lanes",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+        expect(smokeGate?.evidence.join("\n")).toContain("launchGateImpact=site_activity_can_clear_connected_site_activity_lanes");
+        expect(smokeGate?.evidence.join("\n")).not.toContain("does_not_clear_formal_provider_deployed_runtime");
+        expect(smokeGate?.sourceCredit).toBeGreaterThan(0);
+    });
+
     it("allows ready only when scanner and evidence gates are fresh", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),

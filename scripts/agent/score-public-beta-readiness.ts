@@ -524,6 +524,9 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
   const adminTruthSourceRequired = statuses.filter((status) => status === "admin_truth_source_required").length;
   const billingRequired = statuses.filter((status) => status === "billing_required").length;
   const sourceMissing = statuses.filter((status) => status === "source_missing").length;
+  const firstPartySiteActivityConfirmed = liveActivityConfirmed + aggregateActivityConfirmed;
+  const blockedSiteActivityLanes = notObservedButExpected + runtimeExportRequired + adminTruthSourceRequired + sourceMissing;
+  const externalSourceRequired = providerRequired + billingRequired;
   const firstDailyImport = systems.map((system) => readRecord(system.dailyActivityImport)).find((daily) => readString(daily.expectedPath));
   const foundPaths = Array.isArray(firstDailyImport?.foundPaths)
     ? firstDailyImport.foundPaths.filter((value): value is string => typeof value === "string")
@@ -539,14 +542,15 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
   return {
     path: LIVE_EVIDENCE_GATE_REPLACEMENT_PATH,
     status,
-    passed: false,
-    detail: liveActivityConfirmed > 0
-      ? "Live runtime evidence bridge found privacy-safe bounded recent activity. Formal provider, admin, billing, deployed runtime, and optional browser diagnostics remain separate."
+    passed: firstPartySiteActivityConfirmed > 0,
+    detail: firstPartySiteActivityConfirmed > 0
+      ? "First-party site activity is present and can clear connected site-activity/runtime lanes; provider, billing, admin truth, or route-health lanes only remain when their source status requires them."
       : "Live runtime evidence bridge is wired, but no local daily activity export currently confirms recent user activity.",
     evidence: [
       `liveRuntimeEvidenceArtifactStatus=${status}`,
       `liveRuntimeEvidence.liveActivityConfirmed=${liveActivityConfirmed}`,
       `liveRuntimeEvidence.aggregateActivityConfirmed=${aggregateActivityConfirmed}`,
+      `liveRuntimeEvidence.firstPartySiteActivityConfirmed=${firstPartySiteActivityConfirmed}`,
       `liveRuntimeEvidence.sourceReadyWaitingForActivity=${sourceReadyWaiting}`,
       `liveRuntimeEvidence.notObservedButExpected=${notObservedButExpected}`,
       `liveRuntimeEvidence.runtimeExportRequired=${runtimeExportRequired}`,
@@ -554,10 +558,14 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
       `liveRuntimeEvidence.adminTruthSourceRequired=${adminTruthSourceRequired}`,
       `liveRuntimeEvidence.billingRequired=${billingRequired}`,
       `liveRuntimeEvidence.sourceMissing=${sourceMissing}`,
+      `liveRuntimeEvidence.blockedSiteActivityLanes=${blockedSiteActivityLanes}`,
+      `liveRuntimeEvidence.externalSourceRequired=${externalSourceRequired}`,
       `dailyActivityImport.expectedPath=${readString(firstDailyImport?.expectedPath) ?? "agent/evidence/live-runtime-activity/recent-activity.export.json"}`,
       `dailyActivityImport.foundPaths=${foundPaths.join(",") || "none"}`,
       `dailyActivityImport.schema=${readString(firstDailyImport?.schema) ?? "live-runtime-activity-export"}`,
-      "launchGateImpact=does_not_clear_formal_provider_deployed_runtime_admin_billing_or_optional_browser_diagnostics",
+      firstPartySiteActivityConfirmed > 0
+        ? "launchGateImpact=site_activity_can_clear_connected_site_activity_lanes"
+        : "launchGateImpact=site_activity_missing_source_still_required",
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
     sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
