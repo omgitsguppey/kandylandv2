@@ -1308,7 +1308,7 @@ export function buildPublicBetaEvidenceGates(input: {
       weight: 0,
       status: formalEvidenceBridge.validationFailures.length > 0 ? "Needs review" : "Ready",
       detail: formalEvidenceBridge.formalGapsRemaining.length > 0
-        ? `Evidence bridge is current; remaining source gap(s): ${formalEvidenceBridge.formalGapsRemaining.join(", ")}.`
+        ? `Evidence bridge is current; remaining source gap(s): ${(formalEvidenceBridge.sourceGapsRemaining ?? formalEvidenceBridge.formalGapsRemaining).join(", ")}.`
         : "Evidence bridge is current and source gaps are cleared.",
       evidence: [
         `formalProviderGateCleared=${formalEvidenceBridge.formalGateStatus.providerSmoke.cleared}`,

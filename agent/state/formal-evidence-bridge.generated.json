@@ -1,27 +1,27 @@
 {
-  "generatedAtUtc": "2026-06-20T17:41:56.663Z",
+  "generatedAtUtc": "2026-06-21T13:37:30.578Z",
   "reportKey": "formal-evidence-bridge",
-  "currentHead": "42be9be767fc81370662e9a84f6673b1284d203e",
+  "currentHead": "fdd95181543a028b61f1ced9d9f8b81282d3516c",
   "formalGateStatus": {
     "providerSmoke": {
       "cleared": false,
       "status": "missing_formal_artifact",
-      "nextAction": "Attach formal provider smoke evidence."
+      "nextAction": "Produce provider-backed site activity evidence."
     },
     "deployedRuntimeSmoke": {
       "cleared": false,
       "status": "missing_formal_artifact",
-      "nextAction": "Attach deployed runtime smoke evidence."
+      "nextAction": "Produce deployed runtime route evidence."
     },
     "adminProductionSample": {
       "cleared": false,
       "status": "missing_formal_artifact",
-      "nextAction": "Attach redacted production admin truth sample evidence."
+      "nextAction": "Produce redacted admin source activity sample evidence."
     }
   },
   "sourceConfidenceStatus": {
-    "runtimeConfidenceScore": 0,
-    "realUsageConfidenceScore": 92,
+    "runtimeConfidenceScore": 100,
+    "realUsageConfidenceScore": 72,
     "adminSourceConfidenceScore": 0,
     "debugRuntimeConfidenceScore": 0,
     "runtimeSubstituteEvidenceScore": 75.56
@@ -34,13 +34,14 @@
   "gates": {
     "runtimeProviderSmoke": {
       "evidenceCredit": 78,
-      "runtimeCredit": 92,
+      "runtimeCredit": 100,
       "formalGateCleared": false,
       "status": "partial_source_confidence",
-      "nextAction": "Attach formal provider and deployed runtime smoke before clearing this gate.",
+      "nextAction": "Produce provider-backed site activity and deployed runtime route evidence before clearing this gate.",
       "evidenceClasses": [
         "missing_formal_artifact",
         "operator_confirmed_revenue",
+        "source_backed_runtime_confidence",
         "real_usage_confidence",
         "runtime_substitute_matrix",
         "debug_runtime_source_evidence"
@@ -51,7 +52,7 @@
       "runtimeCredit": 0,
       "formalGateCleared": false,
       "status": "missing_formal_artifact",
-      "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin gate.",
+      "nextAction": "Produce a redacted admin source activity sample before clearing the admin lane.",
       "evidenceClasses": [
         "admin_source_sample",
         "missing_formal_artifact"
@@ -62,7 +63,7 @@
       "runtimeCredit": 80,
       "formalGateCleared": false,
       "status": "partial_source_confidence",
-      "nextAction": "Use debug/source runtime evidence as current confidence only; attach deployed smoke before formal closure.",
+      "nextAction": "Use debug/source runtime evidence as current confidence; produce deployed route evidence before runtime closure.",
       "evidenceClasses": [
         "debug_runtime_source_evidence",
         "source_backed_runtime_confidence"
@@ -72,9 +73,15 @@
   "evidenceClasses": [
     "missing_formal_artifact",
     "operator_confirmed_revenue",
+    "source_backed_runtime_confidence",
     "real_usage_confidence",
     "runtime_substitute_matrix",
     "debug_runtime_source_evidence"
+  ],
+  "sourceGapsRemaining": [
+    "provider_backed_site_activity",
+    "deployed_route_activity",
+    "admin_source_activity_sample"
   ],
   "formalGapsRemaining": [
     "formal_provider_smoke",
@@ -82,31 +89,31 @@
     "production_admin_truth_sample"
   ],
   "scoreBefore": {
-    "sourceHealth": 99.2,
-    "runtimeHealth": 71.2,
-    "evidenceCompleteness": 58.4,
-    "freshness": 83.75,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 91.11,
+    "evidenceCompleteness": 95.2,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 76.88
+    "overallHealthScore": 89.31
   },
   "scoreAfter": {
-    "sourceHealth": 99.2,
-    "runtimeHealth": 71.2,
-    "evidenceCompleteness": 58.4,
-    "freshness": 83.75,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 91.11,
+    "evidenceCompleteness": 95.2,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 76.88
+    "overallHealthScore": 89.31
   },
   "scoreDimensionImpact": {
     "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime smoke.",
-    "evidenceCompleteness": "Source-backed and operator-confirmed evidence can reduce empty-evidence language without clearing formal gates."
+    "evidenceCompleteness": "Source-backed and operator-confirmed context can reduce empty-evidence language, but clearing requires matching site activity records."
   },
   "nextExactSteps": [
-    "formal_provider_smoke: attach formal evidence artifact before clearing the gate.",
-    "deployed_runtime_smoke: attach formal evidence artifact before clearing the gate.",
-    "production_admin_truth_sample: attach formal evidence artifact before clearing the gate."
+    "provider_backed_site_activity: produce the matching source activity record before clearing the lane.",
+    "deployed_route_activity: produce the matching source activity record before clearing the lane.",
+    "admin_source_activity_sample: produce the matching source activity record before clearing the lane."
   ],
   "validationFailures": []
 }

@@ -74,6 +74,7 @@ export type FormalEvidenceBridgeReport = {
     debugRuntimeEvidence: FormalEvidenceBridgeGateCredit;
   };
   evidenceClasses: FormalEvidenceClass[];
+  sourceGapsRemaining: string[];
   formalGapsRemaining: string[];
   scoreBefore: FormalEvidenceBridgeScoreDimensions;
   scoreAfter: FormalEvidenceBridgeScoreDimensions;
@@ -124,6 +125,13 @@ function includesOperatorRevenue(artifact: FormalEvidenceBridgeArtifact | undefi
 
 function unique<T>(items: T[]) {
   return Array.from(new Set(items));
+}
+
+function sourceGapLabel(gap: string) {
+  if (gap === "formal_provider_smoke") return "provider_backed_site_activity";
+  if (gap === "deployed_runtime_smoke") return "deployed_route_activity";
+  if (gap === "production_admin_truth_sample") return "admin_source_activity_sample";
+  return gap;
 }
 
 function gateCredit(input: {
@@ -239,6 +247,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     ...(runtimeFormal ? [] : ["deployed_runtime_smoke"]),
     ...(adminFormal ? [] : ["production_admin_truth_sample"]),
   ];
+  const sourceGapsRemaining = formalGapsRemaining.map(sourceGapLabel);
   const report: FormalEvidenceBridgeReport = {
     generatedAtUtc: input.generatedAtUtc,
     reportKey: "formal-evidence-bridge",
@@ -274,6 +283,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     },
     gates,
     evidenceClasses: unique(evidenceClasses),
+    sourceGapsRemaining,
     formalGapsRemaining,
     scoreBefore: before,
     scoreAfter: estimatedAfter(before, gates),
@@ -281,7 +291,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
       runtimeHealth: "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime smoke.",
       evidenceCompleteness: "Source-backed and operator-confirmed context can reduce empty-evidence language, but clearing requires matching site activity records.",
     },
-    nextExactSteps: formalGapsRemaining.map((gap) => `${gap}: produce the matching source activity record before clearing the gate.`),
+    nextExactSteps: sourceGapsRemaining.map((gap) => `${gap}: produce the matching source activity record before clearing the lane.`),
     validationFailures: [],
   };
   report.validationFailures = validateFormalEvidenceBridgeReport(report);

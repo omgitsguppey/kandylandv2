@@ -124,7 +124,7 @@ function renderDoc(report: FormalEvidenceBridgeReport) {
   const scoreRows = Object.entries(report.scoreAfter)
     .map(([dimension, after]) => `| ${dimension} | ${report.scoreBefore[dimension as keyof FormalEvidenceBridgeScoreDimensions]} | ${after} |`)
     .join("\n");
-  return `# Formal Evidence Bridge
+  return `# Source Evidence Bridge
 
 Generated: ${report.generatedAtUtc}
 
@@ -132,11 +132,11 @@ Current head: ${report.currentHead}
 
 ## Summary
 
-- Provider formal gate cleared: ${report.formalGateStatus.providerSmoke.cleared}
-- Deployed runtime formal gate cleared: ${report.formalGateStatus.deployedRuntimeSmoke.cleared}
+- Provider-backed site activity lane cleared: ${report.formalGateStatus.providerSmoke.cleared}
+- Deployed route activity lane cleared: ${report.formalGateStatus.deployedRuntimeSmoke.cleared}
 - Admin production sample gate cleared: ${report.formalGateStatus.adminProductionSample.cleared}
 - Operator revenue signal: ${report.operatorSignalStatus.status}
-- Formal gaps remaining: ${report.formalGapsRemaining.join(", ") || "none"}
+- Source gaps remaining: ${report.sourceGapsRemaining.join(", ") || "none"}
 
 ## Score Dimensions
 
@@ -152,7 +152,7 @@ ${gateRows}
 
 ## Boundary
 
-The bridge gives partial score/reporting credit for source-backed, operator-confirmed, admin-source, debug, and runtime-substitute evidence. It does not clear formal provider smoke, deployed runtime smoke, or production admin truth sample gates.
+The bridge gives partial score/reporting credit for source-backed, operator-confirmed, admin-source, debug, and runtime-substitute evidence. It does not clear provider-backed site activity, deployed route activity, or admin source activity lanes without matching source records.
 
 ## Next Steps
 

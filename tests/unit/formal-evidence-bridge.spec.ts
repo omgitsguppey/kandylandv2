@@ -87,6 +87,12 @@ describe("source evidence bridge", () => {
     expect(report.formalGateStatus.adminProductionSample.cleared).toBe(false);
     expect(report.gates.runtimeProviderSmoke.evidenceCredit).toBeGreaterThan(60);
     expect(report.gates.adminTruthSamples.evidenceCredit).toBeGreaterThan(50);
+    expect(report.sourceGapsRemaining).toEqual([
+      "provider_backed_site_activity",
+      "deployed_route_activity",
+      "admin_source_activity_sample",
+    ]);
+    expect(report.nextExactSteps.join("\n")).not.toContain("formal_provider_smoke");
     expect(report.scoreAfter.evidenceCompleteness).toBeGreaterThan(report.scoreBefore.evidenceCompleteness);
     expect(validateFormalEvidenceBridgeReport(report)).toEqual([]);
   });
