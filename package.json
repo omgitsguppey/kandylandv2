@@ -851,7 +851,6 @@
         "review:admin-panel-logs": "tsx scripts/review-admin-panel-logs.ts",
         "refresh:paypal": "tsx scripts/refresh-paypal-mcp-token.ts",
         "storybook": "storybook dev -p 6006",
-        "build-storybook": "storybook build",
         "agent:preflight": "echo 'Read /control-tower/11-PREFLIGHT-CHECKLIST.md and identify owner before proceeding.'",
         "agent:postflight": "echo 'Read /control-tower/12-POSTFLIGHT-CHECKLIST.md and verify truth hooks before signoff.'",
         "agent:route": "echo 'Consult /control-tower/03-TASK-ROUTING.yaml to find the owner.'",
