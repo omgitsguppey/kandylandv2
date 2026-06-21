@@ -496,6 +496,36 @@ describe("public beta scoring math", () => {
         expect(adminGate?.score).toBe(12);
     });
 
+    it("does not let historical stale admin samples poison a current passing source activity sample", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                adminTruthSampleEvidence: {
+                    path: "agent/state/admin-truth-sample-evidence.generated.json",
+                    status: "formal_admin_truth_sample_passed",
+                    passed: true,
+                    detail: "Keep the redacted first-party admin source activity JSON sample fresh.",
+                    evidence: [
+                        "adminTruthSampleArtifactStatus=formal_admin_truth_sample_passed",
+                        "sampleCount=1",
+                        "freshAdminTruthSampleAttached=true",
+                        "adminTruthSample.passingArtifact=agent/evidence/admin-truth-sample/current.json",
+                        "adminTruthSample.staleArtifacts=1",
+                        "adminTruthSample.staleArtifact=agent/evidence/admin-truth-sample/old.json",
+                        "adminTruthSample.staleReason=old artifact is stale",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const adminGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
+        expect(adminGate?.status).toBe("Ready");
+        expect(adminGate?.score).toBe(12);
+        expect(report.evidenceCapDetails.join("\n")).not.toContain("Admin source activity sample evidence");
+    });
+
     it("keeps missing targeted behavior artifact non-passing without hardcoded false", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),

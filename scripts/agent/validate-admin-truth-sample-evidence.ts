@@ -229,7 +229,7 @@ export function adminTruthSampleReadinessImpact(
       canClearRuntimeGate: false,
       canClearProviderGate: false,
       canClearAdminTruthGate: true,
-      recommendedAction: "Keep redacted first-party admin truth JSON sample fresh.",
+      recommendedAction: "Keep the redacted first-party admin source activity JSON sample fresh.",
     };
   }
 
@@ -244,7 +244,7 @@ export function adminTruthSampleReadinessImpact(
       canClearRuntimeGate: false,
       canClearProviderGate: false,
       canClearAdminTruthGate: false,
-      recommendedAction: "Refresh the redacted admin truth JSON sample from the current code version before clearing the formal gate.",
+      recommendedAction: "Refresh the redacted admin source activity JSON sample from the current code version before clearing the admin source activity gate.",
     };
   }
 
@@ -259,7 +259,7 @@ export function adminTruthSampleReadinessImpact(
       canClearRuntimeGate: false,
       canClearProviderGate: false,
       canClearAdminTruthGate: false,
-      recommendedAction: "Repair or replace the incomplete redacted admin truth JSON sample before clearing the formal gate.",
+      recommendedAction: "Repair or replace the incomplete redacted admin source activity JSON sample before clearing the admin source activity gate.",
     };
   }
 
@@ -273,7 +273,7 @@ export function adminTruthSampleReadinessImpact(
     canClearRuntimeGate: false,
     canClearProviderGate: false,
     canClearAdminTruthGate: false,
-    recommendedAction: "Attach a bounded redacted admin truth JSON sample before clearing the formal gate.",
+    recommendedAction: "Produce a bounded redacted admin source activity JSON sample before clearing the admin source activity gate.",
   };
 }
 

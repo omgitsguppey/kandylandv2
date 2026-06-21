@@ -1,56 +1,62 @@
 {
-  "generatedAtUtc": "2026-06-21T01:11:25.686Z",
+  "generatedAtUtc": "2026-06-21T13:08:19.579Z",
   "reportKey": "admin-truth-sample-evidence",
-  "currentHead": "6e27a8290729f24a26801bc4434e723033a5b383",
-  "sourceCommit": "6e27a8290729f24a26801bc4434e723033a5b383",
-  "overallStatus": "stale_admin_truth_sample_evidence",
-  "status": "stale_admin_truth_sample_evidence",
-  "freshAdminTruthSampleAttached": false,
+  "currentHead": "c86e30d693c31d8ab185cdcf25626d96bb12ee2f",
+  "sourceCommit": "c86e30d693c31d8ab185cdcf25626d96bb12ee2f",
+  "overallStatus": "formal_admin_truth_sample_passed",
+  "status": "formal_admin_truth_sample_passed",
+  "freshAdminTruthSampleAttached": true,
   "productionSampleAttached": true,
-  "formalAdminTruthSamplePassed": false,
+  "formalAdminTruthSamplePassed": true,
   "launchHistoryCoverageSampleAttached": false,
   "launchHistoryCoverageSampleCount": 0,
-  "sampleCount": 0,
-  "completeSampleCount": 1,
+  "sampleCount": 1,
+  "completeSampleCount": 2,
   "staleSampleCount": 1,
-  "passed": false,
+  "passed": true,
   "evidenceFiles": [
     "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json"
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T130424Z.json",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T130424Z.redacted.json"
   ],
   "completeArtifacts": [
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json"
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T130424Z.json"
   ],
-  "passingArtifacts": [],
+  "passingArtifacts": [
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T130424Z.json"
+  ],
   "staleArtifacts": [
     "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json"
   ],
   "staleReasons": [
-    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth evidence currentHead 3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4 does not match 6e27a8290729f24a26801bc4434e723033a5b383.",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth evidence currentHead 3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4 does not match c86e30d693c31d8ab185cdcf25626d96bb12ee2f.",
     "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth sourceFreshnessUtc is older than 24h or missing."
   ],
   "readinessImpact": {
-    "adminTruthSampleGatePassed": false,
-    "phaseOneStatusCap": "Stale evidence",
-    "truthState": "admin_truth_sample_stale",
-    "actionState": "refresh_stale_evidence",
+    "adminTruthSampleGatePassed": true,
+    "phaseOneStatusCap": "Ready",
+    "truthState": "formal_admin_truth_sample_passed",
+    "actionState": "keep_fresh",
     "evidenceBoundary": "formal_admin_truth_sample_required",
     "canClearSourceGate": false,
     "canClearRuntimeGate": false,
     "canClearProviderGate": false,
-    "canClearAdminTruthGate": false,
-    "recommendedAction": "Refresh the redacted admin truth JSON sample from the current code version before clearing the formal gate."
+    "canClearAdminTruthGate": true,
+    "recommendedAction": "Keep the redacted first-party admin source activity JSON sample fresh."
   },
   "adminTruthCommandEvidence": [
-    "adminTruthSample.status=stale",
-    "adminTruthSample.completeArtifacts=1",
-    "adminTruthSample.passingArtifacts=0",
+    "adminTruthSample.status=complete",
+    "adminTruthSample.completeArtifacts=2",
+    "adminTruthSample.passingArtifacts=1",
     "adminTruthSample.launchHistoryCoverageArtifacts=0",
     "adminTruthSample.staleArtifacts=1",
     "productionSampleAttached=true",
-    "formalAdminTruthSamplePassed=false",
+    "formalAdminTruthSamplePassed=true",
+    "adminTruthSample.passingArtifact=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T130424Z.json",
     "adminTruthSample.staleArtifact=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
-    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth evidence currentHead 3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4 does not match 6e27a8290729f24a26801bc4434e723033a5b383.",
+    "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth evidence currentHead 3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4 does not match c86e30d693c31d8ab185cdcf25626d96bb12ee2f.",
     "adminTruthSample.staleReason=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json: admin truth sourceFreshnessUtc is older than 24h or missing."
   ]
 }

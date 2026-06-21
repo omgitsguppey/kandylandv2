@@ -92,6 +92,6 @@ describe("admin truth source sample", () => {
     expect(validateAdminTruthSourceSampleReport({
       ...report,
       formalAdminTruthSamplePassed: true,
-    })).toContain("source sample must not clear the admin source sample gate.");
+    })).toContain("source sample must not clear the admin source activity gate.");
   });
 });

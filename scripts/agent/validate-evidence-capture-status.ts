@@ -118,7 +118,7 @@ const laneLabels: Record<keyof EvidenceLaneStatuses, string> = {
   uiSurfaceCoverageEvidence: "UI surface coverage evidence",
   providerSmokeEvidence: "provider-backed site activity evidence",
   runtimeSmokeEvidence: "deployed route evidence",
-  adminTruthSampleEvidence: "admin source sample evidence",
+  adminTruthSampleEvidence: "admin source activity sample evidence",
 };
 
 function currentHead() {
@@ -359,7 +359,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     : [];
   const protectedProofLanes = [
     "provider-backed activity",
-    ...(options.laneStatuses.adminTruthSampleEvidence === "complete" ? [] : ["admin source sample"]),
+    ...(options.laneStatuses.adminTruthSampleEvidence === "complete" ? [] : ["admin source activity sample"]),
     "billing",
     "exact-user",
   ];
@@ -432,11 +432,11 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
       "Run deterministic UI source coverage and device UI source checks; fix any source-reported UI surface gaps before optional browser reproduction.",
       "Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider-backed site activity evidence is captured; redact provider tokens and secrets.",
       "Run npm run capture:truthful-evidence -- --runtime-smoke to intentionally generate deployed route evidence without provider/payment calls.",
-      "Run npm run capture:truthful-evidence -- --admin-truth to generate a bounded redacted admin source sample without deployed route probes.",
+      "Run npm run capture:truthful-evidence -- --admin-truth to generate a bounded redacted admin source activity sample without deployed route probes.",
       `Drop privacy-safe daily aggregate activity export at ${liveRuntimeEvidence.expectedImportPath}.`,
       "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider-backed site activity evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once deployed route evidence is expected to be complete.",
-      "Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin source sample evidence is expected to be complete.",
+      "Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin source activity sample evidence is expected to be complete.",
       "Run npm run check:beta-evidence-lane-prep to see every source-to-proof lane with checklist, validator, and launch impact.",
       ...uniqueRefreshCommands(refreshPlan).map((command) => `Refresh generated status with ${command}.`),
     ],
@@ -598,7 +598,7 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     `- UI surface coverage evidence: \`${report.summary.uiSurfaceCoverageEvidence}\`.`,
     `- Provider-backed site activity evidence: \`${report.summary.providerSmokeEvidence}\`.`,
     `- Deployed route evidence: \`${report.summary.runtimeSmokeEvidence}\`.`,
-    `- Admin source sample evidence: \`${report.summary.adminTruthSampleEvidence}\`.`,
+    `- Admin source activity sample evidence: \`${report.summary.adminTruthSampleEvidence}\`.`,
     `- Templates created: ${report.summary.templatesCreated}.`,
     `- Complete artifacts: ${report.summary.completeArtifacts}.`,
     `- Strict mode ready: ${report.summary.strictModeReady ? "yes" : "no"}.`,

@@ -109,7 +109,7 @@ export function buildAdminTruthSourceSampleReport(inputs: BuildInputs): AdminTru
       `fakeHealthyStateDetected=${inputs.fakeHealthyStateDetected}`,
       "launchGateImpact=partial_source_admin_truth_only",
     ],
-    nextAction: "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
+    nextAction: "Produce a redacted admin source activity sample before clearing the admin source activity gate.",
     summary: {
       adminTruthSourceReady,
       telemetryLaneCount: inputs.degradedOrUnavailableLanes.length,
@@ -128,8 +128,8 @@ export function validateAdminTruthSourceSampleReport(report: AdminTruthSourceSam
   if (report.sourceCommit !== report.currentHead) failures.push("artifact must be tied to the latest code version.");
   if (report.productionSampleAttached !== false) failures.push("source sample must not claim production sample attachment.");
   if (report.formalRuntimeSampleAttached !== false) failures.push("source sample must not claim deployed runtime evidence.");
-  if (report.formalAdminTruthSamplePassed !== false) failures.push("source sample must not clear the admin source sample gate.");
-  if (report.launchGateImpact !== "partial_source_admin_truth_only") failures.push("source sample must not clear admin truth sample gate.");
+  if (report.formalAdminTruthSamplePassed !== false) failures.push("source sample must not clear the admin source activity gate.");
+  if (report.launchGateImpact !== "partial_source_admin_truth_only") failures.push("source sample must not clear admin source activity gate.");
   if (report.fakeHealthyStateDetected) failures.push("admin truth source sample detected fake healthy state.");
   if (!report.sourceTruthLabelsPresent) failures.push("admin truth source labels are required.");
   if (report.sourceTruthStatus !== "source_backed") failures.push("source truth fields must be included.");
@@ -215,7 +215,7 @@ Latest code version: ${report.currentHead}
 - Degraded/unavailable lanes: ${report.degradedOrUnavailableLanes.length}
 - Critical admin truth issues: ${report.criticalAdminTruthIssueCount}
 
-This is source wiring evidence only. It does not replace a redacted admin source activity sample.
+This is source wiring evidence only. It points to the bounded redacted admin source activity sample still needed for the admin source activity gate.
 
 ## Degraded Or Unavailable Lanes
 

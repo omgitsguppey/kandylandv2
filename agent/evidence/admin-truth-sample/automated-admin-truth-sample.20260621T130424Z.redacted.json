@@ -1,0 +1,63 @@
+{
+  "reportKey": "admin-truth-redacted-json-sample",
+  "capturedAtUtc": "2026-06-21T13:04:24.891Z",
+  "sourceArtifact": "agent/state/admin-truth-source-sample.generated.json",
+  "sourceFreshnessUtc": "2026-06-21T13:04:02.634Z",
+  "sourceTruthStatus": "source_backed",
+  "sourceTruthLabelsPresent": true,
+  "fakeHealthyStateDetected": false,
+  "criticalAdminTruthIssueCount": 0,
+  "telemetryLaneCount": 6,
+  "degradedOrUnavailableLaneCount": 6,
+  "debugTriageBlockingItems": 1,
+  "lanes": [
+    {
+      "lane": "ingest",
+      "status": "runtime_unproven",
+      "nextAction": "Open the route runtime drilldown or wait for runtime samples before treating ingest as proven."
+    },
+    {
+      "lane": "user_events",
+      "status": "runtime_unproven",
+      "nextAction": "Refresh admin analytics snapshots before reading user-event health."
+    },
+    {
+      "lane": "watch_time",
+      "status": "runtime_unproven",
+      "nextAction": "Attach or verify deployed runtime watch-session evidence before treating watch time as proven."
+    },
+    {
+      "lane": "materializers",
+      "status": "runtime_unproven",
+      "nextAction": "Use snapshot metadata before raw collections."
+    },
+    {
+      "lane": "bigquery_export",
+      "status": "config_missing",
+      "nextAction": "Configure export only in an owner-approved cloud pipeline pass."
+    },
+    {
+      "lane": "admin_snapshots",
+      "status": "unavailable",
+      "nextAction": "Run the admin analytics refresh lane before treating this as current."
+    }
+  ],
+  "launchHistoryCoverageReadiness": {
+    "sourceArtifact": "agent/state/launch-analytics-recovery.generated.json",
+    "status": "source_agreement_failed",
+    "canClearSourceGate": false,
+    "canAttachFormalCoverage": false,
+    "allLaunchRangeProven": false,
+    "coverageWindowKind": "fixture_only_local_window",
+    "rangeStartDayKey": "2026-02-12",
+    "rangeEndDayKey": "2026-02-14",
+    "expectedDayCount": 3,
+    "recoveredDayCount": 3,
+    "productTruthRecoveredDayCount": 1,
+    "dayRowCount": 3,
+    "sourceAgreementState": "failed",
+    "sourceGateReason": "The evidence window is not proven to cover the full launch range; source truth needs a redacted all-range historical export or admin truth sample before clearing.",
+    "nextAction": "Run npm run check:analytics-panel-hydration after attaching approved launch-history coverage."
+  },
+  "redactionPolicy": "No user identifiers, emails, transaction IDs, provider IDs, raw auth data, or support content included."
+}

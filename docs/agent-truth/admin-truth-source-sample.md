@@ -1,8 +1,8 @@
 # Admin Truth Source Sample
 
-Generated: 2026-06-21T03:57:17.488Z
+Generated: 2026-06-21T13:04:02.634Z
 
-Latest code version: c53978beb10283d481e7a0d5c1e943fb01056eab
+Latest code version: c86e30d693c31d8ab185cdcf25626d96bb12ee2f
 
 ## Summary
 
@@ -16,7 +16,7 @@ Latest code version: c53978beb10283d481e7a0d5c1e943fb01056eab
 - Degraded/unavailable lanes: 6
 - Critical admin truth issues: 0
 
-This is source wiring evidence only. It does not replace a redacted admin source activity sample.
+This is source wiring evidence only. It points to the bounded redacted admin source activity sample still needed for the admin source activity gate.
 
 ## Degraded Or Unavailable Lanes
 

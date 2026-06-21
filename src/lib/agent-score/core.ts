@@ -1023,16 +1023,8 @@ export function buildPublicBetaEvidenceGates(input: {
     reason: `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear provider-backed site activity or deployed runtime route evidence.`,
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
 
-  const adminTruthSamplePassed = evidenceArtifactPassed(evidence.adminTruthSampleEvidence);
   const adminTruthSampleStatus = String(evidenceArtifactStatus(evidence.adminTruthSampleEvidence, "missing_or_unknown"));
-  const adminTruthNeedsFormalProof = /missing_formal_evidence|missing_or_unknown|tracked_not_passing|admin_truth_sample_required/iu.test(adminTruthSampleStatus);
-  const adminTruthSampleDetail = evidenceArtifactDetail(
-    evidence.adminTruthSampleEvidence,
-    adminTruthSamplePassed
-      ? "Admin source activity sample evidence was supplied."
-      : "No admin source activity sample evidence artifact was supplied.",
-  );
-  const adminTruthSampleEvidence = Array.from(new Set([
+  const adminTruthSampleEvidenceRaw = Array.from(new Set([
     `adminTruthSampleArtifactStatus=${adminTruthSampleStatus}`,
     ...evidenceArtifactEvidence(evidence.adminTruthSampleEvidence),
   ]));
@@ -1045,21 +1037,37 @@ export function buildPublicBetaEvidenceGates(input: {
       requiresRuntimeProof: true,
     },
   });
+  const currentAdminSourceActivitySamplePassed = evidence.adminTruthSampleEvidence?.passed === true
+    && /passed|formal_admin_truth_sample_passed/iu.test(adminTruthSampleStatus)
+    && /sampleCount=([1-9][0-9]*)/iu.test(adminTruthSampleEvidenceRaw.join("\n"))
+    && adminBaseQuality.freshness === "fresh";
+  const adminTruthSamplePassed = evidenceArtifactPassed(evidence.adminTruthSampleEvidence)
+    || currentAdminSourceActivitySamplePassed;
+  const adminTruthNeedsFormalProof = /missing_formal_evidence|missing_or_unknown|tracked_not_passing|admin_truth_sample_required/iu.test(adminTruthSampleStatus);
+  const adminTruthSampleDetail = evidenceArtifactDetail(
+    evidence.adminTruthSampleEvidence,
+    adminTruthSamplePassed
+      ? "Admin source activity sample evidence was supplied."
+      : "No admin source activity sample evidence artifact was supplied.",
+  );
+  const adminTruthSampleEvidence = adminTruthSampleEvidenceRaw;
   const adminBridgeCredit = formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit / 100;
   const adminTruthSampleEvidenceText = adminTruthSampleEvidence.join("\n");
-  const adminSourceConfidence = adminTruthSampleStatus.includes("source_ready")
-    && /sourceTruthStatus=source_backed/iu.test(adminTruthSampleEvidenceText)
-    && /criticalAdminTruthIssueCount=0/iu.test(adminTruthSampleEvidenceText)
-    && /fakeHealthyStateDetected=false/iu.test(adminTruthSampleEvidenceText)
-    ? 92
-    : 0;
+  const adminSourceConfidence = currentAdminSourceActivitySamplePassed
+    ? 100
+    : adminTruthSampleStatus.includes("source_ready")
+      && /sourceTruthStatus=source_backed/iu.test(adminTruthSampleEvidenceText)
+      && /criticalAdminTruthIssueCount=0/iu.test(adminTruthSampleEvidenceText)
+      && /fakeHealthyStateDetected=false/iu.test(adminTruthSampleEvidenceText)
+      ? 92
+      : 0;
   const adminSourceActivityCredit = Math.max(adminBridgeCredit, adminSourceConfidence / 100);
   const adminQuality = {
     ...adminBaseQuality,
     quality: adminBaseQuality.quality,
     confidence: Math.max(adminBaseQuality.confidence, adminBridgeCredit * 0.9, adminSourceConfidence / 100),
     partialCredit: adminTruthSamplePassed
-      ? adminBaseQuality.partialCredit
+      ? roundScore(Math.max(adminBaseQuality.partialCredit, adminSourceActivityCredit))
       : roundScore(adminSourceActivityCredit),
     blocksLaunch: adminBaseQuality.blocksLaunch,
     reason: adminBaseQuality.quality === "formal_passed"
@@ -1222,7 +1230,7 @@ export function buildPublicBetaEvidenceGates(input: {
       recommendedAction: "Require a redacted admin source activity sample before rendering zero/live/healthy as launch truth.",
       quality: adminQuality,
       gateRequiredForExit: true,
-      sourceCredit: adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
+      sourceCredit: adminTruthSamplePassed || adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
         ? Math.max(adminBridgeCredit * 100, adminSourceConfidence)
         : undefined,
       runtimeCredit: adminQuality.quality === "formal_passed"

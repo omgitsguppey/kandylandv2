@@ -51,7 +51,7 @@ describe("evidence capture status", () => {
       "live runtime evidence bridge: live_runtime_evidence_bridge=aggregate_activity_confirmed; aggregate_activity_confirmed=2; provider_required=2; admin_truth_source_required=1; billing_required=1; dailyActivityImport=present:agent/evidence/live-runtime-activity/recent-activity.export.json",
     );
     expect(report.formalMissingEvidence).toContain(
-      "site activity evidence clears connected site-activity lanes; provider-backed activity, admin source sample, billing, or exact-user lanes need matching source exports before clearing.",
+      "site activity evidence clears connected site-activity lanes; provider-backed activity, admin source activity sample, billing, or exact-user lanes need matching source exports before clearing.",
     );
     expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
   });
@@ -75,7 +75,7 @@ describe("evidence capture status", () => {
       "site activity evidence clears connected site-activity lanes; provider-backed activity, billing, or exact-user lanes need matching source exports before clearing.",
     );
     expect(report.formalMissingEvidence).not.toContain(
-      "site activity evidence clears connected site-activity lanes; provider-backed activity, admin source sample, billing, or exact-user lanes need matching source exports before clearing.",
+      "site activity evidence clears connected site-activity lanes; provider-backed activity, admin source activity sample, billing, or exact-user lanes need matching source exports before clearing.",
     );
     expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
   });
