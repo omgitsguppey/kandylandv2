@@ -155,6 +155,70 @@ describe("final phase cleanup lock", () => {
     expect(report.humanEvidenceNeeded.some((item) => item.key === "ui_source_coverage_required")).toBe(true);
   });
 
+  it("derives missing UI source coverage from structured score state without screenshot caps", () => {
+    const reports = baseReports();
+    reports.publicBetaScore = {
+      ...reports.publicBetaScore,
+      evidenceCaps: [],
+      operatorFinalChecks: {
+        uiVisualSurfaces: {
+          sourceChecksPassed: false,
+          passedInCodex: false,
+          needsOperatorReview: false,
+        },
+      },
+      launchClearance: {
+        formalGates: {
+          uiSurfaceCoverage: {
+            cleared: false,
+            status: "source_surface_checks_failed",
+            source: "agent/state/ui-visual-smoke-minimal.generated.json",
+          },
+        },
+      },
+    };
+
+    const report = buildFixtureReport(reports);
+
+    expect(report.summary.missingHumanEvidence).toBeGreaterThan(0);
+    expect(report.remainingBlockers).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        key: "ui_source_coverage_required",
+        status: "source_validation_required",
+        exactNextAction: "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps.",
+      }),
+    ]));
+  });
+
+  it("does not require optional visual reproduction when UI source coverage is structured and clear", () => {
+    const reports = baseReports();
+    reports.publicBetaScore = {
+      ...reports.publicBetaScore,
+      evidenceCaps: [{ key: "legacy_note", label: "Browser reproduction optional after source issue" }],
+      operatorFinalChecks: {
+        uiVisualSurfaces: {
+          sourceChecksPassed: true,
+          passedInCodex: true,
+          needsOperatorReview: false,
+        },
+      },
+      launchClearance: {
+        formalGates: {
+          uiSurfaceCoverage: {
+            cleared: true,
+            status: "source_surface_checks_current",
+            source: "agent/state/ui-visual-smoke-minimal.generated.json",
+          },
+        },
+      },
+    };
+
+    const report = buildFixtureReport(reports);
+
+    expect(report.humanEvidenceNeeded.some((item) => item.key === "ui_source_coverage_required")).toBe(false);
+    expect(report.nextExactSteps.join("\n")).not.toMatch(/screenshot|visual qa/iu);
+  });
+
   it("does not treat operator-reported provider evidence as passed", () => {
     const reports = baseReports();
     reports.providerSmokeEvidence = {

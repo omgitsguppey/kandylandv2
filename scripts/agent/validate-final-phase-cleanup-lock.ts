@@ -264,6 +264,28 @@ function evidenceCaps(report: JsonReport) {
   });
 }
 
+function booleanValue(input: JsonReport | unknown, key: string) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return null;
+  const value = (input as Record<string, unknown>)[key];
+  return typeof value === "boolean" ? value : null;
+}
+
+function uiSourceCoverageIsMissing(report: JsonReport, caps: string[]) {
+  const operatorChecks = objectValue(report, "operatorFinalChecks");
+  const uiVisualSurfaces = objectValue(operatorChecks, "uiVisualSurfaces");
+  const launchClearance = objectValue(report, "launchClearance");
+  const formalGates = objectValue(launchClearance, "formalGates");
+  const uiSurfaceCoverage = objectValue(formalGates, "uiSurfaceCoverage");
+  const sourceChecksPassed = booleanValue(uiVisualSurfaces, "sourceChecksPassed");
+  const gateCleared = booleanValue(uiSurfaceCoverage, "cleared");
+
+  if (sourceChecksPassed !== null || gateCleared !== null) {
+    return sourceChecksPassed !== true || gateCleared !== true;
+  }
+
+  return caps.some((entry) => /visual qa required|visual\/manual smoke|ui source coverage|required ui surface/iu.test(entry));
+}
+
 function loadReports(): FinalPhaseCleanupSourceReports {
   return Object.fromEntries(
     Object.entries(reportSources).map(([key, source]) => [key, tryReadJson(source.path)]),
@@ -439,7 +461,7 @@ export function buildFinalPhaseCleanupLockReport(options: {
   const betaScore = nullableNumberValue(beta, ["overallScore", "score"]) ?? nullableNumberValue(objectValue(beta, "summary"), ["score"]);
   const betaReadiness = stringValue(beta, ["readinessStatus", "overallStatus", "status"], "missing");
   const betaCaps = evidenceCaps(beta);
-  const visualMissing = betaCaps.some((entry) => /visual qa required|visual\/manual smoke/iu.test(entry));
+  const visualMissing = uiSourceCoverageIsMissing(beta, betaCaps);
 
   const providerPassed = isProviderSmokePassed(provider);
   const runtimePassed = isRuntimeSmokePassed(runtime);
@@ -505,7 +527,7 @@ export function buildFinalPhaseCleanupLockReport(options: {
       "source_validation_required",
       "public-beta-score",
       reportSources.publicBetaScore.path,
-      "The beta score still applies a visual/source coverage cap; deterministic source coverage must tell on UI issues before optional screenshots are used for reproduction.",
+      "The beta score still applies a visual/source coverage cap; deterministic source coverage must tell on UI issues before optional browser/device reproduction is used.",
       "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps.",
       "ui-source-coverage-owner",
     ));

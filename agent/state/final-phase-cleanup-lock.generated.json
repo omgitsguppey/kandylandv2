@@ -1,60 +1,60 @@
 {
-  "generatedAtUtc": "2026-06-19T15:15:07.064Z",
+  "generatedAtUtc": "2026-06-21T01:00:38.290Z",
   "reportKey": "final-phase-cleanup-lock",
-  "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
+  "currentHead": "2b747fc36bb2c0d8e1e2fa4b3fd517b56d457aa0",
   "commitsReviewed": [
-    "e947d8289 repo intelligence: replace manual screenshot gate with UI source coverage",
-    "fbc3a07e8 fix(admin): load control tower source reports in fixture",
-    "0369b753a repo intelligence: refresh public beta proof boundary [skip release-notes]",
-    "68647ce4d fix(admin): label analytics refresh due as cached",
-    "b275ece32 repo intelligence: refresh analytics evidence heads [skip release-notes]",
-    "150f93852 repo intelligence: refresh formal launch day coverage [skip release-notes]",
-    "c03bd18fa analytics: expose formal launch day coverage",
-    "56c9a2e1f analytics: surface launch range proof in rebuild dry run",
-    "196bec8eb repo intelligence: refresh formal launch range evidence [skip release-notes]",
-    "430f2b3c0 analytics: expose formal launch range proof",
-    "de973ebbb repo intelligence: refresh public beta score head [skip release-notes]",
-    "743bd0fa0 repo intelligence: refresh telemetry hydration evidence [skip release-notes]",
-    "3840197f6 repo intelligence: refresh beta evidence status states [skip release-notes]",
-    "367469556 repo intelligence: refresh launch analytics source states [skip release-notes]",
-    "f7e707f97 analytics: normalize launch range source states",
-    "bb6d19061 repo intelligence: refresh analytics hydration head [skip release-notes]",
-    "474008a70 fix(analytics): compact source recovery summary",
-    "ba6b7ba4e fix(admin): clarify source-only evidence lanes",
-    "74f19db7d repo intelligence: refresh analytics recovery evidence [skip release-notes]",
-    "2d49fe026 fix(admin): clarify beta evidence states",
-    "4edce10c3 repo intelligence: refresh public beta evidence head [skip release-notes]",
-    "a60406429 fix(analytics): remove stale live-update warning literal",
-    "67c9342dc fix(analytics): label verified caches as snapshots",
-    "c22fdabf9 fix(admin): mark stale evidence head drift",
-    "8dd217140 repo intelligence: refresh current exit evidence head [skip release-notes]",
-    "940c6a46a analytics: expose formal launch coverage gaps [skip release-notes]",
-    "eda9e007e repo intelligence: refresh postflight evidence head [skip release-notes]",
-    "c0c9a8ba7 repo intelligence: refresh beta evidence head [skip release-notes]",
-    "6aa61cc5c analytics: separate formal launch range proof [skip release-notes]",
-    "cf087be24 fix(admin): clarify evidence proof states",
-    "263395717 fix(admin): soften truth badge language",
-    "e2e11a97e fix(admin): simplify analytics source copy",
-    "a92890796 fix(admin): simplify analytics drilldown controls",
-    "2a30a73d3 fix(admin): compact control tower proof summary",
-    "87ae6e368 fix(admin): clarify analytics source states",
-    "b1a3de326 chore(beta): refresh evidence status boundaries [skip release-notes]",
-    "ef2255f2b chore(analytics): collapse source agreement report hop",
-    "131ddd851 chore(analytics): require redacted launch coverage evidence",
-    "36831a402 chore(analytics): align evidence refresh boundaries",
-    "a9c93ffc3 analytics: clarify launch evidence freshness"
+    "2b747fc36 docs(analytics): refresh recovery evidence snapshots [skip release-notes]",
+    "55c7685ba analytics: remove duplicate guest quality formulas",
+    "237414f67 analytics: preserve missing chart values",
+    "a3ce1108d analytics: avoid fake zero chart rows",
+    "aa7007ad2 analytics: keep guest source gaps out of zero estimates",
+    "b7cd7a346 analytics: normalize admin recovery panel source states",
+    "5f8383a63 docs(release): accept beta 1.6.10 notes [skip release-notes]",
+    "db53cd1ba release: remove visual manual evidence gate",
+    "38fd46962 analytics: keep overview snapshots out of live truth",
+    "b85031e9d telemetry: avoid no-op manifest churn",
+    "0141a544a analytics: normalize telemetry event fact truth",
+    "53895a2c2 evidence: refresh navigation recovery metadata [skip release-notes]",
+    "ca1347ca0 analytics: label navigation destination recovery metadata",
+    "d3eb02f62 evidence: refresh recent commerce recovery metadata [skip release-notes]",
+    "6fa6dc20d analytics: label recent commerce recovery metadata",
+    "cf6e56485 evidence: refresh content conversion recovery metadata [skip release-notes]",
+    "8259b341f analytics: label content conversion recovery metadata",
+    "ce9a1476f evidence: refresh top drop conversion recovery metadata [skip release-notes]",
+    "67a77d0d6 analytics: label top drop conversion recovery metadata",
+    "4b0627881 evidence: refresh region demand recovery metadata [skip release-notes]",
+    "ff8898e94 analytics: label region demand recovery metadata",
+    "acb90b656 evidence: refresh device mix recovery metadata [skip release-notes]",
+    "008c9652d analytics: label device mix recovery metadata",
+    "ec52fd769 evidence: refresh top paths recovery metadata [skip release-notes]",
+    "f449cd60b analytics: label top paths recovery metadata",
+    "c67d9c750 analytics: expose historical source metadata contract",
+    "c3f4e42bf evidence: refresh historical traffic source metadata [skip release-notes]",
+    "b868b6691 analytics: annotate historical traffic source truth",
+    "07172166b evidence: refresh launch coverage dedupe [skip release-notes]",
+    "ebd977cc6 analytics: dedupe launch coverage day rows",
+    "42a6dedd9 evidence: refresh launch coverage input statuses [skip release-notes]",
+    "f47fe7825 analytics: clarify launch coverage input statuses",
+    "713751ab2 evidence: refresh launch export next action [skip release-notes]",
+    "8f5ce3117 analytics: clarify launch export next action",
+    "06b250124 evidence: refresh launch export path [skip release-notes]",
+    "411939022 evidence: default launch coverage imports to export path",
+    "7e4b7a451 evidence: refresh launch recovery command [skip release-notes]",
+    "7d9ebc601 analytics: surface launch evidence command",
+    "966d4b4b3 evidence: refresh launch recovery aliases [skip release-notes]",
+    "ad14b5fe7 telemetry: query launch recovery aliases"
   ],
   "summary": {
     "userFacingConnectionStatus": "P0=0 P1=0 P2=1 fakeActions=0",
     "productSurfaceIntegrityStatus": "P0=0 P1=0 P2=28 stale=3 deferred=28",
     "speedSecurityStatus": "52/beta-risk; findings=83; critical=0",
-    "betaScore": 78.18,
+    "betaScore": 73.57,
     "betaReadinessStatus": "External proof required",
-    "staleAuthorityRisks": 11,
+    "staleAuthorityRisks": 12,
     "remainingP0": 0,
-    "remainingP1": 2,
-    "remainingP2": 12,
-    "missingHumanEvidence": 1,
+    "remainingP1": 3,
+    "remainingP2": 13,
+    "missingHumanEvidence": 3,
     "missingProviderEvidence": 1,
     "missingRuntimeEvidence": 0,
     "canStartUiSourceCoverage": true,
@@ -166,17 +166,7 @@
     }
   ],
   "unavailableChecks": [],
-  "refreshedReports": [
-    {
-      "reportKey": "public-beta-score",
-      "path": "agent/state/public-beta-score.generated.json",
-      "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
-      "generatedAtUtc": "2026-06-19T15:13:38.831Z",
-      "sourceState": "current",
-      "ownerLane": "beta-readiness-owner",
-      "exactNextAction": "No action required for report freshness."
-    }
-  ],
+  "refreshedReports": [],
   "staleReports": [
     {
       "reportKey": "user-facing-feature-connection-audit",
@@ -215,10 +205,19 @@
       "exactNextAction": "Refresh agent/state/repo-spring-cleaning-rewire.generated.json through its focused owner command; do not treat stale data as live readiness."
     },
     {
+      "reportKey": "public-beta-score",
+      "path": "agent/state/public-beta-score.generated.json",
+      "currentHead": "53112b169e7e3e1599b1d651059bec9134249602",
+      "generatedAtUtc": "2026-06-20T19:46:36.276Z",
+      "sourceState": "stale_head",
+      "ownerLane": "beta-readiness-owner",
+      "exactNextAction": "Refresh agent/state/public-beta-score.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
       "reportKey": "targeted-behavior-evidence",
       "path": "agent/state/targeted-behavior-evidence.generated.json",
-      "currentHead": "fbc3a07e813b938bea6c96792ccb9e54d8596734",
-      "generatedAtUtc": "2026-06-19T14:31:43.176Z",
+      "currentHead": "6e903936b9ba164bd883dff1e698504e51a4aed0",
+      "generatedAtUtc": "2026-06-20T15:23:53.326Z",
       "sourceState": "stale_head",
       "ownerLane": "behavior-evidence-owner",
       "exactNextAction": "Refresh agent/state/targeted-behavior-evidence.generated.json through its focused owner command; do not treat stale data as live readiness."
@@ -244,8 +243,8 @@
     {
       "reportKey": "admin-truth-sample-evidence",
       "path": "agent/state/admin-truth-sample-evidence.generated.json",
-      "currentHead": "1341f6d52f5e848c3d81bc39039e3f8333bb66e7",
-      "generatedAtUtc": "2026-06-18T07:44:00.799Z",
+      "currentHead": "abe95d7eb82c56a1f8d4492a17f22dc15196d231",
+      "generatedAtUtc": "2026-06-20T18:22:05.248Z",
       "sourceState": "stale_head",
       "ownerLane": "admin-truth-owner",
       "exactNextAction": "Refresh agent/state/admin-truth-sample-evidence.generated.json through its focused owner command; do not treat stale data as live readiness."
@@ -292,6 +291,16 @@
   ],
   "remainingBlockers": [
     {
+      "key": "ui_source_coverage_required",
+      "severity": "P1",
+      "status": "source_validation_required",
+      "sourceReport": "public-beta-score",
+      "fileOrRoute": "agent/state/public-beta-score.generated.json",
+      "whyItMatters": "The beta score still applies a visual/source coverage cap; deterministic source coverage must tell on UI issues before optional browser/device reproduction is used.",
+      "exactNextAction": "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps.",
+      "ownerLane": "ui-source-coverage-owner"
+    },
+    {
       "key": "provider_smoke_required",
       "severity": "P1",
       "status": "provider_smoke_required",
@@ -308,7 +317,7 @@
       "sourceReport": "admin-truth-sample-evidence",
       "fileOrRoute": "agent/state/admin-truth-sample-evidence.generated.json",
       "whyItMatters": "Admin truth sample evidence is missing, so source freshness/sample states are not formally confirmed.",
-      "exactNextAction": "Attach a fresh admin truth screenshot or JSON sample and refresh admin-truth-sample-evidence.generated.json.",
+      "exactNextAction": "Attach a fresh redacted admin truth JSON/sample packet and refresh admin-truth-sample-evidence.generated.json.",
       "ownerLane": "admin-truth-owner"
     },
     {
@@ -360,6 +369,16 @@
       "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
       "exactNextAction": "Refresh agent/state/repo-spring-cleaning-rewire.generated.json through its focused owner command; do not treat stale data as live readiness.",
       "ownerLane": "repo-governance-owner"
+    },
+    {
+      "key": "stale_authority_public_beta_score",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "public-beta-score",
+      "fileOrRoute": "agent/state/public-beta-score.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/public-beta-score.generated.json through its focused owner command; do not treat stale data as live readiness.",
+      "ownerLane": "beta-readiness-owner"
     },
     {
       "key": "stale_authority_targeted_behavior_evidence",
@@ -456,15 +475,28 @@
   ],
   "humanEvidenceNeeded": [
     {
+      "key": "ui_source_coverage_required",
+      "status": "source_validation_required",
+      "sourceReport": "public-beta-score",
+      "exactNextAction": "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps."
+    },
+    {
+      "key": "optional_visual_reproduction",
+      "status": "optional_after_source_issue",
+      "sourceReport": "public-beta-score",
+      "exactNextAction": "Use real-device or browser reproduction only after source coverage reports a concrete UI issue."
+    },
+    {
       "key": "admin_truth_sample_required",
       "status": "evidence_missing",
       "sourceReport": "admin-truth-sample-evidence",
-      "exactNextAction": "Attach a fresh admin truth screenshot or JSON sample with source freshness and sample count."
+      "exactNextAction": "Attach a fresh redacted admin truth JSON/sample packet with source freshness and sample count."
     }
   ],
   "nextExactSteps": [
+    "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI surface gaps.",
     "Run formal provider smoke checks and refresh provider-smoke-evidence.generated.json.",
-    "Attach a fresh admin truth screenshot or JSON sample and refresh admin-truth-sample-evidence.generated.json.",
+    "Attach a fresh redacted admin truth JSON/sample packet and refresh admin-truth-sample-evidence.generated.json.",
     "Refresh or archive stale generated reports through focused owner validators; do not treat them as live authority.",
     "Continue focused speed/security guardrail cleanup from the current recommendedFixOrder without touching forbidden surfaces."
   ]
