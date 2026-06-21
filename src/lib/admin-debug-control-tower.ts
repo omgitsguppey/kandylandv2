@@ -650,7 +650,7 @@ function normalizePublicBetaEvidenceGateFinding(
             title: "Source-only behavior evidence",
             domain: "beta_readiness",
             filePath: relativePath,
-            humanReadableWarning: "Implemented behavior checks passed; runtime, provider, admin truth, and UI source contract evidence remain separate lanes.",
+            humanReadableWarning: "Implemented behavior checks passed; deployed route, provider-backed site activity, admin source sample, and UI source contract evidence remain separate lanes.",
             suggestedValidator: definition.command,
             evidence: [evidenceDetail],
             truthState: "unknown",
