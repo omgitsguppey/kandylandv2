@@ -365,8 +365,8 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
   ];
   const formalMissingEvidence = [
     ...missingEvidence,
-    "provider smoke remains formal-missing until a formal provider/app artifact is attached.",
-    `live runtime evidence does not clear ${formatOrList(protectedProofLanes)} proof lanes.`,
+    "provider smoke remains source-required until redacted provider/app evidence or first-party server-confirmed ledger/webhook activity is attached.",
+    `live runtime evidence clears connected site-activity lanes; ${formatOrList(protectedProofLanes)} lanes need matching source exports before clearing.`,
   ];
   const refreshPlan = buildRefreshPlan([
     reportRelativePath,
@@ -504,11 +504,11 @@ export function validateEvidenceCaptureStatusReport(
   if (!report.sourceReadyEvidence.some((entry) => entry.includes("live runtime evidence bridge:"))) {
     failures.push("sourceReadyEvidence must include live runtime evidence bridge status.");
   }
-  if (!Array.isArray(report.formalMissingEvidence) || !report.formalMissingEvidence.some((entry) => /provider smoke remains formal-missing/iu.test(entry))) {
-    failures.push("formalMissingEvidence must keep provider smoke separate from operator confirmation.");
+  if (!Array.isArray(report.formalMissingEvidence) || !report.formalMissingEvidence.some((entry) => /provider smoke remains source-required/iu.test(entry))) {
+    failures.push("formalMissingEvidence must keep provider smoke separated from operator confirmation and tied to provider/app source evidence.");
   }
-  if (!report.formalMissingEvidence.some((entry) => /does not clear provider, .*billing, .*exact-user proof/iu.test(entry))) {
-    failures.push("formalMissingEvidence must keep live activity separate from protected proof lanes.");
+  if (!report.formalMissingEvidence.some((entry) => /clears connected site-activity lanes; provider, .*billing, .*exact-user lanes need matching source exports/iu.test(entry))) {
+    failures.push("formalMissingEvidence must explain that live activity clears connected site lanes while protected lanes need matching source exports.");
   }
   const operatorRevenueSmoke = report.summary.operatorRevenueSmoke;
   if (operatorRevenueSmoke?.revenueSmokeStatus === "operator_confirmed_revenue_smoke") {

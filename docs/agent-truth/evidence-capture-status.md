@@ -2,9 +2,9 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-06-20T18:36:23.388Z
+Generated: 2026-06-21T02:41:53.034Z
 
-Latest code version: `fc8eb97ede2367693ff4531f58d7a11909810282`
+Latest code version: `a5d8e7124557f69a6afa2c2934728eb4edbaa683`
 
 ## Summary
 
@@ -52,14 +52,14 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 - provider smoke evidence is missing.
 - admin truth sample evidence is stale.
-- provider smoke remains formal-missing until a formal provider/app artifact is attached.
-- live runtime evidence does not clear provider, admin, billing, or exact-user proof lanes.
+- provider smoke remains source-required until redacted provider/app evidence or first-party server-confirmed ledger/webhook activity is attached.
+- live runtime evidence clears connected site-activity lanes; provider, admin, billing, or exact-user lanes need matching source exports before clearing.
 
 ## Refresh Plan
 
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/public-beta-score.generated.json: Public beta score is current as a same-commit generated report snapshot. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.

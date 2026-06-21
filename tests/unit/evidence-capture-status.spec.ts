@@ -27,7 +27,7 @@ describe("evidence capture status", () => {
     expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
   });
 
-  it("represents live runtime evidence import separately from formal evidence lanes", () => {
+  it("represents live runtime evidence import separately from protected source lanes", () => {
     const report = buildEvidenceCaptureStatusReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-17T05:30:00.000Z",
@@ -51,7 +51,7 @@ describe("evidence capture status", () => {
       "live runtime evidence bridge: live_runtime_evidence_bridge=aggregate_activity_confirmed; aggregate_activity_confirmed=2; provider_required=2; admin_truth_source_required=1; billing_required=1; dailyActivityImport=present:agent/evidence/live-runtime-activity/recent-activity.export.json",
     );
     expect(report.formalMissingEvidence).toContain(
-      "live runtime evidence does not clear provider, admin, billing, or exact-user proof lanes.",
+      "live runtime evidence clears connected site-activity lanes; provider, admin, billing, or exact-user lanes need matching source exports before clearing.",
     );
     expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
   });
@@ -72,10 +72,10 @@ describe("evidence capture status", () => {
     });
 
     expect(report.formalMissingEvidence).toContain(
-      "live runtime evidence does not clear provider, billing, or exact-user proof lanes.",
+      "live runtime evidence clears connected site-activity lanes; provider, billing, or exact-user lanes need matching source exports before clearing.",
     );
     expect(report.formalMissingEvidence).not.toContain(
-      "live runtime evidence does not clear provider, admin, billing, or exact-user proof lanes.",
+      "live runtime evidence clears connected site-activity lanes; provider, admin, billing, or exact-user lanes need matching source exports before clearing.",
     );
     expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
   });
