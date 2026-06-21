@@ -4,16 +4,16 @@
   "repo": "omgitsguppey/kandylandv2",
   "branch": "main",
   "reportMode": "evidence_refresh",
-  "launchStatus": "unknown evidence",
+  "launchStatus": "stale evidence",
   "recommendedGoNoGo": "hold_for_evidence",
-  "requiredNextAction": "Do not launch until visual QA, real-device smoke, provider smoke, admin truth sample evidence, and runtime evidence are recorded in repo evidence artifacts.",
+  "requiredNextAction": "Do not launch until UI source coverage, real-device smoke, provider smoke, admin truth sample evidence, and runtime evidence are recorded in repo evidence artifacts.",
   "blockers": [],
   "highRisks": [
     {
-      "id": "EVIDENCE-VISUAL",
-      "title": "Visual QA missing",
-      "evidence": "No formal screenshot/manual QA evidence artifact exists for current main.",
-      "recommendation": "Run User-Surface Screenshot QA."
+      "id": "EVIDENCE-UI-SOURCE",
+      "title": "UI source coverage missing or stale",
+      "evidence": "No current deterministic UI source coverage artifact is attached to this stale readiness snapshot.",
+      "recommendation": "Run UI source coverage checks and use browser reproduction only for source-reported issues."
     },
     {
       "id": "EVIDENCE-SMOKE",
@@ -53,7 +53,7 @@
     {
       "gate": "user critical path",
       "status": "warning",
-      "evidence": "visual QA missing"
+      "evidence": "UI source coverage missing or stale"
     },
     {
       "gate": "payment unlock entitlement security",

@@ -7,15 +7,15 @@
   "phaseOneStatus": "Unknown evidence",
   "readinessStatus": "Unknown evidence",
   "readinessCaps": [
-    "Visual QA required",
+    "Source validation only",
     "Ready with smoke required",
     "Runtime unverified",
     "Unknown evidence"
   ],
-  "recommendedGoNoGo": "HOLD for evidence: visual QA, real-device smoke, provider smoke, admin truth samples, and runtime evidence remain missing.",
-  "requiredNextAction": "Run User-Surface Screenshot QA, Real-Device Smoke, provider smoke, and formal admin truth sample evidence recording. Do not treat operator-reported PayPal smoke as repo evidence until it is recorded.",
+  "recommendedGoNoGo": "HOLD for evidence: source UI coverage, real-device smoke, provider smoke, admin truth samples, and runtime evidence remain missing or stale.",
+  "requiredNextAction": "Run deterministic UI source coverage, Real-Device Smoke, provider smoke, and formal admin truth sample evidence recording. Do not treat operator-reported PayPal smoke as repo evidence until it is recorded.",
   "missingEvidence": [
-    "visual QA missing",
+    "source UI coverage missing or stale",
     "real-device smoke missing",
     "provider smoke missing",
     "admin truth samples missing/unknown",
@@ -40,10 +40,10 @@
   },
   "hardStopRules": [
     {
-      "rule": "No launch readiness without current visual/manual QA evidence.",
+      "rule": "No launch readiness without current source UI coverage evidence.",
       "result": "missing_evidence",
       "evidence": [
-        "visual QA missing"
+        "source UI coverage missing or stale"
       ]
     },
     {
@@ -65,7 +65,7 @@
   ],
   "overallUnresolvedBlockers": [],
   "overallUnresolvedWarnings": [
-    "visual QA missing",
+    "source UI coverage missing or stale",
     "real-device smoke missing",
     "provider smoke missing",
     "admin truth samples missing/unknown",
@@ -157,7 +157,7 @@
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "User-surface screenshot/manual QA is missing for current main."
+        "Deterministic UI source coverage is missing or stale for current main."
       ],
       "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
@@ -337,7 +337,7 @@
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "User-surface visual/manual accessibility QA is missing."
+        "User-surface source accessibility coverage is missing or stale."
       ],
       "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [

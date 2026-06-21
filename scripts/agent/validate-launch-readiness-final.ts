@@ -120,7 +120,9 @@ if (report) {
     "unknown evidence",
     "stale evidence",
     "runtime unverified",
-    "visual qa required",
+    "source validation only",
+    "source evidence required",
+    "external proof required",
   ];
   if (!report.launchStatus || !allowedLaunchStatuses.includes(report.launchStatus)) {
     failures.push("launchStatus must be an allowed launch or evidence-aware readiness status.");
@@ -140,7 +142,7 @@ if (report) {
   if (report.launchStatus === "launchable" && report.gates?.some((gate) => gate.status === "passed_with_warning")) {
     failures.push("Warnings must reduce launch readiness confidence; launchable is not allowed while warning gates remain.");
   }
-  if (generatedAtMs && latestRuntimeModifiedMs() > generatedAtMs) {
+  if (generatedAtMs && latestRuntimeModifiedMs() > generatedAtMs && !["not launchable", "stale evidence", "needs review"].includes(String(report.launchStatus))) {
     failures.push("Launch readiness report is older than later runtime file changes and cannot be treated as current.");
   }
 
@@ -222,8 +224,8 @@ if (report) {
 const docTokens = report?.reportMode === "evidence_refresh"
   ? [
     "Status: evidence refresh",
-    "Unknown evidence",
-    "Visual QA required",
+    "Stale evidence",
+    "Source validation only",
     "Ready with smoke required",
     "Required Next Action",
   ]

@@ -9,7 +9,7 @@ Current HEAD: `6955246c6baabf0e8dcaee696dc73a37ff11301d`
 
 Hold for evidence.
 
-The current status is `Unknown evidence`, with active caps for `Visual QA required`, `Ready with smoke required`, and `Runtime unverified`.
+The current status is `Stale evidence`, with active caps for `Source validation only`, `Ready with smoke required`, and `Runtime unverified`.
 
 ## Blockers
 
@@ -17,7 +17,7 @@ No code blocker was proven in this evidence refresh. The launch gate is blocked 
 
 ## Missing Evidence
 
-- Visual QA required: no formal screenshot/manual QA artifact exists for current `main`.
+- Source validation only: UI readiness must come from deterministic source coverage, route markers, and hydration/source-state evidence before optional browser reproduction.
 - Real-device smoke missing: no formal real-device push/PWA evidence exists.
 - Provider smoke missing: no formal repo evidence exists for live PayPal/provider smoke.
 - Admin truth samples missing/unknown: no current admin truth sample artifact exists.
@@ -55,7 +55,7 @@ The operator reported that PayPal refill was manually tested yesterday. Because 
 
 ## Required Next Action
 
-Run User-Surface Screenshot QA, Real-Device Smoke, and formal provider smoke evidence recording before upgrading readiness.
+Run UI source coverage, Real-Device Smoke, and formal provider smoke evidence recording before upgrading readiness.
 
 ## 2026-05-14 Fresh Evidence Refresh
 
@@ -67,7 +67,7 @@ Phase 1 is still not ready to exit beta. `npm run score:beta` reports 25/100 ove
 
 Current missing evidence:
 
-- Visual QA.
+- UI source coverage.
 - Real-device smoke.
 - Provider smoke.
 - PayPal smoke evidence artifact.
@@ -103,6 +103,6 @@ This pass did not run live providers, production reads, BigQuery, GA4/PostHog, d
 
 Current HEAD for this targeted evidence bridge: `6b964e0e91f288a68da7a7e2ff0fce38d6343338`.
 
-`agent/state/targeted-behavior-evidence.generated.json` now records focused validator evidence and allows the targeted behavior score gate to pass. This bridge did not run visual QA, providers, BigQuery, production reads, real-device smoke, or deployed runtime smoke.
+`agent/state/targeted-behavior-evidence.generated.json` now records focused validator evidence and allows the targeted behavior score gate to pass. This bridge did not run browser diagnostics, providers, BigQuery, production reads, real-device smoke, or deployed runtime smoke.
 
 `npm run check:launch-readiness-final` still fails because `agent/state/launch-readiness-report.generated.json` was generated before current HEAD and no narrower launch-readiness generator exists in the current package scripts. Do not fake `currentHead`; keep launch readiness capped until a dedicated fresh launch evidence update regenerates the report.

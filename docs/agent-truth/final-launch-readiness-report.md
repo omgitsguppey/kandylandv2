@@ -11,7 +11,7 @@ Machine-readable report: `agent/state/final-launch-readiness-report.generated.js
 This is not a code-blocker claim. Current Phase 1 readiness is held by evidence gaps:
 
 - `Unknown evidence`
-- `Visual QA required`
+- `Source validation only`
 - `Ready with smoke required`
 - `Runtime unverified`
 
@@ -19,7 +19,7 @@ This is not a code-blocker claim. Current Phase 1 readiness is held by evidence 
 
 Do not call Phase 1 ready until these are formally recorded in repo evidence:
 
-- user-surface screenshot/manual QA
+- current UI source coverage evidence
 - real-device push and PWA smoke
 - provider smoke, including PayPal refill evidence
 - admin truth sample evidence
@@ -33,7 +33,7 @@ This report is a generated evidence snapshot, not launch doctrine. A stale `LAUN
 
 Launch readiness must be downgraded when:
 
-- visual/manual evidence is absent
+- source UI coverage evidence is absent or stale
 - live provider smoke is absent
 - real-device mobile/PWA smoke is absent
 - runtime/debug evidence is empty or unknown
@@ -41,7 +41,7 @@ Launch readiness must be downgraded when:
 - open PR triage is stale or unreconciled
 - summary gate counts disagree with the gate list
 
-Allowed honest states for operators are `Ready`, `Ready with smoke required`, `Needs review`, `Blocked`, `Unknown evidence`, `Stale evidence`, `Runtime unverified`, and `Visual QA required`.
+Allowed honest states for operators are `Ready`, `Ready with smoke required`, `Source validation only`, `Source evidence required`, `External proof required`, `Needs review`, `Blocked`, `Unknown evidence`, `Stale evidence`, and `Runtime unverified`.
 
 ## Gate Summary
 
@@ -70,7 +70,7 @@ The only current pass is scope-freeze evidence for this refresh lane. All other 
 
 ## Current Recommendation
 
-Next stage: User-Surface Screenshot QA and Real-Device Smoke after PR Cemetery Cleanup planning. Do not merge open PRs or claim launch readiness before evidence is current.
+Next stage: UI source coverage refresh and Real-Device Smoke after PR Cemetery Cleanup planning. Do not merge open PRs or claim launch readiness before evidence is current.
 
 ## 2026-05-14 Fresh Evidence Refresh
 
@@ -78,14 +78,14 @@ Current HEAD for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
 
 The analytics rewire closeout report was refreshed from current HEAD and still reports `p0Count=0` and `p1Count=0`; the remaining analytics rewire findings are P2/non-blocking validator-watch items.
 
-The refreshed public beta score remains 25/100 with scanner-only score 100/100 clean and evidence score 25/100. Phase 1 remains `Stale evidence` because visual QA, real-device smoke, provider smoke, PayPal smoke artifact, admin truth sample evidence, runtime evidence, and PR triage freshness are still not fully recorded in current repo evidence.
+The refreshed public beta score remains 25/100 with scanner-only score 100/100 clean and evidence score 25/100. Phase 1 remains `Stale evidence` because source UI coverage, real-device smoke, provider smoke, PayPal smoke artifact, admin truth sample evidence, runtime evidence, and PR triage freshness are still not fully recorded in current repo evidence.
 
 Failed focused validators in this refresh:
 
 - `npm run check:launch-readiness-final`: stale launch readiness report relative to later runtime file changes.
 - `npm run check:launch-pr-triage`: PR triage was generated before current HEAD and must cap readiness at Needs review.
 
-These failures require evidence refresh and smoke capture, not a runtime code change proven by this pass. Provider smoke, real-device smoke, and screenshot QA must still be recorded before readiness can be upgraded.
+These failures require evidence refresh and smoke capture, not a runtime code change proven by this pass. Provider smoke and real-device smoke must still be recorded before readiness can be upgraded, while UI readiness is source-coverage first.
 
 ## 2026-05-14 Formal Smoke Evidence Tracking
 
@@ -95,7 +95,7 @@ Formal tracking artifacts were added for provider, runtime, and admin truth samp
 - `agent/state/runtime-smoke-evidence.generated.json`
 - `agent/state/admin-truth-sample-evidence.generated.json`
 
-This reduces ambiguity around operator-reported evidence, but it does not upgrade launch readiness. PayPal remains operator-reported without attached repo artifact/log/screenshot. Provider smoke remains missing formal evidence. Runtime smoke remains unverified beyond local static validators. Admin truth samples remain missing or unknown.
+This reduces ambiguity around operator-reported evidence, but it does not upgrade launch readiness. PayPal remains operator-reported without attached repo artifact/log. Provider smoke remains missing formal evidence. Runtime smoke remains unverified beyond local static validators. Admin truth samples remain missing or unknown.
 
 `npm run check:launch-readiness-final` still fails because the older launch readiness report is stale relative to later runtime changes. The next readiness work is evidence capture, not runtime code changes.
 
@@ -103,6 +103,6 @@ This reduces ambiguity around operator-reported evidence, but it does not upgrad
 
 Current HEAD for this targeted evidence bridge: `6b964e0e91f288a68da7a7e2ff0fce38d6343338`.
 
-The targeted behavior evidence artifact now exists and passes focused validator checks. The final launch readiness report remains `NOT LAUNCHABLE` / evidence-refresh truth because visual QA, provider smoke, real-device smoke, deployed runtime smoke, admin truth samples, launch readiness freshness, and PR triage freshness remain incomplete.
+The targeted behavior evidence artifact now exists and passes focused validator checks. The final launch readiness report remains `NOT LAUNCHABLE` / evidence-refresh truth because source UI coverage freshness, provider smoke, real-device smoke, deployed runtime smoke, admin truth samples, launch readiness freshness, and PR triage freshness remain incomplete.
 
 `npm run check:final-launch-readiness-report` passes because the report honestly records missing evidence. `npm run check:launch-readiness-final` and `npm run check:launch-pr-triage` still fail because their generated artifacts predate current HEAD and no existing narrow generator refreshed them in this pass.

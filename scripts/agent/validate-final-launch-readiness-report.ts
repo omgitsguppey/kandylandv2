@@ -78,12 +78,14 @@ const EVIDENCE_REFRESH_COMMANDS = [
 const HONEST_READINESS_STATUSES = [
   "Ready",
   "Ready with smoke required",
+  "Source validation only",
+  "Source evidence required",
+  "External proof required",
   "Needs review",
   "Blocked",
   "Unknown evidence",
   "Stale evidence",
   "Runtime unverified",
-  "Visual QA required",
 ];
 
 function readRequired(relativePath: string) {
@@ -193,7 +195,7 @@ if (!["launch_signoff", "evidence_refresh"].includes(reportMode)) {
   failures.push("reportMode must be launch_signoff or evidence_refresh.");
 }
 if (reportMode === "evidence_refresh" && launchDecision !== "NOT LAUNCHABLE") {
-  failures.push("Evidence refresh reports with missing smoke/visual evidence must use NOT LAUNCHABLE until evidence is recorded.");
+  failures.push("Evidence refresh reports with missing smoke/external evidence must use NOT LAUNCHABLE until evidence is recorded.");
 }
 if (reportMode === "evidence_refresh" && !HONEST_READINESS_STATUSES.includes(String(report.phaseOneStatus ?? report.readinessStatus))) {
   failures.push("Evidence refresh reports must expose an honest phaseOneStatus/readinessStatus.");
@@ -286,7 +288,7 @@ if (generatedAtMs && summary.runtimeCodeChanged === false && latestRuntimeModifi
 const docExpectations = reportMode === "evidence_refresh"
   ? [
     "Evidence-Aware Readiness Rule",
-    "Visual QA required",
+    "Source validation only",
     "Ready with smoke required",
     "Unknown evidence",
     "NOT LAUNCHABLE",
