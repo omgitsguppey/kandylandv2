@@ -174,6 +174,65 @@ describe("SIGNAL problem ranker", () => {
     expect(report.rankedProblems[0]?.id).toBe("high_risk_hidden_after_cap");
   });
 
+  it("merges top-risk and emitted examples when compact artifacts omit rank input", () => {
+    const lowRiskFindings = Array.from({ length: 25 }, (_, index) =>
+      finding({
+        id: `low_compact_${index}`,
+        ruleId: "signal.source-graph.unknown-owner-lane",
+        title: `Low-risk compact finding ${index}`,
+        severity: "minor",
+        sourceSurface: "repo_intelligence",
+        ownerLane: "agent_context",
+        affectedFiles: [{ path: `scripts/agent/helper-${index}.ts`, role: "primary" }],
+        minimalVerificationCommands: [],
+      }),
+    );
+    const highRisk = finding({
+      id: "high_risk_top_only",
+      ruleId: "signal.source-graph.ui-server-import",
+      title: "Top-risk payment UI imports server logic.",
+      severity: "critical",
+      sourceSurface: "wallet_economy_payment",
+      ownerLane: "frontend",
+      affectedFiles: [
+        { path: "src/components/Wallet/CheckoutButton.tsx", role: "primary" },
+        { path: "src/lib/server/payment-ledger.ts", role: "adjacent" },
+      ],
+    });
+
+    const report = buildSignalProblemRankReport({
+      sourceGraph: {
+        schemaVersion: SIGNAL_FINDING_SCHEMA_VERSION,
+        generatedAtUtc: "2026-06-07T00:00:00.000Z",
+        reportPath: "agent/state/signal-source-graph.generated.json",
+        gitStatus: "available",
+        sourceFileDiscovery: "git",
+        toolingDegraded: false,
+        degradationReason: null,
+        inventoryBaselineStatus: "current",
+        summary: {
+          findingCount: 101,
+          byRule: {},
+          byOwnerLane: {},
+          bySourceSurface: {},
+        },
+        findings: {
+          totalCount: 101,
+          emittedCount: 25,
+          examples: lowRiskFindings,
+          topRiskExamples: [highRisk],
+        },
+      },
+      canonicalHelpers: [],
+      packageScripts: { "signal:rank": "tsx scripts/agent/rank-signal-problems.ts" },
+    });
+
+    expect(report.summary.sourceFindingCount).toBe(101);
+    expect(report.summary.rankInputFindingCount).toBe(26);
+    expect(report.rankedProblems.some((problem) => problem.id === "high_risk_top_only")).toBe(true);
+    expect(report.rankedProblems[0]?.id).toBe("high_risk_top_only");
+  });
+
   it("adds degraded source-discovery caveats to ranked findings", () => {
     const sourceGraph = {
       schemaVersion: SIGNAL_FINDING_SCHEMA_VERSION,

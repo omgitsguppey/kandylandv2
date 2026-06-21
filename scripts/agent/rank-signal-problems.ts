@@ -294,9 +294,14 @@ function sourceTruthCaveatForFinding(finding: SignalFinding, sourceGraph: Signal
 function findingsForRanking(sourceGraph: SignalSourceGraphReport) {
   if (sourceGraph.rankInputFindings?.length) return sourceGraph.rankInputFindings;
   if (Array.isArray(sourceGraph.findings)) return sourceGraph.findings;
-  return sourceGraph.findings.topRiskExamples.length > sourceGraph.findings.examples.length
-    ? sourceGraph.findings.topRiskExamples
-    : sourceGraph.findings.examples;
+  const byId = new Map<string, SignalFinding>();
+  for (const finding of [
+    ...sourceGraph.findings.topRiskExamples,
+    ...sourceGraph.findings.examples,
+  ]) {
+    byId.set(finding.id, finding);
+  }
+  return [...byId.values()];
 }
 
 function highRiskCounts(problems: RankedSignalProblem[]): NonNullable<GeneratedReportCompletenessMetadata["highRiskCounts"]> {

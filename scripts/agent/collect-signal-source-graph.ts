@@ -39,6 +39,9 @@ import {
 const REPORT_PATH = "agent/state/signal-source-graph.generated.json";
 const MAX_EXAMPLES = 25;
 const MAX_EMITTED_FINDINGS = 100;
+const MAX_WRITABLE_FINDING_EXAMPLES = 25;
+const MAX_WRITABLE_TOP_RISK_EXAMPLES = 15;
+const MAX_WRITABLE_WORKING_TREE_STATUS = 25;
 const SOURCE_ROOTS = ["src/", "functions/src/", "shared/", "tests/", "scripts/agent/"] as const;
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"] as const;
 const TS_SOURCE_EXTENSIONS = [".ts", ".tsx", ".mts", ".cts"] as const;
@@ -990,7 +993,36 @@ export function buildSignalSourceGraphReportFromRepo() {
 
 export function buildWritableSignalSourceGraphReport(report: SignalSourceGraphReport) {
   const { rankInputFindings: _rankInputFindings, ...compactReport } = report;
-  return compactReport;
+  const workingTreeStatus = Array.isArray(report.workingTreeStatus)
+    ? cap(report.workingTreeStatus, MAX_WRITABLE_WORKING_TREE_STATUS)
+    : report.workingTreeStatus;
+  const workingTreeStatusTotalCount = Array.isArray(report.workingTreeStatus)
+    ? report.workingTreeStatus.length
+    : 0;
+  const findingExamples = cap(report.findings.examples, MAX_WRITABLE_FINDING_EXAMPLES);
+  const topRiskExamples = cap(report.findings.topRiskExamples, MAX_WRITABLE_TOP_RISK_EXAMPLES);
+
+  return {
+    ...compactReport,
+    workingTreeStatus,
+    workingTreeStatusTotalCount,
+    workingTreeStatusEmittedCount: Array.isArray(workingTreeStatus) ? workingTreeStatus.length : 0,
+    workingTreeStatusOmittedCount: Array.isArray(report.workingTreeStatus)
+      ? Math.max(0, report.workingTreeStatus.length - workingTreeStatus.length)
+      : 0,
+    workingTreeStatusCapReason: Array.isArray(report.workingTreeStatus) && report.workingTreeStatus.length > MAX_WRITABLE_WORKING_TREE_STATUS
+      ? "Full working tree status is read in memory; generated artifact keeps a capped sample plus counts."
+      : null,
+    findings: {
+      ...report.findings,
+      examples: findingExamples,
+      topRiskExamples,
+      emittedCount: findingExamples.length,
+      emittedTopRiskCount: topRiskExamples.length,
+      omittedExampleCount: Math.max(0, report.findings.examples.length - findingExamples.length),
+      omittedTopRiskExampleCount: Math.max(0, report.findings.topRiskExamples.length - topRiskExamples.length),
+    },
+  };
 }
 
 export function main() {

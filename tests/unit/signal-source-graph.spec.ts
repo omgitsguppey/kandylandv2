@@ -58,6 +58,9 @@ describe("SIGNAL source graph collector", () => {
     expect(report.rankInputFindings.length).toBe(report.summary.findingCount);
     const writableReport = buildWritableSignalSourceGraphReport(report);
     expect("rankInputFindings" in writableReport).toBe(false);
+    expect(writableReport.findings.examples.length).toBeLessThanOrEqual(25);
+    expect(writableReport.findings.topRiskExamples.length).toBeLessThanOrEqual(15);
+    expect(writableReport.findings.totalCount).toBe(report.findings.totalCount);
     expect(report.commandBudget.forbiddenCommands).toContain("npm run check");
     expect(JSON.stringify(report)).not.toContain("process.env");
     expect(JSON.stringify(report)).not.toContain(".env.local");
