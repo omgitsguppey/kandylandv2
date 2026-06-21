@@ -18,6 +18,7 @@ import {
 } from "@/lib/admin-analytics-contracts";
 import {
   formatAdminAnalyticsEvidenceSourceLabel,
+  formatAdminAnalyticsSourceStateLabel,
   formatAdminAnalyticsSourceTruthLabel,
 } from "@/lib/analytics/admin-analytics-display-state";
 import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
@@ -92,6 +93,12 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
   const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
   const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
+  const guestEstimateFreshnessLabel = formatAdminAnalyticsSourceStateLabel(
+    guestBounceQualityModel.estimatedGuestViews.freshnessState,
+  );
+  const signedInBounceFreshnessLabel = formatAdminAnalyticsSourceStateLabel(
+    guestBounceQualityModel.signedInBounce.freshnessState,
+  );
   const firstSnapshotLabel = "Collecting activity";
   const noSnapshotLabel = "No verified snapshot yet";
   const noEventSampleLabel = "No event sample";
@@ -1400,7 +1407,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           <td className="px-3 py-2 font-semibold text-white">{guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.display}</td>
                           <td className="px-3 py-2" title={guestBounceQualityModel.estimatedGuestViews.sourceTruth}>{guestEstimateSourceLabel}</td>
-                          <td className="px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.freshnessState}</td>
+                          <td className="px-3 py-2" title={guestBounceQualityModel.estimatedGuestViews.freshnessState}>
+                            {guestEstimateFreshnessLabel}
+                          </td>
                           <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}</td>
                         </tr>
                         <tr>
@@ -1413,7 +1422,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         <tr>
                           <td className="px-3 py-2 font-semibold text-white">Signed-in Bounce</td>
                           <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.display}</td>
-                          <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.freshnessState}</td>
+                          <td className="px-3 py-2" title={guestBounceQualityModel.signedInBounce.freshnessState}>
+                            {signedInBounceFreshnessLabel}
+                          </td>
                           <td className="px-3 py-2">{guestBounceQualityModel.signedInBounce.sampleCount ?? noGuestSampleLabel}</td>
                           <td className="max-w-[16rem] truncate px-3 py-2">{guestBounceQualityModel.signedInBounce.explanation}</td>
                         </tr>
@@ -1489,7 +1500,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               <div className="mt-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2 text-[10px] leading-5 text-gray-400 md:grid-cols-3">
                 <span>
                   <span className="font-semibold text-white">Estimate freshness:</span>{" "}
-                  {guestBounceQualityModel.estimatedGuestViews.freshnessState}
+                  {guestEstimateFreshnessLabel}
                 </span>
                 <span>
                   <span className="font-semibold text-white">Last guest batch:</span>{" "}

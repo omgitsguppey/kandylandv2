@@ -146,13 +146,21 @@ describe("Admin analytics operations mobile consolidation", () => {
 
   it("uses shared source-truth labels instead of raw source keys in visible rows", () => {
     expect(source).toContain("formatAdminAnalyticsSourceTruthLabel");
+    expect(source).toContain("formatAdminAnalyticsSourceStateLabel");
     expect(source).toContain("guestEstimateSourceLabel");
+    expect(source).toContain("guestEstimateFreshnessLabel");
+    expect(source).toContain("signedInBounceFreshnessLabel");
     expect(source).toContain("liveInteractionSourceLabel");
     expect(source).toContain("title={guestBounceQualityModel.estimatedGuestViews.sourceTruth}");
+    expect(source).toContain("title={guestBounceQualityModel.estimatedGuestViews.freshnessState}");
+    expect(source).toContain("title={guestBounceQualityModel.signedInBounce.freshnessState}");
     expect(source).toContain("title={liveInteractionStreamModel.sourceTruth}");
     expect(source).toContain("title={event.sourceTruth}");
     expect(source).not.toContain('<td className="px-3 py-2">{event.sourceTruth}</td>');
     expect(source).not.toContain("{event.sourceTruth} - {event.surfaceState");
     expect(source).not.toContain("{guestBounceQualityModel.estimatedGuestViews.sourceTruth}</td>");
+    expect(source).not.toContain("<td className=\"px-3 py-2\">{guestBounceQualityModel.estimatedGuestViews.freshnessState}</td>");
+    expect(source).not.toContain("<td className=\"px-3 py-2\">{guestBounceQualityModel.signedInBounce.freshnessState}</td>");
+    expect(source).toContain("{guestEstimateFreshnessLabel}");
   });
 });

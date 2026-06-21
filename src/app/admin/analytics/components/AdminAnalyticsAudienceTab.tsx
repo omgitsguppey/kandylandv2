@@ -89,6 +89,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const returnCadenceSourceTruthLabel = formatAdminAnalyticsSourceTruthLabel(
     returnCadenceModel.sourceTruth,
   );
+  const returnCadenceFreshnessLabel = formatAdminAnalyticsSourceStateLabel(
+    returnCadenceModel.freshnessState,
+  );
   const returnCadenceBuckets = buildAdminAnalyticsReturnCadenceBuckets(returnCadenceModel);
   const navigationDestinationsSourceLabel =
     navigationDestinationsModel.sourceModeLabel === "Unavailable"
@@ -447,7 +450,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   ))}
                   <p className="text-gray-500">
                     Source: {returnCadenceModel.sourceLabel}
-                    {" | "}Freshness: {returnCadenceModel.freshnessState}
+                    {" | "}Freshness: {returnCadenceFreshnessLabel}
                     {" | "}Range: {returnCadenceModel.range}
                   </p>
                   <p className="text-gray-500">
@@ -536,7 +539,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               <td className="px-3 py-2" title={returnCadenceModel.sourceTruth}>
                                 {returnCadenceSourceTruthLabel}
                               </td>
-                              <td className="px-3 py-2">{returnCadenceModel.freshnessState}</td>
+                              <td className="px-3 py-2" title={returnCadenceModel.freshnessState}>
+                                {returnCadenceFreshnessLabel}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -724,7 +729,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               <td className="px-3 py-2" title={item.sourceTruth}>
                                 {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
                               </td>
-                              <td className="px-3 py-2">{item.freshnessState}</td>
+                              <td className="px-3 py-2" title={item.freshnessState}>
+                                {formatAdminAnalyticsSourceStateLabel(item.freshnessState)}
+                              </td>
                               <td className="px-3 py-2">
                                 {item.lastSeenAtUtc
                                   ? formatRelativeTime(Date.parse(item.lastSeenAtUtc), nowMs)
@@ -771,7 +778,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                               <span title={item.sourceTruth}>
                                 Source: {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
                               </span>
-                              {" | "}Freshness: {item.freshnessState}
+                              {" | "}Freshness: {formatAdminAnalyticsSourceStateLabel(item.freshnessState)}
                               {" | "}Last seen: {item.lastSeenAtUtc
                                 ? formatRelativeTime(Date.parse(item.lastSeenAtUtc), nowMs)
                                 : noSnapshotLabel}

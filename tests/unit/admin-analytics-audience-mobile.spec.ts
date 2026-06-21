@@ -84,6 +84,8 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).toContain("formatAdminAnalyticsSourceTruthLabel");
     expect(source).toContain("audienceSourceStateLabel");
     expect(source).toContain("returnCadenceSourceTruthLabel");
+    expect(source).toContain("returnCadenceFreshnessLabel");
+    expect(source).toContain("formatAdminAnalyticsSourceStateLabel(item.freshnessState)");
     expect(source).toContain("title={returnCadenceModel.sourceTruth}");
     expect(source).toContain("title={item.sourceTruth}");
     expect(source).toContain("title={row.sourceTruth}");
@@ -97,6 +99,10 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).not.toContain("<td className=\"px-3 py-2\">{item.sourceTruth}</td>");
     expect(source).not.toContain("Source: {item.sourceTruth}");
     expect(source).not.toContain("Source: {row.sourceTruth}");
+    expect(source).not.toContain('{" | "}Freshness: {returnCadenceModel.freshnessState}');
+    expect(source).not.toContain('{" | "}Freshness: {item.freshnessState}');
+    expect(source).not.toContain("<td className=\"px-3 py-2\">{returnCadenceModel.freshnessState}</td>");
+    expect(source).not.toContain("<td className=\"px-3 py-2\">{item.freshnessState}</td>");
     expect(source).not.toContain("Recovery label:");
     expect(source).not.toContain("vendor evidence + first-party snapshot");
     expect(source).toContain('label="Site users"');
