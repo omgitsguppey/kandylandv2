@@ -114,4 +114,36 @@ describe("source evidence bridge", () => {
 
     expect(validateFormalEvidenceBridgeReport(report)).toContain("operator revenue must not clear the provider-backed source gate.");
   });
+
+  it("keeps attached admin sample actions in redacted source-activity wording while preserving compatibility status keys", () => {
+    const report = buildFormalEvidenceBridgeReport({
+      generatedAtUtc: new Date().toISOString(),
+      currentHead: "head",
+      artifacts: {
+        adminSourceSample: artifact({
+          path: "agent/state/admin-truth-sample-evidence.generated.json",
+          status: "formal_admin_truth_sample_passed",
+          passed: true,
+          generatedAtUtc: new Date().toISOString(),
+          currentHead: "head",
+          evidence: ["formalAdminTruthSamplePassed=true", "productionSampleAttached=true"],
+        }),
+        sourceBackedRuntimeConfidence: artifact({
+          path: "agent/state/source-backed-runtime-confidence.generated.json",
+          status: "source_ready_runtime_confidence",
+          passed: true,
+          generatedAtUtc: new Date().toISOString(),
+          currentHead: "head",
+          evidence: ["runtimeConfidenceScore=80", "deployedSmokePresent=false"],
+        }),
+      },
+    });
+
+    expect(report.formalGateStatus.adminProductionSample.status).toBe("production_admin_truth_artifact");
+    expect(report.formalGateStatus.adminProductionSample.nextAction).toBe("Keep redacted admin source activity sample fresh.");
+    expect(report.gates.adminTruthSamples.nextAction).toBe("Keep redacted admin source activity sample fresh.");
+    expect(`${report.formalGateStatus.adminProductionSample.nextAction} ${report.gates.adminTruthSamples.nextAction}`)
+      .not.toMatch(/production admin truth|first-party admin sample|manual proof/iu);
+    expect(validateFormalEvidenceBridgeReport(report)).toEqual([]);
+  });
 });

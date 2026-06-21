@@ -1,8 +1,8 @@
 # Source Evidence Bridge
 
-Generated: 2026-06-21T19:35:58.151Z
+Generated: 2026-06-21T20:12:08.892Z
 
-Current head: 187d6964a50ddf5a4077b19e88471c7e23414b75
+Current head: ab5450dcf3f0f019e183441b8039958949047b80
 
 ## Summary
 
@@ -22,7 +22,7 @@ Current head: 187d6964a50ddf5a4077b19e88471c7e23414b75
 | freshness | 91.88 | 91.88 |
 | costRisk | 42 | 42 |
 | regressionRisk | 94 | 94 |
-| overallHealthScore | 89.31 | 89.31 |
+| overallHealthScore | 90.16 | 90.16 |
 
 ## Bridge Gates
 

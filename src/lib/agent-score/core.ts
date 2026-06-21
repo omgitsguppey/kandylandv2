@@ -452,7 +452,7 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
       const targetedArtifactMissing = gate.evidence.some((entry) => /targetedBehaviorArtifactStatus=missing_formal_evidence/iu.test(entry));
       return targetedArtifactMissing && gate.sourceCredit > gate.evidenceCredit
         ? `${gate.status}: ${gate.label} - Source activity evidence is present; attach targeted source validator evidence before treating targeted behavior tests as passed.`
-        : `${gate.status}: ${gate.label} - Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records.`;
+        : `${gate.status}: ${gate.label} - Source behavior passed; deployed route, provider-backed, and admin source activity lanes still need matching site activity records.`;
     }
     if (gate.status === "Stale evidence") {
       return `${gate.status}: ${gate.label} - Refresh the targeted source validator evidence.`;
@@ -594,7 +594,7 @@ function buildScoreExplanation(input: {
     evidenceScoreMeaning: `Evidence score ${input.evidenceScore}/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score ${input.healthScore}/100 currently maps to launch gate ${input.launchGateStatus}.`,
     missingEvidenceCaps: input.evidenceCapDetails,
     staleReportHandling: "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
-    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review lanes unless matching source activity records are present. Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only after a source-reported issue.",
+    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider-backed site activity, deployed route, admin source activity, or cost owner-review lanes unless matching source activity records are present. Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only after a source-reported issue.",
     betaExitBlockedBy: blockedBy,
   };
 }
@@ -629,7 +629,7 @@ function buildOperatorFinalChecks(uiSurfaceCoverageEvidence?: PublicBetaEvidence
       needsOperatorReview,
       passedInCodex: sourceChecksPassed,
       sourceChecksPassed,
-      note: "deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only to reproduce a source-reported UI issue and does not clear provider/runtime/admin truth.",
+      note: "deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only to reproduce a source-reported UI issue and does not clear provider-backed site activity, deployed route, or admin source activity evidence.",
       sourcePath: uiSurfaceCoverageEvidence?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
       surfaces: surfaceIds.map((surfaceId) => ({
         surfaceId,

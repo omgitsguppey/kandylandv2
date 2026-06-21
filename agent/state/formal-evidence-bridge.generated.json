@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T19:35:58.151Z",
+  "generatedAtUtc": "2026-06-21T20:12:08.892Z",
   "reportKey": "formal-evidence-bridge",
-  "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
+  "currentHead": "ab5450dcf3f0f019e183441b8039958949047b80",
   "formalGateStatus": {
     "providerSmoke": {
       "cleared": false,
@@ -95,7 +95,7 @@
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 89.31
+    "overallHealthScore": 90.16
   },
   "scoreAfter": {
     "sourceHealth": 97.2,
@@ -104,7 +104,7 @@
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 89.31
+    "overallHealthScore": 90.16
   },
   "scoreDimensionImpact": {
     "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime route evidence.",

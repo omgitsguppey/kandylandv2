@@ -55,7 +55,7 @@ const freshEvidence = {
         path: "agent/state/provider-smoke-evidence.generated.json",
         status: "passed",
         passed: true,
-        detail: "Formal provider smoke passed.",
+        detail: "Provider-backed site activity evidence passed.",
         evidence: ["providerArtifactStatus=passed"],
         generatedAtUtc: freshGeneratedAtUtc,
     },
@@ -63,7 +63,7 @@ const freshEvidence = {
         path: "agent/state/runtime-smoke-evidence.generated.json",
         status: "passed",
         passed: true,
-        detail: "Formal runtime smoke passed.",
+        detail: "Deployed runtime route evidence passed.",
         evidence: ["runtimeArtifactStatus=passed"],
         generatedAtUtc: freshGeneratedAtUtc,
     },
@@ -87,7 +87,7 @@ const freshEvidence = {
         path: "agent/state/admin-truth-sample-evidence.generated.json",
         status: "passed",
         passed: true,
-        detail: "Fresh admin truth sample attached.",
+        detail: "Fresh admin source activity sample supplied.",
         evidence: [
             "adminTruthSampleArtifactStatus=passed",
             "sampleCount=1",
@@ -119,7 +119,7 @@ const runtimeUnverifiedEvidence = {
     path: "agent/state/runtime-smoke-evidence.generated.json",
     status: "runtime_unverified",
     passed: false,
-    detail: "No deployed runtime smoke.",
+    detail: "No deployed runtime route evidence.",
     evidence: ["runtimeArtifactStatus=runtime_unverified", "runtimeDeploymentSmokePassed=false"],
 };
 
@@ -438,7 +438,7 @@ describe("public beta scoring math", () => {
             expect.stringContaining("Source validation only: Targeted behavior tests"),
         ]));
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            expect.stringContaining("Source behavior passed; runtime, provider-backed, and admin truth lanes still need matching site activity records."),
+            expect.stringContaining("Source behavior passed; deployed route, provider-backed, and admin source activity lanes still need matching site activity records."),
         ]));
         expect(report.evidenceCapDetails.join("\n")).not.toContain("attach targeted source validator evidence");
         expect(report.evidenceCapDetails.join("\n")).not.toContain("does not prove visual review");

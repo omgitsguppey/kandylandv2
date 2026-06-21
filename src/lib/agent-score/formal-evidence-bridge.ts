@@ -230,7 +230,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
       formalGateCleared: adminFormal,
       evidenceClasses: adminFormal ? ["production_admin_truth_artifact"] : ["admin_source_sample", "missing_formal_artifact"],
       nextAction: adminFormal
-        ? "Keep production admin truth sample fresh."
+        ? "Keep redacted admin source activity sample fresh."
         : "Produce a redacted admin source activity sample before clearing the admin lane.",
     }),
     debugRuntimeEvidence: gateCredit({
@@ -266,7 +266,7 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
       adminProductionSample: {
         cleared: adminFormal,
         status: adminFormal ? "production_admin_truth_artifact" : "missing_formal_artifact",
-        nextAction: adminFormal ? "Keep admin production sample fresh." : "Produce redacted admin source activity sample evidence.",
+        nextAction: adminFormal ? "Keep redacted admin source activity sample fresh." : "Produce redacted admin source activity sample evidence.",
       },
     },
     sourceConfidenceStatus: {
