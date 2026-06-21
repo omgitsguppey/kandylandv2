@@ -208,7 +208,7 @@ function writeGeneratedState(result: LaneEvaluation) {
   const operatorRevenue = record(record(readOptionalJson("agent/state/operator-revenue-smoke.generated.json")).summary);
   const operatorConfirmed = operatorRevenue.revenueSmokeStatus === "operator_confirmed_revenue_smoke";
   const operatorNote = operatorConfirmed
-    ? "Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke."
+    ? "Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed site activity evidence."
     : "No operator-confirmed PayPal activity is attached.";
   const report = {
     generatedAtUtc,
@@ -230,8 +230,8 @@ function writeGeneratedState(result: LaneEvaluation) {
       status: passed ? "formal_provider_smoke_passed" : "missing_formal_evidence",
       passed,
       recommendedAction: passed
-        ? "Keep redacted provider smoke evidence fresh."
-        : "Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof.",
+        ? "Keep redacted provider-backed site activity evidence fresh."
+        : "Attach real redacted provider-backed site activity evidence; product-context notes do not clear this gate.",
     },
     paypalRefillSmoke: {
       status: operatorConfirmed ? "operator_reported_not_formal_provider_smoke" : "missing_formal_evidence",
@@ -245,8 +245,8 @@ function writeGeneratedState(result: LaneEvaluation) {
       notes: [
         operatorNote,
         passed
-          ? "A complete redacted provider artifact cleared the provider smoke gate."
-          : "Provider/payment proof remains external until a complete redacted provider artifact exists.",
+          ? "A complete redacted provider artifact cleared the provider-backed site activity gate."
+          : "Provider/payment status remains source-evidence-required until a complete redacted provider artifact exists.",
       ],
     },
     evidenceFiles: result.evidenceFiles,

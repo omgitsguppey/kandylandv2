@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-06-21T03:43:09.190Z",
-  "currentHead": "834b8addac00c455edeed2bc32fbfec8aa9e1475",
+  "generatedAtUtc": "2026-06-21T03:57:17.488Z",
+  "currentHead": "c53978beb10283d481e7a0d5c1e943fb01056eab",
   "adminDebugControlTowerModelPresent": true,
   "adminDebugRoutePresent": true,
   "routeDiagnosticsPresent": true,
@@ -47,7 +47,7 @@
   "criticalAdminTruthIssueCount": 0,
   "fakeHealthyStateDetected": false,
   "reportKey": "admin-truth-source-sample",
-  "sourceCommit": "834b8addac00c455edeed2bc32fbfec8aa9e1475",
+  "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
   "status": "source_ready_admin_truth_sample",
   "passed": true,
   "launchGateImpact": "partial_source_admin_truth_only",
@@ -69,7 +69,7 @@
     "fakeHealthyStateDetected=false",
     "launchGateImpact=partial_source_admin_truth_only"
   ],
-  "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+  "nextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
   "summary": {
     "adminTruthSourceReady": true,
     "telemetryLaneCount": 6,

@@ -1,15 +1,15 @@
 {
-  "generatedAtUtc": "2026-06-21T03:44:46.413Z",
+  "generatedAtUtc": "2026-06-21T03:58:41.666Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "834b8addac00c455edeed2bc32fbfec8aa9e1475",
-  "sourceCommit": "834b8addac00c455edeed2bc32fbfec8aa9e1475",
+  "currentHead": "c53978beb10283d481e7a0d5c1e943fb01056eab",
+  "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
-    "sourceCostReadinessScore": 79.5,
-    "costRiskScore": 79.5,
+    "sourceCostReadinessScore": 68.5,
+    "costRiskScore": 68.5,
     "staleCreatorDashboardInventoryIgnored": true,
-    "cloudRunSourceReady": false,
+    "cloudRunSourceReady": true,
     "cloudSqlOwnerReview": true,
     "geminiOwnerReview": true,
     "route4xxSourceReady": true,
@@ -19,12 +19,12 @@
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
-      "status": "cost_review_required",
-      "detail": "Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
+      "status": "source_guarded_external_review_remaining",
+      "detail": "Cloud Run/App Hosting has source guard coverage; deployed billing review remains external.",
       "evidence": [
         "finalCostCurrent=true",
         "globalCostSourceClean=true",
-        "cloudRunGuarded=false",
+        "cloudRunGuarded=true",
         "externalBillingReviewed=false",
         "owner=speed-security-cost",
         "externalReviewRequired=true",
@@ -34,10 +34,10 @@
       "blocksBetaExit": false
     },
     "cloudSqlCostReadiness": {
-      "status": "source_ready_no_runtime_usage_detected",
-      "detail": "Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.",
+      "status": "owner_review_external_billing_required",
+      "detail": "Cloud SQL/Data Connect source or external billing state still needs owner review.",
       "evidence": [
-        "cloudSqlGuardReportCurrent=true",
+        "cloudSqlGuardReportCurrent=false",
         "cloudSqlRuntimeDetected=false",
         "sqlMirrorScriptsGuarded=true",
         "sqlMirrorRequiresExplicitApproval=true",
@@ -51,10 +51,10 @@
       "blocksBetaExit": false
     },
     "geminiCloudAssistCostReadiness": {
-      "status": "source_guarded_external_review_remaining",
-      "detail": "AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.",
+      "status": "cost_review_required",
+      "detail": "AI cost lane lacks enough source guard evidence for refinement.",
       "evidence": [
-        "cloudSqlGeminiGuardCurrent=true",
+        "cloudSqlGeminiGuardCurrent=false",
         "geminiRuntimeDetected=true",
         "aiCallsRequireExplicitAction=true",
         "aiCallsHaveRateOrCacheGuard=true",
@@ -85,8 +85,8 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 79.5,
-  "costRiskScoreExplanation": "Cost risk score 79.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.",
+  "costRiskScore": 68.5,
+  "costRiskScoreExplanation": "Cost risk score 68.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.",
   "externalOwnerReviewStillRequired": true,
   "sourceReadinessSignals": [
     "cloudRunSourceReady=false",
@@ -96,7 +96,7 @@
     "telemetryCurrent=false",
     "costOwnerReviewSourceClosureCurrent=true",
     "costRiskOwnerReviewClosureCurrent=false",
-    "costRiskExitPassCurrent=true"
+    "costRiskExitPassCurrent=false"
   ],
   "staleArtifacts": [
     "agent/state/final-cost-audit-lock.generated.json",
@@ -122,9 +122,9 @@
     },
     {
       "command": "npm run check:cost-risk-exit-pass",
-      "status": "pass",
+      "status": "failed_or_not_run",
       "artifactPath": "agent/state/cost-risk-exit-pass.generated.json",
-      "detail": "Current cost risk exit pass is available."
+      "detail": "Cost risk exit pass is missing or stale."
     },
     {
       "command": "npm run check:cost-risk-owner-review-closure",
@@ -148,25 +148,25 @@
       "command": "npm run check:global-cost-surfaces",
       "status": "pass",
       "artifactPath": "agent/state/global-cost-surfaces.generated.json",
-      "detail": "Global cost source surfaces are clean supporting context; this is not external billing proof."
+      "detail": "Global cost source surfaces are clean supporting context; this is not external billing evidence."
     },
     {
       "command": "npm run check:billing-spike-radar",
       "status": "pass",
       "artifactPath": "agent/state/billing-spike-radar.generated.json",
-      "detail": "Billing spike radar is supporting watchlist context; warnings do not become external billing proof."
+      "detail": "Billing spike radar is supporting watchlist context; warnings do not become external billing evidence."
     },
     {
       "command": "npm run check:analytics-cost-runtime-inventory",
       "status": "failed_or_not_run",
       "artifactPath": "agent/state/analytics-cost-runtime-inventory.generated.json",
-      "detail": "Analytics cost runtime inventory refresh is tracked separately from external billing proof."
+      "detail": "Analytics cost runtime inventory refresh is tracked separately from external billing evidence."
     }
   ],
   "nextExactSteps": [
     "Use current final cost and telemetry locks as beta score cost input.",
     "Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing externally before claiming provider savings.",
     "Keep stale creator-dashboard-only cost inventory out of primary cost scoring when newer source locks exist.",
-    "Attach external billing evidence separately if the operator wants formal cost proof."
+    "Attach external billing evidence separately before claiming provider-side cost savings."
   ]
 }

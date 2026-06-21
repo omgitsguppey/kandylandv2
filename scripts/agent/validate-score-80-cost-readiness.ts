@@ -264,7 +264,7 @@ export function buildScore80CostReadinessReport(input: {
     },
     costReadiness,
     costRiskScore: costScore.score,
-    costRiskScoreExplanation: `Cost risk score ${costScore.score} gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.`,
+    costRiskScoreExplanation: `Cost risk score ${costScore.score} gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing evidence and owner review remain separate.`,
     externalOwnerReviewStillRequired,
     sourceReadinessSignals: [
       `cloudRunSourceReady=${cloudRunSourceReady}`,
@@ -315,7 +315,7 @@ export function buildScore80CostReadinessReport(input: {
         status: globalCostClean ? "pass" : "failed_or_not_run",
         artifactPath: "agent/state/global-cost-surfaces.generated.json",
         detail: globalCostClean
-          ? "Global cost source surfaces are clean supporting context; this is not external billing proof."
+          ? "Global cost source surfaces are clean supporting context; this is not external billing evidence."
           : "Global cost source surfaces are missing or not clean.",
       },
       {
@@ -323,21 +323,21 @@ export function buildScore80CostReadinessReport(input: {
         status: billingSpikeRadar ? "pass" : "failed_or_not_run",
         artifactPath: "agent/state/billing-spike-radar.generated.json",
         detail: billingSpikeRadar
-          ? "Billing spike radar is supporting watchlist context; warnings do not become external billing proof."
+          ? "Billing spike radar is supporting watchlist context; warnings do not become external billing evidence."
           : "Billing spike radar is missing.",
       },
       {
         command: "npm run check:analytics-cost-runtime-inventory",
         status: artifactCurrent(input.artifacts.analyticsCostRuntimeInventory, input.currentHead) ? "pass" : "failed_or_not_run",
         artifactPath: "agent/state/analytics-cost-runtime-inventory.generated.json",
-        detail: "Analytics cost runtime inventory refresh is tracked separately from external billing proof.",
+        detail: "Analytics cost runtime inventory refresh is tracked separately from external billing evidence.",
       },
     ],
     nextExactSteps: [
       "Use current final cost and telemetry locks as beta score cost input.",
       "Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing externally before claiming provider savings.",
       "Keep stale creator-dashboard-only cost inventory out of primary cost scoring when newer source locks exist.",
-      "Attach external billing evidence separately if the operator wants formal cost proof.",
+      "Attach external billing evidence separately before claiming provider-side cost savings.",
     ],
   };
 }
@@ -372,7 +372,7 @@ export function validateScore80CostReadinessReport(report: Score80CostReadinessR
   if (!route4xxEvidence.includes("final-telemetry-closure-lock")) {
     failures.push("route4xx readiness ignores latest telemetry/ingest closure.");
   }
-  if (!/source readiness/iu.test(report.costRiskScoreExplanation) || !/external billing proof/iu.test(report.costRiskScoreExplanation)) {
+  if (!/source readiness/iu.test(report.costRiskScoreExplanation) || !/external billing evidence/iu.test(report.costRiskScoreExplanation)) {
     failures.push("costRiskScore lacks explanation.");
   }
   if (/externalBillingProof=true/iu.test(allEvidence)) {
@@ -442,7 +442,7 @@ ${validators}
 
 ## Boundary
 
-This report gives source cost readiness credit only. It does not claim external billing savings, Cloud SQL closure, Gemini/Vertex closure, or deployed Cloud Run cost proof.
+This report gives source cost readiness credit only. It does not claim external billing savings, Cloud SQL closure, Gemini/Vertex closure, or deployed Cloud Run cost evidence.
 
 ## Next Steps
 

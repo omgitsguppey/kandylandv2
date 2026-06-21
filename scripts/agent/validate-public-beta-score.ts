@@ -216,7 +216,7 @@ if (report) {
     }
   }
   if (!report.launchClearance?.formalGates) {
-    failures.push("launchClearance.formalGates must preserve formal proof gate status.");
+    failures.push("launchClearance.formalGates must preserve compatibility gate status.");
   } else {
     const gates = report.launchClearance.formalGates;
     for (const key of ["providerSmoke", "deployedRuntimeSmoke", "adminTruthSample", "uiSurfaceCoverage"] as const) {

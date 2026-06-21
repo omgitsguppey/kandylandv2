@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-11T14:40:22.954Z",
+  "generatedAtUtc": "2026-06-21T03:57:17.453Z",
   "reportKey": "provider-smoke-evidence",
-  "currentHead": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
-  "sourceCommit": "d5382c4abaaba790d5cf448acbd4e9d79a8235d4",
+  "currentHead": "c53978beb10283d481e7a0d5c1e943fb01056eab",
+  "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
   "overallStatus": "operator_reported_not_formal_provider_smoke",
   "status": "operator_reported_not_formal_provider_smoke",
   "externalEvidenceStatus": "external_evidence_required",
@@ -17,11 +17,11 @@
   "providerSmoke": {
     "status": "missing_formal_evidence",
     "passed": false,
-    "recommendedAction": "Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof."
+    "recommendedAction": "Attach real redacted provider-backed site activity evidence; product-context notes do not clear this gate."
   },
   "paypalRefillSmoke": {
     "status": "operator_reported_not_formal_provider_smoke",
-    "note": "Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke.",
+    "note": "Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed site activity evidence.",
     "formalRepoArtifactAttached": false
   },
   "readinessImpact": {
@@ -29,8 +29,8 @@
     "paypalSmokeGatePassed": false,
     "phaseOneStatusCap": "Ready with smoke required",
     "notes": [
-      "Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke.",
-      "Provider/payment proof remains external until a complete redacted provider artifact exists."
+      "Operator-confirmed PayPal activity is tracked as product context only; it does not clear provider-backed site activity evidence.",
+      "Provider/payment status remains source-evidence-required until a complete redacted provider artifact exists."
     ]
   },
   "evidenceFiles": [],

@@ -87,7 +87,7 @@ describe("score 80 cost readiness", () => {
     expect(report.costReadiness.cloudRunCostReadiness.status).toBe("source_guarded_external_review_remaining");
     expect(report.costReadiness.cloudSqlCostReadiness.status).toBe("source_ready_no_runtime_usage_detected");
     expect(report.costReadiness.geminiCloudAssistCostReadiness.status).toBe("source_guarded_external_review_remaining");
-    expect(report.costReadiness.route4xxReadiness.status).toBe("source_guarded_external_review_remaining");
+    expect(report.costReadiness.route4xxReadiness.status).toBe("source_ready_retry_storm_guarded");
     expect(report.costReadiness.route4xxReadiness.evidence.join("\n")).toContain("final-telemetry-closure-lock");
     expect(report.costReadiness.route4xxReadiness.evidence.join("\n")).not.toContain("creator-dashboard-error-cost-inventory");
     expect(report.staleArtifacts).toContain("agent/state/creator-dashboard-error-cost-inventory.generated.json");
@@ -106,7 +106,7 @@ describe("score 80 cost readiness", () => {
     expect(score.ownerReviewRequired).toBe(true);
     expect(report.externalOwnerReviewStillRequired).toBe(true);
     expect(report.costRiskScoreExplanation).toContain("source readiness");
-    expect(report.costRiskScoreExplanation).toContain("external billing proof");
+    expect(report.costRiskScoreExplanation).toContain("external billing evidence");
   });
 
   it("fails validation when not detected is treated as a pass", () => {

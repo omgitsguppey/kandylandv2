@@ -6,7 +6,7 @@ import {
 } from "../../scripts/agent/validate-admin-truth-source-sample";
 
 describe("admin truth source sample", () => {
-  it("records source wiring without clearing formal production admin truth evidence", () => {
+  it("records source wiring without clearing admin source activity sample evidence", () => {
     const report = buildAdminTruthSourceSampleReport({
       generatedAtUtc: "2026-05-20T00:00:00.000Z",
       currentHead: "abc123",
@@ -67,7 +67,7 @@ describe("admin truth source sample", () => {
     expect(failures).toContain("unknown or unavailable lanes must not be marked healthy/live.");
   });
 
-  it("fails if source-backed sample clears formal admin evidence", () => {
+  it("fails if source-backed sample clears admin source sample evidence", () => {
     const report = buildAdminTruthSourceSampleReport({
       generatedAtUtc: "2026-05-20T00:00:00.000Z",
       currentHead: "abc123",
@@ -92,6 +92,6 @@ describe("admin truth source sample", () => {
     expect(validateAdminTruthSourceSampleReport({
       ...report,
       formalAdminTruthSamplePassed: true,
-    })).toContain("source sample must not clear formal admin truth sample.");
+    })).toContain("source sample must not clear the admin source sample gate.");
   });
 });

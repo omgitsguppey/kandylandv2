@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-03T18:49:41.280Z",
+  "generatedAtUtc": "2026-06-21T03:57:17.554Z",
   "reportKey": "runtime-smoke-evidence",
-  "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
-  "sourceCommit": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
+  "currentHead": "c53978beb10283d481e7a0d5c1e943fb01056eab",
+  "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
   "overallStatus": "formal_runtime_smoke_passed",
   "status": "formal_runtime_smoke_passed",
   "runtimeDeploymentSmokePassed": true,
@@ -19,7 +19,7 @@
   "readinessImpact": {
     "runtimeGatePassed": true,
     "phaseOneStatusCap": "Ready",
-    "recommendedAction": "Keep automated deployed runtime smoke evidence fresh."
+    "recommendedAction": "Keep deployed route/runtime evidence fresh."
   },
   "evidenceItems": [
     "runtimeEvidence.status=complete",

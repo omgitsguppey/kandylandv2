@@ -109,7 +109,7 @@ export function buildAdminTruthSourceSampleReport(inputs: BuildInputs): AdminTru
       `fakeHealthyStateDetected=${inputs.fakeHealthyStateDetected}`,
       "launchGateImpact=partial_source_admin_truth_only",
     ],
-    nextAction: "Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+    nextAction: "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
     summary: {
       adminTruthSourceReady,
       telemetryLaneCount: inputs.degradedOrUnavailableLanes.length,
@@ -127,8 +127,8 @@ export function validateAdminTruthSourceSampleReport(report: AdminTruthSourceSam
   if (report.reportKey !== "admin-truth-source-sample") failures.push("reportKey must be admin-truth-source-sample.");
   if (report.sourceCommit !== report.currentHead) failures.push("artifact must be tied to the latest code version.");
   if (report.productionSampleAttached !== false) failures.push("source sample must not claim production sample attachment.");
-  if (report.formalRuntimeSampleAttached !== false) failures.push("source sample must not claim production runtime proof.");
-  if (report.formalAdminTruthSamplePassed !== false) failures.push("source sample must not clear formal admin truth sample.");
+  if (report.formalRuntimeSampleAttached !== false) failures.push("source sample must not claim deployed runtime evidence.");
+  if (report.formalAdminTruthSamplePassed !== false) failures.push("source sample must not clear the admin source sample gate.");
   if (report.launchGateImpact !== "partial_source_admin_truth_only") failures.push("source sample must not clear admin truth sample gate.");
   if (report.fakeHealthyStateDetected) failures.push("admin truth source sample detected fake healthy state.");
   if (!report.sourceTruthLabelsPresent) failures.push("admin truth source labels are required.");
@@ -208,14 +208,14 @@ Latest code version: ${report.currentHead}
 - Status: \`${report.status}\`
 - Admin truth source ready: ${report.summary.adminTruthSourceReady}
 - Production sample attached: ${report.productionSampleAttached}
-- Formal runtime sample attached: ${report.formalRuntimeSampleAttached}
-- Formal admin truth sample passed: ${report.formalAdminTruthSamplePassed}
+- Deployed runtime evidence attached: ${report.formalRuntimeSampleAttached}
+- Admin source sample gate passed: ${report.formalAdminTruthSamplePassed}
 - Launch gate impact: \`${report.launchGateImpact}\`
 - Telemetry health lane status: \`${report.telemetryHealthLaneStatus}\`
 - Degraded/unavailable lanes: ${report.degradedOrUnavailableLanes.length}
 - Critical admin truth issues: ${report.criticalAdminTruthIssueCount}
 
-This is source wiring evidence only. It does not replace a redacted production admin truth sample.
+This is source wiring evidence only. It does not replace a redacted admin source activity sample.
 
 ## Degraded Or Unavailable Lanes
 
