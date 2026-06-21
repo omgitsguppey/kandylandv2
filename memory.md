@@ -12,7 +12,7 @@
 - Creator management surfaces should show own creator drops only; public discovery stays public.
 - Release-note-only commits must use `[skip release-notes]`.
 - Public Beta notes track accepted public beta releases, not raw commits; a focused source/config/UI patch does not automatically update the Beta badge unless accepted into the public release-note bundle.
-- Beta badge / patch notes should ship with the accepted release bundle or accepted patch slice. Release-note automation validates only and must not create separate follow-up loop commits.
+- Beta badge / patch notes should ship in the same commit as the accepted release bundle or accepted patch slice. Release-note automation validates only and must not create separate follow-up loop commits.
 - Cloud Run, Cloud SQL, Gemini/Cloud Assist, and 4xx cost checks are evidence/inventory lanes unless source code proves active usage or P0/P1 risk.
 - Do not touch admin backend during user/creator UI parity work unless explicitly scoped.
 - External audits are planning input, not local proof. Convert each finding into a bounded source slice before coding.

@@ -3,8 +3,8 @@
 Artifact: `agent/state/source-truth-authority-map.generated.json`
 Validator: `npm run check:source-truth-authority-map`
 
-Generated: 2026-06-19T07:55:42.485Z
-Current source head: `0659a3764bcb3ada363f4a30e741d6e59743781f`
+Generated: 2026-06-21T04:42:12.077Z
+Current source head: `bf9d2b358a1107205b2d7918a24294b29eda8e64`
 
 ## Summary
 
@@ -54,9 +54,9 @@ The legacy launch readiness reports are retired from current beta score freshnes
 ## Cost Readiness Source Truth
 
 - Cloud Run cost readiness: `cost_review_required`. Repo config/source inventory is distinct from provider evidence.
-- Cloud SQL cost readiness: `not_detected_in_repo`. Source-only not-detected status is not a provider pass.
+- Cloud SQL cost readiness: `owner_review_external_billing_required`. Source-only not-detected status is not a provider pass.
 - Gemini / Cloud Assist cost readiness: `cost_review_required`. AI cost lanes remain owner-review unless source proves active usage and risk level.
-- Route 4xx readiness: `source_inventory_complete`. Expected product 4xx states are separate from unexpected route errors.
+- Route 4xx readiness: `cost_review_required`. Expected product 4xx states are separate from unexpected route errors.
 
 None of these cost lanes should be marked pass without evidence. P0/P1 cost or 4xx findings can block beta exit; P2 inventory remains owner review.
 
@@ -64,26 +64,26 @@ None of these cost lanes should be marked pass without evidence. P0/P1 cost or 4
 
 - Paid bundle bonus GumDrops are paid/purchased bonus credits, not reward/free GumDrops.
 - Creator booking UX should use generated available slots, not arbitrary fan-selected date/time.
-- Beta badge / patch notes must be included in the same commit as the real patch. Release-note automation validates only and must not create separate follow-up commits.
+- Beta badge / patch notes should ship in the same commit as the accepted release bundle or accepted patch slice. Release-note automation validates only and must not create separate follow-up loop commits.
 - Cloud Run, Cloud SQL, Gemini/Cloud Assist, and 4xx cost checks are evidence/inventory lanes unless source code proves active usage or P0/P1 risk.
 - Creator booking UX uses generated availability slots, not arbitrary fan date/time.
 
 ## Current Head Inventory
 
-- agent/state/source-truth-authority-map.generated.json: `stale` (74d431bea3803401956e4aaa9615f3d9228bf2ee) - Refresh through the lane validator before treating as current evidence.
-- agent/state/public-beta-score.generated.json: `current` (0659a3764bcb3ada363f4a30e741d6e59743781f) - Artifact currentHead matches git HEAD.
-- agent/state/current-beta-exit-status.generated.json: `current` (0659a3764bcb3ada363f4a30e741d6e59743781f) - Artifact currentHead matches git HEAD.
-- agent/state/final-phase-cleanup-lock.generated.json: `stale` (d0994c9ace05575a22d679cdfc37f8a5877f66d8) - Refresh through the lane validator before treating as current evidence.
-- agent/state/evidence-capture-status.generated.json: `current` (0659a3764bcb3ada363f4a30e741d6e59743781f) - Artifact currentHead matches git HEAD.
-- agent/state/user-creator-ui-parity.generated.json: `stale` (2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78) - Refresh through the lane validator before treating as current evidence.
+- agent/state/source-truth-authority-map.generated.json: `current` (bf9d2b358a1107205b2d7918a24294b29eda8e64) - Artifact currentHead matches git HEAD.
+- agent/state/public-beta-score.generated.json: `stale` (67e645918e2dcd6233004348dc2799558b6d27bd) - Refresh through the lane validator before treating as current evidence.
+- agent/state/current-beta-exit-status.generated.json: `stale` (67e645918e2dcd6233004348dc2799558b6d27bd) - Refresh through the lane validator before treating as current evidence.
+- agent/state/final-phase-cleanup-lock.generated.json: `stale` (2b747fc36bb2c0d8e1e2fa4b3fd517b56d457aa0) - Refresh through the lane validator before treating as current evidence.
+- agent/state/evidence-capture-status.generated.json: `stale` (b9b62edd078824ef5dc6c0e21df60a53a1881f43) - Refresh through the lane validator before treating as current evidence.
+- agent/state/user-creator-ui-parity.generated.json: `stale` (6e903936b9ba164bd883dff1e698504e51a4aed0) - Refresh through the lane validator before treating as current evidence.
 - agent/state/gumdrop-economy-accuracy.generated.json: `stale` (9b25961f85707ab4e0f5d8346b10b667ae0b75a4) - Refresh through the lane validator before treating as current evidence.
-- agent/state/creator-experience-simplification.generated.json: `stale` (2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78) - Refresh through the lane validator before treating as current evidence.
+- agent/state/creator-experience-simplification.generated.json: `stale` (6e903936b9ba164bd883dff1e698504e51a4aed0) - Refresh through the lane validator before treating as current evidence.
 - agent/state/post-economy-creator-flow-qa.generated.json: `stale` (225f9e53f18b60edc7399c1ea258c0b9bacfae84) - Refresh through the lane validator before treating as current evidence.
 - agent/state/creator-dashboard-error-cost-inventory.generated.json: `stale` (225f9e53f18b60edc7399c1ea258c0b9bacfae84) - Refresh through the lane validator before treating as current evidence.
 - agent/state/speed-security-hardening.generated.json: `missing_head`  - Active artifact must record currentHead.
 - agent/state/product-surface-integrity.generated.json: `stale` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Refresh through the lane validator before treating as current evidence.
 - public/kandydrops-release-notes.json: `missing_head`  - Active artifact must record currentHead.
-- agent/state/beta-score-cleanup.generated.json: `stale` (70919f6be9129ce71ecc8b8f88eeafec9f866b5f) - Refresh through the lane validator before treating as current evidence.
+- agent/state/beta-score-cleanup.generated.json: `stale` (e947d82891dfc7957cb4b9b9972d6378605a927d) - Refresh through the lane validator before treating as current evidence.
 - agent/state/final-launch-readiness-report.generated.json: `not_required`  - Retired artifact has no required currentHead.
 - agent/state/launch-readiness-report.generated.json: `not_required`  - Retired artifact has no required currentHead.
 - agent/state/launch-pr-triage.generated.json: `not_required`  - Retired artifact has no required currentHead.
@@ -94,4 +94,4 @@ None of these cost lanes should be marked pass without evidence. P0/P1 cost or 4
 
 1. Use npm run check:source-truth-authority-map before treating source-truth lane changes as accepted.
 2. Refresh beta score and current beta exit status only through their active validators.
-3. Attach real visual/provider/runtime/admin evidence before clearing beta-exit evidence gates.
+3. Attach deterministic UI source coverage, provider-backed site activity, deployed route, and admin source sample evidence before clearing beta-exit evidence gates.

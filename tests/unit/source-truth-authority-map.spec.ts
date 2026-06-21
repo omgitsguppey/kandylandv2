@@ -202,6 +202,18 @@ describe("source truth authority map validator", () => {
     );
   });
 
+  it("accepts hyphenated same-commit release-note doctrine", () => {
+    const report = reportFixture({
+      memoryRules: [
+        "Beta badge / patch notes should ship with the accepted release bundle or accepted patch slice.",
+        "Release notes are same-commit artifacts and should not create separate follow-up loop commits.",
+        "Cloud Run, Cloud SQL, Gemini/Cloud Assist, and 4xx cost checks are evidence/inventory lanes unless source code proves active usage or P0/P1 risk.",
+      ],
+    });
+
+    expect(validateSourceTruthAuthorityMapReport(report, "head")).toEqual([]);
+  });
+
   it("fails when cost readiness lanes are missing", () => {
     const report = reportFixture({
       lanes: reportFixture().lanes.filter((lane) => lane.id !== "cloud-sql-cost-readiness"),

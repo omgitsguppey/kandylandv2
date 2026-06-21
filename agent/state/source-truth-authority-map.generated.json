@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-19T07:55:42.485Z",
+  "generatedAtUtc": "2026-06-21T04:42:12.077Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+  "currentHead": "bf9d2b358a1107205b2d7918a24294b29eda8e64",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -70,7 +70,7 @@
       "refreshCommand": "npm run check:current-beta-exit-status",
       "betaBlocking": true,
       "notes": [
-        "Beta exit remains blocked until visual, provider, runtime, and admin truth evidence exists."
+        "Beta exit remains blocked until deterministic UI source coverage, provider-backed site activity, deployed route, and admin source sample evidence exist."
       ]
     },
     {
@@ -309,51 +309,51 @@
   ],
   "costReadiness": {
     "cloudRunCostReadiness": "cost_review_required",
-    "cloudSqlCostReadiness": "not_detected_in_repo",
+    "cloudSqlCostReadiness": "owner_review_external_billing_required",
     "geminiCloudAssistCostReadiness": "cost_review_required",
-    "route4xxReadiness": "source_inventory_complete"
+    "route4xxReadiness": "cost_review_required"
   },
   "memoryRules": [
     "Paid bundle bonus GumDrops are paid/purchased bonus credits, not reward/free GumDrops.",
     "Creator booking UX should use generated available slots, not arbitrary fan-selected date/time.",
-    "Beta badge / patch notes must be included in the same commit as the real patch. Release-note automation validates only and must not create separate follow-up commits.",
+    "Beta badge / patch notes should ship in the same commit as the accepted release bundle or accepted patch slice. Release-note automation validates only and must not create separate follow-up loop commits.",
     "Cloud Run, Cloud SQL, Gemini/Cloud Assist, and 4xx cost checks are evidence/inventory lanes unless source code proves active usage or P0/P1 risk.",
     "Creator booking UX uses generated availability slots, not arbitrary fan date/time."
   ],
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "74d431bea3803401956e4aaa9615f3d9228bf2ee",
+      "currentHead": "bf9d2b358a1107205b2d7918a24294b29eda8e64",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
+    },
+    {
+      "artifact": "agent/state/public-beta-score.generated.json",
+      "currentHead": "67e645918e2dcd6233004348dc2799558b6d27bd",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
-      "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
-    },
-    {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "currentHead": "67e645918e2dcd6233004348dc2799558b6d27bd",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/final-phase-cleanup-lock.generated.json",
-      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "currentHead": "2b747fc36bb2c0d8e1e2fa4b3fd517b56d457aa0",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "currentHead": "b9b62edd078824ef5dc6c0e21df60a53a1881f43",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78",
+      "currentHead": "6e903936b9ba164bd883dff1e698504e51a4aed0",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -365,7 +365,7 @@
     },
     {
       "artifact": "agent/state/creator-experience-simplification.generated.json",
-      "currentHead": "2b84d852e9a0a4106ef6ac4ca32a9f8038f3dd78",
+      "currentHead": "6e903936b9ba164bd883dff1e698504e51a4aed0",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -401,7 +401,7 @@
     },
     {
       "artifact": "agent/state/beta-score-cleanup.generated.json",
-      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+      "currentHead": "e947d82891dfc7957cb4b9b9972d6378605a927d",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -444,6 +444,6 @@
   "nextExactSteps": [
     "Use npm run check:source-truth-authority-map before treating source-truth lane changes as accepted.",
     "Refresh beta score and current beta exit status only through their active validators.",
-    "Attach real visual/provider/runtime/admin evidence before clearing beta-exit evidence gates."
+    "Attach deterministic UI source coverage, provider-backed site activity, deployed route, and admin source sample evidence before clearing beta-exit evidence gates."
   ]
 }

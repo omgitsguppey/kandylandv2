@@ -177,7 +177,7 @@ function buildLanes(): SourceTruthAuthorityLane[] {
       "beta-readiness",
       "npm run check:current-beta-exit-status",
       true,
-      ["Beta exit remains blocked until visual, provider, runtime, and admin truth evidence exists."],
+      ["Beta exit remains blocked until deterministic UI source coverage, provider-backed site activity, deployed route, and admin source sample evidence exist."],
     ),
     lane(
       "final-phase-cleanup-lock",
@@ -504,7 +504,7 @@ export function buildSourceTruthAuthorityMapReport(head = currentHead()): Source
     nextExactSteps: [
       "Use npm run check:source-truth-authority-map before treating source-truth lane changes as accepted.",
       "Refresh beta score and current beta exit status only through their active validators.",
-      "Attach real visual/provider/runtime/admin evidence before clearing beta-exit evidence gates.",
+      "Attach deterministic UI source coverage, provider-backed site activity, deployed route, and admin source sample evidence before clearing beta-exit evidence gates.",
     ],
   };
 }
@@ -542,7 +542,7 @@ export function validateSourceTruthAuthorityMapReport(
   }
 
   const memoryRules = (report.memoryRules ?? []).join("\n");
-  if (!report.summary?.sameCommitReleaseNotes || !/same commit/iu.test(memoryRules)) {
+  if (!report.summary?.sameCommitReleaseNotes || !/same[- ]commit/iu.test(memoryRules)) {
     failures.push("same-commit release note rule missing.");
   }
   if (!/Cloud Run, Cloud SQL, Gemini\/Cloud Assist, and 4xx cost checks are evidence\/inventory lanes/iu.test(memoryRules)) {
