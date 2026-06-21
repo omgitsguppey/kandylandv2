@@ -18,7 +18,7 @@ describe("buildAdminAnalyticsRegionDemandModel", () => {
     expect(model.sourceTruth).toBe("ga4_evidence_only");
     expect(model.freshnessState).toBe("external_evidence_required");
     expect(model.sourceLabel).toBe("Vendor evidence only");
-    expect(model.freshnessLabel).toBe("Source evidence required");
+    expect(model.freshnessLabel).toBe("External source required");
     expect(model.truthState).toBe("degraded");
     expect(model.rows[0]).toMatchObject({
       city: "Austin",
