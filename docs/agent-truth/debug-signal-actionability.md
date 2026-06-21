@@ -1,8 +1,8 @@
 # Debug Signal Actionability
 
-Generated: 2026-06-21T19:16:51.868Z
+Generated: 2026-06-21T19:19:31.996Z
 Status: pass
-Current head: cbf48ed3419f240b49c9a2a17772476af2efd36c
+Current head: 977b305ed53ff58e06fdceacb573f115244fae98
 
 ## Contract
 
@@ -459,36 +459,19 @@ Current head: cbf48ed3419f240b49c9a2a17772476af2efd36c
 
 ## Dirty Files
 
-- Total: 18
+- Total: 2
 - Unsafe unknown: 0
 - Protected runtime changes: 0
 
 ### Classification Counts
 
-- current_generated_artifact_to_commit: 2
+- current_generated_artifact_to_commit: 1
 - documentation_artifact_expected: 1
-- stale_generated_artifact_to_regenerate: 15
 
 ### Dirty File Samples
 
-- agent/state/behavior-math-verification.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-evidence-index.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-evidence-precacher-refresh.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-recovery-playbooks.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-runtime-evidence.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/debug-signal-actionability.generated.json: current_generated_artifact_to_commit
-- agent/state/debug-signal-grouping.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/precatch-runtime-issues.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- agent/state/sitewide-image-optimization-cleanup.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/targeted-behavior-evidence.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-evidence-precacher-refresh.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-recovery-playbooks.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-runtime-evidence.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/debug-signal-actionability.md: documentation_artifact_expected
-- docs/agent-truth/debug-signal-grouping.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/sitewide-image-optimization-cleanup.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/targeted-behavior-evidence.md: stale_generated_artifact_to_regenerate
 
 ## Validation Failures
 

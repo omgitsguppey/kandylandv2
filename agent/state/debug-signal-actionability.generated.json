@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-signal-actionability",
-  "generatedAtUtc": "2026-06-21T19:16:51.868Z",
-  "currentHead": "cbf48ed3419f240b49c9a2a17772476af2efd36c",
+  "generatedAtUtc": "2026-06-21T19:19:31.996Z",
+  "currentHead": "977b305ed53ff58e06fdceacb573f115244fae98",
   "status": "pass",
   "productionReadsRequired": false,
   "fakeEvidenceUsed": false,
@@ -2561,86 +2561,21 @@
     }
   ],
   "dirtyFileSummary": {
-    "total": 18,
+    "total": 2,
     "byClassification": {
-      "stale_generated_artifact_to_regenerate": 15,
-      "current_generated_artifact_to_commit": 2,
+      "current_generated_artifact_to_commit": 1,
       "documentation_artifact_expected": 1
     },
     "unsafeUnknownCount": 0,
     "protectedRuntimeChangeCount": 0,
     "samples": [
       {
-        "path": "agent/state/behavior-math-verification.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/debug-evidence-index.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/debug-evidence-precacher-refresh.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/debug-recovery-playbooks.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/debug-runtime-evidence.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
         "path": "agent/state/debug-signal-actionability.generated.json",
         "classification": "current_generated_artifact_to_commit"
       },
       {
-        "path": "agent/state/debug-signal-grouping.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/precatch-runtime-issues.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/public-beta-score.generated.json",
-        "classification": "current_generated_artifact_to_commit"
-      },
-      {
-        "path": "agent/state/sitewide-image-optimization-cleanup.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/targeted-behavior-evidence.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "docs/agent-truth/debug-evidence-precacher-refresh.md",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "docs/agent-truth/debug-recovery-playbooks.md",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "docs/agent-truth/debug-runtime-evidence.md",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
         "path": "docs/agent-truth/debug-signal-actionability.md",
         "classification": "documentation_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/debug-signal-grouping.md",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "docs/agent-truth/sitewide-image-optimization-cleanup.md",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "docs/agent-truth/targeted-behavior-evidence.md",
-        "classification": "stale_generated_artifact_to_regenerate"
       }
     ]
   },
