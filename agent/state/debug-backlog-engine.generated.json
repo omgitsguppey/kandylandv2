@@ -1,92 +1,92 @@
 {
-  "generatedAtUtc": "2026-06-21T03:52:57.646Z",
+  "generatedAtUtc": "2026-06-21T18:46:50.467Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "ffc19e6c5cad6b5fedd1eae6543a8af066cc770c",
+  "currentHead": "96f65d3c093572d8d48861aa00f3935d824f71aa",
   "oldScore": 41.92,
   "newScore": 84,
   "publicBetaStatus": "warning",
   "readinessStatus": "Source evidence required",
   "summary": {
-    "total": 36,
+    "total": 31,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
-      "p1": 8,
-      "p2": 27,
+      "p1": 7,
+      "p2": 23,
       "p3": 0,
       "info": 1
     },
     "byStatus": {
-      "open": 27,
+      "open": 23,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 1,
-      "blocked_manual": 3,
+      "blocked_manual": 2,
       "blocked_external": 4,
       "stale_retired": 1
     },
     "bySource": {
       "debug_panel": 11,
       "beta_score": 7,
-      "route_diagnostics": 0,
+      "route_diagnostics": 1,
       "telemetry": 6,
-      "admin_truth": 3,
+      "admin_truth": 2,
       "mobile_ui": 0,
       "cost": 2,
-      "evidence": 7,
+      "evidence": 2,
       "runtime_warning": 0
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 20,
+      "evidence_refresh": 15,
       "stale_retire": 1,
       "algorithm_refine": 0,
-      "route_fix": 0,
+      "route_fix": 1,
       "telemetry_closure": 6,
       "cost_guard": 2,
-      "manual_required": 6,
+      "manual_required": 5,
       "no_action": 1
     },
-    "open": 27,
+    "open": 23,
     "fixed": 0,
     "deferred": 0,
-    "blockedManual": 3,
+    "blockedManual": 2,
     "blockedExternal": 4,
     "staleRetired": 1,
-    "sourceFixable": 8,
-    "evidenceRefreshable": 20,
+    "sourceFixable": 9,
+    "evidenceRefreshable": 15,
     "sourceTruthStates": {
       "source_backed": 0,
-      "source_fixable": 7,
-      "source_refresh_required": 20,
+      "source_fixable": 8,
+      "source_refresh_required": 15,
       "runtime_proof_required": 3,
       "provider_or_external_proof_required": 1,
-      "admin_truth_source_required": 3,
+      "admin_truth_source_required": 2,
       "manual_visual_required": 0,
       "protected_manual_review": 0,
       "stale_evidence_archive": 1,
       "not_actionable": 1,
       "unknown_source_state": 0
     },
-    "p0P1Open": 8,
-    "p0P1GroupOpen": 5,
-    "p2GroupOpen": 10,
+    "p0P1Open": 7,
+    "p0P1GroupOpen": 4,
+    "p2GroupOpen": 11,
     "p1P2GroupOpen": 15,
-    "rawP1P2SignalCount": 35,
+    "rawP1P2SignalCount": 30,
     "groupedSignalCount": 16,
     "defaultVisibleGroups": 16,
     "hiddenByDefaultGroups": 0,
-    "defaultVisible": 36,
+    "defaultVisible": 31,
     "hiddenByDefault": 0,
     "quietFutureActivity": 0,
     "duplicateSignalsCollapsed": 0,
-    "formalGates": 10,
-    "scoreImpacting": 36,
+    "formalGates": 6,
+    "scoreImpacting": 31,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 26,
+      "score_impacting": 25,
       "evidence_required": 0,
-      "formal_gate": 10,
+      "formal_gate": 6,
       "quiet_future_activity": 0,
       "informational": 0,
       "duplicate": 0,
@@ -95,19 +95,19 @@
     }
   },
   "actionabilitySummary": {
-    "totalSignals": 36,
-    "uniqueSignals": 36,
-    "defaultVisibleCount": 36,
+    "totalSignals": 31,
+    "uniqueSignals": 31,
+    "defaultVisibleCount": 31,
     "hiddenByDefaultCount": 0,
     "quietFutureActivityCount": 0,
     "duplicateSignalCount": 0,
-    "formalGateCount": 10,
-    "scoreImpactingCount": 36,
+    "formalGateCount": 6,
+    "scoreImpactingCount": 31,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 26,
+      "score_impacting": 25,
       "evidence_required": 0,
-      "formal_gate": 10,
+      "formal_gate": 6,
       "quiet_future_activity": 0,
       "informational": 0,
       "duplicate": 0,
@@ -116,22 +116,60 @@
     },
     "defaultVisibleSignals": [
       {
-        "signalId": "score-drag-evidencecompletenessscore",
-        "signalType": "beta_score",
+        "signalId": "debug-panel-provider-smoke",
+        "signalType": "debug_panel",
         "severity": "p1",
         "actionability": "score_impacting",
         "scoreDimensionsAffected": [
-          "evidenceCompleteness"
+          "freshness"
         ],
-        "estimatedPointImpact": 11.32,
-        "owner": "beta_score",
-        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Attach redacted provider-backed site activity evidence; do not convert operator-reported PayPal context into a pass.",
         "sourceFiles": [
-          "agent/state/score-80-path-lock.generated.json"
+          "agent/state/provider-smoke-evidence.generated.json"
+        ],
+        "validator": "npm run check:provider-smoke-evidence",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|attach-redacted-provider-backed-site-activity-evidence-do-not-convert-operator-r",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-public-beta-score",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
         ],
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-score-cap-reasons",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
         "duplicateChildren": []
       },
       {
@@ -160,15 +198,15 @@
         "scoreDimensionsAffected": [
           "evidenceCompleteness"
         ],
-        "estimatedPointImpact": 92,
+        "estimatedPointImpact": 95.2,
         "owner": "beta_score",
-        "nextAction": "Keep targeted behavior checks as source-only evidence; clear runtime, provider, and admin truth gates separately.",
+        "nextAction": "Keep targeted behavior checks as source-only evidence; keep provider-backed site activity, runtime/deployed route evidence, and admin source activity sample gates separate.",
         "sourceFiles": [
           "agent/state/public-beta-score.generated.json"
         ],
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|keep-targeted-behavior-checks-as-source-only-evidence-clear-runtime-provider-and",
+        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|keep-targeted-behavior-checks-as-source-only-evidence-keep-provider-backed-site-",
         "duplicateChildren": []
       },
       {
@@ -179,7 +217,7 @@
         "scoreDimensionsAffected": [
           "costRisk"
         ],
-        "estimatedPointImpact": 5.8,
+        "estimatedPointImpact": 5.22,
         "owner": "cost",
         "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
         "sourceFiles": [
@@ -188,44 +226,6 @@
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
         "dedupeKey": "score_impacting|cost|cost|costRisk|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "score-drag-freshnessscore",
-        "signalType": "beta_score",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 3.66,
-        "owner": "beta_score",
-        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-        "sourceFiles": [
-          "agent/state/score-80-path-lock.generated.json"
-        ],
-        "validator": "npm run check:beta-score",
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|beta_score|beta_score|freshness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "score-drag-sourcehealthscore",
-        "signalType": "beta_score",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "sourceHealth"
-        ],
-        "estimatedPointImpact": 2.08,
-        "owner": "beta_score",
-        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-        "sourceFiles": [
-          "agent/state/score-80-path-lock.generated.json"
-        ],
-        "validator": "npm run check:beta-score",
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|beta_score|beta_score|sourceHealth|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
         "duplicateChildren": []
       },
       {
@@ -349,6 +349,44 @@
         "duplicateChildren": []
       },
       {
+        "signalId": "score-drag-evidencecompletenessscore",
+        "signalType": "beta_score",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 1.76,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-admin-truth-samples",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Attach a fresh redacted admin source activity sample before upgrading this gate.",
+        "sourceFiles": [
+          "agent/state/admin-truth-sample-evidence.generated.json"
+        ],
+        "validator": "npm run check:admin-truth-sample-evidence",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|attach-a-fresh-redacted-admin-source-activity-sample-before-upgrading-this-gate-",
+        "duplicateChildren": []
+      },
+      {
         "signalId": "debug-panel-analytics-rewire",
         "signalType": "debug_panel",
         "severity": "p2",
@@ -368,6 +406,7 @@
           "agent/state/device-layout-score.generated.json",
           "agent/state/hydration-performance.generated.json",
           "agent/state/sitewide-image-optimization.generated.json",
+          "agent/state/google-cost-bleed.generated.json",
           "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
           "agent/state/sql-mirror-status.generated.json",
           "agent/state/telemetry-parity-score.generated.json",
@@ -398,25 +437,6 @@
         "validator": "npm run check:user-facing-feature-connection-audit",
         "defaultVisible": true,
         "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-user-facing-feature-connection-audit-when-this-stale-warning-m",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "debug-panel-public-beta-score",
-        "signalType": "debug_panel",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "admin_debug",
-        "nextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
-        "sourceFiles": [
-          "agent/state/public-beta-score.generated.json"
-        ],
-        "validator": "npm run check:beta-score",
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
         "duplicateChildren": []
       },
       {
@@ -463,7 +483,7 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "debug-panel-score-cap-reasons",
+        "signalId": "debug-panel-runtime-evidence",
         "signalType": "debug_panel",
         "severity": "p2",
         "actionability": "score_impacting",
@@ -472,13 +492,13 @@
         ],
         "estimatedPointImpact": 1,
         "owner": "admin_debug",
-        "nextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
+        "nextAction": "Attach current deployed route evidence before marking provider-backed site activity + deployed route evidence complete.",
         "sourceFiles": [
-          "agent/state/public-beta-score.generated.json"
+          "agent/state/runtime-smoke-evidence.generated.json"
         ],
-        "validator": "npm run check:beta-score",
+        "validator": "npm run check:runtime-smoke-evidence",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|attach-current-deployed-route-evidence-before-marking-provider-backed-site-activ",
         "duplicateChildren": []
       },
       {
@@ -520,93 +540,61 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json",
-        "signalType": "evidence",
+        "signalId": "route-diagnostic-targeted-behavior-evidence",
+        "signalType": "route_diagnostics",
         "severity": "p2",
         "actionability": "score_impacting",
         "scoreDimensionsAffected": [
-          "freshness"
+          "runtimeHealth",
+          "regressionRisk"
         ],
         "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+        "owner": "admin_debug",
+        "nextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
         "sourceFiles": [
-          "agent/state/beta-evidence-gap-map.generated.json"
+          "agent/state/targeted-behavior-evidence.generated.json"
         ],
+        "validator": "npm run check:debug-backlog-engine",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-gap-map-was-generated-from-an-older-code-version-refresh-this-repo",
+        "dedupeKey": "score_impacting|route_diagnostics|admin_debug|runtimeHealth,regressionRisk|inspect-the-route-diagnostic-owner-and-fix-the-route-source-or-keep-the-warning-",
         "duplicateChildren": []
       },
       {
-        "signalId": "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json",
-        "signalType": "evidence",
+        "signalId": "score-drag-freshnessscore",
+        "signalType": "beta_score",
         "severity": "p2",
         "actionability": "score_impacting",
         "scoreDimensionsAffected": [
           "freshness"
         ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+        "estimatedPointImpact": 0.97,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
         "sourceFiles": [
-          "agent/state/beta-evidence-lane-prep.generated.json"
+          "agent/state/score-80-path-lock.generated.json"
         ],
+        "validator": "npm run check:beta-score",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-lane-prep-was-generated-from-an-older-code-version-refresh-this-re",
+        "dedupeKey": "score_impacting|beta_score|beta_score|freshness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
         "duplicateChildren": []
       },
       {
-        "signalId": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
-        "signalType": "evidence",
+        "signalId": "score-drag-sourcehealthscore",
+        "signalType": "beta_score",
         "severity": "p2",
         "actionability": "score_impacting",
         "scoreDimensionsAffected": [
-          "freshness"
+          "sourceHealth"
         ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+        "estimatedPointImpact": 0.62,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
         "sourceFiles": [
-          "agent/state/current-beta-exit-status.generated.json"
+          "agent/state/score-80-path-lock.generated.json"
         ],
+        "validator": "npm run check:beta-score",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
-        "sourceFiles": [
-          "agent/state/mobile-ui-final-lock.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|mobile-ui-final-lock-was-generated-from-an-older-code-version-refresh-this-repor",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
-        "sourceFiles": [
-          "agent/state/user-loading-wallet-mobile-refinement.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|user-loading-and-wallet-mobile-refinement-was-generated-from-an-older-code-versi",
+        "dedupeKey": "score_impacting|beta_score|beta_score|sourceHealth|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
         "duplicateChildren": []
       },
       {
@@ -629,33 +617,14 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "beta-cap-source-evidence-required-admin-truth-sample-evidence-2",
-        "signalType": "formal_gate",
-        "severity": "p1",
-        "actionability": "formal_gate",
-        "scoreDimensionsAffected": [
-          "evidenceCompleteness"
-        ],
-        "estimatedPointImpact": 92,
-        "owner": "admin_debug",
-        "nextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
-        "sourceFiles": [
-          "agent/state/public-beta-score.generated.json"
-        ],
-        "validator": "npm run check:beta-score",
-        "defaultVisible": true,
-        "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-admin-source-activity-sample-before-clearing-the-admin-source-",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "beta-cap-source-evidence-required-runtime-provider-smoke-1",
+        "signalId": "beta-cap-source-evidence-required-provider-backed-site-activity-deployed-route-evidence-1",
         "signalType": "formal_gate",
         "severity": "p1",
         "actionability": "formal_gate",
         "scoreDimensionsAffected": [
           "runtimeHealth"
         ],
-        "estimatedPointImpact": 78.85,
+        "estimatedPointImpact": 91.11,
         "owner": "provider_evidence",
         "nextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
         "sourceFiles": [
@@ -664,42 +633,6 @@
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
         "dedupeKey": "formal_gate|beta_score|provider_evidence|runtimeHealth|attach-redacted-provider-backed-site-activity-evidence-and-deployed-route-eviden",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "formal-evidence-admin-truth-sample-evidence",
-        "signalType": "formal_gate",
-        "severity": "p1",
-        "actionability": "formal_gate",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 11.32,
-        "owner": "admin_debug",
-        "nextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
-        "sourceFiles": [
-          "admin_truth_sample_evidence"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "formal_gate|admin_truth|admin_debug|freshness|attach-a-redacted-admin-source-activity-sample-before-clearing-the-admin-source-",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "formal-evidence-runtime-provider-smoke",
-        "signalType": "formal_gate",
-        "severity": "p1",
-        "actionability": "formal_gate",
-        "scoreDimensionsAffected": [
-          "runtimeHealth"
-        ],
-        "estimatedPointImpact": 5.76,
-        "owner": "provider_evidence",
-        "nextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
-        "sourceFiles": [
-          "runtime_provider_smoke"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "formal_gate|evidence|provider_evidence|runtimeHealth|attach-redacted-provider-backed-site-activity-evidence-and-deployed-route-eviden",
         "duplicateChildren": []
       },
       {
@@ -712,33 +645,32 @@
         ],
         "estimatedPointImpact": 4.5,
         "owner": "admin_debug",
-        "nextAction": "Attach a redacted admin source sample before clearing the admin source sample gate.",
+        "nextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
         "sourceFiles": [
           "agent/state/admin-truth-source-sample.generated.json",
           "src/lib/admin-debug-control-tower.ts"
         ],
         "validator": "npm run check:admin-truth-source-sample",
         "defaultVisible": true,
-        "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-admin-source-sample-before-clearing-the-admin-source-sample-ga",
+        "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-admin-source-activity-sample-before-clearing-the-admin-source-",
         "duplicateChildren": []
       },
       {
-        "signalId": "debug-panel-provider-smoke",
+        "signalId": "formal-evidence-provider-backed-site-activity-deployed-route-evidence",
         "signalType": "formal_gate",
         "severity": "p1",
         "actionability": "formal_gate",
         "scoreDimensionsAffected": [
-          "freshness"
+          "runtimeHealth"
         ],
-        "estimatedPointImpact": 4,
-        "owner": "admin_debug",
-        "nextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
+        "estimatedPointImpact": 4.07,
+        "owner": "provider_evidence",
+        "nextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
         "sourceFiles": [
-          "agent/state/provider-smoke-evidence.generated.json"
+          "provider_backed_site_activity_deployed_route_evidence"
         ],
-        "validator": "npm run check:provider-smoke-evidence",
         "defaultVisible": true,
-        "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|attach-or-generate-formal-provider-smoke-evidence-do-not-convert-operator-report",
+        "dedupeKey": "formal_gate|evidence|provider_evidence|runtimeHealth|attach-redacted-provider-backed-site-activity-evidence-and-deployed-route-eviden",
         "duplicateChildren": []
       },
       {
@@ -749,7 +681,7 @@
         "scoreDimensionsAffected": [
           "runtimeHealth"
         ],
-        "estimatedPointImpact": 5.76,
+        "estimatedPointImpact": 4.07,
         "owner": "runtime_evidence",
         "nextAction": "Attach deployed route evidence before treating runtime health as current.",
         "sourceFiles": [
@@ -780,41 +712,21 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "debug-panel-admin-truth-samples",
+        "signalId": "formal-evidence-admin-source-activity-sample-evidence",
         "signalType": "formal_gate",
         "severity": "p2",
         "actionability": "formal_gate",
         "scoreDimensionsAffected": [
           "freshness"
         ],
-        "estimatedPointImpact": 1,
+        "estimatedPointImpact": 1.76,
         "owner": "admin_debug",
-        "nextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
+        "nextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
         "sourceFiles": [
-          "agent/state/admin-truth-sample-evidence.generated.json"
+          "admin_source_activity_sample_evidence"
         ],
-        "validator": "npm run check:admin-truth-sample-evidence",
         "defaultVisible": true,
-        "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|attach-a-fresh-first-party-admin-truth-sample-before-upgrading-this-gate-",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "debug-panel-runtime-evidence",
-        "signalType": "formal_gate",
-        "severity": "p2",
-        "actionability": "formal_gate",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "admin_debug",
-        "nextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
-        "sourceFiles": [
-          "agent/state/runtime-smoke-evidence.generated.json"
-        ],
-        "validator": "npm run check:runtime-smoke-evidence",
-        "defaultVisible": true,
-        "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|run-formal-deployed-runtime-smoke-before-marking-runtime-provider-smoke-complete",
+        "dedupeKey": "formal_gate|admin_truth|admin_debug|freshness|attach-a-redacted-admin-source-activity-sample-before-clearing-the-admin-source-",
         "duplicateChildren": []
       }
     ],
@@ -823,36 +735,7 @@
   },
   "backlog": [
     {
-      "id": "beta-cap-source-evidence-required-admin-truth-sample-evidence-2",
-      "title": "Admin truth sample required",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p1",
-      "source": "admin_truth",
-      "status": "blocked_manual",
-      "fixClass": "manual_required",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 92,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "formal_missing",
-      "evidenceReason": "Produce a redacted admin source activity sample.",
-      "exactNextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
-      "sourceMessage": "Admin source sample evidence is required.",
-      "sourceValidator": "npm run check:beta-score",
-      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation.",
-      "actionability": "formal_gate",
-      "estimatedPointImpact": 92,
-      "defaultVisible": true,
-      "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-admin-source-activity-sample-before-clearing-the-admin-source-",
-      "duplicateChildren": []
-    },
-    {
-      "id": "beta-cap-source-evidence-required-runtime-provider-smoke-1",
+      "id": "beta-cap-source-evidence-required-provider-backed-site-activity-deployed-route-evidence-1",
       "title": "Provider and route evidence required",
       "owner": "provider_evidence",
       "surface": "runtime_evidence",
@@ -863,105 +746,21 @@
       "scoreDimensionImpact": [
         "runtimeHealth"
       ],
-      "scoreImpact": 78.85,
+      "scoreImpact": 91.11,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "agent/state/public-beta-score.generated.json",
       "evidenceStatus": "runtime_unverified",
-      "evidenceReason": "Refresh provider-backed site activity and deployed runtime route evidence.",
+      "evidenceReason": "Produce provider-backed site activity and keep deployed runtime route evidence current.",
       "exactNextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
       "sourceMessage": "Provider-backed site activity and deployed route evidence are still required.",
       "sourceValidator": "npm run check:beta-score",
-      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation.",
+      "blockedReason": "Typed provider-backed site activity, deployed route, or admin source activity evidence is required and cannot be generated from source-only validation.",
       "actionability": "formal_gate",
-      "estimatedPointImpact": 78.85,
+      "estimatedPointImpact": 91.11,
       "defaultVisible": true,
       "dedupeKey": "formal_gate|beta_score|provider_evidence|runtimeHealth|attach-redacted-provider-backed-site-activity-evidence-and-deployed-route-eviden",
-      "duplicateChildren": []
-    },
-    {
-      "id": "formal-evidence-admin-truth-sample-evidence",
-      "title": "Admin truth sample required",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p1",
-      "source": "admin_truth",
-      "status": "blocked_manual",
-      "fixClass": "manual_required",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 11.32,
-      "sourceFiles": [
-        "admin_truth_sample_evidence"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "formal_missing",
-      "evidenceReason": "Attach formal evidence before clearing this beta gate.",
-      "exactNextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
-      "sourceMessage": "Admin source sample evidence is required.",
-      "refreshCommand": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
-      "actionability": "formal_gate",
-      "estimatedPointImpact": 11.32,
-      "defaultVisible": true,
-      "dedupeKey": "formal_gate|admin_truth|admin_debug|freshness|attach-a-redacted-admin-source-activity-sample-before-clearing-the-admin-source-",
-      "duplicateChildren": []
-    },
-    {
-      "id": "score-drag-evidencecompletenessscore",
-      "title": "Score drag: evidenceCompletenessScore",
-      "owner": "beta_score",
-      "surface": "beta_score",
-      "severity": "p1",
-      "source": "beta_score",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 11.32,
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ],
-      "sourceRoute": "agent/state/score-80-path-lock.generated.json",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "UI source coverage plus provider, runtime, and admin truth evidence is still required.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "sourceMessage": "UI source coverage plus provider, runtime, and admin truth evidence is still required.",
-      "sourceValidator": "npm run check:beta-score",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 11.32,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
-      "duplicateChildren": []
-    },
-    {
-      "id": "formal-evidence-runtime-provider-smoke",
-      "title": "Provider and route evidence required",
-      "owner": "provider_evidence",
-      "surface": "runtime_evidence",
-      "severity": "p1",
-      "source": "evidence",
-      "status": "blocked_external",
-      "fixClass": "manual_required",
-      "scoreDimensionImpact": [
-        "runtimeHealth"
-      ],
-      "scoreImpact": 5.76,
-      "sourceFiles": [
-        "runtime_provider_smoke"
-      ],
-      "sourceRoute": "runtime_provider_smoke",
-      "evidenceStatus": "runtime_unverified",
-      "evidenceReason": "Attach formal evidence before clearing this beta gate.",
-      "exactNextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
-      "sourceMessage": "Provider-backed site activity and deployed route evidence are still required.",
-      "refreshCommand": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
-      "actionability": "formal_gate",
-      "estimatedPointImpact": 5.76,
-      "defaultVisible": true,
-      "dedupeKey": "formal_gate|evidence|provider_evidence|runtimeHealth|attach-redacted-provider-backed-site-activity-evidence-and-deployed-route-eviden",
       "duplicateChildren": []
     },
     {
@@ -983,15 +782,43 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "formal_missing",
-      "evidenceReason": "Source-ready admin truth exists, but no redacted admin source sample is attached.",
-      "exactNextAction": "Attach a redacted admin source sample before clearing the admin source sample gate.",
+      "evidenceReason": "Source-ready admin model evidence exists, but no redacted admin source activity sample is attached.",
+      "exactNextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
       "sourceMessage": "source_ready_admin_truth_sample",
       "sourceValidator": "npm run check:admin-truth-source-sample",
       "blockedReason": "Redacted admin source sample evidence is required.",
       "actionability": "formal_gate",
       "estimatedPointImpact": 4.5,
       "defaultVisible": true,
-      "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-admin-source-sample-before-clearing-the-admin-source-sample-ga",
+      "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-admin-source-activity-sample-before-clearing-the-admin-source-",
+      "duplicateChildren": []
+    },
+    {
+      "id": "formal-evidence-provider-backed-site-activity-deployed-route-evidence",
+      "title": "Provider and route evidence required",
+      "owner": "provider_evidence",
+      "surface": "runtime_evidence",
+      "severity": "p1",
+      "source": "evidence",
+      "status": "blocked_external",
+      "fixClass": "manual_required",
+      "scoreDimensionImpact": [
+        "runtimeHealth"
+      ],
+      "scoreImpact": 4.07,
+      "sourceFiles": [
+        "provider_backed_site_activity_deployed_route_evidence"
+      ],
+      "sourceRoute": "provider_backed_site_activity_deployed_route_evidence",
+      "evidenceStatus": "runtime_unverified",
+      "evidenceReason": "Produce the matching source evidence before clearing this beta gate.",
+      "exactNextAction": "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
+      "sourceMessage": "Provider-backed site activity and deployed route evidence are still required.",
+      "refreshCommand": "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 4.07,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|evidence|provider_evidence|runtimeHealth|attach-redacted-provider-backed-site-activity-evidence-and-deployed-route-eviden",
       "duplicateChildren": []
     },
     {
@@ -1012,15 +839,73 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Operator-reported PayPal smoke is tracked but is not formal provider smoke evidence.",
-      "exactNextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
-      "sourceMessage": "Operator-reported PayPal smoke is tracked but is not formal provider smoke evidence.",
+      "evidenceReason": "Operator-reported PayPal activity is tracked as product context; provider-backed site activity evidence is still separate.",
+      "exactNextAction": "Attach redacted provider-backed site activity evidence; do not convert operator-reported PayPal context into a pass.",
+      "sourceMessage": "Operator-reported PayPal activity is tracked as product context; provider-backed site activity evidence is still separate.",
       "sourceValidator": "npm run check:provider-smoke-evidence",
       "refreshCommand": "npm run check:provider-smoke-evidence",
-      "actionability": "formal_gate",
+      "actionability": "score_impacting",
       "estimatedPointImpact": 4,
       "defaultVisible": true,
-      "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|attach-or-generate-formal-provider-smoke-evidence-do-not-convert-operator-report",
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|attach-redacted-provider-backed-site-activity-evidence-do-not-convert-operator-r",
+      "duplicateChildren": []
+    },
+    {
+      "id": "debug-panel-public-beta-score",
+      "title": "Public beta score",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "severity": "p1",
+      "source": "debug_panel",
+      "status": "open",
+      "fixClass": "evidence_refresh",
+      "scoreDimensionImpact": [
+        "freshness"
+      ],
+      "scoreImpact": 4,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "sourceRoute": "/admin/debug",
+      "evidenceStatus": "stale",
+      "evidenceReason": "Source drift: currentHead 74b8c1d4182f9055a672ad3da750ed5eaefd6685 does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
+      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
+      "sourceMessage": "Source drift: currentHead 74b8c1d4182f9055a672ad3da750ed5eaefd6685 does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
+      "sourceValidator": "npm run check:beta-score",
+      "refreshCommand": "npm run score:beta",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
+      "duplicateChildren": []
+    },
+    {
+      "id": "debug-panel-score-cap-reasons",
+      "title": "Score cap reasons",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "severity": "p1",
+      "source": "debug_panel",
+      "status": "open",
+      "fixClass": "evidence_refresh",
+      "scoreDimensionImpact": [
+        "freshness"
+      ],
+      "scoreImpact": 4,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "sourceRoute": "/admin/debug",
+      "evidenceStatus": "stale",
+      "evidenceReason": "2 beta score cap reason(s) remain visible.",
+      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
+      "sourceMessage": "2 beta score cap reason(s) remain visible.",
+      "sourceValidator": "npm run check:beta-score",
+      "refreshCommand": "npm run score:beta",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
       "duplicateChildren": []
     },
     {
@@ -1049,9 +934,7 @@
       "estimatedPointImpact": 2,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-final-integration-lock-was-generated-from-an-older-code-version-refres",
-      "duplicateChildren": [
-        "stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json"
-      ]
+      "duplicateChildren": []
     },
     {
       "id": "score-drag-costriskscore",
@@ -1065,7 +948,7 @@
       "scoreDimensionImpact": [
         "costRisk"
       ],
-      "scoreImpact": 5.8,
+      "scoreImpact": 5.22,
       "sourceFiles": [
         "agent/state/score-80-path-lock.generated.json"
       ],
@@ -1076,7 +959,7 @@
       "sourceMessage": "Source cost readiness is partial while external billing owner review remains separate.",
       "sourceValidator": "npm run check:beta-score",
       "actionability": "score_impacting",
-      "estimatedPointImpact": 5.8,
+      "estimatedPointImpact": 5.22,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|cost|cost|costRisk|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
       "duplicateChildren": []
@@ -1093,77 +976,21 @@
       "scoreDimensionImpact": [
         "runtimeHealth"
       ],
-      "scoreImpact": 5.76,
+      "scoreImpact": 4.07,
       "sourceFiles": [
         "agent/state/score-80-path-lock.generated.json"
       ],
       "sourceRoute": "agent/state/score-80-path-lock.generated.json",
       "evidenceStatus": "runtime_unverified",
-      "evidenceReason": "Source-backed runtime confidence helps, but deployed runtime smoke remains missing.",
+      "evidenceReason": "Source-backed runtime confidence helps, but deployed route evidence remains missing.",
       "exactNextAction": "Attach deployed route evidence before treating runtime health as current.",
-      "sourceMessage": "Source-backed runtime confidence helps, but deployed runtime smoke remains missing.",
+      "sourceMessage": "Source-backed runtime confidence helps, but deployed route evidence remains missing.",
       "sourceValidator": "npm run check:beta-score",
       "blockedReason": "Requires deployed route evidence.",
       "actionability": "formal_gate",
-      "estimatedPointImpact": 5.76,
+      "estimatedPointImpact": 4.07,
       "defaultVisible": true,
       "dedupeKey": "formal_gate|beta_score|runtime_evidence|runtimeHealth|attach-deployed-route-evidence-before-treating-runtime-health-as-current-",
-      "duplicateChildren": []
-    },
-    {
-      "id": "score-drag-freshnessscore",
-      "title": "Score drag: freshnessScore",
-      "owner": "beta_score",
-      "surface": "beta_score",
-      "severity": "p2",
-      "source": "beta_score",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 3.66,
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ],
-      "sourceRoute": "agent/state/score-80-path-lock.generated.json",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Stale or missing generated evidence reports still decay freshness.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "sourceMessage": "Stale or missing generated evidence reports still decay freshness.",
-      "sourceValidator": "npm run check:beta-score",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 3.66,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|beta_score|beta_score|freshness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
-      "duplicateChildren": []
-    },
-    {
-      "id": "score-drag-sourcehealthscore",
-      "title": "Score drag: sourceHealthScore",
-      "owner": "beta_score",
-      "surface": "beta_score",
-      "severity": "p2",
-      "source": "beta_score",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "sourceHealth"
-      ],
-      "scoreImpact": 2.08,
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json"
-      ],
-      "sourceRoute": "agent/state/score-80-path-lock.generated.json",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Source health is affected by failed or stale implemented source validators.",
-      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "sourceMessage": "Source health is affected by failed or stale implemented source validators.",
-      "sourceValidator": "npm run check:beta-score",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 2.08,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|beta_score|beta_score|sourceHealth|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
       "duplicateChildren": []
     },
     {
@@ -1194,7 +1021,8 @@
       "dedupeKey": "formal_gate|cost|cost|costRisk|keep-this-cost-lane-in-owner-review-until-external-billing-provider-evidence-is-",
       "duplicateChildren": [
         "cost-cost-risk-1",
-        "cost-cost-risk-2"
+        "cost-cost-risk-2",
+        "cost-cost-risk-3"
       ]
     },
     {
@@ -1372,6 +1200,62 @@
       "duplicateChildren": []
     },
     {
+      "id": "formal-evidence-admin-source-activity-sample-evidence",
+      "title": "Admin source activity sample required",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "severity": "p2",
+      "source": "admin_truth",
+      "status": "blocked_manual",
+      "fixClass": "manual_required",
+      "scoreDimensionImpact": [
+        "freshness"
+      ],
+      "scoreImpact": 1.76,
+      "sourceFiles": [
+        "admin_source_activity_sample_evidence"
+      ],
+      "sourceRoute": "/admin/debug",
+      "evidenceStatus": "formal_missing",
+      "evidenceReason": "Produce the matching source evidence before clearing this beta gate.",
+      "exactNextAction": "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
+      "sourceMessage": "Admin source sample evidence is required.",
+      "refreshCommand": "Produce admin source activity sample evidence, then run npm run check:evidence-capture-status",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 1.76,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|admin_truth|admin_debug|freshness|attach-a-redacted-admin-source-activity-sample-before-clearing-the-admin-source-",
+      "duplicateChildren": []
+    },
+    {
+      "id": "score-drag-evidencecompletenessscore",
+      "title": "Score drag: evidenceCompletenessScore",
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "severity": "p2",
+      "source": "beta_score",
+      "status": "open",
+      "fixClass": "evidence_refresh",
+      "scoreDimensionImpact": [
+        "evidenceCompleteness"
+      ],
+      "scoreImpact": 1.76,
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
+      ],
+      "sourceRoute": "agent/state/score-80-path-lock.generated.json",
+      "evidenceStatus": "source_backed",
+      "evidenceReason": "UI source coverage plus provider, runtime, and admin truth evidence is still required.",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "sourceMessage": "UI source coverage plus provider, runtime, and admin truth evidence is still required.",
+      "sourceValidator": "npm run check:beta-score",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1.76,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+      "duplicateChildren": []
+    },
+    {
       "id": "debug-panel-admin-truth-samples",
       "title": "Admin truth samples",
       "owner": "admin_debug",
@@ -1389,15 +1273,15 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead e4ff8fc598ad5b523a9955b5e4377a537282c029 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9; sourceCommit e4ff8fc598ad5b523a9955b5e4377a537282c029 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
-      "exactNextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
-      "sourceMessage": "Source drift: currentHead e4ff8fc598ad5b523a9955b5e4377a537282c029 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9; sourceCommit e4ff8fc598ad5b523a9955b5e4377a537282c029 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
+      "evidenceReason": "Source drift: currentHead 0d37de032350c8cf27a328de002c5e96f9c06f82 does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948; sourceCommit 0d37de032350c8cf27a328de002c5e96f9c06f82 does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
+      "exactNextAction": "Attach a fresh redacted admin source activity sample before upgrading this gate.",
+      "sourceMessage": "Source drift: currentHead 0d37de032350c8cf27a328de002c5e96f9c06f82 does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948; sourceCommit 0d37de032350c8cf27a328de002c5e96f9c06f82 does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
       "sourceValidator": "npm run check:admin-truth-sample-evidence",
       "refreshCommand": "npm run check:admin-truth-sample-evidence",
-      "actionability": "formal_gate",
+      "actionability": "score_impacting",
       "estimatedPointImpact": 1,
       "defaultVisible": true,
-      "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|attach-a-fresh-first-party-admin-truth-sample-before-upgrading-this-gate-",
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|attach-a-fresh-redacted-admin-source-activity-sample-before-upgrading-this-gate-",
       "duplicateChildren": []
     },
     {
@@ -1422,6 +1306,7 @@
         "agent/state/device-layout-score.generated.json",
         "agent/state/hydration-performance.generated.json",
         "agent/state/sitewide-image-optimization.generated.json",
+        "agent/state/google-cost-bleed.generated.json",
         "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
         "agent/state/sql-mirror-status.generated.json",
         "agent/state/telemetry-parity-score.generated.json",
@@ -1432,9 +1317,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
+      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
       "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
+      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
       "sourceValidator": "npm run check:analytics-rewire-phase-one",
       "refreshCommand": "",
       "staleRetireReason": "Debug panel item is stale without an owner refresh command.",
@@ -1450,6 +1335,7 @@
         "debug-panel-report-device-layout",
         "debug-panel-report-hydration",
         "debug-panel-report-sitewide-image",
+        "debug-panel-report-google-cost",
         "debug-panel-report-cloud-cost",
         "debug-panel-report-sql-mirror",
         "debug-panel-report-telemetry-parity",
@@ -1477,44 +1363,15 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 8aa6201b66ffda8c5ad9e9150e56615990547f6d does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
+      "evidenceReason": "Source drift: currentHead 8aa6201b66ffda8c5ad9e9150e56615990547f6d does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
       "exactNextAction": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: currentHead 8aa6201b66ffda8c5ad9e9150e56615990547f6d does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
+      "sourceMessage": "Source drift: currentHead 8aa6201b66ffda8c5ad9e9150e56615990547f6d does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
       "sourceValidator": "npm run check:user-facing-feature-connection-audit",
       "refreshCommand": "npm run check:user-facing-feature-connection-audit",
       "actionability": "score_impacting",
       "estimatedPointImpact": 1,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-user-facing-feature-connection-audit-when-this-stale-warning-m",
-      "duplicateChildren": []
-    },
-    {
-      "id": "debug-panel-public-beta-score",
-      "title": "Public beta score",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 1c7ae73b857aa3fbfbab381ff646dc0ed3e5f815 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
-      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
-      "sourceMessage": "Source drift: currentHead 1c7ae73b857aa3fbfbab381ff646dc0ed3e5f815 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
-      "sourceValidator": "npm run check:beta-score",
-      "refreshCommand": "npm run score:beta",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
       "duplicateChildren": []
     },
     {
@@ -1575,9 +1432,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 1c7ae73b857aa3fbfbab381ff646dc0ed3e5f815 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
+      "evidenceReason": "Source drift: currentHead 74b8c1d4182f9055a672ad3da750ed5eaefd6685 does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
       "exactNextAction": "Run npm run score:beta when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: currentHead 1c7ae73b857aa3fbfbab381ff646dc0ed3e5f815 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
+      "sourceMessage": "Source drift: currentHead 74b8c1d4182f9055a672ad3da750ed5eaefd6685 does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
       "sourceValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta",
       "actionability": "score_impacting",
@@ -1604,44 +1461,15 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead e4ff8fc598ad5b523a9955b5e4377a537282c029 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9; sourceCommit e4ff8fc598ad5b523a9955b5e4377a537282c029 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
-      "exactNextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
-      "sourceMessage": "Source drift: currentHead e4ff8fc598ad5b523a9955b5e4377a537282c029 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9; sourceCommit e4ff8fc598ad5b523a9955b5e4377a537282c029 does not match repo HEAD 26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9.",
+      "evidenceReason": "Source drift: currentHead c53978beb10283d481e7a0d5c1e943fb01056eab does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948; sourceCommit c53978beb10283d481e7a0d5c1e943fb01056eab does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
+      "exactNextAction": "Attach current deployed route evidence before marking provider-backed site activity + deployed route evidence complete.",
+      "sourceMessage": "Source drift: currentHead c53978beb10283d481e7a0d5c1e943fb01056eab does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948; sourceCommit c53978beb10283d481e7a0d5c1e943fb01056eab does not match repo HEAD 2adb57c71feb2eaaf28afae1e7625681ab3a3948.",
       "sourceValidator": "npm run check:runtime-smoke-evidence",
       "refreshCommand": "npm run check:runtime-smoke-evidence",
-      "actionability": "formal_gate",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|run-formal-deployed-runtime-smoke-before-marking-runtime-provider-smoke-complete",
-      "duplicateChildren": []
-    },
-    {
-      "id": "debug-panel-score-cap-reasons",
-      "title": "Score cap reasons",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "1 formal proof cap reason(s) remain visible without adding a separate debug-panel blocker.",
-      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
-      "sourceMessage": "1 formal proof cap reason(s) remain visible without adding a separate debug-panel blocker.",
-      "sourceValidator": "npm run check:beta-score",
-      "refreshCommand": "npm run score:beta",
       "actionability": "score_impacting",
       "estimatedPointImpact": 1,
       "defaultVisible": true,
-      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|attach-current-deployed-route-evidence-before-marking-provider-backed-site-activ",
       "duplicateChildren": []
     },
     {
@@ -1691,9 +1519,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Targeted behavior evidence only proves focused validators; it does not prove visual/provider/runtime/admin sample evidence.",
+      "evidenceReason": "Targeted behavior evidence only proves focused validators; it does not prove visual confirmation, provider-backed site activity, runtime/deployed route evidence, or admin source activity sample evidence.",
       "exactNextAction": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate.",
-      "sourceMessage": "Targeted behavior evidence only proves focused validators; it does not prove visual/provider/runtime/admin sample evidence.",
+      "sourceMessage": "Targeted behavior evidence only proves focused validators; it does not prove visual confirmation, provider-backed site activity, runtime/deployed route evidence, or admin source activity sample evidence.",
       "sourceValidator": "npm run check:targeted-behavior-evidence",
       "refreshCommand": "npm run check:targeted-behavior-evidence",
       "actionability": "score_impacting",
@@ -1703,143 +1531,88 @@
       "duplicateChildren": []
     },
     {
-      "id": "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json",
-      "title": "Refresh stale artifact: agent/state/beta-evidence-gap-map.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
+      "id": "route-diagnostic-targeted-behavior-evidence",
+      "title": "Targeted behavior evidence only proves focused validators; it does not prove visual confirmation, provider-backed site activity, runtime/deployed route evidence, or admin source activity sample evidence.",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
       "severity": "p2",
-      "source": "evidence",
+      "source": "route_diagnostics",
       "status": "open",
-      "fixClass": "evidence_refresh",
+      "fixClass": "route_fix",
       "scoreDimensionImpact": [
-        "freshness"
+        "runtimeHealth",
+        "regressionRisk"
       ],
       "scoreImpact": 1,
       "sourceFiles": [
-        "agent/state/beta-evidence-gap-map.generated.json"
+        "agent/state/targeted-behavior-evidence.generated.json"
       ],
-      "sourceRoute": "agent/state/beta-evidence-gap-map.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "sourceMessage": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:beta-evidence-gap-map",
+      "sourceRoute": "/admin/debug",
+      "evidenceStatus": "source_backed",
+      "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
+      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
+      "sourceMessage": "Targeted behavior evidence only proves focused validators; it does not prove visual confirmation, provider-backed site activity, runtime/deployed route evidence, or admin source activity sample evidence.",
+      "sourceValidator": "npm run check:debug-backlog-engine",
       "actionability": "score_impacting",
       "estimatedPointImpact": 1,
       "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-gap-map-was-generated-from-an-older-code-version-refresh-this-repo",
+      "dedupeKey": "score_impacting|route_diagnostics|admin_debug|runtimeHealth,regressionRisk|inspect-the-route-diagnostic-owner-and-fix-the-route-source-or-keep-the-warning-",
       "duplicateChildren": []
     },
     {
-      "id": "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json",
-      "title": "Refresh stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
+      "id": "score-drag-freshnessscore",
+      "title": "Score drag: freshnessScore",
+      "owner": "beta_score",
+      "surface": "beta_score",
       "severity": "p2",
-      "source": "evidence",
+      "source": "beta_score",
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
         "freshness"
       ],
-      "scoreImpact": 1,
+      "scoreImpact": 0.97,
       "sourceFiles": [
-        "agent/state/beta-evidence-lane-prep.generated.json"
+        "agent/state/score-80-path-lock.generated.json"
       ],
-      "sourceRoute": "agent/state/beta-evidence-lane-prep.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "sourceMessage": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep",
+      "sourceRoute": "agent/state/score-80-path-lock.generated.json",
+      "evidenceStatus": "source_backed",
+      "evidenceReason": "Stale or missing generated evidence reports still decay freshness.",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "sourceMessage": "Stale or missing generated evidence reports still decay freshness.",
+      "sourceValidator": "npm run check:beta-score",
       "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
+      "estimatedPointImpact": 0.97,
       "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-lane-prep-was-generated-from-an-older-code-version-refresh-this-re",
+      "dedupeKey": "score_impacting|beta_score|beta_score|freshness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
       "duplicateChildren": []
     },
     {
-      "id": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
-      "title": "Refresh stale artifact: agent/state/current-beta-exit-status.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
+      "id": "score-drag-sourcehealthscore",
+      "title": "Score drag: sourceHealthScore",
+      "owner": "beta_score",
+      "surface": "beta_score",
       "severity": "p2",
-      "source": "evidence",
+      "source": "beta_score",
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
-        "freshness"
+        "sourceHealth"
       ],
-      "scoreImpact": 1,
+      "scoreImpact": 0.62,
       "sourceFiles": [
-        "agent/state/current-beta-exit-status.generated.json"
+        "agent/state/score-80-path-lock.generated.json"
       ],
-      "sourceRoute": "agent/state/current-beta-exit-status.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
-      "sourceMessage": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:current-beta-exit-status",
+      "sourceRoute": "agent/state/score-80-path-lock.generated.json",
+      "evidenceStatus": "source_backed",
+      "evidenceReason": "Source health is affected by failed or stale implemented source validators.",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "sourceMessage": "Source health is affected by failed or stale implemented source validators.",
+      "sourceValidator": "npm run check:beta-score",
       "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
+      "estimatedPointImpact": 0.62,
       "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
-      "title": "Refresh stale artifact: agent/state/mobile-ui-final-lock.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/mobile-ui-final-lock.generated.json"
-      ],
-      "sourceRoute": "agent/state/mobile-ui-final-lock.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
-      "sourceMessage": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:mobile-ui-final-lock",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|mobile-ui-final-lock-was-generated-from-an-older-code-version-refresh-this-repor",
-      "duplicateChildren": []
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
-      "title": "Refresh stale artifact: agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/user-loading-wallet-mobile-refinement.generated.json"
-      ],
-      "sourceRoute": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
-      "sourceMessage": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|evidence|evidence|freshness|user-loading-and-wallet-mobile-refinement-was-generated-from-an-older-code-versi",
+      "dedupeKey": "score_impacting|beta_score|beta_score|sourceHealth|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
       "duplicateChildren": []
     },
     {
@@ -1882,20 +1655,20 @@
       "scoreDimensionImpact": [
         "evidenceCompleteness"
       ],
-      "scoreImpact": 92,
+      "scoreImpact": 95.2,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "agent/state/public-beta-score.generated.json",
       "evidenceStatus": "source_backed",
-      "evidenceReason": "Implemented behavior validators passed. This does not prove runtime, provider, admin truth, or optional visual confirmation evidence.",
-      "exactNextAction": "Keep targeted behavior checks as source-only evidence; clear runtime, provider, and admin truth gates separately.",
+      "evidenceReason": "Implemented behavior validators passed. This does not prove runtime/deployed route evidence, provider-backed site activity, admin source activity sample, or optional visual confirmation evidence.",
+      "exactNextAction": "Keep targeted behavior checks as source-only evidence; keep provider-backed site activity, runtime/deployed route evidence, and admin source activity sample gates separate.",
       "sourceMessage": "Source-only behavior evidence is present.",
       "sourceValidator": "npm run check:beta-score",
       "actionability": "score_impacting",
-      "estimatedPointImpact": 92,
+      "estimatedPointImpact": 95.2,
       "defaultVisible": true,
-      "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|keep-targeted-behavior-checks-as-source-only-evidence-clear-runtime-provider-and",
+      "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|keep-targeted-behavior-checks-as-source-only-evidence-keep-provider-backed-site-",
       "duplicateChildren": []
     }
   ],
@@ -1905,8 +1678,8 @@
   "deferred": [
     {
       "id": "runtime-provider-smoke-source-confidence-gap",
-      "reason": "Formal deployed runtime/provider smoke requires external proof.",
-      "nextAction": "Keep formal runtime/provider gates blocked; only source-backed confidence can be refreshed without deployed/runtime proof."
+      "reason": "Provider-backed site activity + deployed route evidence requires first-party/deployed evidence.",
+      "nextAction": "Keep provider-backed site activity + deployed route evidence gates blocked; only source-backed confidence can be refreshed without claiming provider or deployed-route truth."
     }
   ],
   "formalGatesStillBlocked": [
