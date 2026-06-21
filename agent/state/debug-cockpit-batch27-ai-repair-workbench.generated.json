@@ -1,6 +1,6 @@
 {
   "reportKey": "debug-cockpit-batch27-ai-repair-workbench",
-  "generatedAtUtc": "2026-05-25T02:50:12.252Z",
+  "generatedAtUtc": "2026-06-21T19:45:24.695Z",
   "aiAssistantStatusBefore": "guidance_summary_surface",
   "aiAssistantStatusAfter": "async_repair_workbench_ready",
   "fallbackStatus": "deterministic_fallback_summary",

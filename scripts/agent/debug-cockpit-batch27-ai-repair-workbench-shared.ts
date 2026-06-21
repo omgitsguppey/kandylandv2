@@ -169,7 +169,7 @@ export function validateAiRepairTriageEngine() {
   const proposal = buildDeterministicRepairPlan(fixtureWorkItem());
   expectPass(score.priorityScore === 72.4, failures, "deterministic priority formula drifted.");
   expectPass(grouped.rawItemCount === 2 && grouped.groupedCount === 1, failures, "pipeline failures become raw work-item spam.");
-  expectPass(formalMode === "formal_evidence_request", failures, "formal evidence became source patch.");
+  expectPass(formalMode === "formal_evidence_request", failures, "typed evidence became source patch.");
   expectPass(blockedMode === "inspect_only", failures, "missing context not forced inspect-only.");
   expectPass(classifyApplyEligibility({ mode: "source_patch_candidate" }) === "critic_required", failures, "source patch can skip critic.");
   expectPass(proposal.criticRequired && proposal.humanApprovalRequired && !proposal.autoApplyAllowed, failures, "deterministic source patch lacks gates.");

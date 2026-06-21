@@ -48,4 +48,16 @@ describe("AI repair critic and approval gate", () => {
     expect(review.result).toBe("reject_unsafe");
     expect(review.issues.join(" ")).toMatch(/payment|GumDrop|auto-apply/i);
   });
+
+  it("keeps typed evidence requests out of source patch handling without stale formal copy", () => {
+    const review = reviewAiRepairProposal(proposal({
+      mode: "formal_evidence_request",
+      filesToChange: [],
+      validators: [],
+    }));
+
+    expect(review.result).toBe("formal_evidence_required");
+    expect(review.issues.join(" ")).toContain("typed evidence request cannot be treated as a source patch");
+    expect(review.issues.join(" ")).not.toMatch(/formal evidence request|manual operator action/iu);
+  });
 });

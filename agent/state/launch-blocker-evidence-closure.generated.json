@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T19:42:57.051Z",
+  "generatedAtUtc": "2026-06-21T19:44:51.264Z",
   "reportKey": "launch-blocker-evidence-closure",
-  "currentHead": "a1efe12aa1c08a98310f32d2dd997d73b689c1a7",
+  "currentHead": "5e8e46d860bb6e85f12e764180b5fb6577f36a21",
   "status": "pass",
   "launchGateStatus": "owner_review",
   "formalGatesCleared": false,
@@ -177,7 +177,7 @@
     }
   ],
   "evidence": [
-    "currentHead=a1efe12aa1c08a98310f32d2dd997d73b689c1a7",
+    "currentHead=5e8e46d860bb6e85f12e764180b5fb6577f36a21",
     "launchGateStatus=owner_review",
     "formalEvidenceImpact=classification_only_does_not_clear_formal_gates",
     "openPrEvidenceSource=not_requested",

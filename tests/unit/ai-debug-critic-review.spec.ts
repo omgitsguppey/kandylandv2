@@ -67,4 +67,23 @@ describe("ai debug critic repair proposal review", () => {
     expect(review.costRisk).toBe("low");
     expect(summarizeRepairProposalReview(review).autoApplyBlocked).toBe(true);
   });
+
+  it("describes typed evidence source-patch blocks without stale formal copy", () => {
+    const review = reviewAiDebugRepairProposal({
+      proposalId: "proposal-typed-evidence",
+      workItemId: "provider-backed-site-activity",
+      mode: "source_patch_candidate",
+      filesToInspect: ["agent/evidence/provider-smoke/template.json"],
+      filesToChange: ["agent/evidence/provider-smoke/template.json"],
+      validatorsToRun: ["npm run check:provider-smoke-evidence"],
+      rollbackPlan: "Revert provider smoke evidence template-only change.",
+      humanApprovalRequired: true,
+      autoApplyAllowed: false,
+      riskScore: 20,
+    });
+
+    expect(review.result).toBe("reject_unsafe");
+    expect(review.issues.join(" ")).toContain("Typed evidence requests must not become source patches.");
+    expect(review.issues.join(" ")).not.toContain("Formal evidence requests");
+  });
 });

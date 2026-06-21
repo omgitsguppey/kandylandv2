@@ -35,10 +35,10 @@ export function reviewAiRepairProposal(proposal: AiRepairProposal): AiRepairCrit
     issues.push("privacy-sensitive context requires redaction and human review");
   }
   if (proposal.mode === "formal_evidence_request") {
-    issues.push("formal evidence request cannot be treated as a source patch");
+    issues.push("typed evidence request cannot be treated as a source patch");
   }
   if (proposal.mode === "manual_operator_action") {
-    issues.push("manual operator action cannot be auto-applied");
+    issues.push("operator action cannot be auto-applied");
   }
 
   const rejectUnsafe = proposal.autoApplyAllowed || touchesProtectedSurface;

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T19:42:57.264Z",
+  "generatedAtUtc": "2026-06-21T19:44:51.107Z",
   "reportKey": "debug-cockpit-batch7-control-tower-cleanup",
-  "currentHead": "a1efe12aa1c08a98310f32d2dd997d73b689c1a7",
+  "currentHead": "5e8e46d860bb6e85f12e764180b5fb6577f36a21",
   "canonicalScoreBefore": {
     "score": 79,
     "status": "stale evidence",
@@ -71,16 +71,7 @@
     "regressionRisk": 94,
     "overallHealthScore": 89.31
   },
-  "dirtyFileClassifications": [
-    {
-      "path": "agent/state/launch-blocker-evidence-closure.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "docs/agent-truth/launch-blocker-evidence-closure.md",
-      "classification": "unsafe_unknown"
-    }
-  ],
+  "dirtyFileClassifications": [],
   "remainingGaps": [
     "Provider-backed site activity evidence remains required.",
     "Deployed route activity evidence remains required.",

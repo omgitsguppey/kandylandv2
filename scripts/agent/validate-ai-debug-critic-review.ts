@@ -12,7 +12,7 @@ export function validateAiDebugCriticReview() {
   assertBatch16(report.securityPrivacyCostCoverage.includes("cost"), "Critic must check cost.", failures);
   assertBatch16(report.paymentGumdropMathBlocked, "Critic must block payment/GumDrop math changes.", failures);
   assertBatch16(report.autoApplyBlocked, "Critic must block unsafe auto-apply.", failures);
-  assertBatch16(report.formalEvidenceRequestStaysEvidence, "Formal evidence must not become code patch.", failures);
+  assertBatch16(report.formalEvidenceRequestStaysEvidence, "Typed evidence must not become code patch.", failures);
   if (failures.length > 0) throw new Error(`AI debug critic review validation failed:\n- ${failures.join("\n- ")}`);
 
   writeJson(REPORT_PATH, report);

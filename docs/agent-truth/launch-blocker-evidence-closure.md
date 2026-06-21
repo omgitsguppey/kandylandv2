@@ -6,7 +6,7 @@ Validator: `npm run check:launch-blocker-evidence-closure`
 
 ## Summary
 
-- Current head: `a1efe12aa1c08a98310f32d2dd997d73b689c1a7`
+- Current head: `5e8e46d860bb6e85f12e764180b5fb6577f36a21`
 - Launch gate status: `owner_review`
 - Formal gates cleared by this pass: false
 - Open PR evidence source: `not_requested`

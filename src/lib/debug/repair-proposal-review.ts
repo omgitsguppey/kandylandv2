@@ -29,7 +29,7 @@ export function reviewAiDebugRepairProposal(proposal: AiDebugRepairProposal): Ai
 
   if (touchesPayment) issues.push("Proposal touches payment, wallet, PayPal, GumDrop math, or ledger/source-of-funds paths.");
   if (productionMutation) issues.push("Proposal suggests production mutation, provider call, deployment, or live sync.");
-  if (formalEvidenceAsPatch) issues.push("Formal evidence requests must not become source patches.");
+  if (formalEvidenceAsPatch) issues.push("Typed evidence requests must not become source patches.");
   if (proposal.autoApplyAllowed) issues.push("Repair proposals must not auto-apply without deterministic allowlist and human approval.");
   if (sourcePatch && proposal.validatorsToRun.length === 0) issues.push("Source patch candidate lacks validator coverage.");
   if (sourcePatch && !proposal.humanApprovalRequired) issues.push("Source patch candidate must require human approval.");
