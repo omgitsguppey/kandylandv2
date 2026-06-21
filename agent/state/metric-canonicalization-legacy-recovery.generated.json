@@ -1,7 +1,7 @@
 {
   "reportKey": "metric-canonicalization-legacy-recovery",
-  "generatedAtUtc": "2026-06-20T21:30:41.397Z",
-  "currentHead": "ad14b5fe71513600251e0c078c42f373b89c8091",
+  "generatedAtUtc": "2026-06-21T00:17:30.180Z",
+  "currentHead": "9d3ec2226e6db51f959405e0d09bfab6abe8c2cc",
   "status": "pass",
   "scoreBefore": {
     "sourceHealth": 97.2,
@@ -320,7 +320,24 @@
     "recoveryCannotMutateProduction": true,
     "accuracyExplanationPresent": true
   },
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/launch-analytics-recovery.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/launch-analytics-recovery.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    }
+  ],
   "openPullRequests": [],
   "validationFailures": [],
   "releaseNoteImpact": [

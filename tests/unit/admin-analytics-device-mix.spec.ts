@@ -71,6 +71,11 @@ describe("buildAdminAnalyticsDeviceMixModel", () => {
     });
 
     expect(model.totalSessions).toBe(10154);
+    expect(model.sourceTruth).toBe("ga4_evidence_only");
+    expect(model.freshnessState).toBe("external_evidence_required");
+    expect(model.sourceLabel).toBe("Vendor evidence only");
+    expect(model.freshnessLabel).toBe("External proof required");
+    expect(model.truthState).toBe("degraded");
     expect(model.rows[0]?.deviceCategory).toBe("mobile");
     expect(model.rows[0]?.sessionSharePct).toBeCloseTo(9019 / 10154, 4);
     expect(model.engagementDefinition).toContain("GA engaged sessions");
@@ -101,6 +106,8 @@ describe("buildAdminAnalyticsDeviceMixModel", () => {
     });
 
     expect(model.unknownSessions).toBe(20);
+    expect(model.sourceTruth).toBe("ga4_evidence_only");
+    expect(model.freshnessState).toBe("external_evidence_required");
     const unknownRow = model.rows.find((row) => row.deviceCategory === "unknown");
     expect(unknownRow).toMatchObject({
       sessions: 20,
@@ -140,5 +147,8 @@ describe("buildAdminAnalyticsDeviceMixModel", () => {
       productTruthEligible: false,
       missingVsZeroState: "source_missing",
     });
+    expect(model.sourceTruth).toBe("source_missing");
+    expect(model.freshnessState).toBe("source_missing");
+    expect(model.truthState).toBe("unavailable");
   });
 });

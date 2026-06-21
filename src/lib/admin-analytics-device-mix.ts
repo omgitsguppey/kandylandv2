@@ -1,4 +1,10 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import {
+  formatAdminAnalyticsSourceStateLabel,
+  formatAdminAnalyticsSourceTruthLabel,
+  resolveAdminAnalyticsRecoveryPanelFreshnessState,
+  resolveAdminAnalyticsRecoveryPanelSourceTruth,
+} from "@/lib/analytics/admin-analytics-display-state";
 import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type {
   DeviceMixItem,
@@ -36,38 +42,20 @@ function sortDeviceRows(rows: DeviceMixRow[]) {
   return rows.slice().sort((left, right) => order[left.deviceCategory] - order[right.deviceCategory]);
 }
 
-function mapSourceTruth(response?: HistoricalAnalyticsResponse): DeviceMixPanelState["sourceTruth"] {
-  if (!response) return "unknown";
-  return "ga4";
-}
-
-function mapFreshnessState(response?: HistoricalAnalyticsResponse): DeviceMixPanelState["freshnessState"] {
-  if (!response) {
-    return "unknown";
-  }
-  const sourceFreshness = response.analyticsSourceHealth?.availability.ga4.freshnessState;
-  if (response.cacheState === "stale" || sourceFreshness === "stale") {
-    return "stale";
-  }
-  if (sourceFreshness === "missing" || sourceFreshness === "unknown") {
-    return "partial";
-  }
-  return "live";
-}
-
 function mapTruthState(input: {
   loading: boolean;
   hasResponse: boolean;
   freshnessState: DeviceMixPanelState["freshnessState"];
+  sourceTruth: DeviceMixPanelState["sourceTruth"];
 }): AdminSurfaceState {
   if (input.loading && !input.hasResponse) {
     return "loading";
   }
-  if (!input.hasResponse) {
+  if (!input.hasResponse || input.sourceTruth === "source_missing" || input.freshnessState === "source_missing") {
     return "unavailable";
   }
-  if (input.freshnessState === "stale") {
-    return "stale";
+  if (input.freshnessState === "external_evidence_required") {
+    return "degraded";
   }
   if (input.freshnessState === "partial" || input.freshnessState === "unknown") {
     return "degraded";
@@ -94,36 +82,6 @@ function buildRecommendation(input: {
     return "Tablet traffic is small; keep layouts adaptable without letting tablet-specific polish block mobile work.";
   }
   return "Unknown device classification needs review before device-specific product decisions rely on it.";
-}
-
-function formatSourceLabel(sourceTruth: DeviceMixPanelState["sourceTruth"]) {
-  switch (sourceTruth) {
-    case "ga4":
-      return "GA4 device category";
-    case "first_party":
-      return "First-party device sample";
-    case "mixed":
-      return "Mixed device sample";
-    case "fallback":
-      return "Fallback device sample";
-    default:
-      return "Unknown";
-  }
-}
-
-function formatFreshnessLabel(freshness: DeviceMixPanelState["freshnessState"]) {
-  switch (freshness) {
-    case "live":
-      return "Recent";
-    case "recent":
-      return "Recent";
-    case "stale":
-      return "Stale";
-    case "partial":
-      return "Partial";
-    default:
-      return "Unknown";
-  }
 }
 
 function buildDeviceMixRecoveryMetadata(input: {
@@ -153,8 +111,6 @@ export function buildAdminAnalyticsDeviceMixModel(input: {
   const generatedAtUtc = response?.generatedAtMs
     ? new Date(response.generatedAtMs).toISOString()
     : new Date(0).toISOString();
-  const sourceTruth = mapSourceTruth(response as HistoricalAnalyticsResponse | undefined);
-  const freshnessState = mapFreshnessState(response as HistoricalAnalyticsResponse | undefined);
   const totalSessions = Math.max(0, response?.totals?.sessions ?? devices.reduce((sum, item) => sum + Math.max(0, item.sessions), 0));
   const classifiedSessions = devices.reduce((sum, item) => sum + Math.max(0, item.sessions), 0);
   const unknownSessions = Math.max(0, totalSessions - classifiedSessions);
@@ -249,11 +205,23 @@ export function buildAdminAnalyticsDeviceMixModel(input: {
       : rawRows,
   );
 
+  const sourceTruth = resolveAdminAnalyticsRecoveryPanelSourceTruth({
+    hasResponse: Boolean(response),
+    rows,
+    fallbackSourceTruth: response ? "ga4" : "unknown",
+  });
+  const freshnessState = resolveAdminAnalyticsRecoveryPanelFreshnessState({
+    hasResponse: Boolean(response),
+    rows,
+    cacheState: response?.cacheState,
+    fallbackFreshnessState: response?.analyticsSourceHealth?.availability.ga4.freshnessState,
+  });
+
   const warnings: string[] = [];
   if (unknownSessions > 0) {
     warnings.push(`Device classification is partial; ${unknownSessions.toLocaleString()} sessions have no verified device bucket.`);
   }
-  if (sourceTruth === "ga4") {
+  if (sourceTruth === "ga4_evidence_only") {
     warnings.push("Device mix is GA session-based, not authenticated-user based.");
   }
 
@@ -271,7 +239,7 @@ export function buildAdminAnalyticsDeviceMixModel(input: {
   }
 
   const visibleCopy = [
-    `Device mix uses ${formatSourceLabel(sourceTruth)} sessions for the selected range.`,
+    `Device mix uses ${formatAdminAnalyticsSourceTruthLabel(sourceTruth)} sessions for the selected range.`,
     "Engagement is GA engaged sessions divided by GA sessions for each device bucket.",
   ];
   warnings.forEach((warning) => {
@@ -297,9 +265,10 @@ export function buildAdminAnalyticsDeviceMixModel(input: {
       loading: input.loading,
       hasResponse: Boolean(response),
       freshnessState,
+      sourceTruth,
     }),
-    sourceLabel: formatSourceLabel(sourceTruth),
-    freshnessLabel: formatFreshnessLabel(freshnessState),
+    sourceLabel: formatAdminAnalyticsSourceTruthLabel(sourceTruth),
+    freshnessLabel: formatAdminAnalyticsSourceStateLabel(freshnessState),
     visibleCopy,
     commerceByDeviceAvailable: false,
     watchByDeviceAvailable: false,

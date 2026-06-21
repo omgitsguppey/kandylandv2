@@ -1,7 +1,7 @@
 # Count Deduplication Normalization
 
-Generated: 2026-06-20T21:30:41.821Z
-Current head: ad14b5fe71513600251e0c078c42f373b89c8091
+Generated: 2026-06-21T00:17:53.963Z
+Current head: 9d3ec2226e6db51f959405e0d09bfab6abe8c2cc
 Status: pass
 
 ## Contract
@@ -23,7 +23,14 @@ Status: pass
 
 ## Dirty Files
 
-- none
+- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/canonical-math-ledger.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/metric-canonicalization-legacy-recovery.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/canonical-math-ledger.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/metric-canonicalization-legacy-recovery.md: stale_generated_artifact_to_regenerate
 
 ## Open PR Classification
 

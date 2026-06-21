@@ -1,7 +1,7 @@
 # Canonical Math Ledger
 
-Generated: 2026-06-20T20:45:48.396Z
-Current head: 3b3801dcf4be6ce4c9ba67cb95eabdf8981e90bb
+Generated: 2026-06-21T00:17:30.321Z
+Current head: 9d3ec2226e6db51f959405e0d09bfab6abe8c2cc
 Status: pass
 
 ## Score Freeze
@@ -57,10 +57,14 @@ Status: pass
 
 ## Dirty Files
 
-- Count: 0
+- Count: 4
 - Drilldown truncated: false
 - Protected manual review count: 0
-- none
+- stale_generated_artifact_to_regenerate: 4
+- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
 
 ## Open PR Classification
 

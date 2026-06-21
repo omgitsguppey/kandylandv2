@@ -1,7 +1,7 @@
 {
   "reportKey": "canonical-math-ledger",
-  "generatedAtUtc": "2026-06-20T20:45:48.396Z",
-  "currentHead": "3b3801dcf4be6ce4c9ba67cb95eabdf8981e90bb",
+  "generatedAtUtc": "2026-06-21T00:17:30.321Z",
+  "currentHead": "9d3ec2226e6db51f959405e0d09bfab6abe8c2cc",
   "status": "pass",
   "scoreBefore": {
     "sourceHealth": 97.2,
@@ -517,10 +517,29 @@
     "debugLaneGaps": 74,
     "evidenceCompletenessReason": "74 person metric hydration gap(s) still need source or bridge repair."
   },
-  "dirtyFiles": [],
-  "dirtyFileCount": 0,
+  "dirtyFiles": [
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/launch-analytics-recovery.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/launch-analytics-recovery.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    }
+  ],
+  "dirtyFileCount": 4,
   "dirtyFilesTruncated": false,
-  "dirtyClassificationCounts": {},
+  "dirtyClassificationCounts": {
+    "stale_generated_artifact_to_regenerate": 4
+  },
   "protectedManualReviewCount": 0,
   "openPrEvidenceStatus": "not_queried_external_command_opt_in_required",
   "openPullRequests": [],

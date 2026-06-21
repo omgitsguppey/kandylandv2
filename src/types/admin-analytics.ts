@@ -100,8 +100,8 @@ export type DeviceMixRow = {
 export type DeviceMixPanelState = {
   generatedAtUtc: string;
   range: string;
-  sourceTruth: "ga4" | "first_party" | "mixed" | "fallback" | "unknown";
-  freshnessState: "live" | "recent" | "stale" | "partial" | "unknown";
+  sourceTruth: RecoveredLaunchMetricState["sourceTruth"] | "ga4" | "first_party" | "mixed" | "fallback" | "unknown";
+  freshnessState: RecoveredLaunchMetricState["freshnessState"] | "live" | "recent" | "stale" | "partial" | "unknown";
   totalSessions: number;
   classifiedSessions: number;
   unknownSessions: number;
@@ -146,8 +146,8 @@ export type RegionDemandRow = {
 export type RegionDemandPanelState = {
   generatedAtUtc: string;
   range: string;
-  sourceTruth: "ga4" | "first_party" | "mixed" | "unknown";
-  freshnessState: "live" | "recent" | "stale" | "partial" | "unknown";
+  sourceTruth: RecoveredLaunchMetricState["sourceTruth"] | "ga4" | "first_party" | "mixed" | "fallback" | "unknown";
+  freshnessState: RecoveredLaunchMetricState["freshnessState"] | "live" | "recent" | "stale" | "partial" | "unknown";
   filterMode: "raw" | "external_only" | "admin_excluded" | "comparison";
   countUnit: "views" | "sessions" | "users" | "events" | "mixed";
   rawTotal: number;
@@ -204,8 +204,8 @@ export type TopPathRow = {
 export type TopPathsPanelState = {
   generatedAtUtc: string;
   range: string;
-  sourceTruth: "ga4" | "first_party" | "mixed" | "fallback" | "unknown";
-  freshnessState: "live" | "recent" | "stale" | "partial" | "unknown";
+  sourceTruth: RecoveredLaunchMetricState["sourceTruth"] | "ga4" | "first_party" | "mixed" | "fallback" | "unknown";
+  freshnessState: RecoveredLaunchMetricState["freshnessState"] | "live" | "recent" | "stale" | "partial" | "unknown";
   totalPathCount: number;
   totalViews: number;
   page: number;

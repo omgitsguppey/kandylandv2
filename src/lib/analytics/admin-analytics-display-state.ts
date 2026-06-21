@@ -7,6 +7,7 @@ import {
   buildLaunchHistoryDisplaySummaryState,
   type LaunchHistoryDisplaySummaryCoverageInput,
   type LaunchHistoryDisplaySummaryState,
+  type RecoveredLaunchMetricState,
 } from "@/lib/analytics/recovery-timeline-spine";
 
 export type AdminAnalyticsVisibleValueSource =
@@ -98,6 +99,27 @@ type AdminAnalyticsLaunchRecoveryCoverage = LaunchHistoryDisplaySummaryCoverageI
 
 export type AdminAnalyticsLaunchRecoverySummary = LaunchHistoryDisplaySummaryState;
 
+export type AdminAnalyticsRecoveryPanelSourceTruth =
+  | RecoveredLaunchMetricState["sourceTruth"]
+  | "ga4"
+  | "first_party"
+  | "mixed"
+  | "fallback"
+  | "unknown";
+
+export type AdminAnalyticsRecoveryPanelFreshnessState =
+  | RecoveredLaunchMetricState["freshnessState"]
+  | "live"
+  | "recent"
+  | "stale"
+  | "partial"
+  | "unknown";
+
+type RecoveryPanelRowLike = {
+  sourceTruth?: string | null;
+  freshnessState?: string | null;
+};
+
 export function resolveAdminAnalyticsLaunchRecoverySummary(input: {
   launchHistoryCoverage?: AdminAnalyticsLaunchRecoveryCoverage | null;
   sourceAgreementState?: string | null;
@@ -121,6 +143,69 @@ export function hasAdminAnalyticsLaunchRecoveryEvidence(summary: AdminAnalyticsL
     Boolean(summary.sourceWindowLabel) ||
     summary.coverageDenominatorKind === "evidence_window" ||
     summary.coverageDenominatorKind === "approved_launch_range";
+}
+
+export function resolveAdminAnalyticsRecoveryPanelSourceTruth(input: {
+  hasResponse: boolean;
+  rows: RecoveryPanelRowLike[];
+  fallbackSourceTruth?: string | null;
+}): AdminAnalyticsRecoveryPanelSourceTruth {
+  if (!input.hasResponse) return "source_missing";
+
+  const rowSources = new Set(input.rows.map((row) => row.sourceTruth).filter(Boolean));
+  const hasFirstParty = rowSources.has("first_party_event_fact") ||
+    rowSources.has("server_ledger") ||
+    rowSources.has("watch_session_rollup") ||
+    rowSources.has("admin_action_fact");
+  const hasSecondSource = rowSources.has("ga4_evidence_only") || rowSources.has("legacy_directional_only");
+
+  if (hasFirstParty && hasSecondSource) return "mixed";
+  if (hasFirstParty) return "first_party_event_fact";
+  if (rowSources.has("ga4_evidence_only")) return "ga4_evidence_only";
+  if (rowSources.has("legacy_directional_only")) return "legacy_directional_only";
+  if (rowSources.has("source_missing") && rowSources.size === 1) return "source_missing";
+
+  switch (input.fallbackSourceTruth) {
+    case "ga4":
+      return "ga4_evidence_only";
+    case "first_party":
+      return "first_party_event_fact";
+    case "mixed":
+    case "fallback":
+      return input.fallbackSourceTruth;
+    default:
+      return "source_missing";
+  }
+}
+
+export function resolveAdminAnalyticsRecoveryPanelFreshnessState(input: {
+  hasResponse: boolean;
+  rows: RecoveryPanelRowLike[];
+  cacheState?: string | null;
+  fallbackFreshnessState?: string | null;
+}): AdminAnalyticsRecoveryPanelFreshnessState {
+  if (!input.hasResponse) return "source_missing";
+
+  const rowFreshness = new Set(input.rows.map((row) => row.freshnessState).filter(Boolean));
+  if (rowFreshness.has("external_evidence_required")) return "external_evidence_required";
+  if (rowFreshness.has("source_missing") && rowFreshness.size === 1) return "source_missing";
+  if (input.cacheState === "stale" || input.cacheState === "refresh_due" || input.fallbackFreshnessState === "stale") {
+    return "refresh_due";
+  }
+  if (rowFreshness.has("late_arrival_window")) return "late_arrival_window";
+  if (rowFreshness.has("source_current")) return "source_current";
+  if (rowFreshness.has("cached")) return "cached";
+
+  switch (input.fallbackFreshnessState) {
+    case "live":
+    case "recent":
+      return "cached";
+    case "partial":
+    case "unknown":
+      return input.fallbackFreshnessState;
+    default:
+      return rowFreshness.size > 0 ? "partial" : "source_missing";
+  }
 }
 
 export function resolveAdminAnalyticsOverviewMetricState(input: {
@@ -349,6 +434,10 @@ export function formatAdminAnalyticsSourceStateLabel(
       return "Source current";
     case "late_arrival_window":
       return "Late arrivals possible";
+    case "cached":
+      return "Cached";
+    case "refresh_due":
+      return "Refresh due";
     case "source_missing":
       return "Source missing";
     case "external_evidence_required":

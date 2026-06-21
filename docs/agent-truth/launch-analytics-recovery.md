@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-20T23:09:25.241Z
-Current head: ca1347ca017825a066021ce7e05a633735d89ba7
+Generated: 2026-06-21T00:16:45.348Z
+Current head: 9d3ec2226e6db51f959405e0d09bfab6abe8c2cc
 Status: source_agreement_failed
 
 ## Source Order
@@ -49,15 +49,15 @@ Status: source_agreement_failed
 
 ## Launch Coverage
 
-- Formal range: 2026-02-12 to 2026-06-20
+- Formal range: 2026-02-12 to 2026-06-21
 - Formal range state: formal_proof_missing
-- Formal expected days: 129
+- Formal expected days: 130
 - Local evidence days: 3
 - Approved coverage days: 0
-- Formal day rows: 129
-- Unproven formal days: 126
+- Formal day rows: 130
+- Unproven formal days: 127
 - Local evidence ranges: 2026-02-12..2026-02-14
-- Unproven formal ranges: 2026-02-12..2026-06-20
+- Unproven formal ranges: 2026-02-12..2026-06-21
 - Formal range reason: Current evidence only covers the local source window; approved all-launch export or admin truth sample is still required.
 - Range: 2026-02-12 to 2026-02-14
 - Range proof: fixture_only_local_window
@@ -103,7 +103,7 @@ Status: source_agreement_failed
 - 2026-02-23: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
 - 2026-02-24: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
 - 2026-02-25: state=outside_evidence_window; evidenceObserved=no; productTruthRecovered=no; sourceTruthState=source_missing; sourceCountsKnown=false; first_party=unknown, ga4=unknown, historicalSnapshot=unknown, legacySupport=unknown; confidence=unknown; confidenceBand=missing; next=Attach approved all-range historical export or admin truth sample with launchHistoryCoverage rows before promoting this day.
-- 115 additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.
+- 116 additional formal launch days omitted from compact doc; see agent/state/launch-analytics-recovery.generated.json.
 
 ## Daily Recovery Rows
 

@@ -1,4 +1,10 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import {
+  formatAdminAnalyticsSourceStateLabel,
+  formatAdminAnalyticsSourceTruthLabel,
+  resolveAdminAnalyticsRecoveryPanelFreshnessState,
+  resolveAdminAnalyticsRecoveryPanelSourceTruth,
+} from "@/lib/analytics/admin-analytics-display-state";
 import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type {
   HistoricalAnalyticsResponse,
@@ -38,44 +44,16 @@ function mapTruthState(input: {
   if (input.loading && !input.hasResponse) {
     return "loading" satisfies AdminSurfaceState;
   }
-  if (!input.hasResponse) {
+  if (!input.hasResponse || input.sourceTruth === "source_missing" || input.freshnessState === "source_missing") {
     return "unavailable" satisfies AdminSurfaceState;
   }
-  if (input.freshnessState === "stale") {
-    return "stale" satisfies AdminSurfaceState;
+  if (input.freshnessState === "external_evidence_required") {
+    return "degraded" satisfies AdminSurfaceState;
   }
   if (input.freshnessState === "partial" || input.sourceTruth === "mixed" || input.sourceTruth === "unknown") {
     return "degraded" satisfies AdminSurfaceState;
   }
   return "cached" satisfies AdminSurfaceState;
-}
-
-function formatSourceLabel(sourceTruth: RegionDemandPanelState["sourceTruth"]) {
-  switch (sourceTruth) {
-    case "ga4":
-      return "GA4 geography";
-    case "first_party":
-      return "First-party geography";
-    case "mixed":
-      return "GA4 geography with admin-surface exclusion";
-    default:
-      return "Unknown";
-  }
-}
-
-function formatFreshnessLabel(freshnessState: RegionDemandPanelState["freshnessState"]) {
-  switch (freshnessState) {
-    case "live":
-      return "Recent";
-    case "recent":
-      return "Recent";
-    case "stale":
-      return "Stale";
-    case "partial":
-      return "Partial";
-    default:
-      return "Unknown";
-  }
 }
 
 function formatUnitLabel(countUnit: RegionDemandPanelState["countUnit"], count: number) {
@@ -157,8 +135,17 @@ export function buildAdminAnalyticsRegionDemandModel(input: {
       ? new Date(input.response.generatedAtMs).toISOString()
       : EMPTY_STATE.generatedAtUtc,
     range: input.selectedRange,
-    sourceTruth: fallbackRows.length > 0 ? "ga4" : "unknown",
-    freshnessState: input.response?.cacheState === "stale" ? "stale" : fallbackRows.length > 0 ? "partial" : "unknown",
+    sourceTruth: resolveAdminAnalyticsRecoveryPanelSourceTruth({
+      hasResponse: Boolean(input.response),
+      rows: fallbackRows,
+      fallbackSourceTruth: fallbackRows.length > 0 ? "ga4" : "unknown",
+    }),
+    freshnessState: resolveAdminAnalyticsRecoveryPanelFreshnessState({
+      hasResponse: Boolean(input.response),
+      rows: fallbackRows,
+      cacheState: input.response?.cacheState,
+      fallbackFreshnessState: fallbackRows.length > 0 ? "partial" : "unknown",
+    }),
     countUnit: fallbackRows.length > 0 ? "users" : "mixed",
     rawTotal: fallbackRawTotal,
     adjustedTotal: fallbackAdjustedTotal,
@@ -176,6 +163,18 @@ export function buildAdminAnalyticsRegionDemandModel(input: {
       : ["No region geography source is available for this range."],
   };
 
+  const sourceTruth = resolveAdminAnalyticsRecoveryPanelSourceTruth({
+    hasResponse: Boolean(input.response),
+    rows: state.rows,
+    fallbackSourceTruth: state.sourceTruth,
+  });
+  const freshnessState = resolveAdminAnalyticsRecoveryPanelFreshnessState({
+    hasResponse: Boolean(input.response),
+    rows: state.rows,
+    cacheState: input.response?.cacheState,
+    fallbackFreshnessState: state.freshnessState,
+  });
+
   const visibleCopy = [
     "Raw geography with internal/admin traffic separated from external demand.",
     `Counts use ${state.countUnit} for the selected range.`,
@@ -189,11 +188,13 @@ export function buildAdminAnalyticsRegionDemandModel(input: {
     truthState: mapTruthState({
       loading: input.loading,
       hasResponse: Boolean(input.response),
-      freshnessState: state.freshnessState,
-      sourceTruth: state.sourceTruth,
+      freshnessState,
+      sourceTruth,
     }),
-    sourceLabel: formatSourceLabel(state.sourceTruth),
-    freshnessLabel: formatFreshnessLabel(state.freshnessState),
+    sourceTruth,
+    freshnessState,
+    sourceLabel: formatAdminAnalyticsSourceTruthLabel(sourceTruth),
+    freshnessLabel: formatAdminAnalyticsSourceStateLabel(freshnessState),
     visibleCopy,
   };
 }

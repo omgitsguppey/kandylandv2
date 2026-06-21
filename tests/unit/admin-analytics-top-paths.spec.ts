@@ -86,6 +86,11 @@ describe("buildAdminAnalyticsTopPathsModel", () => {
     });
 
     expect(model.totalViews).toBe(100);
+    expect(model.sourceTruth).toBe("ga4_evidence_only");
+    expect(model.freshnessState).toBe("external_evidence_required");
+    expect(model.sourceLabel).toBe("Vendor evidence only");
+    expect(model.freshnessLabel).toBe("External proof required");
+    expect(model.truthState).toBe("degraded");
     expect(model.rows[0]?.viewSharePct).toBeCloseTo(0.9, 5);
     expect(model.rows[1]?.viewSharePct).toBeCloseTo(0.1, 5);
     expect(model.rows[0]).toMatchObject({
@@ -184,5 +189,8 @@ describe("buildAdminAnalyticsTopPathsModel", () => {
       productTruthEligible: false,
       missingVsZeroState: "source_missing",
     });
+    expect(model.sourceTruth).toBe("source_missing");
+    expect(model.freshnessState).toBe("source_missing");
+    expect(model.truthState).toBe("unavailable");
   });
 });

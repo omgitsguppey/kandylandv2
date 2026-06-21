@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T21:30:41.821Z",
+  "generatedAtUtc": "2026-06-21T00:17:53.963Z",
   "reportKey": "count-deduplication-normalization",
-  "currentHead": "ad14b5fe71513600251e0c078c42f373b89c8091",
+  "currentHead": "9d3ec2226e6db51f959405e0d09bfab6abe8c2cc",
   "status": "pass",
   "productionReadsRequired": false,
   "productionDataMutated": false,
@@ -420,7 +420,40 @@
     "globalUserDivergenceExplanations": 3,
     "missingFormulaReferences": 0
   },
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/canonical-math-ledger.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/launch-analytics-recovery.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/metric-canonicalization-legacy-recovery.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/canonical-math-ledger.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/launch-analytics-recovery.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/metric-canonicalization-legacy-recovery.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    }
+  ],
   "openPullRequests": [],
   "validationFailures": [],
   "nextExactSteps": [

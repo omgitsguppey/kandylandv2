@@ -1,4 +1,10 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import {
+  formatAdminAnalyticsSourceStateLabel,
+  formatAdminAnalyticsSourceTruthLabel,
+  resolveAdminAnalyticsRecoveryPanelFreshnessState,
+  resolveAdminAnalyticsRecoveryPanelSourceTruth,
+} from "@/lib/analytics/admin-analytics-display-state";
 import { buildRecoveredLaunchMetricState } from "@/lib/analytics/recovery-timeline-spine";
 import type {
   HistoricalAnalyticsResponse,
@@ -28,63 +34,17 @@ export type AdminAnalyticsTopPathsModel = TopPathsPanelState & {
   }>;
 };
 
-function mapSourceTruth(response?: HistoricalAnalyticsResponse): TopPathsPanelState["sourceTruth"] {
-  if (!response) return "unknown";
-  return "ga4";
-}
-
-function mapFreshnessState(response?: HistoricalAnalyticsResponse): TopPathsPanelState["freshnessState"] {
-  if (!response) return "unknown";
-  const sourceFreshness = response.analyticsSourceHealth?.availability.ga4.freshnessState;
-  if (response.cacheState === "stale" || sourceFreshness === "stale") {
-    return "stale";
-  }
-  if (sourceFreshness === "missing" || sourceFreshness === "unknown") {
-    return "partial";
-  }
-  return "live";
-}
-
 function mapTruthState(input: {
   loading: boolean;
   hasResponse: boolean;
   freshnessState: TopPathsPanelState["freshnessState"];
+  sourceTruth: TopPathsPanelState["sourceTruth"];
 }): AdminSurfaceState {
   if (input.loading && !input.hasResponse) return "loading";
-  if (!input.hasResponse) return "unavailable";
-  if (input.freshnessState === "stale") return "stale";
+  if (!input.hasResponse || input.sourceTruth === "source_missing" || input.freshnessState === "source_missing") return "unavailable";
+  if (input.freshnessState === "external_evidence_required") return "degraded";
   if (input.freshnessState === "partial" || input.freshnessState === "unknown") return "degraded";
   return "cached";
-}
-
-function formatSourceLabel(sourceTruth: TopPathsPanelState["sourceTruth"]) {
-  switch (sourceTruth) {
-    case "ga4":
-      return "GA4 page path snapshot";
-    case "first_party":
-      return "First-party path snapshot";
-    case "mixed":
-      return "Mixed path snapshot";
-    case "fallback":
-      return "Fallback path snapshot";
-    default:
-      return "Unknown";
-  }
-}
-
-function formatFreshnessLabel(freshness: TopPathsPanelState["freshnessState"]) {
-  switch (freshness) {
-    case "live":
-      return "Recent";
-    case "recent":
-      return "Recent";
-    case "stale":
-      return "Stale";
-    case "partial":
-      return "Partial";
-    default:
-      return "Unknown";
-  }
 }
 
 function formatAvgTimeDisplay(seconds: number | null) {
@@ -208,8 +168,6 @@ export function buildAdminAnalyticsTopPathsModel(input: {
   const generatedAtUtc = response?.generatedAtMs
     ? new Date(response.generatedAtMs).toISOString()
     : new Date(0).toISOString();
-  const sourceTruth = mapSourceTruth(response as HistoricalAnalyticsResponse | undefined);
-  const freshnessState = mapFreshnessState(response as HistoricalAnalyticsResponse | undefined);
   const totalViews = pages.reduce((sum, item) => sum + Math.max(0, item.views), 0);
   const rows = pages.map<TopPathRow>((item) => {
     const path = normalizePath(item.path);
@@ -270,8 +228,19 @@ export function buildAdminAnalyticsTopPathsModel(input: {
 
   const maxSnapshotRows = pages.length;
   const snapshotLimited = pages.length >= 25;
+  const sourceTruth = resolveAdminAnalyticsRecoveryPanelSourceTruth({
+    hasResponse: Boolean(response),
+    rows,
+    fallbackSourceTruth: response ? "ga4" : "unknown",
+  });
+  const freshnessState = resolveAdminAnalyticsRecoveryPanelFreshnessState({
+    hasResponse: Boolean(response),
+    rows,
+    cacheState: response?.cacheState,
+    fallbackFreshnessState: response?.analyticsSourceHealth?.availability.ga4.freshnessState,
+  });
   const warnings: string[] = [];
-  if (sourceTruth === "ga4") {
+  if (sourceTruth === "ga4_evidence_only") {
     warnings.push("Views, average time, and engagement are GA4 path metrics for the selected range, not authenticated-user-only navigation.");
   }
   if (snapshotLimited) {
@@ -285,7 +254,7 @@ export function buildAdminAnalyticsTopPathsModel(input: {
   }
 
   const visibleCopy = [
-    `Top paths uses ${formatSourceLabel(sourceTruth)} data for the selected range.`,
+    `Top paths uses ${formatAdminAnalyticsSourceTruthLabel(sourceTruth)} data for the selected range.`,
     "Views are path view counts, Share is path views / total top-path views, and Engagement is the labeled path engagement metric.",
     ...warnings,
   ];
@@ -307,9 +276,10 @@ export function buildAdminAnalyticsTopPathsModel(input: {
       loading: input.loading,
       hasResponse: Boolean(response),
       freshnessState,
+      sourceTruth,
     }),
-    sourceLabel: formatSourceLabel(sourceTruth),
-    freshnessLabel: formatFreshnessLabel(freshnessState),
+    sourceLabel: formatAdminAnalyticsSourceTruthLabel(sourceTruth),
+    freshnessLabel: formatAdminAnalyticsSourceStateLabel(freshnessState),
     visibleCopy,
     snapshotLimited,
     maxSnapshotRows,
