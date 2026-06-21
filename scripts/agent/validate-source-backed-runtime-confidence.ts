@@ -3,6 +3,11 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  classifyGeneratedArtifactFromGit,
+  isGeneratedArtifactCurrent,
+} from "../../src/lib/agent-score/generated-artifact-version-policy";
+
 export type SourceRuntimeValidatorResult = {
   command: string;
   status: "pass" | "fail" | "unavailable";
@@ -61,6 +66,41 @@ const ROOT = join(__dirname, "..", "..");
 const ARTIFACT_PATH = "agent/state/source-backed-runtime-confidence.generated.json";
 const DOC_PATH = "docs/agent-truth/source-backed-runtime-confidence.md";
 const FORMAL_GATES_NOT_CLEARED = ["runtime_smoke", "provider_smoke", "admin_truth_sample"];
+const DEPENDENCY_OWNED_SOURCE_PATHS: Record<string, string[]> = {
+  "agent/state/runtime-watch-time-v2.generated.json": [
+    "scripts/agent/validate-runtime-watch-time-v2.ts",
+    "src/lib/analytics/runtime-watch-time-v2.ts",
+    "src/components/Analytics/RuntimeWatchTracker.tsx",
+  ],
+  "agent/state/final-telemetry-closure-lock.generated.json": [
+    "scripts/agent/validate-final-telemetry-closure-lock.ts",
+    "src/lib/analytics",
+    "src/lib/telemetry.ts",
+  ],
+  "agent/state/telemetry-admin-debug-truth.generated.json": [
+    "scripts/agent/validate-telemetry-admin-debug-truth.ts",
+    "src/lib/analytics",
+    "src/lib/admin-debug-control-tower.ts",
+  ],
+  "agent/state/mobile-loading-hydration-stability.generated.json": [
+    "scripts/agent/validate-mobile-loading-hydration-stability.ts",
+    "src/lib/device-layout-contract.ts",
+    "src/lib/user-mobile-shell.ts",
+  ],
+  "agent/state/user-loading-wallet-mobile-refinement.generated.json": [
+    "scripts/agent/validate-user-loading-wallet-mobile-refinement.ts",
+    "src/components/Wallet",
+    "src/app/dashboard",
+  ],
+  "agent/state/creator-drop-status-metrics.generated.json": [
+    "scripts/agent/validate-creator-drop-status-metrics.ts",
+    "src/app/api/creator",
+    "src/components/Creators",
+  ],
+  "agent/state/operator-revenue-smoke.generated.json": [
+    "scripts/agent/validate-operator-revenue-smoke.ts",
+  ],
+};
 
 function safeExec(command: string, args: string[]) {
   try {
@@ -88,20 +128,38 @@ function record(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
-function currentReport(relativePath: string, head: string) {
-  const report = readJson(relativePath);
-  return Boolean(report && report.currentHead === head);
+function artifactHead(report: Record<string, unknown> | null) {
+  const sourceCommit = report?.sourceCommit;
+  if (typeof sourceCommit === "string") return sourceCommit;
+  const currentHead = report?.currentHead;
+  return typeof currentHead === "string" ? currentHead : undefined;
 }
 
-function validatorResult(command: string, artifactPath: string, head: string): SourceRuntimeValidatorResult {
+function artifactVersion(relativePath: string) {
+  const report = readJson(relativePath);
+  if (!report) return null;
+  return classifyGeneratedArtifactFromGit({
+    cwd: ROOT,
+    artifactPath: relativePath,
+    artifactHead: artifactHead(report),
+    ownedSourcePaths: DEPENDENCY_OWNED_SOURCE_PATHS[relativePath],
+  });
+}
+
+function currentReport(relativePath: string) {
+  const version = artifactVersion(relativePath);
+  return Boolean(version && isGeneratedArtifactCurrent(version));
+}
+
+function validatorResult(command: string, artifactPath: string): SourceRuntimeValidatorResult {
   if (!existsSync(join(ROOT, artifactPath))) {
     return { command, status: "unavailable", artifactPath, detail: "Artifact missing." };
   }
-  const report = readJson(artifactPath);
-  if (report?.currentHead !== head) {
-    return { command, status: "fail", artifactPath, detail: "Artifact was not generated from the latest code version." };
+  const version = artifactVersion(artifactPath);
+  if (!version || !isGeneratedArtifactCurrent(version)) {
+    return { command, status: "fail", artifactPath, detail: version?.reason ?? "Artifact does not include source version metadata." };
   }
-  return { command, status: "pass", artifactPath, detail: "Artifact is current for the latest code version." };
+  return { command, status: "pass", artifactPath, detail: version.reason };
 }
 
 function deployedRuntimeSmokePresent(head: string) {
@@ -134,25 +192,25 @@ function sourceFlags(head: string) {
   const operator = readJson("agent/state/operator-revenue-smoke.generated.json");
   const operatorSummary = record(operator?.summary);
 
-  const watchTimeRuntimeSourceReady = currentReport("agent/state/runtime-watch-time-v2.generated.json", head)
+  const watchTimeRuntimeSourceReady = currentReport("agent/state/runtime-watch-time-v2.generated.json")
     && runtimeWatchSummary.canonicalModelCreated === true
     && runtimeWatchSummary.clientTrackerCreated === true
     && runtimeWatchSummary.serverDeltaRulesModeled === true;
-  const telemetryPipelineSourceReady = currentReport("agent/state/final-telemetry-closure-lock.generated.json", head)
+  const telemetryPipelineSourceReady = currentReport("agent/state/final-telemetry-closure-lock.generated.json")
     && finalTelemetrySummary.ingestClosed === true
     && finalTelemetrySummary.firestoreWritePathClosed === true
     && finalTelemetrySummary.betaEvidenceReady === false
-    && currentReport("agent/state/telemetry-admin-debug-truth.generated.json", head)
+    && currentReport("agent/state/telemetry-admin-debug-truth.generated.json")
     && telemetryAdminSummary.defaultBroadReadsBlocked === true;
-  const walletLoadingSourceReady = currentReport("agent/state/user-loading-wallet-mobile-refinement.generated.json", head)
+  const walletLoadingSourceReady = currentReport("agent/state/user-loading-wallet-mobile-refinement.generated.json")
     && walletSummary.walletRuntimeLogicUnchanged === true
     && walletSummary.walletLoadingStable === true
     && walletSummary.walletMobileDensityCompact === true;
-  const creatorDropStatusRuntimeSourceReady = currentReport("agent/state/creator-drop-status-metrics.generated.json", head)
+  const creatorDropStatusRuntimeSourceReady = currentReport("agent/state/creator-drop-status-metrics.generated.json")
     && dropsSummary.statusResolverReady === true
     && dropsSummary.metricsResolverReady === true
     && dropsSummary.metricsUnavailableNotZero === true;
-  const operatorRevenueSmokeSourceSignal = currentReport("agent/state/operator-revenue-smoke.generated.json", head)
+  const operatorRevenueSmokeSourceSignal = currentReport("agent/state/operator-revenue-smoke.generated.json")
     && operatorSummary.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
     && operatorSummary.formalProviderSmokePassed === false;
 
@@ -229,7 +287,7 @@ export function buildSourceBackedRuntimeConfidenceReport(
     scoringModelSupportsRuntimePartialCredit: inputs.scoringModelSupportsRuntimePartialCredit ?? false,
     validatorResults: inputs.validatorResults,
     evidence,
-    nextAction: "Attach deployed runtime smoke before clearing runtime evidence gates.",
+    nextAction: "Produce deployed route evidence before clearing runtime evidence gates.",
     summary: {
       runtimeContractsPresent: inputs.runtimeContractsPresent,
       deployedSmokePresent: inputs.deployedSmokePresent,
@@ -244,12 +302,14 @@ export function validateSourceBackedRuntimeConfidenceReport(report: SourceBacked
   const failures: string[] = [];
   if (report.reportKey !== "source-backed-runtime-confidence") failures.push("reportKey must be source-backed-runtime-confidence.");
   if (!report.currentHead || report.sourceCommit !== report.currentHead) failures.push("artifact must be tied to current source commit.");
-  if (report.launchGateImpact !== "does_not_clear_runtime_smoke") failures.push("source-backed runtime confidence must not clear runtime smoke.");
-  if (report.deployedSmokePresent !== false) failures.push("deployed runtime smoke must remain false unless a formal artifact exists.");
+  if (report.launchGateImpact !== "does_not_clear_runtime_smoke") failures.push("source-backed runtime confidence must not clear deployed route evidence.");
+  if (report.deployedSmokePresent !== false) failures.push("deployed route evidence must remain false unless a route evidence artifact exists.");
   if (report.doesNotClear.includes("runtime_smoke") === false) failures.push("doesNotClear must include runtime_smoke.");
-  if (report.doesNotClear.includes("provider_smoke") === false) failures.push("runtime confidence must not be counted as provider smoke.");
+  if (report.doesNotClear.includes("provider_smoke") === false) failures.push("runtime confidence must not be counted as provider-backed site activity.");
   if (!Array.isArray(report.validatorResults) || report.validatorResults.length === 0) failures.push("source-backed runtime confidence has no validators.");
-  if (report.validatorResults.some((result) => result.status !== "pass")) failures.push("source-backed runtime confidence validator result is not passing.");
+  if (report.passed && report.validatorResults.some((result) => result.status !== "pass")) {
+    failures.push("source-backed runtime confidence cannot pass while dependency validators are stale or unavailable.");
+  }
   if (report.runtimeConfidenceScore <= 0) failures.push("runtime confidence score must be positive when source-backed contracts are present.");
   if (!report.scoringModelSupportsRuntimePartialCredit) {
     failures.push("runtimeHealth remains hard zero despite source-backed runtime contract evidence.");
@@ -274,7 +334,7 @@ Latest code version: ${report.currentHead}
 - Runtime contracts present: ${report.runtimeContractsPresent}
 - Deployed smoke present: ${report.deployedSmokePresent}
 - Launch gate impact: \`${report.launchGateImpact}\`
-- Formal runtime smoke still required: ${report.summary.formalRuntimeSmokeStillRequired}
+- Deployed route evidence still required: ${report.summary.formalRuntimeSmokeStillRequired}
 
 ## Source-Ready Runtime Lanes
 
@@ -292,7 +352,7 @@ ${validators}
 
 ## Evidence Boundary
 
-This is source-backed runtime confidence only. It is not deployed runtime smoke, provider smoke, or admin truth sample evidence. It does not clear: ${report.doesNotClear.map((gate) => `\`${gate}\``).join(", ")}.
+This is source-backed runtime confidence only. It is not deployed route evidence, provider-backed site activity, or admin source activity sample evidence. It does not clear: ${report.doesNotClear.map((gate) => `\`${gate}\``).join(", ")}.
 `;
 }
 
@@ -315,13 +375,13 @@ function main() {
     operatorRevenueSmokeSourceSignal: flags.operatorRevenueSmokeSourceSignal,
     scoringModelSupportsRuntimePartialCredit: sourceCodeWiresRuntimeConfidence(),
     validatorResults: [
-      validatorResult("npm run check:runtime-watch-time-v2", "agent/state/runtime-watch-time-v2.generated.json", head),
-      validatorResult("npm run check:final-telemetry-closure-lock", "agent/state/final-telemetry-closure-lock.generated.json", head),
-      validatorResult("npm run check:telemetry-admin-debug-truth", "agent/state/telemetry-admin-debug-truth.generated.json", head),
-      validatorResult("npm run check:mobile-loading-hydration-stability", "agent/state/mobile-loading-hydration-stability.generated.json", head),
-      validatorResult("npm run check:user-loading-wallet-mobile-refinement", "agent/state/user-loading-wallet-mobile-refinement.generated.json", head),
-      validatorResult("npm run check:creator-drop-status-metrics", "agent/state/creator-drop-status-metrics.generated.json", head),
-      validatorResult("npm run check:operator-revenue-smoke", "agent/state/operator-revenue-smoke.generated.json", head),
+      validatorResult("npm run check:runtime-watch-time-v2", "agent/state/runtime-watch-time-v2.generated.json"),
+      validatorResult("npm run check:final-telemetry-closure-lock", "agent/state/final-telemetry-closure-lock.generated.json"),
+      validatorResult("npm run check:telemetry-admin-debug-truth", "agent/state/telemetry-admin-debug-truth.generated.json"),
+      validatorResult("npm run check:mobile-loading-hydration-stability", "agent/state/mobile-loading-hydration-stability.generated.json"),
+      validatorResult("npm run check:user-loading-wallet-mobile-refinement", "agent/state/user-loading-wallet-mobile-refinement.generated.json"),
+      validatorResult("npm run check:creator-drop-status-metrics", "agent/state/creator-drop-status-metrics.generated.json"),
+      validatorResult("npm run check:operator-revenue-smoke", "agent/state/operator-revenue-smoke.generated.json"),
     ],
   });
 

@@ -9,7 +9,7 @@ import { buildPublicBetaEvidenceGates } from "../../src/lib/agent-score/core";
 const head = "abc123";
 
 describe("source-backed runtime confidence", () => {
-  it("passes as source-backed confidence without clearing deployed runtime smoke", () => {
+  it("passes as source-backed confidence without clearing deployed route evidence", () => {
     const report = buildSourceBackedRuntimeConfidenceReport({
       generatedAtUtc: "2026-05-20T00:00:00.000Z",
       currentHead: head,
@@ -33,7 +33,7 @@ describe("source-backed runtime confidence", () => {
     expect(validateSourceBackedRuntimeConfidenceReport(report)).toEqual([]);
   });
 
-  it("fails if the artifact tries to clear runtime smoke", () => {
+  it("fails if the artifact tries to clear deployed route evidence", () => {
     const report = buildSourceBackedRuntimeConfidenceReport({
       generatedAtUtc: "2026-05-20T00:00:00.000Z",
       currentHead: head,
@@ -51,11 +51,34 @@ describe("source-backed runtime confidence", () => {
     report.launchGateImpact = "clears_runtime_smoke";
 
     expect(validateSourceBackedRuntimeConfidenceReport(report)).toContain(
-      "source-backed runtime confidence must not clear runtime smoke.",
+      "source-backed runtime confidence must not clear deployed route evidence.",
     );
   });
 
-  it("gives runtime health source credit while runtime/provider smoke remains unverified", () => {
+  it("allows partial source confidence when dependency validators are stale", () => {
+    const report = buildSourceBackedRuntimeConfidenceReport({
+      generatedAtUtc: "2026-05-20T00:00:00.000Z",
+      currentHead: head,
+      runtimeContractsPresent: true,
+      deployedSmokePresent: false,
+      watchTimeRuntimeSourceReady: true,
+      telemetryPipelineSourceReady: false,
+      walletLoadingSourceReady: false,
+      creatorDropStatusRuntimeSourceReady: true,
+      operatorRevenueSmokeSourceSignal: true,
+      scoringModelSupportsRuntimePartialCredit: true,
+      validatorResults: [
+        { command: "npm run check:final-telemetry-closure-lock", status: "fail", artifactPath: "agent/state/final-telemetry-closure-lock.generated.json" },
+      ],
+    });
+
+    expect(report.status).toBe("partial_source_runtime_confidence");
+    expect(report.passed).toBe(false);
+    expect(report.runtimeConfidenceScore).toBeGreaterThan(0);
+    expect(validateSourceBackedRuntimeConfidenceReport(report)).toEqual([]);
+  });
+
+  it("gives runtime health source credit while route/provider evidence remains unverified", () => {
     const generatedAtUtc = new Date().toISOString();
     const gates = buildPublicBetaEvidenceGates({
       scannerScore: 100,
@@ -75,7 +98,7 @@ describe("source-backed runtime confidence", () => {
           path: "agent/state/runtime-smoke-evidence.generated.json",
           status: "runtime_unverified",
           passed: false,
-          detail: "Deployed runtime smoke missing.",
+          detail: "Deployed route evidence missing.",
           evidence: ["runtimeDeploymentSmokePassed=false"],
           generatedAtUtc,
           sourceCommit: head,
@@ -84,7 +107,7 @@ describe("source-backed runtime confidence", () => {
     });
 
     const runtimeGate = gates.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
-    expect(runtimeGate?.status).toBe("Runtime unverified");
+    expect(runtimeGate?.status).toBe("Source evidence required");
     expect(runtimeGate?.runtimeCredit).toBeGreaterThan(0);
     expect(runtimeGate?.runtimeCredit).toBeLessThan(100);
     expect(runtimeGate?.evidence.join("\n")).toContain("sourceBackedRuntimeConfidenceStatus=source_ready_runtime_confidence");
