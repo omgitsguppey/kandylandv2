@@ -312,7 +312,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(formatAdminAnalyticsSourceStateLabel("source_current")).toBe("Source current");
     expect(formatAdminAnalyticsSourceStateLabel("late_arrival_window")).toBe("Late arrivals possible");
     expect(formatAdminAnalyticsSourceStateLabel("source_missing")).toBe("Source missing");
-    expect(formatAdminAnalyticsSourceStateLabel("external_evidence_required")).toBe("External proof required");
+    expect(formatAdminAnalyticsSourceStateLabel("external_evidence_required")).toBe("Source evidence required");
     expect(formatAdminAnalyticsSourceStateLabel("verified")).toBe("Verified source");
     expect(formatAdminAnalyticsSourceStateLabel("mixed")).toBe("Mixed sources");
     expect(formatAdminAnalyticsSourceStateLabel("gap_detected")).toBe("Traffic gap detected");

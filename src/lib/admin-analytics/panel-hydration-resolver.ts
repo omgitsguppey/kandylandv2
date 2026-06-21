@@ -207,13 +207,13 @@ export function classifyPanelEmptyReason(input: {
     case "bridge_missing":
       return `${input.panelLabel} has an event or metric bridge gap before it can hydrate the panel.`;
     case "external_required":
-      return `${input.panelLabel} requires external/provider or billing evidence and cannot be proven by screenshots.`;
+      return `${input.panelLabel} needs a connected source activity record or redacted external record before it can hydrate.`;
     case "runtime_evidence_required":
       return `${input.panelLabel} requires bounded route or debug runtime evidence before it can be treated as hydrated.`;
     case "admin_truth_source_required":
       return `${input.panelLabel} requires a redacted admin truth source sample before it can be treated as hydrated.`;
     case "provider_gated":
-      return `${input.panelLabel} requires formal provider evidence and cannot be proven by source-only telemetry.`;
+      return `${input.panelLabel} needs provider-backed site activity before it can hydrate.`;
     case "protected_payment_required":
       return `${input.panelLabel} requires protected payment/provider ledger evidence and cannot be proven by generic activity.`;
     case "permission_blocked":
@@ -279,11 +279,11 @@ export function resolvePanelHydration(input: ResolveAnalyticsPanelHydrationInput
       : hydrationStatus === "stale"
         ? `Refresh ${panel.expectedSource} and verify the latest materialized timestamp.`
         : hydrationStatus === "runtime_evidence_required"
-        ? `Attach bounded route/debug runtime evidence for ${panel.expectedSource}; do not use browser reproduction as backend proof.`
+        ? `Produce bounded route/debug runtime evidence for ${panel.expectedSource}.`
       : hydrationStatus === "admin_truth_source_required"
-        ? `Attach a redacted admin truth source sample for ${panel.expectedSource}; do not use browser reproduction as backend proof.`
+        ? `Produce a redacted admin source activity sample for ${panel.expectedSource}.`
       : hydrationStatus === "external_required" || hydrationStatus === "provider_gated" || hydrationStatus === "protected_payment_required"
-        ? `Attach redacted external evidence for ${panel.expectedSource}; do not use browser reproduction as backend proof.`
+        ? `Produce redacted source activity or external evidence for ${panel.expectedSource}.`
           : `Repair ${sourceBreak ?? panel.expectedSource} so ${panel.panelLabel} can hydrate.`;
 
   return {
@@ -400,9 +400,9 @@ export function buildAnalyticsPanelHydrationReport(input: ResolveAnalyticsPanelH
   const betaExitReadyBefore = asRecord(input.finalReleasePacket).betaExitReady === true;
   const remainingBlockers = [
     ...liveEvidenceContribution.blocked.map((panelId) => `${panelId}: panel hydration gap`),
-    ...liveEvidenceContribution.runtimeEvidenceRequired.map((panelId) => `${panelId}: runtime evidence required`),
-    ...liveEvidenceContribution.adminTruthSourceRequired.map((panelId) => `${panelId}: admin truth source required`),
-    ...liveEvidenceContribution.externalRequired.map((panelId) => `${panelId}: external evidence required`),
+    ...liveEvidenceContribution.runtimeEvidenceRequired.map((panelId) => `${panelId}: deployed route evidence required`),
+    ...liveEvidenceContribution.adminTruthSourceRequired.map((panelId) => `${panelId}: admin source sample required`),
+    ...liveEvidenceContribution.externalRequired.map((panelId) => `${panelId}: source evidence required`),
   ];
   const report: AnalyticsPanelHydrationReport = {
     reportKey: "analytics-panel-hydration",

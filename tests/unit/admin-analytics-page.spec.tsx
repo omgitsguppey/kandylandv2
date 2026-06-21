@@ -620,7 +620,7 @@ describe("AdminAnalyticsPage", () => {
     expect(container.textContent).not.toContain("3/11 connected");
     expect(container.textContent).not.toContain("3 source details");
     expect(container.textContent).toContain("2 source gaps");
-    expect(container.textContent).toContain("1 external proof required");
+    expect(container.textContent).toContain("1 source evidence required");
     expect(container.textContent).toContain("5 collecting activity");
     expect(container.textContent).not.toMatch(/evidence gate|source note/u);
     expect(container.textContent).not.toContain("3 need source");

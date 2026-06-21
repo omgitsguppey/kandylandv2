@@ -92,10 +92,13 @@ function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
     case "bridge_missing":
       return "bridge missing";
     case "runtime_evidence_required":
+      return "deployed route evidence required";
     case "admin_truth_source_required":
+      return "admin source sample required";
     case "provider_gated":
+      return "provider-backed activity required";
     case "external_required":
-      return "external proof required";
+      return "source evidence required";
     case "broken":
       return "not configured";
     case "collecting":
@@ -590,7 +593,7 @@ export default function AdminAnalyticsPage() {
   const panelRecoveryReviewCount = panelRecoveryNeedsEvidenceCount > 0 && panelRecoverySourceGapCount === 0 && panelRecoveryEvidenceGateCount === 0 ? panelRecoveryNeedsEvidenceCount : 0;
   const sourceRecoverySummaryParts = [
     panelRecoverySourceGapCount > 0 ? formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap") : null,
-    panelRecoveryEvidenceGateCount > 0 ? `${panelRecoveryEvidenceGateCount} external proof required` : null,
+    panelRecoveryEvidenceGateCount > 0 ? `${panelRecoveryEvidenceGateCount} source evidence required` : null,
     panelRecoveryWaitingCount > 0 ? `${panelRecoveryWaitingCount} collecting activity` : null,
     panelRecoveryReviewCount > 0 ? `${panelRecoveryReviewCount} needs review` : null,
   ].filter((item): item is string => Boolean(item));

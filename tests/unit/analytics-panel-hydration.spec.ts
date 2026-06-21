@@ -137,7 +137,7 @@ describe("analytics panel hydration", () => {
     expect(runtime.userSafeDisplayState).toBe("show_not_connected");
     expect(runtime.reason).toContain("route or debug runtime evidence");
     expect(adminTruth.hydrationStatus).toBe("admin_truth_source_required");
-    expect(adminTruth.nextExactAction).toContain("redacted admin truth source sample");
+    expect(adminTruth.nextExactAction).toContain("redacted admin source activity sample");
     expect(externalCost.hydrationStatus).toBe("external_required");
     expect(report.runtimeEvidenceRequiredPanels).toBeGreaterThan(0);
     expect(report.adminTruthSourceRequiredPanels).toBeGreaterThan(0);

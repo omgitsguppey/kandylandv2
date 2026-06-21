@@ -441,7 +441,7 @@ export function formatAdminAnalyticsSourceStateLabel(
     case "source_missing":
       return "Source missing";
     case "external_evidence_required":
-      return "External proof required";
+      return "Source evidence required";
     case "verified":
       return "Verified source";
     case "mixed":
