@@ -495,22 +495,22 @@ function itemIssueFor(key: string, payload: Record<string, any> | null, freshnes
     if (key === "provider_smoke") {
         const paypalStatus = payload.paypalRefillSmoke?.status;
         if (paypalStatus === "operator_reported_not_formal_provider_smoke") {
-            return "Operator-reported PayPal smoke is tracked but is not formal provider smoke evidence.";
+            return "Operator-reported PayPal activity is tracked as product context; provider-backed site activity evidence is still separate.";
         }
     }
     if (key === "runtime_evidence" && status === "runtime_unverified") {
-        return "Runtime smoke is unverified; local validators remain diagnostic only.";
+        return "Deployed route evidence is unverified; local validators remain diagnostic only.";
     }
     if (key === "admin_truth_samples" && status === "missing_or_unknown") {
-        return "Admin truth sample evidence is missing or unknown; Debug must not render it healthy.";
+        return "Admin source activity sample evidence is missing or unknown; Debug must not render it healthy.";
     }
     if (key === "targeted_behavior_evidence") {
-        return "Targeted behavior evidence only proves focused validators; it does not prove visual/provider/runtime/admin sample evidence.";
+        return "Targeted behavior evidence only proves focused validators; it does not prove visual confirmation, provider-backed site activity, runtime/deployed route evidence, or admin source activity sample evidence.";
     }
     if (key === "score_cap_reasons") {
         const caps = Array.isArray(payload.evidenceCapDetails) ? payload.evidenceCapDetails.length : 0;
         return caps > 0 && publicBetaCapsAreFormalProofOnly(payload)
-            ? `${caps} formal proof cap reason(s) remain visible without adding a separate debug-panel blocker.`
+            ? `${caps} typed evidence cap reason(s) remain visible without adding a separate debug-panel blocker.`
             : caps > 0
                 ? `${caps} beta score cap reason(s) remain visible.`
                 : "No beta score cap reasons are present.";
@@ -532,13 +532,13 @@ function recommendedActionFor(key: string, payload: Record<string, any> | null, 
         return refreshCommand ? `Run ${refreshCommand} if that command owns the missing artifact; otherwise keep the Debug state missing.` : "Keep missing state visible until an owning generator is identified.";
     }
     if (key === "provider_smoke") {
-        return "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.";
+        return "Attach redacted provider-backed site activity evidence; do not convert operator-reported PayPal context into a pass.";
     }
     if (key === "runtime_evidence") {
-        return "Run formal deployed runtime smoke before marking runtime/provider smoke complete.";
+        return "Attach current deployed route evidence before marking provider-backed site activity + deployed route evidence complete.";
     }
     if (key === "admin_truth_samples") {
-        return "Attach a fresh first-party admin truth sample before upgrading this gate.";
+        return "Attach a fresh redacted admin source activity sample before upgrading this gate.";
     }
     if (key === "targeted_behavior_evidence") {
         return "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate.";
@@ -550,7 +550,7 @@ function recommendedActionFor(key: string, payload: Record<string, any> | null, 
         return "Use the canonical beta score and cap reasons as the primary Phase 1 queue.";
     }
     if (ARCHIVE_EVIDENCE_KEYS.has(key)) {
-        return "Keep this stale launch artifact as archive evidence; use the current beta score and formal proof gates for live launch clearance.";
+        return "Keep this stale launch artifact as archive evidence; use the current beta score and typed evidence gates for live launch clearance.";
     }
     return refreshCommand ? `Run ${refreshCommand} when this stale warning must be refreshed.` : "Leave the item labeled as evidence or archive until a focused refresh command exists.";
 }
@@ -711,7 +711,7 @@ function normalizeRefreshAttempt(attempt: RefreshAttempt): RefreshAttempt {
         return {
             ...attempt,
             effect: "Refreshed canonical beta score locally; use public-beta-score.generated.json for the current value.",
-            note: "No beta readiness cap is cleared unless the formal proof gates pass.",
+            note: "No beta readiness cap is cleared unless the typed evidence gates pass.",
         };
     }
     if (attempt.note.includes("Generated artifact diff was not staged because this Debug triage patch only allows the triage artifact.")) {
@@ -864,7 +864,7 @@ function validateReport(report: DebugPanelOutputTriageReport): string[] {
     if (!controlTowerSource.includes("readCanonicalPublicBetaScore") || !controlTowerSource.includes("public-beta-score.generated.json")) {
         failures.push("Public beta score is not sourced from public-beta-score.generated.json.");
     }
-    if (!controlTowerSource.includes("reportAggregateScore") || !debugUiSource.includes("Source detail")) {
+    if (!controlTowerSource.includes("reportAggregateScore") || !debugUiSource.includes("data-debug-report-source=\"source-detail\"")) {
         failures.push("Report aggregate score is not separated from the canonical public beta score.");
     }
     if (!debugUiSource.includes("canonicalPublicBetaScore") || !debugUiSource.includes("canonicalPublicBetaCapDetails")) {

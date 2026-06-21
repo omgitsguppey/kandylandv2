@@ -106,7 +106,7 @@ describe("analytics panel hydration", () => {
     expect(panel.canDisplayZero).toBe(false);
   });
 
-  it("keeps source-ready panel mappings distinct from runtime proof", () => {
+  it("keeps source-ready panel mappings distinct from runtime evidence", () => {
     const panel = resolvePanelHydration({
       panelId: "package_selections",
       eventLivenessAudit: {
@@ -121,7 +121,7 @@ describe("analytics panel hydration", () => {
 
     expect(panel.hydrationStatus).toBe("source_ready_waiting_for_activity");
     expect(panel.liveEvidenceContribution).toBe("source_exists_collecting");
-    expect(panel.reason).toContain("not runtime proof");
+    expect(panel.reason).toContain("runtime evidence remains separate");
     expect(panel.canDisplayZero).toBe(false);
   });
 

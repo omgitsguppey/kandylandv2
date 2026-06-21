@@ -98,7 +98,7 @@ function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
     case "provider_gated":
       return "provider-backed activity required";
     case "external_required":
-      return "source evidence required";
+      return "external source required";
     case "broken":
       return "not configured";
     case "collecting":
@@ -591,9 +591,19 @@ export default function AdminAnalyticsPage() {
   const panelRecoveryActions = panelHydrationSummary?.topNextActions ?? [];
   const showPanelRecovery = Boolean(panelHydrationSummary) && (panelRecoveryTruthItems.length > 0 || connectedPanelCount < totalPanelCount);
   const panelRecoveryReviewCount = panelRecoveryNeedsEvidenceCount > 0 && panelRecoverySourceGapCount === 0 && panelRecoveryEvidenceGateCount === 0 ? panelRecoveryNeedsEvidenceCount : 0;
+  const panelRecoveryGateSummary = panelRecoveryEvidenceGateCount > 0
+    ? groupPanelRecoveryTruthItems(panelRecoveryTruthItems.filter((item) =>
+        item.state === "runtime_evidence_required" ||
+        item.state === "admin_truth_source_required" ||
+        item.state === "provider_gated" ||
+        item.state === "external_required",
+      ))
+        .map((item) => formatPanelRecoveryCount(item.count, item.label, item.label))
+        .join(", ")
+    : null;
   const sourceRecoverySummaryParts = [
     panelRecoverySourceGapCount > 0 ? formatPanelRecoveryCount(panelRecoverySourceGapCount, "source gap") : null,
-    panelRecoveryEvidenceGateCount > 0 ? `${panelRecoveryEvidenceGateCount} source evidence required` : null,
+    panelRecoveryGateSummary,
     panelRecoveryWaitingCount > 0 ? `${panelRecoveryWaitingCount} collecting activity` : null,
     panelRecoveryReviewCount > 0 ? `${panelRecoveryReviewCount} needs review` : null,
   ].filter((item): item is string => Boolean(item));

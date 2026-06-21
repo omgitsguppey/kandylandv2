@@ -219,7 +219,7 @@ export function classifyPanelEmptyReason(input: {
     case "collecting":
       return `${input.panelLabel} has a connected source and is collecting; do not display zero until a bounded source proves zero.`;
     case "source_ready_waiting_for_activity":
-      return `${input.panelLabel} has a canonical event/person metric source and is waiting for bounded real activity; this is not runtime proof.`;
+      return `${input.panelLabel} has a canonical event/person metric source and is waiting for bounded real activity; runtime evidence remains separate.`;
     case "not_observed_but_expected":
       return `${input.panelLabel} has canonical source mapping but no bounded recent activity for an expected panel.`;
     case "source_missing":
@@ -424,7 +424,7 @@ export function buildAnalyticsPanelHydrationReport(input: ResolveAnalyticsPanelH
     ...liveEvidenceContribution.blocked.map((panelId) => `${panelId}: panel hydration gap`),
     ...liveEvidenceContribution.runtimeEvidenceRequired.map((panelId) => `${panelId}: deployed route evidence required`),
     ...liveEvidenceContribution.adminTruthSourceRequired.map((panelId) => `${panelId}: admin source sample required`),
-    ...liveEvidenceContribution.externalRequired.map((panelId) => `${panelId}: source evidence required`),
+    ...liveEvidenceContribution.externalRequired.map((panelId) => `${panelId}: external source required`),
   ];
   const report: AnalyticsPanelHydrationReport = {
     reportKey: "analytics-panel-hydration",

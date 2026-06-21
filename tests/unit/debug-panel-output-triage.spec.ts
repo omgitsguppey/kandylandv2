@@ -45,23 +45,24 @@ describe("debug panel output triage", () => {
         ).toBe(true);
     });
 
-    it("keeps missing provider smoke missing instead of passing operator-reported PayPal", () => {
+    it("keeps missing provider-backed site activity missing instead of passing operator-reported PayPal", () => {
         const provider = report.debugItems.find((item) => item.key === "provider_smoke");
 
         expect(provider).toBeDefined();
         expect(provider?.sourceArtifact).toBe("agent/state/provider-smoke-evidence.generated.json");
         expect(provider?.uiTruthState).not.toBe("live");
         expect(provider?.issue).toMatch(/Operator-reported PayPal|missing/i);
-        expect(provider?.recommendedAction).toMatch(/formal provider smoke/i);
+        expect(provider?.recommendedAction).toMatch(/provider-backed site activity/i);
+        expect(provider?.recommendedAction).not.toMatch(/formal provider smoke/i);
     });
 
     it("does not let targeted behavior evidence clear visual/provider/runtime/admin caps", () => {
         const targeted = report.debugItems.find((item) => item.key === "targeted_behavior_evidence");
         const scoreCaps = report.debugItems.find((item) => item.key === "score_cap_reasons");
 
-        expect(targeted?.issue).toMatch(/does not prove visual\/provider\/runtime\/admin/i);
+        expect(targeted?.issue).toMatch(/does not prove visual confirmation, provider-backed site activity, runtime\/deployed route evidence, or admin source activity sample evidence/i);
         expect(scoreCaps?.sourceArtifact).toBe("agent/state/public-beta-score.generated.json");
-        expect(scoreCaps?.blocksPhaseOne).toBe(false);
+        expect(scoreCaps?.blocksPhaseOne).toBe(true);
         expect(scoreCaps?.uiTruthState).not.toBe("live");
     });
 
@@ -74,7 +75,7 @@ describe("debug panel output triage", () => {
         expect(source).toContain("readCanonicalPublicBetaScore");
         expect(source).toContain("reportAggregateScore");
         expect(ui).toContain("canonicalPublicBetaScore");
-        expect(ui).toContain("Source detail");
+        expect(ui).toContain("data-debug-report-source=\"source-detail\"");
     });
 
     it("keeps archive candidates labeled as evidence or archive, not current authority", () => {
