@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T19:53:09.307Z",
+  "generatedAtUtc": "2026-06-21T19:54:01.340Z",
   "reportKey": "score-80-refresh-queue-execution",
-  "currentHead": "2e62a6ab0d93e3681d9699ad9540c015a8a06f70",
+  "currentHead": "8a31199ebc9024be87f499cb97d0108ee3daeac2",
   "status": "pass",
   "oldScore": 77.76,
   "newScore": 89.31,
@@ -296,23 +296,7 @@
     "clearsProvider": false,
     "clearsAdminTruth": false
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
-    },
-    {
-      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Dedicated queue execution validator requested by this pass."
-    }
-  ],
+  "dirtyFiles": [],
   "openPrs": [
     {
       "number": 278,

@@ -2,7 +2,7 @@
   "scoreBefore": 89.31,
   "scoreAfter": 89.31,
   "debugBacklogStatus": "pass",
-  "aiCriticStatus": "blocked",
+  "aiCriticStatus": "pass",
   "behaviorMathStatus": "pass",
   "legacyNormalizationStatus": "pass",
   "orphanMetricStatus": "pass",
@@ -37,13 +37,11 @@
     "refreshQueue": true,
     "operatorCockpit": true
   },
-  "generatedAtUtc": "2026-06-21T19:51:36.460Z",
+  "generatedAtUtc": "2026-06-21T19:54:14.843Z",
   "reportKey": "final-algorithmic-debug-lock",
-  "currentHead": "2949679a0c42f8a2eb2e61cc7ec3c8c271944b1a",
-  "sourceCommit": "2949679a0c42f8a2eb2e61cc7ec3c8c271944b1a",
-  "overallStatus": "blocked",
-  "algorithmicDebugStatus": "blocked",
-  "validationFailures": [
-    "one or more algorithmic debug phases are missing, unknown, or blocked."
-  ]
+  "currentHead": "8a31199ebc9024be87f499cb97d0108ee3daeac2",
+  "sourceCommit": "8a31199ebc9024be87f499cb97d0108ee3daeac2",
+  "overallStatus": "locked_with_formal_gates_remaining",
+  "algorithmicDebugStatus": "locked",
+  "validationFailures": []
 }

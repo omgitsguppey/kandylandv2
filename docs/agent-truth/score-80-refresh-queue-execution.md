@@ -61,9 +61,7 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 
 ## Dirty File Classification
 
-- agent/state/score-80-refresh-queue-execution.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- docs/agent-truth/score-80-refresh-queue-execution.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- scripts/agent/validate-score-80-refresh-queue-execution.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- None
 
 ## Validation
 

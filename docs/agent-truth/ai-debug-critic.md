@@ -7,18 +7,39 @@ The AI debug critic reviews debug-backed proposed fixes before they are consider
 
 ## Summary
 
-- Critic status: blocked
-- Findings: 3
-- Blockers: 1
-- Required changes: 1
+- Critic status: pass
+- Findings: 1
+- Blockers: 0
+- Required changes: 0
 - Unsafe changes: 0
-- Duplicate systems: 1
-- Monolith risks: 2
+- Duplicate systems: 0
+- Monolith risks: 0
 - Evidence misclassification risks: 0
+
+## Required Checks
+
+- no_patch_on_top_of_stale_logic: Do not patch on top of stale logic
+- no_duplicate_systems: Do not create duplicate systems
+- no_fake_evidence: Do not fake evidence
+- no_formal_gate_cleared_without_artifact: Do not clear source evidence gates without records
+- no_monolith_growth_without_split_plan: Do not grow monoliths without split plans
+- no_chat_nav_touch_without_explicit_request: Do not touch chat or navigation without explicit request
+- no_payment_math_change_without_explicit_request: Do not touch payment or GumDrop math without explicit request
+- no_unowned_debug_warning: Do not leave debug warnings unowned
+- no_orphaned_telemetry: Do not create orphaned telemetry
+- no_hardcoded_ui_scale_regression: Do not hardcode UI scale regressions
+- no_new_cost_path_without_guard: Do not add cost paths without guardrails
+- no_source_ready_as_runtime_proof: Do not present source readiness as deployed runtime truth
+
+## Suggested Validators
+
+- `npm run check:ai-debug-critic`
+- `npm run check:beta-score`
+- `npm run check:debug-backlog-engine`
+- `npm run check:debug-evidence-pipeline`
+- `npm run score:beta`
 
 ## Findings
 
-- warning / needs_refresh: Stale debug logic is still active (no_patch_on_top_of_stale_logic) - Keep the stale backlog item visible in the owning evidence or refresh lane until the required artifact changes.
-- blocker / needs_code_change: Potential duplicate debug system (no_duplicate_systems) - Refactor into the existing debug backlog, evidence, telemetry, or score owner instead of adding a parallel system.
-- required / needs_code_change: Monolith split plan required (no_monolith_growth_without_split_plan) - Split logic into contract, builder, validator, and view/source helpers or document a bounded split plan.
+- warning: Stale debug logic is still active (no_patch_on_top_of_stale_logic) - Keep the stale backlog item visible in the owning evidence or refresh lane until the required artifact changes.
 

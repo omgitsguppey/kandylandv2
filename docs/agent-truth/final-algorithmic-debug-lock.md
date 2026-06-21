@@ -4,7 +4,7 @@ Status: algorithmic debugging is locked as the primary confidence engine. Typed 
 
 - Score before: 89.31
 - Score after: 89.31
-- Algorithmic debug status: blocked
+- Algorithmic debug status: locked
 - Manual bottleneck reduction: manual testing is no longer the default bottleneck; debug panel, telemetry, behavior math, route diagnostics, AI critic, admin source activity samples, and refresh queues now drive source confidence while typed evidence gates remain separate
 - Remaining formal evidence gates: Provider-backed site activity + deployed route evidence: Source evidence required
 - Remaining score drag: costRisk
@@ -20,7 +20,7 @@ Status: algorithmic debugging is locked as the primary confidence engine. Typed 
 ## Phase Status
 
 - Debug backlog: pass
-- AI critic: blocked
+- AI critic: pass
 - Behavior math: pass
 - Legacy normalization: pass
 - Orphan metrics: pass
