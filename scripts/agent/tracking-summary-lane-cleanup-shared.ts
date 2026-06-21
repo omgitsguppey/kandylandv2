@@ -122,6 +122,9 @@ function ownerForEvent(eventName: string, features: readonly FeatureRegistration
   };
 }
 
+const FEATURE_TELEMETRY_SAMPLE_LIMIT = 24;
+const FEATURE_ROW_EVENT_SAMPLE_LIMIT = 24;
+
 export function buildFeatureTelemetryCoverageCleanupReport(input: BuildInput = {}) {
   const gate = buildFeatureRegistrationGateReport({ currentHead: head(input), generatedAtUtc: now(input) });
   const missingItems = gate.validationFailures.map(missingItemFromFailure);
@@ -129,12 +132,18 @@ export function buildFeatureTelemetryCoverageCleanupReport(input: BuildInput = {
   const featureTelemetryRows = gate.features.map((feature) => ({
     featureId: feature.featureId,
     routes: feature.routes.map((route) => route.path),
-    telemetryEvents: feature.telemetryEvents,
+    telemetryEventCount: feature.telemetryEvents.length,
+    telemetryEventSample: feature.telemetryEvents.slice(0, FEATURE_ROW_EVENT_SAMPLE_LIMIT),
+    telemetryEventsTruncated: feature.telemetryEvents.length > FEATURE_ROW_EVENT_SAMPLE_LIMIT,
     noTelemetryReason: feature.telemetryEvents.length > 0 ? null : "no live telemetry-producing surface",
     materializerArchiveLanes: feature.materializerLanes,
     debugVisibility: feature.adminDebugVisibility.debugVisible,
     scoreDimensions: feature.scoreDimensionsAffected,
   }));
+  const ownerSummary = eventOwnerMap.reduce<Record<string, number>>((summary, event) => {
+    summary[event.canonicalOwner] = (summary[event.canonicalOwner] ?? 0) + 1;
+    return summary;
+  }, {});
 
   return {
     reportKey: "feature-telemetry-coverage-cleanup",
@@ -145,7 +154,9 @@ export function buildFeatureTelemetryCoverageCleanupReport(input: BuildInput = {
     registeredFeatureCount: gate.features.length,
     telemetryEventCount: TELEMETRY_EVENT_EXTENSION_METADATA.length,
     missingItems,
-    eventOwnerMap,
+    eventOwnerMap: eventOwnerMap.slice(0, FEATURE_TELEMETRY_SAMPLE_LIMIT),
+    eventOwnerMapTruncated: eventOwnerMap.length > FEATURE_TELEMETRY_SAMPLE_LIMIT,
+    eventOwnerSummary: ownerSummary,
     featureTelemetryRows,
     debugLane: {
       label: "Feature telemetry coverage",
@@ -161,7 +172,7 @@ export function validateFeatureTelemetryCoverageCleanupReport(report: ReturnType
   const failures: string[] = [];
   if (report.status === "failed_unclassified") failures.push("feature coverage status remains failed without exact missing items.");
   for (const feature of report.featureTelemetryRows) {
-    if (feature.telemetryEvents.length === 0 && !feature.noTelemetryReason) failures.push(`${feature.featureId} lacks telemetry or explicit noTelemetryReason.`);
+    if (feature.telemetryEventCount === 0 && !feature.noTelemetryReason) failures.push(`${feature.featureId} lacks telemetry or explicit noTelemetryReason.`);
     if (feature.materializerArchiveLanes.length === 0) failures.push(`${feature.featureId} lacks materializer/archive lane.`);
     if (!feature.debugVisibility) failures.push(`${feature.featureId} lacks debug lane.`);
   }
@@ -502,8 +513,27 @@ export function validateTrackingSummaryLaneCleanupReport(report: ReturnType<type
   return failures;
 }
 
+function compactDocValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return `${value.length} item(s)`;
+  }
+  if (value && typeof value === "object") {
+    const keys = Object.keys(value as JsonRecord);
+    const preview = keys.slice(0, 8).join(", ");
+    return keys.length > 8 ? `${keys.length} key(s): ${preview}, ...` : `${keys.length} key(s): ${preview || "none"}`;
+  }
+  if (typeof value === "string") {
+    return value.length > 180 ? `${value.slice(0, 177)}...` : value;
+  }
+  return String(value);
+}
+
 export function renderSimpleDoc(title: string, report: JsonRecord) {
   const failures = Array.isArray(report.validationFailures) ? report.validationFailures : [];
+  const hiddenFields = new Set(["validationFailures"]);
+  const summaryRows = Object.entries(report)
+    .filter(([key]) => !hiddenFields.has(key))
+    .map(([key, value]) => `- ${key}: ${compactDocValue(value)}`);
   return [
     `# ${title}`,
     "",
@@ -513,9 +543,9 @@ export function renderSimpleDoc(title: string, report: JsonRecord) {
     "",
     "## Summary",
     "",
-    "```json",
-    JSON.stringify(report, null, 2),
-    "```",
+    ...summaryRows,
+    "",
+    "Full machine-readable report remains in the matching `agent/state/*.generated.json` artifact.",
     "",
     "## Validation Failures",
     "",
