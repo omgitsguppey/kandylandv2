@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T04:52:49.538Z",
+  "generatedAtUtc": "2026-06-21T04:55:54.539Z",
   "reportKey": "operator-revenue-smoke",
-  "currentHead": "5499abae52f5a06e06141b42046b09469c4502d0",
+  "currentHead": "f9a4b22bde40f97f7296d9497b03e1424341ef07",
   "summary": {
     "revenueSmokeStatus": "operator_confirmed_revenue_smoke",
     "amountUsdConfirmed": 50,

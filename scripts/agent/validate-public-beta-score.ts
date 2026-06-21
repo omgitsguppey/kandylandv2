@@ -407,7 +407,7 @@ if (report) {
       requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.status=operator_confirmed_revenue_smoke", "runtimeProviderSmoke evidence");
       requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.amountUsdConfirmed=", "runtimeProviderSmoke evidence");
       requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.providerBackedSiteActivityPassed=false", "runtimeProviderSmoke evidence");
-      requireIncludes(runtimeProviderSmokeGate.detail, "provider-backed site activity evidence is still separate.", "runtimeProviderSmoke detail");
+      requireIncludes(runtimeProviderSmokeGate.detail.toLowerCase(), "provider-backed site activity evidence is still separate.", "runtimeProviderSmoke detail");
       if (runtimeProviderSmokeGate.status === "Ready") {
         failures.push("Operator-confirmed revenue smoke must not make runtimeProviderSmoke Ready.");
       }
