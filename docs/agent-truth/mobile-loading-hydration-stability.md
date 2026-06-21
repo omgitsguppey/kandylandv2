@@ -1,7 +1,7 @@
 # Mobile Loading Hydration Stability
 
-Generated: 2026-06-16T17:15:29.994Z
-Current code version: b22b5e497b300f932bf2214998324e45646c0b0a
+Generated: 2026-06-21T13:29:23.097Z
+Current code version: 0d37de032350c8cf27a328de002c5e96f9c06f82
 
 ## Rules
 
@@ -40,4 +40,4 @@ Current code version: b22b5e497b300f932bf2214998324e45646c0b0a
 
 1. Apply loading-state-contract helpers to additional high-risk admin and creator modules as those surfaces are touched.
 2. Keep route-level loading placeholders compact and close to the final module dimensions.
-3. Escalate runtime screenshot verification only when source validators identify a mobile layout risk that cannot be proven from code.
+3. Escalate to browser reproduction only when source validators identify a mobile layout risk that cannot be proven from code.

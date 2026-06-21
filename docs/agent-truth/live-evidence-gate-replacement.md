@@ -5,8 +5,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Summary
 
-- Generated: `2026-06-21T04:23:49.421Z`
-- Current head: `5b3a888ee52c84d1fccdf924f85813f85c50c0dd`
+- Generated: `2026-06-21T13:33:51.335Z`
+- Current head: `0d37de032350c8cf27a328de002c5e96f9c06f82`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 ```json
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-06-21T04:23:49.421Z",
-  "currentHead": "5b3a888ee52c84d1fccdf924f85813f85c50c0dd",
+  "generatedAtUtc": "2026-06-21T13:33:51.335Z",
+  "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
   "broadManualGatesBefore": [
     "site activity evidence export",
     "admin source sample evidence",
@@ -144,8 +144,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "ledger_summary",
           "clearsLiveGate": false,
           "sourceStatus": "operator_confirmed",
-          "currentHead": "98a767ae8bbcfcaca5374eb269fc921144337367",
-          "generatedAtUtc": "2026-06-20T19:23:29.121Z"
+          "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
+          "generatedAtUtc": "2026-06-21T13:33:45.921Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -306,8 +306,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "ledger_summary",
           "clearsLiveGate": false,
           "sourceStatus": "operator_confirmed",
-          "currentHead": "98a767ae8bbcfcaca5374eb269fc921144337367",
-          "generatedAtUtc": "2026-06-20T19:23:29.121Z"
+          "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
+          "generatedAtUtc": "2026-06-21T13:33:45.921Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",

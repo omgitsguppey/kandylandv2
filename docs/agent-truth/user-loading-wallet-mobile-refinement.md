@@ -1,7 +1,7 @@
 # User Loading Wallet Mobile Refinement
 
-Generated: 2026-06-19T07:57:45.386Z
-Current code version: 0659a3764bcb3ada363f4a30e741d6e59743781f
+Generated: 2026-06-21T13:29:23.027Z
+Current code version: 0d37de032350c8cf27a328de002c5e96f9c06f82
 
 ## Summary
 
@@ -33,5 +33,5 @@ Current code version: 0659a3764bcb3ada363f4a30e741d6e59743781f
 ## Next Fix Order
 
 1. Apply the compact wallet markers to any future wallet entrypoints that reuse PurchaseModal.
-2. Keep route loading placeholders close to final module size before escalating to screenshot QA.
+2. Keep route loading placeholders close to final module size before optional visual reproduction.
 3. Continue moving optional dashboard modules to staged dynamic loading when they become source-heavy.

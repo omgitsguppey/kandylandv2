@@ -1,8 +1,8 @@
 {
   "status": "complete",
-  "capturedAtUtc": "2026-06-21T13:13:59.761Z",
+  "capturedAtUtc": "2026-06-21T13:29:58.565Z",
   "surface": "admin_truth_sample",
-  "artifactPath": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T131359Z.redacted.json",
+  "artifactPath": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json",
   "sourceFreshnessUtc": "2026-06-21T13:13:52.749Z",
   "redactions": [
     "No user identifiers, emails, transaction IDs, provider IDs, raw auth data, or support content included."
@@ -26,11 +26,11 @@
     {
       "id": "redacted-artifact-attached",
       "status": "pass",
-      "notes": "artifactPath=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T131359Z.redacted.json"
+      "notes": "artifactPath=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json"
     }
   ],
   "operatorNotes": "Automated first-party redacted JSON admin truth sample.",
-  "currentHead": "11f3ee1f192cb76eebba3b2c1c6c5b5a48670ad8",
+  "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
   "launchHistoryCoverageReadiness": {
     "sourceArtifact": "agent/state/launch-analytics-recovery.generated.json",
     "status": "source_agreement_failed",

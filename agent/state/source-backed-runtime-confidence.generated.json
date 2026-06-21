@@ -1,18 +1,18 @@
 {
-  "generatedAtUtc": "2026-06-21T05:03:53.541Z",
+  "generatedAtUtc": "2026-06-21T13:33:35.953Z",
   "reportKey": "source-backed-runtime-confidence",
-  "currentHead": "d6a36e912023ea4d8ff659f1aee813e078043d2b",
-  "sourceCommit": "d6a36e912023ea4d8ff659f1aee813e078043d2b",
-  "status": "partial_source_runtime_confidence",
-  "passed": false,
-  "runtimeContractsPresent": false,
+  "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
+  "sourceCommit": "0d37de032350c8cf27a328de002c5e96f9c06f82",
+  "status": "source_ready_runtime_confidence",
+  "passed": true,
+  "runtimeContractsPresent": true,
   "deployedSmokePresent": false,
   "watchTimeRuntimeSourceReady": true,
-  "telemetryPipelineSourceReady": false,
-  "walletLoadingSourceReady": false,
+  "telemetryPipelineSourceReady": true,
+  "walletLoadingSourceReady": true,
   "creatorDropStatusRuntimeSourceReady": true,
   "operatorRevenueSmokeSourceSignal": true,
-  "runtimeConfidenceScore": 45,
+  "runtimeConfidenceScore": 100,
   "launchGateImpact": "does_not_clear_runtime_smoke",
   "formalEvidenceImpact": "source_runtime_confidence_only",
   "doesNotClear": [
@@ -30,27 +30,27 @@
     },
     {
       "command": "npm run check:final-telemetry-closure-lock",
-      "status": "fail",
+      "status": "pass",
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json was generated from an older code version."
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json was generated for the current code version."
     },
     {
       "command": "npm run check:telemetry-admin-debug-truth",
-      "status": "fail",
+      "status": "pass",
       "artifactPath": "agent/state/telemetry-admin-debug-truth.generated.json",
-      "detail": "agent/state/telemetry-admin-debug-truth.generated.json was generated from an older code version."
+      "detail": "agent/state/telemetry-admin-debug-truth.generated.json was generated for the current code version."
     },
     {
       "command": "npm run check:mobile-loading-hydration-stability",
-      "status": "fail",
+      "status": "pass",
       "artifactPath": "agent/state/mobile-loading-hydration-stability.generated.json",
-      "detail": "agent/state/mobile-loading-hydration-stability.generated.json was generated from an older code version."
+      "detail": "agent/state/mobile-loading-hydration-stability.generated.json was generated for the current code version."
     },
     {
       "command": "npm run check:user-loading-wallet-mobile-refinement",
-      "status": "fail",
+      "status": "pass",
       "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json was generated from an older code version."
+      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json was generated for the current code version."
     },
     {
       "command": "npm run check:creator-drop-status-metrics",
@@ -66,21 +66,21 @@
     }
   ],
   "evidence": [
-    "runtimeContractsPresent=false",
+    "runtimeContractsPresent=true",
     "deployedSmokePresent=false",
     "watchTimeRuntimeSourceReady=true",
-    "telemetryPipelineSourceReady=false",
-    "walletLoadingSourceReady=false",
+    "telemetryPipelineSourceReady=true",
+    "walletLoadingSourceReady=true",
     "creatorDropStatusRuntimeSourceReady=true",
     "operatorRevenueSmokeSourceSignal=true",
-    "runtimeConfidenceScore=45",
+    "runtimeConfidenceScore=100",
     "launchGateImpact=does_not_clear_runtime_smoke"
   ],
   "nextAction": "Produce deployed route evidence before clearing runtime evidence gates.",
   "summary": {
-    "runtimeContractsPresent": false,
+    "runtimeContractsPresent": true,
     "deployedSmokePresent": false,
-    "runtimeConfidenceScore": 45,
+    "runtimeConfidenceScore": 100,
     "launchGateImpact": "does_not_clear_runtime_smoke",
     "formalRuntimeSmokeStillRequired": true
   }
