@@ -1,7 +1,7 @@
 # Analytics Panel Hydration
 
-Generated: 2026-06-21T18:51:51.249Z
-Current head: 45ebde1c4f693c3c392f842a55d7b26350370934
+Generated: 2026-06-21T23:03:07.796Z
+Current head: 2dcb3be06dc03a5a438c050e6bc241b11a023ea7
 
 ## Summary
 
@@ -41,7 +41,7 @@ Current head: 45ebde1c4f693c3c392f842a55d7b26350370934
 
 - Payment approvals: provider_gated; next=Produce redacted source activity or external evidence for server purchase verification facts.
 - Payment failures: provider_gated; next=Produce redacted source activity or external evidence for payment failure telemetry.
-- GumDrop balances: protected_payment_required; next=Produce redacted source activity or external evidence for wallet source ledger plus protected payment/provider proof.
+- GumDrop balances: protected_payment_required; next=Produce redacted source activity or external evidence for wallet source ledger plus protected payment/provider evidence.
 - Error rate/4xx: runtime_evidence_required; next=Produce bounded route/debug runtime evidence for admin debug summary.
 - Cost risk: external_required; next=Produce redacted source activity or external evidence for cost guard summaries plus external billing review.
 - Debug backlog: runtime_evidence_required; next=Produce bounded route/debug runtime evidence for debug backlog summary.

@@ -1,18 +1,18 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-21T18:51:51.249Z",
-  "currentHead": "45ebde1c4f693c3c392f842a55d7b26350370934",
+  "generatedAtUtc": "2026-06-21T23:03:07.796Z",
+  "currentHead": "2dcb3be06dc03a5a438c050e6bc241b11a023ea7",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
   "scoreDimensions": {
-    "sourceHealth": 97.2,
-    "runtimeHealth": 91.11,
+    "sourceHealth": 98.6,
+    "runtimeHealth": 85.34,
     "evidenceCompleteness": 95.2,
     "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 89.31
+    "overallHealthScore": 88.68
   },
   "totalPanels": 41,
   "hydratedPanels": 10,
@@ -211,7 +211,7 @@
       "panelId": "gumdrop_balances",
       "panelLabel": "GumDrop balances",
       "hydrationStatus": "protected_payment_required",
-      "nextExactAction": "Produce redacted source activity or external evidence for wallet source ledger plus protected payment/provider proof."
+      "nextExactAction": "Produce redacted source activity or external evidence for wallet source ledger plus protected payment/provider evidence."
     },
     {
       "panelId": "error_rate_4xx",
@@ -350,37 +350,17 @@
     "topNextActions": [
       "Payment approvals: Produce redacted source activity or external evidence for server purchase verification facts.",
       "Payment failures: Produce redacted source activity or external evidence for payment failure telemetry.",
-      "GumDrop balances: Produce redacted source activity or external evidence for wallet source ledger plus protected payment/provider proof.",
+      "GumDrop balances: Produce redacted source activity or external evidence for wallet source ledger plus protected payment/provider evidence.",
       "Error rate/4xx: Produce bounded route/debug runtime evidence for admin debug summary.",
       "Cost risk: Produce redacted source activity or external evidence for cost guard summaries plus external billing review.",
       "Debug backlog: Produce bounded route/debug runtime evidence for debug backlog summary."
     ]
   },
   "dirtyFileSummary": {
-    "total": 4,
-    "byClassification": {
-      "analytics_panel_hydration_artifact_expected": 2,
-      "launch_analytics_recovery_artifact_expected": 2
-    },
+    "total": 0,
+    "byClassification": {},
     "unsafeUnknown": [],
-    "sample": [
-      {
-        "path": "agent/state/analytics-panel-hydration.generated.json",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "agent/state/launch-analytics-recovery.generated.json",
-        "classification": "launch_analytics_recovery_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/analytics-panel-hydration.md",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
-        "path": "docs/agent-truth/launch-analytics-recovery.md",
-        "classification": "launch_analytics_recovery_artifact_expected"
-      }
-    ],
+    "sample": [],
     "sampleTruncated": false
   },
   "nextExactSteps": [

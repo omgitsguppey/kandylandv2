@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-21T18:51:51.249Z",
-  "currentHead": "45ebde1c4f693c3c392f842a55d7b26350370934",
+  "generatedAtUtc": "2026-06-21T23:03:07.796Z",
+  "currentHead": "2dcb3be06dc03a5a438c050e6bc241b11a023ea7",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
