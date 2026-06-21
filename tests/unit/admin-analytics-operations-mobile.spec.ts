@@ -3,6 +3,8 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { buildGuestQualityChartRows } from "@/app/admin/analytics/components/AdminAnalyticsOperationsTab.utils";
+
 const source = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
   "utf8",
@@ -38,9 +40,29 @@ describe("Admin analytics operations mobile consolidation", () => {
     expect(source).toContain('guestQualityViewMode === "chart"');
     expect(source).toContain('guestQualityViewMode === "table"');
     expect(source).toContain('guestQualityViewMode === "cards"');
-    expect(source).toContain('guestBounceQualityModel.guestQuality.state === "available" ? "SAMPLE" : "NO SAMPLE"');
-    expect(source).toContain('guestBounceQualityModel.signedInBounce.value === null ? "PARTIAL" : "SAMPLE"');
+    expect(source).toContain('guestBounceQualityModel.guestQuality.state === "available" ? "Sample" : "No sample"');
+    expect(source).toContain('guestBounceQualityModel.signedInBounce.value === null ? "Partial" : "Sample"');
     expect(source).not.toContain('guestBounceQualityModel.guestQuality.state === "available" ? "LIVE" : "NO SAMPLE"');
+  });
+
+  it("keeps missing guest quality chart rows as null instead of fake zero", () => {
+    const rows = buildGuestQualityChartRows({
+      estimatedGuestViews: {
+        value: null,
+        sourceTruth: "unknown",
+        freshnessState: "unknown",
+      },
+      guestQuality: {
+        state: "unknown",
+        sampleCount: 0,
+      },
+      signedInBounce: {
+        sampleCount: null,
+        freshnessState: "unknown",
+      },
+    } as unknown as Parameters<typeof buildGuestQualityChartRows>[0]);
+
+    expect(rows.map((row) => row.value)).toEqual([null, null, null]);
   });
 
   it("renders Auth Outcomes as one compact mobile view mode at a time", () => {

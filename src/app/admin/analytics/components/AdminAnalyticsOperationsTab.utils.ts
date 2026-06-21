@@ -40,7 +40,7 @@ export function buildGuestQualityChartRows(guestBounceQualityModel: GuestBounceQ
   return [
     {
       label: "Estimated views",
-      value: guestBounceQualityModel.estimatedGuestViews.value ?? 0,
+      value: guestBounceQualityModel.estimatedGuestViews.value,
       source: guestBounceQualityModel.estimatedGuestViews.sourceTruth,
       state: guestBounceQualityModel.estimatedGuestViews.freshnessState,
     },
@@ -49,13 +49,13 @@ export function buildGuestQualityChartRows(guestBounceQualityModel: GuestBounceQ
       value:
         guestBounceQualityModel.guestQuality.state === "available"
           ? guestBounceQualityModel.guestQuality.sampleCount
-          : 0,
+          : null,
       source: guestBounceQualityModel.guestQuality.state,
       state: guestBounceQualityModel.guestQuality.state,
     },
     {
       label: "Signed-in sample",
-      value: guestBounceQualityModel.signedInBounce.sampleCount ?? 0,
+      value: guestBounceQualityModel.signedInBounce.sampleCount,
       source: guestBounceQualityModel.signedInBounce.freshnessState,
       state: guestBounceQualityModel.signedInBounce.freshnessState,
     },
