@@ -176,36 +176,36 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
   const remainingRuntimeRequiredItems: Score80RemainingItem[] = [
     {
       id: "deployed_runtime_smoke",
-      label: "Deployed runtime smoke",
+      label: "Deployed route evidence",
       proofType: "runtime_required",
       scoreDimension: "runtimeHealth",
       scoreImpactEstimate: 15,
-      justification: `${runtimeRows} runtime smoke substitute rows still require a deployed runtime artifact before the formal gate clears.`,
-      nextAction: "Attach formal deployed runtime smoke evidence; source/debug/telemetry proof remains partial only.",
+      justification: `${runtimeRows} deployed route substitute rows still require a deployed route artifact before the protected lane clears.`,
+      nextAction: "Attach deployed route evidence; source/debug/telemetry proof remains partial only.",
     },
   ];
 
   const remainingProviderRequiredItems: Score80RemainingItem[] = [
     {
       id: "formal_provider_smoke",
-      label: "Formal provider smoke",
+      label: "Provider-backed site activity evidence",
       proofType: "formal_provider_required",
       scoreDimension: "runtimeHealth",
       scoreImpactEstimate: 15,
       justification: "Operator-confirmed revenue is product confidence only and does not clear the provider artifact gate.",
-      nextAction: "Attach redacted formal provider smoke artifact before clearing provider readiness.",
+      nextAction: "Attach redacted provider-backed site activity artifact before clearing provider readiness.",
     },
   ];
 
   const remainingAdminTruthItems: Score80RemainingItem[] = [
     {
       id: "formal_admin_truth_sample",
-      label: "Formal admin truth/sample evidence",
+      label: "Admin source sample evidence",
       proofType: "admin_truth_required",
       scoreDimension: "evidenceCompleteness",
       scoreImpactEstimate: 8,
-      justification: "Admin source samples earn partial confidence, but formal first-party admin truth evidence is still missing.",
-      nextAction: "Attach redacted first-party admin truth/sample evidence and rerun the admin truth sample validator.",
+      justification: "Admin source samples earn partial confidence, but current first-party admin source evidence is still missing.",
+      nextAction: "Attach redacted first-party admin source sample evidence and rerun the admin source sample validator.",
     },
   ];
 
@@ -216,8 +216,8 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
       proofType: "algorithmic",
       scoreDimension: "freshness",
       scoreImpactEstimate: Math.min(12, staleRefreshes || automaticRefreshes ? 12 : 1),
-      justification: `${automaticRefreshes} automatic refresh queue entries and ${staleRefreshes} stale safeguard findings can be handled without manual evidence.`,
-      nextAction: "Run the self-healing refresh queue in dependency order and keep formal evidence gates separate.",
+      justification: `${automaticRefreshes} automatic refresh queue entries and ${staleRefreshes} stale safeguard findings can be handled without external source artifacts.`,
+      nextAction: "Run the self-healing refresh queue in dependency order and keep required evidence lanes separate.",
     },
     {
       id: "cost_owner_review_lanes",
@@ -225,7 +225,7 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
       proofType: "owner_review",
       scoreDimension: "costRisk",
       scoreImpactEstimate: 6,
-      justification: "Cost risk remains owner-review, not manual UI testing or provider smoke.",
+      justification: "Cost risk remains owner-review, not UI testing or provider-backed site activity evidence.",
       nextAction: "Complete owner review for cloud/runtime cost lanes without adding new cost paths.",
     },
     {
@@ -315,13 +315,13 @@ export function validateScore80ReconciliationLock(report: Score80ReconciliationL
   }
 
   if (report.formalGateImpact.clearsDeployedRuntime) {
-    failures.push("reconciliation lock must not clear deployed runtime gate.");
+    failures.push("reconciliation lock must not clear deployed route evidence lane.");
   }
   if (report.formalGateImpact.clearsFormalProvider) {
-    failures.push("reconciliation lock must not clear formal provider gate.");
+    failures.push("reconciliation lock must not clear provider-backed site activity lane.");
   }
   if (report.formalGateImpact.clearsFormalAdminTruth) {
-    failures.push("reconciliation lock must not clear formal admin truth gate.");
+    failures.push("reconciliation lock must not clear admin source sample lane.");
   }
 
   if (report.currentScore < report.previousScore && report.scoreDropReason === "no_drop") {
@@ -337,7 +337,7 @@ export function validateScore80ReconciliationLock(report: Score80ReconciliationL
       || report.remainingAdminTruthItems.length > 0
     )
   ) {
-    failures.push("cannot start beta exit review while score or formal gates remain open.");
+    failures.push("cannot start beta exit review while score or required evidence lanes remain open.");
   }
 
   for (const file of report.dirtyFiles) {

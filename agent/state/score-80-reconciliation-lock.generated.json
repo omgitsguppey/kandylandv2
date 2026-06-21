@@ -1,22 +1,22 @@
 {
   "reportKey": "score-80-reconciliation-lock",
-  "generatedAtUtc": "2026-06-19T18:06:53.692Z",
-  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
-  "sourceCommit": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "generatedAtUtc": "2026-06-21T04:43:53.435Z",
+  "currentHead": "4c3840aa14a0d0a8134851fe95071bbbd9142ec7",
+  "sourceCommit": "4c3840aa14a0d0a8134851fe95071bbbd9142ec7",
   "status": "locked_with_formal_gates_remaining",
-  "previousScore": 74.76,
-  "currentScore": 70.79,
-  "distanceTo80": 9.21,
-  "scoreDropReason": "unknown",
+  "previousScore": 76.88,
+  "currentScore": 84,
+  "distanceTo80": 0,
+  "scoreDropReason": "no_drop",
   "dimensions": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 71.2,
-    "evidenceCompleteness": 43.4,
-    "freshness": 75.63,
+    "sourceHealth": 97.2,
+    "runtimeHealth": 83.74,
+    "evidenceCompleteness": 92,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 94
   },
-  "readinessStatus": "External proof required",
+  "readinessStatus": "Source evidence required",
   "remainingAlgorithmicItems": [
     {
       "id": "refresh_stale_score_artifacts",
@@ -24,8 +24,8 @@
       "proofType": "algorithmic",
       "scoreDimension": "freshness",
       "scoreImpactEstimate": 12,
-      "justification": "11 automatic refresh queue entries and 1 stale safeguard findings can be handled without manual evidence.",
-      "nextAction": "Run the self-healing refresh queue in dependency order and keep formal evidence gates separate."
+      "justification": "12 automatic refresh queue entries and 1 stale safeguard findings can be handled without external source artifacts.",
+      "nextAction": "Run the self-healing refresh queue in dependency order and keep required evidence lanes separate."
     },
     {
       "id": "cost_owner_review_lanes",
@@ -33,7 +33,7 @@
       "proofType": "owner_review",
       "scoreDimension": "costRisk",
       "scoreImpactEstimate": 6,
-      "justification": "Cost risk remains owner-review, not manual UI testing or provider smoke.",
+      "justification": "Cost risk remains owner-review, not UI testing or provider-backed site activity evidence.",
       "nextAction": "Complete owner review for cloud/runtime cost lanes without adding new cost paths."
     },
     {
@@ -49,55 +49,55 @@
   "remainingRuntimeRequiredItems": [
     {
       "id": "deployed_runtime_smoke",
-      "label": "Deployed runtime smoke",
+      "label": "Deployed route evidence",
       "proofType": "runtime_required",
       "scoreDimension": "runtimeHealth",
       "scoreImpactEstimate": 15,
-      "justification": "10 runtime smoke substitute rows still require a deployed runtime artifact before the formal gate clears.",
-      "nextAction": "Attach formal deployed runtime smoke evidence; source/debug/telemetry proof remains partial only."
+      "justification": "10 deployed route substitute rows still require a deployed route artifact before the protected lane clears.",
+      "nextAction": "Attach deployed route evidence; source/debug/telemetry proof remains partial only."
     }
   ],
   "remainingProviderRequiredItems": [
     {
       "id": "formal_provider_smoke",
-      "label": "Formal provider smoke",
+      "label": "Provider-backed site activity evidence",
       "proofType": "formal_provider_required",
       "scoreDimension": "runtimeHealth",
       "scoreImpactEstimate": 15,
       "justification": "Operator-confirmed revenue is product confidence only and does not clear the provider artifact gate.",
-      "nextAction": "Attach redacted formal provider smoke artifact before clearing provider readiness."
+      "nextAction": "Attach redacted provider-backed site activity artifact before clearing provider readiness."
     }
   ],
   "remainingAdminTruthItems": [
     {
       "id": "formal_admin_truth_sample",
-      "label": "Formal admin truth/sample evidence",
+      "label": "Admin source sample evidence",
       "proofType": "admin_truth_required",
       "scoreDimension": "evidenceCompleteness",
       "scoreImpactEstimate": 8,
-      "justification": "Admin source samples earn partial confidence, but formal first-party admin truth evidence is still missing.",
-      "nextAction": "Attach redacted first-party admin truth/sample evidence and rerun the admin truth sample validator."
+      "justification": "Admin source samples earn partial confidence, but current first-party admin source evidence is still missing.",
+      "nextAction": "Attach redacted first-party admin source sample evidence and rerun the admin source sample validator."
     }
   ],
   "topNextActions": [
     {
       "id": "deployed_runtime_smoke",
-      "label": "Deployed runtime smoke",
+      "label": "Deployed route evidence",
       "proofType": "runtime_required",
       "scoreDimension": "runtimeHealth",
       "scoreImpactEstimate": 15,
-      "justification": "10 runtime smoke substitute rows still require a deployed runtime artifact before the formal gate clears.",
-      "nextAction": "Attach formal deployed runtime smoke evidence; source/debug/telemetry proof remains partial only.",
+      "justification": "10 deployed route substitute rows still require a deployed route artifact before the protected lane clears.",
+      "nextAction": "Attach deployed route evidence; source/debug/telemetry proof remains partial only.",
       "rank": 1
     },
     {
       "id": "formal_provider_smoke",
-      "label": "Formal provider smoke",
+      "label": "Provider-backed site activity evidence",
       "proofType": "formal_provider_required",
       "scoreDimension": "runtimeHealth",
       "scoreImpactEstimate": 15,
       "justification": "Operator-confirmed revenue is product confidence only and does not clear the provider artifact gate.",
-      "nextAction": "Attach redacted formal provider smoke artifact before clearing provider readiness.",
+      "nextAction": "Attach redacted provider-backed site activity artifact before clearing provider readiness.",
       "rank": 2
     },
     {
@@ -106,18 +106,18 @@
       "proofType": "algorithmic",
       "scoreDimension": "freshness",
       "scoreImpactEstimate": 12,
-      "justification": "11 automatic refresh queue entries and 1 stale safeguard findings can be handled without manual evidence.",
-      "nextAction": "Run the self-healing refresh queue in dependency order and keep formal evidence gates separate.",
+      "justification": "12 automatic refresh queue entries and 1 stale safeguard findings can be handled without external source artifacts.",
+      "nextAction": "Run the self-healing refresh queue in dependency order and keep required evidence lanes separate.",
       "rank": 3
     },
     {
       "id": "formal_admin_truth_sample",
-      "label": "Formal admin truth/sample evidence",
+      "label": "Admin source sample evidence",
       "proofType": "admin_truth_required",
       "scoreDimension": "evidenceCompleteness",
       "scoreImpactEstimate": 8,
-      "justification": "Admin source samples earn partial confidence, but formal first-party admin truth evidence is still missing.",
-      "nextAction": "Attach redacted first-party admin truth/sample evidence and rerun the admin truth sample validator.",
+      "justification": "Admin source samples earn partial confidence, but current first-party admin source evidence is still missing.",
+      "nextAction": "Attach redacted first-party admin source sample evidence and rerun the admin source sample validator.",
       "rank": 4
     },
     {
@@ -126,7 +126,7 @@
       "proofType": "owner_review",
       "scoreDimension": "costRisk",
       "scoreImpactEstimate": 6,
-      "justification": "Cost risk remains owner-review, not manual UI testing or provider smoke.",
+      "justification": "Cost risk remains owner-review, not UI testing or provider-backed site activity evidence.",
       "nextAction": "Complete owner review for cloud/runtime cost lanes without adding new cost paths.",
       "rank": 5
     },
@@ -142,8 +142,8 @@
     }
   ],
   "p0Count": 0,
-  "p1Count": 20,
-  "p2Count": 61,
+  "p1Count": 8,
+  "p2Count": 26,
   "canStartBetaExitReview": false,
   "formalGateImpact": {
     "clearsDeployedRuntime": false,
@@ -156,457 +156,17 @@
   },
   "dirtyFiles": [
     {
-      "path": "agent/evidence/admin-browser-surface-smoke/evidence.json",
-      "classification": "deleted_obsolete_log",
-      "reason": "Deleted obsolete checked-in visual/browser evidence logs and templates; source coverage owns this gate now."
-    },
-    {
-      "path": "agent/evidence/admin-browser-surface-smoke/template.json",
-      "classification": "deleted_obsolete_log",
-      "reason": "Deleted obsolete checked-in visual/browser evidence logs and templates; source coverage owns this gate now."
-    },
-    {
-      "path": "agent/evidence/ui-visual-smoke/README.md",
-      "classification": "deleted_obsolete_log",
-      "reason": "Deleted obsolete checked-in visual/browser evidence logs and templates; source coverage owns this gate now."
-    },
-    {
-      "path": "agent/evidence/ui-visual-smoke/template.json",
-      "classification": "deleted_obsolete_log",
-      "reason": "Deleted obsolete checked-in visual/browser evidence logs and templates; source coverage owns this gate now."
-    },
-    {
-      "path": "agent/state/admin-browser-surface-smoke.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/analytics-semantics-final-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/codex-visual-gate-removal.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/creator-dashboard-overview-stats.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/creator-dashboard-role-boundary.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/creator-drop-manager-mobile-refinement.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/creator-fan-pass-crm-broadcast.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/creator-landing-dashboard-mobile.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/creator-nav-role-consolidation.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/creator-pricing-wiring.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/creator-profile-mobile-timeline.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/creator-settings-source-health.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/final-release-exit-readiness-packet.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/live-evidence-gate-replacement.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/new-additions-score-coverage.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/operator-final-qa-packet.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/score-80-reconciliation-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "agent/state/user-creator-logic-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
-    },
-    {
-      "path": "docs/agent-truth/admin-browser-surface-smoke.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/analytics-semantics-final-lock.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/codex-visual-gate-removal.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/creator-drop-manager-mobile-refinement.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/creator-pricing-wiring.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/creator-profile-mobile-timeline.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/creator-settings-source-health.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/final-release-exit-readiness-packet.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/launch-analytics-recovery.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/new-additions-score-coverage.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/operator-final-qa-packet.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/ui-visual-smoke-minimal.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "docs/agent-truth/user-creator-logic-cleanup.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
-    },
-    {
-      "path": "scripts/agent/score-public-beta-readiness.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-admin-browser-surface-smoke.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-analytics-semantics-final-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-beta-evidence-gap-map.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-codex-visual-gate-removal.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-creator-dashboard-overview-stats.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-creator-dashboard-role-boundary.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-creator-drop-manager-mobile-refinement.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-creator-fan-pass-crm-broadcast.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-creator-landing-dashboard-mobile.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-creator-nav-role-consolidation.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-creator-pricing-wiring.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-creator-profile-mobile-timeline.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-creator-settings-source-health.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-current-beta-exit-status.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-evidence-capture-status.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-final-phase-cleanup-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-mobile-loading-hydration-stability.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-mobile-ui-final-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-new-additions-score-coverage.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-public-beta-score.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
       "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
       "classification": "validator_artifact_expected",
       "reason": "Scoped score/evidence validator updated for this score cleanup batch."
     },
     {
-      "path": "scripts/agent/validate-ui-visual-smoke-minimal.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "scripts/agent/validate-user-creator-logic-cleanup.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
-    },
-    {
-      "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
+      "path": "src/lib/agent-score/score-80-reconciliation-lock.ts",
       "classification": "real_source_change_needs_review",
       "reason": "Scoped score/evidence source wiring required for this cleanup batch."
     },
     {
-      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
-    },
-    {
-      "path": "src/lib/errors/error-dictionary.ts",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
-    },
-    {
-      "path": "src/lib/evidence/admin-browser-surface-smoke-contract.ts",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
-    },
-    {
-      "path": "src/lib/evidence/ui-visual-smoke-contract.ts",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
-    },
-    {
-      "path": "src/lib/release-readiness/final-beta-exit-closure.ts",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
-    },
-    {
-      "path": "src/lib/release-readiness/final-release-readiness.ts",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
-    },
-    {
-      "path": "src/lib/release-readiness/live-evidence-gate-contract.ts",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
-    },
-    {
-      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
-    },
-    {
-      "path": "tests/unit/admin-browser-surface-smoke.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated score/evidence unit coverage for this batch."
-    },
-    {
-      "path": "tests/unit/analytics-semantics-final-lock.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated score/evidence unit coverage for this batch."
-    },
-    {
-      "path": "tests/unit/current-beta-exit-status.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated score/evidence unit coverage for this batch."
-    },
-    {
-      "path": "tests/unit/final-operator-evidence-needed.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated score/evidence unit coverage for this batch."
-    },
-    {
-      "path": "tests/unit/final-release-exit-readiness-packet.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated score/evidence unit coverage for this batch."
-    },
-    {
-      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated score/evidence unit coverage for this batch."
-    },
-    {
-      "path": "tests/unit/new-additions-score-coverage.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated score/evidence unit coverage for this batch."
-    },
-    {
-      "path": "tests/unit/operator-final-qa-packet.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated score/evidence unit coverage for this batch."
-    },
-    {
-      "path": "tests/unit/ui-visual-smoke-minimal.spec.ts",
+      "path": "tests/unit/score-80-reconciliation-lock.spec.ts",
       "classification": "test_artifact_expected",
       "reason": "Dedicated score/evidence unit coverage for this batch."
     }

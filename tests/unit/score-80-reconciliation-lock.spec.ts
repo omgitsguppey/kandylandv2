@@ -20,7 +20,7 @@ function buildReport() {
       costRisk: 40,
       regressionRisk: 90,
     },
-    readinessStatus: "Visual QA required",
+    readinessStatus: "Source evidence required",
     betaExitCanStart: false,
     aiCritic: {
       criticStatus: "pass",
@@ -72,7 +72,7 @@ function buildReport() {
 }
 
 describe("score 80 reconciliation lock", () => {
-  it("separates algorithmic, runtime, provider, and admin proof", () => {
+  it("separates algorithmic, runtime, provider, and admin evidence", () => {
     const report = buildReport();
 
     expect(report.previousScore).toBe(77.76);
@@ -85,7 +85,7 @@ describe("score 80 reconciliation lock", () => {
     expect(validateScore80ReconciliationLock(report)).toEqual([]);
   });
 
-  it("keeps formal gates honest and blocks beta exit review under 80", () => {
+  it("keeps required evidence lanes honest and blocks beta exit review under 80", () => {
     const report = buildReport();
 
     expect(report.canStartBetaExitReview).toBe(false);
@@ -125,7 +125,7 @@ describe("score 80 reconciliation lock", () => {
     expect(report.formalGateImpact.clearsFormalAdminTruth).toBe(false);
   });
 
-  it("fails if formal gates are falsely cleared, score drops lack a reason, or changed files are unclassified", () => {
+  it("fails if evidence lanes are falsely cleared, score drops lack a reason, or changed files are unclassified", () => {
     const report = buildReport();
     const invalid: Score80ReconciliationLockReport = {
       ...report,
@@ -157,7 +157,7 @@ describe("score 80 reconciliation lock", () => {
 
     expect(validateScore80ReconciliationLock(invalid)).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("must not clear deployed runtime gate"),
+        expect.stringContaining("must not clear deployed route evidence lane"),
         expect.stringContaining("score dropped without an explicit reason"),
         expect.stringContaining("dirty file mystery.tmp is unclassified"),
         expect.stringContaining("open PR #999 is unclassified"),
