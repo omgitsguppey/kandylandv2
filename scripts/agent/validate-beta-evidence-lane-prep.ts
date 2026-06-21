@@ -127,6 +127,13 @@ function readString(value: unknown, fallback = "") {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
 }
 
+function normalizeProviderBackedEvidenceNote(note: string) {
+  return note
+    .replace(/Formal provider evidence is still separate\./giu, "Provider-backed site activity evidence is still separate.")
+    .replace(/formal provider smoke/giu, "provider-backed site activity evidence")
+    .replace(/formal provider\/app proof/giu, "provider-backed site activity evidence");
+}
+
 function readNumber(value: unknown, fallback = 0) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
@@ -227,8 +234,8 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
   const operatorConfirmed = operator.revenueSmokeStatus === "operator_confirmed_revenue_smoke";
   const providerFormalPassed = operator.formalProviderSmokePassed === true || evidence.providerSmokeEvidence === "complete";
   const operatorPlainLanguageNote = operatorConfirmed
-    ? readString(operator.plainLanguageNote, "")
-      || "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate."
+    ? normalizeProviderBackedEvidenceNote(readString(operator.plainLanguageNote, ""))
+      || "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate."
     : "No operator-confirmed GumDrop revenue smoke is recorded.";
 
   const lanes: BetaEvidenceLanePrepLane[] = [
@@ -251,7 +258,7 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
     }),
     lane({
       id: "provider_smoke",
-      label: "Provider smoke",
+      label: "Provider-backed site activity evidence",
       folder: "agent/evidence/provider-smoke",
       template: "agent/evidence/provider-smoke/evidence.template.json",
       checklist: "docs/agent-truth/provider-smoke-evidence-checklist.md",
@@ -262,9 +269,9 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
       sourceReady: false,
       completeAsProductSignal: false,
       clearsFormalProviderGate: providerFormalPassed,
-      scoreImpact: "Raises provider confidence only after redacted formal provider/app proof is attached.",
+      scoreImpact: "Raises provider confidence only after redacted provider-backed site activity evidence is attached.",
       launchGateImpact: "Required for beta exit; operator confirmation alone does not clear this gate.",
-      nextAction: "Attach redacted formal provider/app proof only if the operator chooses to clear provider smoke.",
+      nextAction: "Attach redacted provider-backed site activity evidence only if the operator chooses to clear the provider lane.",
     }),
     lane({
       id: "operator_confirmed_revenue_smoke",
@@ -280,12 +287,12 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
       completeAsProductSignal: operatorConfirmed,
       clearsFormalProviderGate: false,
       scoreImpact: "Improves product confidence notes as real GumDrop revenue signal.",
-      launchGateImpact: `${operatorPlainLanguageNote} It does not clear formal provider smoke or beta exit.`,
-      nextAction: "Keep this acknowledged as real product signal; formal provider/app proof is optional for acknowledging the sale.",
+      launchGateImpact: `${operatorPlainLanguageNote} It does not clear provider-backed site activity evidence or beta exit.`,
+      nextAction: "Keep this acknowledged as real product signal; provider-backed site activity evidence is optional for acknowledging the sale.",
     }),
     lane({
       id: "runtime_smoke",
-      label: "Runtime smoke",
+      label: "Deployed route evidence",
       folder: "agent/evidence/runtime-smoke",
       template: "agent/evidence/runtime-smoke/evidence.template.json",
       checklist: "docs/agent-truth/runtime-smoke-evidence-checklist.md",
@@ -297,12 +304,12 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
       completeAsProductSignal: false,
       clearsFormalProviderGate: false,
       scoreImpact: "Raises runtime confidence after deployed route and flow proof is attached.",
-      launchGateImpact: "Required for beta exit; local validators are not deployed runtime proof.",
-      nextAction: "Attach deployed runtime smoke proof using the runtime smoke template.",
+      launchGateImpact: "Required for beta exit; local validators are not deployed route evidence.",
+      nextAction: "Attach deployed route evidence using the runtime evidence template.",
     }),
     lane({
       id: "admin_truth_sample",
-      label: "Admin truth sample",
+      label: "Admin source sample evidence",
       folder: "agent/evidence/admin-truth-sample",
       template: "agent/evidence/admin-truth-sample/evidence.template.json",
       checklist: "docs/agent-truth/admin-truth-sample-evidence-checklist.md",
@@ -315,7 +322,7 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
       clearsFormalProviderGate: false,
       scoreImpact: "Raises admin-truth confidence after a fresh redacted source sample is attached.",
       launchGateImpact: "Required for beta exit; admin UI presence alone does not clear this lane.",
-      nextAction: "Attach a redacted admin truth sample with source freshness and sample count.",
+      nextAction: "Attach a redacted admin source sample with source freshness and sample count.",
     }),
     lane({
       id: "runtime_watch_time_proof",
@@ -406,8 +413,8 @@ export function buildBetaEvidenceLanePrepReport(input: BuildInput = {}): BetaEvi
     staleReports,
     nextExactSteps: [
       "Use this lane map before attaching evidence so source-ready, operator-confirmed, formal-missing, and owner-review states stay separate.",
-      "Keep operator-confirmed revenue smoke acknowledged without requiring provider screenshots for that acknowledgement.",
-      "Attach formal provider/app proof only when the operator chooses to clear the provider smoke gate.",
+      "Keep operator-confirmed revenue smoke acknowledged without requiring provider-backed site activity evidence for that acknowledgement.",
+      "Attach provider-backed site activity evidence only when the operator chooses to clear the provider lane.",
       ...Array.from(new Set(refreshPlan.map((entry) => entry.refreshCommand).filter((command): command is string => Boolean(command))))
         .map((command) => `Refresh supporting report with ${command}.`),
     ],
@@ -454,17 +461,17 @@ export function validateBetaEvidenceLanePrepReport(report: BetaEvidenceLanePrepR
   const providerLane = laneMap.get("provider_smoke");
   if (operatorLane?.status === "operator_confirmed") {
     if (!operatorLane.completeAsProductSignal) failures.push("operator-confirmed revenue must count as product signal.");
-    if (operatorLane.clearsFormalProviderGate) failures.push("operator-confirmed revenue must not clear formal provider gate.");
+    if (operatorLane.clearsFormalProviderGate) failures.push("operator-confirmed revenue must not clear provider-backed site activity lane.");
     if (/required|must attach|must provide/iu.test(operatorLane.nextAction) && /provider|screenshot/iu.test(operatorLane.nextAction)) {
       failures.push("operator-confirmed revenue wording must not require unnecessary provider proof.");
     }
   }
   if (providerLane?.status === "formal_complete" && operatorLane?.status === "operator_confirmed" && operatorLane.clearsFormalProviderGate) {
-    failures.push("provider smoke gate cannot clear from operator-confirmed revenue smoke.");
+    failures.push("provider lane cannot clear from operator-confirmed revenue smoke.");
   }
   if (report.summary.betaExitReady) failures.push("beta exit ready must remain false.");
   if (report.summary.providerSmokeGateCleared && providerLane?.status !== "formal_complete") {
-    failures.push("provider smoke gate cannot clear without formal provider evidence.");
+    failures.push("provider lane cannot clear without provider-backed site activity evidence.");
   }
   for (const stale of report.staleReports) {
     if (!stale.nextAction || !stale.refreshCommand) {
@@ -477,8 +484,8 @@ export function validateBetaEvidenceLanePrepReport(report: BetaEvidenceLanePrepR
   if (operatorLane?.status === "operator_confirmed" && !report.operatorConfirmedLanes.includes("operator_confirmed_revenue_smoke")) {
     failures.push("operator-confirmed lane must be represented.");
   }
-  if (!report.operatorPlainLanguageNote.includes("Formal provider evidence is still separate.")) {
-    failures.push("operator plain-language note must separate confirmed revenue from formal provider proof.");
+  if (!report.operatorPlainLanguageNote.includes("Provider-backed site activity evidence is still separate.")) {
+    failures.push("operator plain-language note must separate confirmed revenue from provider-backed site activity evidence.");
   }
   if (report.nextExactSteps.length === 0) failures.push("nextExactSteps must not be empty.");
   return failures;

@@ -17,7 +17,7 @@ const operatorRevenueSmoke = {
   revenueSmokeStatus: "operator_confirmed_revenue_smoke",
   amountUsdConfirmed: 37.5,
   product: "GumDrops",
-  plainLanguageNote: "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
+  plainLanguageNote: "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.",
   formalProviderSmokePassed: false,
   providerArtifactAttached: false,
   providerSmokeGateStatus: "missing_formal_evidence",
@@ -65,7 +65,7 @@ describe("beta evidence lane prep", () => {
     expect(validateBetaEvidenceLanePrepReport(report, "head")).toEqual([]);
   });
 
-  it("recognizes operator-confirmed revenue without clearing formal provider proof", () => {
+  it("recognizes operator-confirmed revenue without clearing provider-backed site activity evidence", () => {
     const report = buildBetaEvidenceLanePrepReport({
       currentHead: "head",
       generatedAtUtc: "2026-05-20T22:00:00.000Z",
@@ -81,7 +81,7 @@ describe("beta evidence lane prep", () => {
     expect(operatorLane?.clearsFormalProviderGate).toBe(false);
     expect(providerLane?.status).toBe("formal_missing");
     expect(report.summary.betaExitReady).toBe(false);
-    expect(report.operatorPlainLanguageNote).toBe("Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.");
+    expect(report.operatorPlainLanguageNote).toBe("Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.");
   });
 
   it("fails validation when a formal lane lacks a source-to-proof checklist or stale action", () => {

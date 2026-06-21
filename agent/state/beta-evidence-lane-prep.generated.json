@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-20T18:07:07.437Z",
+  "generatedAtUtc": "2026-06-21T04:49:13.378Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "5a0432affe578dbeaa83ad87ee289b9bcc001d6f",
+  "currentHead": "967c61369485a09411c164ca1fbae785b504e3f5",
   "summary": {
     "laneCount": 8,
     "formalMissingCount": 2,
@@ -11,7 +11,7 @@
     "providerSmokeGateCleared": false,
     "p0Count": 0,
     "p1Count": 2,
-    "p2Count": 16
+    "p2Count": 17
   },
   "lanes": [
     {
@@ -31,12 +31,12 @@
       "completeAsProductSignal": true,
       "clearsFormalProviderGate": false,
       "scoreImpact": "Raises UI confidence when deterministic source coverage can find disconnected surfaces before visual review.",
-      "launchGateImpact": "Required for beta exit as source coverage; screenshots are optional only to reproduce a source-reported UI issue.",
+      "launchGateImpact": "Required for beta exit as source coverage; browser reproduction is optional only to reproduce a source-reported UI issue.",
       "nextAction": "Run npm run check:ui-visual-smoke-minimal and fix any source-reported UI surface gap."
     },
     {
       "id": "provider_smoke",
-      "label": "Provider smoke",
+      "label": "Provider-backed site activity evidence",
       "folder": "agent/evidence/provider-smoke",
       "template": "agent/evidence/provider-smoke/evidence.template.json",
       "checklist": "docs/agent-truth/provider-smoke-evidence-checklist.md",
@@ -50,9 +50,9 @@
       "sourceReady": false,
       "completeAsProductSignal": false,
       "clearsFormalProviderGate": false,
-      "scoreImpact": "Raises provider confidence only after redacted formal provider/app proof is attached.",
+      "scoreImpact": "Raises provider confidence only after redacted provider-backed site activity evidence is attached.",
       "launchGateImpact": "Required for beta exit; operator confirmation alone does not clear this gate.",
-      "nextAction": "Attach redacted formal provider/app proof only if the operator chooses to clear provider smoke."
+      "nextAction": "Attach redacted provider-backed site activity evidence only if the operator chooses to clear the provider lane."
     },
     {
       "id": "operator_confirmed_revenue_smoke",
@@ -71,12 +71,12 @@
       "completeAsProductSignal": true,
       "clearsFormalProviderGate": false,
       "scoreImpact": "Improves product confidence notes as real GumDrop revenue signal.",
-      "launchGateImpact": "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate. It does not clear formal provider smoke or beta exit.",
-      "nextAction": "Keep this acknowledged as real product signal; formal provider/app proof is optional for acknowledging the sale."
+      "launchGateImpact": "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate. It does not clear provider-backed site activity evidence or beta exit.",
+      "nextAction": "Keep this acknowledged as real product signal; provider-backed site activity evidence is optional for acknowledging the sale."
     },
     {
       "id": "runtime_smoke",
-      "label": "Runtime smoke",
+      "label": "Deployed route evidence",
       "folder": "agent/evidence/runtime-smoke",
       "template": "agent/evidence/runtime-smoke/evidence.template.json",
       "checklist": "docs/agent-truth/runtime-smoke-evidence-checklist.md",
@@ -91,12 +91,12 @@
       "completeAsProductSignal": false,
       "clearsFormalProviderGate": false,
       "scoreImpact": "Raises runtime confidence after deployed route and flow proof is attached.",
-      "launchGateImpact": "Required for beta exit; local validators are not deployed runtime proof.",
-      "nextAction": "Attach deployed runtime smoke proof using the runtime smoke template."
+      "launchGateImpact": "Required for beta exit; local validators are not deployed route evidence.",
+      "nextAction": "Attach deployed route evidence using the runtime evidence template."
     },
     {
       "id": "admin_truth_sample",
-      "label": "Admin truth sample",
+      "label": "Admin source sample evidence",
       "folder": "agent/evidence/admin-truth-sample",
       "template": "agent/evidence/admin-truth-sample/evidence.template.json",
       "checklist": "docs/agent-truth/admin-truth-sample-evidence-checklist.md",
@@ -112,7 +112,7 @@
       "clearsFormalProviderGate": false,
       "scoreImpact": "Raises admin-truth confidence after a fresh redacted source sample is attached.",
       "launchGateImpact": "Required for beta exit; admin UI presence alone does not clear this lane.",
-      "nextAction": "Attach a redacted admin truth sample with source freshness and sample count."
+      "nextAction": "Attach a redacted admin source sample with source freshness and sample count."
     },
     {
       "id": "runtime_watch_time_proof",
@@ -187,7 +187,7 @@
     "provider_smoke",
     "admin_truth_sample"
   ],
-  "operatorPlainLanguageNote": "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
+  "operatorPlainLanguageNote": "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.",
   "refreshPlan": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
@@ -197,13 +197,13 @@
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "current_by_impact",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
       "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "current",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:evidence-capture-status"
     },
@@ -245,19 +245,19 @@
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "current",
+      "status": "current_by_impact",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "status": "current_by_impact",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
       "refreshCommand": "npm run check:beta-evidence-gap-map"
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "current_by_impact",
+      "status": "current",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
@@ -307,9 +307,15 @@
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "refreshCommand": "npm run check:current-beta-exit-status"
+    },
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
       "status": "current_by_impact",
       "nextAction": "No refresh needed.",
-      "refreshCommand": "npm run check:current-beta-exit-status"
+      "refreshCommand": "npm run check:evidence-capture-status"
     },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
@@ -348,16 +354,16 @@
       "refreshCommand": "npm run check:creator-drop-status-metrics"
     },
     {
-      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
+      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
       "status": "current_by_impact",
       "nextAction": "No refresh needed.",
-      "refreshCommand": "npm run check:beta-evidence-gap-map"
+      "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {
-      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "current_by_impact",
-      "nextAction": "No refresh needed.",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep"
+      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+      "refreshCommand": "npm run check:beta-evidence-gap-map"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
@@ -398,8 +404,8 @@
   ],
   "nextExactSteps": [
     "Use this lane map before attaching evidence so source-ready, operator-confirmed, formal-missing, and owner-review states stay separate.",
-    "Keep operator-confirmed revenue smoke acknowledged without requiring provider screenshots for that acknowledgement.",
-    "Attach formal provider/app proof only when the operator chooses to clear the provider smoke gate.",
+    "Keep operator-confirmed revenue smoke acknowledged without requiring provider-backed site activity evidence for that acknowledgement.",
+    "Attach provider-backed site activity evidence only when the operator chooses to clear the provider lane.",
     "Refresh supporting report with npm run score:beta && npm run check:beta-score.",
     "Refresh supporting report with npm run check:current-beta-exit-status.",
     "Refresh supporting report with npm run check:evidence-capture-status.",
