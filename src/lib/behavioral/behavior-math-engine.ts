@@ -58,6 +58,36 @@ const CREATOR_INTERACTION_EVENTS = new Set([
   "creator_muted",
 ]);
 
+type NormalizedBehaviorIdentityState = "guest_only" | "user_only" | "guest_linked_to_user" | "unknown_legacy";
+
+function normalizeBehaviorIdentityState(identityState: BehaviorRawEventInput["identityState"]): NormalizedBehaviorIdentityState {
+  switch (identityState) {
+    case "legacy_unknown":
+    case "unknown_legacy":
+      return "unknown_legacy";
+    case "guest_linked_to_user":
+    case "logged_in_linked_guest":
+    case "user_logged_in_linked_guest":
+      return "guest_linked_to_user";
+    case "logged_in_unlinked":
+    case "signup_completed_unlinked":
+    case "creator_logged_in":
+    case "admin_authenticated":
+    case "user_only":
+      return "user_only";
+    case "guest_unknown_consent":
+    case "guest_necessary_only":
+    case "guest_minimal":
+    case "guest_minimal_analytics":
+    case "guest_full_behavioral":
+    case "signup_started":
+    case "guest_only":
+      return "guest_only";
+    default:
+      return "unknown_legacy";
+  }
+}
+
 function emptyMetric(): BehaviorMetricValue {
   return {
     value: 0,
@@ -133,12 +163,13 @@ function classifyMetric(event: BehaviorRawEventInput): BehaviorMetricName | null
 }
 
 function metricConfidence(event: BehaviorRawEventInput, metric: BehaviorMetricName): BehaviorMetricConfidence {
-  if (event.identityState === "unknown_legacy") return "unknown";
+  const identityState = normalizeBehaviorIdentityState(event.identityState);
+  if (identityState === "unknown_legacy") return "unknown";
   if (metric === "watchTimeMs") {
     return event.watchScoreSource === "watch_session_rollup" ? "exact" : "unknown";
   }
   if (event.userId) return "exact";
-  if (event.identityState === "guest_linked_to_user") return "probable";
+  if (identityState === "guest_linked_to_user") return "probable";
   if (event.anonymousVisitorId) return "probable";
   return "weak";
 }
@@ -174,7 +205,7 @@ function addEventToAggregation(aggregation: BehaviorAggregation, event: Behavior
   if (event.sessionId && !aggregation.sourceSessions.includes(event.sessionId)) {
     aggregation.sourceSessions.push(event.sessionId);
   }
-  if (event.anonymousVisitorId && event.identityState === "guest_linked_to_user" && !aggregation.linkedGuestIds.includes(event.anonymousVisitorId)) {
+  if (event.anonymousVisitorId && normalizeBehaviorIdentityState(event.identityState) === "guest_linked_to_user" && !aggregation.linkedGuestIds.includes(event.anonymousVisitorId)) {
     aggregation.linkedGuestIds.push(event.anonymousVisitorId);
   }
 }
@@ -258,6 +289,7 @@ export function buildBehaviorMathReport(input: BehaviorMathInput): BehaviorMathR
   let linkedGuestEventsAttributedToUsers = 0;
 
   input.events.forEach((event, index) => {
+    const identityState = normalizeBehaviorIdentityState(event.identityState);
     const key = eventKey(event, index);
     const eligibilityKey = eligibility[key] ? `${key}#${index}` : key;
     const semanticKey = semanticDedupeKey(event);
@@ -281,7 +313,7 @@ export function buildBehaviorMathReport(input: BehaviorMathInput): BehaviorMathR
       return;
     }
 
-    if (event.identityState === "unknown_legacy" || event.trackingState === "unknown") {
+    if (identityState === "unknown_legacy" || event.trackingState === "unknown") {
       legacyUnknownExcluded += 1;
       legacyUnknown.push(event);
       eligibility[eligibilityKey] = { eligible: false, reason: "legacy_unknown" };

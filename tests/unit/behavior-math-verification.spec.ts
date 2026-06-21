@@ -155,4 +155,41 @@ describe("behavior math verification", () => {
       duplicateRisk: "high",
     });
   });
+
+  it("normalizes canonical handoff identity states before behavior scoring", () => {
+    const report = buildBehaviorMathReport({
+      events: [
+        {
+          eventId: "linked-canonical-page",
+          eventName: "semantic_page_viewed",
+          eventType: "page_view",
+          timestampMs: Date.parse("2026-05-20T10:00:00.000Z"),
+          sessionId: "session-linked",
+          anonymousVisitorId: "guest-linked",
+          userId: "user-linked",
+          identityState: "logged_in_linked_guest",
+          trackingState: "enabled",
+        },
+        {
+          eventId: "canonical-legacy-unknown",
+          eventName: "creator_profile_viewed",
+          eventType: "profile_view",
+          timestampMs: Date.parse("2026-03-04T10:01:00.000Z"),
+          sessionId: "session-legacy",
+          anonymousVisitorId: "guest-legacy",
+          userId: "user-stray",
+          identityState: "legacy_unknown",
+          trackingState: "enabled",
+          targetCreatorId: "creator-1",
+        },
+      ],
+    });
+
+    expect(report.summary.eligibleEvents).toBe(1);
+    expect(report.summary.legacyUnknownExcluded).toBe(1);
+    expect(report.perUser["user-linked"]?.metrics.pageViews.value).toBe(1);
+    expect(report.perUser["user-linked"]?.linkedGuestIds).toContain("guest-linked");
+    expect(report.perUser["user-stray"]).toBeUndefined();
+    expect(report.legacyUnknown.map((event) => event.eventId)).toContain("canonical-legacy-unknown");
+  });
 });

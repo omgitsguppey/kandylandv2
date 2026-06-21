@@ -1,3 +1,5 @@
+import type { IdentityState } from "@/lib/analytics/identity-handoff-contract";
+
 export type BehaviorTrackingState = "enabled" | "disabled" | "unknown";
 export type BehaviorConsentMode =
   | "unknown"
@@ -10,7 +12,10 @@ export type BehaviorIdentityState =
   | "guest_only"
   | "user_only"
   | "guest_linked_to_user"
-  | "unknown_legacy";
+  | "unknown_legacy"
+  | IdentityState
+  | "guest_minimal"
+  | "user_logged_in_linked_guest";
 
 export type BehaviorEventType =
   | "page_view"
