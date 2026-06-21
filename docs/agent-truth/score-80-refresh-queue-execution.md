@@ -2,13 +2,13 @@
 
 Status: pass
 
-This pass executed safe score-impact refresh commands from the self-healing queue and kept formal visual, runtime, provider, and admin truth evidence gates blocked until real artifacts exist.
+This pass executed safe score-impact refresh commands from the self-healing queue and kept typed visual, deployed-route, provider-backed site activity, and admin source evidence lanes blocked until real artifacts exist.
 
 ## Score
 
 - Old score: 77.76
-- New score: 89.31
-- Distance to 80: -9.31
+- New score: 90.16
+- Distance to 80: -10.16
 
 ## Queue Execution
 
@@ -61,7 +61,13 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 
 ## Dirty File Classification
 
-- None
+- agent/state/score-80-refresh-pass.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/score-80-refresh-queue-execution.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- docs/agent-truth/score-80-refresh-pass.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/score-80-refresh-queue-execution.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- scripts/agent/validate-score-80-refresh-pass.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-score-80-refresh-queue-execution.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/validate-score-impact-stale-artifact-sweep.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
 
 ## Validation
 

@@ -275,6 +275,8 @@ function classifyDirtyFile(path: string): Score80DirtyFile {
     return { path, classification: "current_generated_artifact_to_commit", action: "Commit score-80 refresh report artifact." };
   }
   if (path === "scripts/agent/validate-score-80-refresh-pass.ts"
+    || path === "scripts/agent/validate-score-impact-stale-artifact-sweep.ts"
+    || path === "scripts/agent/validate-score-80-refresh-queue-execution.ts"
     || path === "scripts/agent/validate-score-80-path-lock.ts"
     || path === "scripts/agent/score-public-beta-readiness.ts"
     || path === "scripts/agent/validate-analytics-panel-hydration.ts"
@@ -293,8 +295,10 @@ function classifyDirtyFile(path: string): Score80DirtyFile {
     || path === "tests/unit/creator-experiences-panel.spec.tsx"
     || path === "tests/unit/post-economy-creator-flow-qa.spec.ts"
     || path === "tests/unit/regression-risk-high-blast-refresh.spec.ts"
+    || path === "tests/unit/score-impact-stale-artifact-sweep.spec.ts"
     || path === "tests/unit/score-80-path-lock.spec.ts"
     || path === "tests/unit/score-80-refresh-pass.spec.ts"
+    || path === "tests/unit/score-80-refresh-queue-execution.spec.ts"
     || path === "tests/unit/public-beta-score.spec.ts"
     || path === "tests/unit/purchase-modal.spec.tsx") {
     return { path, classification: "real_source_change_needs_review", action: "Commit scoped validator and unit test for this pass." };
@@ -387,7 +391,7 @@ export function buildScore80RefreshPassReport(inputs: BuildScore80RefreshPassInp
     prActions: inputs.openPrs,
     dirtyFileActions,
     nextExactSteps: [
-      "Do not mark beta exit ready from source refreshes; run deterministic UI source coverage and attach formal runtime/provider and admin truth evidence first.",
+      "Do not mark beta exit ready from source refreshes; run deterministic UI source coverage and attach deployed route, provider-backed site activity, and redacted admin source evidence first.",
       "Resolve the blocked legacy implemented-lane validators or retire them from score inputs if they are obsolete.",
       "Run npm run score:beta and npm run check:beta-score after each implemented-lane refresh batch.",
     ],
@@ -413,7 +417,7 @@ export function validateScore80RefreshPassReport(report: Score80RefreshPassRepor
   }
   if (!report.summary.obsoleteStaleArtifactsRetired) failures.push("obsolete stale artifacts still affect beta score.");
   if (report.summary.betaExitReady) failures.push("beta exit must not be ready from implemented-lane refreshes.");
-  if (!report.summary.formalEvidenceGatesPreserved) failures.push("formal evidence gates were incorrectly cleared.");
+  if (!report.summary.formalEvidenceGatesPreserved) failures.push("typed source/live-site evidence lanes were incorrectly cleared.");
   if ((report.nextExactSteps?.length ?? 0) === 0) failures.push("nextExactSteps missing.");
   return failures;
 }
@@ -445,7 +449,7 @@ Latest code version: ${report.currentHead}
 - Implemented lane artifacts refreshed: ${report.summary.implementedLaneArtifactsRefreshed}
 - Stale implemented lane artifacts: ${report.summary.staleImplementedLaneArtifacts}
 - Blocked implemented lane artifacts: ${report.summary.blockedImplementedLaneArtifacts}
-- Formal evidence gates preserved: ${report.summary.formalEvidenceGatesPreserved}
+- Source/live-site evidence lanes preserved: ${report.summary.formalEvidenceGatesPreserved}
 - Beta exit ready: ${report.summary.betaExitReady}
 - Findings: P0=${report.summary.p0Count}, P1=${report.summary.p1Count}, P2=${report.summary.p2Count}
 
@@ -463,7 +467,7 @@ ${blockers}
 
 ${stale}
 
-## Formal Evidence Gates
+## Source/Live-Site Evidence Lanes
 
 ${report.formalEvidenceGates.map((gate) => `- ${gate.id}: ${gate.status}; beta exit gate=${gate.betaExitGate}`).join("\n")}
 

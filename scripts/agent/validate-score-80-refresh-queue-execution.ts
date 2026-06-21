@@ -119,7 +119,7 @@ const DEFAULT_COMMAND_RESULTS: Score80RefreshCommandResult[] = [
   result("npm run check:user-loading-wallet-mobile-refinement", "passed", "agent/state/user-loading-wallet-mobile-refinement.generated.json", "safe_automatic_refresh", "Refreshed user loading/wallet mobile refinement without touching wallet runtime."),
   result("npm run check:global-marquee-truncated-titles", "passed", "agent/state/global-marquee-truncated-titles.generated.json", "safe_automatic_refresh", "Refreshed global marquee title rollout."),
   result("npm run check:evidence-capture-status", "passed", "agent/state/evidence-capture-status.generated.json", "safe_automatic_refresh", "Refreshed evidence capture status while keeping provider/runtime/admin evidence missing and UI coverage source-owned."),
-  result("npm run check:operator-revenue-smoke", "passed", "agent/state/operator-revenue-smoke.generated.json", "safe_automatic_refresh", "Refreshed operator-confirmed revenue smoke as product signal only; provider gate remains missing_formal_evidence."),
+  result("npm run check:operator-revenue-smoke", "passed", "agent/state/operator-revenue-smoke.generated.json", "safe_automatic_refresh", "Refreshed operator-confirmed revenue smoke as product signal only; provider-backed site activity lane remains missing_formal_evidence."),
   result("npm run check:debug-runtime-evidence", "failed", "agent/state/debug-runtime-evidence.generated.json", "blocked_formal_evidence", "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime truth."),
   result("npm run check:provider-smoke-evidence", "skipped", "agent/state/provider-smoke-evidence.generated.json", "blocked_formal_evidence", "Provider-backed site activity evidence is required; this pass cannot generate or clear it."),
   result("npm run check:runtime-smoke-evidence", "skipped", "agent/state/runtime-smoke-evidence.generated.json", "blocked_formal_evidence", "Deployed runtime route evidence is required; this pass cannot generate or clear it."),
@@ -192,10 +192,10 @@ function classifyDirtyPath(path: string): DirtyFileClassificationEntry {
   if (/^docs\/agent-truth\//u.test(path)) {
     return { path, classification: "documentation_artifact_expected", reason: "Generated agent-truth documentation refreshed by queue validators." };
   }
-  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|ai-critic-p1-triage|ai-debug-critic|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|current-beta-exit-status|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|future-activity-signal-reclassification|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-queue-execution|user-creator-visual-confirmation)\.ts$/u.test(path)) {
+  if (/^scripts\/agent\/validate-(analytics-semantics-final-lock|ai-critic-p1-triage|ai-debug-critic|beta-score-cleanup|blocked-refresh-queue-resolver|creator-surface-routing|current-beta-exit-status|debug-backlog-engine|evidence-readiness-checklists|final-beta-exit-gate-readiness|final-cost-audit-lock|final-morning-beta-lock|future-activity-signal-reclassification|overnight-beta-readiness-lock|overnight-final-integration-lock|score-80-path-lock|score-80-refresh-pass|score-80-refresh-queue-execution|score-impact-stale-artifact-sweep|user-creator-visual-confirmation)\.ts$/u.test(path)) {
     return { path, classification: "validator_artifact_expected", reason: "Dedicated queue execution validator requested by this pass." };
   }
-  if (/^tests\/unit\/(ai-critic-p1-triage|ai-debug-critic|beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|future-activity-signal-reclassification|live-evidence-gate-replacement|overnight-beta-readiness-lock|score-80-refresh-queue-execution|self-healing-refresh-queue)\.spec\.ts$/u.test(path)) {
+  if (/^tests\/unit\/(ai-critic-p1-triage|ai-debug-critic|beta-score-cleanup|blocked-refresh-queue-resolver|debug-backlog-engine|evidence-artifact-schemas|evidence-readiness-checklists|final-morning-beta-lock|future-activity-signal-reclassification|live-evidence-gate-replacement|overnight-beta-readiness-lock|score-80-refresh-pass|score-80-refresh-queue-execution|score-impact-stale-artifact-sweep|self-healing-refresh-queue)\.spec\.ts$/u.test(path)) {
     return { path, classification: "test_artifact_expected", reason: "Dedicated queue execution unit coverage requested by this pass." };
   }
   if (
@@ -360,7 +360,7 @@ function renderDoc(report: Score80RefreshQueueExecutionReport) {
     "",
     `Status: ${report.status}`,
     "",
-    "This pass executed safe score-impact refresh commands from the self-healing queue and kept formal visual, runtime, provider, and admin truth evidence gates blocked until real artifacts exist.",
+    "This pass executed safe score-impact refresh commands from the self-healing queue and kept typed visual, deployed-route, provider-backed site activity, and admin source evidence lanes blocked until real artifacts exist.",
     "",
     "## Score",
     "",

@@ -192,7 +192,11 @@ function classifyDirtyPath(path: string, status: string): SweepDirtyFile {
   }
   if (
     path === "scripts/agent/validate-score-impact-stale-artifact-sweep.ts"
+    || path === "scripts/agent/validate-score-80-refresh-pass.ts"
+    || path === "scripts/agent/validate-score-80-refresh-queue-execution.ts"
     || path === "tests/unit/score-impact-stale-artifact-sweep.spec.ts"
+    || path === "tests/unit/score-80-refresh-pass.spec.ts"
+    || path === "tests/unit/score-80-refresh-queue-execution.spec.ts"
     || path === "scripts/agent/validate-public-beta-score.ts"
   ) {
     return { path, status, classification: "real_source_change_needs_review", action: "Commit scoped stale artifact sweep validator/test." };
@@ -272,8 +276,8 @@ function formalEvidenceGatesUnchanged(betaScore: JsonRecord) {
     ...((Array.isArray(betaScore.evidenceCapsApplied) ? betaScore.evidenceCapsApplied : []) as unknown[]).map(String),
     ...((Array.isArray(betaScore.evidenceCapDetails) ? betaScore.evidenceCapDetails : []) as unknown[]).map(String),
   ].join("\n");
-  return /Runtime unverified|Runtime\/provider smoke/iu.test(caps)
-    && /Unknown evidence|Admin truth\/sample evidence/iu.test(caps)
+  return /Runtime unverified|Runtime\/provider smoke|Provider-backed site activity|deployed route/iu.test(caps)
+    && /Unknown evidence|Admin truth\/sample evidence|admin source activity|admin source evidence/iu.test(caps)
     && stringValue(betaScore.launchGateStatus) !== "launch_ready";
 }
 
@@ -358,12 +362,12 @@ export function buildScoreImpactStaleArtifactSweepReport(inputs: BuildInputs): S
   const nextExactSteps = remainingScoreImpactingStaleArtifacts.length > 0
     ? [
         "Run npm run check:current-beta-exit-status after regenerating its owner report from the latest code version.",
-        "Run npm run check:evidence-capture-status to refresh formal evidence capture status without clearing missing gates.",
+        "Run npm run check:evidence-capture-status to refresh typed source/live-site evidence status without clearing missing gates.",
         "Run npm run check:creator-drop-status-metrics and npm run check:operator-revenue-smoke to clear the remaining stale score-impact reports.",
       ]
     : [
         "Fix the overnight-final-integration-lock creator drop metrics status blocker before treating that lock as passed.",
-        "Run deterministic UI source coverage before optional browser reproduction; attach deployed runtime/provider and admin truth sample evidence before beta exit review.",
+        "Run deterministic UI source coverage before optional browser reproduction; attach deployed route, provider-backed site activity, and redacted admin source evidence before beta exit review.",
         "Keep npm run check:refresh-safeguards and npm run score:beta together when score-impact reports change.",
       ];
 
@@ -402,7 +406,7 @@ export function validateScoreImpactStaleArtifactSweepReport(report: ScoreImpactS
   if (!report.currentHead || report.currentHead === "unknown") failures.push("currentHead is required.");
   if (!Number.isFinite(report.oldScore) || !Number.isFinite(report.newScore)) failures.push("oldScore and newScore are required.");
   if (report.newScore < report.oldScore && !report.scoreDropExplanation) failures.push("score drops without explanation.");
-  if (!report.formalEvidenceGatesUnchanged) failures.push("formal beta evidence gates changed or were cleared.");
+  if (!report.formalEvidenceGatesUnchanged) failures.push("typed source/live-site evidence lanes changed or were cleared.");
   if (report.summary.betaExitReadyMarked) failures.push("beta exit was marked ready.");
   if (report.staleArtifactActions.some((entry) => entry.scoreImpacting && entry.status === "remaining_stale_missing_refresh_command")) {
     failures.push("score-impacting stale artifacts remain without refresh command.");
@@ -426,7 +430,7 @@ function renderDoc(report: ScoreImpactStaleArtifactSweepReport) {
     "",
     `Generated: ${report.generatedAtUtc}`,
     `Score: ${report.oldScore} -> ${report.newScore} (${report.scoreDelta >= 0 ? "+" : ""}${report.scoreDelta})`,
-    `Formal evidence gates unchanged: ${report.formalEvidenceGatesUnchanged ? "yes" : "no"}`,
+    `Source/live-site evidence lanes unchanged: ${report.formalEvidenceGatesUnchanged ? "yes" : "no"}`,
     "",
     "## Summary",
     "",
@@ -443,11 +447,11 @@ function renderDoc(report: ScoreImpactStaleArtifactSweepReport) {
     "| --- | --- | --- | --- |",
     ...report.staleArtifactActions.map((entry) => `| ${entry.artifactPath} | ${entry.status} | ${entry.command ?? entry.refreshCommand ?? ""} | ${entry.nextAction} |`),
     "",
-    "## Remaining Formal Evidence Gates",
+    "## Remaining Source/Live-Site Evidence Lanes",
     "",
     "- UI surface coverage is source-owned; browser reproduction is optional only after a source-reported UI issue.",
-    "- Runtime/provider smoke remains formal deployed/provider evidence, not source refresh.",
-    "- Admin truth/sample evidence remains formal evidence unless a formal sample is attached.",
+    "- Deployed route and provider-backed site activity remain typed live-site evidence, not source refresh.",
+    "- Admin source activity evidence remains blocked until a redacted source sample is attached.",
     "",
     "## Next Exact Steps",
     "",

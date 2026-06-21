@@ -1,11 +1,11 @@
 {
-  "generatedAtUtc": "2026-06-21T19:54:01.340Z",
+  "generatedAtUtc": "2026-06-21T21:30:10.561Z",
   "reportKey": "score-80-refresh-queue-execution",
-  "currentHead": "8a31199ebc9024be87f499cb97d0108ee3daeac2",
+  "currentHead": "1ddc3cba0fc63ef35363a9a0955f1115b8c36a94",
   "status": "pass",
   "oldScore": 77.76,
-  "newScore": 89.31,
-  "distanceTo80": -9.31,
+  "newScore": 90.16,
+  "distanceTo80": -10.16,
   "queueSummary": {
     "totalEntries": 16,
     "automaticEntries": 11,
@@ -140,7 +140,7 @@
       "status": "passed",
       "queueArtifact": "agent/state/operator-revenue-smoke.generated.json",
       "classification": "safe_automatic_refresh",
-      "reason": "Refreshed operator-confirmed revenue smoke as product signal only; provider gate remains missing_formal_evidence."
+      "reason": "Refreshed operator-confirmed revenue smoke as product signal only; provider-backed site activity lane remains missing_formal_evidence."
     },
     {
       "command": "npm run check:debug-runtime-evidence",
@@ -296,7 +296,43 @@
     "clearsProvider": false,
     "clearsAdminTruth": false
   },
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "agent/state/score-80-refresh-pass.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "docs/agent-truth/score-80-refresh-pass.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "scripts/agent/validate-score-80-refresh-pass.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated queue execution validator requested by this pass."
+    },
+    {
+      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated queue execution validator requested by this pass."
+    },
+    {
+      "path": "scripts/agent/validate-score-impact-stale-artifact-sweep.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated queue execution validator requested by this pass."
+    }
+  ],
   "openPrs": [
     {
       "number": 278,

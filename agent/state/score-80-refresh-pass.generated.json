@@ -1,15 +1,15 @@
 {
-  "generatedAtUtc": "2026-06-03T05:00:36.332Z",
+  "generatedAtUtc": "2026-06-21T21:30:09.857Z",
   "reportKey": "score-80-refresh-pass",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "currentHead": "1ddc3cba0fc63ef35363a9a0955f1115b8c36a94",
   "summary": {
     "oldScore": 41.92,
-    "newScore": 93.99,
-    "betaStatus": "Runtime unverified",
-    "scoreDelta": 52.07,
+    "newScore": 90.16,
+    "betaStatus": "Source evidence required",
+    "scoreDelta": 48.24,
     "implementedLaneArtifactsChecked": 12,
-    "implementedLaneArtifactsRefreshed": 12,
-    "staleImplementedLaneArtifacts": 0,
+    "implementedLaneArtifactsRefreshed": 0,
+    "staleImplementedLaneArtifacts": 12,
     "blockedImplementedLaneArtifacts": 0,
     "openPrsClassified": true,
     "dirtyFilesClassified": true,
@@ -18,780 +18,196 @@
     "betaExitReady": false,
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 0
+    "p2Count": 12
   },
   "refreshedArtifacts": [
     {
       "artifactPath": "agent/state/post-economy-creator-flow-qa.generated.json",
       "command": "npm run check:post-economy-creator-flow-qa",
-      "status": "refreshed",
+      "status": "stale_blocked",
       "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "refreshAction": "Run npm run check:post-economy-creator-flow-qa from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/user-facing-feature-connection-audit.generated.json",
       "command": "npm run check:user-facing-feature-connection-audit",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
+      "refreshAction": "Run npm run check:user-facing-feature-connection-audit from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
       "command": "npm run check:creator-dashboard-error-cost-inventory",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "a9f39a0099cec5fcc649a288d00b9c70b05143ff",
+      "refreshAction": "Run npm run check:creator-dashboard-error-cost-inventory from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
       "command": "npm run check:source-truth-authority-map",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "509cd079fa3645d45dd57bddfbdb7cd7b9a4ae43",
+      "refreshAction": "Run npm run check:source-truth-authority-map from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
       "command": "npm run check:final-telemetry-closure-lock",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
+      "refreshAction": "Run npm run check:final-telemetry-closure-lock from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
       "command": "npm run check:mobile-ui-final-lock",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c",
+      "refreshAction": "Run npm run check:mobile-ui-final-lock from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
       "command": "npm run check:creator-settings-control-plane",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+      "refreshAction": "Run npm run check:creator-settings-control-plane from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
       "command": "npm run check:beta-evidence-gap-map",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "a72e819a487f49eec2d0611fffb8b5728c1bbb1c",
+      "refreshAction": "Run npm run check:beta-evidence-gap-map from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
       "command": "npm run check:beta-freshness-language",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "187d6964a50ddf5a4077b19e88471c7e23414b75",
+      "refreshAction": "Run npm run check:beta-freshness-language from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
       "command": "npm run check:overnight-wiring-integrity",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+      "refreshAction": "Run npm run check:overnight-wiring-integrity from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
       "command": "npm run check:existing-algorithm-refinement",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+      "refreshAction": "Run npm run check:existing-algorithm-refinement from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     },
     {
       "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
       "command": "npm run check:global-marquee-truncated-titles",
-      "status": "refreshed",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "refreshAction": "Refreshed from the latest code version.",
-      "scoreImpact": "implemented_lane_current"
+      "status": "stale_blocked",
+      "currentHead": "0659a3764bcb3ada363f4a30e741d6e59743781f",
+      "refreshAction": "Run npm run check:global-marquee-truncated-titles from the latest code version.",
+      "scoreImpact": "still_stale_refresh_required"
     }
   ],
-  "remainingStaleArtifacts": [],
+  "remainingStaleArtifacts": [
+    {
+      "artifactPath": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:post-economy-creator-flow-qa from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:user-facing-feature-connection-audit from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:creator-dashboard-error-cost-inventory from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:source-truth-authority-map from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:final-telemetry-closure-lock from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:mobile-ui-final-lock from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:creator-settings-control-plane from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:beta-evidence-gap-map from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/beta-freshness-language.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:beta-freshness-language from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:overnight-wiring-integrity from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:existing-algorithm-refinement from the latest code version."
+    },
+    {
+      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
+      "status": "stale_blocked",
+      "refreshAction": "Run npm run check:global-marquee-truncated-titles from the latest code version."
+    }
+  ],
   "blockedRefreshes": [],
   "missingScripts": [],
   "formalEvidenceGates": [
     {
-      "id": "manual_visual_smoke",
+      "id": "ui_source_coverage",
       "status": "unknown",
       "betaExitGate": true
     },
     {
       "id": "runtime_provider_smoke",
-      "status": "missing_formal_evidence",
+      "status": "unknown",
       "betaExitGate": true
     },
     {
       "id": "admin_truth_sample",
-      "status": "missing_formal_evidence",
+      "status": "unknown",
       "betaExitGate": true
     }
   ],
   "prActions": [],
   "dirtyFileActions": [
     {
-      "path": "agent/state/activity-verification-engine.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/admin-truth-source-sample.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/algorithmic-evidence-policy.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/analytics-hydration-consolidation.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/analytics-panel-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/beta-evidence-gap-map.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/beta-evidence-lane-prep.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/beta-freshness-language.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/chat-functionality-score-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/chat-gating-moderation.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/chat-realtime-cost-control.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/cost-owner-review-source-closure.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/cost-risk-exit-pass.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/creator-drop-status-metrics.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/creator-experience-simplification.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/creator-settings-control-plane.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/daily-task-debug-score-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/daily-task-reset-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/daily-task-reward-ledger.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/debug-panel-output-triage.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/debug-runtime-evidence.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/debug-score-impact-triage.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/debug-signal-actionability.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/debug-signal-grouping.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/event-envelope-normalization.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/evidence-capture-status.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/existing-algorithm-refinement.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/final-cost-audit-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/final-parity-telemetry-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/final-pr-stale-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/final-telemetry-closure-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/global-cost-surfaces.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/global-marquee-truncated-titles.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/google-cost-bleed.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/media-discovery-score-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/mobile-loading-hydration-stability.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/mobile-ui-final-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/operator-revenue-smoke.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/overnight-final-integration-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/overnight-wiring-integrity.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/post-economy-creator-flow-qa.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/regression-risk-high-blast-refresh.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/runtime-watch-time-v2.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/score-80-cost-readiness.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/score-80-reconciliation-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
       "path": "agent/state/score-80-refresh-pass.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit score-80 refresh report artifact."
     },
     {
-      "path": "agent/state/settings-connection-parity.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/source-backed-runtime-confidence.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/source-truth-authority-map.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/targeted-behavior-evidence.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/user-creator-ui-parity.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/user-management-refactor.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "agent/state/user-profile-api-contract.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/admin-truth-source-sample.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/analytics-hydration-consolidation-audit.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/analytics-hydration-consolidation.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/analytics-panel-hydration.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/beta-evidence-gap-map.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/beta-freshness-language.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/chat-functionality-score-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/chat-gating-moderation.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/chat-realtime-cost-control.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/cost-owner-review-source-closure.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-exit-pass.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/creator-drop-status-metrics.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/creator-settings-control-plane.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reset-truth.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reward-ledger.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/debug-runtime-evidence.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/debug-score-impact-triage.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-actionability.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-grouping.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/event-liveness-audit.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/existing-algorithm-refinement.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/feature-registration-gate.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/final-cost-audit-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/media-discovery-score-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/mobile-loading-hydration-stability.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/mobile-ui-final-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/operator-revenue-smoke.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/overnight-final-integration-lock.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/overnight-wiring-integrity.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/post-economy-creator-flow-qa.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/regression-risk-high-blast-refresh.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/runtime-watch-time-v2.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/score-80-cost-readiness.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
+      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit refreshed generated report from focused validator."
     },
@@ -801,114 +217,9 @@
       "action": "Commit score-80 refresh report artifact."
     },
     {
-      "path": "docs/agent-truth/settings-connection-parity.md",
+      "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
       "classification": "current_generated_artifact_to_commit",
       "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/source-truth-authority-map.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/targeted-behavior-evidence.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/user-management-refactor.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "docs/agent-truth/user-profile-api-contract.md",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed generated report from focused validator."
-    },
-    {
-      "path": "scripts/agent/score-public-beta-readiness.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-analytics-hydration-consolidation.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-debug-signal-actionability.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-debug-signal-grouping.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-final-parity-telemetry-lock.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-post-economy-creator-flow-qa.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-public-beta-score.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
     },
     {
       "path": "scripts/agent/validate-score-80-refresh-pass.ts",
@@ -916,63 +227,18 @@
       "action": "Commit scoped validator and unit test for this pass."
     },
     {
-      "path": "scripts/agent/validate-user-facing-feature-connection-audit.ts",
+      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator and unit test for this pass."
     },
     {
-      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped beta score evidence consolidation source."
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped beta score evidence consolidation source."
-    },
-    {
-      "path": "src/lib/agent-score/evidence-quality.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped beta score evidence consolidation source."
-    },
-    {
-      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped beta score evidence consolidation source."
-    },
-    {
-      "path": "src/lib/agent-score/regression-risk-refresh-plan.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped beta score evidence consolidation source."
-    },
-    {
-      "path": "tests/unit/creator-dashboard-error-cost-inventory.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "tests/unit/creator-experiences-panel.spec.tsx",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "tests/unit/post-economy-creator-flow-qa.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "tests/unit/public-beta-score.spec.ts",
-      "classification": "real_source_change_needs_review",
-      "action": "Commit scoped validator and unit test for this pass."
-    },
-    {
-      "path": "tests/unit/purchase-modal.spec.tsx",
+      "path": "scripts/agent/validate-score-impact-stale-artifact-sweep.ts",
       "classification": "real_source_change_needs_review",
       "action": "Commit scoped validator and unit test for this pass."
     }
   ],
   "nextExactSteps": [
-    "Do not mark beta exit ready from source refreshes; attach formal manual, runtime/provider, and admin truth evidence first.",
+    "Do not mark beta exit ready from source refreshes; run deterministic UI source coverage and attach deployed route, provider-backed site activity, and redacted admin source evidence first.",
     "Resolve the blocked legacy implemented-lane validators or retire them from score inputs if they are obsolete.",
     "Run npm run score:beta and npm run check:beta-score after each implemented-lane refresh batch."
   ]
