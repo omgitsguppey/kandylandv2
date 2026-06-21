@@ -12,7 +12,6 @@
         "graph:architecture": "tsx scripts/export-dependency-graph.ts",
         "check:inventory": "tsx scripts/repo-inventory.ts",
         "agent:index": "tsx scripts/agent/build-agent-indexes.ts",
-        "agent:build-index": "npm run agent:index",
         "agent:ui-index": "tsx scripts/agent/build-ui-surface-coverage.ts",
         "agent:task-context": "tsx scripts/agent/build-task-context.ts",
         "agent:build-task-context": "npm run agent:task-context --",

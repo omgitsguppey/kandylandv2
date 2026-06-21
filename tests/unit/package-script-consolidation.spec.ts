@@ -12,7 +12,7 @@ describe("package script consolidation", () => {
 
     expect(report.totalScripts).toBeGreaterThan(500);
     expect(report.scripts.every((entry) => entry.ownerLane !== "unknown")).toBe(true);
-    expect(report.duplicateAliases.length).toBeGreaterThan(0);
+    expect(report.duplicateAliases).toEqual([]);
     expect(validation.ok).toBe(true);
   });
 });
