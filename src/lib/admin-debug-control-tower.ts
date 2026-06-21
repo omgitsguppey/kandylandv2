@@ -464,10 +464,10 @@ function collectSelfHealingQueueFindings(raw: Record<string, unknown>): unknown[
         const staleReason = toStringValue(item.staleReason, "Refresh needed");
         const refreshCommand = toStringValue(item.refreshCommand, "Open the owning evidence lane.");
         const expectedOutcome = toStringValue(item.expectedOutcome, "Refresh the source evidence without clearing deployed route evidence.");
-        const title = canRunAutomatically ? "Queued source refresh" : "Typed evidence still required";
+        const title = canRunAutomatically ? "Queued source refresh" : "Source evidence still required";
         const humanReadableWarning = canRunAutomatically
             ? `${artifact} can refresh from local source evidence.`
-            : `${artifact} needs its typed source evidence before this lane can clear.`;
+            : `${artifact} needs source evidence before this lane can clear.`;
 
         return {
             id: `self-healing-refresh-queue-${index}`,
@@ -593,18 +593,23 @@ function normalizePublicBetaCapDetailForAdminModel(detail: string) {
         .replace(/^Runtime\/provider smoke\s*[-:]\s*/iu, "")
         .replace(/^Admin truth\/sample evidence\s*[-:]\s*/iu, "")
         .replace(/^Report freshness and PR integrity\s*[-:]\s*/iu, "")
+        .replace(/\bAttach redacted provider-backed site activity evidence\b/giu, "Produce redacted provider-backed site activity evidence")
+        .replace(/\bAttach a redacted admin source sample\b/giu, "Produce a redacted admin source activity sample")
+        .replace(/\bAttach a fresh redacted admin source sample\b/giu, "Produce a fresh redacted admin source activity sample")
+        .replace(/\badmin source sample\b/giu, "admin source activity sample")
+        .replace(/\badmin source samples\b/giu, "admin source activity samples")
         .trim();
 
     if (lower.includes("targeted behavior tests")) {
-        return `Source validation only: Targeted behavior tests - ${reason || "Implemented behavior checks passed. Deployed route evidence, provider-backed site activity, admin source samples, and UI source contract checks stay separate."}`;
+        return `Source validation only: Targeted behavior tests - ${reason || "Implemented behavior checks passed. Deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks stay separate."}`;
     }
 
     if (lower.includes("runtime/provider smoke") || lower.includes("provider smoke") || lower.includes("runtime smoke")) {
-        return `Source evidence required: Provider-backed site activity + deployed route evidence - ${reason || "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this gate."}`;
+        return `Source evidence required: Provider-backed site activity + deployed route evidence - ${reason || "Produce redacted provider-backed site activity evidence and deployed route evidence before clearing this gate."}`;
     }
 
     if (lower.includes("admin truth") || lower.includes("truth sample") || lower.includes("sample evidence")) {
-        return `Source evidence required: Admin source sample - ${reason || "Attach a fresh redacted admin source sample before clearing this gate."}`;
+        return `Source evidence required: Admin source activity sample - ${reason || "Produce a fresh redacted admin source activity sample before clearing this gate."}`;
     }
 
     if (lower.includes("report freshness") || lower.includes("pr integrity") || lower.includes("freshness window") || lower.includes("current-head") || lower.includes("current head") || lower.includes("generated report")) {
@@ -650,7 +655,7 @@ function normalizePublicBetaEvidenceGateFinding(
             title: "Source-only behavior evidence",
             domain: "beta_readiness",
             filePath: relativePath,
-            humanReadableWarning: "Implemented behavior checks passed; deployed route, provider-backed site activity, admin source sample, and UI source contract evidence remain separate lanes.",
+            humanReadableWarning: "Implemented behavior checks passed; deployed route, provider-backed site activity, admin source activity sample, and UI source contract evidence remain separate lanes.",
             suggestedValidator: definition.command,
             evidence: [evidenceDetail],
             truthState: "unknown",
@@ -673,7 +678,7 @@ function normalizePublicBetaEvidenceGateFinding(
             title: "Provider and route evidence required",
             domain: "beta_readiness",
             filePath: relativePath,
-            humanReadableWarning: `Attach redacted provider-backed site activity evidence.${runtimeContext}${operatorContext}`,
+            humanReadableWarning: `Produce redacted provider-backed site activity evidence.${runtimeContext}${operatorContext}`,
             suggestedValidator: definition.command,
             evidence: [evidenceDetail],
             truthState: "unknown",
@@ -686,10 +691,10 @@ function normalizePublicBetaEvidenceGateFinding(
             reportId: definition.id,
             section: definition.section,
             severity: "major",
-            title: "Admin source sample required",
+            title: "Admin source activity sample required",
             domain: "beta_readiness",
             filePath: relativePath,
-            humanReadableWarning: "Attach a fresh redacted admin source sample before clearing this evidence gate.",
+            humanReadableWarning: "Produce a fresh redacted admin source activity sample before clearing this evidence gate.",
             suggestedValidator: definition.command,
             evidence: [evidenceDetail],
             truthState: "unknown",
@@ -1348,7 +1353,7 @@ function isRefreshOrMetadataFinding(finding: AdminDebugFindingCard) {
 }
 
 function isEvidenceBoundaryFinding(finding: AdminDebugFindingCard) {
-    return /source-only behavior evidence|provider and route evidence required|runtime and provider proof required|admin source sample required|admin truth sample required|report refresh required|evidence gate/iu.test(finding.title);
+    return /source-only behavior evidence|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|report refresh required|evidence gate/iu.test(finding.title);
 }
 
 function isSourceOnlyEvidenceFinding(finding: AdminDebugFindingCard) {
@@ -1356,7 +1361,7 @@ function isSourceOnlyEvidenceFinding(finding: AdminDebugFindingCard) {
 }
 
 function isTypedEvidenceFinding(finding: AdminDebugFindingCard) {
-    return /provider and route evidence required|runtime and provider proof required|admin source sample required|admin truth sample required|external proof required/iu.test(finding.title);
+    return /provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|external proof required/iu.test(finding.title);
 }
 
 function hasSourceFindings(report: AdminDebugReportCard) {
@@ -1375,7 +1380,7 @@ export function formatOperatorReportStatusForAdmin(report: AdminDebugReportCard)
     if (report.freshness === "missing" || report.truthState === "missing") return "Source missing";
     if (report.freshness === "failed") return "Source failed";
     if (sourceNeedsRefresh || (!sourceFindingsPresent && hasRefreshGate && !hasTypedEvidenceGate)) return "Refresh due";
-    if (!sourceFindingsPresent && (hasTypedEvidenceGate || ((report.evidenceGateCount ?? 0) > 0 && !hasSourceOnlyGate))) return "Typed evidence required";
+    if (!sourceFindingsPresent && (hasTypedEvidenceGate || ((report.evidenceGateCount ?? 0) > 0 && !hasSourceOnlyGate))) return "Source evidence required";
     if (!sourceFindingsPresent && hasSourceOnlyGate) return "Source checks only";
     if (["delayed", "queued", "waiting"].includes(normalizedStatus)) return sourceFindingsPresent ? "Review delayed" : "Waiting for evidence";
     if (["fail", "failed", "error"].includes(normalizedStatus)) return "Needs review";
@@ -1491,7 +1496,7 @@ export function buildAdminDebugControlTowerModel(options?: {
     const operatorCockpit = buildDebugOperatorCockpit({
         scoreImpactQueue: readGeneratedRefreshQueue(rootDir),
         criticalRuntimeWarnings: buildCriticalWarnings(generatedBacklog.backlog, liveIssues),
-        adminTruthStatus: statusFromReports(reports, ["admin-truth", "admin_truth"], "Admin truth source not loaded; classify source sample before clearing the admin source sample gate.", "Run npm run check:admin-debug-control-tower."),
+        adminTruthStatus: statusFromReports(reports, ["admin-truth", "admin_truth"], "Admin source activity sample not loaded; classify source sample before clearing the admin source activity lane.", "Run npm run check:admin-debug-control-tower."),
         telemetryLaneStatus: statusFromReports(reports, ["telemetry", "behavior", "watch-time"], "Telemetry lane status is unknown.", "Run npm run check:telemetry-dependency-graph."),
         costOwnerReviewLanes: costOwnerReviewLanes(reports),
         aiCriticFindings: readGeneratedAiCriticFindings(rootDir),

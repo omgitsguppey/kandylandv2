@@ -54,7 +54,7 @@ function sourceTruthStateLabel(state: unknown) {
         case "provider_or_external_proof_required":
             return "Provider-backed site activity required";
         case "admin_truth_source_required":
-            return "Admin sample required";
+            return "Admin source activity required";
         case "manual_visual_required":
             return "UI source coverage required";
         case "protected_manual_review":

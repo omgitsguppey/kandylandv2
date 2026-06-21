@@ -115,7 +115,7 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaEvidenceScore).toBe(25);
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source evidence required: Provider-backed site activity + deployed route evidence"),
-            expect.stringContaining("Admin source sample"),
+            expect.stringContaining("Admin source activity sample"),
             expect.stringContaining("Cost owner evidence"),
         ]));
         expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Unknown evidence:");
@@ -156,7 +156,7 @@ describe("admin debug control tower model", () => {
         expect(publicBeta?.topFindings.map((finding) => finding.title)).toEqual(expect.arrayContaining([
             "Source-only behavior evidence",
             "Provider and route evidence required",
-            "Admin source sample required",
+            "Admin source activity sample required",
             "Report refresh required",
         ]));
         expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Unknown evidence:");
@@ -166,7 +166,7 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
             expect.stringContaining("Source evidence required: Provider-backed site activity + deployed route evidence"),
-            expect.stringContaining("Source evidence required: Admin source sample"),
+            expect.stringContaining("Source evidence required: Admin source activity sample"),
             expect.stringContaining("Report refresh needed: Report freshness and PR integrity"),
         ]));
         expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Unknown evidence:");
@@ -195,12 +195,12 @@ describe("admin debug control tower model", () => {
                 title: "Provider and route evidence required",
                 domain: "beta_readiness",
                 filePath: "agent/state/public-beta-score.generated.json",
-                humanReadableWarning: "Attach redacted provider-backed site activity evidence. Deployed route evidence is still required.",
+                humanReadableWarning: "Produce redacted provider-backed site activity evidence. Deployed route evidence is still required.",
                 suggestedValidator: "npm run check:beta-score",
                 evidence: [],
                 truthState: "unknown",
             }],
-        }))).toBe("Typed evidence required");
+        }))).toBe("Source evidence required");
         expect(formatOperatorReportStatusForAdmin(reportCard({
             id: "public-beta-score",
             status: "ERROR",
@@ -264,9 +264,9 @@ describe("admin debug control tower model", () => {
         expect(queue?.findingCount).toBe(2);
         expect(queue?.topFindings.map((finding) => finding.title)).toEqual(expect.arrayContaining([
             "Queued source refresh",
-            "Typed evidence still required",
+            "Source evidence still required",
         ]));
-        expect(queue?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).toContain("runtime_provider_smoke needs its typed source evidence");
+        expect(queue?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).toContain("runtime_provider_smoke needs source evidence");
         expect(queue?.topFindings.flatMap((finding) => finding.evidence).join(" ")).toContain("Source evidence required");
     });
 

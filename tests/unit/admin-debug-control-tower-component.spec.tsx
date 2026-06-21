@@ -234,7 +234,7 @@ describe("DebugControlTower", () => {
         expect(container.textContent).toContain("Why this state");
         expect(container.textContent).toContain("Next check: npm run check:google-cost");
         expect(container.textContent).toContain("Next actions");
-        expect(container.textContent).toContain("Admin sample required");
+        expect(container.textContent).toContain("Admin source activity required");
         expect(container.textContent).not.toContain("Source score");
         expect(container.textContent).not.toContain("0h old");
         expect(container.textContent).not.toContain("admin truth source required");
@@ -280,9 +280,9 @@ describe("DebugControlTower", () => {
             expect(publicBetaText).toContain("Site activity evidence required");
             expect(publicBetaText).toContain("Evidence gate");
             expect(container.textContent).toContain("Site activity evidence required");
-            expect(container.textContent).toContain("typed evidence gates");
-            expect(container.textContent).toContain("Site activity evidence required - Attach redacted provider-backed site activity evidence");
-            expect(container.textContent).toContain("Admin sample required");
+            expect(container.textContent).toContain("source evidence gates");
+            expect(container.textContent).toContain("Site activity evidence required - Produce redacted provider-backed site activity evidence");
+            expect(container.textContent).toContain("Admin source sample required");
             expect(publicBetaText).not.toContain("0 findings");
             expect(publicBetaText).not.toContain("ERROR");
             expect(container.textContent).not.toContain("Stale evidence: Runtime/provider smoke");
@@ -367,9 +367,9 @@ describe("DebugControlTower", () => {
             expect(publicBetaText).toContain("Site activity evidence required");
             expect(publicBetaText).toContain("4 evidence gates");
             expect(container.textContent).toContain("Source-only evidence - Implemented behavior checks passed");
-            expect(container.textContent).toContain("Site activity evidence required - Attach redacted provider-backed site activity evidence");
+            expect(container.textContent).toContain("Site activity evidence required - Produce redacted provider-backed site activity evidence");
             expect(container.textContent).toContain("Deployed route evidence is recorded; keep it fresh.");
-            expect(container.textContent).toContain("Admin sample required");
+            expect(container.textContent).toContain("Admin source sample required");
             expect(container.textContent).toContain("Refresh due - 6 required generated reports are outside the freshness window.");
             expect(publicBetaText).not.toContain("0 findings");
             expect(container.textContent).not.toContain("ERROR");

@@ -103,7 +103,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
     const publicBetaNeedsReview = canonicalBetaCapSummary.needsReview;
     const failedReportWithFindings = blockerReports.some((report) => report.truthState === "failed" && (report.criticalCount > 0 || report.findingCount > 0 || report.topFindings.length > 0));
     const publicBetaBadgeState = model?.canonicalPublicBetaTruthState === "stale" || publicBetaNeedsRefresh ? "stale" : (publicBetaNeedsFormalProof || publicBetaNeedsReview) ? "review" : failedReportWithFindings ? "failed" : "live";
-    const publicBetaBadgeLabel = publicBetaNeedsFormalProof ? "Proof required" : publicBetaNeedsRefresh ? "Refresh due" : publicBetaNeedsReview ? "Review" : undefined;
+    const publicBetaBadgeLabel = publicBetaNeedsFormalProof ? "Source evidence" : publicBetaNeedsRefresh ? "Refresh due" : publicBetaNeedsReview ? "Review" : undefined;
     const publicBetaReadinessReason = model ? formatPublicBetaCapDetailForAdmin(model.canonicalPublicBetaReadinessReason) : "";
     const publicBetaReadinessStatusLabel = model ? formatPublicBetaReadinessStatusForAdmin({
         status: model.canonicalPublicBetaReadinessStatus,

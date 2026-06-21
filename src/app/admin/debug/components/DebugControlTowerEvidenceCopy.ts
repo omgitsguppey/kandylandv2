@@ -23,15 +23,15 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
         return {
             state: "source_only",
             label: "Source-only evidence",
-            detail: "Implemented behavior checks passed. Deployed route evidence, provider-backed site activity, admin source samples, and UI source contract checks stay separate.",
+            detail: "Implemented behavior checks passed. Deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks stay separate.",
         };
     }
 
     if (/runtime\/provider smoke|provider smoke|runtime smoke/iu.test(normalized)) {
         const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true/iu.test(normalized);
         const providerProofDetail = runtimeRecorded
-            ? "Attach redacted provider-backed site activity evidence. Deployed route evidence is recorded; keep it fresh."
-            : "Attach redacted provider-backed site activity evidence and deployed route evidence.";
+            ? "Produce redacted provider-backed site activity evidence. Deployed route evidence is recorded; keep it fresh."
+            : "Produce redacted provider-backed site activity evidence and deployed route evidence.";
         return {
             state: "external_proof_required",
             label: "Site activity evidence required",
@@ -44,8 +44,8 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
     if (/admin truth|sample evidence|truth sample/iu.test(normalized)) {
         return {
             state: "admin_truth_sample_required",
-            label: "Admin sample required",
-            detail: "Attach a fresh redacted admin source sample before clearing this gate.",
+            label: "Admin source sample required",
+            detail: "Produce a fresh redacted admin source activity sample before clearing this gate.",
         };
     }
 
@@ -79,7 +79,7 @@ export function summarizePublicBetaCapDisplays(displays: PublicBetaCapDisplay[])
     const refreshCount = displays.filter((entry) => entry.state === "refresh_due").length;
     const reviewCount = displays.filter((entry) => entry.state === "review").length;
     const summary = [
-        externalProofCount ? `${externalProofCount} typed evidence gate${externalProofCount === 1 ? "" : "s"}` : null,
+        externalProofCount ? `${externalProofCount} source evidence gate${externalProofCount === 1 ? "" : "s"}` : null,
         refreshCount ? `${refreshCount} refresh item${refreshCount === 1 ? "" : "s"}` : null,
         sourceOnlyCount ? `${sourceOnlyCount} source check${sourceOnlyCount === 1 ? "" : "s"}` : null,
         reviewCount ? `${reviewCount} review item${reviewCount === 1 ? "" : "s"}` : null,
