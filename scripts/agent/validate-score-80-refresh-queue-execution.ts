@@ -399,7 +399,12 @@ function renderDoc(report: Score80RefreshQueueExecutionReport) {
     "",
     "## Dirty File Classification",
     "",
-    ...(report.dirtyFiles.length ? report.dirtyFiles.map((entry) => `- ${entry.path}: ${entry.classification}; ${entry.reason}`) : ["- None"]),
+    ...(report.dirtyFiles.length
+      ? report.dirtyFiles.map((entry) => {
+        const reason = entry.reason ? `; ${entry.reason}` : "";
+        return `- ${entry.path}: ${entry.classification}${reason}`;
+      })
+      : ["- None"]),
     "",
     "## Validation",
     "",

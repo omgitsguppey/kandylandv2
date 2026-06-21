@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-21T19:50:39.315Z",
+  "generatedAtUtc": "2026-06-21T19:53:09.307Z",
   "reportKey": "score-80-refresh-queue-execution",
-  "currentHead": "2949679a0c42f8a2eb2e61cc7ec3c8c271944b1a",
-  "status": "fail",
+  "currentHead": "2e62a6ab0d93e3681d9699ad9540c015a8a06f70",
+  "status": "pass",
   "oldScore": 77.76,
   "newScore": 89.31,
   "distanceTo80": -9.31,
@@ -298,19 +298,9 @@
   },
   "dirtyFiles": [
     {
-      "path": "agent/state/runtime-debug-signal-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
       "path": "agent/state/score-80-refresh-queue-execution.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
-    },
-    {
-      "path": "docs/agent-truth/runtime-debug-signal-cleanup.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by queue validators."
     },
     {
       "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
@@ -318,34 +308,9 @@
       "reason": "Generated agent-truth documentation refreshed by queue validators."
     },
     {
-      "path": "scripts/agent/tracking-summary-lane-cleanup-shared.ts",
-      "classification": "unsafe_unknown",
-      "reason": ""
-    },
-    {
-      "path": "scripts/agent/validate-final-algorithmic-debug-lock.ts",
-      "classification": "unsafe_unknown",
-      "reason": ""
-    },
-    {
       "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
       "classification": "validator_artifact_expected",
       "reason": "Dedicated queue execution validator requested by this pass."
-    },
-    {
-      "path": "tests/unit/final-algorithmic-debug-lock.spec.ts",
-      "classification": "unsafe_unknown",
-      "reason": ""
-    },
-    {
-      "path": "tests/unit/runtime-debug-signal-cleanup.spec.ts",
-      "classification": "unsafe_unknown",
-      "reason": ""
-    },
-    {
-      "path": "tests/unit/score-80-refresh-queue-execution.spec.ts",
-      "classification": "test_artifact_expected",
-      "reason": "Dedicated queue execution unit coverage requested by this pass."
     }
   ],
   "openPrs": [
@@ -364,7 +329,5 @@
       "reason": "Package/source-of-funds adjacent branch is deferred by hard-rule scope."
     }
   ],
-  "validationFailures": [
-    "dirty files are unclassified: scripts/agent/tracking-summary-lane-cleanup-shared.ts, scripts/agent/validate-final-algorithmic-debug-lock.ts, tests/unit/final-algorithmic-debug-lock.spec.ts, tests/unit/runtime-debug-signal-cleanup.spec.ts"
-  ]
+  "validationFailures": []
 }

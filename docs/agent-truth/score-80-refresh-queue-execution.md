@@ -1,6 +1,6 @@
 # Score 80 Refresh Queue Execution
 
-Status: fail
+Status: pass
 
 This pass executed safe score-impact refresh commands from the self-healing queue and kept formal visual, runtime, provider, and admin truth evidence gates blocked until real artifacts exist.
 
@@ -61,17 +61,10 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 
 ## Dirty File Classification
 
-- agent/state/runtime-debug-signal-cleanup.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
 - agent/state/score-80-refresh-queue-execution.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- docs/agent-truth/runtime-debug-signal-cleanup.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
 - docs/agent-truth/score-80-refresh-queue-execution.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- scripts/agent/tracking-summary-lane-cleanup-shared.ts: unsafe_unknown; 
-- scripts/agent/validate-final-algorithmic-debug-lock.ts: unsafe_unknown; 
 - scripts/agent/validate-score-80-refresh-queue-execution.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
-- tests/unit/final-algorithmic-debug-lock.spec.ts: unsafe_unknown; 
-- tests/unit/runtime-debug-signal-cleanup.spec.ts: unsafe_unknown; 
-- tests/unit/score-80-refresh-queue-execution.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
 
 ## Validation
 
-- FAIL: dirty files are unclassified: scripts/agent/tracking-summary-lane-cleanup-shared.ts, scripts/agent/validate-final-algorithmic-debug-lock.ts, tests/unit/final-algorithmic-debug-lock.spec.ts, tests/unit/runtime-debug-signal-cleanup.spec.ts
+- Pass.
