@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-21T00:50:48.774Z",
-  "currentHead": "55c7685ba6d9b11f792ce5bfbed99b72e0ccbf3c",
+  "generatedAtUtc": "2026-06-21T01:05:53.189Z",
+  "currentHead": "f60efcd1446fc90e432f1eac5bb06fbf7bd948a3",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -357,10 +357,26 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 0,
-    "byClassification": {},
+    "total": 3,
+    "byClassification": {
+      "source_agreement_failure_classification_required": 1,
+      "test_artifact_expected": 2
+    },
     "unsafeUnknown": [],
-    "sample": [],
+    "sample": [
+      {
+        "path": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+        "classification": "source_agreement_failure_classification_required"
+      },
+      {
+        "path": "tests/unit/evidence-artifact-schemas.spec.ts",
+        "classification": "test_artifact_expected"
+      },
+      {
+        "path": "tests/unit/source-agreement-failure-detail.spec.ts",
+        "classification": "test_artifact_expected"
+      }
+    ],
     "sampleTruncated": false
   },
   "nextExactSteps": [

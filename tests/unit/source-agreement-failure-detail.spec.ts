@@ -792,16 +792,35 @@ describe("source agreement failure detail", () => {
         }],
       },
     };
-    const allRangeExport = {
-      ...localWindow,
+    const formalRangeExport = {
+      status: "complete",
+      generatedAtUtc: "2026-02-12T12:00:00.000Z",
+      redaction: {
+        rawUserIdentifiersIncluded: false,
+        rawPaymentDetailsIncluded: false,
+        secretsIncluded: false,
+      },
       launchHistoryCoverage: {
-        ...localWindow.launchHistoryCoverage,
+        rangeStartDayKey: "2026-02-12",
+        rangeEndDayKey: "2026-02-12",
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
         rangeProof: {
           allLaunchRangeProven: true,
           expectedRangeSource: "approved_all_launch_export",
           coverageWindowKind: "all_range_historical_export",
         },
+        days: [{
+          dayKey: "2026-02-12",
+          expected: true,
+          sourceCounts: { first_party: 1, ga4: 1, historicalSnapshot: 0, legacySupport: 0 },
+        }],
       },
+    };
+    const shortCurrentExport = {
+      ...formalRangeExport,
+      generatedAtUtc: "2026-06-20T12:00:00.000Z",
     };
 
     expect(isUsableLaunchHistoryCoverageEvidence(
@@ -814,8 +833,12 @@ describe("source agreement failure detail", () => {
     )).toBe(false);
     expect(launchHistoryCoverageHasFormalRangeProof(
       "agent/evidence/launch-analytics/launch-history-coverage.export.json",
-      allRangeExport,
+      formalRangeExport,
     )).toBe(true);
+    expect(launchHistoryCoverageHasFormalRangeProof(
+      "agent/evidence/launch-analytics/launch-history-coverage.export.json",
+      shortCurrentExport,
+    )).toBe(false);
 
     const summary = summarizeLaunchCoverageInputEvidence({
       sourceAgreementInputMode: "local_export",

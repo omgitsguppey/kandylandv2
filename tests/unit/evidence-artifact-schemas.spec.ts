@@ -90,7 +90,7 @@ describe("evidence artifact schemas", () => {
       },
       rawUserEmail: "must-not-survive@example.test",
     }, {
-      generatedAtUtc: "2026-06-20T18:00:00.000Z",
+      generatedAtUtc: "2026-02-13T18:00:00.000Z",
       sourceInputPath: "local/admin-historical-export.redacted.json",
       sourceInputHead: "head-a",
     });
@@ -150,7 +150,7 @@ describe("evidence artifact schemas", () => {
         },
       },
     }, {
-      generatedAtUtc: "2026-06-20T18:00:00.000Z",
+      generatedAtUtc: "2026-02-13T18:00:00.000Z",
       sourceInputPath: "local/admin-historical-route.redacted.json",
     });
 
@@ -166,6 +166,38 @@ describe("evidence artifact schemas", () => {
       legacySupport: 1,
     });
     expect(document.launchHistoryCoverage.days[1]?.sourceCounts.ga4).toBe(10);
+  });
+
+  it("rejects short launch exports that claim current all-range proof", () => {
+    expect(() => buildLaunchHistoryCoverageLocalExportDocument({
+      analyticsSourceHealth: {
+        launchHistoryCoverage: {
+          rangeStartDayKey: "2026-02-12",
+          rangeEndDayKey: "2026-02-13",
+          rangeProof: {
+            expectedRangeSource: "approved_all_launch_export",
+            coverageWindowKind: "all_range_historical_export",
+            allLaunchRangeProven: true,
+            reason: "Short export must not clear current launch history.",
+          },
+          days: [
+            {
+              dayKey: "2026-02-12",
+              expected: true,
+              sourceCounts: { first_party: 12, ga4: 11, historicalSnapshot: 0, legacySupport: 0 },
+            },
+            {
+              dayKey: "2026-02-13",
+              expected: true,
+              sourceCounts: { first_party: 9, ga4: 10, historicalSnapshot: 0, legacySupport: 0 },
+            },
+          ],
+        },
+      },
+    }, {
+      generatedAtUtc: "2026-06-20T18:00:00.000Z",
+      sourceInputPath: "local/admin-historical-route.redacted.json",
+    })).toThrow(/does not prove the full February-to-current launch range/u);
   });
 
   it("rejects launch coverage exports that only prove a local evidence window", () => {

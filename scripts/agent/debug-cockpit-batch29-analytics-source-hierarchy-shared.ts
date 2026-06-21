@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { buildAdminAnalyticsSourceHierarchy } from "../../src/lib/analytics/admin-analytics-source-hierarchy";
 import {
+  LAUNCH_ANALYTICS_FIRST_DAY_KEY,
   buildLaunchAnalyticsSourceAgreementFailureDetail,
   buildSourceAgreementFailureDetailFromLaunchHistoryCoverage,
   type LaunchHistoryCoverageForSourceAgreement,
@@ -161,6 +162,33 @@ function isDayKey(value: string) {
   return Number.isFinite(timestamp) && new Date(timestamp).toISOString().startsWith(value);
 }
 
+function dayKeyFromUtcLike(value: unknown) {
+  if (typeof value !== "string" || value.trim().length === 0) return null;
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp)) return null;
+  return new Date(timestamp).toISOString().slice(0, 10);
+}
+
+function inclusiveDayKeys(startDayKey: string, endDayKey: string) {
+  const start = Date.parse(`${startDayKey}T00:00:00.000Z`);
+  const end = Date.parse(`${endDayKey}T00:00:00.000Z`);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return [];
+  const dayCount = Math.floor((end - start) / 86_400_000) + 1;
+  return Array.from({ length: dayCount }, (_, index) => {
+    const day = new Date(start);
+    day.setUTCDate(day.getUTCDate() + index);
+    return day.toISOString().slice(0, 10);
+  });
+}
+
+function formalLaunchCoverageEndDayKey(raw: unknown) {
+  const root = asRecord(raw);
+  return dayKeyFromUtcLike(root.generatedAtUtc)
+    ?? dayKeyFromUtcLike(root.capturedAtUtc)
+    ?? dayKeyFromUtcLike(root.sourceFreshnessUtc)
+    ?? new Date().toISOString().slice(0, 10);
+}
+
 export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistoryCoverageForSourceAgreement | null {
   const root = asRecord(raw);
   if (root.status === "template_not_evidence") return null;
@@ -264,13 +292,15 @@ export function launchHistoryCoverageHasFormalRangeProof(
   const coverage = normalizeLaunchHistoryCoverageExport(raw);
   if (!coverage) return false;
 
-  const expectedDayKeys = [...new Set(
+  const suppliedExpectedDayKeys = [...new Set(
     coverage.days
       .filter((day) => day.expected)
       .map((day) => day.dayKey)
       .filter(Boolean),
   )].sort();
+  const expectedDayKeys = inclusiveDayKeys(LAUNCH_ANALYTICS_FIRST_DAY_KEY, formalLaunchCoverageEndDayKey(raw));
   if (expectedDayKeys.length === 0) return false;
+  if (suppliedExpectedDayKeys.length === 0) return false;
 
   const sourceCountsByDay = Object.fromEntries(
     coverage.days
