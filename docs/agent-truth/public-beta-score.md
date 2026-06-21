@@ -27,8 +27,8 @@ Scanner cleanliness is not readiness by itself. The score now also records evide
 - source safety
 - targeted behavior tests
 - UI source coverage
-- runtime/provider smoke evidence
-- admin truth/sample evidence
+- provider-backed site activity and deployed route evidence
+- admin source sample evidence
 - generated report freshness, open PR, and latest code version integrity
 
 The report keeps the scanner score separately from the evidence-aware readiness score. Zero scanner findings plus missing evidence must not produce `clean`, `Ready`, or 100/100.
@@ -45,7 +45,7 @@ Honest readiness statuses:
 - `Stale evidence`
 - `Runtime unverified`
 
-If UI source coverage reports a gap, readiness is blocked by that source finding. Screenshots or browser viewing are optional reproduction evidence only after a source-reported UI issue exists. Missing local source artifacts are `Source evidence required`. Missing provider, deployed runtime, or admin truth artifacts are `External proof required`. If generated reports are older than 24 hours, readiness is capped at `Stale evidence` or `Needs review`. Empty debug evidence is `Source evidence required`, not proof of health.
+If UI source coverage reports a gap, readiness is blocked by that source finding. Screenshots or browser viewing are optional reproduction evidence only after a source-reported UI issue exists. Missing local source artifacts are `Source evidence required`. Missing provider-backed site activity, deployed route, or admin source sample artifacts are `Source evidence required` until their typed evidence is present. If generated reports are older than 24 hours, readiness is capped at `Stale evidence` or `Needs review`. Empty debug evidence is `Source evidence required`, not proof of health.
 
 Domain weights:
 
@@ -68,17 +68,18 @@ Default status thresholds:
 
 Evidence-weighted readiness model:
 
-- Source safety: 25
-- Targeted behavior tests: 20
-- UI source coverage: 20
-- Runtime/provider smoke state: 15
-- Admin truth/sample evidence: 10
-- Freshness/open-PR/source-commit integrity: 10
+- Source safety: 22
+- Targeted behavior tests: 16
+- Provider-backed site activity and deployed route evidence: 24
+- Admin source sample evidence: 12
+- Freshness/open-PR/source-commit integrity: 6
+
+UI source coverage remains a hard source gate rather than a score padding lane. The weighted budget now leans more heavily on source-backed site activity and deployed route evidence than on generic targeted validator presence.
 
 Beta health algorithm v2 layers a nuanced health model on top of these legacy-compatible gates:
 
 - source health: source scanners and targeted validator evidence
-- runtime health: formal manual, provider, deployed runtime, and admin sample confidence
+- runtime health: provider-backed site activity, deployed route evidence, admin source samples, and debug/runtime source confidence
 - evidence completeness: required beta-exit artifact completeness
 - freshness: report age, source version, and latest code version alignment
 - cost risk: Cloud Run, SQL/Data Connect, Gemini/Cloud Assist, BigQuery, and 4xx readiness
@@ -88,9 +89,9 @@ Missing required evidence blocks launch and reduces confidence, but it does not 
 
 Generated reports are evidence snapshots, not doctrine. Reports older than 24 hours must be refreshed or treated as outdated evidence before a readiness claim is trusted.
 
-## Formal Evidence Artifact Doctrine
+## Typed Evidence Artifact Doctrine
 
-The beta score must read formal evidence artifacts directly. Provider smoke no longer comes from final launch report string parsing. Operator-reported PayPal is tracked, not passing. Local static validators are not runtime smoke. Admin truth sample evidence comes from `agent/state/admin-truth-sample-evidence.generated.json`, not debug entries. Targeted behavior evidence needs its own artifact; absence remains non-passing. Visual/manual evidence needs schema validation; file existence is not enough.
+The beta score must read typed evidence artifacts directly. Provider-backed site activity no longer comes from final launch report string parsing. Operator-reported PayPal is tracked as context, not passing evidence. Local static validators are not deployed route evidence. Admin source sample evidence comes from `agent/state/admin-truth-sample-evidence.generated.json`, not debug entries. Targeted behavior evidence needs its own artifact; absence remains non-passing. Visual reproduction is optional diagnostic evidence after a source-reported UI issue exists; file existence is not enough.
 
 Score may remain low after artifact ingestion because missing evidence is still missing. The score must explain which artifact was read, the artifact status, and why each evidence gate is ready or blocked.
 

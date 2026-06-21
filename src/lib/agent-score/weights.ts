@@ -34,11 +34,11 @@ export const PUBLIC_BETA_STATUS_THRESHOLDS = {
 } as const;
 
 export const PUBLIC_BETA_EVIDENCE_WEIGHTS = {
-  sourceSafety: 25,
-  targetedBehaviorTests: 20,
-  runtimeProviderSmoke: 15,
-  adminTruthSamples: 10,
-  freshnessIntegrity: 10,
+  sourceSafety: 22,
+  targetedBehaviorTests: 16,
+  runtimeProviderSmoke: 24,
+  adminTruthSamples: 12,
+  freshnessIntegrity: 6,
 } as const;
 
 export const PUBLIC_BETA_EVIDENCE_SCORE_CAPS = {

@@ -476,12 +476,12 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   if (gate.id === "adminTruthSamples") {
     if (gate.status === "External proof required" || gate.status === "Source evidence required" || gate.status === "Unknown evidence") {
       if ((gate.status === "External proof required" || gate.status === "Source evidence required") && (gate.freshness === "stale" || gate.freshness === "head_mismatch")) {
-        return `${gate.status}: ${gate.label} - Refresh the redacted production admin truth sample.`;
+        return `${gate.status}: ${gate.label} - Refresh the redacted admin source sample.`;
       }
       return `${gate.status}: ${gate.label} - Produce a redacted admin source activity sample.`;
     }
     if (gate.status === "Stale evidence") {
-      return `${gate.status}: ${gate.label} - Refresh the redacted admin truth sample.`;
+      return `${gate.status}: ${gate.label} - Refresh the redacted admin source sample.`;
     }
   }
 

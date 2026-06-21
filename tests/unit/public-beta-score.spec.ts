@@ -186,6 +186,9 @@ describe("public beta scoring math", () => {
         expect(report.scoreExplanation.betaExitBlockedBy).toEqual(expect.arrayContaining([
             expect.stringContaining("Provider-backed site activity + deployed route evidence"),
         ]));
+        expect(report.evidenceWeights.runtimeProviderSmoke).toBeGreaterThan(report.evidenceWeights.targetedBehaviorTests);
+        expect(report.evidenceWeights.runtimeProviderSmoke + report.evidenceWeights.adminTruthSamples)
+            .toBeGreaterThan(report.evidenceWeights.sourceSafety + report.evidenceWeights.freshnessIntegrity);
         expect(report.overallStatus).not.toBe("clean");
         expect(report.readinessStatus).not.toBe("Ready");
         expect(report.overallScore).toBeLessThan(100);
@@ -346,7 +349,7 @@ describe("public beta scoring math", () => {
 
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
         expect(smokeGate?.status).toBe("Ready");
-        expect(smokeGate?.score).toBe(15);
+        expect(smokeGate?.score).toBe(24);
     });
 
     it("does not clear source gates from legacy evidence booleans", () => {
@@ -430,7 +433,7 @@ describe("public beta scoring math", () => {
         ]));
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             "Stale evidence: Provider-backed site activity + deployed route evidence - Refresh provider-backed site activity and deployed runtime route evidence.",
-            "Stale evidence: Admin source sample evidence - Refresh the redacted admin truth sample.",
+            "Stale evidence: Admin source sample evidence - Refresh the redacted admin source sample.",
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
@@ -488,7 +491,7 @@ describe("public beta scoring math", () => {
 
         const adminGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
         expect(adminGate?.status).toBe("Ready");
-        expect(adminGate?.score).toBe(10);
+        expect(adminGate?.score).toBe(12);
     });
 
     it("keeps missing targeted behavior artifact non-passing without hardcoded false", () => {
