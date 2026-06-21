@@ -62,13 +62,13 @@ function runValidation(reportKey: string, report: Record<string, unknown>, failu
     canClearSourceGate: failures.length === 0,
     nextExactSteps: [
       `Run npm run check:${reportKey} after touching this route evidence classifier lane.`,
-      "Refresh or attach route runtime samples separately before clearing runtime freshness gates.",
+      "Refresh or attach deployed route evidence separately before clearing deployed-route freshness gates.",
     ],
     validationFailures: failures,
     doesNotProve: [
       "Does not prove live route health.",
-      "Does not prove payment/provider runtime freshness.",
-      "Does not prove admin truth samples are current.",
+      "Does not prove payment/provider-backed site activity freshness.",
+      "Does not prove admin source activity samples are current.",
     ],
   }) as ValidationResult;
   writeJson(`agent/state/${reportKey}.generated.json`, result);

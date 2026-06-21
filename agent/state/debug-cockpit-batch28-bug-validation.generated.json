@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-cockpit-batch28-bug-validation",
-  "generatedAtUtc": "2026-06-19T04:51:20.545Z",
-  "currentHead": "343fe21c2f5c75dd383d43532c80f64322c9b58f",
+  "generatedAtUtc": "2026-06-21T19:47:49.058Z",
+  "currentHead": "ced49bf1ba5b562497caa34dca88642d6be79d90",
   "bugReportTruthStatusBefore": "loading",
   "bugReportTruthStatusAfter": "loaded_empty",
   "bugReportTerminalState": "loaded_empty",
@@ -39,19 +39,19 @@
   ],
   "nextExactSteps": [
     "Run npm run check:debug-cockpit-batch28-bug-validation after touching this debug/source validation lane.",
-    "Use redacted runtime/admin evidence separately before clearing runtime or admin truth gates."
+    "Use deployed route evidence and redacted admin source activity samples separately before clearing typed evidence gates."
   ],
   "dirtyFileClassifications": [
     {
-      "filePath": "agent/state/analytics-panel-hydration.generated.json",
+      "filePath": "agent/state/debug-cockpit-batch19-product-routes.generated.json",
       "classification": "fixed_current"
     },
     {
-      "filePath": "agent/state/analytics-validation-semantics.generated.json",
+      "filePath": "agent/state/debug-cockpit-batch20-stale-route-sweep.generated.json",
       "classification": "fixed_current"
     },
     {
-      "filePath": "agent/state/data-validation-ui-semantic-cleanup.generated.json",
+      "filePath": "agent/state/debug-cockpit-batch26-dependency-inventory.generated.json",
       "classification": "fixed_current"
     },
     {
@@ -59,31 +59,19 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "agent/state/event-translation-bridge.generated.json",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "agent/state/launch-analytics-recovery.generated.json",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "agent/state/source-agreement-failure-detail.generated.json",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "docs/agent-truth/analytics-panel-hydration.md",
+      "filePath": "docs/agent-truth/ai-debug-critic-review.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/analytics-validation-semantics.md",
+      "filePath": "docs/agent-truth/debug-cockpit-batch19-product-routes.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/data-validation-ui-semantic-cleanup.md",
+      "filePath": "docs/agent-truth/debug-cockpit-batch20-stale-route-sweep.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/debug-cockpit-batch26-dependency-inventory.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -91,47 +79,23 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected"
+      "filePath": "scripts/agent/debug-cockpit-batch19-shared.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "docs/agent-truth/launch-analytics-recovery.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "filePath": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "filePath": "docs/agent-truth/source-agreement-failure-detail.md",
-      "classification": "documentation_artifact_expected"
+      "filePath": "scripts/agent/debug-cockpit-batch20-shared.ts",
+      "classification": "validator_artifact_expected"
     },
     {
       "filePath": "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "filePath": "scripts/agent/validate-analytics-panel-hydration.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "filePath": "src/lib/analytics/event-translation-bridge.ts",
+      "filePath": "src/lib/debug/debug-cockpit-batch26-dependency-inventory.ts",
       "classification": "fixed_current"
     },
     {
-      "filePath": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "fixed_current"
-    },
-    {
-      "filePath": "src/lib/analytics/validation-readiness-contract.ts",
-      "classification": "analytics_validation_semantics_fix_required"
-    },
-    {
-      "filePath": "tests/unit/analytics-validation-semantics.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "filePath": "tests/unit/data-validation-ui-semantic-cleanup.spec.ts",
+      "filePath": "tests/unit/debug-cockpit-batch26-dependency-inventory.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],
@@ -151,7 +115,7 @@
   "canClearAdminTruthGate": false,
   "doesNotProve": [
     "Does not prove live bug-report volume.",
-    "Does not prove provider/runtime behavior.",
-    "Does not prove current admin truth samples."
+    "Does not prove provider-backed site activity or deployed route behavior.",
+    "Does not prove current admin source activity samples."
   ]
 }

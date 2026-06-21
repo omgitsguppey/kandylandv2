@@ -47,13 +47,13 @@ function runValidation(reportKey: string, report: Report, failures: string[]) {
     canClearSourceGate: failures.length === 0,
     nextExactSteps: [
       `Run npm run check:${reportKey} after touching this classifier lane.`,
-      "Use deployed route samples or redacted runtime evidence separately before clearing runtime gates.",
+      "Use deployed route evidence separately before clearing deployed-route evidence gates.",
     ],
     validationFailures: failures,
     doesNotProve: [
       "Does not prove live route health.",
-      "Does not prove provider/runtime route behavior.",
-      "Does not prove admin truth samples are current.",
+      "Does not prove provider-backed site activity or deployed route behavior.",
+      "Does not prove admin source activity samples are current.",
     ],
   });
   writeJson(`agent/state/${reportKey}.generated.json`, result);

@@ -1,6 +1,6 @@
 {
   "reportKey": "debug-cockpit-batch19-product-routes",
-  "generatedAtUtc": "2026-06-11T15:05:02.539Z",
+  "generatedAtUtc": "2026-06-21T19:47:48.561Z",
   "tasksRotateStatusBefore": "current_client_error",
   "tasksRotateStatusAfter": "expected_typed_client_error",
   "tasksRotateErrorClass": "unauthenticated,forbidden,missing_task_assignment,rate_limited,invalid_task_rotation_request,stale_client_payload",
@@ -47,13 +47,13 @@
   ],
   "nextExactSteps": [
     "Run npm run check:debug-cockpit-batch19-product-routes after touching this route evidence classifier lane.",
-    "Refresh or attach route runtime samples separately before clearing runtime freshness gates."
+    "Refresh or attach deployed route evidence separately before clearing deployed-route freshness gates."
   ],
   "dirtyFilesClassified": true,
   "openPrsClassified": true,
   "validationFailures": [],
   "status": "pass",
-  "currentHead": "bcd7aad7d363fc377e5b123eb4c06f78678f42f5",
+  "currentHead": "ced49bf1ba5b562497caa34dca88642d6be79d90",
   "evidenceClass": "source_snapshot",
   "canClearSourceGate": true,
   "canClearRuntimeGate": false,
@@ -61,7 +61,7 @@
   "canClearAdminTruthGate": false,
   "doesNotProve": [
     "Does not prove live route health.",
-    "Does not prove payment/provider runtime freshness.",
-    "Does not prove admin truth samples are current."
+    "Does not prove payment/provider-backed site activity freshness.",
+    "Does not prove admin source activity samples are current."
   ]
 }

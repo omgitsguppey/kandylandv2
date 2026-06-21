@@ -25,6 +25,9 @@ describe("debug cockpit batch 26 dependency inventory", () => {
     expect(report.fakeTimestampFixed).toBe(true);
     expect(report.runtimeChecksSeparated).toBe(true);
     expect(report.providerCallsRun).toBe(false);
+    expect(report.nextExactSteps.join(" ")).toContain("provider-backed site activity");
+    expect(report.nextExactSteps.join(" ")).toContain("deployed route evidence");
+    expect(report.nextExactSteps.join(" ")).not.toMatch(/provider\/runtime smoke|runtime smoke|provider smoke/iu);
     expect(report.scoreAfter).toBeGreaterThan(report.scoreBefore);
   });
 });

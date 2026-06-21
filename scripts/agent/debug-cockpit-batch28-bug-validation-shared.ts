@@ -99,13 +99,13 @@ function runValidation(reportKey: string, report: Report, failures: string[], su
     canClearSourceGate: failures.length === 0,
     nextExactSteps: [
       `Run npm run check:${reportKey} after touching this debug/source validation lane.`,
-      "Use redacted runtime/admin evidence separately before clearing runtime or admin truth gates.",
+      "Use deployed route evidence and redacted admin source activity samples separately before clearing typed evidence gates.",
     ],
     validationFailures: failures,
     doesNotProve: [
       "Does not prove live bug-report volume.",
-      "Does not prove provider/runtime behavior.",
-      "Does not prove current admin truth samples.",
+      "Does not prove provider-backed site activity or deployed route behavior.",
+      "Does not prove current admin source activity samples.",
     ],
   });
   writeJson(`agent/state/${reportKey}.generated.json`, result);

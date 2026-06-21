@@ -77,7 +77,7 @@ export function buildDebugCockpitBatch26DependencyInventoryReport(input: {
       "Runtime connectivity checks still require their own provider/runtime evidence and are not cleared by package inventory.",
     ],
     nextExactSteps: [
-      "Keep dependency inventory source-only; run provider/runtime smoke only through explicit evidence lanes.",
+      "Keep dependency inventory source-only; attach provider-backed site activity and deployed route evidence only through explicit typed evidence lanes.",
     ],
   };
   return report;
