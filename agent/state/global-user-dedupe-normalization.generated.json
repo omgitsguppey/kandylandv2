@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T22:49:09.756Z",
+  "generatedAtUtc": "2026-06-21T22:51:39.245Z",
   "reportKey": "global-user-dedupe-normalization",
-  "currentHead": "82f39c11773781349bf5873d9fc870b681a53d87",
+  "currentHead": "61ad3ffbdcbd8d38767ac6f43ea661397da7aaa5",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -326,40 +326,7 @@
     "identityConfidence": "linked",
     "dedupeDecisionExplanation": "Global count increments once and user count is attributed to the best user identity; guest scope is suppressed to avoid double counting."
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/global-user-dedupe-normalization.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/source-backed-runtime-confidence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-source-backed-runtime-confidence.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "tests/unit/source-backed-runtime-confidence.spec.ts",
-      "classification": "test_artifact_expected"
-    }
-  ],
+  "dirtyFiles": [],
   "validationFailures": [],
   "nextExactSteps": [
     "Keep raw event facts and normalized summary identity separate for SQL/BigQuery export.",

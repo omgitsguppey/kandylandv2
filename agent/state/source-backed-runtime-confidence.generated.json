@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-21T22:49:53.319Z",
+  "generatedAtUtc": "2026-06-21T22:51:43.236Z",
   "reportKey": "source-backed-runtime-confidence",
-  "currentHead": "82f39c11773781349bf5873d9fc870b681a53d87",
-  "sourceCommit": "82f39c11773781349bf5873d9fc870b681a53d87",
+  "currentHead": "61ad3ffbdcbd8d38767ac6f43ea661397da7aaa5",
+  "sourceCommit": "61ad3ffbdcbd8d38767ac6f43ea661397da7aaa5",
   "status": "partial_source_runtime_confidence",
   "passed": false,
   "runtimeContractsPresent": false,
