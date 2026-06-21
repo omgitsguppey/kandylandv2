@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-21T03:52:57.633Z",
+  "generatedAtUtc": "2026-06-21T19:28:39.737Z",
   "reportKey": "debug-operator-cockpit",
-  "currentHead": "ffc19e6c5cad6b5fedd1eae6543a8af066cc770c",
-  "sourceCommit": "ffc19e6c5cad6b5fedd1eae6543a8af066cc770c",
+  "currentHead": "78e203da3f527a439365956423c1de7a6bffccda",
+  "sourceCommit": "78e203da3f527a439365956423c1de7a6bffccda",
   "overallStatus": "pass",
   "rawDumpDefaultOpen": false,
   "defaultSections": [
@@ -18,12 +18,29 @@
     },
     {
       "id": "critical_runtime_debug_warnings",
-      "operatorSummary": "No source-fixable critical runtime/debug warnings are loaded.",
-      "owner": "runtime",
-      "state": "live",
-      "scoreImpactEstimate": 0,
-      "nextAction": "Keep provider-backed site activity and deployed route evidence in collapsed drilldown.",
-      "items": [],
+      "operatorSummary": "Source-backed runtime/debug warnings need action before completion claims.",
+      "owner": "admin_debug",
+      "state": "failed",
+      "scoreImpactEstimate": 4,
+      "nextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
+      "items": [
+        {
+          "id": "debug-panel-public-beta-score",
+          "severity": "p1",
+          "owner": "admin_debug",
+          "message": "Public beta score",
+          "nextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
+          "truthState": "degraded"
+        },
+        {
+          "id": "debug-panel-score-cap-reasons",
+          "severity": "p1",
+          "owner": "admin_debug",
+          "message": "Score cap reasons",
+          "nextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
+          "truthState": "degraded"
+        }
+      ],
       "title": "Critical Runtime + Debug Warnings"
     },
     {
@@ -31,7 +48,7 @@
       "operatorSummary": "Run these current registered refresh commands before trusting stale snapshots.",
       "owner": "repo",
       "state": "stale",
-      "scoreImpactEstimate": 9,
+      "scoreImpactEstimate": 7,
       "nextAction": "npm run check:overnight-final-integration-lock",
       "items": [
         {
@@ -47,24 +64,12 @@
           "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
         },
         {
-          "artifact": "agent/state/current-beta-exit-status.generated.json",
-          "staleReason": "stale_source_version",
-          "refreshCommand": "npm run check:current-beta-exit-status",
-          "scoreImpactEstimate": 1,
-          "owner": "beta",
-          "dependencyOrder": 4,
-          "canRunAutomatically": true,
-          "blockedReason": "",
-          "source": "refresh_plan",
-          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
-        },
-        {
           "artifact": "agent/state/beta-evidence-gap-map.generated.json",
           "staleReason": "stale_source_version",
           "refreshCommand": "npm run check:beta-evidence-gap-map",
           "scoreImpactEstimate": 1,
           "owner": "evidence",
-          "dependencyOrder": 5,
+          "dependencyOrder": 4,
           "canRunAutomatically": true,
           "blockedReason": "",
           "source": "refresh_plan",
@@ -76,31 +81,7 @@
           "refreshCommand": "npm run check:beta-evidence-lane-prep",
           "scoreImpactEstimate": 1,
           "owner": "evidence",
-          "dependencyOrder": 6,
-          "canRunAutomatically": true,
-          "blockedReason": "",
-          "source": "refresh_plan",
-          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
-        },
-        {
-          "artifact": "agent/state/mobile-ui-final-lock.generated.json",
-          "staleReason": "stale_source_version",
-          "refreshCommand": "npm run check:mobile-ui-final-lock",
-          "scoreImpactEstimate": 1,
-          "owner": "mobile",
-          "dependencyOrder": 7,
-          "canRunAutomatically": true,
-          "blockedReason": "",
-          "source": "refresh_plan",
-          "expectedOutcome": "Refresh generated artifact from current source and update debug/beta freshness state."
-        },
-        {
-          "artifact": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-          "staleReason": "stale_source_version",
-          "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
-          "scoreImpactEstimate": 1,
-          "owner": "mobile",
-          "dependencyOrder": 8,
+          "dependencyOrder": 5,
           "canRunAutomatically": true,
           "blockedReason": "",
           "source": "refresh_plan",
@@ -112,7 +93,7 @@
           "refreshCommand": "npm run check:analytics-rewire-phase-one",
           "scoreImpactEstimate": 1,
           "owner": "repo",
-          "dependencyOrder": 9,
+          "dependencyOrder": 8,
           "canRunAutomatically": true,
           "blockedReason": "",
           "source": "score_impact",
@@ -122,6 +103,18 @@
           "artifact": "agent/state/targeted-behavior-evidence.generated.json",
           "staleReason": "stale",
           "refreshCommand": "npm run check:targeted-behavior-evidence",
+          "scoreImpactEstimate": 1,
+          "owner": "repo",
+          "dependencyOrder": 10,
+          "canRunAutomatically": true,
+          "blockedReason": "",
+          "source": "score_impact",
+          "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
+        },
+        {
+          "artifact": "agent/state/user-facing-feature-connection-audit.generated.json",
+          "staleReason": "stale",
+          "refreshCommand": "npm run check:user-facing-feature-connection-audit",
           "scoreImpactEstimate": 1,
           "owner": "repo",
           "dependencyOrder": 11,
@@ -135,16 +128,16 @@
     },
     {
       "id": "admin_truth_status",
-      "operatorSummary": "Admin truth source sample: source_ready_formal_sample_required",
+      "operatorSummary": "Admin source activity sample: source_ready_sample_required",
       "owner": "admin",
       "state": "degraded",
       "scoreImpactEstimate": 4,
-      "nextAction": "Attach a redacted first-party admin truth sample only when clearing the formal admin truth gate.",
+      "nextAction": "Attach a redacted admin source activity sample before clearing the typed admin evidence gate.",
       "items": [
         {
           "state": "degraded",
-          "label": "Admin truth source sample: source_ready_formal_sample_required",
-          "nextAction": "Attach a redacted first-party admin truth sample only when clearing the formal admin truth gate."
+          "label": "Admin source activity sample: source_ready_sample_required",
+          "nextAction": "Attach a redacted admin source activity sample before clearing the typed admin evidence gate."
         }
       ],
       "title": "Admin Truth Status"
@@ -187,12 +180,89 @@
     },
     {
       "id": "recovery_playbook_cta",
-      "operatorSummary": "No active source/debug recovery playbook is needed.",
+      "operatorSummary": "Use the matching recovery playbook before editing source.",
       "owner": "debug",
-      "state": "live",
-      "scoreImpactEstimate": 0,
-      "nextAction": "Typed evidence and stale artifact playbooks are collapsed until a matching active issue exists.",
-      "items": [],
+      "state": "degraded",
+      "scoreImpactEstimate": 1,
+      "nextAction": "npm run check:route-diagnostics-error-map",
+      "items": [
+        {
+          "id": "route_500_recovery",
+          "title": "Route 500 Recovery",
+          "triggerPatterns": [
+            "route diagnostic severity error",
+            "HTTP 500 in admin/debug route",
+            "human error key internal_server_error"
+          ],
+          "commands": [
+            "npm run check:route-diagnostics-error-map",
+            "npm run check:debug-panel-output-triage",
+            "npm run check:beta-score"
+          ],
+          "validators": [
+            "npm run check:route-diagnostics-error-map",
+            "npm run check:debug-panel-output-triage"
+          ],
+          "forbiddenActions": [
+            "no_production_reads",
+            "no_deploy",
+            "no_payment_gumdrop_math_changes",
+            "no_chat_nav_edits",
+            "no_formal_gate_clear_without_artifact"
+          ]
+        },
+        {
+          "id": "telemetry_orphan_recovery",
+          "title": "Telemetry Orphan Recovery",
+          "triggerPatterns": [
+            "metric exists without producer",
+            "producer exists without consumer",
+            "orphaned telemetry or source_ready_evidence_gap"
+          ],
+          "commands": [
+            "npm run check:telemetry-dependency-graph",
+            "npm run check:event-facts-materializer-closure",
+            "npm run check:monolith-orphan-metric-registry"
+          ],
+          "validators": [
+            "npm run check:telemetry-dependency-graph",
+            "npm run check:event-facts-materializer-closure",
+            "npm run check:monolith-orphan-metric-registry"
+          ],
+          "forbiddenActions": [
+            "no_production_reads",
+            "no_deploy",
+            "no_payment_gumdrop_math_changes",
+            "no_chat_nav_edits",
+            "no_formal_gate_clear_without_artifact"
+          ]
+        },
+        {
+          "id": "behavior_math_unknown_recovery",
+          "title": "Behavior Math Unknown Recovery",
+          "triggerPatterns": [
+            "behavior math confidence unknown",
+            "disabled tracking counted",
+            "legacy unknown counted as current user behavior"
+          ],
+          "commands": [
+            "npm run check:behavior-math-verification",
+            "npm run check:behavioral-tracking-semantics-closure",
+            "npm run check:identity-transfer-telemetry-closure"
+          ],
+          "validators": [
+            "npm run check:behavior-math-verification",
+            "npx vitest run tests/unit/behavior-math-verification.spec.ts"
+          ],
+          "forbiddenActions": [
+            "no_production_reads",
+            "no_deploy",
+            "no_payment_gumdrop_math_changes",
+            "no_chat_nav_edits",
+            "no_formal_gate_clear_without_artifact"
+          ]
+        }
+      ],
       "title": "Recovery Playbook CTA"
     }
   ],
@@ -200,8 +270,8 @@
   "summary": {
     "sectionCount": 8,
     "scoreImpactItems": 0,
-    "staleRefreshItems": 8,
-    "criticalWarningItems": 0,
+    "staleRefreshItems": 6,
+    "criticalWarningItems": 2,
     "aiCriticFindings": 1,
     "recoveryPlaybooks": 6
   }

@@ -369,7 +369,7 @@ export function validateDebugOperatorCockpit(report: DebugOperatorCockpitReport)
   const scoreQueue = byId.get("score_impact_queue");
   const scoreQueueText = JSON.stringify(scoreQueue?.items ?? []);
   if (/runtime_provider_smoke|debug_runtime_evidence|admin_truth_sample_evidence|ui_source_coverage/iu.test(scoreQueueText)) {
-    failures.push("formal runtime/provider/admin evidence appears as source-code fix.");
+    failures.push("typed runtime/provider/admin evidence gate appears as source-code fix.");
   }
   if (/score-80-path-lock|final-launch-readiness-report/iu.test(scoreQueueText)) {
     failures.push("obsolete score artifact remains score-impacting in fix-first queue.");

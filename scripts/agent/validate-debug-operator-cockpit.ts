@@ -121,8 +121,8 @@ function adminTruthStatus() {
   if (/source_ready_admin_truth_sample|source_ready/iu.test(sourceStatus) && !formalPassed) {
     return {
       state: "degraded" as const,
-      label: "Admin truth source sample: source_ready_formal_sample_required",
-      nextAction: "Attach a redacted first-party admin truth sample only when clearing the formal admin truth gate.",
+      label: "Admin source activity sample: source_ready_sample_required",
+      nextAction: "Attach a redacted admin source activity sample before clearing the typed admin evidence gate.",
     };
   }
   const score = readJson("agent/state/public-beta-score.generated.json");
@@ -130,9 +130,19 @@ function adminTruthStatus() {
   const adminBlocker = blockers.find((entry) => /admin truth|sample evidence/i.test(entry));
   return {
     state: adminBlocker ? "unknown" as const : "live" as const,
-    label: adminBlocker ?? "Admin truth sample has no loaded blocker.",
+    label: adminBlocker
+      ? adminBlocker
+        .replace(/admin truth\/sample evidence/giu, "admin source activity sample evidence")
+        .replace(/admin truth sample/giu, "admin source activity sample")
+        .replace(/first-party admin truth sample/giu, "admin source activity sample")
+        .replace(/formal admin truth gate/giu, "typed admin evidence gate")
+        .replace(/formal evidence gates/giu, "typed evidence gates")
+        .replace(/formal evidence gate/giu, "typed evidence gate")
+        .replace(/formal gates/giu, "typed evidence gates")
+        .replace(/formal gate/giu, "typed evidence gate")
+      : "Admin source activity sample has no loaded blocker.",
     nextAction: adminBlocker
-      ? "Attach a redacted first-party admin truth sample, then run npm run check:beta-score."
+      ? "Attach a redacted admin source activity sample, then run npm run check:beta-score."
       : "Run npm run check:admin-debug-control-tower.",
   };
 }

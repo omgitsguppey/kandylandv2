@@ -19,9 +19,9 @@ const baseInput: DebugOperatorCockpitInput = {
       owner: "runtime",
       dependencyOrder: 1,
       canRunAutomatically: false,
-      blockedReason: "Formal evidence artifact required; source queue cannot generate proof.",
+      blockedReason: "Typed provider-backed evidence artifact required; source queue cannot generate provider truth.",
       source: "score_impact",
-      expectedOutcome: "Remain blocked until a human attaches the required formal artifact.",
+      expectedOutcome: "Remain blocked until the required typed evidence artifact is attached.",
     },
     {
       artifact: "agent/state/beta-evidence-gap-map.generated.json",
@@ -48,8 +48,8 @@ const baseInput: DebugOperatorCockpitInput = {
   ],
   adminTruthStatus: {
     state: "unknown",
-    label: "Admin truth sample",
-    nextAction: "Run npm run check:admin-truth-sample-evidence after artifact is attached.",
+    label: "Admin source activity sample",
+    nextAction: "Run npm run check:admin-truth-sample-evidence after the admin source activity sample is attached.",
   },
   telemetryLaneStatus: {
     state: "degraded",
@@ -70,14 +70,14 @@ const baseInput: DebugOperatorCockpitInput = {
       id: "no_fake_evidence",
       severity: "required",
       title: "Do not fake evidence",
-      requiredFix: "Keep source checks separate from runtime proof.",
+      requiredFix: "Keep source checks separate from deployed runtime truth.",
     },
   ],
   recoveryPlaybooks: [
     {
       id: "fake_evidence_recovery",
       title: "Fake Evidence Recovery",
-      triggerPatterns: ["source-only output described as runtime proof"],
+      triggerPatterns: ["source-only output described as deployed runtime truth"],
       commands: ["npm run check:ai-debug-critic"],
       validators: ["npm run check:ai-debug-critic"],
       forbiddenActions: ["no_production_reads", "no_deploy", "no_payment_gumdrop_math_changes", "no_chat_nav_edits"],
@@ -95,7 +95,7 @@ describe("debug operator cockpit", () => {
     expect(controlTowerSource).toContain("<DebugOperatorCockpit cockpit={model.operatorCockpit} />");
   });
 
-  it("orders the default cockpit while keeping formal evidence out of source-fix sections", () => {
+  it("orders the default cockpit while keeping typed evidence gates out of source-fix sections", () => {
     const cockpit = buildDebugOperatorCockpit(baseInput, {
       generatedAtUtc: "2026-05-21T06:15:00.000Z",
       currentHead: "abc1234",
@@ -118,6 +118,9 @@ describe("debug operator cockpit", () => {
     });
     expect(cockpit.rawDumpDefaultOpen).toBe(false);
     expect(validateDebugOperatorCockpit(cockpit)).toEqual([]);
+    expect(JSON.stringify(cockpit)).toContain("Admin source activity sample");
+    expect(JSON.stringify(cockpit)).not.toContain("first-party admin truth");
+    expect(JSON.stringify(cockpit)).not.toContain("formal admin truth gate");
   });
 
   it("fails validation when unknown data lacks a next action", () => {
@@ -125,7 +128,7 @@ describe("debug operator cockpit", () => {
       ...baseInput,
       adminTruthStatus: {
         state: "unknown",
-        label: "Admin truth sample",
+        label: "Admin source activity sample",
         nextAction: "No action needed.",
       },
       scoreImpactQueue: [

@@ -4,8 +4,8 @@ Status: admin debug information hierarchy. The cockpit summarizes what to fix ne
 
 - Sections: 8
 - Score impact items: 0
-- Stale refresh items: 8
-- Critical warning items: 0
+- Stale refresh items: 6
+- Critical warning items: 2
 - AI critic findings: 1
 - Recovery playbooks: 6
 
@@ -20,16 +20,16 @@ Status: admin debug information hierarchy. The cockpit summarizes what to fix ne
 
 ### 2. Critical Runtime + Debug Warnings
 
-- Owner: runtime
-- State: live
-- Score impact estimate: 0
-- Next action: Keep provider-backed site activity and deployed route evidence in collapsed drilldown.
+- Owner: admin_debug
+- State: failed
+- Score impact estimate: 4
+- Next action: Use the canonical beta score and cap reasons as the primary Phase 1 queue.
 
 ### 3. Stale Artifact Refresh Queue
 
 - Owner: repo
 - State: stale
-- Score impact estimate: 9
+- Score impact estimate: 7
 - Next action: npm run check:overnight-final-integration-lock
 
 ### 4. Admin Truth Status
@@ -37,7 +37,7 @@ Status: admin debug information hierarchy. The cockpit summarizes what to fix ne
 - Owner: admin
 - State: degraded
 - Score impact estimate: 4
-- Next action: Attach a redacted first-party admin truth sample only when clearing the formal admin truth gate.
+- Next action: Attach a redacted admin source activity sample before clearing the typed admin evidence gate.
 
 ### 5. Telemetry Lane Status
 
@@ -63,6 +63,6 @@ Status: admin debug information hierarchy. The cockpit summarizes what to fix ne
 ### 8. Recovery Playbook CTA
 
 - Owner: debug
-- State: live
-- Score impact estimate: 0
-- Next action: Typed evidence and stale artifact playbooks are collapsed until a matching active issue exists.
+- State: degraded
+- Score impact estimate: 1
+- Next action: npm run check:route-diagnostics-error-map
