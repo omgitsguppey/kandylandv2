@@ -1,6 +1,6 @@
 {
   "reportKey": "route-latency-review-cleanup",
-  "generatedAtUtc": "2026-05-24T22:10:34.122Z",
+  "generatedAtUtc": "2026-06-21T19:08:33.087Z",
   "records": [
     {
       "routeKey": "admin/overview:GET",

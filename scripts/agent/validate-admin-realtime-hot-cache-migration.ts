@@ -1,4 +1,4 @@
-import { writeJson, writeMarkdown } from "./admin-hot-cache-heartbeat-shared";
+import { writeJson } from "./admin-hot-cache-heartbeat-shared";
 import { ADMIN_REALTIME_TO_HOT_CACHE_MIGRATION, validateAdminRealtimeMigrationEntries } from "../../src/lib/admin/admin-realtime-to-hot-cache-migration";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -14,13 +14,6 @@ writeJson("agent/state/admin-realtime-hot-cache-migration.generated.json", {
   status: failures.length === 0 ? "passed" : "failed",
   entries: ADMIN_REALTIME_TO_HOT_CACHE_MIGRATION,
 });
-writeMarkdown("docs/agent-truth/admin-realtime-hot-cache-migration.md", [
-  "# Admin Realtime To Hot Cache Migration",
-  "",
-  "- Admin overview default realtime listeners were removed from the default hook.",
-  "- User-facing chat realtime remains allowed.",
-  "- Admin debug/analytics live behavior is inventoried as explicit exception or migration follow-up, not default overview truth.",
-]);
 
 if (failures.length > 0) {
   console.error("Admin realtime hot-cache migration validation failed:");

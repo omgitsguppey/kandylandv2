@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-05-24T19:37:49.838Z",
-  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "generatedAtUtc": "2026-06-21T19:08:32.628Z",
+  "currentHead": "f63333d84d97b09105e670261a0e93922cbc8a68",
   "adminDebugMonolithStatus": "monolith_split_plan_required",
   "adminAnalyticsMonolithStatus": "monolith_split_plan_required",
   "unsafeBroadRefactorPerformed": false,
@@ -10,7 +10,7 @@
   "splitPlans": [
     {
       "filePath": "src/app/api/admin/debug/route.ts",
-      "currentLineCount": 6792,
+      "currentLineCount": 7049,
       "owner": "admin-debug",
       "status": "monolith_split_plan_required",
       "splitRecommendation": "Split the all-section branch into section-specific drilldown loaders after UI callers support section-specific requests.",
@@ -18,7 +18,7 @@
     },
     {
       "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "currentLineCount": 3206,
+      "currentLineCount": 3297,
       "owner": "admin-analytics",
       "status": "monolith_split_plan_required",
       "splitRecommendation": "Move metric fetch, freshness derivation, and tab-specific state into named admin analytics hooks.",

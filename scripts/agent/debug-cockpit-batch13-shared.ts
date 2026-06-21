@@ -167,15 +167,6 @@ export function validateDataConnectMirrorStatusReport(report: ReturnType<typeof 
 export function writeDataConnectMirrorStatusReport() {
   const report = buildDataConnectMirrorStatusReport();
   writeJson("agent/state/data-connect-mirror-status.generated.json", report);
-  write("docs/agent-truth/data-connect-mirror-status.md", [
-    "# Data Connect Mirror Status",
-    "",
-    `Generated: ${report.generatedAtUtc}`,
-    `Status: ${report.status}`,
-    "",
-    "Data Connect remains an agent-context mirror. The safe cockpit command is `npm run check:data-connect-mirror-status`; `npm run agent:sync-sql` is manual-only and requires explicit approval.",
-    "",
-  ].join("\n"));
   return report;
 }
 
@@ -416,7 +407,6 @@ export function validateMonolithSplitPlanReport(report: ReturnType<typeof buildM
 export function writeMonolithSplitPlanReport() {
   const report = buildMonolithSplitPlanReport();
   writeJson("agent/state/monolith-split-plan.generated.json", report);
-  write("docs/agent-truth/monolith-split-plan.md", renderSimpleDoc("Monolith Split Plan", report));
   return report;
 }
 

@@ -1,4 +1,4 @@
-import { writeJson, writeMarkdown } from "./admin-hot-cache-heartbeat-shared";
+import { writeJson } from "./admin-hot-cache-heartbeat-shared";
 import { ADMIN_HEARTBEAT_INTERVAL_SECONDS, buildAdminHeartbeatRecord, classifyAdminHeartbeatEvidence } from "../../src/lib/admin/admin-heartbeat-contract";
 
 const sample = buildAdminHeartbeatRecord({
@@ -25,14 +25,6 @@ writeJson("agent/state/admin-heartbeat-contract.generated.json", {
   sample,
   missingHeartbeatState: "heartbeat_missing",
 });
-writeMarkdown("docs/agent-truth/admin-heartbeat-contract.md", [
-  "# Admin Heartbeat Contract",
-  "",
-  `- Default cadence: ${ADMIN_HEARTBEAT_INTERVAL_SECONDS} seconds.`,
-  "- Page loads read heartbeat evidence only; they do not write heartbeat records.",
-  "- Missing heartbeat evidence is reported as missing, not healthy.",
-  "- Records include duration, source counts, cost estimate, and nextDueAtUtc.",
-]);
 
 if (failures.length > 0) {
   console.error("Admin heartbeat contract validation failed:");

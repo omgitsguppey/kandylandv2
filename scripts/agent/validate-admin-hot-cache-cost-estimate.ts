@@ -1,5 +1,5 @@
 import { buildAdminHotCacheCostEstimate } from "../../src/lib/admin/admin-hot-cache-cost-estimator";
-import { writeJson, writeMarkdown } from "./admin-hot-cache-heartbeat-shared";
+import { writeJson } from "./admin-hot-cache-heartbeat-shared";
 
 const estimate = buildAdminHotCacheCostEstimate();
 const failures: string[] = [];
@@ -13,15 +13,6 @@ writeJson("agent/state/admin-hot-cache-cost-estimate.generated.json", {
   status: failures.length === 0 ? "passed" : "failed",
   estimate,
 });
-writeMarkdown("docs/agent-truth/admin-hot-cache-cost-estimate.md", [
-  "# Admin Hot Cache Cost Estimate",
-  "",
-  `- Old estimated reads per overview load: ${estimate.oldEstimatedReadsPerLoad}.`,
-  `- New estimated reads per overview load: ${estimate.newEstimatedReadsPerLoad}.`,
-  `- Estimated read reduction: ${estimate.estimatedReadReductionPct}%.`,
-  `- Heartbeat interval: ${estimate.newHeartbeatIntervalMs}ms.`,
-  "- This is an operation-level estimate only; no billing amount is claimed.",
-]);
 
 if (failures.length > 0) {
   console.error("Admin hot-cache cost estimate validation failed:");
