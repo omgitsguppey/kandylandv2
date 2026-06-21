@@ -166,7 +166,7 @@ export function buildDebugRuntimeEvidenceReport(inputs: BuildInputs): DebugRunti
     formalEvidenceImpact: "source_debug_runtime_evidence_only",
     doesNotClear: FORMAL_GATES_NOT_CLEARED,
     evidence,
-    nextAction: "Use this as source-backed debug/runtime evidence only; attach deployed runtime smoke before clearing runtime gates.",
+    nextAction: "Use this as source-backed debug/runtime evidence only; attach deployed route evidence before treating deployed-route gates as current.",
     summary: {
       debugRuntimeEvidenceStatus: status,
       checkedSources,
@@ -182,9 +182,9 @@ export function validateDebugRuntimeEvidenceReport(report: DebugRuntimeEvidenceR
   const failures: string[] = [];
   if (report.reportKey !== "debug-runtime-evidence") failures.push("reportKey must be debug-runtime-evidence.");
   if (!report.currentHead || report.sourceCommit !== report.currentHead) failures.push("artifact must be tied to the latest code version.");
-  if (report.launchGateImpact !== "does_not_clear_deployed_runtime_smoke") failures.push("debug runtime evidence must not clear deployed runtime smoke.");
-  if (report.formalProviderSmokeCleared !== false) failures.push("debug runtime evidence must not clear provider smoke.");
-  if (report.deployedRuntimeSmokeCleared !== false) failures.push("debug runtime evidence must not clear deployed runtime smoke.");
+  if (report.launchGateImpact !== "does_not_clear_deployed_runtime_smoke") failures.push("debug runtime evidence must not clear deployed route evidence.");
+  if (report.formalProviderSmokeCleared !== false) failures.push("debug runtime evidence must not clear provider-backed site activity.");
+  if (report.deployedRuntimeSmokeCleared !== false) failures.push("debug runtime evidence must not clear deployed route evidence.");
   if (!report.doesNotClear.includes("deployed_runtime_smoke")) failures.push("doesNotClear must include deployed_runtime_smoke.");
   if (!report.doesNotClear.includes("provider_smoke")) failures.push("doesNotClear must include provider_smoke.");
   if (report.runtimeWarningStoreStatus === "empty_without_source") failures.push("debug/runtime evidence is empty without checked source backing.");
@@ -282,7 +282,7 @@ ${validators}
 
 ## Evidence Boundary
 
-This is source-backed debug/runtime evidence. It does not clear deployed runtime smoke, provider smoke, or admin truth sample evidence.
+This is source-backed debug/runtime evidence. It does not clear deployed route evidence, provider-backed site activity, or admin source activity sample evidence.
 `;
 }
 

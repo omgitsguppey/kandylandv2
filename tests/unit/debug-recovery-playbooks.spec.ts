@@ -27,14 +27,15 @@ describe("debug recovery playbooks", () => {
         "no_payment_gumdrop_math_changes",
         "no_chat_nav_edits",
       ]));
-      expect(playbook.evidenceOutcome).toContain("does not clear formal");
+      expect(playbook.evidenceOutcome).toMatch(/does not clear (provider-backed site activity|deployed route|admin source activity sample|external owner-review|typed evidence|typed beta evidence)/u);
+      expect(playbook.evidenceOutcome).not.toMatch(/does not clear formal|runtime smoke|manual .*gates/iu);
       expect(playbook.scoringImpactEstimate.dimensions.length).toBeGreaterThan(0);
     }
 
     expect(validateDebugRecoveryPlaybooks(playbooks)).toEqual([]);
   });
 
-  it("maps fake evidence recovery to the AI critic and formal evidence gates", () => {
+  it("maps fake evidence recovery to the AI critic and typed evidence gates", () => {
     const playbook = buildDebugRecoveryPlaybooks().find((entry) => entry.id === "fake_evidence_recovery");
 
     expect(playbook).toMatchObject({
@@ -49,9 +50,11 @@ describe("debug recovery playbooks", () => {
       ]),
     });
     expect(playbook?.fixes.join(" ")).toContain("source-only");
+    expect(JSON.stringify(playbook)).toContain("provider-backed site activity");
+    expect(JSON.stringify(playbook)).not.toMatch(/provider\/runtime smoke|runtime smoke claimed|formal gate marked passed/iu);
   });
 
-  it("rejects playbooks that can clear formal evidence without artifacts or touch protected surfaces", () => {
+  it("rejects playbooks that can clear typed evidence without artifacts or touch protected surfaces", () => {
     const invalid: DebugRecoveryPlaybook[] = [
       {
         id: "fake_evidence_recovery",

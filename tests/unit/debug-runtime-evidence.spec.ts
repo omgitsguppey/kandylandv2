@@ -9,7 +9,7 @@ import { buildPublicBetaEvidenceGates } from "../../src/lib/agent-score/core";
 const currentHead = "abc123";
 
 describe("debug runtime evidence", () => {
-  it("passes as checked-clean source-backed debug evidence without clearing smoke gates", () => {
+  it("passes as checked-clean source-backed debug evidence without clearing typed evidence gates", () => {
     const report = buildDebugRuntimeEvidenceReport({
       generatedAtUtc: "2026-05-20T00:00:00.000Z",
       currentHead,
@@ -33,6 +33,8 @@ describe("debug runtime evidence", () => {
     expect(report.passed).toBe(true);
     expect(report.launchGateImpact).toBe("does_not_clear_deployed_runtime_smoke");
     expect(report.formalProviderSmokeCleared).toBe(false);
+    expect(report.nextAction).toContain("deployed route evidence");
+    expect(report.nextAction).not.toMatch(/deployed runtime smoke|provider smoke|admin truth sample/iu);
     expect(validateDebugRuntimeEvidenceReport(report)).toEqual([]);
   });
 

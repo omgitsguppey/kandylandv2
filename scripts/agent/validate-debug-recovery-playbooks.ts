@@ -47,7 +47,7 @@ function renderPlaybook(playbook: DebugRecoveryPlaybook) {
     ...playbook.forbiddenActions.map((action) => `- ${action}`),
     "",
     `Evidence outcome: ${playbook.evidenceOutcome}`,
-    `Scoring impact: ${playbook.scoringImpactEstimate.dimensions.join(", ")}; estimated ${playbook.scoringImpactEstimate.estimatedPointImpact} point(s); formal gates clear=${!playbook.scoringImpactEstimate.doesNotClearFormalGates}`,
+    `Scoring impact: ${playbook.scoringImpactEstimate.dimensions.join(", ")}; estimated ${playbook.scoringImpactEstimate.estimatedPointImpact} point(s); typed evidence gates clear=${!playbook.scoringImpactEstimate.doesNotClearFormalGates}`,
     "",
   ].join("\n");
 }
@@ -56,12 +56,12 @@ function renderDoc(playbooks: DebugRecoveryPlaybook[]) {
   return [
     "# Debug Recovery Playbooks",
     "",
-    "Status: source-only executable recovery map for high-impact debug categories. These playbooks do not authorize production reads, deploys, payment/GumDrop math changes, chat/nav edits, or formal gate clearance without artifacts.",
+    "Status: source-only executable recovery map for high-impact debug categories. These playbooks do not authorize production reads, deploys, payment/GumDrop math changes, chat/nav edits, or provider-backed site activity, deployed route, or admin source activity sample clearance without artifacts.",
     "",
     "## Summary",
     "",
     `- Playbooks: ${playbooks.length}`,
-    "- Formal gates: remain separate from source-only recovery.",
+    "- Typed evidence gates: remain separate from source-only recovery.",
     "- Default forbidden actions: no production reads, no deploy, no payment/GumDrop math changes, no chat/nav edits.",
     "",
     "## Playbooks",

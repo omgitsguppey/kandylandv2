@@ -95,7 +95,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
         "If the artifact is no longer consumed, mark it stale_retired in the debug backlog output with the retire reason.",
       ],
       forbiddenActions: ["no_new_duplicate_system"],
-      evidenceOutcome: "Produces current generated evidence or stale_retired backlog state; does not clear formal provider/runtime/manual/admin gates.",
+      evidenceOutcome: "Produces current generated evidence or stale_retired backlog state; does not clear provider-backed site activity, deployed route, admin source activity sample, or external owner-review gates.",
       scoringImpactEstimate: {
         dimensions: ["freshness", "regressionRisk"],
         estimatedPointImpact: 2,
@@ -109,7 +109,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       triggerPatterns: [
         "debug runtime evidence unknown",
         "runtimeHealth low with runtime_unverified",
-        "source-ready runtime confidence but deployed runtime smoke missing",
+        "source-ready runtime confidence but deployed route evidence missing",
       ],
       sourceFiles: [
         "src/lib/debug/debug-backlog-builder.ts",
@@ -128,10 +128,10 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       ],
       fixes: [
         "Classify unknown runtime evidence as source_ready, runtime_unverified, blocked_external, or formal_missing.",
-        "Connect source-ready runtime confidence to the runtime/provider smoke evidence text only as partial confidence.",
-        "Leave deployed runtime smoke blocked until a formal runtime-smoke artifact exists.",
+        "Connect source-ready runtime confidence to provider-backed site activity and deployed route evidence text only as source confidence.",
+        "Leave deployed route evidence blocked until a deployed-route evidence artifact exists.",
       ],
-      evidenceOutcome: "Runtime debug item becomes classified with exact next action; does not clear formal deployed runtime evidence.",
+      evidenceOutcome: "Runtime debug item becomes classified with exact next action; does not clear deployed route evidence.",
       scoringImpactEstimate: {
         dimensions: ["runtimeHealth", "evidenceCompleteness"],
         estimatedPointImpact: 3,
@@ -145,7 +145,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       triggerPatterns: [
         "admin truth/sample evidence unknown",
         "Admin Debug shows missing or unavailable source truth",
-        "beta cap formal admin truth sample required",
+        "beta cap admin source activity sample required",
       ],
       sourceFiles: [
         "src/lib/admin-debug-control-tower.ts",
@@ -166,9 +166,9 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       fixes: [
         "Keep unavailable admin truth labeled unavailable, stale, or formal_missing.",
         "Wire source-truth sample evidence into Admin Debug summary only when the generated artifact is current.",
-        "Do not mark admin truth/sample evidence Ready unless a formal sample artifact is attached.",
+        "Do not mark admin source activity sample evidence Ready unless a redacted sample artifact is attached.",
       ],
-      evidenceOutcome: "Admin truth issue receives current source sample or formal_missing classification; does not clear formal admin truth gate.",
+      evidenceOutcome: "Admin truth issue receives current source sample or formal_missing classification; does not clear admin source activity sample gate.",
       scoringImpactEstimate: {
         dimensions: ["evidenceCompleteness", "freshness"],
         estimatedPointImpact: 2,
@@ -204,7 +204,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
         "Add typed fallback copy only through the error dictionary and route diagnostics helpers.",
         "Keep route output degraded until the exact validator confirms the mapping.",
       ],
-      evidenceOutcome: "Route issue maps to typed diagnostic and validator evidence; does not clear formal runtime smoke.",
+      evidenceOutcome: "Route issue maps to typed diagnostic and validator evidence; does not clear deployed route evidence.",
       scoringImpactEstimate: {
         dimensions: ["runtimeHealth", "regressionRisk"],
         estimatedPointImpact: 2,
@@ -241,7 +241,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
         "If no consumer exists, archive the producer lane with archive_only classification.",
         "If the lane is source-ready but runtime-unverified, keep debug output degraded instead of healthy.",
       ],
-      evidenceOutcome: "Telemetry lane becomes linked, archived, or source_ready_evidence_gap; does not clear formal runtime evidence.",
+      evidenceOutcome: "Telemetry lane becomes linked, archived, or source_ready_evidence_gap; does not clear deployed route evidence.",
       scoringImpactEstimate: {
         dimensions: ["sourceHealth", "evidenceCompleteness"],
         estimatedPointImpact: 3,
@@ -277,7 +277,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
         "Use watch_session_rollup only for watch-time confidence; never page duration.",
         "Keep unknown legacy as excluded evidence until a dry-run recovery contract maps it.",
       ],
-      evidenceOutcome: "Behavior metric gets exact/probable/weak/unknown confidence; does not clear formal manual or runtime gates.",
+      evidenceOutcome: "Behavior metric gets exact/probable/weak/unknown confidence; does not clear deployed route, admin source activity sample, or external owner-review gates.",
       scoringImpactEstimate: {
         dimensions: ["evidenceCompleteness", "regressionRisk"],
         estimatedPointImpact: 2,
@@ -313,7 +313,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
         "Use density variants when a shared component spans admin, user, and creator surfaces.",
         "Use browser reproduction only after source coverage reports a concrete UI issue that needs confirmation.",
       ],
-      evidenceOutcome: "Mobile source residual becomes source-ready or remains source_refresh_required; browser reproduction is optional and does not clear formal runtime/provider/admin truth gates.",
+      evidenceOutcome: "Mobile source residual becomes source-ready or remains source_refresh_required; browser reproduction is optional and does not clear deployed route, provider-backed site activity, or admin source activity sample gates.",
       scoringImpactEstimate: {
         dimensions: ["evidenceCompleteness", "regressionRisk"],
         estimatedPointImpact: 2,
@@ -349,7 +349,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
         "Keep external billing observation as owner_review until a human-owned billing artifact exists.",
         "Do not add cloud/provider calls to prove cost state.",
       ],
-      evidenceOutcome: "Cost lane becomes source_inventory_complete or owner_review; does not clear formal external billing proof.",
+      evidenceOutcome: "Cost lane becomes source_inventory_complete or owner_review; does not clear external owner-review billing evidence.",
       scoringImpactEstimate: {
         dimensions: ["costRisk", "regressionRisk"],
         estimatedPointImpact: 4,
@@ -385,7 +385,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
         "Keep broad refactors out of the recovery pass unless the playbook explicitly scopes them.",
       ],
       forbiddenActions: ["no_broad_refactor"],
-      evidenceOutcome: "Monolith risk gets owner, linked routes/metrics, and split plan; does not clear formal evidence.",
+      evidenceOutcome: "Monolith risk gets owner, linked routes/metrics, and split plan; does not clear typed evidence gates.",
       scoringImpactEstimate: {
         dimensions: ["regressionRisk", "sourceHealth"],
         estimatedPointImpact: 2,
@@ -397,9 +397,9 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       id: "fake_evidence_recovery",
       title: "Fake Evidence Recovery",
       triggerPatterns: [
-        "source-only output claimed as runtime proof",
-        "formal gate marked passed without artifact",
-        "provider/runtime smoke claimed from local validator",
+        "source-only output claimed as provider-backed site activity or deployed route evidence",
+        "typed evidence gate marked passed without artifact",
+        "provider-backed site activity or deployed route evidence claimed from local validator",
       ],
       sourceFiles: [
         "src/lib/debug/ai-debug-critic.ts",
@@ -418,10 +418,10 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
       ],
       fixes: [
         "Downgrade the claim to source-only, operator_reported, source_ready, blocked_manual, or formal_missing.",
-        "Remove any language that says local/static/source validation passed deployed runtime, provider, or admin truth proof.",
-        "Require a generated formal artifact path before any formal gate can move to Ready.",
+        "Remove any language that says local/static/source validation passed deployed route evidence, provider-backed site activity, or admin source activity sample gates.",
+        "Require a generated typed evidence artifact path before any evidence gate can move to Ready.",
       ],
-      evidenceOutcome: "Evidence claim is corrected to source-only or formal_missing; does not clear formal provider/runtime/admin truth gates.",
+      evidenceOutcome: "Evidence claim is corrected to source-only or formal_missing; does not clear provider-backed site activity, deployed route, or admin source activity sample gates.",
       scoringImpactEstimate: {
         dimensions: ["evidenceCompleteness", "runtimeHealth"],
         estimatedPointImpact: 5,
@@ -458,7 +458,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
         "Connect route response, page state, and admin/debug evidence without changing payment or chat behavior.",
         "Keep missing settings unavailable instead of silently defaulting to live.",
       ],
-      evidenceOutcome: "Creator settings lane becomes wired or unavailable with exact source reason; does not clear formal beta evidence.",
+      evidenceOutcome: "Creator settings lane becomes wired or unavailable with exact source reason; does not clear typed beta evidence gates.",
       scoringImpactEstimate: {
         dimensions: ["sourceHealth", "evidenceCompleteness"],
         estimatedPointImpact: 2,
@@ -494,7 +494,7 @@ export function buildDebugRecoveryPlaybooks(): DebugRecoveryPlaybook[] {
         "Show missing metrics as collecting or unavailable, never proven zero without source evidence.",
         "Keep admin-only publish, approval, and rotation controls out of creator surfaces.",
       ],
-      evidenceOutcome: "Creator drop status/metrics become source-marked or unavailable; does not clear formal runtime/admin truth evidence.",
+      evidenceOutcome: "Creator drop status/metrics become source-marked or unavailable; does not clear deployed route or admin source activity sample evidence.",
       scoringImpactEstimate: {
         dimensions: ["sourceHealth", "evidenceCompleteness"],
         estimatedPointImpact: 2,
@@ -533,11 +533,11 @@ export function validateDebugRecoveryPlaybooks(playbooks: readonly DebugRecovery
     if (!playbook.scoringImpactEstimate.doesNotClearFormalGates) {
       failures.push(`${playbook.id} cannot clear formal evidence without artifact.`);
     }
-    if (/(^|[.;]\s*)(clears formal|clear formal|provider gate passed|runtime smoke passed|manual smoke passed)/iu.test(playbook.evidenceOutcome)) {
+    if (/(^|[.;]\s*)(clears formal|clear formal|clears typed evidence|clear typed evidence|provider gate passed|provider-backed site activity passed|deployed route evidence passed|admin source activity sample passed|runtime smoke passed|manual smoke passed)/iu.test(playbook.evidenceOutcome)) {
       failures.push(`${playbook.id} cannot clear formal evidence without artifact.`);
     }
-    if (!playbook.evidenceOutcome.includes("does not clear formal")) {
-      failures.push(`${playbook.id} evidence outcome must state it does not clear formal gates.`);
+    if (!playbook.evidenceOutcome.includes("does not clear formal") && !/does not clear (provider-backed site activity|deployed route|admin source activity sample|external owner-review|typed evidence|typed beta evidence)/iu.test(playbook.evidenceOutcome)) {
+      failures.push(`${playbook.id} evidence outcome must state it does not clear typed evidence gates.`);
     }
     if (playbook.commands.some((command) => /deploy|gcloud|firebase deploy|production read/iu.test(command))) {
       failures.push(`${playbook.id} includes forbidden deploy or production command.`);
