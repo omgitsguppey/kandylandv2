@@ -71,13 +71,15 @@ export interface IndividualUserMetricTruthReport {
   validationFailures: string[];
 }
 
-function statusFor(input: {
+export function resolveIndividualUserMetricHydrationStatus(input: {
   globalCount: number;
   userCount: number;
   provenZero: boolean;
   missingProducer: string | null;
   missingBridge: string | null;
+  explicitState?: UserMetricHydrationStatus | null;
 }): UserMetricHydrationStatus {
+  if (input.explicitState) return input.explicitState;
   if (input.userCount > 0) return "hydrated";
   if (input.provenZero) return "proven_zero";
   if (input.globalCount > 0) return "bridge_missing";
@@ -94,7 +96,7 @@ export function buildIndividualUserMetricTruthReport(report: PersonMetricsHydrat
     const linked = report.scopes.linkedPerson.metrics[metric.id];
     const creator = report.scopes.creatorRole.metrics[metric.id];
     const userCount = guest.count + signedIn.count + linked.count + creator.count;
-    const computedUserHydrationStatus = statusFor({
+    const computedUserHydrationStatus = resolveIndividualUserMetricHydrationStatus({
       globalCount: global.count,
       userCount,
       provenZero: global.provenZero,
