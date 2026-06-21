@@ -5,8 +5,8 @@ Validator: `npm run check:operator-final-qa-packet`
 
 ## Summary
 
-- Generated: `2026-06-19T18:01:20.797Z`
-- Current head: `79598a740b349732332b6e1751ca9d8f5b3933dc`
+- Generated: `2026-06-21T14:57:39.454Z`
+- Current head: `4b5533fac27901fdfc08d795e41bb08ed8c58334`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:operator-final-qa-packet`
 ```json
 {
   "reportKey": "operator-final-qa-packet",
-  "generatedAtUtc": "2026-06-19T18:01:20.797Z",
-  "currentHead": "79598a740b349732332b6e1751ca9d8f5b3933dc",
+  "generatedAtUtc": "2026-06-21T14:57:39.454Z",
+  "currentHead": "4b5533fac27901fdfc08d795e41bb08ed8c58334",
   "outsideCodexScoreGate": true,
   "surfaces": [
     {
@@ -395,12 +395,12 @@ Validator: `npm run check:operator-final-qa-packet`
   "canClearProviderGate": false,
   "canClearAdminTruthGate": false,
   "nextExactSteps": [
-    "Use the owning release-readiness validator, then attach formal runtime/provider/admin evidence separately."
+    "Use the owning release-readiness validator, then attach source/site-activity/deployed-route/admin-source evidence separately."
   ],
   "doesNotProve": [
     "Does not prove deployed runtime behavior.",
-    "Does not prove provider smoke success.",
-    "Does not prove current admin truth samples.",
+    "Does not prove provider-backed site activity.",
+    "Does not prove current admin source activity samples.",
     "Does not prove external billing or GitHub PR state unless an opt-in fresh evidence artifact says so."
   ]
 }
@@ -408,7 +408,7 @@ Validator: `npm run check:operator-final-qa-packet`
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider-backed site activity, billing, admin source activity, or optional visual reproduction unless the report explicitly includes a matching typed evidence artifact for that category.
 
 ## Validation
 

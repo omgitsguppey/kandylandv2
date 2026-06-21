@@ -1548,7 +1548,7 @@ ${JSON.stringify(report, null, 2)}
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a typed evidence artifact for that category.
+This source-generated packet does not prove deployed runtime, provider-backed site activity, billing, admin source activity, or optional visual reproduction unless the report explicitly includes a matching typed evidence artifact for that category.
 
 ## Validation
 
