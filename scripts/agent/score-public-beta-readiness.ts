@@ -541,7 +541,7 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
     status,
     passed: false,
     detail: liveActivityConfirmed > 0
-      ? "Live runtime evidence bridge found privacy-safe bounded recent activity. Formal provider, admin, billing, deployed runtime, and visual proof remain separate."
+      ? "Live runtime evidence bridge found privacy-safe bounded recent activity. Formal provider, admin, billing, deployed runtime, and optional browser diagnostics remain separate."
       : "Live runtime evidence bridge is wired, but no local daily activity export currently confirms recent user activity.",
     evidence: [
       `liveRuntimeEvidenceArtifactStatus=${status}`,
@@ -557,7 +557,7 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
       `dailyActivityImport.expectedPath=${readString(firstDailyImport?.expectedPath) ?? "agent/evidence/live-runtime-activity/recent-activity.export.json"}`,
       `dailyActivityImport.foundPaths=${foundPaths.join(",") || "none"}`,
       `dailyActivityImport.schema=${readString(firstDailyImport?.schema) ?? "live-runtime-activity-export"}`,
-      "launchGateImpact=does_not_clear_formal_provider_deployed_runtime_admin_billing_or_visual_proof",
+      "launchGateImpact=does_not_clear_formal_provider_deployed_runtime_admin_billing_or_optional_browser_diagnostics",
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
     sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),

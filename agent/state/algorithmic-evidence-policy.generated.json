@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-06-19T15:43:53.342Z",
+  "generatedAtUtc": "2026-06-21T02:06:35.328Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "uiSurfaceCoverageScope": {
@@ -8,7 +8,7 @@
       "canClearFromAlgorithmicEvidence": false,
       "status": "missing",
       "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
-      "nextAction": "Run UI source coverage, admin browser surface smoke, and device UI checks before manual viewing."
+      "nextAction": "Run deterministic UI source coverage and device UI source checks; use browser reproduction only for concrete source-reported UI issues."
     },
     "nonUiAlgorithmicEvidence": {
       "blockedByUiSourceCoverage": false,
@@ -20,15 +20,15 @@
         "cost_gate",
         "refresh_gate"
       ],
-      "score": 66.5,
-      "note": "UI visual artifacts are optional reproduction evidence only after source-reported UI issues and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
+      "score": 60.43,
+      "note": "UI source coverage is the default readiness evidence; optional browser reproduction must follow a source-reported UI issue and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
     }
   },
   "runtimeSourceConfidence": {
     "category": "runtime_source_gate",
     "label": "Runtime source confidence",
     "confidence": "partial",
-    "score": 92,
+    "score": 75.56,
     "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
     "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;failed;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
     "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
@@ -39,10 +39,10 @@
     "category": "telemetry_gate",
     "label": "Telemetry and behavior confidence",
     "confidence": "partial",
-    "score": 92,
+    "score": 72,
     "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
     "sourceStatus": "live;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
-    "distinction": "telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
+    "distinction": "telemetry and behavior math can satisfy non-UI confidence without clearing UI source coverage or runtime proof",
     "formalGateCleared": false,
     "nextAction": "Keep behavior math and real usage confidence artifacts current."
   },
@@ -90,7 +90,7 @@
     "formalGateCleared": false,
     "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
   },
-  "nonUiAlgorithmicCoverageScore": 66.5,
+  "nonUiAlgorithmicCoverageScore": 60.43,
   "formalGateImpact": {
     "uiVisualGateCleared": false,
     "deployedRuntimeSmokeCleared": false,
@@ -107,7 +107,7 @@
       "category": "runtime_source_gate",
       "label": "Runtime source confidence",
       "confidence": "partial",
-      "score": 92,
+      "score": 75.56,
       "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
       "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;failed;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
       "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
@@ -118,10 +118,10 @@
       "category": "telemetry_gate",
       "label": "Telemetry and behavior confidence",
       "confidence": "partial",
-      "score": 92,
+      "score": 72,
       "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
       "sourceStatus": "live;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
-      "distinction": "telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
+      "distinction": "telemetry and behavior math can satisfy non-UI confidence without clearing UI source coverage or runtime proof",
       "formalGateCleared": false,
       "nextAction": "Keep behavior math and real usage confidence artifacts current."
     },
@@ -171,15 +171,15 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "6814557860101ba2db6006ff37bbd670d9c8c0f0",
+  "currentHead": "aee603932b2588451bdb06dbe17fe6bdd13917b3",
   "scoreProbe": {
-    "runtimeHealthScore": 71.2,
+    "runtimeHealthScore": 60.45,
     "evidenceCompletenessScore": 38.4,
     "readinessStatus": "External proof required",
     "launchBlockers": [
       "Runtime/provider smoke: External proof required",
       "Admin truth/sample evidence: External proof required",
-      "Report freshness and PR integrity: Unknown evidence"
+      "Report freshness and PR integrity: Source evidence required"
     ]
   }
 }

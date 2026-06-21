@@ -221,7 +221,7 @@ export function buildAlgorithmicEvidencePolicyReport(
       evidenceArtifactStatusText(input.realUsageConfidenceEvidence, "missing_or_unknown"),
       evidenceArtifactStatusText(input.realUsageConfidenceCalibrationEvidence, "missing_or_unknown"),
     ].join(";"),
-    distinction: "telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
+    distinction: "telemetry and behavior math can satisfy non-UI confidence without clearing UI source coverage or runtime proof",
     nextAction: "Keep behavior math and real usage confidence artifacts current.",
   });
 
