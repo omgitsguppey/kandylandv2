@@ -433,7 +433,7 @@ describe("public beta scoring math", () => {
         ]));
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             "Stale evidence: Provider-backed site activity + deployed route evidence - Refresh provider-backed site activity and deployed runtime route evidence.",
-            "Stale evidence: Admin source sample evidence - Refresh the redacted admin source sample.",
+            "Stale evidence: Admin source activity sample evidence - Refresh the redacted admin source activity sample.",
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
@@ -465,7 +465,7 @@ describe("public beta scoring math", () => {
             expect.objectContaining({ id: "adminTruthSamples", status: "Unknown evidence", score: 0 }),
         ]));
         expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Provider-backed site activity + deployed route evidence");
-        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Admin source sample evidence");
+        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Admin source activity sample evidence");
     });
 
     it("keeps missing_or_unknown admin truth from passing", () => {
@@ -553,7 +553,7 @@ describe("public beta scoring math", () => {
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Targeted behavior tests - Attach targeted source validator evidence."),
             expect.stringContaining("Provider-backed site activity + deployed route evidence - Produce provider-backed site activity"),
-            expect.stringContaining("Admin source sample evidence - Produce a redacted admin source activity sample."),
+            expect.stringContaining("Admin source activity sample evidence - Produce a redacted admin source activity sample."),
         ]));
         expect(report.evidenceCapDetails.join("\n")).not.toContain("Operator reported PayPal");
         expect(report.evidenceCapDetails.join("\n")).not.toContain("No fresh admin truth sample.");

@@ -476,12 +476,12 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   if (gate.id === "adminTruthSamples") {
     if (gate.status === "External proof required" || gate.status === "Source evidence required" || gate.status === "Unknown evidence") {
       if ((gate.status === "External proof required" || gate.status === "Source evidence required") && (gate.freshness === "stale" || gate.freshness === "head_mismatch")) {
-        return `${gate.status}: ${gate.label} - Refresh the redacted admin source sample.`;
+        return `${gate.status}: ${gate.label} - Refresh the redacted admin source activity sample.`;
       }
       return `${gate.status}: ${gate.label} - Produce a redacted admin source activity sample.`;
     }
     if (gate.status === "Stale evidence") {
-      return `${gate.status}: ${gate.label} - Refresh the redacted admin source sample.`;
+      return `${gate.status}: ${gate.label} - Refresh the redacted admin source activity sample.`;
     }
   }
 
@@ -1029,7 +1029,7 @@ export function buildPublicBetaEvidenceGates(input: {
   const adminTruthSampleDetail = evidenceArtifactDetail(
     evidence.adminTruthSampleEvidence,
     adminTruthSamplePassed
-      ? "Admin source sample evidence was supplied."
+      ? "Admin source activity sample evidence was supplied."
       : "No admin source activity sample evidence artifact was supplied.",
   );
   const adminTruthSampleEvidence = Array.from(new Set([
@@ -1214,12 +1214,12 @@ export function buildPublicBetaEvidenceGates(input: {
     }),
     buildEvidenceGate({
       id: "adminTruthSamples",
-      label: "Admin source sample evidence",
+      label: "Admin source activity sample evidence",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.adminTruthSamples,
       status: adminTruthSampleStatusLabel,
       detail: adminTruthSampleDetail,
       evidence: adminTruthSampleEvidence,
-      recommendedAction: "Require a redacted admin source sample before rendering zero/live/healthy as launch truth.",
+      recommendedAction: "Require a redacted admin source activity sample before rendering zero/live/healthy as launch truth.",
       quality: adminQuality,
       gateRequiredForExit: true,
       sourceCredit: adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
@@ -1864,7 +1864,7 @@ export function buildPublicBetaScoreReport(
     "Future activity placeholders and source-ready lanes waiting for first real user events do not reduce score.",
     "Debug signal score impact is counted from actionable groups, not raw quiet catalog rows.",
     "Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only to reproduce source-reported UI issues.",
-    "Provider-backed site activity, deployed runtime route evidence, and admin source samples remain required for launch readiness.",
+    "Provider-backed site activity, deployed runtime route evidence, and admin source activity samples remain required for launch readiness.",
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes.",
   ].map(normalizeTechnicalFreshnessTerms);
