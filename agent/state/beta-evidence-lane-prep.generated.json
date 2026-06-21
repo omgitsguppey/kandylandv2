@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T04:49:13.378Z",
+  "generatedAtUtc": "2026-06-21T04:50:12.696Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "967c61369485a09411c164ca1fbae785b504e3f5",
+  "currentHead": "89e50de601401561f2df40a4be4ddca8eefc8f2e",
   "summary": {
     "laneCount": 8,
     "formalMissingCount": 2,
@@ -11,7 +11,7 @@
     "providerSmokeGateCleared": false,
     "p0Count": 0,
     "p1Count": 2,
-    "p2Count": 17
+    "p2Count": 18
   },
   "lanes": [
     {
@@ -257,7 +257,7 @@
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
@@ -364,6 +364,12 @@
       "status": "stale_source_version",
       "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
       "refreshCommand": "npm run check:beta-evidence-gap-map"
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
+      "status": "same_commit_snapshot",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",

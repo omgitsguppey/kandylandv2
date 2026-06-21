@@ -1,6 +1,6 @@
 # Beta Evidence Lane Prep
 
-Generated: 2026-06-21T04:49:13.378Z
+Generated: 2026-06-21T04:50:12.696Z
 
 ## Summary
 
@@ -36,6 +36,7 @@ Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site acti
 - agent/state/creator-drop-status-metrics.generated.json: No refresh needed.
 - agent/state/operator-revenue-smoke.generated.json: No refresh needed.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
+- agent/state/beta-evidence-lane-prep.generated.json: No refresh needed.
 - agent/state/beta-freshness-language.generated.json: No refresh needed.
 - agent/state/final-pr-stale-cleanup.generated.json: No refresh needed.
 - agent/state/overnight-wiring-integrity.generated.json: No refresh needed.
