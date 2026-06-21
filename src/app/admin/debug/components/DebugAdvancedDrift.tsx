@@ -326,7 +326,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                         </div>
                         <p className="mt-3 text-xs leading-6 text-gray-400">
                             Unsupported runtime records are grouped by reason and source so active assignment risk stays separate from historical-only drift.
-                            Task rows below separate assignment, completion, reward, receipt, rollup, and trigger evidence lanes instead of treating event stats as completion proof.
+                            Task rows below separate assignment, completion, reward, receipt, rollup, and trigger evidence lanes instead of treating event stats as completion evidence.
                             {runtimeSourceStatus?.nextAction ? ` ${runtimeSourceStatus.nextAction}` : ""}
                         </p>
                     </div>

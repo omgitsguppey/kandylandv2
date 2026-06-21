@@ -223,7 +223,7 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                             <Pill label="Unsupported active assignments" value={mappingSummary?.unsupportedActiveAssignments ?? 0} tone={(mappingSummary?.unsupportedActiveAssignments ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                         </div>
                          <p className="mt-3 text-xs leading-6 text-gray-400">
-                             Shared events are only safe when criteria, distinct keying, and count thresholds keep task attribution scoped. Event stats are raw trigger evidence. They are not task completion proof. Lifecycle events and onboarding telemetry can be healthy even when they do not map to a daily task.
+                             Shared events are only safe when criteria, distinct keying, and count thresholds keep task attribution scoped. Event stats are raw trigger evidence. They are not task completion evidence. Lifecycle events and onboarding telemetry can be healthy even when they do not map to a daily task.
                              {mappingSourceStatus?.nextAction ? ` ${mappingSourceStatus.nextAction}` : ""}
                          </p>
                          <details className="mt-3 rounded-[0.75rem] border border-white/10 bg-black/20 p-3">

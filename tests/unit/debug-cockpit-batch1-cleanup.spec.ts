@@ -135,6 +135,8 @@ describe("debug cockpit batch 1 cleanup", () => {
 
     expect(runtimeGate.status).toBe("provider_artifact_required");
     expect(runtimeGate.queueClassification).toBe("formal_evidence");
+    expect(runtimeGate.reason).toBe("Provider-backed site activity evidence is required and must not be treated as a source-code fix.");
+    expect(runtimeGate.reason).not.toMatch(/manual proof|formal proof|provider smoke|runtime smoke/iu);
     expect(isFormalGateSourceFix(runtimeGate)).toBe(false);
   });
 

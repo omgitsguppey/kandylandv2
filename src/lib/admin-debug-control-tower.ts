@@ -634,7 +634,7 @@ function normalizePublicBetaReadinessStatusForAdminModel(status: string, reason:
     if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older|source metadata is stale/iu.test(combined)) return "Report refresh needed";
     if (/targeted behavior tests|source checks|source validation only/iu.test(combined)) return "Source checks only";
     if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";
-    if (/stale evidence/iu.test(combined)) return "Refresh or proof needed";
+    if (/stale evidence/iu.test(combined)) return "Refresh or evidence needed";
     return status;
 }
 

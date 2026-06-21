@@ -152,7 +152,7 @@ describe("analytics panel hydration", () => {
     expect(panel.userSafeDisplayState).toBe("show_external_required");
   });
 
-  it("keeps GumDrop balances in protected payment proof instead of generic source-missing", () => {
+  it("keeps GumDrop balances in protected payment evidence instead of generic source-missing", () => {
     const panel = resolvePanelHydration({ panelId: "gumdrop_balances" });
 
     expect(panel.hydrationStatus).toBe("protected_payment_required");

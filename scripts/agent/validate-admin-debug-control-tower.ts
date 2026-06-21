@@ -1650,7 +1650,7 @@ for (const expected of [
   "label=\"Canonical source\"",
   "label=\"Parity\"",
   "Unsupported runtime records are grouped by reason and source",
-  "event stats as completion proof",
+  "event stats as completion evidence",
   "No source parity mismatches detected in the sampled runtime evidence.",
   "No unsupported runtime records were found",
   "No active user sample was attached to this runtime drift group.",

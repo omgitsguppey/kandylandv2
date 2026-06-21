@@ -1,9 +1,7 @@
 export type PublicBetaCapDisplayState =
     | "source_only"
     | "site_activity_evidence_required"
-    | "external_proof_required"
     | "admin_source_activity_sample_required"
-    | "admin_truth_sample_required"
     | "refresh_due"
     | "review";
 
@@ -31,15 +29,15 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
 
     if (/runtime\/provider smoke|provider smoke|runtime smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence/iu.test(normalized)) {
         const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true|deployed (runtime )?route evidence (is )?(current|recorded)|deployed route evidence is recorded/iu.test(normalized);
-        const providerProofDetail = runtimeRecorded
+        const providerEvidenceDetail = runtimeRecorded
             ? "Produce redacted provider-backed site activity evidence. Deployed route evidence is recorded; keep it fresh."
             : "Produce redacted provider-backed site activity evidence and deployed route evidence.";
         return {
             state: "site_activity_evidence_required",
             label: "Site activity evidence required",
             detail: /operator-confirmed|operator confirmed|paypal/iu.test(normalized)
-                ? `The payment note is product context only. ${providerProofDetail}`
-                : providerProofDetail,
+                ? `The payment note is product context only. ${providerEvidenceDetail}`
+                : providerEvidenceDetail,
         };
     }
 
@@ -79,9 +77,7 @@ export function summarizePublicBetaCapDisplays(displays: PublicBetaCapDisplay[])
     const sourceOnlyCount = displays.filter((entry) => entry.state === "source_only").length;
     const typedEvidenceCount = displays.filter((entry) =>
         entry.state === "site_activity_evidence_required"
-        || entry.state === "external_proof_required"
-        || entry.state === "admin_source_activity_sample_required"
-        || entry.state === "admin_truth_sample_required").length;
+        || entry.state === "admin_source_activity_sample_required").length;
     const refreshCount = displays.filter((entry) => entry.state === "refresh_due").length;
     const reviewCount = displays.filter((entry) => entry.state === "review").length;
     const summary = [
@@ -93,12 +89,10 @@ export function summarizePublicBetaCapDisplays(displays: PublicBetaCapDisplay[])
 
     return {
         sourceOnlyCount,
-        externalProofCount: typedEvidenceCount,
         typedEvidenceCount,
         refreshCount,
         reviewCount,
         needsTypedEvidence: typedEvidenceCount > 0,
-        needsFormalProof: typedEvidenceCount > 0,
         needsRefresh: typedEvidenceCount === 0 && refreshCount > 0,
         needsReview: typedEvidenceCount === 0 && refreshCount === 0 && (sourceOnlyCount > 0 || reviewCount > 0),
         summary,
