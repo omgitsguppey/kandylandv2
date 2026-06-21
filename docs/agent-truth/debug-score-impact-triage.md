@@ -1,42 +1,32 @@
 # Debug Score Impact Triage
 
-Generated: 2026-06-03T22:38:02.518Z
+Generated: 2026-06-21T18:27:50.957Z
 
-Latest code version: 815177718fc1610590762fdae5d76b3ae390a2ae
+Latest code version: 8ca57655865577c691fbcbc6c7e636acea2e9281
 
 ## Summary
 
-- Issues classified: 55
+- Issues classified: 45
 - Source-fixable: 5
 - Evidence-fixable: 38
-- Stale artifact-fixable: 40
-- P0/P1/P2: 0/20/35
+- Stale artifact-fixable: 30
+- P0/P1/P2: 0/10/35
 
 ## Score-Impact Queue
 
 | Issue | Severity | Dimension | Est. point impact | Current status | Fix plan |
 | --- | --- | --- | ---: | --- | --- |
-| runtime-provider-smoke-source-confidence-gap | P1 | runtimeHealth | 5.6 | runtime_unverified | Keep formal runtime/provider gates blocked; only source-backed confidence can be refreshed without deployed/runtime proof. |
+| runtime-provider-smoke-source-confidence-gap | P1 | runtimeHealth | 8.89 | runtime_unverified | Keep provider-backed site activity + deployed route evidence gates blocked; only source-backed confidence can be refreshed without claiming provider or deployed-route truth. |
 | debug-panel-admin-truth-samples | P1 | freshness | 4 | formal_proof_required | Attach a fresh first-party admin truth sample before upgrading this gate. |
 | debug-panel-report-precatch-runtime | P1 | freshness | 4 | stale | Leave the item labeled as evidence or archive until a focused refresh command exists. |
 | debug-panel-targeted-behavior-evidence | P1 | freshness | 4 | stale | Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate. |
-| stale-artifact-beta-evidence-gap-map-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:beta-evidence-gap-map. |
-| stale-artifact-beta-evidence-lane-prep-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:beta-evidence-lane-prep. |
-| stale-artifact-beta-freshness-language-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:beta-freshness-language. |
-| stale-artifact-creator-drop-status-metrics-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:creator-drop-status-metrics. |
-| stale-artifact-creator-settings-control-plane-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:creator-settings-control-plane. |
-| stale-artifact-evidence-capture-status-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:evidence-capture-status. |
-| stale-artifact-existing-algorithm-refinement-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:existing-algorithm-refinement. |
-| stale-artifact-final-pr-stale-cleanup-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:final-pr-stale-cleanup. |
-| stale-artifact-final-telemetry-closure-lock-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:final-telemetry-closure-lock. |
-| stale-artifact-global-marquee-truncated-titles-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:global-marquee-truncated-titles. |
-| stale-artifact-mobile-ui-final-lock-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:mobile-ui-final-lock. |
-| stale-artifact-operator-revenue-smoke-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:operator-revenue-smoke. |
-| stale-artifact-overnight-final-integration-lock-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:overnight-final-integration-lock. |
-| stale-artifact-overnight-wiring-integrity-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:overnight-wiring-integrity. |
-| stale-artifact-source-truth-authority-map-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:source-truth-authority-map. |
-| stale-artifact-user-loading-wallet-mobile-refinement-generated-json | P1 | freshness | 1 | stale_refreshable | Refresh with npm run check:user-loading-wallet-mobile-refinement. |
-| debug-runtime-evidence-unknown-empty | P2 | runtimeHealth | 0.01 | source_ready_debug_runtime_evidence | Debug/runtime evidence has source-backed checked-clean status; deployed runtime smoke remains separate. |
+| stale-artifact-beta-evidence-gap-map-generated-json | P1 | freshness | 2.7083333333333335 | stale_refreshable | Refresh with npm run check:beta-evidence-gap-map. |
+| stale-artifact-beta-evidence-lane-prep-generated-json | P1 | freshness | 2.7083333333333335 | stale_refreshable | Refresh with npm run check:beta-evidence-lane-prep. |
+| stale-artifact-current-beta-exit-status-generated-json | P1 | freshness | 2.7083333333333335 | stale_refreshable | Refresh with npm run check:current-beta-exit-status. |
+| stale-artifact-evidence-capture-status-generated-json | P1 | freshness | 2.7083333333333335 | stale_refreshable | Refresh with npm run check:evidence-capture-status. |
+| stale-artifact-mobile-ui-final-lock-generated-json | P1 | freshness | 2.7083333333333335 | stale_refreshable | Refresh with npm run check:mobile-ui-final-lock. |
+| stale-artifact-overnight-final-integration-lock-generated-json | P1 | freshness | 2.7083333333333335 | stale_refreshable | Refresh with npm run check:overnight-final-integration-lock. |
+| debug-runtime-evidence-unknown-empty | P2 | runtimeHealth | 0.01 | partial_debug_runtime_evidence | Debug/runtime evidence has partial source-backed status; deployed route evidence remains separate. |
 | telemetry-lane-admin-snapshots | P2 | runtimeHealth | 2 | unavailable | Run the admin analytics refresh lane before treating this as current. |
 | telemetry-lane-bigquery-export | P2 | runtimeHealth | 2 | config_missing | Configure export only in an owner-approved cloud pipeline pass. |
 | telemetry-lane-ingest | P2 | runtimeHealth | 2 | runtime_unproven | Open the route runtime drilldown or wait for runtime samples before treating ingest as proven. |
@@ -74,11 +64,11 @@ Latest code version: 815177718fc1610590762fdae5d76b3ae390a2ae
 
 ## Deferred
 
-- runtime-provider-smoke-source-confidence-gap: Formal deployed runtime/provider smoke requires external proof. Next: Keep formal runtime/provider gates blocked; only source-backed confidence can be refreshed without deployed/runtime proof.
+- runtime-provider-smoke-source-confidence-gap: Provider-backed site activity + deployed route evidence requires first-party/deployed evidence. Next: Keep provider-backed site activity + deployed route evidence gates blocked; only source-backed confidence can be refreshed without claiming provider or deployed-route truth.
 
 ## Next Exact Steps
 
 - Run npm run check:debug-runtime-evidence.
-- Attach deployed runtime smoke before clearing runtime evidence gates.
-- Attach formal provider proof before clearing provider smoke.
-- Attach a redacted production admin truth sample before clearing the admin truth sample gate.
+- Attach deployed route evidence before clearing runtime evidence gates.
+- Attach provider-backed site activity evidence before clearing provider evidence gates.
+- Attach a redacted admin source activity sample before clearing the admin source sample gate.

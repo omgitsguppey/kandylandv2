@@ -122,6 +122,8 @@ describe("Admin analytics operations mobile consolidation", () => {
     expect(source).toContain("data-journey-funnel-measurement-mode={journeyFunnelModel.measurementMode}");
     expect(source).toContain("data-journey-funnel-denominator-mode={journeyFunnelModel.denominatorMode}");
     expect(source).toContain("data-admin-analytics-next-source-step={journeyFunnelModel.nextSourceStep ?? \"\"}");
+    expect(source).toContain("Repeated event-volume chain. Not a unique-user funnel.");
+    expect(source).not.toContain("user-level proof stays separate");
     expect(source).toContain("Next source step: generate bounded sample activity, refresh snapshots, or inspect Debug.");
     expect(source).toContain("Exact funnel unavailable until ordered actor/session transitions exist.");
     expect(source).not.toContain("Manual workaround:");

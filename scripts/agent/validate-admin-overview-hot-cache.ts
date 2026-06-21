@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 
-import { writeJson, writeMarkdown } from "./admin-hot-cache-heartbeat-shared";
+import { writeJson } from "./admin-hot-cache-heartbeat-shared";
 
 const source = readFileSync(join(process.cwd(), "src/app/api/admin/overview/route.ts"), "utf-8");
 const failures: string[] = [];
@@ -36,13 +36,6 @@ writeJson("agent/state/admin-overview-hot-cache.generated.json", {
   broadFallbackReadsRun: false,
   authGuardPreserved: source.includes("auth: \"admin\""),
 });
-writeMarkdown("docs/agent-truth/admin-overview-hot-cache.md", [
-  "# Admin Overview Hot Cache",
-  "",
-  "- Page load reads one admin overview snapshot doc and one heartbeat doc.",
-  "- Missing snapshot returns source-missing state and does not run broad fallback reads.",
-  "- Admin auth guard remains request-time dynamic.",
-]);
 
 if (failures.length > 0) {
   console.error("Admin overview hot-cache validation failed:");

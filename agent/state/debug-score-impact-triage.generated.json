@@ -1,16 +1,16 @@
 {
-  "generatedAtUtc": "2026-06-03T22:38:02.518Z",
+  "generatedAtUtc": "2026-06-21T18:27:50.957Z",
   "reportKey": "debug-score-impact-triage",
-  "currentHead": "815177718fc1610590762fdae5d76b3ae390a2ae",
+  "currentHead": "8ca57655865577c691fbcbc6c7e636acea2e9281",
   "summary": {
-    "issueCount": 55,
+    "issueCount": 45,
     "sourceFixableCount": 5,
     "evidenceFixableCount": 38,
-    "staleArtifactFixableCount": 40,
+    "staleArtifactFixableCount": 30,
     "p0Count": 0,
-    "p1Count": 20,
+    "p1Count": 10,
     "p2Count": 35,
-    "topPointImpact": 5.6
+    "topPointImpact": 8.89
   },
   "issues": [
     {
@@ -19,7 +19,7 @@
       "surface": "runtime_evidence",
       "severity": "P1",
       "betaDimension": "runtimeHealth",
-      "estimatedPointImpact": 5.6,
+      "estimatedPointImpact": 8.89,
       "sourceFixable": false,
       "evidenceFixable": true,
       "staleArtifactFixable": false,
@@ -29,7 +29,7 @@
         "agent/state/provider-smoke-evidence.generated.json",
         "agent/state/source-backed-runtime-confidence.generated.json"
       ],
-      "fixPlan": "Keep formal runtime/provider gates blocked; only source-backed confidence can be refreshed without deployed/runtime proof."
+      "fixPlan": "Keep provider-backed site activity + deployed route evidence gates blocked; only source-backed confidence can be refreshed without claiming provider or deployed-route truth."
     },
     {
       "id": "debug-panel-admin-truth-samples",
@@ -85,7 +85,7 @@
       "surface": "agent_state",
       "severity": "P1",
       "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
+      "estimatedPointImpact": 2.7083333333333335,
       "sourceFixable": false,
       "evidenceFixable": false,
       "staleArtifactFixable": true,
@@ -101,7 +101,7 @@
       "surface": "agent_state",
       "severity": "P1",
       "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
+      "estimatedPointImpact": 2.7083333333333335,
       "sourceFixable": false,
       "evidenceFixable": false,
       "staleArtifactFixable": true,
@@ -112,52 +112,20 @@
       "fixPlan": "Refresh with npm run check:beta-evidence-lane-prep."
     },
     {
-      "id": "stale-artifact-beta-freshness-language-generated-json",
+      "id": "stale-artifact-current-beta-exit-status-generated-json",
       "source": "refresh-safeguards",
       "surface": "agent_state",
       "severity": "P1",
       "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
+      "estimatedPointImpact": 2.7083333333333335,
       "sourceFixable": false,
       "evidenceFixable": false,
       "staleArtifactFixable": true,
       "currentStatus": "stale_refreshable",
       "exactFiles": [
-        "agent/state/beta-freshness-language.generated.json"
+        "agent/state/current-beta-exit-status.generated.json"
       ],
-      "fixPlan": "Refresh with npm run check:beta-freshness-language."
-    },
-    {
-      "id": "stale-artifact-creator-drop-status-metrics-generated-json",
-      "source": "refresh-safeguards",
-      "surface": "agent_state",
-      "severity": "P1",
-      "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleArtifactFixable": true,
-      "currentStatus": "stale_refreshable",
-      "exactFiles": [
-        "agent/state/creator-drop-status-metrics.generated.json"
-      ],
-      "fixPlan": "Refresh with npm run check:creator-drop-status-metrics."
-    },
-    {
-      "id": "stale-artifact-creator-settings-control-plane-generated-json",
-      "source": "refresh-safeguards",
-      "surface": "agent_state",
-      "severity": "P1",
-      "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleArtifactFixable": true,
-      "currentStatus": "stale_refreshable",
-      "exactFiles": [
-        "agent/state/creator-settings-control-plane.generated.json"
-      ],
-      "fixPlan": "Refresh with npm run check:creator-settings-control-plane."
+      "fixPlan": "Refresh with npm run check:current-beta-exit-status."
     },
     {
       "id": "stale-artifact-evidence-capture-status-generated-json",
@@ -165,7 +133,7 @@
       "surface": "agent_state",
       "severity": "P1",
       "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
+      "estimatedPointImpact": 2.7083333333333335,
       "sourceFixable": false,
       "evidenceFixable": false,
       "staleArtifactFixable": true,
@@ -176,76 +144,12 @@
       "fixPlan": "Refresh with npm run check:evidence-capture-status."
     },
     {
-      "id": "stale-artifact-existing-algorithm-refinement-generated-json",
-      "source": "refresh-safeguards",
-      "surface": "agent_state",
-      "severity": "P1",
-      "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleArtifactFixable": true,
-      "currentStatus": "stale_refreshable",
-      "exactFiles": [
-        "agent/state/existing-algorithm-refinement.generated.json"
-      ],
-      "fixPlan": "Refresh with npm run check:existing-algorithm-refinement."
-    },
-    {
-      "id": "stale-artifact-final-pr-stale-cleanup-generated-json",
-      "source": "refresh-safeguards",
-      "surface": "agent_state",
-      "severity": "P1",
-      "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleArtifactFixable": true,
-      "currentStatus": "stale_refreshable",
-      "exactFiles": [
-        "agent/state/final-pr-stale-cleanup.generated.json"
-      ],
-      "fixPlan": "Refresh with npm run check:final-pr-stale-cleanup."
-    },
-    {
-      "id": "stale-artifact-final-telemetry-closure-lock-generated-json",
-      "source": "refresh-safeguards",
-      "surface": "agent_state",
-      "severity": "P1",
-      "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleArtifactFixable": true,
-      "currentStatus": "stale_refreshable",
-      "exactFiles": [
-        "agent/state/final-telemetry-closure-lock.generated.json"
-      ],
-      "fixPlan": "Refresh with npm run check:final-telemetry-closure-lock."
-    },
-    {
-      "id": "stale-artifact-global-marquee-truncated-titles-generated-json",
-      "source": "refresh-safeguards",
-      "surface": "agent_state",
-      "severity": "P1",
-      "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleArtifactFixable": true,
-      "currentStatus": "stale_refreshable",
-      "exactFiles": [
-        "agent/state/global-marquee-truncated-titles.generated.json"
-      ],
-      "fixPlan": "Refresh with npm run check:global-marquee-truncated-titles."
-    },
-    {
       "id": "stale-artifact-mobile-ui-final-lock-generated-json",
       "source": "refresh-safeguards",
       "surface": "agent_state",
       "severity": "P1",
       "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
+      "estimatedPointImpact": 2.7083333333333335,
       "sourceFixable": false,
       "evidenceFixable": false,
       "staleArtifactFixable": true,
@@ -256,28 +160,12 @@
       "fixPlan": "Refresh with npm run check:mobile-ui-final-lock."
     },
     {
-      "id": "stale-artifact-operator-revenue-smoke-generated-json",
-      "source": "refresh-safeguards",
-      "surface": "agent_state",
-      "severity": "P1",
-      "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleArtifactFixable": true,
-      "currentStatus": "stale_refreshable",
-      "exactFiles": [
-        "agent/state/operator-revenue-smoke.generated.json"
-      ],
-      "fixPlan": "Refresh with npm run check:operator-revenue-smoke."
-    },
-    {
       "id": "stale-artifact-overnight-final-integration-lock-generated-json",
       "source": "refresh-safeguards",
       "surface": "agent_state",
       "severity": "P1",
       "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
+      "estimatedPointImpact": 2.7083333333333335,
       "sourceFixable": false,
       "evidenceFixable": false,
       "staleArtifactFixable": true,
@@ -286,54 +174,6 @@
         "agent/state/overnight-final-integration-lock.generated.json"
       ],
       "fixPlan": "Refresh with npm run check:overnight-final-integration-lock."
-    },
-    {
-      "id": "stale-artifact-overnight-wiring-integrity-generated-json",
-      "source": "refresh-safeguards",
-      "surface": "agent_state",
-      "severity": "P1",
-      "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleArtifactFixable": true,
-      "currentStatus": "stale_refreshable",
-      "exactFiles": [
-        "agent/state/overnight-wiring-integrity.generated.json"
-      ],
-      "fixPlan": "Refresh with npm run check:overnight-wiring-integrity."
-    },
-    {
-      "id": "stale-artifact-source-truth-authority-map-generated-json",
-      "source": "refresh-safeguards",
-      "surface": "agent_state",
-      "severity": "P1",
-      "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleArtifactFixable": true,
-      "currentStatus": "stale_refreshable",
-      "exactFiles": [
-        "agent/state/source-truth-authority-map.generated.json"
-      ],
-      "fixPlan": "Refresh with npm run check:source-truth-authority-map."
-    },
-    {
-      "id": "stale-artifact-user-loading-wallet-mobile-refinement-generated-json",
-      "source": "refresh-safeguards",
-      "surface": "agent_state",
-      "severity": "P1",
-      "betaDimension": "freshness",
-      "estimatedPointImpact": 1,
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleArtifactFixable": true,
-      "currentStatus": "stale_refreshable",
-      "exactFiles": [
-        "agent/state/user-loading-wallet-mobile-refinement.generated.json"
-      ],
-      "fixPlan": "Refresh with npm run check:user-loading-wallet-mobile-refinement."
     },
     {
       "id": "debug-runtime-evidence-unknown-empty",
@@ -345,12 +185,12 @@
       "sourceFixable": false,
       "evidenceFixable": false,
       "staleArtifactFixable": false,
-      "currentStatus": "source_ready_debug_runtime_evidence",
+      "currentStatus": "partial_debug_runtime_evidence",
       "exactFiles": [
         "agent/state/debug-runtime-evidence.generated.json",
         "docs/agent-truth/debug-runtime-evidence.md"
       ],
-      "fixPlan": "Debug/runtime evidence has source-backed checked-clean status; deployed runtime smoke remains separate."
+      "fixPlan": "Debug/runtime evidence has partial source-backed status; deployed route evidence remains separate."
     },
     {
       "id": "telemetry-lane-admin-snapshots",
@@ -903,14 +743,14 @@
   "deferred": [
     {
       "id": "runtime-provider-smoke-source-confidence-gap",
-      "reason": "Formal deployed runtime/provider smoke requires external proof.",
-      "nextAction": "Keep formal runtime/provider gates blocked; only source-backed confidence can be refreshed without deployed/runtime proof."
+      "reason": "Provider-backed site activity + deployed route evidence requires first-party/deployed evidence.",
+      "nextAction": "Keep provider-backed site activity + deployed route evidence gates blocked; only source-backed confidence can be refreshed without claiming provider or deployed-route truth."
     }
   ],
   "nextExactSteps": [
     "Run npm run check:debug-runtime-evidence.",
-    "Attach deployed runtime smoke before clearing runtime evidence gates.",
-    "Attach formal provider proof before clearing provider smoke.",
-    "Attach a redacted production admin truth sample before clearing the admin truth sample gate."
+    "Attach deployed route evidence before clearing runtime evidence gates.",
+    "Attach provider-backed site activity evidence before clearing provider evidence gates.",
+    "Attach a redacted admin source activity sample before clearing the admin source sample gate."
   ]
 }

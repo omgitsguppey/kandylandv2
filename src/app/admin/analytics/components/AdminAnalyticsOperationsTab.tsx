@@ -646,7 +646,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
             <SectionCard
               title={journeyFunnelModel.visibleTitle}
-              subtitle="Event order from the latest verified sample; user-level proof stays separate."
+              subtitle="Repeated event-volume chain. Not a unique-user funnel."
               icon={Eye}
               density="compact"
               rightSlot={(

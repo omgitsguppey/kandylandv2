@@ -8,7 +8,7 @@ import {
 const currentHead = "abc123";
 
 describe("debug score impact triage", () => {
-  it("prioritizes debug/runtime evidence, admin truth, runtime smoke, and stale score artifacts", () => {
+  it("prioritizes debug/runtime evidence, admin truth, site activity evidence, and stale score artifacts", () => {
     const report = buildDebugScoreImpactTriageReport({
       generatedAtUtc: "2026-05-20T00:00:00.000Z",
       currentHead,
@@ -20,7 +20,7 @@ describe("debug score impact triage", () => {
         evidenceCapDetails: [
           "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown.",
           "Unknown evidence: Admin truth/sample evidence - No fresh admin truth sample.",
-          "Runtime unverified: Runtime/provider smoke - No deployed runtime smoke evidence was supplied.",
+          "Source evidence required: Provider-backed site activity + deployed route evidence - No deployed route evidence was supplied.",
         ],
         staleArtifacts: [
           {
@@ -60,6 +60,8 @@ describe("debug score impact triage", () => {
     ]);
     expect(report.summary.p0Count).toBe(0);
     expect(report.summary.p1Count).toBeGreaterThan(0);
+    expect(JSON.stringify(report)).toContain("Provider-backed site activity + deployed route evidence");
+    expect(JSON.stringify(report)).not.toMatch(/formal provider proof|deployed runtime smoke|runtime\/provider smoke/i);
     expect(validateDebugScoreImpactTriageReport(report)).toEqual([]);
   });
 
@@ -83,5 +85,36 @@ describe("debug score impact triage", () => {
       expect.stringContaining("unknown evidence marked healthy"),
       expect.stringContaining("stale artifact lacks refresh command"),
     ]));
+  });
+
+  it("keeps partial debug runtime evidence source-backed without clearing deployed route evidence", () => {
+    const report = buildDebugScoreImpactTriageReport({
+      generatedAtUtc: "2026-05-20T00:00:00.000Z",
+      currentHead,
+      betaScore: {
+        overallScore: 74,
+        runtimeHealthScore: 71,
+        evidenceCompletenessScore: 70,
+        freshnessScore: 80,
+        evidenceCapDetails: [
+          "Source evidence required: Provider-backed site activity + deployed route evidence - Deployed route evidence remains required.",
+        ],
+      },
+      debugRuntimeEvidence: {
+        status: "partial_debug_runtime_evidence",
+      },
+    });
+
+    const debugRuntime = report.issues.find((issue) => issue.id === "debug-runtime-evidence-unknown-empty");
+
+    expect(debugRuntime).toMatchObject({
+      currentStatus: "partial_debug_runtime_evidence",
+      sourceFixable: false,
+      evidenceFixable: false,
+    });
+    expect(debugRuntime?.fixPlan).toContain("partial source-backed status");
+    expect(debugRuntime?.fixPlan).toContain("deployed route evidence remains separate");
+    expect(JSON.stringify(report)).not.toMatch(/deployed runtime smoke/i);
+    expect(validateDebugScoreImpactTriageReport(report)).toEqual([]);
   });
 });

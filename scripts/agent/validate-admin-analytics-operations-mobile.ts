@@ -45,8 +45,8 @@ for (const needle of [
   "measurementMode",
   "nextSourceStep",
   "algorithmRecommendation",
-  '"NO SAMPLE"',
-  '"UNAVAILABLE"',
+  '"No sample"',
+  '"No source"',
 ]) {
   requireIncludes(journeyFunnel, needle, "Event Chain hydration model");
 }
@@ -116,7 +116,7 @@ requireIncludes(primitives, "density = \"default\"", "SectionCard density defaul
 requireIncludes(primitives, "h-7 w-7 rounded-[0.8rem]", "SectionCard compact icon density");
 
 for (const needle of [
-  "modeLabel).not.toBe(\"ERROR\")",
+  "modeLabel).not.toBe(\"Failed\")",
   "fakeZeroPrevented).toBe(true)",
   "exactUserFunnelAvailable).toBe(false)",
   "measurementMode).toBe(\"event_volume_only\")",

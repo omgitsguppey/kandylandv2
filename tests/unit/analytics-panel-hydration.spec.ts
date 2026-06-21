@@ -71,6 +71,41 @@ describe("analytics panel hydration", () => {
     expect(panel.canDisplayZero).toBe(false);
   });
 
+  it("prefers user parity gaps over global person metric hydration", () => {
+    const panel = resolvePanelHydration({
+      panelId: "traffic_overview",
+      personMetricsHydration: {
+        metricStatus: {
+          visits: {
+            metricId: "visits",
+            state: "hydrated",
+            count: 4,
+            confidence: "exact",
+            provenZero: false,
+          },
+        },
+        userParityStatus: {
+          visits: {
+            metricId: "visits",
+            state: "bridge_missing",
+            globalCount: 4,
+            guestCount: 0,
+            signedInCount: 0,
+            linkedPersonCount: 0,
+            creatorRoleCount: 0,
+            provenZero: false,
+            blocksUserParity: true,
+            debugNextAction: "Global visits exist, but user/person bridge is missing.",
+          },
+        },
+      },
+    });
+
+    expect(panel.hydrationStatus).toBe("bridge_missing");
+    expect(panel.userSafeDisplayState).toBe("show_not_connected");
+    expect(panel.canDisplayZero).toBe(false);
+  });
+
   it("keeps source-ready panel mappings distinct from runtime proof", () => {
     const panel = resolvePanelHydration({
       panelId: "package_selections",

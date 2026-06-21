@@ -1,7 +1,7 @@
 import { ADMIN_ANALYTICS_PANEL_HYDRATION_REGISTRY } from "./panel-hydration-registry";
 import type { EventLivenessStatus } from "@/lib/analytics/event-liveness-contract";
 import { listEventTranslationBridgeCanonicalEvents } from "@/lib/analytics/event-translation-bridge";
-import type { PersonMetricHydrationStatus } from "@/lib/analytics/person-metrics-hydration";
+import type { PersonMetricHydrationStatus, PersonMetricUserParityStatus } from "@/lib/analytics/person-metrics-hydration";
 import type {
   AdminAnalyticsPanelFreshness,
   AdminAnalyticsPanelHydrationRecord,
@@ -83,7 +83,26 @@ function lastSeenFor(panel: { expectedEvents: string[] }, eventLivenessAudit?: J
   return seen[0] ?? null;
 }
 
-function metricStatusFor(panel: { personMetricIds: string[] }, personMetricsHydration?: JsonRecord | null): PersonMetricHydrationStatus["state"] | "bridge_missing" | "source_missing" | null {
+function parityStateFor(panel: { personMetricIds: string[] }, personMetricsHydration?: JsonRecord | null): PersonMetricUserParityStatus["state"] | null {
+  const userParityStatus = asRecord(personMetricsHydration?.userParityStatus);
+  const metrics = panel.personMetricIds
+    .map((metricId) => asRecord(userParityStatus[metricId]) as Partial<PersonMetricUserParityStatus>)
+    .filter((metric) => Object.keys(metric).length > 0);
+  if (metrics.length === 0) return null;
+  if (metrics.some((metric) => metric.state === "permission_blocked")) return "permission_blocked";
+  if (metrics.some((metric) => metric.state === "materializer_missing")) return "materializer_missing";
+  if (metrics.some((metric) => metric.state === "bridge_missing")) return "bridge_missing";
+  if (metrics.some((metric) => metric.state === "source_missing")) return "source_missing";
+  if (metrics.some((metric) => metric.state === "hydrated")) return "hydrated";
+  if (metrics.some((metric) => metric.state === "proven_zero")) return "proven_zero";
+  if (metrics.some((metric) => metric.state === "collecting")) return "collecting";
+  return null;
+}
+
+function metricStatusFor(panel: { personMetricIds: string[] }, personMetricsHydration?: JsonRecord | null): PersonMetricHydrationStatus["state"] | PersonMetricUserParityStatus["state"] | "bridge_missing" | "source_missing" | null {
+  const parityState = parityStateFor(panel, personMetricsHydration);
+  if (parityState) return parityState;
+
   const metricStatus = asRecord(personMetricsHydration?.metricStatus);
   const metrics = panel.personMetricIds
     .map((metricId) => asRecord(metricStatus[metricId]) as Partial<PersonMetricHydrationStatus>)
@@ -122,6 +141,9 @@ function statusFromDelegatedSources(input: {
   if (input.statusFromEvent === "not_observed_but_expected") return "not_observed_but_expected";
   if (input.statusFromEvent === "source_ready_waiting_for_activity") return "source_ready_waiting_for_activity";
   if (input.statusFromMetric === "hydrated") return "hydrated";
+  if (input.statusFromMetric === "proven_zero") return "collecting";
+  if (input.statusFromMetric === "permission_blocked") return "permission_blocked";
+  if (input.statusFromMetric === "materializer_missing") return "materializer_missing";
   if (input.statusFromMetric === "bridge_missing") return "bridge_missing";
   if (input.statusFromMetric === "source_missing") {
     if (input.hasCanonicalBridgeSource) return input.expectedDaily ? "not_observed_but_expected" : "source_ready_waiting_for_activity";

@@ -132,6 +132,7 @@ function sortIssues(issues: DebugScoreImpactIssue[]) {
 export function buildDebugScoreImpactTriageReport(inputs: BuildInputs): DebugScoreImpactTriageReport {
   const betaScore = inputs.betaScore ?? {};
   const capDetails = stringArray(betaScore.evidenceCapDetails);
+  const debugRuntimeStatus = String(inputs.debugRuntimeEvidence?.status ?? "");
   const runtimeHealthScore = numberValue(betaScore.runtimeHealthScore);
   const evidenceCompletenessScore = numberValue(betaScore.evidenceCompletenessScore);
   const freshnessScore = numberValue(betaScore.freshnessScore);
@@ -155,9 +156,9 @@ export function buildDebugScoreImpactTriageReport(inputs: BuildInputs): DebugSco
         "scripts/agent/load-debug-evidence-for-audit.ts",
         "scripts/agent/score-public-beta-readiness.ts",
       ],
-      fixPlan: "Generate source-backed debug runtime evidence from checked debug sources; do not clear deployed runtime smoke.",
+      fixPlan: "Generate source-backed debug runtime evidence from checked debug sources; do not clear deployed route evidence.",
     });
-  } else if (String(inputs.debugRuntimeEvidence?.status ?? "").includes("source_ready_debug_runtime_evidence")) {
+  } else if (/source_ready_debug_runtime_evidence|partial_debug_runtime_evidence/iu.test(debugRuntimeStatus)) {
     issues.push({
       id: "debug-runtime-evidence-unknown-empty",
       source: "debug-runtime-evidence",
@@ -168,12 +169,14 @@ export function buildDebugScoreImpactTriageReport(inputs: BuildInputs): DebugSco
       sourceFixable: false,
       evidenceFixable: false,
       staleArtifactFixable: false,
-      currentStatus: "source_ready_debug_runtime_evidence",
+      currentStatus: debugRuntimeStatus,
       exactFiles: [
         "agent/state/debug-runtime-evidence.generated.json",
         "docs/agent-truth/debug-runtime-evidence.md",
       ],
-      fixPlan: "Debug/runtime evidence has source-backed checked-clean status; deployed runtime smoke remains separate.",
+      fixPlan: debugRuntimeStatus.includes("partial")
+        ? "Debug/runtime evidence has partial source-backed status; deployed route evidence remains separate."
+        : "Debug/runtime evidence has source-backed checked-clean status; deployed route evidence remains separate.",
     });
   }
 
@@ -194,11 +197,11 @@ export function buildDebugScoreImpactTriageReport(inputs: BuildInputs): DebugSco
         "src/lib/admin-debug-control-tower.ts",
         "src/app/api/admin/debug/route.ts",
       ],
-      fixPlan: "Create a source-only admin truth sample showing admin models are wired while keeping formal production admin truth sample missing.",
+      fixPlan: "Create a source-only admin truth sample showing admin models are wired while keeping redacted admin source activity sample evidence missing.",
     });
   }
 
-  if (capDetails.some((entry) => /runtime\/provider smoke|runtime unverified|provider smoke/iu.test(entry))) {
+  if (capDetails.some((entry) => /runtime\/provider smoke|runtime unverified|provider smoke|provider-backed site activity|deployed route evidence|deployed runtime route evidence/iu.test(entry))) {
     issues.push({
       id: "runtime-provider-smoke-source-confidence-gap",
       source: "public-beta-score",
@@ -215,7 +218,7 @@ export function buildDebugScoreImpactTriageReport(inputs: BuildInputs): DebugSco
         "agent/state/provider-smoke-evidence.generated.json",
         "agent/state/source-backed-runtime-confidence.generated.json",
       ],
-      fixPlan: "Keep formal runtime/provider gates blocked; only source-backed confidence can be refreshed without deployed/runtime proof.",
+      fixPlan: "Keep provider-backed site activity + deployed route evidence gates blocked; only source-backed confidence can be refreshed without claiming provider or deployed-route truth.",
     });
   }
 
@@ -305,15 +308,15 @@ export function buildDebugScoreImpactTriageReport(inputs: BuildInputs): DebugSco
       .map((issue) => ({
         id: issue.id,
         reason: issue.id === "runtime-provider-smoke-source-confidence-gap"
-          ? "Formal deployed runtime/provider smoke requires external proof."
+          ? "Provider-backed site activity + deployed route evidence requires first-party/deployed evidence."
           : "No exact refresh command exists yet.",
         nextAction: issue.fixPlan,
       })),
     nextExactSteps: [
       "Run npm run check:debug-runtime-evidence.",
-      "Attach deployed runtime smoke before clearing runtime evidence gates.",
-      "Attach formal provider proof before clearing provider smoke.",
-      "Attach a redacted production admin truth sample before clearing the admin truth sample gate.",
+      "Attach deployed route evidence before clearing runtime evidence gates.",
+      "Attach provider-backed site activity evidence before clearing provider evidence gates.",
+      "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
     ],
   };
 }
