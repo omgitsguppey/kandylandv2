@@ -182,16 +182,6 @@ export function runAgentContextEvals() {
   };
 
   writeJsonFile("agent/state/eval-results.generated.json", summary);
-  writeJsonFile("agent/state/eval-failures.generated.json", {
-    generatedAt: summary.generatedAt,
-    failed: failures.length,
-    results: failures.map((result) => ({
-      id: result.id,
-      task: result.task,
-      failureCategories: result.failureCategories,
-      failureReview: result.failureReview,
-    })),
-  });
   return summary;
 }
 
