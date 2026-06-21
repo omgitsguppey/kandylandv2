@@ -155,7 +155,7 @@ describe("admin debug control tower model", () => {
         expect(publicBeta?.evidenceGateCount).toBe(4);
         expect(publicBeta?.topFindings.map((finding) => finding.title)).toEqual(expect.arrayContaining([
             "Source-only behavior evidence",
-            "Provider and route evidence required",
+            "Site activity evidence required",
             "Admin source activity sample required",
             "Report refresh required",
         ]));
@@ -196,7 +196,7 @@ describe("admin debug control tower model", () => {
         expect(model.canonicalPublicBetaCapDetails).toEqual([
             "Source evidence required: Provider-backed site activity + deployed route evidence - Produce provider-backed site activity evidence; deployed runtime route evidence is current.",
         ]);
-        expect(publicBeta?.topFindings[0]?.title).toBe("Provider and route evidence required");
+        expect(publicBeta?.topFindings[0]?.title).toBe("Site activity evidence required");
         expect(publicBeta?.topFindings[0]?.humanReadableWarning).toContain("Produce redacted provider-backed site activity evidence.");
         expect(publicBeta?.topFindings[0]?.humanReadableWarning).toContain("Deployed route evidence is recorded; keep it fresh.");
         expect(JSON.stringify(model)).not.toMatch(/runtime\/provider smoke|formal provider smoke|deployed runtime smoke|first-party admin sample/iu);

@@ -94,7 +94,7 @@ function formatPanelRecoveryTruthState(state: PanelRecoveryTruthState) {
     case "runtime_evidence_required":
       return "deployed route evidence required";
     case "admin_truth_source_required":
-      return "admin source sample required";
+      return "admin source activity sample required";
     case "provider_gated":
       return "provider-backed activity required";
     case "external_required":

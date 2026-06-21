@@ -43,12 +43,12 @@ function isRefreshOnlyFinding(finding: AdminDebugFindingCard) {
 }
 
 function isEvidenceGateFinding(finding: AdminDebugFindingCard) {
-    return /source-only behavior evidence|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|report refresh required|evidence gate/u.test(finding.title.toLowerCase());
+    return /source-only behavior evidence|site activity evidence required|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|report refresh required|evidence gate/u.test(finding.title.toLowerCase());
 }
 
 const isSourceOnlyEvidenceFinding = (finding: AdminDebugFindingCard) => /source-only behavior evidence/u.test(finding.title.toLowerCase());
 
-const isTypedEvidenceGateFinding = (finding: AdminDebugFindingCard) => /provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|external proof required/u.test(finding.title.toLowerCase());
+const isTypedEvidenceGateFinding = (finding: AdminDebugFindingCard) => /site activity evidence required|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|external proof required/u.test(finding.title.toLowerCase());
 
 export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
     const evidenceGateCount = report.evidenceGateCount ?? 0;

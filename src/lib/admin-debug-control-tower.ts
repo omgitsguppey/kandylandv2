@@ -677,7 +677,7 @@ function normalizePublicBetaEvidenceGateFinding(
             reportId: definition.id,
             section: definition.section,
             severity: "major",
-            title: "Provider and route evidence required",
+            title: "Site activity evidence required",
             domain: "beta_readiness",
             filePath: relativePath,
             humanReadableWarning: `Produce redacted provider-backed site activity evidence.${runtimeContext}${operatorContext}`,
@@ -1355,7 +1355,7 @@ function isRefreshOrMetadataFinding(finding: AdminDebugFindingCard) {
 }
 
 function isEvidenceBoundaryFinding(finding: AdminDebugFindingCard) {
-    return /source-only behavior evidence|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|report refresh required|evidence gate/iu.test(finding.title);
+    return /source-only behavior evidence|site activity evidence required|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|report refresh required|evidence gate/iu.test(finding.title);
 }
 
 function isSourceOnlyEvidenceFinding(finding: AdminDebugFindingCard) {
@@ -1363,7 +1363,7 @@ function isSourceOnlyEvidenceFinding(finding: AdminDebugFindingCard) {
 }
 
 function isTypedEvidenceFinding(finding: AdminDebugFindingCard) {
-    return /provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|external proof required/iu.test(finding.title);
+    return /site activity evidence required|provider and route evidence required|runtime and provider source evidence required|admin source activity sample required|admin source sample required|admin truth sample required|external proof required/iu.test(finding.title);
 }
 
 function hasSourceFindings(report: AdminDebugReportCard) {
