@@ -60,7 +60,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     ],
     freshnessWindowHours: 24,
     minimumAcceptableSignal: "wallet/payment/ledger event facts with source buckets and no raw provider IDs",
-    sourceOnlyFallback: "keep provider proof external and classify ledger live source as source_missing or source_only",
+    sourceOnlyFallback: "keep provider-backed evidence external and classify ledger live source as source_missing or source_only",
     scoreImpact: { runtimeHealth: 1, evidenceCompleteness: 2 },
   },
   {
@@ -679,7 +679,7 @@ export function classifyManualGateReducibility(input: { gate: string; liveEviden
       blocksBetaExit: billingRequired,
     };
   }
-  if (gate === "runtime/provider smoke") {
+  if (gate === "provider-backed site activity + deployed route evidence") {
     const providerRequired = input.liveEvidenceBySystem.some((system) => system.liveRuntimeEvidenceStatus === "provider_required");
     const runtimeMissing = input.liveEvidenceBySystem.some((system) =>
       system.liveRuntimeEvidenceStatus === "runtime_export_required"
@@ -694,22 +694,22 @@ export function classifyManualGateReducibility(input: { gate: string; liveEviden
         : runtimeMissing
           ? "source_missing_live_evidence"
           : "live_evidence_replaced",
-      replacement: "first-party site activity, deployed route health, and provider proof only for provider-specific claims",
+      replacement: "first-party site activity, deployed route health, and provider-backed evidence only for provider-specific claims",
       reason: providerRequired
         ? "No clearing first-party payment/ledger activity is present for every provider-adjacent lane."
-        : "Clearing first-party site activity can replace broad runtime/provider smoke for app-owned behavior.",
+        : "Clearing first-party site activity and deployed route health can replace broad legacy runtime/provider gates for app-owned behavior.",
       blocksBetaExit: providerRequired || runtimeMissing,
     };
   }
-  if (gate === "manual production smoke") {
+  if (gate === "site activity evidence export") {
     const missing = input.liveEvidenceBySystem.filter((system) => system.status === "source_missing_live_evidence").length;
     return {
       gate,
       beforeClass: "broad_manual",
       afterClass: "live_route_health_evidence",
       status: missing > 0 ? "source_missing_live_evidence" : "source_only_evidence",
-      replacement: "split into live route/runtime evidence, live product journey evidence, external provider evidence, and source UI coverage",
-      reason: "A single manual smoke gate is too broad; each product system must use its live evidence source or be marked source_missing.",
+      replacement: "split into deployed route evidence, product journey activity, provider-backed evidence, and source UI coverage",
+      reason: "A single broad site-activity gate is too vague; each product system must use its source evidence or be marked source_missing.",
       blocksBetaExit: true,
     };
   }
@@ -718,7 +718,7 @@ export function classifyManualGateReducibility(input: { gate: string; liveEviden
     beforeClass: "mixed_manual_formal",
     afterClass: "live_admin_truth_evidence",
     status: "source_missing_live_evidence",
-    replacement: "redacted live admin truth summary or redaction packet; browser reproduction is not evidence for admin truth",
+    replacement: "redacted admin source sample or redaction packet; browser reproduction is not evidence for admin truth",
     reason: "Admin truth must come from redacted summaries or source_missing classification.",
     blocksBetaExit: true,
   };
@@ -795,7 +795,7 @@ export function buildLiveEvidenceGateReplacementReport(context: ReleaseReadiness
     currentHead: context.currentHead,
     broadManualGatesBefore: BROAD_MANUAL_GATES_BEFORE,
     broadManualGatesAfter,
-    gatesReplacedByLiveEvidence: reductions.filter((reduction) => reduction.gate === "manual production smoke" || reduction.gate === "admin truth/sample evidence" || reduction.gate === "runtime/provider smoke"),
+    gatesReplacedByLiveEvidence: reductions.filter((reduction) => reduction.gate === "site activity evidence export" || reduction.gate === "admin source sample evidence" || reduction.gate === "provider-backed site activity + deployed route evidence"),
     visualOnlyManualGatesRemaining: [],
     externalProviderGatesRemaining: externalProviderSystems.length > 0 ? reductions.filter((reduction) => reduction.afterClass === "external_provider_evidence") : [],
     externalBillingGatesRemaining: externalBillingSystems.length > 0 ? reductions.filter((reduction) => reduction.afterClass === "external_billing_evidence") : [],
@@ -814,8 +814,8 @@ export function buildLiveEvidenceGateReplacementReport(context: ReleaseReadiness
 export function validateLiveEvidenceGateReplacementReport(report: LiveEvidenceGateReplacementReport) {
   const failures: string[] = [];
   if (!report.currentHead) failures.push("packet missing currentHead.");
-  if (report.broadManualGatesAfter.some((gate) => /manual production smoke/iu.test(gate))) {
-    failures.push("manual production smoke remains broad instead of split by evidence class.");
+  if (report.broadManualGatesAfter.some((gate) => /manual.*smoke|production.*smoke/iu.test(gate))) {
+    failures.push("broad legacy smoke gate remains instead of split typed site activity evidence.");
   }
   if (report.visualOnlyManualGatesRemaining.some((gate) => /backend|runtime|payment|telemetry|journey/iu.test(gate.replacement))) {
     failures.push("visual QA claims to prove backend/runtime/payment behavior.");

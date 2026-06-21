@@ -5,8 +5,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Summary
 
-- Generated: `2026-06-21T02:33:07.326Z`
-- Current head: `4acbc4963ec602ac4f4a23226265a27536aec59e`
+- Generated: `2026-06-21T04:23:49.421Z`
+- Current head: `5b3a888ee52c84d1fccdf924f85813f85c50c0dd`
 - Status: `pass`
 
 ## Report
@@ -14,12 +14,12 @@ Validator: `npm run check:live-evidence-gate-replacement`
 ```json
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-06-21T02:33:07.326Z",
-  "currentHead": "4acbc4963ec602ac4f4a23226265a27536aec59e",
+  "generatedAtUtc": "2026-06-21T04:23:49.421Z",
+  "currentHead": "5b3a888ee52c84d1fccdf924f85813f85c50c0dd",
   "broadManualGatesBefore": [
-    "manual production smoke",
-    "admin truth/sample evidence",
-    "runtime/provider smoke",
+    "site activity evidence export",
+    "admin source sample evidence",
+    "provider-backed site activity + deployed route evidence",
     "external billing review"
   ],
   "broadManualGatesAfter": [
@@ -29,29 +29,29 @@ Validator: `npm run check:live-evidence-gate-replacement`
   ],
   "gatesReplacedByLiveEvidence": [
     {
-      "gate": "manual production smoke",
+      "gate": "site activity evidence export",
       "beforeClass": "broad_manual",
       "afterClass": "live_route_health_evidence",
       "status": "source_missing_live_evidence",
-      "replacement": "split into live route/runtime evidence, live product journey evidence, external provider evidence, and source UI coverage",
-      "reason": "A single manual smoke gate is too broad; each product system must use its live evidence source or be marked source_missing.",
+      "replacement": "split into deployed route evidence, product journey activity, provider-backed evidence, and source UI coverage",
+      "reason": "A single broad site-activity gate is too vague; each product system must use its source evidence or be marked source_missing.",
       "blocksBetaExit": true
     },
     {
-      "gate": "admin truth/sample evidence",
+      "gate": "admin source sample evidence",
       "beforeClass": "mixed_manual_formal",
       "afterClass": "live_admin_truth_evidence",
       "status": "source_missing_live_evidence",
-      "replacement": "redacted live admin truth summary or redaction packet; browser reproduction is not evidence for admin truth",
+      "replacement": "redacted admin source sample or redaction packet; browser reproduction is not evidence for admin truth",
       "reason": "Admin truth must come from redacted summaries or source_missing classification.",
       "blocksBetaExit": true
     },
     {
-      "gate": "runtime/provider smoke",
+      "gate": "provider-backed site activity + deployed route evidence",
       "beforeClass": "mixed_manual_formal",
       "afterClass": "external_provider_evidence",
       "status": "external_provider_required",
-      "replacement": "first-party site activity, deployed route health, and provider proof only for provider-specific claims",
+      "replacement": "first-party site activity, deployed route health, and provider-backed evidence only for provider-specific claims",
       "reason": "No clearing first-party payment/ledger activity is present for every provider-adjacent lane.",
       "blocksBetaExit": true
     }
@@ -59,11 +59,11 @@ Validator: `npm run check:live-evidence-gate-replacement`
   "visualOnlyManualGatesRemaining": [],
   "externalProviderGatesRemaining": [
     {
-      "gate": "runtime/provider smoke",
+      "gate": "provider-backed site activity + deployed route evidence",
       "beforeClass": "mixed_manual_formal",
       "afterClass": "external_provider_evidence",
       "status": "external_provider_required",
-      "replacement": "first-party site activity, deployed route health, and provider proof only for provider-specific claims",
+      "replacement": "first-party site activity, deployed route health, and provider-backed evidence only for provider-specific claims",
       "reason": "No clearing first-party payment/ledger activity is present for every provider-adjacent lane.",
       "blocksBetaExit": true
     }
@@ -179,7 +179,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "evidenceCompleteness": 2
       },
       "betaExitImpact": "external_required",
-      "fallbackIfMissing": "keep provider proof external and classify ledger live source as source_missing or source_only",
+      "fallbackIfMissing": "keep provider-backed evidence external and classify ledger live source as source_missing or source_only",
       "reason": "No clearing first-party server ledger/webhook activity was found; provider-specific claims still need redacted provider evidence.",
       "nextExactAction": "Attach redacted provider/payment proof or first-party server-confirmed ledger/webhook activity without exposing raw provider IDs."
     },
@@ -758,8 +758,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-          "generatedAtUtc": "2026-06-03T03:16:13.690Z"
+          "currentHead": "834b8addac00c455edeed2bc32fbfec8aa9e1475",
+          "generatedAtUtc": "2026-06-21T03:34:31.635Z"
         },
         {
           "artifactPath": "agent/state/global-cost-surfaces.generated.json",
@@ -1406,7 +1406,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Evidence Boundary
 
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a formal artifact for that category.
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or optional visual reproduction unless the report explicitly includes a typed evidence artifact for that category.
 
 ## Validation
 

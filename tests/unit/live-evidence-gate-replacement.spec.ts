@@ -44,7 +44,12 @@ describe("live evidence gate replacement", () => {
     const report = buildLiveEvidenceGateReplacementReport(context);
 
     expect(report.betaExitReadyAfter).toBe(false);
-    expect(report.broadManualGatesAfter).not.toContain("manual production smoke");
+    expect(report.broadManualGatesAfter.join("\n")).not.toMatch(/manual.*smoke|production.*smoke/iu);
+    expect(report.broadManualGatesBefore).toEqual(expect.arrayContaining([
+      "site activity evidence export",
+      "provider-backed site activity + deployed route evidence",
+      "admin source sample evidence",
+    ]));
     expect(report.broadManualGatesAfter).not.toContain("visual-only operator QA");
     expect(report.visualOnlyManualGatesRemaining).toEqual([]);
     expect(report.externalProviderGatesRemaining.length).toBe(1);

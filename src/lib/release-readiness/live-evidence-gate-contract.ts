@@ -122,8 +122,8 @@ export const LIVE_EVIDENCE_PRIVACY_REDACTION_POLICY = [
 ];
 
 export const BROAD_MANUAL_GATES_BEFORE = [
-  "manual production smoke",
-  "admin truth/sample evidence",
-  "runtime/provider smoke",
+  "site activity evidence export",
+  "admin source sample evidence",
+  "provider-backed site activity + deployed route evidence",
   "external billing review",
 ];
