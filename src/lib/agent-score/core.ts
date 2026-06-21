@@ -11,6 +11,7 @@ import {
   resolveEvidenceQuality,
   scoreCostReadiness,
   scoreRegressionRisk,
+  evidenceArtifactHasSourceConfidence,
   evidenceArtifactIsPassing,
   evidenceArtifactNumericValue,
   evidenceArtifactStatusText,
@@ -770,6 +771,25 @@ export function buildPublicBetaEvidenceGates(input: {
       : evidence.openPrTriageFresh === false
         ? describeFreshnessState({ openPrTriageFresh: false }).userMessage
         : reportEvidence.detail;
+  const behaviorMathStatus = String(evidenceArtifactStatus(
+    evidence.behaviorMathEvidence,
+    "missing_or_unknown",
+  ));
+  const behaviorMathQuality = resolveEvidenceQuality({
+    artifact: evidence.behaviorMathEvidence,
+    context: {
+      currentHead,
+      lane: "behavior_math",
+      requiredForExit: false,
+    },
+  });
+  const behaviorMathSourceCredit = (behaviorMathQuality.quality === "source_ready" || evidenceArtifactHasSourceConfidence(evidence.behaviorMathEvidence))
+    && behaviorMathQuality.freshness === "fresh"
+    ? Math.max(
+        behaviorMathQuality.partialCredit * 100,
+        clamp(evidenceArtifactNumber(evidence.behaviorMathEvidence, "behaviorMathConfidence") ?? 0, 0, 100),
+      )
+    : 0;
   const targetedQuality = resolveEvidenceQuality({
     artifact: evidence.targetedBehaviorEvidence,
     context: {
@@ -785,9 +805,19 @@ export function buildPublicBetaEvidenceGates(input: {
       ? "Targeted behavior evidence was supplied."
       : "No targeted source behavior evidence artifact was supplied.",
   );
+  const behaviorMathTargetedEvidence = evidence.behaviorMathEvidence
+    ? [
+        `behaviorMathStatus=${behaviorMathStatus}`,
+        `behaviorMathSourceCredit=${roundScore(behaviorMathSourceCredit)}`,
+        ...evidenceArtifactEvidence(evidence.behaviorMathEvidence),
+      ]
+    : [];
   const targetedBehaviorEvidence = evidence.targetedBehaviorEvidence
-    ? evidenceArtifactEvidence(evidence.targetedBehaviorEvidence)
-    : ["targetedBehaviorArtifactStatus=missing_formal_evidence"];
+    ? [
+        ...evidenceArtifactEvidence(evidence.targetedBehaviorEvidence),
+        ...behaviorMathTargetedEvidence,
+      ]
+    : ["targetedBehaviorArtifactStatus=missing_formal_evidence", ...behaviorMathTargetedEvidence];
   const targetedBehaviorStatus: PublicBetaReadinessStatus = targetedBehaviorPassed
     ? "Ready"
     : targetedQuality.freshness === "stale" || targetedQuality.freshness === "head_mismatch"
@@ -1198,7 +1228,7 @@ export function buildPublicBetaEvidenceGates(input: {
       recommendedAction: "Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",
       quality: targetedQuality,
       gateRequiredForExit: false,
-      sourceCredit: Math.max(targetedQuality.partialCredit * 100, realUsageConfidenceCredit),
+      sourceCredit: Math.max(targetedQuality.partialCredit * 100, realUsageConfidenceCredit, behaviorMathSourceCredit),
       runtimeCredit: 0,
     }),
     buildEvidenceGate({

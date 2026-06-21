@@ -409,6 +409,44 @@ describe("public beta scoring math", () => {
         expect(targetedGate?.detail).toContain("does not close provider-backed site activity");
     });
 
+    it("uses source-ready behavior math as targeted behavior source credit without clearing runtime gates", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                targetedBehaviorEvidence: missingTargetedBehaviorEvidence,
+                providerSmokeEvidence: { ...missingProviderSmokeEvidence, generatedAtUtc: freshGeneratedAtUtc },
+                runtimeSmokeEvidence: { ...runtimeUnverifiedEvidence, generatedAtUtc: freshGeneratedAtUtc },
+                adminTruthSampleEvidence: missingAdminTruthEvidence,
+                behaviorMathEvidence: {
+                    path: "agent/state/behavior-math-verification.generated.json",
+                    status: "source_ready_behavior_math",
+                    passed: true,
+                    detail: "Behavior math is source-ready from first-party user activity, person metrics, and watch-session rollups.",
+                    evidence: [
+                        "behaviorMathConfidence=88",
+                        "watchTimeTruth=watch_session_rollups_only_not_page_time",
+                        "disabledTrackingHandling=excluded_from_behavior_metrics",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
+        const runtimeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+
+        expect(targetedGate?.status).toBe("Source evidence required");
+        expect(targetedGate?.sourceCredit).toBe(88);
+        expect(targetedGate?.runtimeCredit).toBe(0);
+        expect(targetedGate?.evidence.join("\n")).toContain("behaviorMathSourceCredit=88");
+        expect(targetedGate?.evidence.join("\n")).toContain("watch_session_rollups_only_not_page_time");
+        expect(runtimeGate?.runtimeCredit).toBe(0);
+        expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.adminTruthSample.cleared).toBe(false);
+    });
+
     it("does not score stale site activity and admin artifacts as current source evidence", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),

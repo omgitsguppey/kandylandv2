@@ -14,16 +14,6 @@ const report = buildSecurityHeaderRouteConfigReport();
 const validation = validateSecurityHeaderRouteConfigReport(report);
 
 write("agent/state/security-header-route-config.generated.json", JSON.stringify({ ...report, validation }));
-write("docs/agent-truth/security-header-route-config.md", [
-  "# Security Header Route Config",
-  "",
-  `Generated: ${report.generatedAtUtc}`,
-  `Security headers classified: ${report.securityHeaders.length}`,
-  `Redirect policy: ${report.redirectPolicy.status}`,
-  `Image policy: ${report.imageDomainPolicy.status}`,
-  `PWA scope: ${report.pwaServiceWorkerScope.status}`,
-  "",
-].join("\n"));
 
 if (!validation.ok) {
   console.error(validation.failures.join("\n"));
