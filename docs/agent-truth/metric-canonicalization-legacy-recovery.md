@@ -1,7 +1,7 @@
 # Metric Canonicalization Legacy Recovery
 
-Generated: 2026-06-21T00:17:30.180Z
-Current head: 9d3ec2226e6db51f959405e0d09bfab6abe8c2cc
+Generated: 2026-06-21T00:50:49.098Z
+Current head: 55c7685ba6d9b11f792ce5bfbed99b72e0ccbf3c
 Status: pass
 
 ## Contract
@@ -36,10 +36,7 @@ Status: pass
 
 ## Dirty Files
 
-- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/launch-analytics-recovery.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/launch-analytics-recovery.md: stale_generated_artifact_to_regenerate
+- none
 
 ## Open PR Classification
 
