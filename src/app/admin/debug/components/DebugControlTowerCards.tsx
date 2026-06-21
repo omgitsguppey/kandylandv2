@@ -62,11 +62,11 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     const findingLabel = hasFindings
         ? `${sourceFindingCount} source finding${sourceFindingCount === 1 ? "" : "s"}`
         : evidenceGateCount > 0
-            ? `${evidenceGateCount} evidence gate${evidenceGateCount === 1 ? "" : "s"}`
+            ? `${evidenceGateCount} source evidence lane${evidenceGateCount === 1 ? "" : "s"}`
         : zeroFindingEvidencePending
             ? "Evidence pending"
             : zeroFindingEvidenceGate
-                ? "Evidence gate"
+                ? "Source evidence lane"
                 : "No active findings";
     const sourceNeedsRefresh = report.freshness === "stale_24h" || report.freshness === "stale_72h" || report.sourceDrift === "stale";
     const evidenceGateOnly = !hasFindings && (evidenceGateCount > 0 || report.topFindings.some(isEvidenceGateFinding));
@@ -104,9 +104,9 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
         return { badgeState: "failed", statusLabel: "Source failed", findingLabel: hasFindings ? findingLabel : "Source failed", sourceDetail: "The source evidence could not be read and cannot clear this lane." };
     }
     if (proofBoundaryOnly) {
-        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Site activity evidence required", findingLabel: evidenceGateOnly ? findingLabel : "Evidence gate", sourceDetail: "Source validators are not enough for provider-backed site activity, deployed route evidence, or admin source activity samples." };
+        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Site activity evidence required", findingLabel: evidenceGateOnly ? findingLabel : "Source evidence lane", sourceDetail: "Source validators cannot close provider-backed site activity, deployed route evidence, or admin source activity sample lanes by themselves." };
     }
-    if (sourceOnlyGateOnly) return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Source checks only", findingLabel: evidenceGateOnly ? findingLabel : "Source-only evidence", sourceDetail: "Source validators passed; deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks stay separate." };
+    if (sourceOnlyGateOnly) return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Source checks only", findingLabel: evidenceGateOnly ? findingLabel : "Source-only evidence", sourceDetail: "Source validators passed; deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks remain separate source lanes." };
     if (sourceNeedsRefresh || refreshGateOnly) {
         return { badgeState: "stale", badgeLabel: "Refresh due", statusLabel: "Refresh due", findingLabel, sourceDetail: "This evidence is older than its freshness window or current app version." };
     }

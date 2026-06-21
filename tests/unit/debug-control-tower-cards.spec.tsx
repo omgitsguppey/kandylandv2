@@ -45,7 +45,7 @@ describe("resolveReportDisplay", () => {
     expect(display.sourceDetail).not.toContain("freshness");
   });
 
-  it("shows zero-finding public beta failures as typed evidence gates", () => {
+  it("shows zero-finding public beta failures as typed source evidence lanes", () => {
     const display = resolveReportDisplay(report({
       id: "public-beta-score",
       status: "error",
@@ -53,12 +53,12 @@ describe("resolveReportDisplay", () => {
     }));
 
     expect(display.statusLabel).toBe("Site activity evidence required");
-    expect(display.findingLabel).toBe("Evidence gate");
+    expect(display.findingLabel).toBe("Source evidence lane");
     expect(display.badgeLabel).toBe("Review");
-    expect(display.sourceDetail).toBe("Source validators are not enough for provider-backed site activity, deployed route evidence, or admin source activity samples.");
+    expect(display.sourceDetail).toBe("Source validators cannot close provider-backed site activity, deployed route evidence, or admin source activity sample lanes by themselves.");
   });
 
-  it("shows counted public beta evidence gates instead of zero findings", () => {
+  it("shows counted public beta source evidence lanes instead of zero findings", () => {
     const display = resolveReportDisplay(report({
       id: "public-beta-score",
       status: "error",
@@ -67,7 +67,7 @@ describe("resolveReportDisplay", () => {
     }));
 
     expect(display.statusLabel).toBe("Site activity evidence required");
-    expect(display.findingLabel).toBe("4 evidence gates");
+    expect(display.findingLabel).toBe("4 source evidence lanes");
     expect(display.badgeLabel).toBe("Review");
   });
 
@@ -93,12 +93,12 @@ describe("resolveReportDisplay", () => {
     }));
 
     expect(display.statusLabel).toBe("Source checks only");
-    expect(display.findingLabel).toBe("1 evidence gate");
+    expect(display.findingLabel).toBe("1 source evidence lane");
     expect(display.badgeLabel).toBe("Review");
-    expect(display.sourceDetail).toBe("Source validators passed; deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks stay separate.");
+    expect(display.sourceDetail).toBe("Source validators passed; deployed route evidence, provider-backed site activity, admin source activity samples, and UI source contract checks remain separate source lanes.");
   });
 
-  it("shows evidence-gate-only failures as proof gates even when the producer omits evidenceGateCount", () => {
+  it("shows evidence-gate-only failures as source evidence lanes even when the producer omits evidenceGateCount", () => {
     const display = resolveReportDisplay(report({
       status: "error",
       truthState: "failed",
@@ -118,11 +118,11 @@ describe("resolveReportDisplay", () => {
     }));
 
     expect(display.statusLabel).toBe("Site activity evidence required");
-    expect(display.findingLabel).toBe("Evidence gate");
-    expect(display.sourceDetail).toBe("Source validators are not enough for provider-backed site activity, deployed route evidence, or admin source activity samples.");
+    expect(display.findingLabel).toBe("Source evidence lane");
+    expect(display.sourceDetail).toBe("Source validators cannot close provider-backed site activity, deployed route evidence, or admin source activity sample lanes by themselves.");
   });
 
-  it("shows refresh evidence gates as refresh due instead of provider proof", () => {
+  it("shows refresh source evidence lanes as refresh due instead of provider proof", () => {
     const display = resolveReportDisplay(report({
       status: "warning",
       truthState: "stale",
@@ -142,7 +142,7 @@ describe("resolveReportDisplay", () => {
     }));
 
     expect(display.statusLabel).toBe("Refresh due");
-    expect(display.findingLabel).toBe("Evidence gate");
+    expect(display.findingLabel).toBe("Source evidence lane");
     expect(display.badgeLabel).toBe("Refresh due");
   });
 
