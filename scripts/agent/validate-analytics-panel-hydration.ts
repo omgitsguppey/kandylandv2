@@ -1980,7 +1980,7 @@ function renderLaunchRecoveryDoc(report: ReturnType<typeof buildLaunchAnalyticsR
     `- Source-agreement blocked consumers: ${report.adminPanelConnection.sourceAgreementBlockedConsumers}`,
     `- Source-agreement source missing: ${report.adminPanelConnection.sourceAgreementSourceMissingConsumers}`,
     `- Source-agreement second-source only: ${report.adminPanelConnection.sourceAgreementSecondSourceConsumers}`,
-    `- Source-agreement charts waiting for proof: ${report.adminPanelConnection.sourceAgreementChartPromotionBlockedConsumers}`,
+    `- Source-agreement charts waiting for source evidence: ${report.adminPanelConnection.sourceAgreementChartPromotionBlockedConsumers}`,
     `- Source-agreement consumer mismatch: ${report.adminPanelConnection.sourceAgreementConsumerMismatchConsumers}`,
     "",
     "## Next Steps",

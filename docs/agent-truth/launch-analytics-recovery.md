@@ -1,7 +1,7 @@
 # Launch Analytics Recovery
 
-Generated: 2026-06-21T01:42:36.209Z
-Current head: e9dcb591308a8ade46b7d487da2473ca5b7a9e86
+Generated: 2026-06-21T14:42:54.546Z
+Current head: 3c621e97dd853dadf4a3a18defa69c8413d328ce
 Status: source_agreement_failed
 
 ## Source Order
@@ -15,8 +15,8 @@ Status: source_agreement_failed
 - Launch coverage input: in_process_source_agreement_detail
 - Launch coverage input mode: fixture_only_local_window
 - Usable launch coverage input found: no
-- Candidate local/export inputs: agent/evidence/launch-analytics/launch-history-coverage.local.json, agent/evidence/launch-analytics/launch-history-coverage.export.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json
-- Candidate input states: agent/evidence/launch-analytics/launch-history-coverage.local.json=missing; agent/evidence/launch-analytics/launch-history-coverage.export.json=missing; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json=present_without_launch_history_coverage
+- Candidate local/export inputs: agent/evidence/launch-analytics/launch-history-coverage.local.json, agent/evidence/launch-analytics/launch-history-coverage.export.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json, agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json
+- Candidate input states: agent/evidence/launch-analytics/launch-history-coverage.local.json=missing; agent/evidence/launch-analytics/launch-history-coverage.export.json=missing; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json=present_without_launch_history_coverage; agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json=present_without_launch_history_coverage
 - Panel hydration input: agent/state/analytics-panel-hydration.generated.json
 - GA4 read mode: generated/local evidence only; no provider call performed
 - First-party read mode: source-agreement day-bucket evidence only; no production read performed
@@ -123,15 +123,15 @@ Status: source_agreement_failed
   - 2026-02-13: present ga4; missing first_party, historical_snapshot, legacy_support; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
   - 2026-02-14: present ga4, legacy_support; missing first_party, historical_snapshot; lane first_party_materialization; owner analytics_event_facts materialization; GA4 observed the day, but first-party product facts are missing or not materialized.
 - Blocked consumers: 9
-  - Analytics overview: source_missing; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
-  - Analytics charts: source_missing; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
+  - Analytics overview: source_missing; Next: Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass.
+  - Analytics charts: source_missing; Next: Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass.
   - Device mix: second_source_only; Next: Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth.
   - Region demand: second_source_only; Next: Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth.
   - Top paths: second_source_only; Next: Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth.
-  - Insight cards: source_missing; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
-  - Source health: chart_promotion_blocked; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
-  - Debug source agreement: chart_promotion_blocked; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
-  - Public beta evidence: chart_promotion_blocked; Next: Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.
+  - Insight cards: source_missing; Next: Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass.
+  - Source health: chart_promotion_blocked; Next: Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass.
+  - Debug source agreement: chart_promotion_blocked; Next: Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass.
+  - Public beta evidence: chart_promotion_blocked; Next: Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass.
 - Count delta details: 0
 - Exact next steps: Run the existing all-range historical analytics route or approved local export path to produce first-party day buckets. | Compare GA4 only as second-source evidence for sessions, views, devices, regions, top paths, and acquisition-style checks. | Keep fallback historical and legacy support rows archive/evidence-only until first-party materialization or dedupe proves the day. | Promote admin charts only after sourceAgreementStatus is pass and first-party product truth covers the bounded window.
 - Next action: Refresh or repair the mismatched source lane, inspect first-party day buckets first, keep GA4 as external comparison evidence, classify fallback historical/legacy evidence as archive-only until it agrees, and verify the GA4 property before promoting analytics parity.
@@ -176,7 +176,7 @@ Status: source_agreement_failed
 - Source-agreement blocked consumers: 9
 - Source-agreement source missing: 3
 - Source-agreement second-source only: 3
-- Source-agreement charts waiting for proof: 3
+- Source-agreement charts waiting for source evidence: 3
 - Source-agreement consumer mismatch: 0
 
 ## Next Steps

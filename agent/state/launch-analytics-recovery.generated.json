@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-21T01:42:36.209Z",
-  "currentHead": "e9dcb591308a8ade46b7d487da2473ca5b7a9e86",
+  "generatedAtUtc": "2026-06-21T14:42:54.546Z",
+  "currentHead": "3c621e97dd853dadf4a3a18defa69c8413d328ce",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -1015,7 +1015,9 @@
       "agent/evidence/launch-analytics/launch-history-coverage.local.json",
       "agent/evidence/launch-analytics/launch-history-coverage.export.json",
       "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
-      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json"
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json",
+      "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json"
     ],
     "candidateLaunchCoverageInputStatuses": [
       {
@@ -1038,6 +1040,18 @@
       },
       {
         "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.json",
+        "state": "present_without_launch_history_coverage",
+        "proofMode": "none",
+        "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
+      },
+      {
+        "path": "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260621T132958Z.redacted.json",
         "state": "present_without_launch_history_coverage",
         "proofMode": "none",
         "nextAction": "This evidence exists but lacks launchHistoryCoverage day rows, so it cannot prove launch recovery. Add launchHistoryCoverage rows or create agent/evidence/launch-analytics/launch-history-coverage.export.json with `npm run capture:truthful-evidence -- --launch-coverage-from <redacted-all-range-historical-export.json>`."
@@ -3161,7 +3175,7 @@
         "currentState": "source_agreement_failed",
         "allowedDisplayState": "source_missing",
         "blockingOwner": "source agreement comparison",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "admin_analytics_charts",
@@ -3169,7 +3183,7 @@
         "currentState": "source_agreement_failed",
         "allowedDisplayState": "source_missing",
         "blockingOwner": "source agreement comparison",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "admin_analytics_device_mix",
@@ -3201,7 +3215,7 @@
         "currentState": "source_agreement_failed",
         "allowedDisplayState": "source_missing",
         "blockingOwner": "source agreement comparison",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "admin_analytics_source_health",
@@ -3209,7 +3223,7 @@
         "currentState": "source_agreement_failed",
         "allowedDisplayState": "chart_promotion_blocked",
         "blockingOwner": "source agreement comparison",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "debug_data_validation",
@@ -3217,7 +3231,7 @@
         "currentState": "source_agreement_failed",
         "allowedDisplayState": "chart_promotion_blocked",
         "blockingOwner": "source agreement comparison",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       },
       {
         "consumer": "public_beta_score_evidence",
@@ -3225,7 +3239,7 @@
         "currentState": "source_agreement_failed",
         "allowedDisplayState": "chart_promotion_blocked",
         "blockingOwner": "source agreement comparison",
-        "nextAction": "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass."
+        "nextAction": "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass."
       }
     ],
     "blockedConsumerDetailsTruncated": false,

@@ -1,7 +1,7 @@
 # Analytics Panel Hydration
 
-Generated: 2026-06-21T01:42:36.209Z
-Current head: e9dcb591308a8ade46b7d487da2473ca5b7a9e86
+Generated: 2026-06-21T14:42:54.546Z
+Current head: 3c621e97dd853dadf4a3a18defa69c8413d328ce
 
 ## Summary
 
@@ -39,12 +39,12 @@ Current head: e9dcb591308a8ade46b7d487da2473ca5b7a9e86
 
 ## Top Hydration Failures
 
-- Payment approvals: provider_gated; next=Attach redacted external evidence for server purchase verification facts; do not use browser reproduction as backend proof.
-- Payment failures: provider_gated; next=Attach redacted external evidence for payment failure telemetry; do not use browser reproduction as backend proof.
-- GumDrop balances: protected_payment_required; next=Attach redacted external evidence for wallet source ledger plus protected payment/provider proof; do not use browser reproduction as backend proof.
-- Error rate/4xx: runtime_evidence_required; next=Attach bounded route/debug runtime evidence for admin debug summary; do not use browser reproduction as backend proof.
-- Cost risk: external_required; next=Attach redacted external evidence for cost guard summaries plus external billing review; do not use browser reproduction as backend proof.
-- Debug backlog: runtime_evidence_required; next=Attach bounded route/debug runtime evidence for debug backlog summary; do not use browser reproduction as backend proof.
+- Payment approvals: provider_gated; next=Produce redacted source activity or external evidence for server purchase verification facts.
+- Payment failures: provider_gated; next=Produce redacted source activity or external evidence for payment failure telemetry.
+- GumDrop balances: protected_payment_required; next=Produce redacted source activity or external evidence for wallet source ledger plus protected payment/provider proof.
+- Error rate/4xx: runtime_evidence_required; next=Produce bounded route/debug runtime evidence for admin debug summary.
+- Cost risk: external_required; next=Produce redacted source activity or external evidence for cost guard summaries plus external billing review.
+- Debug backlog: runtime_evidence_required; next=Produce bounded route/debug runtime evidence for debug backlog summary.
 
 ## Debug Lane
 

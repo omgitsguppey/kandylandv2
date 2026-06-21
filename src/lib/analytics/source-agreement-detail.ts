@@ -618,7 +618,7 @@ function buildBlockedConsumerDetails(
       ? "Keep this panel connected to the verified source window."
       : secondSourceOnly
         ? "Show GA4 as second-source evidence only; keep this panel waiting for first-party source agreement before treating it as product truth."
-        : "Show source missing or keep charts waiting for proof until first-party day buckets and source agreement pass.";
+        : "Show source missing or keep charts waiting for source evidence until first-party day buckets and source agreement pass.";
 
     return {
       consumer,
