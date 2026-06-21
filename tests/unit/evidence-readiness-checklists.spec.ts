@@ -5,7 +5,7 @@ import { validateEvidenceReadinessChecklists } from "../../scripts/agent/validat
 const uiSourceCoverage = [
   "UI Surface Coverage Gate",
   "codebase tell on itself",
-  "Screenshots are optional follow-up evidence only",
+  "Browser checks are follow-up only",
   "source_surface_checked",
   "codexScoreBlocking=false",
   "npm run check:ui:coverage",
@@ -43,7 +43,7 @@ const adminTruth = [
   "Redaction rules",
   "sourceFreshnessUtc",
   "sampleCount",
-  "Redacted screenshot",
+  "Redacted source-state JSON sample",
   "Redacted JSON sample",
   "Do not call admin truth passed without an attached artifact path",
 ].join("\n");
@@ -51,7 +51,7 @@ const adminTruth = [
 function statusFixture(canStartBetaExitReview = false) {
   return {
     summary: {
-      visualEvidenceStatus: "source_only_screenshotEvidenceAttached_false",
+      visualEvidenceStatus: "source_surface_checks_current",
       providerSmokeStatus: "missing_formal_evidence",
       runtimeSmokeStatus: "runtime_unverified",
       adminTruthSampleStatus: "missing_or_unknown",

@@ -67,7 +67,7 @@ export function validateEvidenceReadinessChecklists(sources: ChecklistSources) {
   for (const expected of [
     "UI Surface Coverage Gate",
     "codebase tell on itself",
-    "Screenshots are optional follow-up evidence only",
+    "Browser checks are follow-up only",
     "source_surface_checked",
     "codexScoreBlocking=false",
     "npm run check:ui:coverage",
@@ -111,7 +111,7 @@ export function validateEvidenceReadinessChecklists(sources: ChecklistSources) {
     "Redaction rules",
     "sourceFreshnessUtc",
     "sampleCount",
-    "Redacted screenshot",
+    "Redacted source-state JSON sample",
     "Redacted JSON sample",
     "Do not call admin truth passed without an attached artifact path",
   ]) {

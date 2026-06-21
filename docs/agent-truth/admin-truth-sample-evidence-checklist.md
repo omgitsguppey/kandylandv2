@@ -30,7 +30,8 @@ The sample must show:
 Acceptable evidence:
 
 - Redacted JSON sample.
-- Optional redacted screenshot only as corroboration when a visual source-state claim cannot be represented by the JSON sample.
+- Redacted source-state JSON sample with freshness, route/report key, and source-state label.
+- Optional browser reproduction notes only after source-state evidence identifies a concrete UI issue; screenshots do not clear this gate.
 
 Redaction rules:
 
