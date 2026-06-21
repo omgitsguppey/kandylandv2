@@ -1,8 +1,8 @@
 {
   "reportKey": "admin-truth-redacted-json-sample",
-  "capturedAtUtc": "2026-06-21T13:04:24.891Z",
+  "capturedAtUtc": "2026-06-21T13:13:59.761Z",
   "sourceArtifact": "agent/state/admin-truth-source-sample.generated.json",
-  "sourceFreshnessUtc": "2026-06-21T13:04:02.634Z",
+  "sourceFreshnessUtc": "2026-06-21T13:13:52.749Z",
   "sourceTruthStatus": "source_backed",
   "sourceTruthLabelsPresent": true,
   "fakeHealthyStateDetected": false,
