@@ -15,6 +15,17 @@ describe("evidence freshness index", () => {
     expect(staleBlockers.every((artifact) => artifact.nextExactSteps.length > 0)).toBe(true);
   });
 
+  it("keeps the general artifact inventory compact while preserving blocker detail", () => {
+    const report = buildEvidenceFreshnessIndex();
+
+    expect(report.artifacts.length).toBeLessThanOrEqual(report.summary.indexedArtifactCap);
+    expect(report.archiveCandidates.length).toBeLessThanOrEqual(report.summary.archiveCandidateCap);
+    expect(report.summary.omittedArtifactCount).toBeGreaterThanOrEqual(0);
+    expect(report.summary.omittedArchiveCandidateCount).toBeGreaterThanOrEqual(0);
+    expect(report.artifacts.every((artifact) => !("consumerPaths" in artifact))).toBe(true);
+    expect(report.blockingArtifacts.every((artifact) => Array.isArray(artifact.consumerPaths))).toBe(true);
+  });
+
   it("keeps external, UI source coverage, and admin source gates separate from source freshness", () => {
     const report = buildEvidenceFreshnessIndex();
 

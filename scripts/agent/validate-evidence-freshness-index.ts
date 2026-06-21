@@ -13,8 +13,8 @@ import { ensureDirectory, getPackageScripts, nowIso, writeJsonFile, writeTextFil
 const REPORT_PATH = "agent/state/evidence-freshness-index.generated.json";
 const DOC_PATH = "docs/agent-truth/evidence-freshness-index.md";
 const ADMIN_DEBUG_REGISTRY_PATH = "src/lib/admin-debug-control-tower.ts";
-const MAX_INDEX_ROWS = 160;
-const MAX_ARCHIVE_CANDIDATES = 40;
+const MAX_INDEX_ROWS = 50;
+const MAX_ARCHIVE_CANDIDATES = 10;
 
 type FreshnessClassification =
   | "fresh_and_consumed"
@@ -54,6 +54,11 @@ type EvidenceFreshnessEntry = {
   reason: string;
   nextExactSteps: string[];
 };
+
+type EvidenceFreshnessSlimEntry = Pick<
+  EvidenceFreshnessEntry,
+  "path" | "classification" | "actionability" | "generatedAtUtc" | "ageHours" | "producerCommand" | "blocking" | "truthUse" | "reason"
+>;
 
 type AdminDebugReportDefinition = {
   fileName: string;
@@ -254,6 +259,20 @@ function nextStepsFor(input: {
   }
 }
 
+function slimEntry(entry: EvidenceFreshnessEntry): EvidenceFreshnessSlimEntry {
+  return {
+    path: entry.path,
+    classification: entry.classification,
+    actionability: entry.actionability,
+    generatedAtUtc: entry.generatedAtUtc,
+    ageHours: entry.ageHours,
+    producerCommand: entry.producerCommand,
+    blocking: entry.blocking,
+    truthUse: entry.truthUse,
+    reason: entry.reason,
+  };
+}
+
 function classifyEntry(input: {
   path: string;
   exists: boolean;
@@ -413,10 +432,12 @@ export function buildEvidenceFreshnessIndex() {
     archive_candidate: 0,
   });
   const blockingEntries = sortedEntries.filter((entry) => entry.blocking);
-  const archiveCandidates = sortedEntries.filter((entry) => entry.classification === "archive_candidate").slice(0, MAX_ARCHIVE_CANDIDATES);
+  const archiveCandidateEntries = sortedEntries.filter((entry) => entry.classification === "archive_candidate");
+  const archiveCandidates = archiveCandidateEntries.slice(0, MAX_ARCHIVE_CANDIDATES).map(slimEntry);
   const externalProofRequired = sortedEntries.filter((entry) => entry.classification === "external_proof_required").slice(0, 40);
   const uiSourceCoverageRequired = sortedEntries.filter((entry) => entry.classification === "ui_source_coverage_required").slice(0, 40);
   const adminTruthSourceRequired = sortedEntries.filter((entry) => entry.classification === "admin_truth_source_required").slice(0, 40);
+  const indexedArtifacts = sortedEntries.slice(0, MAX_INDEX_ROWS).map(slimEntry);
 
   const byActionability = sortedEntries.reduce<Record<EvidenceFreshnessActionability, number>>((counts, entry) => {
     counts[entry.actionability] += 1;
@@ -443,7 +464,7 @@ export function buildEvidenceFreshnessIndex() {
     },
     summary: {
       artifactCount: sortedEntries.length,
-      indexedArtifactCount: Math.min(sortedEntries.length, MAX_INDEX_ROWS),
+      indexedArtifactCount: indexedArtifacts.length,
       omittedArtifactCount: Math.max(0, sortedEntries.length - MAX_INDEX_ROWS),
       blockingCount: blockingEntries.length,
       staleConsumedCount: byClassification.stale_consumed,
@@ -452,6 +473,9 @@ export function buildEvidenceFreshnessIndex() {
       uiSourceCoverageRequiredCount: byClassification.ui_source_coverage_required,
       adminTruthSourceRequiredCount: byClassification.admin_truth_source_required,
       archiveCandidateCount: byClassification.archive_candidate,
+      indexedArtifactCap: MAX_INDEX_ROWS,
+      archiveCandidateCap: MAX_ARCHIVE_CANDIDATES,
+      omittedArchiveCandidateCount: Math.max(0, archiveCandidateEntries.length - MAX_ARCHIVE_CANDIDATES),
       byClassification,
       byActionability,
     },
@@ -460,7 +484,7 @@ export function buildEvidenceFreshnessIndex() {
     uiSourceCoverageRequired,
     adminTruthSourceRequired,
     archiveCandidates,
-    artifacts: sortedEntries.slice(0, MAX_INDEX_ROWS),
+    artifacts: indexedArtifacts,
   };
 }
 
@@ -526,7 +550,7 @@ function renderMarkdown(report: ReturnType<typeof buildEvidenceFreshnessIndex>) 
       ? report.blockingArtifacts.slice(0, 40).map((artifact) => `- ${artifact.path}: ${artifact.actionability}; ${artifact.nextExactSteps[0] ?? artifact.reason}`)
       : ["- None"]),
     "",
-    "## Formal Evidence Gates",
+    "## Typed Evidence Boundaries",
     "",
     ...report.externalProofRequired.slice(0, 20).map((artifact) => `- ${artifact.path}: external proof required; source checks cannot clear this gate.`),
     ...report.uiSourceCoverageRequired.slice(0, 20).map((artifact) => `- ${artifact.path}: UI source coverage required before optional visual reproduction.`),
