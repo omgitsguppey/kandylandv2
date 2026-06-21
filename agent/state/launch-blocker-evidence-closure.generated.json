@@ -1,15 +1,15 @@
 {
-  "generatedAtUtc": "2026-06-20T16:05:58.040Z",
+  "generatedAtUtc": "2026-06-21T19:42:57.051Z",
   "reportKey": "launch-blocker-evidence-closure",
-  "currentHead": "40a4472f367117bc21a876f3e7c8590af2bd8231",
+  "currentHead": "a1efe12aa1c08a98310f32d2dd997d73b689c1a7",
   "status": "pass",
   "launchGateStatus": "owner_review",
   "formalGatesCleared": false,
   "blockers": {
     "runtimeProviderSmoke": {
       "id": "runtimeProviderSmoke",
-      "label": "Runtime/provider smoke",
-      "currentStatus": "Runtime/provider smoke: External proof required",
+      "label": "Provider-backed site activity + deployed route evidence",
+      "currentStatus": "Provider-backed site activity + deployed route evidence: Source evidence required",
       "classification": "external_or_runtime_artifact_required",
       "classificationDetails": [
         "formal_artifact_missing",
@@ -28,17 +28,17 @@
       "evidence": [
         "providerSmoke.cleared=false",
         "deployedRuntimeSmoke.cleared=false",
-        "realUsageConfidenceScore=92",
+        "realUsageConfidenceScore=72",
         "runtimeSubstituteEvidenceScore=75.56",
         "operatorConfirmedRevenue=true",
         "formalGateCanClearFromSource=false"
       ],
-      "nextAction": "Attach formal provider smoke and deployed runtime smoke artifacts; source confidence and operator revenue do not clear this gate."
+      "nextAction": "Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate."
     },
     "adminTruthSample": {
       "id": "adminTruthSample",
       "label": "Admin truth/sample evidence",
-      "currentStatus": "Admin truth/sample evidence: External proof required",
+      "currentStatus": "Admin truth/sample evidence: Ready with smoke required",
       "classification": "external_or_runtime_artifact_required",
       "classificationDetails": [
         "formal_artifact_missing",
@@ -105,23 +105,23 @@
   },
   "scoreDimensions": {
     "sourceHealth": {
-      "before": 99.2,
-      "after": 99.2,
+      "before": 97.2,
+      "after": 97.2,
       "target": 80
     },
     "runtimeHealth": {
-      "before": 71.2,
-      "after": 71.2,
+      "before": 91.11,
+      "after": 91.11,
       "target": 80
     },
     "evidenceCompleteness": {
-      "before": 58.4,
-      "after": 58.4,
+      "before": 95.2,
+      "after": 95.2,
       "target": 80
     },
     "freshness": {
-      "before": 83.75,
-      "after": 83.75,
+      "before": 91.88,
+      "after": 91.88,
       "target": 80
     },
     "costRisk": {
@@ -135,8 +135,8 @@
       "target": 80
     },
     "overallHealthScore": {
-      "before": 76.88,
-      "after": 76.88,
+      "before": 89.31,
+      "after": 89.31,
       "target": 80
     }
   },
@@ -147,7 +147,7 @@
     "open_pr_owner_review"
   ],
   "nextExactSteps": [
-    "runtimeProviderSmoke: Attach formal provider smoke and deployed runtime smoke artifacts; source confidence and operator revenue do not clear this gate.",
+    "runtimeProviderSmoke: Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate.",
     "adminTruthSample: Attach a redacted production admin truth sample; source wiring and debug labels do not clear the formal admin gate.",
     "reportFreshnessPrIntegrity: Provide a cached open PR artifact or explicitly opt in to GitHub PR listing before treating PR integrity as closed."
   ],
@@ -158,29 +158,12 @@
   "productRuntimeChanged": false,
   "paymentRuntimeChanged": false,
   "gumdropMathChanged": false,
-  "dirtyFiles": [
-    {
-      "path": "agent/state/launch-blocker-evidence-closure.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/launch-blocker-evidence-closure.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-launch-blocker-evidence-closure.ts",
-      "classification": "launch_blocker_validator"
-    },
-    {
-      "path": "tests/unit/launch-blocker-evidence-closure.spec.ts",
-      "classification": "launch_blocker_test"
-    }
-  ],
+  "dirtyFiles": [],
   "blockerReferenceClassification": [
     {
-      "reference": "Runtime/provider smoke: Runtime unverified",
+      "reference": "Provider-backed site activity + deployed route evidence: Source evidence required",
       "classification": "external_or_runtime_artifact_required",
-      "reason": "Source/runtime confidence and operator revenue are confidence signals only; formal provider and deployed runtime artifacts remain required."
+      "reason": "Source/runtime confidence and operator revenue are confidence signals only; provider-backed site activity and deployed runtime route evidence artifacts remain required."
     },
     {
       "reference": "Admin truth/sample evidence: Ready with smoke required",
@@ -194,7 +177,7 @@
     }
   ],
   "evidence": [
-    "currentHead=40a4472f367117bc21a876f3e7c8590af2bd8231",
+    "currentHead=a1efe12aa1c08a98310f32d2dd997d73b689c1a7",
     "launchGateStatus=owner_review",
     "formalEvidenceImpact=classification_only_does_not_clear_formal_gates",
     "openPrEvidenceSource=not_requested",

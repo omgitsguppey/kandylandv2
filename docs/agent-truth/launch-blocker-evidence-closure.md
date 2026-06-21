@@ -6,7 +6,7 @@ Validator: `npm run check:launch-blocker-evidence-closure`
 
 ## Summary
 
-- Current head: `40a4472f367117bc21a876f3e7c8590af2bd8231`
+- Current head: `a1efe12aa1c08a98310f32d2dd997d73b689c1a7`
 - Launch gate status: `owner_review`
 - Formal gates cleared by this pass: false
 - Open PR evidence source: `not_requested`
@@ -20,8 +20,8 @@ Validator: `npm run check:launch-blocker-evidence-closure`
 
 | Blocker | Current status | Classification | Can close now | Next action |
 | --- | --- | --- | --- | --- |
-| Runtime/provider smoke | Runtime/provider smoke: External proof required | external_or_runtime_artifact_required | false | Attach formal provider smoke and deployed runtime smoke artifacts; source confidence and operator revenue do not clear this gate. |
-| Admin truth/sample evidence | Admin truth/sample evidence: External proof required | external_or_runtime_artifact_required | false | Attach a redacted production admin truth sample; source wiring and debug labels do not clear the formal admin gate. |
+| Provider-backed site activity + deployed route evidence | Provider-backed site activity + deployed route evidence: Source evidence required | external_or_runtime_artifact_required | false | Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate. |
+| Admin truth/sample evidence | Admin truth/sample evidence: Ready with smoke required | external_or_runtime_artifact_required | false | Attach a redacted production admin truth sample; source wiring and debug labels do not clear the formal admin gate. |
 | Report freshness and PR integrity | Report freshness and PR integrity: Stale evidence | external_review_required | false | Provide a cached open PR artifact or explicitly opt in to GitHub PR listing before treating PR integrity as closed. |
 
 ## Open PR Integrity
@@ -34,22 +34,19 @@ Validator: `npm run check:launch-blocker-evidence-closure`
 
 | Dimension | Before | After | Target |
 | --- | ---: | ---: | ---: |
-| sourceHealth | 99.2 | 99.2 | 80 |
-| runtimeHealth | 71.2 | 71.2 | 80 |
-| evidenceCompleteness | 58.4 | 58.4 | 80 |
-| freshness | 83.75 | 83.75 | 80 |
+| sourceHealth | 97.2 | 97.2 | 80 |
+| runtimeHealth | 91.11 | 91.11 | 80 |
+| evidenceCompleteness | 95.2 | 95.2 | 80 |
+| freshness | 91.88 | 91.88 | 80 |
 | costRisk | 42 | 42 | 80 |
 | regressionRisk | 94 | 94 | 80 |
-| overallHealthScore | 76.88 | 76.88 | 80 |
+| overallHealthScore | 89.31 | 89.31 | 80 |
 
 ## Dirty File Classification
 
 | File | Classification |
 | --- | --- |
-| agent/state/launch-blocker-evidence-closure.generated.json | current_generated_artifact_to_commit |
-| docs/agent-truth/launch-blocker-evidence-closure.md | release_artifact_expected |
-| scripts/agent/validate-launch-blocker-evidence-closure.ts | launch_blocker_validator |
-| tests/unit/launch-blocker-evidence-closure.spec.ts | launch_blocker_test |
+| None | - |
 
 ## Remaining Launch Blockers
 
@@ -64,7 +61,7 @@ This pass classifies launch blockers only. It does not fake provider proof, depl
 
 ## Next Exact Steps
 
-- runtimeProviderSmoke: Attach formal provider smoke and deployed runtime smoke artifacts; source confidence and operator revenue do not clear this gate.
+- runtimeProviderSmoke: Produce provider-backed site activity and deployed runtime route evidence; source confidence and operator revenue do not clear this gate.
 - adminTruthSample: Attach a redacted production admin truth sample; source wiring and debug labels do not clear the formal admin gate.
 - reportFreshnessPrIntegrity: Provide a cached open PR artifact or explicitly opt in to GitHub PR listing before treating PR integrity as closed.
 
