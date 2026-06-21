@@ -11,8 +11,8 @@ export function buildJourneyFunnelChartRows(steps: JourneyFunnelStep[]) {
       step.visibleLabel.length > 14
         ? `${step.visibleLabel.slice(0, 14)}...`
         : step.visibleLabel,
-    countValue: step.displayedCount ?? 0,
-    percentValue: step.displayedPercent === null ? 0 : Math.round(step.displayedPercent * 100),
+    countValue: step.displayedCount,
+    percentValue: step.displayedPercent === null ? null : Math.round(step.displayedPercent * 100),
   }));
 }
 
@@ -29,10 +29,10 @@ export function buildAuthMethodChartRows(methodBreakdown: AuthMethodBreakdownIte
       item.visibleLabel.length > 14
         ? `${item.visibleLabel.slice(0, 14)}...`
         : item.visibleLabel,
-    attemptsValue: item.attempts ?? 0,
-    successesValue: item.successes ?? 0,
-    failuresValue: item.failures ?? 0,
-    unfinishedValue: item.unfinished ?? 0,
+    attemptsValue: item.attempts,
+    successesValue: item.successes,
+    failuresValue: item.failures,
+    unfinishedValue: item.unfinished,
   }));
 }
 

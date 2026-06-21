@@ -3,7 +3,11 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { buildGuestQualityChartRows } from "@/app/admin/analytics/components/AdminAnalyticsOperationsTab.utils";
+import {
+  buildAuthMethodChartRows,
+  buildGuestQualityChartRows,
+  buildJourneyFunnelChartRows,
+} from "@/app/admin/analytics/components/AdminAnalyticsOperationsTab.utils";
 
 const source = readFileSync(
   join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
@@ -63,6 +67,36 @@ describe("Admin analytics operations mobile consolidation", () => {
     } as unknown as Parameters<typeof buildGuestQualityChartRows>[0]);
 
     expect(rows.map((row) => row.value)).toEqual([null, null, null]);
+  });
+
+  it("keeps missing journey and auth chart rows as null instead of fake zero", () => {
+    const journeyRows = buildJourneyFunnelChartRows([
+      {
+        visibleLabel: "Preview opened",
+        displayedCount: null,
+        displayedPercent: null,
+      },
+    ] as unknown as Parameters<typeof buildJourneyFunnelChartRows>[0]);
+    const authRows = buildAuthMethodChartRows([
+      {
+        visibleLabel: "Email",
+        attempts: null,
+        successes: null,
+        failures: null,
+        unfinished: null,
+      },
+    ] as unknown as Parameters<typeof buildAuthMethodChartRows>[0]);
+
+    expect(journeyRows[0]).toMatchObject({
+      countValue: null,
+      percentValue: null,
+    });
+    expect(authRows[0]).toMatchObject({
+      attemptsValue: null,
+      successesValue: null,
+      failuresValue: null,
+      unfinishedValue: null,
+    });
   });
 
   it("renders Auth Outcomes as one compact mobile view mode at a time", () => {
