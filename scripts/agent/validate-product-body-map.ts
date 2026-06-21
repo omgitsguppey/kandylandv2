@@ -9,9 +9,11 @@ import {
   validateProductBodyMapReport,
 } from "@/lib/product-integrity/product-body-map";
 import type {
+  BodySystemId,
   ProductBodyMapDirtyFile,
   ProductBodyMapOpenPullRequest,
   ProductBodyMapReport,
+  ProductLimb,
 } from "@/lib/product-integrity/product-body-system-contract";
 
 const ROOT = process.cwd();
@@ -39,6 +41,93 @@ function writeJson(path: string, value: unknown) {
   const fullPath = join(ROOT, path);
   mkdirSync(dirname(fullPath), { recursive: true });
   writeFileSync(fullPath, `${JSON.stringify(value)}\n`, "utf8");
+}
+
+const DISCONNECTED_LIMB_ARTIFACT_CAP = 80;
+const BODY_SYSTEM_LIMB_EXAMPLE_CAP = 8;
+
+function summarizeLimbForArtifact(limb: ProductLimb) {
+  return {
+    limbId: limb.limbId,
+    kind: limb.kind,
+    label: limb.label,
+    status: limb.status,
+    primaryBodySystem: limb.primaryBodySystem,
+    secondaryBodySystems: limb.secondaryBodySystems,
+    owner: limb.owner,
+    sourceFiles: limb.sourceFiles.slice(0, 3),
+    validators: limb.validators.slice(0, 3),
+    scoreImpact: limb.scoreImpact,
+    nextAction: limb.nextAction,
+  };
+}
+
+export function compactProductBodyMapReportForArtifact(
+  report: ProductBodyMapReport & {
+    scoreBefore?: ReturnType<typeof scoreSnapshot>;
+    scoreAfter?: ReturnType<typeof scoreSnapshot>;
+    scoreDimensions?: ProductBodyMapReport["scoreDimensionImpact"];
+  },
+) {
+  const disconnectedLimbs = report.disconnectedLimbs
+    .filter((limb) => limb.status !== "connected")
+    .slice(0, DISCONNECTED_LIMB_ARTIFACT_CAP)
+    .map(summarizeLimbForArtifact);
+  const bodySystemSummaries = Object.fromEntries(report.bodySystems.map((system) => {
+    const limbsForSystem = report.limbs.filter((limb) =>
+      limb.primaryBodySystem === system || limb.secondaryBodySystems.includes(system as BodySystemId),
+    );
+    return [system, {
+      primaryCount: report.limbs.filter((limb) => limb.primaryBodySystem === system).length,
+      secondaryCount: report.limbs.filter((limb) => limb.secondaryBodySystems.includes(system as BodySystemId)).length,
+      statusCounts: Object.fromEntries(Object.entries(report.disconnectedByStatus).map(([status]) => [
+        status,
+        limbsForSystem.filter((limb) => limb.status === status).length,
+      ])),
+      scoreImpact: report.scoreDimensionImpact[system],
+      exampleLimbIds: limbsForSystem.slice(0, BODY_SYSTEM_LIMB_EXAMPLE_CAP).map((limb) => limb.limbId),
+      omittedExampleCount: Math.max(0, limbsForSystem.length - BODY_SYSTEM_LIMB_EXAMPLE_CAP),
+    }];
+  }));
+
+  return {
+    reportKey: report.reportKey,
+    contractVersion: report.contractVersion,
+    generatedAtUtc: report.generatedAtUtc,
+    currentHead: report.currentHead,
+    status: report.status,
+    productionReadsPerformed: report.productionReadsPerformed,
+    providerCallsPerformed: report.providerCallsPerformed,
+    reportCompleteness: "capped_catalog",
+    capReason:
+      "Full product limb catalog is validated in memory; generated artifact stores summary counts, body-system rollups, and capped disconnected examples.",
+    bodySystemsCovered: report.bodySystemsCovered,
+    bodySystems: report.bodySystems,
+    totalLimbs: report.totalLimbs,
+    emittedDisconnectedLimbCount: disconnectedLimbs.length,
+    omittedDisconnectedLimbCount: Math.max(0, report.disconnectedLimbs.length - disconnectedLimbs.length),
+    fullLimbCatalogOmittedCount: report.limbs.length,
+    majorFeaturesMapped: report.majorFeaturesMapped,
+    majorSurfacesMapped: report.majorSurfacesMapped,
+    telemetryEventsMapped: report.telemetryEventsMapped,
+    metricsMapped: report.metricsMapped,
+    routesMapped: report.routesMapped,
+    materializersMapped: report.materializersMapped,
+    disconnectedByStatus: report.disconnectedByStatus,
+    disconnectedLimbs,
+    dirtyFiles: report.dirtyFiles,
+    openPullRequests: report.openPullRequests,
+    debugLane: report.debugLane,
+    scoreDimensionImpact: report.scoreDimensionImpact,
+    bodySystemSummaries,
+    remainingGaps: report.remainingGaps.slice(0, DISCONNECTED_LIMB_ARTIFACT_CAP),
+    omittedRemainingGapCount: Math.max(0, report.remainingGaps.length - DISCONNECTED_LIMB_ARTIFACT_CAP),
+    nextExactSteps: report.nextExactSteps.slice(0, DISCONNECTED_LIMB_ARTIFACT_CAP),
+    validationFailures: report.validationFailures,
+    scoreBefore: report.scoreBefore,
+    scoreAfter: report.scoreAfter,
+    scoreDimensions: report.scoreDimensions,
+  };
 }
 
 function writeText(path: string, value: string) {
@@ -205,7 +294,7 @@ export function buildAndWriteProductBodyMapReport() {
     scoreDimensions: report.scoreDimensionImpact,
   };
 
-  writeJson(REPORT_PATH, reportWithScore);
+  writeJson(REPORT_PATH, compactProductBodyMapReportForArtifact(reportWithScore));
   writeText(DOC_PATH, renderDoc(report));
   return reportWithScore;
 }

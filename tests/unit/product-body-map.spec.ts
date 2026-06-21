@@ -17,6 +17,7 @@ import { SURFACE_PARITY_REGISTRY } from "@/lib/parity/surface-parity-registry";
 import { TELEMETRY_EVENT_EXTENSION_METADATA } from "@/lib/telemetry-catalog";
 import { PERSON_METRIC_DEFINITIONS } from "@/lib/analytics/person-metrics-contract";
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
+import { compactProductBodyMapReportForArtifact } from "../../scripts/agent/validate-product-body-map";
 
 describe("product body map", () => {
   it("defines the canonical body systems and limb vocabulary", () => {
@@ -116,5 +117,23 @@ describe("product body map", () => {
     expect(lane?.label).toBe("Product body map");
     expect(lane?.primarySignal).toContain("systems=");
     expect(lane?.rawDetailsDefaultOpen).toBe(false);
+  });
+
+  it("keeps the generated artifact compact while preserving full catalog counts", () => {
+    const report = buildProductBodyMapReport({
+      packageScripts: {
+        "check:product-body-map": "tsx scripts/agent/validate-product-body-map.ts",
+      },
+      dirtyFiles: [],
+      openPullRequests: [],
+    });
+    const compact = compactProductBodyMapReportForArtifact(report);
+
+    expect(compact.reportCompleteness).toBe("capped_catalog");
+    expect(compact.totalLimbs).toBe(report.limbs.length);
+    expect(compact.fullLimbCatalogOmittedCount).toBe(report.limbs.length);
+    expect("limbs" in compact).toBe(false);
+    expect(compact.bodySystemSummaries.identity_auth.exampleLimbIds.length).toBeGreaterThan(0);
+    expect(compact.emittedDisconnectedLimbCount).toBeLessThanOrEqual(80);
   });
 });
