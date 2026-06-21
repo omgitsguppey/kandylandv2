@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-03T03:16:10.457Z",
+  "generatedAtUtc": "2026-06-21T03:34:30.126Z",
   "reportKey": "cost-owner-review-source-closure",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "currentHead": "834b8addac00c455edeed2bc32fbfec8aa9e1475",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -168,8 +168,8 @@
       "id": "adminAnalyticsDebugDefaultLoad",
       "label": "Admin analytics/debug default load",
       "owner": "admin-debug",
-      "status": "cost_review_required",
-      "sourceGuarded": false,
+      "status": "source_ready_batched_or_cached",
+      "sourceGuarded": true,
       "externalBillingReviewed": false,
       "externalReviewRequired": false,
       "sourceFiles": [
@@ -179,9 +179,9 @@
       ],
       "evidence": [
         "finalCostCurrent=true",
-        "adminDefaultLoadGuarded=false"
+        "adminDefaultLoadGuarded=true"
       ],
-      "reason": "Admin analytics/debug load cost lane needs current source guard evidence.",
+      "reason": "Admin analytics/debug default load has source guard evidence for summary-first behavior.",
       "nextAction": "Keep cold analytics/debug reads behind explicit refresh or drill-down actions."
     }
   },
@@ -253,9 +253,9 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 63.5,
-  "costRiskScoreExplanation": "Cost risk score 63.5 reflects source cost readiness from guarded lanes; external billing review remains separate and no dollar savings are claimed.",
-  "sourceGuardedLaneCount": 5,
+  "costRiskScore": 68.5,
+  "costRiskScoreExplanation": "Cost risk score 68.5 reflects source cost readiness from guarded lanes; external billing review remains separate and no dollar savings are claimed.",
+  "sourceGuardedLaneCount": 6,
   "externalBillingReview": {
     "reviewed": false,
     "requiredLanes": [
@@ -271,7 +271,7 @@
   "route4xxUsesLatestDiagnostics": true,
   "scoreInputImpact": {
     "previousGenericOwnerReviewScore": 40,
-    "refinedSourceScore": 63.5,
+    "refinedSourceScore": 68.5,
     "externalProofClaimed": false
   },
   "openPrs": [

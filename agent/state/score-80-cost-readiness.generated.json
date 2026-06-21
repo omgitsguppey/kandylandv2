@@ -1,30 +1,30 @@
 {
-  "generatedAtUtc": "2026-06-03T04:33:20.425Z",
+  "generatedAtUtc": "2026-06-21T03:44:46.413Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-  "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "currentHead": "834b8addac00c455edeed2bc32fbfec8aa9e1475",
+  "sourceCommit": "834b8addac00c455edeed2bc32fbfec8aa9e1475",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
-    "sourceCostReadinessScore": 92.5,
-    "costRiskScore": 92.5,
-    "staleCreatorDashboardInventoryIgnored": false,
-    "cloudRunSourceReady": true,
+    "sourceCostReadinessScore": 79.5,
+    "costRiskScore": 79.5,
+    "staleCreatorDashboardInventoryIgnored": true,
+    "cloudRunSourceReady": false,
     "cloudSqlOwnerReview": true,
     "geminiOwnerReview": true,
     "route4xxSourceReady": true,
     "p0Count": 0,
     "p1Count": 3,
-    "p2Count": 0
+    "p2Count": 5
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
-      "status": "source_guarded_external_review_remaining",
-      "detail": "Cloud Run/App Hosting has source guard coverage; deployed billing review remains external.",
+      "status": "cost_review_required",
+      "detail": "Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
       "evidence": [
         "finalCostCurrent=true",
         "globalCostSourceClean=true",
-        "cloudRunGuarded=true",
+        "cloudRunGuarded=false",
         "externalBillingReviewed=false",
         "owner=speed-security-cost",
         "externalReviewRequired=true",
@@ -85,21 +85,29 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 92.5,
-  "costRiskScoreExplanation": "Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.",
+  "costRiskScore": 79.5,
+  "costRiskScoreExplanation": "Cost risk score 79.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.",
   "externalOwnerReviewStillRequired": true,
   "sourceReadinessSignals": [
-    "cloudRunSourceReady=true",
-    "route4xxSourceReady=true",
+    "cloudRunSourceReady=false",
+    "route4xxSourceReady=false",
     "globalCostClean=true",
-    "finalCostCurrent=true",
-    "telemetryCurrent=true",
+    "finalCostCurrent=false",
+    "telemetryCurrent=false",
     "costOwnerReviewSourceClosureCurrent=true",
-    "costRiskOwnerReviewClosureCurrent=true",
+    "costRiskOwnerReviewClosureCurrent=false",
     "costRiskExitPassCurrent=true"
   ],
-  "staleArtifacts": [],
-  "ignoredLegacyArtifacts": [],
+  "staleArtifacts": [
+    "agent/state/final-cost-audit-lock.generated.json",
+    "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+    "agent/state/analytics-cost-runtime-inventory.generated.json",
+    "agent/state/final-telemetry-closure-lock.generated.json",
+    "agent/state/creator-dashboard-error-cost-inventory.generated.json"
+  ],
+  "ignoredLegacyArtifacts": [
+    "agent/state/creator-dashboard-error-cost-inventory.generated.json"
+  ],
   "ownerReviewLanes": [
     "cloudRunCostReadiness",
     "cloudSqlCostReadiness",
@@ -108,9 +116,9 @@
   "validatorResults": [
     {
       "command": "npm run check:final-cost-audit-lock",
-      "status": "pass",
+      "status": "failed_or_not_run",
       "artifactPath": "agent/state/final-cost-audit-lock.generated.json",
-      "detail": "Current final cost lock is available."
+      "detail": "Final cost lock is missing or stale."
     },
     {
       "command": "npm run check:cost-risk-exit-pass",
@@ -120,9 +128,9 @@
     },
     {
       "command": "npm run check:cost-risk-owner-review-closure",
-      "status": "pass",
+      "status": "failed_or_not_run",
       "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "detail": "Current cost risk owner-review closure is available."
+      "detail": "Cost risk owner-review closure is missing or stale."
     },
     {
       "command": "npm run check:cost-owner-review-source-closure",
@@ -132,9 +140,9 @@
     },
     {
       "command": "npm run check:cloud-sql-gemini-cost-guards",
-      "status": "pass",
+      "status": "failed_or_not_run",
       "artifactPath": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "detail": "Current Cloud SQL/Gemini guard report is available."
+      "detail": "Cloud SQL/Gemini guard report is missing or stale."
     },
     {
       "command": "npm run check:global-cost-surfaces",
@@ -150,7 +158,7 @@
     },
     {
       "command": "npm run check:analytics-cost-runtime-inventory",
-      "status": "pass",
+      "status": "failed_or_not_run",
       "artifactPath": "agent/state/analytics-cost-runtime-inventory.generated.json",
       "detail": "Analytics cost runtime inventory refresh is tracked separately from external billing proof."
     }

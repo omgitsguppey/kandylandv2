@@ -71,7 +71,7 @@ export const PUBLIC_BETA_EVIDENCE_QUALITY_SCORES = {
 } as const;
 
 export const PUBLIC_BETA_LAUNCH_GATE_REQUIREMENTS = {
-  manualEvidenceRequiredForExit: true,
+  sourceActivityEvidenceRequiredForExit: true,
   providerEvidenceRequiredForExit: true,
   runtimeEvidenceRequiredForExit: true,
   adminTruthSampleRequiredForExit: true,

@@ -459,7 +459,7 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   }
 
   if (gate.id === "runtimeProviderSmoke") {
-    if (gate.status === "External proof required") {
+    if (gate.status === "External proof required" || gate.status === "Source evidence required") {
       if (gate.freshness === "stale" || gate.freshness === "head_mismatch") {
         return `${gate.status}: ${gate.label} - Refresh provider-backed site activity and deployed runtime route evidence.`;
       }
@@ -474,8 +474,8 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   }
 
   if (gate.id === "adminTruthSamples") {
-    if (gate.status === "External proof required" || gate.status === "Unknown evidence") {
-      if (gate.status === "External proof required" && (gate.freshness === "stale" || gate.freshness === "head_mismatch")) {
+    if (gate.status === "External proof required" || gate.status === "Source evidence required" || gate.status === "Unknown evidence") {
+      if ((gate.status === "External proof required" || gate.status === "Source evidence required") && (gate.freshness === "stale" || gate.freshness === "head_mismatch")) {
         return `${gate.status}: ${gate.label} - Refresh the redacted production admin truth sample.`;
       }
       return `${gate.status}: ${gate.label} - Produce a redacted admin source activity sample.`;
@@ -584,7 +584,7 @@ function buildScoreExplanation(input: {
     evidenceScoreMeaning: `Evidence score ${input.evidenceScore}/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score ${input.healthScore}/100 currently maps to launch gate ${input.launchGateStatus}.`,
     missingEvidenceCaps: input.evidenceCapDetails,
     staleReportHandling: "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
-    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only after a source-reported issue.",
+    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review lanes unless matching source activity records are present. Deterministic UI surface coverage is the default UI readiness lane; browser reproduction is optional only after a source-reported issue.",
     betaExitBlockedBy: blockedBy,
   };
 }
@@ -829,16 +829,16 @@ export function buildPublicBetaEvidenceGates(input: {
   } else if (providerQuality.quality === "failed" || runtimeQuality.quality === "failed") {
     runtimeProviderSmokeStatus = "Needs review";
   } else if (providerNeedsFormalProof || runtimeNeedsFormalProof) {
-    runtimeProviderSmokeStatus = "External proof required";
+    runtimeProviderSmokeStatus = "Source evidence required";
   } else if (
     providerQuality.freshness === "stale"
     || runtimeQuality.freshness === "stale"
     || providerQuality.freshness === "head_mismatch"
     || runtimeQuality.freshness === "head_mismatch"
   ) {
-    runtimeProviderSmokeStatus = "External proof required";
+    runtimeProviderSmokeStatus = "Stale evidence";
   } else if (runtimeProviderSmokeFreshnessUnknown) {
-    runtimeProviderSmokeStatus = "External proof required";
+    runtimeProviderSmokeStatus = "Unknown evidence";
   } else if (runtimeSmokeStatus === "runtime_unverified") {
     runtimeProviderSmokeStatus = "Runtime unverified";
   }
@@ -937,9 +937,14 @@ export function buildPublicBetaEvidenceGates(input: {
         clamp(evidenceArtifactNumber(evidence.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeHealthCredit") ?? 0, 0, 100),
       )
     : 0;
+  const runtimeProviderSourceActivityCredit = Math.max(
+    sourceBackedRuntimeConfidenceCredit,
+    realUsageConfidenceCredit,
+    runtimeSmokeSubstituteMatrixCredit,
+  );
   const runtimeProviderRuntimeCredit = runtimeProviderSmokePassed
     ? 100
-    : Math.max(sourceBackedRuntimeConfidenceCredit, realUsageConfidenceCredit, runtimeSmokeSubstituteMatrixCredit);
+    : runtimeProviderSourceActivityCredit;
   const runtimeProviderEvidenceWithSourceConfidence = Array.from(new Set([
     ...runtimeProviderSmokeEvidence,
     ...(
@@ -1013,7 +1018,7 @@ export function buildPublicBetaEvidenceGates(input: {
       : Math.max(Math.min(providerQuality.confidence, runtimeQuality.confidence), runtimeProviderBridgeCredit * 0.9),
     freshness: providerQuality.freshness === "fresh" ? runtimeQuality.freshness : providerQuality.freshness,
     freshnessScore: Math.min(providerQuality.freshnessScore, runtimeQuality.freshnessScore),
-    partialCredit: roundScore(runtimeProviderFormalCredit),
+    partialCredit: roundScore(Math.max(runtimeProviderFormalCredit, runtimeProviderSourceActivityCredit / 100)),
     blocksLaunch: providerQuality.blocksLaunch || runtimeQuality.blocksLaunch,
     reason: `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear provider-backed site activity or deployed runtime route evidence.`,
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
@@ -1041,36 +1046,40 @@ export function buildPublicBetaEvidenceGates(input: {
     },
   });
   const adminBridgeCredit = formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit / 100;
+  const adminTruthSampleEvidenceText = adminTruthSampleEvidence.join("\n");
   const adminSourceConfidence = adminTruthSampleStatus.includes("source_ready")
-    && adminTruthSampleEvidence.includes("sourceTruthStatus=source_backed")
-    && adminTruthSampleEvidence.includes("criticalAdminTruthIssueCount=0")
-    && adminTruthSampleEvidence.includes("fakeHealthyStateDetected=false")
+    && /sourceTruthStatus=source_backed/iu.test(adminTruthSampleEvidenceText)
+    && /criticalAdminTruthIssueCount=0/iu.test(adminTruthSampleEvidenceText)
+    && /fakeHealthyStateDetected=false/iu.test(adminTruthSampleEvidenceText)
     ? 92
     : 0;
+  const adminSourceActivityCredit = Math.max(adminBridgeCredit, adminSourceConfidence / 100);
   const adminQuality = {
     ...adminBaseQuality,
     quality: adminBaseQuality.quality,
     confidence: Math.max(adminBaseQuality.confidence, adminBridgeCredit * 0.9, adminSourceConfidence / 100),
-    partialCredit: adminTruthSamplePassed ? adminBaseQuality.partialCredit : 0,
+    partialCredit: adminTruthSamplePassed
+      ? adminBaseQuality.partialCredit
+      : roundScore(adminSourceActivityCredit),
     blocksLaunch: adminBaseQuality.blocksLaunch,
     reason: adminBaseQuality.quality === "formal_passed"
       ? adminBaseQuality.reason
       : "Admin source evidence earns partial bridge confidence; the admin lane needs a matching source activity sample before clearing.",
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
   const adminTruthSampleFreshnessUnknown = adminBaseQuality.freshness === "unknown";
-  let adminTruthSampleStatusLabel: PublicBetaReadinessStatus = "External proof required";
+  let adminTruthSampleStatusLabel: PublicBetaReadinessStatus = "Source evidence required";
   if (adminTruthSamplePassed && !adminTruthSampleFreshnessUnknown) {
     adminTruthSampleStatusLabel = "Ready";
   } else if (adminBaseQuality.quality === "failed") {
     adminTruthSampleStatusLabel = "Needs review";
   } else if (adminTruthNeedsFormalProof) {
-    adminTruthSampleStatusLabel = "External proof required";
+    adminTruthSampleStatusLabel = "Source evidence required";
   } else if (adminBaseQuality.quality === "source_ready" || adminBridgeCredit > 0 || adminSourceConfidence > 0) {
-    adminTruthSampleStatusLabel = "External proof required";
+    adminTruthSampleStatusLabel = "Source evidence required";
   } else if (adminBaseQuality.freshness === "stale" || adminBaseQuality.freshness === "head_mismatch") {
-    adminTruthSampleStatusLabel = "External proof required";
+    adminTruthSampleStatusLabel = "Stale evidence";
   } else if (adminTruthSampleFreshnessUnknown) {
-    adminTruthSampleStatusLabel = "External proof required";
+    adminTruthSampleStatusLabel = "Unknown evidence";
   }
 
   const sourceSafetyQuality = {
@@ -1218,7 +1227,7 @@ export function buildPublicBetaEvidenceGates(input: {
         : undefined,
       runtimeCredit: adminQuality.quality === "formal_passed"
         ? adminQuality.partialCredit * 100
-        : 0,
+        : adminSourceActivityCredit * 100,
     }),
     buildEvidenceGate({
       id: "freshnessIntegrity",
@@ -1774,7 +1783,7 @@ export function buildPublicBetaScoreReport(
       score: runtimeHealthScore,
       reasons: [
         ...runtimeRequiredGates.map((gate) => `${gate.label} runtimeCredit=${gate.runtimeCredit}`),
-        "Below-target runtime health reflects formal/runtime evidence requirements or broken connectivity, not future activity placeholders.",
+        "Below-target runtime health reflects source-activity evidence requirements or broken connectivity, not future activity placeholders.",
       ],
     },
     evidenceCompleteness: {

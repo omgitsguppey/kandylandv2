@@ -1,15 +1,15 @@
 # Cost Owner-Review Source Closure
 
-Generated: 2026-06-03T03:16:10.457Z
+Generated: 2026-06-21T03:34:30.126Z
 
 Status: pass
 
 ## Score Input
 
-- Cost risk score: 63.5
-- Source guarded lanes: 5
+- Cost risk score: 68.5
+- Source guarded lanes: 6
 - External billing reviewed: false
-- Explanation: Cost risk score 63.5 reflects source cost readiness from guarded lanes; external billing review remains separate and no dollar savings are claimed.
+- Explanation: Cost risk score 68.5 reflects source cost readiness from guarded lanes; external billing review remains separate and no dollar savings are claimed.
 
 ## Lanes
 
@@ -22,7 +22,7 @@ Status: pass
 | BigQuery | source_ready_batched_or_cached | true | true | Verify BigQuery provider heartbeat/billing externally before treating warehouse evidence as full proof. |
 | Analytics ingest/retry storms | source_ready_retry_storm_guarded | true | false | Keep non-priority analytics batched and avoid retrying validation failures. |
 | Scheduled/runtime job scan cost | source_ready_batched_or_cached | true | true | Review deployed scheduler cadence and function billing externally before full closure. |
-| Admin analytics/debug default load | cost_review_required | false | false | Keep cold analytics/debug reads behind explicit refresh or drill-down actions. |
+| Admin analytics/debug default load | source_ready_batched_or_cached | true | false | Keep cold analytics/debug reads behind explicit refresh or drill-down actions. |
 
 ## Boundary
 

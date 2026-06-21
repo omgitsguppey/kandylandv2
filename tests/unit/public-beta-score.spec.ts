@@ -287,7 +287,7 @@ describe("public beta scoring math", () => {
         expect(report.launchClearance.formalGates.uiSurfaceCoverage.cleared).toBe(false);
     });
 
-    it("classifies missing provider smoke as external proof required", () => {
+    it("classifies missing provider smoke as source evidence required", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
@@ -296,7 +296,7 @@ describe("public beta scoring math", () => {
             },
         });
 
-        expect(report.readinessStatus).toBe("External proof required");
+        expect(report.readinessStatus).toBe("Source evidence required");
         expect(report.overallScore).toBeLessThan(100);
     });
 
@@ -333,7 +333,7 @@ describe("public beta scoring math", () => {
         });
 
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
-        expect(smokeGate?.status).toBe("External proof required");
+        expect(smokeGate?.status).toBe("Source evidence required");
         expect(smokeGate?.score).toBe(0);
         expect(smokeGate?.evidence.join("\n")).toContain("runtimeArtifactStatus=runtime_unverified");
     });
@@ -366,8 +366,8 @@ describe("public beta scoring math", () => {
 
         expect(report.evidenceGates).toEqual(expect.arrayContaining([
             expect.objectContaining({ id: "targetedBehaviorTests", status: "Source evidence required", score: 0 }),
-            expect.objectContaining({ id: "runtimeProviderSmoke", status: "External proof required", score: 0 }),
-            expect.objectContaining({ id: "adminTruthSamples", status: "External proof required", score: 0 }),
+            expect.objectContaining({ id: "runtimeProviderSmoke", status: "Source evidence required", score: 0 }),
+            expect.objectContaining({ id: "adminTruthSamples", status: "Source evidence required", score: 0 }),
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
@@ -425,12 +425,12 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.evidenceGates).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: "runtimeProviderSmoke", status: "External proof required", score: 0 }),
-            expect.objectContaining({ id: "adminTruthSamples", status: "External proof required", score: 0 }),
+            expect.objectContaining({ id: "runtimeProviderSmoke", status: "Stale evidence", score: 0 }),
+            expect.objectContaining({ id: "adminTruthSamples", status: "Stale evidence", score: 0 }),
         ]));
         expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
-            "External proof required: Runtime/provider smoke - Refresh provider-backed site activity and deployed runtime route evidence.",
-            "External proof required: Admin truth/sample evidence - Refresh the redacted production admin truth sample.",
+            "Stale evidence: Runtime/provider smoke - Refresh provider-backed site activity and deployed runtime route evidence.",
+            "Stale evidence: Admin truth/sample evidence - Refresh the redacted admin truth sample.",
         ]));
         expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
         expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
@@ -458,11 +458,11 @@ describe("public beta scoring math", () => {
         });
 
         expect(report.evidenceGates).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: "runtimeProviderSmoke", status: "External proof required", score: 0 }),
-            expect.objectContaining({ id: "adminTruthSamples", status: "External proof required", score: 0 }),
+            expect.objectContaining({ id: "runtimeProviderSmoke", status: "Unknown evidence", score: 0 }),
+            expect.objectContaining({ id: "adminTruthSamples", status: "Unknown evidence", score: 0 }),
         ]));
-        expect(report.evidenceCapDetails.join("\n")).toContain("External proof required: Runtime/provider smoke");
-        expect(report.evidenceCapDetails.join("\n")).toContain("External proof required: Admin truth/sample evidence");
+        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Runtime/provider smoke");
+        expect(report.evidenceCapDetails.join("\n")).toContain("Unknown evidence: Admin truth/sample evidence");
     });
 
     it("keeps missing_or_unknown admin truth from passing", () => {
@@ -475,7 +475,7 @@ describe("public beta scoring math", () => {
         });
 
         const adminGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
-        expect(adminGate?.status).toBe("External proof required");
+        expect(adminGate?.status).toBe("Source evidence required");
         expect(adminGate?.score).toBe(0);
         expect(adminGate?.evidence.join("\n")).toContain("adminTruthSampleArtifactStatus=missing_or_unknown");
     });
@@ -573,12 +573,12 @@ describe("public beta scoring math", () => {
         });
 
         const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
-        expect(smokeGate?.status).toBe("External proof required");
+        expect(smokeGate?.status).toBe("Source evidence required");
         expect(smokeGate?.score).toBe(0);
         expect(smokeGate?.evidence.join("\n")).toContain("providerArtifactStatus=missing_formal_evidence");
     });
 
-    it("credits first-party site activity evidence without requiring a manual formal artifact for that source lane", () => {
+    it("credits first-party site activity evidence without requiring a separate source-lane artifact", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
@@ -721,8 +721,8 @@ describe("public beta scoring math", () => {
         expect(report.studioDashboard.sections.find((section) => section.id === "needsProof")?.status).toBe("needs_proof");
         expect(report.studioDashboard.sections.find((section) => section.id === "needsProof")?.detail).toContain("Open evidence gates:");
         expect(report.sourceHealthScore).toBeGreaterThanOrEqual(90);
-        expect(report.runtimeHealthScore).toBeLessThan(90);
-        expect(report.evidenceCompletenessScore).toBeLessThan(90);
+        expect(report.runtimeHealthScore).toBeGreaterThanOrEqual(90);
+        expect(report.evidenceCompletenessScore).toBeGreaterThanOrEqual(90);
         expect(report.freshnessScore).toBeGreaterThanOrEqual(90);
         expect(report.costRiskScore).toBeGreaterThanOrEqual(90);
         expect(report.regressionRiskScore).toBeGreaterThanOrEqual(90);
