@@ -667,6 +667,25 @@ export type LaunchHistoryCoverageForSourceAgreement = {
     };
     internalAdminExcludedCount?: number | null;
   }>;
+  eventFamilyCoverage?: {
+    canonicalMappedFamilyCount?: number;
+    canonicalMappingCoveragePercent?: number;
+    observedFirstPartyFamilyCount?: number;
+    observedFirstPartyCoveragePercent?: number;
+    sourceCoverageStatus?: string;
+    holdbackValidation?: Record<string, unknown>;
+    familySourceStates?: Array<{
+      familyId: string;
+      observedFirstParty?: boolean;
+      sourceCoverageState?: string;
+      sourceRole?: string;
+      strongestSourceTruth?: string;
+      strongestEvidenceKind?: string;
+      confidenceBand?: string;
+      productTruthEligible?: boolean;
+      nextAction?: string;
+    }>;
+  };
 };
 
 export function buildSourceAgreementFailureDetail(input: {

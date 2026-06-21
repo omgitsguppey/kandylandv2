@@ -971,4 +971,88 @@ describe("source agreement failure detail", () => {
       state: "partial",
     });
   });
+
+  it("preserves compact launch-critical family coverage from redacted exports", () => {
+    const coverage = normalizeLaunchHistoryCoverageExport({
+      status: "complete",
+      redaction: {
+        rawUserIdentifiersIncluded: false,
+        rawPaymentDetailsIncluded: false,
+        secretsIncluded: false,
+      },
+      launchHistoryCoverage: {
+        expectedDayCount: 1,
+        recoveredDayCount: 1,
+        state: "available",
+        eventFamilyCoverage: {
+          canonicalMappedFamilyCount: 13,
+          canonicalMappingCoveragePercent: 100,
+          observedFirstPartyFamilyCount: 1,
+          observedFirstPartyCoveragePercent: 7.7,
+          sourceCoverageStatus: "blocked",
+          holdbackValidation: {
+            observedFirstPartyRequired: true,
+            modeledOrInferredCanCalibrateOnly: true,
+            observedFirstPartyFamilyGapCount: 12,
+            status: "blocked",
+            reason: "First-party holdback still missing.",
+          },
+          familySourceStates: [
+            {
+              familyId: "page_view",
+              observedFirstParty: true,
+              sourceCoverageState: "observed_first_party",
+              sourceRole: "product_truth",
+              strongestSourceTruth: "first_party_event_fact",
+              strongestEvidenceKind: "observed",
+              confidenceBand: "verified",
+              productTruthEligible: true,
+              nextAction: "Use first-party truth.",
+            },
+            {
+              familyId: "purchase",
+              observedFirstParty: false,
+              sourceCoverageState: "source_missing",
+              sourceRole: "missing_source",
+              strongestSourceTruth: "source_missing",
+              strongestEvidenceKind: "missing",
+              confidenceBand: "missing",
+              productTruthEligible: false,
+              nextAction: "Recover server purchase facts.",
+            },
+          ],
+        },
+        days: [{
+          dayKey: "2026-05-01",
+          expected: true,
+          sourceCounts: { first_party: 3, ga4: 4, historicalSnapshot: 0, legacySupport: 0 },
+        }],
+      },
+    });
+
+    expect(coverage?.eventFamilyCoverage).toMatchObject({
+      canonicalMappedFamilyCount: 13,
+      canonicalMappingCoveragePercent: 100,
+      observedFirstPartyFamilyCount: 1,
+      sourceCoverageStatus: "blocked",
+      holdbackValidation: {
+        observedFirstPartyRequired: true,
+        observedFirstPartyFamilyGapCount: 12,
+        status: "blocked",
+      },
+      familySourceStates: [
+        expect.objectContaining({
+          familyId: "page_view",
+          observedFirstParty: true,
+          productTruthEligible: true,
+        }),
+        expect.objectContaining({
+          familyId: "purchase",
+          observedFirstParty: false,
+          sourceCoverageState: "source_missing",
+          productTruthEligible: false,
+        }),
+      ],
+    });
+  });
 });

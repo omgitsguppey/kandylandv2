@@ -29,6 +29,32 @@
         },
         "internalAdminExcludedCount": null
       }
-    ]
+    ],
+    "eventFamilyCoverage": {
+      "canonicalMappedFamilyCount": 0,
+      "canonicalMappingCoveragePercent": 0,
+      "observedFirstPartyFamilyCount": 0,
+      "observedFirstPartyCoveragePercent": 0,
+      "sourceCoverageStatus": "blocked",
+      "holdbackValidation": {
+        "observedFirstPartyRequired": true,
+        "modeledOrInferredCanCalibrateOnly": true,
+        "status": "blocked",
+        "reason": "Template only. Replace with compact launch-critical family coverage from the approved export."
+      },
+      "familySourceStates": [
+        {
+          "familyId": "page_view",
+          "observedFirstParty": false,
+          "sourceCoverageState": "source_missing",
+          "sourceRole": "missing_source",
+          "strongestSourceTruth": "source_missing",
+          "strongestEvidenceKind": "missing",
+          "confidenceBand": "missing",
+          "productTruthEligible": false,
+          "nextAction": "Attach observed first-party or server-owned evidence for this family before promotion."
+        }
+      ]
+    }
   }
 }

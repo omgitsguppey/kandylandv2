@@ -111,6 +111,14 @@ function asOptionalString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
 
+function asOptionalNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function asOptionalBoolean(value: unknown): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
+}
+
 export function readLaunchCoverageInputHead(raw: unknown) {
   const root = asRecord(raw);
   return asOptionalString(root.currentHead)
@@ -189,11 +197,76 @@ function formalLaunchCoverageEndDayKey(raw: unknown) {
     ?? new Date().toISOString().slice(0, 10);
 }
 
+function compactHoldbackValidation(value: unknown) {
+  const record = asRecord(value);
+  const compact: Record<string, unknown> = {};
+  for (const key of [
+    "observedFirstPartyRequired",
+    "modeledOrInferredCanCalibrateOnly",
+    "minObservedFirstPartyCoveragePercent",
+    "requiredObservedFirstPartyFamilyCount",
+    "observedFirstPartyFamilyCount",
+    "observedFirstPartyCoveragePercent",
+    "observedFirstPartyFamilyGapCount",
+    "calibrationOnlyFamilyCount",
+    "inferredLegacyFamilyCount",
+    "cachedSnapshotFamilyCount",
+    "missingSourceFamilyCount",
+    "productTruthEligibleFamilyCount",
+    "status",
+    "reason",
+    "nextAction",
+  ]) {
+    const valueForKey = record[key];
+    if (typeof valueForKey === "string" && valueForKey.trim().length > 0) compact[key] = valueForKey.trim();
+    if (typeof valueForKey === "number" && Number.isFinite(valueForKey)) compact[key] = valueForKey;
+    if (typeof valueForKey === "boolean") compact[key] = valueForKey;
+  }
+  return Object.keys(compact).length > 0 ? compact : undefined;
+}
+
+function normalizeLaunchEventFamilyCoverage(candidate: Record<string, unknown>): LaunchHistoryCoverageForSourceAgreement["eventFamilyCoverage"] | undefined {
+  const raw = asRecord(candidate.eventFamilyCoverage);
+  if (Object.keys(raw).length === 0) return undefined;
+  const familySourceStates = Array.isArray(raw.familySourceStates)
+    ? raw.familySourceStates
+      .map((entry) => {
+        const row = asRecord(entry);
+        const familyId = asOptionalString(row.familyId);
+        if (!familyId) return null;
+        return {
+          familyId,
+          ...(asOptionalBoolean(row.observedFirstParty) !== undefined ? { observedFirstParty: asOptionalBoolean(row.observedFirstParty) } : {}),
+          ...(asOptionalString(row.sourceCoverageState) ? { sourceCoverageState: asOptionalString(row.sourceCoverageState) as string } : {}),
+          ...(asOptionalString(row.sourceRole) ? { sourceRole: asOptionalString(row.sourceRole) as string } : {}),
+          ...(asOptionalString(row.strongestSourceTruth ?? row.sourceTruth) ? { strongestSourceTruth: asOptionalString(row.strongestSourceTruth ?? row.sourceTruth) as string } : {}),
+          ...(asOptionalString(row.strongestEvidenceKind ?? row.evidenceKind) ? { strongestEvidenceKind: asOptionalString(row.strongestEvidenceKind ?? row.evidenceKind) as string } : {}),
+          ...(asOptionalString(row.confidenceBand) ? { confidenceBand: asOptionalString(row.confidenceBand) as string } : {}),
+          ...(asOptionalBoolean(row.productTruthEligible) !== undefined ? { productTruthEligible: asOptionalBoolean(row.productTruthEligible) } : {}),
+          ...(asOptionalString(row.nextAction) ? { nextAction: asOptionalString(row.nextAction) as string } : {}),
+        };
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+    : undefined;
+  const holdbackValidation = compactHoldbackValidation(raw.holdbackValidation);
+  const result: LaunchHistoryCoverageForSourceAgreement["eventFamilyCoverage"] = {
+    ...(asOptionalNumber(raw.canonicalMappedFamilyCount) !== undefined ? { canonicalMappedFamilyCount: asOptionalNumber(raw.canonicalMappedFamilyCount) } : {}),
+    ...(asOptionalNumber(raw.canonicalMappingCoveragePercent) !== undefined ? { canonicalMappingCoveragePercent: asOptionalNumber(raw.canonicalMappingCoveragePercent) } : {}),
+    ...(asOptionalNumber(raw.observedFirstPartyFamilyCount) !== undefined ? { observedFirstPartyFamilyCount: asOptionalNumber(raw.observedFirstPartyFamilyCount) } : {}),
+    ...(asOptionalNumber(raw.observedFirstPartyCoveragePercent) !== undefined ? { observedFirstPartyCoveragePercent: asOptionalNumber(raw.observedFirstPartyCoveragePercent) } : {}),
+    ...(asOptionalString(raw.sourceCoverageStatus) ? { sourceCoverageStatus: asOptionalString(raw.sourceCoverageStatus) as string } : {}),
+    ...(holdbackValidation ? { holdbackValidation } : {}),
+    ...(familySourceStates && familySourceStates.length > 0 ? { familySourceStates } : {}),
+  };
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
 export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistoryCoverageForSourceAgreement | null {
   const root = asRecord(raw);
   if (root.status === "template_not_evidence") return null;
   const candidate = asRecord(root.launchHistoryCoverage ?? asRecord(root.analyticsSourceHealth).launchHistoryCoverage ?? root);
   const rangeProof = asRecord(candidate.rangeProof);
+  const eventFamilyCoverage = normalizeLaunchEventFamilyCoverage(candidate);
   const daysRaw = Array.isArray(candidate.days) ? candidate.days : [];
   const daysByKey = new Map<string, LaunchHistoryCoverageForSourceAgreement["days"][number]>();
   const expectedDayKeys: string[] = [];
@@ -282,6 +355,7 @@ export function normalizeLaunchHistoryCoverageExport(raw: unknown): LaunchHistor
       reason: asOptionalString(rangeProof.reason) ?? undefined,
     },
     days,
+    ...(eventFamilyCoverage ? { eventFamilyCoverage } : {}),
   };
 }
 

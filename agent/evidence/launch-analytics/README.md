@@ -11,6 +11,9 @@ Use `launch-history-coverage.template.json` as the shape reference, then copy it
 of the accepted paths when an approved export is available. Keep `status:
 "template_not_evidence"` in templates and drafts. Only complete, redacted exports with
 real `launchHistoryCoverage.days` rows can be used as source agreement evidence.
+When the saved Admin Analytics response includes `eventFamilyCoverage`, keep the
+compact family rows in the export so recovery can show which launch-critical
+actions are observed, modeled, inferred, cached, or still missing.
 
 To convert a saved, redacted all-range Admin Analytics historical response into
 the compact local export shape, run:

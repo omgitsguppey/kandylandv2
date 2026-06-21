@@ -72,6 +72,44 @@ describe("evidence artifact schemas", () => {
             allLaunchRangeProven: true,
             reason: "Approved redacted all-range historical export.",
           },
+          eventFamilyCoverage: {
+            canonicalMappedFamilyCount: 13,
+            canonicalMappingCoveragePercent: 100,
+            observedFirstPartyFamilyCount: 2,
+            observedFirstPartyCoveragePercent: 15.4,
+            sourceCoverageStatus: "blocked",
+            holdbackValidation: {
+              observedFirstPartyRequired: true,
+              modeledOrInferredCanCalibrateOnly: true,
+              requiredObservedFirstPartyFamilyCount: 13,
+              observedFirstPartyFamilyGapCount: 11,
+              status: "blocked",
+            },
+            familySourceStates: [
+              {
+                familyId: "page_view",
+                observedFirstParty: true,
+                sourceCoverageState: "observed_first_party",
+                sourceRole: "product_truth",
+                strongestSourceTruth: "first_party_event_fact",
+                strongestEvidenceKind: "observed",
+                confidenceBand: "verified",
+                productTruthEligible: true,
+                nextAction: "Use first-party truth.",
+              },
+              {
+                familyId: "purchase",
+                observedFirstParty: false,
+                sourceCoverageState: "source_missing",
+                sourceRole: "missing_source",
+                strongestSourceTruth: "source_missing",
+                strongestEvidenceKind: "missing",
+                confidenceBand: "missing",
+                productTruthEligible: false,
+                nextAction: "Recover server purchase facts.",
+              },
+            ],
+          },
           days: [
             {
               dayKey: "2026-02-12",
@@ -119,6 +157,26 @@ describe("evidence artifact schemas", () => {
     expect(JSON.stringify(document)).not.toContain("must-not-survive");
     expect(document.launchHistoryCoverage.days).toHaveLength(2);
     expect(document.launchHistoryCoverage.days[0]?.sourceCounts.first_party).toBe(12);
+    expect(document.launchHistoryCoverage.eventFamilyCoverage).toMatchObject({
+      canonicalMappedFamilyCount: 13,
+      observedFirstPartyFamilyCount: 2,
+      sourceCoverageStatus: "blocked",
+      holdbackValidation: {
+        observedFirstPartyRequired: true,
+        observedFirstPartyFamilyGapCount: 11,
+      },
+      familySourceStates: [
+        expect.objectContaining({
+          familyId: "page_view",
+          observedFirstParty: true,
+          productTruthEligible: true,
+        }),
+        expect.objectContaining({
+          familyId: "purchase",
+          sourceCoverageState: "source_missing",
+        }),
+      ],
+    });
   });
 
   it("converts an all-range admin historical route response into a local launch export", () => {

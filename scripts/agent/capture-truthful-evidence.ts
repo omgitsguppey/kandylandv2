@@ -181,6 +181,7 @@ export function buildLaunchHistoryCoverageLocalExportDocument(input: unknown, op
         },
         internalAdminExcludedCount: day.internalAdminExcludedCount,
       })),
+      ...(normalized.eventFamilyCoverage ? { eventFamilyCoverage: normalized.eventFamilyCoverage } : {}),
     },
   };
 
@@ -228,6 +229,7 @@ function buildLaunchHistoryCoverageForEvidence(report: unknown) {
   const root = record(report);
   const coverage = record(root.launchHistoryCoverage);
   const readiness = buildLaunchHistoryCoverageReadinessForEvidence(report);
+  const normalizedCoverage = normalizeLaunchHistoryCoverageExport(report);
   if (!readiness.canAttachFormalCoverage) return null;
 
   return {
@@ -255,6 +257,7 @@ function buildLaunchHistoryCoverageForEvidence(report: unknown) {
           ? day.internalAdminExcludedCount
           : null,
       })),
+    ...(normalizedCoverage?.eventFamilyCoverage ? { eventFamilyCoverage: normalizedCoverage.eventFamilyCoverage } : {}),
   };
 }
 
