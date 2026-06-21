@@ -94,11 +94,11 @@ const WEIGHTS: Array<[keyof Pick<Score80PathLockReport,
   | "freshnessScore"
   | "costRiskScore"
   | "regressionRiskScore">, number, string]> = [
-    ["sourceHealthScore", 25, "Source health is affected by failed or stale implemented source validators."],
-    ["runtimeHealthScore", 20, "Source-backed runtime confidence helps, but deployed route evidence remains missing."],
-    ["evidenceCompletenessScore", 20, "UI source coverage plus provider, runtime, and admin truth evidence is still required."],
-    ["freshnessScore", 15, "Stale or missing generated evidence reports still decay freshness."],
-    ["costRiskScore", 10, "Source cost readiness is partial while external billing owner review remains separate."],
+    ["sourceHealthScore", 22, "Source health is affected by failed or stale implemented source validators."],
+    ["runtimeHealthScore", 25, "Source-backed runtime confidence helps, but deployed route evidence remains missing."],
+    ["evidenceCompletenessScore", 22, "UI source coverage plus provider, runtime, and admin truth evidence is still required."],
+    ["freshnessScore", 12, "Stale or missing generated evidence reports still decay freshness."],
+    ["costRiskScore", 9, "Source cost readiness is partial while external billing owner review remains separate."],
     ["regressionRiskScore", 10, "Recent high-blast source changes keep regression risk from reaching zero."],
   ];
 

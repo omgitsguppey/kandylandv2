@@ -51,11 +51,11 @@ export const PUBLIC_BETA_EVIDENCE_SCORE_CAPS = {
 } as const;
 
 export const PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS = {
-  sourceHealth: 25,
-  runtimeHealth: 20,
-  evidenceCompleteness: 20,
-  freshness: 15,
-  costRisk: 10,
+  sourceHealth: 22,
+  runtimeHealth: 25,
+  evidenceCompleteness: 22,
+  freshness: 12,
+  costRisk: 9,
   regressionRisk: 10,
 } as const;
 

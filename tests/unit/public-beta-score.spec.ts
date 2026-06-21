@@ -189,6 +189,8 @@ describe("public beta scoring math", () => {
         expect(report.evidenceWeights.runtimeProviderSmoke).toBeGreaterThan(report.evidenceWeights.targetedBehaviorTests);
         expect(report.evidenceWeights.runtimeProviderSmoke + report.evidenceWeights.adminTruthSamples)
             .toBeGreaterThan(report.evidenceWeights.sourceSafety + report.evidenceWeights.freshnessIntegrity);
+        expect(report.healthScoreBreakdown.runtimeHealth.weight + report.healthScoreBreakdown.evidenceCompleteness.weight)
+            .toBeGreaterThan(report.healthScoreBreakdown.sourceHealth.weight + report.healthScoreBreakdown.freshness.weight);
         expect(report.overallStatus).not.toBe("clean");
         expect(report.readinessStatus).not.toBe("Ready");
         expect(report.overallScore).toBeLessThan(100);
