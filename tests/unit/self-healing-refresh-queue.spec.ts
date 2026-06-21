@@ -188,7 +188,7 @@ describe("self-healing refresh queue", () => {
       }),
       expect.objectContaining({
         artifact: "agent/state/admin-truth-sample-evidence.generated.json",
-        staleReason: "Admin source sample required",
+        staleReason: "Admin source activity sample required",
         canRunAutomatically: false,
         blockedReason: expect.stringContaining("redacted admin source activity sample required"),
       }),

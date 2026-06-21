@@ -7,7 +7,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Queue entries: 17
 - Automatic entries: 12
 - Blocked entries: 5
-- Estimated score impact: 46.4
+- Estimated score impact: 35.15
 
 ## Queue
 
@@ -131,27 +131,17 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 13. admin_truth_sample_evidence
-
-- Owner: admin
-- Stale reason: Admin source sample required
-- Refresh command: `Produce redacted admin source activity sample, then run npm run check:evidence-capture-status`
-- Score impact estimate: 11.32
-- Can run automatically: false
-- Blocked reason: blocked_source_evidence: redacted admin source activity sample required; source samples remain partial confidence only.
-- Expected outcome: Remain blocked until a redacted admin source activity sample is produced.
-
-### 14. runtime_provider_smoke
+### 13. provider_backed_site_activity_deployed_route_evidence
 
 - Owner: runtime
 - Stale reason: Provider-backed site activity required
 - Refresh command: `Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status`
-- Score impact estimate: 5.76
+- Score impact estimate: 4.07
 - Can run automatically: false
 - Blocked reason: blocked_source_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.
 - Expected outcome: Remain blocked until provider-backed site activity evidence is produced.
 
-### 15. agent/state/provider-smoke-evidence.generated.json
+### 14. agent/state/provider-smoke-evidence.generated.json
 
 - Owner: runtime
 - Stale reason: Provider-backed site activity required
@@ -161,10 +151,20 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: blocked_source_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.
 - Expected outcome: Remain blocked until provider-backed site activity evidence is produced.
 
+### 15. admin_source_activity_sample_evidence
+
+- Owner: repo
+- Stale reason: Admin source activity sample required
+- Refresh command: `Produce redacted admin source activity sample, then run npm run check:evidence-capture-status`
+- Score impact estimate: 1.76
+- Can run automatically: false
+- Blocked reason: blocked_source_evidence: redacted admin source activity sample required; source samples remain partial confidence only.
+- Expected outcome: Remain blocked until a redacted admin source activity sample is produced.
+
 ### 16. agent/state/admin-truth-sample-evidence.generated.json
 
 - Owner: admin
-- Stale reason: Admin source sample required
+- Stale reason: Admin source activity sample required
 - Refresh command: `Produce redacted admin source activity sample, then run npm run check:evidence-capture-status`
 - Score impact estimate: 1
 - Can run automatically: false

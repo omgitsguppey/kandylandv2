@@ -149,7 +149,7 @@ function formalEvidenceStaleReason(artifact: string) {
   const kind = formalEvidenceKind(artifact);
   if (kind === "runtime") return "Deployed runtime route evidence required";
   if (kind === "provider") return "Provider-backed site activity required";
-  if (kind === "admin_truth") return "Admin source sample required";
+  if (kind === "admin_truth") return "Admin source activity sample required";
   return "Source activity evidence required";
 }
 

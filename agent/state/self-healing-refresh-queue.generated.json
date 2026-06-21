@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-06-21T12:44:31.108Z",
+  "generatedAtUtc": "2026-06-21T13:20:10.736Z",
   "reportKey": "self-healing-refresh-queue",
-  "currentHead": "4cb0a7dedd114ff4a1a32d680676d69208844dcf",
-  "sourceCommit": "4cb0a7dedd114ff4a1a32d680676d69208844dcf",
+  "currentHead": "87092d734183d25d0f9b20a3f37db8efde568598",
+  "sourceCommit": "87092d734183d25d0f9b20a3f37db8efde568598",
   "overallStatus": "pass",
   "queue": [
     {
@@ -150,24 +150,12 @@
       "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
     },
     {
-      "artifact": "admin_truth_sample_evidence",
-      "staleReason": "Admin source sample required",
-      "refreshCommand": "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status",
-      "scoreImpactEstimate": 11.32,
-      "owner": "admin",
-      "dependencyOrder": 13,
-      "canRunAutomatically": false,
-      "blockedReason": "blocked_source_evidence: redacted admin source activity sample required; source samples remain partial confidence only.",
-      "source": "score_impact",
-      "expectedOutcome": "Remain blocked until a redacted admin source activity sample is produced."
-    },
-    {
-      "artifact": "runtime_provider_smoke",
+      "artifact": "provider_backed_site_activity_deployed_route_evidence",
       "staleReason": "Provider-backed site activity required",
       "refreshCommand": "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
-      "scoreImpactEstimate": 5.76,
+      "scoreImpactEstimate": 4.07,
       "owner": "runtime",
-      "dependencyOrder": 14,
+      "dependencyOrder": 13,
       "canRunAutomatically": false,
       "blockedReason": "blocked_source_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.",
       "source": "score_impact",
@@ -179,15 +167,27 @@
       "refreshCommand": "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 4,
       "owner": "runtime",
-      "dependencyOrder": 15,
+      "dependencyOrder": 14,
       "canRunAutomatically": false,
       "blockedReason": "blocked_source_evidence: provider-backed site activity evidence required; operator-confirmed usage remains partial confidence only.",
       "source": "score_impact",
       "expectedOutcome": "Remain blocked until provider-backed site activity evidence is produced."
     },
     {
+      "artifact": "admin_source_activity_sample_evidence",
+      "staleReason": "Admin source activity sample required",
+      "refreshCommand": "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status",
+      "scoreImpactEstimate": 1.76,
+      "owner": "repo",
+      "dependencyOrder": 15,
+      "canRunAutomatically": false,
+      "blockedReason": "blocked_source_evidence: redacted admin source activity sample required; source samples remain partial confidence only.",
+      "source": "score_impact",
+      "expectedOutcome": "Remain blocked until a redacted admin source activity sample is produced."
+    },
+    {
       "artifact": "agent/state/admin-truth-sample-evidence.generated.json",
-      "staleReason": "Admin source sample required",
+      "staleReason": "Admin source activity sample required",
       "refreshCommand": "Produce redacted admin source activity sample, then run npm run check:evidence-capture-status",
       "scoreImpactEstimate": 1,
       "owner": "admin",
@@ -214,7 +214,7 @@
     "total": 17,
     "automatic": 12,
     "blocked": 5,
-    "totalScoreImpactEstimate": 46.4
+    "totalScoreImpactEstimate": 35.15
   },
   "integration": {
     "betaScoreRefreshPlan": true,

@@ -62,7 +62,7 @@ function proofLanesFor(
       captureStatus: summary.providerSmokeStatus.includes("formal_provider_smoke_passed") ? "complete" : "missing",
       sourceCommit: "head",
       canClearGate: summary.providerSmokeStatus.includes("formal_provider_smoke_passed"),
-      nextAction: "Attach redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate.",
+      nextAction: "Produce redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate.",
     },
     {
       id: "runtimeSmoke",
@@ -82,11 +82,11 @@ function proofLanesFor(
       captureStatus: summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed") ? "complete" : "missing",
       sourceCommit: "head",
       canClearGate: summary.runtimeSmokeStatus.includes("formal_runtime_smoke_passed"),
-      nextAction: "Attach or refresh deployed route evidence for the current code version.",
+      nextAction: "Produce or refresh deployed route evidence for the current code version.",
     },
     {
       id: "adminTruthSample",
-      label: "Admin source sample evidence",
+      label: "Admin source activity sample evidence",
       truthState: summary.adminTruthSampleStatus.startsWith("stale_")
         ? "admin_truth_source_required"
         : summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed")
@@ -102,7 +102,7 @@ function proofLanesFor(
       captureStatus: summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed") ? "complete" : "missing",
       sourceCommit: "head",
       canClearGate: summary.adminTruthSampleStatus.includes("formal_admin_truth_sample_passed"),
-      nextAction: "Attach or refresh a redacted admin source sample for the current code version.",
+      nextAction: "Produce or refresh a redacted admin source activity sample for the current code version.",
     },
   ];
 }

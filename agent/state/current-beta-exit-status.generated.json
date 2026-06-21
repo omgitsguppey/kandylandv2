@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-06-21T04:38:55.521Z",
+  "generatedAtUtc": "2026-06-21T13:20:03.718Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "67e645918e2dcd6233004348dc2799558b6d27bd",
+  "currentHead": "87092d734183d25d0f9b20a3f37db8efde568598",
   "summary": {
     "betaVersion": "1.6.15",
     "betaScore": 84,
     "betaStatus": "Source evidence required",
     "scoreVersion": "beta_health_v2",
-    "healthScore": 86.83,
+    "healthScore": 87.87,
     "launchGateStatus": "owner_review",
     "sourceHealthScore": 97.2,
-    "runtimeHealthScore": 83.74,
-    "evidenceCompletenessScore": 92,
+    "runtimeHealthScore": 85.34,
+    "evidenceCompletenessScore": 95.2,
     "freshnessScore": 91.88,
     "costRiskScore": 42,
     "regressionRiskScore": 94,
@@ -30,7 +30,7 @@
     "operatorRevenueSmokeProviderArtifactAttached": false,
     "operatorRevenueSmokeFormalProviderSmokePassed": false,
     "operatorRevenueSmokeBetaGateImpact": "product_signal_only",
-    "operatorRevenueSmokeNote": "Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate.",
+    "operatorRevenueSmokeNote": "Operator-confirmed GumDrop revenue smoke was recorded. Provider-backed site activity evidence is still separate.",
     "runtimeSmokeStatus": "stale_runtime_smoke_evidence",
     "adminTruthSampleStatus": "stale_admin_truth_sample_evidence",
     "cloudRunCostReadiness": "cost_review_required",
@@ -66,7 +66,7 @@
         "captureStatus": "missing",
         "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
         "canClearGate": false,
-        "nextAction": "Attach redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate."
+        "nextAction": "Produce redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate."
       },
       {
         "id": "runtimeSmoke",
@@ -78,19 +78,19 @@
         "captureStatus": "complete",
         "sourceCommit": "c53978beb10283d481e7a0d5c1e943fb01056eab",
         "canClearGate": false,
-        "nextAction": "Attach or refresh deployed route evidence for the current code version."
+        "nextAction": "Produce or refresh deployed route evidence for the current code version."
       },
       {
         "id": "adminTruthSample",
-        "label": "Admin source sample evidence",
+        "label": "Admin source activity sample evidence",
         "truthState": "admin_truth_source_required",
         "actionState": "refresh_stale_evidence",
         "sourceStatus": "stale_admin_truth_sample_evidence",
         "sourcePath": "agent/state/admin-truth-sample-evidence.generated.json",
-        "captureStatus": "stale",
-        "sourceCommit": "6e27a8290729f24a26801bc4434e723033a5b383",
+        "captureStatus": "complete",
+        "sourceCommit": "73f4d06e142ee28bd277282b015c01b0502d1acc",
         "canClearGate": false,
-        "nextAction": "Attach or refresh a redacted admin source sample for the current code version."
+        "nextAction": "Produce or refresh a redacted admin source activity sample for the current code version."
       }
     ]
   },
@@ -138,7 +138,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-21T04:38:55.521Z",
+      "generatedAtUtc": "2026-06-21T13:20:03.718Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -449,7 +449,7 @@
       "evidence": [
         "agent/state/provider-smoke-evidence.generated.json"
       ],
-      "nextAction": "Attach redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate."
+      "nextAction": "Produce redacted provider-backed site activity evidence; operator confirmation alone cannot clear this gate."
     }
   ],
   "deferredOwnerReview": [
@@ -471,7 +471,7 @@
     "Use docs/agent-truth/ui-visual-smoke-minimal.md as the deterministic UI source coverage lane.",
     "Use docs/agent-truth/provider-smoke-evidence-checklist.md for redacted provider-backed site activity evidence.",
     "Use docs/agent-truth/runtime-smoke-evidence-checklist.md for deployed route evidence.",
-    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted admin source samples.",
+    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md for redacted admin source activity samples.",
     "Reference agent/state/evidence-capture-status.generated.json.",
     "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked."
   ]
