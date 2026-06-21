@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -351,6 +351,17 @@ function buildLanes(): SourceTruthAuthorityLane[] {
 }
 
 function buildRetiredArtifacts(): RetiredSourceTruthArtifact[] {
+  const debugCockpitBatchArtifacts = readdirSync(join(repoRoot, "agent", "state"))
+    .filter((name) => /^debug-cockpit-batch\d+[-\w]*\.generated\.json$/u.test(name))
+    .sort((a, b) => a.localeCompare(b, "en", { numeric: true }))
+    .map((name): RetiredSourceTruthArtifact => ({
+      artifact: `agent/state/${name}`,
+      status: "archive_only",
+      reason: "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      supersededBy: "agent/state/current-beta-exit-status.generated.json",
+      betaBlocking: false,
+    }));
+
   return [
     {
       artifact: "agent/state/final-launch-readiness-report.generated.json",
@@ -387,6 +398,7 @@ function buildRetiredArtifacts(): RetiredSourceTruthArtifact[] {
       supersededBy: "agent/state/current-beta-exit-status.generated.json",
       betaBlocking: false,
     },
+    ...debugCockpitBatchArtifacts,
   ];
 }
 
@@ -571,6 +583,13 @@ export function validateSourceTruthAuthorityMapReport(
     if (!(report.retiredArtifacts ?? []).some((entry) => entry.artifact === artifact && entry.status === "retired")) {
       failures.push(`retired launch artifact missing: ${artifact}.`);
     }
+  }
+  const debugBatchArchiveArtifacts = (report.retiredArtifacts ?? []).filter((entry) =>
+    /^agent\/state\/debug-cockpit-batch\d+[-\w]*\.generated\.json$/u.test(entry.artifact)
+      && entry.status === "archive_only"
+      && entry.betaBlocking === false);
+  if (debugBatchArchiveArtifacts.length < 30) {
+    failures.push("debug cockpit batch archive family must be classified as archive-only and nonblocking.");
   }
 
   if ((report.nextExactSteps?.length ?? 0) === 0) failures.push("nextExactSteps must not be empty.");

@@ -5,6 +5,16 @@ import {
   type SourceTruthAuthorityMapReport,
 } from "../../scripts/agent/validate-source-truth-authority-map";
 
+function debugCockpitBatchArchiveFixtures() {
+  return Array.from({ length: 30 }, (_, index) => ({
+    artifact: `agent/state/debug-cockpit-batch${index + 1}-fixture.generated.json`,
+    status: "archive_only" as const,
+    reason: "Debug Cockpit batch reports are historical cleanup snapshots.",
+    supersededBy: "agent/state/current-beta-exit-status.generated.json",
+    betaBlocking: false,
+  }));
+}
+
 function reportFixture(overrides: Partial<SourceTruthAuthorityMapReport> = {}): SourceTruthAuthorityMapReport {
   const report: SourceTruthAuthorityMapReport = {
     generatedAtUtc: "2026-05-17T06:30:00.000Z",
@@ -120,6 +130,7 @@ function reportFixture(overrides: Partial<SourceTruthAuthorityMapReport> = {}): 
         supersededBy: "docs/agent-truth/source-truth-authority-map.md",
         betaBlocking: false,
       },
+      ...debugCockpitBatchArchiveFixtures(),
     ],
     costReadiness: {
       cloudRunCostReadiness: "cost_review_required",

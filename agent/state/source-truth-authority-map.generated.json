@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-21T04:42:12.077Z",
+  "generatedAtUtc": "2026-06-21T14:02:46.213Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "bf9d2b358a1107205b2d7918a24294b29eda8e64",
+  "currentHead": "509cd079fa3645d45dd57bddfbdb7cd7b9a4ae43",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -305,6 +305,216 @@
       "reason": "Debug panel output triage is historical source evidence until refreshed by its owner lane.",
       "supersededBy": "agent/state/current-beta-exit-status.generated.json",
       "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch1-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch3-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch4-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch5-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch6-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch7-control-tower-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch8-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch9-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch10-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch11-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch12-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch13-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch15-false-positive-cleanup.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch16-ai-debug-orchestration.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch17-route-runtime.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch18-route-hotspots.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch19-product-routes.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch20-stale-route-sweep.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch22-commerce-truth.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch24-drop-metadata.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch26-dependency-inventory.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch27-ai-repair-workbench.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch28-bug-validation.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch30-telemetry-parity.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch31-task-guidance-parity.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch32-commerce-parity.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch33-unlock-watch-parity.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch34-module-coverage.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch35-behavior-stack.generated.json",
+      "status": "archive_only",
+      "reason": "Debug Cockpit batch reports are historical cleanup snapshots; current Admin Debug and beta readiness use Control Tower/source evidence reports.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
     }
   ],
   "costReadiness": {
@@ -323,19 +533,19 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "bf9d2b358a1107205b2d7918a24294b29eda8e64",
+      "currentHead": "509cd079fa3645d45dd57bddfbdb7cd7b9a4ae43",
       "status": "current",
       "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "67e645918e2dcd6233004348dc2799558b6d27bd",
+      "currentHead": "fdd95181543a028b61f1ced9d9f8b81282d3516c",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "67e645918e2dcd6233004348dc2799558b6d27bd",
+      "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -347,7 +557,7 @@
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "b9b62edd078824ef5dc6c0e21df60a53a1881f43",
+      "currentHead": "0d37de032350c8cf27a328de002c5e96f9c06f82",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -434,6 +644,186 @@
       "currentHead": "26a73ad4b9b1ed2d2aed8d0b9f4f1d3f28ce05a9",
       "status": "not_required",
       "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch1-cleanup.generated.json",
+      "currentHead": "48d8c64ecce16f4ae346e49f5607099e0d686d26",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch3-cleanup.generated.json",
+      "currentHead": "883bdc0e91e5494f3b6b3e6449d5ea722b898077",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch4-cleanup.generated.json",
+      "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch5-cleanup.generated.json",
+      "currentHead": "d02b8b2da859d47d880182fe2169db1ad6a40ad6",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch6-cleanup.generated.json",
+      "currentHead": "a62f0177ba3e5bc7e86d8b5ec2c643258797c09a",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch7-control-tower-cleanup.generated.json",
+      "currentHead": "5c126a7df36e39be20ab55b40ce5d14c04779fb5",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch8-cleanup.generated.json",
+      "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch9-cleanup.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch10-cleanup.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch11-cleanup.generated.json",
+      "currentHead": "3dc628da2d495b5bcec621a5ac52726e76dd05aa",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch12-cleanup.generated.json",
+      "currentHead": "145ff4fcf1feb61d371938dde42927b29268850a",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch13-cleanup.generated.json",
+      "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch15-false-positive-cleanup.generated.json",
+      "currentHead": "6959286c146525ea4679f724865f865dccb0b627",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch16-ai-debug-orchestration.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch17-route-runtime.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch18-route-hotspots.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch19-product-routes.generated.json",
+      "currentHead": "bcd7aad7d363fc377e5b123eb4c06f78678f42f5",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch20-stale-route-sweep.generated.json",
+      "currentHead": "bcd7aad7d363fc377e5b123eb4c06f78678f42f5",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch22-commerce-truth.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch24-drop-metadata.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch26-dependency-inventory.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch27-ai-repair-workbench.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch28-bug-validation.generated.json",
+      "currentHead": "343fe21c2f5c75dd383d43532c80f64322c9b58f",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
+      "currentHead": "12db31fcfac9c3aaa78c38cdce0635fc66abfa38",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch30-telemetry-parity.generated.json",
+      "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch31-task-guidance-parity.generated.json",
+      "currentHead": "ccf36528805f2d72bc84b1b1aeb1e9b6358a6970",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch32-commerce-parity.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch33-unlock-watch-parity.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch34-module-coverage.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/debug-cockpit-batch35-behavior-stack.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
     }
   ],
   "fixesApplied": [
