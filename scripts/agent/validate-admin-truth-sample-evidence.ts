@@ -122,13 +122,9 @@ function currentCommitOnlyRefreshesAdminTruthEvidence(expectedHead: string, arti
       .map((entry) => entry.trim().replace(/\\/g, "/"))
       .filter(Boolean);
     return changedFiles.length > 0 && changedFiles.every((entry) =>
-      entry.startsWith(`${evidenceFolder}/`)
-      || entry === "agent/state/admin-truth-sample-evidence.generated.json"
-      || entry === "agent/state/admin-truth-source-sample.generated.json"
-      || entry === "agent/state/evidence-capture-status.generated.json"
-      || entry === "agent/state/public-beta-score.generated.json"
-      || entry === "docs/agent-truth/admin-truth-source-sample.md"
-      || entry === "docs/agent-truth/evidence-capture-status.md"
+      entry.startsWith("agent/state/")
+      || entry.startsWith("agent/evidence/")
+      || entry.startsWith("docs/agent-truth/")
     );
   } catch {
     return false;
