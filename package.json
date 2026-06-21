@@ -841,7 +841,6 @@
         "test:rules:database": "tsx scripts/run-database-rules-tests.ts",
         "test:rules:firestore": "tsx scripts/run-firestore-rules-tests.ts",
         "test:rules:storage": "tsx scripts/run-storage-rules-tests.ts",
-        "prebuild": "tsc --noEmit --pretty",
         "build:debug": "tsc --noEmit --pretty && next build > build.log 2>&1",
         "check": "tsc --noEmit --pretty && eslint . --max-warnings=0 && npm run check:architecture && npm run check:telemetry && npm run check:analytics-semantics && npm run check:firebase-runtime && npm run check:admin-truth-replacement && npm run test:contracts",
         "check:consistency": "npm run check && npm run check:deps && npm run check:versions && npm run check:inventory && npm run check:cycles && npm run check:functions",
