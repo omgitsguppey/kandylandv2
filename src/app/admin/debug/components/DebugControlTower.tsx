@@ -191,7 +191,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                         <section className="rounded-md border border-white/10 bg-black/25 p-3" data-debug-report-source="triage-summary">
                             <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div>
-                                    <h3 className="font-bold text-white">Proof and refresh work</h3>
+                                    <h3 className="font-bold text-white">Source evidence and refresh work</h3>
                                     <p className="text-xs text-gray-400">{publicBetaReadinessReason}</p>
                                     <p className="mt-1 text-[11px] text-gray-500">
                                         {publicBetaReadinessStatusLabel} | {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"} | source {model.canonicalPublicBetaSourceDrift}

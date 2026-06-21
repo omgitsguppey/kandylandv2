@@ -153,7 +153,7 @@ export function DebugNowDiagnostics({
             }
             : null,
         emptyStateText: "No recent diagnostic clusters are loaded.",
-        nextAction: "Load a current diagnostics sample or attach an opsHealth.diagnostics source window proving zero.",
+        nextAction: "Load a current diagnostics sample or record a bounded opsHealth.diagnostics source window before showing zero.",
     });
     const writerSampleCount = (data?.opsHealth?.materializers || []).length;
     const writerStatus = classifyNoSampleStatus({

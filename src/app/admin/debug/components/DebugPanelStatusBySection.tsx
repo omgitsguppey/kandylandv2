@@ -61,7 +61,7 @@ export function DebugPanelStatusBySection({
             }
             : null,
         emptyStateText: "No persisted panel logs are loaded yet.",
-        nextAction: "Load persisted panel logs or attach a panel log source window proving zero.",
+        nextAction: "Load persisted panel logs or record a bounded panel log source window before showing zero.",
     });
     const panelLogIssueCount = panelLogWarnCount + panelLogFailCount;
     const panelLogSummary = panelLogCount === 0

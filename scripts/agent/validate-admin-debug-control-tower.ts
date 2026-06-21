@@ -219,7 +219,7 @@ for (const expected of [
   "canonicalPublicBetaTruthState",
   "data-debug-visible-summary=\"single-triage-strip\"",
   "Details and next steps",
-  "Proof and refresh work",
+  "Source evidence and refresh work",
   "reportAggregateSummary",
   "data-debug-canonical-public-beta-score",
 ]) {
