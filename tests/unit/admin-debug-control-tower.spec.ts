@@ -90,7 +90,7 @@ describe("admin debug control tower model", () => {
             readinessStatusReason: "3 required generated report(s) are older than the freshness window.",
             evidenceScore: 25,
             evidenceCapDetails: [
-                "Runtime unverified: Runtime/provider smoke - Run formal deployed runtime smoke later.",
+                "Runtime unverified: Runtime/provider smoke - Attach deployed route evidence.",
                 "Unknown evidence: Admin truth/sample evidence - Record a fresh redacted admin truth source sample.",
                 "Stale evidence: Freshness, PR, and HEAD integrity - 3 required generated report(s) are older than the freshness window.",
                 "Needs review: Cost owner evidence - External billing review remains required.",
@@ -110,12 +110,12 @@ describe("admin debug control tower model", () => {
 
         expect(model.canonicalPublicBetaScore).toBe(25);
         expect(model.canonicalPublicBetaStatus).toBe("beta-risk");
-        expect(model.canonicalPublicBetaReadinessStatus).toBe("External proof required");
+        expect(model.canonicalPublicBetaReadinessStatus).toBe("Site activity evidence required");
         expect(model.canonicalPublicBetaReadinessReason).toContain("3 required generated report");
         expect(model.canonicalPublicBetaEvidenceScore).toBe(25);
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
-            expect.stringContaining("External proof required: Runtime/provider smoke"),
-            expect.stringContaining("Admin truth/sample evidence"),
+            expect.stringContaining("Source evidence required: Provider-backed site activity + deployed route evidence"),
+            expect.stringContaining("Admin source sample"),
             expect.stringContaining("Cost owner evidence"),
         ]));
         expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Unknown evidence:");
@@ -135,12 +135,12 @@ describe("admin debug control tower model", () => {
             generatedAt: "2026-05-04T00:00:00.000Z",
             overallScore: 77.4,
             overallStatus: "ERROR",
-            readinessStatus: "External proof required",
+            readinessStatus: "Source evidence required",
             readinessStatusReason: "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed.",
             evidenceCapDetails: [
-                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
-                "Stale evidence: Runtime/provider smoke - Provider smoke: Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate. Formal provider smoke evidence is missing.",
-                "Stale evidence: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source sample evidence.",
+                "Stale evidence: Runtime/provider smoke - Provider smoke: Payment context was recorded. Provider-backed site activity evidence is still separate.",
+                "Stale evidence: Admin truth/sample evidence - Attach a redacted admin source sample before clearing the admin source sample gate.",
                 "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
             ],
             sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -155,8 +155,8 @@ describe("admin debug control tower model", () => {
         expect(publicBeta?.evidenceGateCount).toBe(4);
         expect(publicBeta?.topFindings.map((finding) => finding.title)).toEqual(expect.arrayContaining([
             "Source-only behavior evidence",
-            "Runtime and provider proof required",
-            "Admin truth sample required",
+            "Provider and route evidence required",
+            "Admin source sample required",
             "Report refresh required",
         ]));
         expect(publicBeta?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).not.toContain("Unknown evidence:");
@@ -165,8 +165,8 @@ describe("admin debug control tower model", () => {
         expect(publicBeta?.topFindings.flatMap((finding) => finding.evidence).join(" ")).not.toContain("Stale evidence:");
         expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
             expect.stringContaining("Source validation only: Targeted behavior tests"),
-            expect.stringContaining("External proof required: Runtime/provider smoke"),
-            expect.stringContaining("External proof required: Admin truth/sample evidence"),
+            expect.stringContaining("Source evidence required: Provider-backed site activity + deployed route evidence"),
+            expect.stringContaining("Source evidence required: Admin source sample"),
             expect.stringContaining("Report refresh needed: Report freshness and PR integrity"),
         ]));
         expect(model.canonicalPublicBetaCapDetails.join("\n")).not.toContain("Unknown evidence:");
@@ -188,19 +188,19 @@ describe("admin debug control tower model", () => {
             truthState: "failed",
             evidenceGateCount: 4,
             topFindings: [{
-                id: "public-beta-runtime-provider-proof-0",
+                id: "public-beta-runtime-provider-evidence-0",
                 reportId: "public-beta-score",
                 section: "beta_readiness",
                 severity: "major",
-                title: "Runtime and provider proof required",
+                title: "Provider and route evidence required",
                 domain: "beta_readiness",
                 filePath: "agent/state/public-beta-score.generated.json",
-                humanReadableWarning: "Attach redacted provider proof. Deployed runtime smoke is still required.",
+                humanReadableWarning: "Attach redacted provider-backed site activity evidence. Deployed route evidence is still required.",
                 suggestedValidator: "npm run check:beta-score",
                 evidence: [],
                 truthState: "unknown",
             }],
-        }))).toBe("Formal proof required");
+        }))).toBe("Typed evidence required");
         expect(formatOperatorReportStatusForAdmin(reportCard({
             id: "public-beta-score",
             status: "ERROR",
@@ -244,11 +244,11 @@ describe("admin debug control tower model", () => {
                 },
                 {
                     artifact: "runtime_provider_smoke",
-                    staleReason: "External proof required",
-                    refreshCommand: "Attach formal provider smoke evidence.",
+                    staleReason: "Source evidence required",
+                    refreshCommand: "Attach provider-backed site activity evidence.",
                     canRunAutomatically: false,
-                    blockedReason: "blocked_formal_evidence: formal provider smoke artifact required.",
-                    expectedOutcome: "Remain blocked until formal provider proof is attached.",
+                    blockedReason: "blocked_typed_evidence: provider-backed site activity artifact required.",
+                    expectedOutcome: "Remain blocked until provider-backed site activity evidence is attached.",
                 },
             ],
             summary: {
@@ -264,10 +264,10 @@ describe("admin debug control tower model", () => {
         expect(queue?.findingCount).toBe(2);
         expect(queue?.topFindings.map((finding) => finding.title)).toEqual(expect.arrayContaining([
             "Queued source refresh",
-            "Formal proof still required",
+            "Typed evidence still required",
         ]));
-        expect(queue?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).toContain("runtime_provider_smoke needs outside proof");
-        expect(queue?.topFindings.flatMap((finding) => finding.evidence).join(" ")).toContain("External proof required");
+        expect(queue?.topFindings.map((finding) => finding.humanReadableWarning).join(" ")).toContain("runtime_provider_smoke needs its typed source evidence");
+        expect(queue?.topFindings.flatMap((finding) => finding.evidence).join(" ")).toContain("Source evidence required");
     });
 
     it("marks generated report source commit drift as stale instead of live", () => {

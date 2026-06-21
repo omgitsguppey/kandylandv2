@@ -242,7 +242,7 @@ describe("DebugControlTower", () => {
         expect(container.textContent).not.toContain("secret support body");
     });
 
-    it("labels zero-finding public beta proof gates as proof required instead of app errors", async () => {
+    it("labels zero-finding public beta evidence gates as source evidence instead of app errors", async () => {
         const originalPayload = JSON.parse(JSON.stringify(mockState.payload));
         const proofReport = {
             ...mockState.payload.sections.beta_readiness[0],
@@ -258,10 +258,10 @@ describe("DebugControlTower", () => {
         try {
             const payload = mockState.payload as any;
             payload.canonicalPublicBetaCapDetails = [
-                "Stale evidence: Runtime/provider smoke - Formal provider smoke evidence is missing.",
-                "Stale evidence: Admin truth/sample evidence - Attach a redacted production admin truth sample.",
+                "Stale evidence: Runtime/provider smoke - Provider-backed site activity evidence is missing.",
+                "Stale evidence: Admin truth/sample evidence - Attach a redacted admin source sample.",
             ];
-            payload.canonicalPublicBetaReadinessReason = "Formal provider and admin truth proof remain required.";
+            payload.canonicalPublicBetaReadinessReason = "Provider-backed site activity and admin source samples remain required.";
             payload.canonicalPublicBetaTruthState = "live";
             payload.reports = [proofReport];
             payload.sections.beta_readiness = [proofReport];
@@ -277,11 +277,11 @@ describe("DebugControlTower", () => {
             const publicBetaCards = Array.from(container.querySelectorAll("[data-debug-report-source='agent/state/public-beta-score.generated.json']"));
             const publicBetaText = publicBetaCards.map((entry) => entry.textContent ?? "").join(" ");
 
-            expect(publicBetaText).toContain("External proof required");
-            expect(publicBetaText).toContain("Proof gate");
-            expect(container.textContent).toContain("External proof required");
-            expect(container.textContent).toContain("Proof required");
-            expect(container.textContent).toContain("External proof required - Attach redacted provider proof");
+            expect(publicBetaText).toContain("Site activity evidence required");
+            expect(publicBetaText).toContain("Evidence gate");
+            expect(container.textContent).toContain("Site activity evidence required");
+            expect(container.textContent).toContain("typed evidence gates");
+            expect(container.textContent).toContain("Site activity evidence required - Attach redacted provider-backed site activity evidence");
             expect(container.textContent).toContain("Admin sample required");
             expect(publicBetaText).not.toContain("0 findings");
             expect(publicBetaText).not.toContain("ERROR");
@@ -298,10 +298,10 @@ describe("DebugControlTower", () => {
         try {
             const payload = mockState.payload as any;
             payload.canonicalPublicBetaCapDetails = [
-                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
+                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source sample evidence.",
                 "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
             ];
-            payload.canonicalPublicBetaReadinessReason = "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.";
+            payload.canonicalPublicBetaReadinessReason = "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source sample evidence.";
 
             await act(async () => {
                 root.render(<DebugControlTower />);
@@ -341,13 +341,13 @@ describe("DebugControlTower", () => {
         try {
             const payload = mockState.payload as any;
             payload.canonicalPublicBetaCapDetails = [
-                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider smoke, runtime smoke, or admin truth sample evidence.",
-                "Stale evidence: Runtime/provider smoke - Provider smoke: Operator-confirmed GumDrop revenue smoke was recorded. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke. Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
-                "Stale evidence: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+                "Unknown evidence: Targeted behavior tests - Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove provider-backed site activity, deployed route evidence, or admin source sample evidence.",
+                "Stale evidence: Runtime/provider smoke - Provider smoke: Payment context was recorded. Provider-backed site activity evidence is still separate. Attach redacted provider-backed site activity evidence. Runtime smoke: Keep automated deployed runtime smoke evidence fresh.",
+                "Stale evidence: Admin truth/sample evidence - Attach a redacted admin source sample before clearing the admin source sample gate.",
                 "Stale evidence: Report freshness and PR integrity - 6 required generated report(s) are older than the freshness window.",
             ];
             payload.canonicalPublicBetaStatus = "ERROR";
-            payload.canonicalPublicBetaReadinessStatus = "External proof required";
+            payload.canonicalPublicBetaReadinessStatus = "Source evidence required";
             payload.canonicalPublicBetaReadinessReason = payload.canonicalPublicBetaCapDetails[0];
             payload.canonicalPublicBetaTruthState = "live";
             payload.reports = [proofReport];
@@ -364,11 +364,11 @@ describe("DebugControlTower", () => {
             const publicBetaCards = Array.from(container.querySelectorAll("[data-debug-report-source='agent/state/public-beta-score.generated.json']"));
             const publicBetaText = publicBetaCards.map((entry) => entry.textContent ?? "").join(" ");
 
-            expect(publicBetaText).toContain("External proof required");
+            expect(publicBetaText).toContain("Site activity evidence required");
             expect(publicBetaText).toContain("4 evidence gates");
             expect(container.textContent).toContain("Source-only evidence - Implemented behavior checks passed");
-            expect(container.textContent).toContain("External proof required - The operator-confirmed payment is product context only");
-            expect(container.textContent).toContain("Runtime smoke is recorded; keep it fresh.");
+            expect(container.textContent).toContain("Site activity evidence required - Attach redacted provider-backed site activity evidence");
+            expect(container.textContent).toContain("Deployed route evidence is recorded; keep it fresh.");
             expect(container.textContent).toContain("Admin sample required");
             expect(container.textContent).toContain("Refresh due - 6 required generated reports are outside the freshness window.");
             expect(publicBetaText).not.toContain("0 findings");

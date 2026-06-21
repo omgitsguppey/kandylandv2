@@ -43,12 +43,12 @@ function isRefreshOnlyFinding(finding: AdminDebugFindingCard) {
 }
 
 function isEvidenceGateFinding(finding: AdminDebugFindingCard) {
-    return /source-only behavior evidence|runtime and provider proof required|admin truth sample required|report refresh required|evidence gate/u.test(finding.title.toLowerCase());
+    return /source-only behavior evidence|provider and route evidence required|runtime and provider proof required|admin source sample required|admin truth sample required|report refresh required|evidence gate/u.test(finding.title.toLowerCase());
 }
 
 const isSourceOnlyEvidenceFinding = (finding: AdminDebugFindingCard) => /source-only behavior evidence/u.test(finding.title.toLowerCase());
 
-const isFormalProofGateFinding = (finding: AdminDebugFindingCard) => /runtime and provider proof required|admin truth sample required|external proof required/u.test(finding.title.toLowerCase());
+const isTypedEvidenceGateFinding = (finding: AdminDebugFindingCard) => /provider and route evidence required|runtime and provider proof required|admin source sample required|admin truth sample required|external proof required/u.test(finding.title.toLowerCase());
 
 export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState: AdminSurfaceState; badgeLabel?: string; statusLabel: string; findingLabel: string; sourceDetail: string } {
     const evidenceGateCount = report.evidenceGateCount ?? 0;
@@ -73,7 +73,7 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     const formalProofGateOnly = !hasFindings
         && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(normalizedStatus)
         && (
-            report.topFindings.some(isFormalProofGateFinding)
+            report.topFindings.some(isTypedEvidenceGateFinding)
             || (report.id === "public-beta-score" && report.topFindings.length === 0)
         );
     const refreshGateOnly = !hasFindings
@@ -82,7 +82,7 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
     const sourceOnlyGateOnly = !hasFindings
         && ["fail", "failed", "error", "beta-risk", "warning", "review"].includes(normalizedStatus)
         && report.topFindings.some(isSourceOnlyEvidenceFinding)
-        && !report.topFindings.some(isFormalProofGateFinding)
+        && !report.topFindings.some(isTypedEvidenceGateFinding)
         && !refreshGateOnly;
     const proofBoundaryOnly = !hasFindings
         && formalProofGateOnly
@@ -104,9 +104,9 @@ export function resolveReportDisplay(report: AdminDebugReportCard): { badgeState
         return { badgeState: "failed", statusLabel: "Source failed", findingLabel: hasFindings ? findingLabel : "Source failed", sourceDetail: "The source evidence could not be read and cannot clear this lane." };
     }
     if (proofBoundaryOnly) {
-        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "External proof required", findingLabel: evidenceGateOnly ? findingLabel : "Proof gate", sourceDetail: "Source validators are not enough for provider, runtime, or admin truth proof." };
+        return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Site activity evidence required", findingLabel: evidenceGateOnly ? findingLabel : "Evidence gate", sourceDetail: "Source validators are not enough for provider-backed site activity, deployed route evidence, or admin source samples." };
     }
-    if (sourceOnlyGateOnly) return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Source checks only", findingLabel: evidenceGateOnly ? findingLabel : "Source-only evidence", sourceDetail: "Source validators passed; runtime smoke, provider smoke, admin samples, and UI source contract checks stay separate." };
+    if (sourceOnlyGateOnly) return { badgeState: "degraded", badgeLabel: "Review", statusLabel: "Source checks only", findingLabel: evidenceGateOnly ? findingLabel : "Source-only evidence", sourceDetail: "Source validators passed; deployed route evidence, provider-backed site activity, admin source samples, and UI source contract checks stay separate." };
     if (sourceNeedsRefresh || refreshGateOnly) {
         return { badgeState: "stale", badgeLabel: "Refresh due", statusLabel: "Refresh due", findingLabel, sourceDetail: "This evidence is older than its freshness window or current app version." };
     }

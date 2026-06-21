@@ -2,15 +2,15 @@
 
 Authority: structured source-backed backlog generated from debug panel, beta score, route diagnostics, telemetry/admin truth, cost, and evidence freshness lanes.
 
-Generated: 2026-06-19T18:13:48.341Z
-Current HEAD: 79598a740b349732332b6e1751ca9d8f5b3933dc
-Score: 41.92 -> 70.79
-Readiness: External proof required
+Generated: 2026-06-21T03:52:57.646Z
+Current HEAD: ffc19e6c5cad6b5fedd1eae6543a8af066cc770c
+Score: 41.92 -> 84
+Readiness: Source evidence required
 
 ## Summary
 
 - Total backlog items: 36
-- Open P0/P1 items: 7
+- Open P0/P1 items: 8
 - Evidence refreshable: 20
 - Source-fixable: 8
 - Source truth states: source_fixable=7, source_refresh_required=20, runtime_proof_required=3, provider_or_external_proof_required=1, admin_truth_source_required=3, stale_evidence_archive=1, not_actionable=1
@@ -22,11 +22,12 @@ Readiness: External proof required
 
 ## P0/P1 Queue
 
-- P1 beta-cap-external-proof-required-runtime-provider-smoke-1: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
-- P1 beta-cap-external-proof-required-admin-truth-sample-evidence-2: Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
-- P1 formal-evidence-admin-truth-sample-evidence: Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
-- P1 formal-evidence-runtime-provider-smoke: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
-- P1 admin-truth-formal-sample-required: Attach a redacted production admin truth sample before clearing the formal admin truth gate.
+- P1 beta-cap-source-evidence-required-admin-truth-sample-evidence-2: Attach a redacted admin source activity sample before clearing the admin source sample gate.
+- P1 beta-cap-source-evidence-required-runtime-provider-smoke-1: Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.
+- P1 formal-evidence-admin-truth-sample-evidence: Attach a redacted admin source activity sample before clearing the admin source sample gate.
+- P1 score-drag-evidencecompletenessscore: Work the score dimension owner lane and refresh score-80 path lock.
+- P1 formal-evidence-runtime-provider-smoke: Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.
+- P1 admin-truth-formal-sample-required: Attach a redacted admin source sample before clearing the admin source sample gate.
 - P1 debug-panel-provider-smoke: Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.
 - P1 stale-artifact-agent-state-overnight-final-integration-lock-generated-json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 

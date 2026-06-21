@@ -46,8 +46,8 @@ describe("debug backlog engine", () => {
           "Runtime/provider smoke: Runtime unverified",
         ],
         evidenceCapDetails: [
-          "Runtime unverified: Runtime/provider smoke - Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
-          "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+          "Runtime unverified: Runtime/provider smoke - Attach deployed route evidence; do not treat local static validators as route evidence.",
+          "Ready with smoke required: Admin truth/sample evidence - Attach a redacted admin source sample before clearing the admin source sample gate.",
           "UI source coverage required: Source coverage - Run deterministic UI source checks before optional visual reproduction.",
         ],
       },
@@ -71,7 +71,7 @@ describe("debug backlog engine", () => {
       },
       debugRuntimeEvidence: {
         unknownEvidenceCount: 1,
-        nextAction: "Use this as source-backed debug/runtime evidence only; attach deployed runtime smoke before clearing runtime gates.",
+        nextAction: "Use this as source-backed debug/runtime evidence only; attach deployed route evidence before clearing runtime gates.",
       },
       adminTruthSample: {
         status: "source_ready_admin_truth_sample",
@@ -104,8 +104,8 @@ describe("debug backlog engine", () => {
     expect(backlog.some((item) => item.source === "route_diagnostics" && item.fixClass === "route_fix")).toBe(true);
     expect(backlog.every((item) => item.owner && item.surface && item.sourceFiles.length > 0 && item.scoreDimensionImpact.length > 0)).toBe(true);
     expect(backlog.map((item) => item.title)).toEqual(expect.arrayContaining([
-      "Runtime and provider proof required",
-      "Admin truth sample required",
+      "Provider and route evidence required",
+      "Admin source sample required",
       "UI source coverage required",
     ]));
     expect(JSON.stringify(backlog)).not.toContain("Unknown evidence:");

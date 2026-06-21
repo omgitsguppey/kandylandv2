@@ -170,12 +170,12 @@ function isFormalWarning(warning: DebugOperatorWarningInput) {
     nextAction: warning.nextAction,
   });
   return gate.queueClassification === "formal_evidence"
-    || /score drag|score-80|final launch|launch readiness|launch pr|formal evidence|smoke required/iu.test(`${warning.id} ${warning.message} ${warning.nextAction}`);
+    || /score drag|score-80|final launch|launch readiness|launch pr|typed evidence|formal evidence|smoke required/iu.test(`${warning.id} ${warning.message} ${warning.nextAction}`);
 }
 
 function isSourceCriticFinding(finding: DebugOperatorAiCriticFindingInput) {
   const text = `${finding.title}\n${finding.requiredFix}\n${finding.severity}`;
-  if (/no source changes requested|refresh\/formal\/operator|formal evidence|operator confirmation|stay visible/iu.test(text)) {
+  if (/no source changes requested|refresh\/formal\/operator|typed evidence|formal evidence|operator confirmation|stay visible/iu.test(text)) {
     return false;
   }
   if (classifyFormalGate({
@@ -242,7 +242,7 @@ export function buildDebugOperatorCockpit(
       owner: scoreItems[0]?.owner ?? "beta",
       state: scoreItems.length ? "degraded" : "live",
       scoreImpactEstimate: round(scoreItems.reduce((sum, entry) => sum + entry.scoreImpactEstimate, 0)),
-      nextAction: scoreItems[0]?.refreshCommand || "Review formal evidence and external owner-review lanes in collapsed drilldown.",
+      nextAction: scoreItems[0]?.refreshCommand || "Review typed evidence and owner-review lanes in collapsed drilldown.",
       items: scoreItems,
     }),
     section({
@@ -251,7 +251,7 @@ export function buildDebugOperatorCockpit(
       owner: criticalWarnings[0]?.owner ?? "runtime",
       state: criticalWarnings.length ? "failed" : "live",
       scoreImpactEstimate: criticalWarnings.length * 2,
-      nextAction: criticalWarnings[0]?.nextAction || "Keep formal runtime/provider smoke in formal evidence drilldown.",
+      nextAction: criticalWarnings[0]?.nextAction || "Keep provider-backed site activity and deployed route evidence in collapsed drilldown.",
       items: criticalWarnings,
     }),
     section({
@@ -292,11 +292,11 @@ export function buildDebugOperatorCockpit(
     }),
     section({
       id: "ai_critic_requested_changes",
-      operatorSummary: sourceCriticFindings.length ? "AI critic source-code requested changes must be resolved before claiming the patch complete." : "AI critic has no source-code changes requested; formal backlog stays visible in drilldown.",
+      operatorSummary: sourceCriticFindings.length ? "AI critic source-code requested changes must be resolved before claiming the patch complete." : "AI critic has no source-code changes requested; typed evidence backlog stays visible in drilldown.",
       owner: "critic",
       state: sourceCriticFindings.length ? "degraded" : "live",
       scoreImpactEstimate: sourceCriticFindings.length,
-      nextAction: sourceCriticFindings[0]?.requiredFix || "No source changes requested; keep formal backlog visible without marking critic degraded.",
+      nextAction: sourceCriticFindings[0]?.requiredFix || "No source changes requested; keep typed evidence backlog visible without marking critic degraded.",
       items: sourceCriticFindings,
     }),
     section({
@@ -305,7 +305,7 @@ export function buildDebugOperatorCockpit(
       owner: "debug",
       state: activeRecoveryPlaybooks.length ? "degraded" : "live",
       scoreImpactEstimate: activeRecoveryPlaybooks.length ? 1 : 0,
-      nextAction: activeRecoveryPlaybooks[0]?.commands[0] || "Formal evidence and stale artifact playbooks are collapsed until a matching active issue exists.",
+      nextAction: activeRecoveryPlaybooks[0]?.commands[0] || "Typed evidence and stale artifact playbooks are collapsed until a matching active issue exists.",
       items: activeRecoveryPlaybooks.slice(0, 6),
     }),
   ];

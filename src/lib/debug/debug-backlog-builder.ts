@@ -312,18 +312,18 @@ function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string
 
   if (runtime || provider) {
     return {
-      title: "Runtime and provider proof required",
+      title: "Provider and route evidence required",
       severity: "p1" as const,
       status: "blocked_external" as const,
       fixClass: "manual_required" as const,
       evidenceStatus: runtime ? "runtime_unverified" as const : "external_required" as const,
       owner: provider ? "provider_evidence" : "runtime_evidence",
       surface: "runtime_evidence",
-      exactNextAction: "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      evidenceReason: rawReason || "Formal runtime/provider proof is missing.",
+      exactNextAction: "Attach redacted provider-backed site activity evidence and deployed route evidence before clearing this beta gate.",
+      evidenceReason: rawReason || "Provider-backed site activity or deployed route evidence is missing.",
       sourceMessage: /operator-confirmed|operator confirmed|paypal/iu.test(cap)
-        ? "Operator-confirmed payment is product context only; formal provider/runtime proof is still required."
-        : "Formal provider/runtime proof is still required.",
+        ? "Payment context is product context only; provider-backed site activity and deployed route evidence are still required."
+        : "Provider-backed site activity and deployed route evidence are still required.",
     };
   }
 
@@ -336,9 +336,9 @@ function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string
       evidenceStatus: "formal_missing" as const,
       owner: "admin_debug",
       surface: "admin_debug",
-      exactNextAction: "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      evidenceReason: rawReason || "A redacted production admin truth sample is missing.",
-      sourceMessage: "Admin truth sample evidence is required.",
+      exactNextAction: "Attach a redacted admin source activity sample before clearing the admin source sample gate.",
+      evidenceReason: rawReason || "A redacted admin source activity sample is missing.",
+      sourceMessage: "Admin source sample evidence is required.",
     };
   }
 
@@ -351,8 +351,8 @@ function resolveBetaCapItemCopy(cap: string, rawTitle: string, rawReason: string
       evidenceStatus: "missing" as const,
       owner: "ui_source_coverage",
       surface: "ui_source_coverage",
-      exactNextAction: "Run deterministic UI source coverage and fix any source-reported surface gaps; use screenshots or browser viewing only to reproduce a reported issue.",
-      evidenceReason: "Visual/manual readiness now starts with source coverage. Screenshots are optional confirmation after the codebase reports a UI issue.",
+      exactNextAction: "Run deterministic UI source coverage and fix any source-reported surface gaps; use optional visual reproduction only after a reported issue exists.",
+      evidenceReason: "UI readiness starts with source coverage. Visual reproduction is optional confirmation after the codebase reports a UI issue.",
       sourceMessage: "UI source coverage must run before optional visual review.",
     };
   }
@@ -436,11 +436,11 @@ function buildScoreDragItems(score80PathLock?: Score80PathLockInput | null): Deb
       evidenceStatus: dimension === "runtimeHealth" ? "runtime_unverified" : "source_backed",
       evidenceReason: toText(drag.reason, "Score drag was reported by the score-80 path lock."),
       exactNextAction: dimension === "runtimeHealth"
-        ? "Attach deployed runtime smoke evidence before treating runtime health as proven."
+        ? "Attach deployed route evidence before treating runtime health as current."
         : "Work the score dimension owner lane and refresh score-80 path lock.",
       sourceMessage: toText(drag.reason, "Score drag remains."),
       sourceValidator: "npm run check:beta-score",
-      blockedReason: dimension === "runtimeHealth" ? "Requires deployed runtime proof." : undefined,
+      blockedReason: dimension === "runtimeHealth" ? "Requires deployed route evidence." : undefined,
     });
   });
 
@@ -513,7 +513,7 @@ function buildAdminTruthItems(adminTruthSample?: AdminTruthSampleInput | null): 
 
   return [makeItem({
     id: "admin-truth-formal-sample-required",
-    title: "Admin truth sample requires formal proof",
+    title: "Admin source sample required",
     owner: "admin_debug",
     surface: "admin_debug",
     severity: "p1",
@@ -525,11 +525,11 @@ function buildAdminTruthItems(adminTruthSample?: AdminTruthSampleInput | null): 
     sourceFiles: ["agent/state/admin-truth-source-sample.generated.json", "src/lib/admin-debug-control-tower.ts"],
     sourceRoute: "/admin/debug",
     evidenceStatus: "formal_missing",
-    evidenceReason: "Source-ready admin truth exists, but no redacted production admin truth sample is attached.",
-    exactNextAction: "Attach a redacted production admin truth sample before clearing the formal admin truth gate.",
+    evidenceReason: "Source-ready admin truth exists, but no redacted admin source sample is attached.",
+    exactNextAction: "Attach a redacted admin source sample before clearing the admin source sample gate.",
     sourceMessage: toText(adminTruthSample.status, "admin truth sample is source-ready only"),
     sourceValidator: "npm run check:admin-truth-source-sample",
-    blockedReason: "Manual production evidence is required.",
+    blockedReason: "Redacted admin source sample evidence is required.",
   })];
 }
 

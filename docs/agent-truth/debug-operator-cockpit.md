@@ -16,21 +16,21 @@ Status: admin debug information hierarchy. The cockpit summarizes what to fix ne
 - Owner: beta
 - State: live
 - Score impact estimate: 0
-- Next action: Review formal evidence and external owner-review lanes in collapsed drilldown.
+- Next action: Review typed evidence and owner-review lanes in collapsed drilldown.
 
 ### 2. Critical Runtime + Debug Warnings
 
 - Owner: runtime
 - State: live
 - Score impact estimate: 0
-- Next action: Keep formal runtime/provider smoke in formal evidence drilldown.
+- Next action: Keep provider-backed site activity and deployed route evidence in collapsed drilldown.
 
 ### 3. Stale Artifact Refresh Queue
 
 - Owner: repo
 - State: stale
-- Score impact estimate: 17
-- Next action: npm run check:launch-pr-triage
+- Score impact estimate: 9
+- Next action: npm run check:overnight-final-integration-lock
 
 ### 4. Admin Truth Status
 
@@ -58,11 +58,11 @@ Status: admin debug information hierarchy. The cockpit summarizes what to fix ne
 - Owner: critic
 - State: live
 - Score impact estimate: 0
-- Next action: No source changes requested; keep formal backlog visible without marking critic degraded.
+- Next action: No source changes requested; keep typed evidence backlog visible without marking critic degraded.
 
 ### 8. Recovery Playbook CTA
 
 - Owner: debug
 - State: live
 - Score impact estimate: 0
-- Next action: Formal evidence and stale artifact playbooks are collapsed until a matching active issue exists.
+- Next action: Typed evidence and stale artifact playbooks are collapsed until a matching active issue exists.

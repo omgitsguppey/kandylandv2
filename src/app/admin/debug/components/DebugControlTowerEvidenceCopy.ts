@@ -23,20 +23,20 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
         return {
             state: "source_only",
             label: "Source-only evidence",
-            detail: "Implemented behavior checks passed. Runtime smoke, provider smoke, admin samples, and UI source contract checks stay separate.",
+            detail: "Implemented behavior checks passed. Deployed route evidence, provider-backed site activity, admin source samples, and UI source contract checks stay separate.",
         };
     }
 
     if (/runtime\/provider smoke|provider smoke|runtime smoke/iu.test(normalized)) {
         const runtimeRecorded = /runtime smoke:\s*keep automated deployed runtime smoke evidence fresh|formal runtime smoke passed|runtimeartifactstatus=formal_runtime_smoke_passed|runtimegatepassed=true/iu.test(normalized);
         const providerProofDetail = runtimeRecorded
-            ? "Attach redacted provider proof. Runtime smoke is recorded; keep it fresh."
-            : "Attach redacted provider proof and deployed runtime smoke.";
+            ? "Attach redacted provider-backed site activity evidence. Deployed route evidence is recorded; keep it fresh."
+            : "Attach redacted provider-backed site activity evidence and deployed route evidence.";
         return {
             state: "external_proof_required",
-            label: "External proof required",
+            label: "Site activity evidence required",
             detail: /operator-confirmed|operator confirmed|paypal/iu.test(normalized)
-                ? `The operator-confirmed payment is product context only. ${providerProofDetail}`
+                ? `The payment note is product context only. ${providerProofDetail}`
                 : providerProofDetail,
         };
     }
@@ -45,7 +45,7 @@ export function resolvePublicBetaCapDetailForAdmin(detail?: string): PublicBetaC
         return {
             state: "admin_truth_sample_required",
             label: "Admin sample required",
-            detail: "Attach a fresh redacted production admin truth sample before clearing this gate.",
+            detail: "Attach a fresh redacted admin source sample before clearing this gate.",
         };
     }
 
@@ -79,7 +79,7 @@ export function summarizePublicBetaCapDisplays(displays: PublicBetaCapDisplay[])
     const refreshCount = displays.filter((entry) => entry.state === "refresh_due").length;
     const reviewCount = displays.filter((entry) => entry.state === "review").length;
     const summary = [
-        externalProofCount ? `${externalProofCount} formal proof gate${externalProofCount === 1 ? "" : "s"}` : null,
+        externalProofCount ? `${externalProofCount} typed evidence gate${externalProofCount === 1 ? "" : "s"}` : null,
         refreshCount ? `${refreshCount} refresh item${refreshCount === 1 ? "" : "s"}` : null,
         sourceOnlyCount ? `${sourceOnlyCount} source check${sourceOnlyCount === 1 ? "" : "s"}` : null,
         reviewCount ? `${reviewCount} review item${reviewCount === 1 ? "" : "s"}` : null,
@@ -101,7 +101,7 @@ export function formatPublicBetaReadinessStatusForAdmin(input: { status?: string
     const status = String(input.status ?? "").trim();
     const combined = [status, input.reason, ...(input.capDetails ?? [])].filter(Boolean).join(" ");
     if (!combined.trim()) return "Readiness unavailable";
-    if (/runtime\/provider smoke|provider smoke|runtime smoke|admin truth|sample evidence|truth sample|external proof|proof required/iu.test(combined)) return "External proof required";
+    if (/runtime\/provider smoke|provider smoke|runtime smoke|admin truth|sample evidence|truth sample|external proof|proof required|source evidence required/iu.test(combined)) return "Site activity evidence required";
     if (/report freshness|pr integrity|freshness window|current-head|current head|generated reports? are older/iu.test(combined)) return "Report refresh needed";
     if (/targeted behavior tests|source checks/iu.test(combined)) return "Source checks only";
     if (/unknown evidence/iu.test(combined)) return "Evidence needs classification";

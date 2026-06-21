@@ -14,7 +14,7 @@ const baseInput: DebugOperatorCockpitInput = {
     {
       artifact: "runtime_provider_smoke",
       staleReason: "runtime_unverified",
-      refreshCommand: "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+      refreshCommand: "Attach provider-backed site activity evidence, then run npm run check:evidence-capture-status",
       scoreImpactEstimate: 16.33,
       owner: "runtime",
       dependencyOrder: 1,
@@ -42,7 +42,7 @@ const baseInput: DebugOperatorCockpitInput = {
       severity: "critical",
       owner: "runtime",
       message: "Runtime evidence is unknown.",
-      nextAction: "Attach runtime smoke artifact before claiming live proof.",
+      nextAction: "Attach deployed route evidence before claiming live runtime status.",
       truthState: "unknown",
     },
   ],

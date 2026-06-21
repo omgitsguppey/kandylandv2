@@ -50,9 +50,9 @@ function sourceTruthStateLabel(state: unknown) {
         case "source_refresh_required":
             return "Refresh required";
         case "runtime_proof_required":
-            return "Runtime proof required";
+            return "Deployed route evidence required";
         case "provider_or_external_proof_required":
-            return "External proof required";
+            return "Provider-backed site activity required";
         case "admin_truth_source_required":
             return "Admin sample required";
         case "manual_visual_required":

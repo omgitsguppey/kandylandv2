@@ -45,17 +45,17 @@ describe("resolveReportDisplay", () => {
     expect(display.sourceDetail).not.toContain("freshness");
   });
 
-  it("shows zero-finding public beta failures as proof gates", () => {
+  it("shows zero-finding public beta failures as typed evidence gates", () => {
     const display = resolveReportDisplay(report({
       id: "public-beta-score",
       status: "error",
       truthState: "failed",
     }));
 
-    expect(display.statusLabel).toBe("External proof required");
-    expect(display.findingLabel).toBe("Proof gate");
+    expect(display.statusLabel).toBe("Site activity evidence required");
+    expect(display.findingLabel).toBe("Evidence gate");
     expect(display.badgeLabel).toBe("Review");
-    expect(display.sourceDetail).toBe("Source validators are not enough for provider, runtime, or admin truth proof.");
+    expect(display.sourceDetail).toBe("Source validators are not enough for provider-backed site activity, deployed route evidence, or admin source samples.");
   });
 
   it("shows counted public beta evidence gates instead of zero findings", () => {
@@ -66,7 +66,7 @@ describe("resolveReportDisplay", () => {
       evidenceGateCount: 4,
     }));
 
-    expect(display.statusLabel).toBe("External proof required");
+    expect(display.statusLabel).toBe("Site activity evidence required");
     expect(display.findingLabel).toBe("4 evidence gates");
     expect(display.badgeLabel).toBe("Review");
   });
@@ -95,7 +95,7 @@ describe("resolveReportDisplay", () => {
     expect(display.statusLabel).toBe("Source checks only");
     expect(display.findingLabel).toBe("1 evidence gate");
     expect(display.badgeLabel).toBe("Review");
-    expect(display.sourceDetail).toBe("Source validators passed; runtime smoke, provider smoke, admin samples, and UI source contract checks stay separate.");
+    expect(display.sourceDetail).toBe("Source validators passed; deployed route evidence, provider-backed site activity, admin source samples, and UI source contract checks stay separate.");
   });
 
   it("shows evidence-gate-only failures as proof gates even when the producer omits evidenceGateCount", () => {
@@ -107,19 +107,19 @@ describe("resolveReportDisplay", () => {
         reportId: "sample-report",
         section: "beta_readiness",
         severity: "major",
-        title: "Runtime and provider proof required",
+        title: "Provider and route evidence required",
         domain: "beta_readiness",
         filePath: "agent/state/sample.generated.json",
-        humanReadableWarning: "Formal provider and runtime evidence is required.",
+        humanReadableWarning: "Provider-backed site activity and deployed route evidence are required.",
         suggestedValidator: "npm run check:sample",
         evidence: [],
         truthState: "unknown",
       }],
     }));
 
-    expect(display.statusLabel).toBe("External proof required");
+    expect(display.statusLabel).toBe("Site activity evidence required");
     expect(display.findingLabel).toBe("Evidence gate");
-    expect(display.sourceDetail).toBe("Source validators are not enough for provider, runtime, or admin truth proof.");
+    expect(display.sourceDetail).toBe("Source validators are not enough for provider-backed site activity, deployed route evidence, or admin source samples.");
   });
 
   it("shows refresh evidence gates as refresh due instead of provider proof", () => {
