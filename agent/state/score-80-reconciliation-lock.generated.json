@@ -1,8 +1,8 @@
 {
   "reportKey": "score-80-reconciliation-lock",
-  "generatedAtUtc": "2026-06-21T04:44:57.120Z",
-  "currentHead": "ca094913ccd1a51fba335eebc166840a87f2d188",
-  "sourceCommit": "ca094913ccd1a51fba335eebc166840a87f2d188",
+  "generatedAtUtc": "2026-06-21T12:52:48.292Z",
+  "currentHead": "ff622c126819018ce3fb9b0ba1f04b7053dd6767",
+  "sourceCommit": "ff622c126819018ce3fb9b0ba1f04b7053dd6767",
   "status": "locked_with_formal_gates_remaining",
   "previousScore": 76.88,
   "currentScore": 84,
@@ -54,29 +54,29 @@
       "scoreDimension": "runtimeHealth",
       "scoreImpactEstimate": 15,
       "justification": "10 deployed route substitute rows still require a deployed route artifact before the protected lane clears.",
-      "nextAction": "Attach deployed route evidence; source/debug/telemetry proof remains partial only."
+      "nextAction": "Produce deployed route evidence; source/debug/telemetry confidence remains partial only."
     }
   ],
   "remainingProviderRequiredItems": [
     {
-      "id": "formal_provider_smoke",
+      "id": "provider_backed_site_activity",
       "label": "Provider-backed site activity evidence",
       "proofType": "formal_provider_required",
       "scoreDimension": "runtimeHealth",
       "scoreImpactEstimate": 15,
       "justification": "Operator-confirmed revenue is product confidence only and does not clear the provider artifact gate.",
-      "nextAction": "Attach redacted provider-backed site activity artifact before clearing provider readiness."
+      "nextAction": "Produce redacted provider-backed site activity evidence before clearing provider readiness."
     }
   ],
   "remainingAdminTruthItems": [
     {
-      "id": "formal_admin_truth_sample",
-      "label": "Admin source sample evidence",
+      "id": "admin_source_activity_sample",
+      "label": "Admin source activity sample evidence",
       "proofType": "admin_truth_required",
       "scoreDimension": "evidenceCompleteness",
       "scoreImpactEstimate": 8,
       "justification": "Admin source samples earn partial confidence, but current first-party admin source evidence is still missing.",
-      "nextAction": "Attach redacted first-party admin source sample evidence and rerun the admin source sample validator."
+      "nextAction": "Produce redacted first-party admin source activity sample evidence and rerun the admin source activity sample validator."
     }
   ],
   "topNextActions": [
@@ -87,17 +87,17 @@
       "scoreDimension": "runtimeHealth",
       "scoreImpactEstimate": 15,
       "justification": "10 deployed route substitute rows still require a deployed route artifact before the protected lane clears.",
-      "nextAction": "Attach deployed route evidence; source/debug/telemetry proof remains partial only.",
+      "nextAction": "Produce deployed route evidence; source/debug/telemetry confidence remains partial only.",
       "rank": 1
     },
     {
-      "id": "formal_provider_smoke",
+      "id": "provider_backed_site_activity",
       "label": "Provider-backed site activity evidence",
       "proofType": "formal_provider_required",
       "scoreDimension": "runtimeHealth",
       "scoreImpactEstimate": 15,
       "justification": "Operator-confirmed revenue is product confidence only and does not clear the provider artifact gate.",
-      "nextAction": "Attach redacted provider-backed site activity artifact before clearing provider readiness.",
+      "nextAction": "Produce redacted provider-backed site activity evidence before clearing provider readiness.",
       "rank": 2
     },
     {
@@ -111,13 +111,13 @@
       "rank": 3
     },
     {
-      "id": "formal_admin_truth_sample",
-      "label": "Admin source sample evidence",
+      "id": "admin_source_activity_sample",
+      "label": "Admin source activity sample evidence",
       "proofType": "admin_truth_required",
       "scoreDimension": "evidenceCompleteness",
       "scoreImpactEstimate": 8,
       "justification": "Admin source samples earn partial confidence, but current first-party admin source evidence is still missing.",
-      "nextAction": "Attach redacted first-party admin source sample evidence and rerun the admin source sample validator.",
+      "nextAction": "Produce redacted first-party admin source activity sample evidence and rerun the admin source activity sample validator.",
       "rank": 4
     },
     {
@@ -154,7 +154,18 @@
     "nonUiAlgorithmicEvidenceAllowed": true,
     "sourceBackedRuntimePartialCredit": true
   },
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "agent/state/score-80-path-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "docs/agent-truth/score-80-path-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    }
+  ],
   "openPrs": [
     {
       "number": 0,

@@ -1,48 +1,40 @@
 {
-  "generatedAtUtc": "2026-06-19T18:24:09.709Z",
+  "generatedAtUtc": "2026-06-21T12:52:46.185Z",
   "reportKey": "score-80-path-lock",
-  "currentHead": "17c65d9bb1b2504f34bbe8912639a5d3ccc25ff1",
+  "currentHead": "ff622c126819018ce3fb9b0ba1f04b7053dd6767",
   "oldScore": 41.92,
-  "newScore": 70.79,
-  "sourceHealthScore": 91.7,
-  "runtimeHealthScore": 71.2,
-  "evidenceCompletenessScore": 43.4,
-  "freshnessScore": 75.63,
+  "newScore": 86.83,
+  "sourceHealthScore": 97.2,
+  "runtimeHealthScore": 83.74,
+  "evidenceCompletenessScore": 92,
+  "freshnessScore": 91.88,
   "costRiskScore": 42,
   "regressionRiskScore": 94,
   "launchGateStatus": "owner_review",
   "canStartBetaExitReview": false,
   "exactScoreDeltaDrivers": [
     "oldScore=41.92",
-    "newScore=70.79",
-    "scoreDelta=28.87",
-    "sourceHealthScore=91.7",
-    "runtimeHealthScore=71.2",
-    "evidenceCompletenessScore=43.4",
-    "freshnessScore=75.63",
+    "newScore=86.83",
+    "scoreDelta=44.91",
+    "sourceHealthScore=97.2",
+    "runtimeHealthScore=83.74",
+    "evidenceCompletenessScore=92",
+    "freshnessScore=91.88",
     "costRiskScore=42",
     "regressionRiskScore=94",
     "quietFutureActivityCount=416",
     "actionableSignalGroupCount=16",
     "scoreDragSignalGroupCount=16",
     "nonEventScorePenaltyCount=0",
-    "launchBlockers=3",
-    "evidenceCompletenessScore drag=11.32",
+    "launchBlockers=2",
     "costRiskScore drag=5.8",
-    "runtimeHealthScore drag=5.76",
-    "freshnessScore drag=3.66",
-    "sourceHealthScore drag=2.08",
+    "runtimeHealthScore drag=3.25",
+    "evidenceCompletenessScore drag=1.6",
+    "freshnessScore drag=1.22",
+    "sourceHealthScore drag=0.7",
     "regressionRiskScore drag=0.6"
   ],
   "remainingScoreDrag": [
-    {
-      "dimension": "evidenceCompletenessScore",
-      "score": 43.4,
-      "weight": 20,
-      "rawGap": 56.6,
-      "weightedPointImpact": 11.32,
-      "reason": "UI source coverage plus provider, runtime, and admin truth evidence is still required."
-    },
     {
       "dimension": "costRiskScore",
       "score": 42,
@@ -53,26 +45,34 @@
     },
     {
       "dimension": "runtimeHealthScore",
-      "score": 71.2,
+      "score": 83.74,
       "weight": 20,
-      "rawGap": 28.8,
-      "weightedPointImpact": 5.76,
-      "reason": "Source-backed runtime confidence helps, but deployed runtime smoke remains missing."
+      "rawGap": 16.26,
+      "weightedPointImpact": 3.25,
+      "reason": "Source-backed runtime confidence helps, but deployed route evidence remains missing."
+    },
+    {
+      "dimension": "evidenceCompletenessScore",
+      "score": 92,
+      "weight": 20,
+      "rawGap": 8,
+      "weightedPointImpact": 1.6,
+      "reason": "UI source coverage plus provider, runtime, and admin truth evidence is still required."
     },
     {
       "dimension": "freshnessScore",
-      "score": 75.63,
+      "score": 91.88,
       "weight": 15,
-      "rawGap": 24.37,
-      "weightedPointImpact": 3.66,
+      "rawGap": 8.12,
+      "weightedPointImpact": 1.22,
       "reason": "Stale or missing generated evidence reports still decay freshness."
     },
     {
       "dimension": "sourceHealthScore",
-      "score": 91.7,
+      "score": 97.2,
       "weight": 25,
-      "rawGap": 8.3,
-      "weightedPointImpact": 2.08,
+      "rawGap": 2.8,
+      "weightedPointImpact": 0.7,
       "reason": "Source health is affected by failed or stale implemented source validators."
     },
     {
@@ -86,18 +86,11 @@
   ],
   "artifactsBlocking80": [
     {
-      "id": "admin_truth_sample_evidence",
-      "status": "External proof required: Admin truth/sample evidence",
-      "pointImpact": 11.32,
-      "refreshCommand": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
-      "nextAction": "Attach formal evidence before clearing this beta gate."
-    },
-    {
-      "id": "runtime_provider_smoke",
-      "status": "External proof required: Runtime/provider smoke",
-      "pointImpact": 5.76,
-      "refreshCommand": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
-      "nextAction": "Attach formal evidence before clearing this beta gate."
+      "id": "provider_backed_site_activity_deployed_route_evidence",
+      "status": "Source evidence required: Provider-backed site activity + deployed route evidence",
+      "pointImpact": 3.25,
+      "refreshCommand": "Produce provider-backed site activity evidence, then run npm run check:evidence-capture-status",
+      "nextAction": "Produce the matching source evidence before clearing this beta gate."
     },
     {
       "id": "agent/state/overnight-final-integration-lock.generated.json",
@@ -105,41 +98,23 @@
       "pointImpact": 2,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock"
+    },
+    {
+      "id": "admin_source_activity_sample_evidence",
+      "status": "Source evidence required: Admin source activity sample evidence",
+      "pointImpact": 1.6,
+      "refreshCommand": "Produce admin source activity sample evidence, then run npm run check:evidence-capture-status",
+      "nextAction": "Produce the matching source evidence before clearing this beta gate."
     }
   ],
   "cleanBuildStatus": {
-    "status": "classified_dirty",
-    "dirtyCount": 4,
+    "status": "clean",
+    "dirtyCount": 0,
     "untrackedCount": 0,
     "openPrCount": 0,
     "staleScoreArtifactCount": 1
   },
-  "dirtyFiles": [
-    {
-      "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
-      "status": "M",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed score/evidence artifact generated by focused validators."
-    },
-    {
-      "path": "agent/state/debug-signal-actionability.generated.json",
-      "status": "M",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed score/evidence artifact generated by focused validators."
-    },
-    {
-      "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
-      "status": "M",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed score/evidence artifact generated by focused validators."
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-actionability.md",
-      "status": "M",
-      "classification": "current_generated_artifact_to_commit",
-      "action": "Commit refreshed score/evidence artifact generated by focused validators."
-    }
-  ],
+  "dirtyFiles": [],
   "openPrs": [],
   "evidenceStatus": [
     {
@@ -169,8 +144,8 @@
     }
   ],
   "nextThreeActions": [
-    "Attach deployed runtime smoke and provider smoke artifacts; source-backed confidence does not clear those gates.",
-    "Run UI source coverage and attach admin truth sample evidence so evidence completeness can move without fake proof.",
+    "Produce deployed route and provider-backed site activity evidence; source-backed confidence does not clear those gates.",
+    "Run UI source coverage and produce admin source activity sample evidence so evidence completeness can move without fake proof.",
     "Refresh or retire every stale score-impacting artifact using its listed command before re-running npm run score:beta."
   ]
 }

@@ -28,22 +28,22 @@ Status: score-80 path reconciled after AI critic, algorithmic evidence, real usa
 
 ## Runtime Required
 
-- Deployed route evidence: runtime_required; next=Attach deployed route evidence; source/debug/telemetry proof remains partial only.
+- Deployed route evidence: runtime_required; next=Produce deployed route evidence; source/debug/telemetry confidence remains partial only.
 
 ## Provider Required
 
-- Provider-backed site activity evidence: formal_provider_required; next=Attach redacted provider-backed site activity artifact before clearing provider readiness.
+- Provider-backed site activity evidence: formal_provider_required; next=Produce redacted provider-backed site activity evidence before clearing provider readiness.
 
 ## Admin Truth
 
-- Admin source sample evidence: admin_truth_required; next=Attach redacted first-party admin source sample evidence and rerun the admin source sample validator.
+- Admin source activity sample evidence: admin_truth_required; next=Produce redacted first-party admin source activity sample evidence and rerun the admin source activity sample validator.
 
 ## Ranked Next Actions
 
-1. Deployed route evidence: Attach deployed route evidence; source/debug/telemetry proof remains partial only.
-2. Provider-backed site activity evidence: Attach redacted provider-backed site activity artifact before clearing provider readiness.
+1. Deployed route evidence: Produce deployed route evidence; source/debug/telemetry confidence remains partial only.
+2. Provider-backed site activity evidence: Produce redacted provider-backed site activity evidence before clearing provider readiness.
 3. Refresh stale score-impact artifacts: Run the self-healing refresh queue in dependency order and keep required evidence lanes separate.
-4. Admin source sample evidence: Attach redacted first-party admin source sample evidence and rerun the admin source sample validator.
+4. Admin source activity sample evidence: Produce redacted first-party admin source activity sample evidence and rerun the admin source activity sample validator.
 5. Cost owner-review lanes: Complete owner review for cloud/runtime cost lanes without adding new cost paths.
 6. Blocked refresh queue entries: Resolve blocked refresh queue entries only where the playbook allows source-safe refresh.
 
@@ -55,7 +55,8 @@ Status: score-80 path reconciled after AI critic, algorithmic evidence, real usa
 
 ## Dirty File Classification
 
-- Clean at validator read time.
+- agent/state/score-80-path-lock.generated.json: current_generated_artifact_to_commit; Generated score/debug evidence artifact refreshed by requested validators.
+- docs/agent-truth/score-80-path-lock.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by requested score/debug validators.
 
 ## Open PR Classification
 
