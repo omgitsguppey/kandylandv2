@@ -119,6 +119,12 @@ function asOptionalBoolean(value: unknown): boolean | undefined {
   return typeof value === "boolean" ? value : undefined;
 }
 
+function asStringArray(value: unknown): string[] | undefined {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
+    : undefined;
+}
+
 export function readLaunchCoverageInputHead(raw: unknown) {
   const root = asRecord(raw);
   return asOptionalString(root.currentHead)
@@ -236,20 +242,29 @@ function normalizeLaunchEventFamilyCoverage(candidate: Record<string, unknown>):
         if (!familyId) return null;
         return {
           familyId,
+          ...(asStringArray(row.canonicalEventNames) ? { canonicalEventNames: asStringArray(row.canonicalEventNames) as string[] } : {}),
           ...(asOptionalBoolean(row.observedFirstParty) !== undefined ? { observedFirstParty: asOptionalBoolean(row.observedFirstParty) } : {}),
+          ...(asOptionalString(row.sourceTruth) ? { sourceTruth: asOptionalString(row.sourceTruth) as string } : {}),
+          ...(asOptionalString(row.freshnessState) ? { freshnessState: asOptionalString(row.freshnessState) as string } : {}),
+          ...(asOptionalString(row.evidenceKind) ? { evidenceKind: asOptionalString(row.evidenceKind) as string } : {}),
           ...(asOptionalString(row.sourceCoverageState) ? { sourceCoverageState: asOptionalString(row.sourceCoverageState) as string } : {}),
           ...(asOptionalString(row.sourceRole) ? { sourceRole: asOptionalString(row.sourceRole) as string } : {}),
           ...(asOptionalString(row.strongestSourceTruth ?? row.sourceTruth) ? { strongestSourceTruth: asOptionalString(row.strongestSourceTruth ?? row.sourceTruth) as string } : {}),
           ...(asOptionalString(row.strongestEvidenceKind ?? row.evidenceKind) ? { strongestEvidenceKind: asOptionalString(row.strongestEvidenceKind ?? row.evidenceKind) as string } : {}),
+          ...(asOptionalNumber(row.confidenceScore) !== undefined ? { confidenceScore: asOptionalNumber(row.confidenceScore) } : {}),
           ...(asOptionalString(row.confidenceBand) ? { confidenceBand: asOptionalString(row.confidenceBand) as string } : {}),
+          ...(asOptionalString(row.dedupeKey) ? { dedupeKey: asOptionalString(row.dedupeKey) as string } : {}),
+          ...(asStringArray(row.dedupeDimensions) ? { dedupeDimensions: asStringArray(row.dedupeDimensions) as string[] } : {}),
+          ...(asOptionalNumber(row.lateArrivalWindowDays) !== undefined ? { lateArrivalWindowDays: asOptionalNumber(row.lateArrivalWindowDays) } : {}),
           ...(asOptionalBoolean(row.productTruthEligible) !== undefined ? { productTruthEligible: asOptionalBoolean(row.productTruthEligible) } : {}),
+          ...(asOptionalString(row.mathReason) ? { mathReason: asOptionalString(row.mathReason) as string } : {}),
           ...(asOptionalString(row.nextAction) ? { nextAction: asOptionalString(row.nextAction) as string } : {}),
         };
       })
       .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
     : undefined;
   const holdbackValidation = compactHoldbackValidation(raw.holdbackValidation);
-  const result: LaunchHistoryCoverageForSourceAgreement["eventFamilyCoverage"] = {
+  const result: NonNullable<LaunchHistoryCoverageForSourceAgreement["eventFamilyCoverage"]> = {
     ...(asOptionalNumber(raw.canonicalMappedFamilyCount) !== undefined ? { canonicalMappedFamilyCount: asOptionalNumber(raw.canonicalMappedFamilyCount) } : {}),
     ...(asOptionalNumber(raw.canonicalMappingCoveragePercent) !== undefined ? { canonicalMappingCoveragePercent: asOptionalNumber(raw.canonicalMappingCoveragePercent) } : {}),
     ...(asOptionalNumber(raw.observedFirstPartyFamilyCount) !== undefined ? { observedFirstPartyFamilyCount: asOptionalNumber(raw.observedFirstPartyFamilyCount) } : {}),

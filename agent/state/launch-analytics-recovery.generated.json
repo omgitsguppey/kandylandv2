@@ -1,7 +1,7 @@
 {
   "reportKey": "launch-analytics-recovery",
-  "generatedAtUtc": "2026-06-21T01:19:15.537Z",
-  "currentHead": "4d54e41c4321de14762abd92f3954332661b997b",
+  "generatedAtUtc": "2026-06-21T01:42:36.209Z",
+  "currentHead": "e9dcb591308a8ade46b7d487da2473ca5b7a9e86",
   "evidenceClass": "generated_snapshot",
   "canClearSourceGate": false,
   "canClearRuntimeGate": false,
@@ -3260,9 +3260,9 @@
         "reportKey": "analytics-legacy-history-reconciliation",
         "generatedAtUtc": "2026-06-21T01:13:55.576Z",
         "currentHead": "d91439577f2bcbed2bf8e74f607d783cb33db5c4",
-        "artifactVersionStatus": "same_commit_snapshot",
-        "versionReason": "agent/state/analytics-legacy-history-reconciliation.generated.json is a same commit generated artifact snapshot.",
-        "freshnessState": "same_commit_snapshot",
+        "artifactVersionStatus": "current_by_impact",
+        "versionReason": "agent/state/analytics-legacy-history-reconciliation.generated.json is older than HEAD but no owned source inputs changed.",
+        "freshnessState": "current_by_impact",
         "staleRelativeToCurrentHead": false
       },
       {
@@ -3270,9 +3270,9 @@
         "reportKey": "analytics-legacy-purgatory-queue",
         "generatedAtUtc": "2026-06-21T01:13:55.576Z",
         "currentHead": "d91439577f2bcbed2bf8e74f607d783cb33db5c4",
-        "artifactVersionStatus": "same_commit_snapshot",
-        "versionReason": "agent/state/analytics-legacy-purgatory-queue.generated.json is a same commit generated artifact snapshot.",
-        "freshnessState": "same_commit_snapshot",
+        "artifactVersionStatus": "current_by_impact",
+        "versionReason": "agent/state/analytics-legacy-purgatory-queue.generated.json is older than HEAD but no owned source inputs changed.",
+        "freshnessState": "current_by_impact",
         "staleRelativeToCurrentHead": false
       },
       {
@@ -3280,9 +3280,9 @@
         "reportKey": "analytics-legacy-recovery-reconciliation",
         "generatedAtUtc": "2026-06-21T01:13:55.635Z",
         "currentHead": "d91439577f2bcbed2bf8e74f607d783cb33db5c4",
-        "artifactVersionStatus": "same_commit_snapshot",
-        "versionReason": "agent/state/analytics-legacy-recovery-reconciliation.generated.json is a same commit generated artifact snapshot.",
-        "freshnessState": "same_commit_snapshot",
+        "artifactVersionStatus": "current_by_impact",
+        "versionReason": "agent/state/analytics-legacy-recovery-reconciliation.generated.json is older than HEAD but no owned source inputs changed.",
+        "freshnessState": "current_by_impact",
         "staleRelativeToCurrentHead": false
       },
       {

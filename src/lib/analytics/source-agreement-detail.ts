@@ -133,6 +133,7 @@ export type SourceAgreementFailureDetail = {
     classifications: SourceAgreementFailureClassification[];
     nextAction: string;
   }>;
+  eventFamilyCoverage?: LaunchHistoryCoverageForSourceAgreement["eventFamilyCoverage"];
   missingDaysBySource: Record<string, string[]>;
   extraDaysBySource: Record<string, string[]>;
   comparedMetrics: string[];
@@ -684,6 +685,15 @@ export type LaunchHistoryCoverageForSourceAgreement = {
       confidenceBand?: string;
       productTruthEligible?: boolean;
       nextAction?: string;
+      canonicalEventNames?: string[];
+      sourceTruth?: string;
+      freshnessState?: string;
+      evidenceKind?: string;
+      confidenceScore?: number;
+      dedupeKey?: string;
+      dedupeDimensions?: string[];
+      lateArrivalWindowDays?: number;
+      mathReason?: string;
     }>;
   };
 };
@@ -1034,6 +1044,7 @@ export function buildSourceAgreementFailureDetailFromLaunchHistoryCoverage(input
     perDaySourceCounts,
     internalAdminExcludedCountByDay,
     perDayMetricDeltas,
+    ...(input.launchHistoryCoverage.eventFamilyCoverage ? { eventFamilyCoverage: input.launchHistoryCoverage.eventFamilyCoverage } : {}),
     allLaunchRangeProven: rangeProofEligibility.allLaunchRangeProven,
   };
 }

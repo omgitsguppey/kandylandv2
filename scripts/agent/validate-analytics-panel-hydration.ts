@@ -739,6 +739,128 @@ function compactLaunchAnalyticsRecoveryReport(
   };
 }
 
+function mergeImportedLaunchEventFamilyCoverage(
+  computed: ReturnType<typeof buildLaunchCriticalRecoveryCoverageFromEvidence>,
+  importedValue: unknown,
+) {
+  const imported = asRecord(importedValue);
+  const importedRows = asRecordArray(imported.familySourceStates);
+  if (importedRows.length !== computed.familySourceStates.length) return computed;
+
+  const familySourceStates = importedRows
+    .map((row) => {
+      const familyId = typeof row.familyId === "string" ? row.familyId : "";
+      const fallback = computed.familySourceStates.find((family) => family.familyId === familyId);
+      if (!fallback) return null;
+      const canonicalEventNames = asStringArray(row.canonicalEventNames);
+      const dedupeDimensions = asStringArray(row.dedupeDimensions);
+      return {
+        ...fallback,
+        canonicalEventNames: canonicalEventNames.length > 0 ? canonicalEventNames : fallback.canonicalEventNames,
+        observedFirstParty: typeof row.observedFirstParty === "boolean" ? row.observedFirstParty : fallback.observedFirstParty,
+        sourceTruth: typeof row.sourceTruth === "string" ? row.sourceTruth as typeof fallback.sourceTruth : fallback.sourceTruth,
+        freshnessState: typeof row.freshnessState === "string" ? row.freshnessState as typeof fallback.freshnessState : fallback.freshnessState,
+        evidenceKind: typeof row.evidenceKind === "string" ? row.evidenceKind as typeof fallback.evidenceKind : fallback.evidenceKind,
+        strongestSourceTruth: typeof row.strongestSourceTruth === "string"
+          ? row.strongestSourceTruth as typeof fallback.strongestSourceTruth
+          : typeof row.sourceTruth === "string"
+            ? row.sourceTruth as typeof fallback.strongestSourceTruth
+            : fallback.strongestSourceTruth,
+        strongestEvidenceKind: typeof row.strongestEvidenceKind === "string"
+          ? row.strongestEvidenceKind as typeof fallback.strongestEvidenceKind
+          : typeof row.evidenceKind === "string"
+            ? row.evidenceKind as typeof fallback.strongestEvidenceKind
+            : fallback.strongestEvidenceKind,
+        confidenceScore: asNumber(row.confidenceScore, fallback.confidenceScore),
+        confidenceBand: typeof row.confidenceBand === "string" ? row.confidenceBand as typeof fallback.confidenceBand : fallback.confidenceBand,
+        dedupeKey: typeof row.dedupeKey === "string" ? row.dedupeKey : fallback.dedupeKey,
+        dedupeDimensions: dedupeDimensions.length > 0 ? dedupeDimensions as typeof fallback.dedupeDimensions : fallback.dedupeDimensions,
+        lateArrivalWindowDays: asNumber(row.lateArrivalWindowDays, fallback.lateArrivalWindowDays) as typeof fallback.lateArrivalWindowDays,
+        sourceRole: typeof row.sourceRole === "string" ? row.sourceRole as typeof fallback.sourceRole : fallback.sourceRole,
+        sourceCoverageState: typeof row.sourceCoverageState === "string"
+          ? row.sourceCoverageState as typeof fallback.sourceCoverageState
+          : fallback.sourceCoverageState,
+        productTruthEligible: typeof row.productTruthEligible === "boolean" ? row.productTruthEligible : fallback.productTruthEligible,
+        mathReason: typeof row.mathReason === "string" ? row.mathReason : fallback.mathReason,
+        nextAction: typeof row.nextAction === "string" ? row.nextAction : fallback.nextAction,
+      };
+    })
+    .filter((row): row is typeof computed.familySourceStates[number] => row !== null);
+  if (familySourceStates.length !== computed.familySourceStates.length) return computed;
+
+  const observedFirstPartyFamilyCount = familySourceStates.filter((family) => family.observedFirstParty).length;
+  const productTruthEligibleFamilyCount = familySourceStates.filter((family) => family.productTruthEligible).length;
+  const observedFirstPartyCoveragePercent = Math.round((observedFirstPartyFamilyCount / familySourceStates.length) * 1000) / 10;
+  const sourceCoverageStateCounts = familySourceStates.reduce<Record<string, number>>((counts, family) => {
+    counts[family.sourceCoverageState] = (counts[family.sourceCoverageState] ?? 0) + 1;
+    return counts;
+  }, {});
+  const sourceRoleCounts = familySourceStates.reduce<Record<string, number>>((counts, family) => {
+    counts[family.sourceRole] = (counts[family.sourceRole] ?? 0) + 1;
+    return counts;
+  }, {});
+  const evidenceKindCounts = familySourceStates.reduce<Record<string, number>>((counts, family) => {
+    counts[family.strongestEvidenceKind] = (counts[family.strongestEvidenceKind] ?? 0) + 1;
+    return counts;
+  }, {});
+  const requiredObservedFirstPartyFamilyCount = Math.ceil(
+    (familySourceStates.length * LAUNCH_CRITICAL_FIRST_PARTY_COVERAGE_FLOOR_PERCENT) / 100,
+  );
+  const observedFirstPartyFamilyGapCount = Math.max(0, requiredObservedFirstPartyFamilyCount - observedFirstPartyFamilyCount);
+  const sourceCoverageStatus = observedFirstPartyFamilyGapCount === 0 ? "pass" : "blocked";
+
+  return {
+    ...computed,
+    observedFirstPartyFamilyCount,
+    observedFirstPartyCoveragePercent,
+    productTruthEligibleFamilyCount,
+    modeledCalibrationFamilyCount: sourceCoverageStateCounts.modeled_second_source ?? 0,
+    inferredLegacyFamilyCount: sourceCoverageStateCounts.inferred_legacy ?? 0,
+    cachedSnapshotFamilyCount: sourceCoverageStateCounts.cached_snapshot ?? 0,
+    missingSourceFamilyCount: sourceCoverageStateCounts.source_missing ?? 0,
+    sourceCoverageStateCounts: {
+      observed_first_party: sourceCoverageStateCounts.observed_first_party ?? 0,
+      modeled_second_source: sourceCoverageStateCounts.modeled_second_source ?? 0,
+      inferred_legacy: sourceCoverageStateCounts.inferred_legacy ?? 0,
+      cached_snapshot: sourceCoverageStateCounts.cached_snapshot ?? 0,
+      source_missing: sourceCoverageStateCounts.source_missing ?? 0,
+    },
+    sourceRoleCounts: {
+      product_truth: sourceRoleCounts.product_truth ?? 0,
+      calibration_only: sourceRoleCounts.calibration_only ?? 0,
+      legacy_review: sourceRoleCounts.legacy_review ?? 0,
+      snapshot_review: sourceRoleCounts.snapshot_review ?? 0,
+      missing_source: sourceRoleCounts.missing_source ?? 0,
+    },
+    evidenceKindCounts: {
+      observed: evidenceKindCounts.observed ?? 0,
+      modeled: evidenceKindCounts.modeled ?? 0,
+      inferred: evidenceKindCounts.inferred ?? 0,
+      cached: evidenceKindCounts.cached ?? 0,
+      missing: evidenceKindCounts.missing ?? 0,
+    },
+    sourceCoverageStatus,
+    missingFamilies: familySourceStates
+      .filter((family) => family.sourceCoverageState === "source_missing")
+      .map((family) => family.familyId),
+    familySourceStates,
+    holdbackValidation: {
+      ...computed.holdbackValidation,
+      ...asRecord(imported.holdbackValidation),
+      requiredObservedFirstPartyFamilyCount,
+      observedFirstPartyFamilyCount,
+      observedFirstPartyCoveragePercent,
+      observedFirstPartyFamilyGapCount,
+      calibrationOnlyFamilyCount: sourceCoverageStateCounts.modeled_second_source ?? 0,
+      inferredLegacyFamilyCount: sourceCoverageStateCounts.inferred_legacy ?? 0,
+      cachedSnapshotFamilyCount: sourceCoverageStateCounts.cached_snapshot ?? 0,
+      missingSourceFamilyCount: sourceCoverageStateCounts.source_missing ?? 0,
+      productTruthEligibleFamilyCount,
+      status: sourceCoverageStatus,
+    },
+  } satisfies typeof computed;
+}
+
 function buildLaunchAnalyticsRecoveryReport(input: {
   generatedAtUtc: string;
   currentHead: string;
@@ -797,10 +919,14 @@ function buildLaunchAnalyticsRecoveryReport(input: {
   const firstPartyMissingDays = sourceCoverageRows.firstPartyMissingDayKeys;
   const sourceMissingDays = sourceCoverageRows.sourceMissingDayKeys;
   const duplicateDays = sourceCoverageRows.duplicateDayKeys;
-  const launchEventFamilyCoverage = buildLaunchCriticalRecoveryCoverageFromEvidence({
+  const computedLaunchEventFamilyCoverage = buildLaunchCriticalRecoveryCoverageFromEvidence({
     generatedAtUtc: input.generatedAtUtc,
     launchHistoryDays: dayCoverage,
   });
+  const launchEventFamilyCoverage = mergeImportedLaunchEventFamilyCoverage(
+    computedLaunchEventFamilyCoverage,
+    sourceAgreementDetail.eventFamilyCoverage,
+  );
   const sourceAgreementSummary = buildSourceAgreementCoverageSummaryState({
     expectedDays,
     coverageBySource: {
