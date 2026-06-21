@@ -76,7 +76,7 @@ export function ProfileDropdown() {
                     </div>
                     <span className="text-gray-400 font-medium truncate max-w-[12rem]">{secondaryIdentity}</span>
                 </div>
-                <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform duration-300", isOpen && "rotate-180")} />
+                <ChevronDown aria-hidden="true" className={cn("w-4 h-4 text-gray-400 transition-transform duration-300", isOpen && "rotate-180")} />
             </button>
 
             {isOpen && (
