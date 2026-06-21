@@ -18,7 +18,7 @@ const completeInput: FinalAlgorithmicDebugLockInput = {
   recoveryPlaybookStatus: "pass",
   refreshQueueStatus: "pass",
   operatorCockpitStatus: "pass",
-  manualBottleneckReduction: "manual testing is no longer the default bottleneck; formal evidence gates remain manual",
+  manualBottleneckReduction: "manual testing is no longer the default bottleneck; typed evidence gates remain separate",
   remainingFormalEvidenceGates: ["Runtime/provider smoke", "Admin truth/sample evidence"],
   remainingScoreDrag: ["runtimeHealth", "evidenceCompleteness", "costRisk"],
   p0Count: 0,
@@ -26,8 +26,8 @@ const completeInput: FinalAlgorithmicDebugLockInput = {
   p2Count: 70,
   nextExactSteps: [
     "Run UI source coverage.",
-    "Attach runtime/provider smoke artifact.",
-    "Attach redacted admin truth sample artifact.",
+    "Produce provider-backed site activity and deployed route evidence.",
+    "Produce redacted admin source activity sample artifact.",
   ],
   dependencies: {
     debugBacklog: true,
@@ -55,7 +55,7 @@ describe("final algorithmic debug lock", () => {
       "Admin truth/sample evidence",
     ]));
     expect(lock.remainingFormalEvidenceGates).not.toContain("Visual/manual smoke");
-    expect(lock.manualBottleneckReduction).toContain("formal evidence gates remain manual");
+    expect(lock.manualBottleneckReduction).toContain("typed evidence gates remain separate");
     expect(validateFinalAlgorithmicDebugLock(lock)).toEqual([]);
   });
 

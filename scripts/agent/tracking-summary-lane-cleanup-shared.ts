@@ -185,13 +185,13 @@ export function buildRuntimeDebugSignalCleanupReport(input: BuildInput = {}) {
       signalId: "deployed_runtime_smoke",
       classification: "formal_evidence_required",
       source: "agent/state/runtime-smoke-evidence.generated.json",
-      nextAction: "Attach deployed runtime smoke evidence; keep this outside source-fix classification.",
+      nextAction: "Attach deployed route evidence; keep this outside source-fix classification.",
     },
   ];
   const rawWarningCount = 145;
   const warningGroups = [
     { groupId: "stale_debug_artifacts", count: 42, classification: "stale_refresh_or_retire", nextAction: "Refresh only score-impacting stale artifacts." },
-    { groupId: "formal_runtime_backlog", count: 37, classification: "formal_gate_required", nextAction: "Keep provider/runtime smoke evidence visible but out of source-fix queue." },
+    { groupId: "formal_runtime_backlog", count: 37, classification: "formal_gate_required", nextAction: "Keep provider-backed site activity and deployed route evidence visible but out of source-fix queue." },
     { groupId: "source_ready_no_activity", count: 31, classification: "collapsed_drilldown", nextAction: "Keep source-ready no-activity rows collapsed unless expected-live source is missing." },
     { groupId: "route_runtime_samples", count: 22, classification: "summary_first_runtime_health", nextAction: "Show route runtime health by failed/warning group, not raw row." },
     { groupId: "legacy_generated_snapshots", count: 13, classification: "obsolete_or_historical_snapshot", nextAction: "Retire obsolete snapshots from active cockpit queues." },
@@ -209,7 +209,7 @@ export function buildRuntimeDebugSignalCleanupReport(input: BuildInput = {}) {
     failedSignals,
     warningGroups,
     topRootCauses: warningGroups.map((group) => group.groupId),
-    nextAction: "Fix source-fixable failed groups, refresh stale artifacts, and keep formal evidence gates classified separately.",
+    nextAction: "Fix source-fixable failed groups, refresh stale artifacts, and keep typed evidence gates classified separately.",
     validationFailures: [] as string[],
   };
 }
@@ -220,7 +220,7 @@ export function validateRuntimeDebugSignalCleanupReport(report: ReturnType<typeo
   if (report.failedSignals.some((signal) => !signal.classification)) failures.push("failed signal lacks classification.");
   if (report.warningGroupCount > report.rawWarningCount) failures.push("warning groups exceed raw warning count.");
   if (report.failedSignals.some((signal) => signal.classification === "formal_evidence_required" && /source runtime bug/iu.test(signal.nextAction))) {
-    failures.push("formal evidence is labeled runtime bug.");
+    failures.push("typed evidence gate is labeled runtime bug.");
   }
   return failures;
 }

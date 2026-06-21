@@ -99,7 +99,7 @@ function renderDoc(report: ReturnType<typeof buildFinalAlgorithmicDebugLock>) {
   return [
     "# Final Algorithmic Debug Lock",
     "",
-    "Status: algorithmic debugging is locked as the primary confidence engine. Formal runtime/provider/manual evidence gates remain separate and are not cleared by this source-only lock.",
+    "Status: algorithmic debugging is locked as the primary confidence engine. Typed deployed-route, provider-backed site activity, and admin source activity evidence lanes remain separate and are not cleared by this source-only lock.",
     "",
     `- Score before: ${report.scoreBefore}`,
     `- Score after: ${report.scoreAfter}`,
@@ -144,14 +144,14 @@ const input: FinalAlgorithmicDebugLockInput = {
   recoveryPlaybookStatus: statusFromArtifact("agent/state/debug-recovery-playbooks.generated.json"),
   refreshQueueStatus: statusFromArtifact("agent/state/self-healing-refresh-queue.generated.json"),
   operatorCockpitStatus: statusFromArtifact("agent/state/debug-operator-cockpit.generated.json"),
-  manualBottleneckReduction: "manual testing is no longer the default bottleneck; debug panel, telemetry, behavior math, route diagnostics, AI critic, admin truth samples, and refresh queues now drive source confidence while formal evidence gates remain manual",
+  manualBottleneckReduction: "manual testing is no longer the default bottleneck; debug panel, telemetry, behavior math, route diagnostics, AI critic, admin source activity samples, and refresh queues now drive source confidence while typed evidence gates remain separate",
   remainingFormalEvidenceGates: remainingFormalGates(score),
   remainingScoreDrag: remainingScoreDrag(score),
   ...counts,
   nextExactSteps: [
     "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI coverage gaps before optional browser reproduction.",
-    "Attach runtime/provider smoke evidence and run npm run check:evidence-capture-status.",
-    "Attach redacted admin truth sample evidence and run npm run check:admin-truth-source-sample.",
+    "Produce provider-backed site activity and deployed route evidence, then run npm run check:evidence-capture-status.",
+    "Produce redacted admin source activity sample evidence, then run npm run check:admin-truth-source-sample.",
     "Run npm run check:self-healing-refresh-queue before trusting stale generated reports.",
   ],
   dependencies: {

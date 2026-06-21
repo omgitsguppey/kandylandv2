@@ -1,19 +1,19 @@
 # Score 80 Refresh Queue Execution
 
-Status: pass
+Status: fail
 
 This pass executed safe score-impact refresh commands from the self-healing queue and kept formal visual, runtime, provider, and admin truth evidence gates blocked until real artifacts exist.
 
 ## Score
 
 - Old score: 77.76
-- New score: 73.57
-- Distance to 80: 6.43
+- New score: 89.31
+- Distance to 80: -9.31
 
 ## Queue Execution
 
-- Queue entries in latest queue: 17
-- Automatic entries in latest queue: 12
+- Queue entries in latest queue: 16
+- Automatic entries in latest queue: 11
 - Blocked entries in latest queue: 5
 - Commands passed: 15
 - Commands skipped: 2
@@ -25,8 +25,8 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 - agent/state/final-pr-stale-cleanup.generated.json: blocked_dirty_or_pr_classification; Optional stale PR cleanup lane still requires this pass's PR and dirty-file classification and does not block source refresh execution.
 - agent/state/existing-algorithm-refinement.generated.json: blocked_existing_source_issue; Existing algorithm lane still reports telemetry classifier disabled/enabled modeling as a source issue; privacy implementation is in-flight-owned and was not modified here.
 - agent/state/debug-runtime-evidence.generated.json: blocked_formal_evidence; Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime truth.
-- agent/state/provider-smoke-evidence.generated.json: blocked_formal_evidence; Provider smoke evidence requires provider-backed site activity; this pass cannot generate or clear it.
-- agent/state/runtime-smoke-evidence.generated.json: blocked_formal_evidence; Runtime smoke evidence requires deployed runtime route evidence; this pass cannot generate or clear it.
+- agent/state/provider-smoke-evidence.generated.json: blocked_formal_evidence; Provider-backed site activity evidence is required; this pass cannot generate or clear it.
+- agent/state/runtime-smoke-evidence.generated.json: blocked_formal_evidence; Deployed runtime route evidence is required; this pass cannot generate or clear it.
 - debug_runtime_evidence: blocked_formal_evidence; Deployed runtime route evidence required; source queue cannot generate it automatically.
 - runtime_provider_smoke: blocked_formal_evidence; Provider-backed site activity evidence required; source queue cannot generate it automatically.
 - admin_truth_sample_evidence: blocked_formal_evidence; Admin source activity sample evidence required; source queue cannot generate it automatically.
@@ -61,27 +61,17 @@ This pass executed safe score-impact refresh commands from the self-healing queu
 
 ## Dirty File Classification
 
-- agent/state/ai-critic-p1-triage.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/ai-debug-critic.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/blocked-refresh-queue-resolver.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- agent/state/future-activity-signal-reclassification.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
+- agent/state/runtime-debug-signal-cleanup.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
 - agent/state/score-80-refresh-queue-execution.generated.json: current_generated_artifact_to_commit; Generated artifact refreshed by safe score-impact refresh queue execution.
-- docs/agent-truth/ai-critic-p1-triage.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/blocked-refresh-queue-resolver.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- docs/agent-truth/future-activity-signal-reclassification.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
+- docs/agent-truth/runtime-debug-signal-cleanup.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
 - docs/agent-truth/score-80-refresh-queue-execution.md: documentation_artifact_expected; Generated agent-truth documentation refreshed by queue validators.
-- scripts/agent/validate-blocked-refresh-queue-resolver.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
-- scripts/agent/validate-future-activity-signal-reclassification.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
+- scripts/agent/tracking-summary-lane-cleanup-shared.ts: unsafe_unknown; 
+- scripts/agent/validate-final-algorithmic-debug-lock.ts: unsafe_unknown; 
 - scripts/agent/validate-score-80-refresh-queue-execution.ts: validator_artifact_expected; Dedicated queue execution validator requested by this pass.
-- src/lib/debug/ai-critic-p1-triage.ts: real_source_change_needs_review; Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums.
-- src/lib/debug/ai-debug-critic-rules.ts: real_source_change_needs_review; Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums.
-- src/lib/debug/ai-debug-critic.ts: real_source_change_needs_review; Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums.
-- src/lib/debug/future-activity-classifier.ts: real_source_change_needs_review; Admin/debug wording now routes proof copy through source-evidence language without changing compatibility enums.
-- tests/unit/ai-critic-p1-triage.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
-- tests/unit/ai-debug-critic.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
-- tests/unit/blocked-refresh-queue-resolver.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
+- tests/unit/final-algorithmic-debug-lock.spec.ts: unsafe_unknown; 
+- tests/unit/runtime-debug-signal-cleanup.spec.ts: unsafe_unknown; 
 - tests/unit/score-80-refresh-queue-execution.spec.ts: test_artifact_expected; Dedicated queue execution unit coverage requested by this pass.
 
 ## Validation
 
-- Pass.
+- FAIL: dirty files are unclassified: scripts/agent/tracking-summary-lane-cleanup-shared.ts, scripts/agent/validate-final-algorithmic-debug-lock.ts, tests/unit/final-algorithmic-debug-lock.spec.ts, tests/unit/runtime-debug-signal-cleanup.spec.ts

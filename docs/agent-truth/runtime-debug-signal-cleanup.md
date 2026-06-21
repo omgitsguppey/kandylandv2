@@ -1,7 +1,7 @@
 # Runtime Debug Signal Cleanup
 
-Generated: 2026-06-17T02:13:18.271Z
-Current head: c8530a89a4acfcba904973629ae31fa5fa5d26d8
+Generated: 2026-06-21T19:51:36.809Z
+Current head: 2949679a0c42f8a2eb2e61cc7ec3c8c271944b1a
 Status: source_ready
 
 ## Summary
@@ -9,8 +9,8 @@ Status: source_ready
 ```json
 {
   "reportKey": "runtime-debug-signal-cleanup",
-  "generatedAtUtc": "2026-06-17T02:13:18.271Z",
-  "currentHead": "c8530a89a4acfcba904973629ae31fa5fa5d26d8",
+  "generatedAtUtc": "2026-06-21T19:51:36.809Z",
+  "currentHead": "2949679a0c42f8a2eb2e61cc7ec3c8c271944b1a",
   "rawFailedCountBefore": 3,
   "failedGroupCount": 1,
   "warningGroupCount": 5,
@@ -21,7 +21,7 @@ Status: source_ready
       "signalId": "deployed_runtime_smoke",
       "classification": "formal_evidence_required",
       "source": "agent/state/runtime-smoke-evidence.generated.json",
-      "nextAction": "Attach deployed runtime smoke evidence; keep this outside source-fix classification."
+      "nextAction": "Attach deployed route evidence; keep this outside source-fix classification."
     }
   ],
   "warningGroups": [
@@ -35,7 +35,7 @@ Status: source_ready
       "groupId": "formal_runtime_backlog",
       "count": 37,
       "classification": "formal_gate_required",
-      "nextAction": "Keep provider/runtime smoke evidence visible but out of source-fix queue."
+      "nextAction": "Keep provider-backed site activity and deployed route evidence visible but out of source-fix queue."
     },
     {
       "groupId": "source_ready_no_activity",
@@ -63,7 +63,7 @@ Status: source_ready
     "route_runtime_samples",
     "legacy_generated_snapshots"
   ],
-  "nextAction": "Fix source-fixable failed groups, refresh stale artifacts, and keep formal evidence gates classified separately.",
+  "nextAction": "Fix source-fixable failed groups, refresh stale artifacts, and keep typed evidence gates classified separately.",
   "validationFailures": []
 }
 ```

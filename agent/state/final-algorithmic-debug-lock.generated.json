@@ -1,8 +1,8 @@
 {
-  "scoreBefore": 76.88,
-  "scoreAfter": 76.88,
+  "scoreBefore": 89.31,
+  "scoreAfter": 89.31,
   "debugBacklogStatus": "pass",
-  "aiCriticStatus": "pass",
+  "aiCriticStatus": "blocked",
   "behaviorMathStatus": "pass",
   "legacyNormalizationStatus": "pass",
   "orphanMetricStatus": "pass",
@@ -10,23 +10,20 @@
   "recoveryPlaybookStatus": "pass",
   "refreshQueueStatus": "pass",
   "operatorCockpitStatus": "pass",
-  "manualBottleneckReduction": "manual testing is no longer the default bottleneck; debug panel, telemetry, behavior math, route diagnostics, AI critic, admin truth samples, and refresh queues now drive source confidence while formal evidence gates remain manual",
+  "manualBottleneckReduction": "manual testing is no longer the default bottleneck; debug panel, telemetry, behavior math, route diagnostics, AI critic, admin source activity samples, and refresh queues now drive source confidence while typed evidence gates remain separate",
   "remainingFormalEvidenceGates": [
-    "Runtime/provider smoke: External proof required",
-    "Admin truth/sample evidence: External proof required"
+    "Provider-backed site activity + deployed route evidence: Source evidence required"
   ],
   "remainingScoreDrag": [
-    "runtimeHealth",
-    "evidenceCompleteness",
     "costRisk"
   ],
   "p0Count": 0,
   "p1Count": 7,
-  "p2Count": 28,
+  "p2Count": 25,
   "nextExactSteps": [
     "Run npm run check:ui-visual-smoke-minimal and fix source-reported UI coverage gaps before optional browser reproduction.",
-    "Attach runtime/provider smoke evidence and run npm run check:evidence-capture-status.",
-    "Attach redacted admin truth sample evidence and run npm run check:admin-truth-source-sample.",
+    "Produce provider-backed site activity and deployed route evidence, then run npm run check:evidence-capture-status.",
+    "Produce redacted admin source activity sample evidence, then run npm run check:admin-truth-source-sample.",
     "Run npm run check:self-healing-refresh-queue before trusting stale generated reports."
   ],
   "dependencies": {
@@ -40,11 +37,13 @@
     "refreshQueue": true,
     "operatorCockpit": true
   },
-  "generatedAtUtc": "2026-06-20T16:44:37.192Z",
+  "generatedAtUtc": "2026-06-21T19:51:36.460Z",
   "reportKey": "final-algorithmic-debug-lock",
-  "currentHead": "d250d9d93bda0f265421c91d3bacbfc39ea29832",
-  "sourceCommit": "d250d9d93bda0f265421c91d3bacbfc39ea29832",
-  "overallStatus": "locked_with_formal_gates_remaining",
-  "algorithmicDebugStatus": "locked",
-  "validationFailures": []
+  "currentHead": "2949679a0c42f8a2eb2e61cc7ec3c8c271944b1a",
+  "sourceCommit": "2949679a0c42f8a2eb2e61cc7ec3c8c271944b1a",
+  "overallStatus": "blocked",
+  "algorithmicDebugStatus": "blocked",
+  "validationFailures": [
+    "one or more algorithmic debug phases are missing, unknown, or blocked."
+  ]
 }

@@ -77,6 +77,7 @@ describe("score 80 refresh queue execution", () => {
       "runtime_provider_smoke",
       "agent/state/provider-smoke-evidence.generated.json",
     ]));
+    expect(JSON.stringify(report)).not.toMatch(/Provider smoke evidence requires|Runtime smoke evidence requires/u);
     expect(validateScore80RefreshQueueExecutionReport(report)).toEqual([]);
   });
 
