@@ -305,6 +305,38 @@ describe("public beta scoring math", () => {
         expect(report.overallScore).toBeLessThan(100);
     });
 
+    it("keeps provider-backed site activity as the remaining cap when runtime route evidence is current", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: {
+                    ...missingProviderSmokeEvidence,
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+                runtimeSmokeEvidence: {
+                    ...freshEvidence.runtimeSmokeEvidence,
+                    status: "formal_runtime_smoke_passed",
+                    evidence: [
+                        "runtimeArtifactStatus=formal_runtime_smoke_passed",
+                        "runtimeDeploymentSmokePassed=true",
+                    ],
+                    generatedAtUtc: freshGeneratedAtUtc,
+                },
+            },
+        });
+
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+        expect(smokeGate?.status).toBe("Source evidence required");
+        expect(smokeGate?.detail).toContain("Provider-backed site activity:");
+        expect(smokeGate?.detail).toContain("Deployed runtime route evidence is current.");
+        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Produce provider-backed site activity evidence; deployed runtime route evidence is current."),
+        ]));
+        expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(true);
+    });
+
     it("keeps operator-reported PayPal out of provider smoke credit", () => {
         const report = buildPublicBetaScoreReport([], {
             commandBudget: buildPublicBetaCommandBudget(),

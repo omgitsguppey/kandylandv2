@@ -462,9 +462,15 @@ function summarizeEvidenceGateForCap(gate: PublicBetaEvidenceGate) {
   }
 
   if (gate.id === "runtimeProviderSmoke") {
+    const evidenceText = gate.evidence.join("\n");
+    const providerMissing = /providerArtifactStatus=(missing_formal_evidence|operator_reported_not_formal_provider_smoke|missing_or_unknown)/iu.test(evidenceText);
+    const runtimeCurrent = /runtimeArtifactStatus=(passed|formal_runtime_smoke_passed)|runtimeDeploymentSmokePassed=true|readinessImpact\.runtimeGatePassed=true/iu.test(evidenceText);
     if (gate.status === "External proof required" || gate.status === "Source evidence required") {
       if (gate.freshness === "stale" || gate.freshness === "head_mismatch") {
         return `${gate.status}: ${gate.label} - Refresh provider-backed site activity and deployed runtime route evidence.`;
+      }
+      if (providerMissing && runtimeCurrent) {
+        return `${gate.status}: ${gate.label} - Produce provider-backed site activity evidence; deployed runtime route evidence is current.`;
       }
       return `${gate.status}: ${gate.label} - Produce provider-backed site activity and keep deployed runtime route evidence current.`;
     }
@@ -886,7 +892,7 @@ export function buildPublicBetaEvidenceGates(input: {
   );
   const runtimeProviderSmokeDetail = runtimeProviderSmokePassed
     ? "Provider-backed site activity and deployed route evidence artifacts passed."
-    : `Provider-backed site activity: ${providerSmokeDetail} Deployed route evidence: ${runtimeSmokeDetail}`;
+    : `Provider-backed site activity: ${providerSmokeDetail} Deployed route evidence: ${runtimeSmokePassed && !providerSmokePassed ? "Deployed runtime route evidence is current." : runtimeSmokeDetail}`;
   const runtimeProviderSmokeEvidence = Array.from(new Set([
     `providerArtifactStatus=${providerSmokeStatus}`,
     `runtimeArtifactStatus=${runtimeSmokeStatus}`,
