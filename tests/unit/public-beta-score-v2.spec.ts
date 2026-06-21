@@ -182,7 +182,7 @@ describe("public beta score v2 health model", () => {
     expect(report.overallScore).toBeGreaterThan(report.evidenceScore);
   });
 
-  it("requires manual, provider, runtime, and admin truth before launch ready", () => {
+  it("requires provider site activity, deployed route evidence, and admin source samples before launch ready", () => {
     const report = buildReport(formalPassedEvidence);
 
     expect(report.readinessStatus).toBe("Ready");

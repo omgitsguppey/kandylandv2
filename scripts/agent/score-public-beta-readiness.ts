@@ -480,7 +480,7 @@ function readTargetedBehaviorEvidence(root: string): PublicBetaEvidenceArtifact 
     root,
     TARGETED_BEHAVIOR_EVIDENCE_PATH,
     "missing_formal_evidence",
-    "No formal targeted behavior evidence artifact was supplied.",
+    "No targeted source validator evidence artifact was supplied.",
   );
 }
 
