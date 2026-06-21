@@ -218,7 +218,7 @@ export function buildDebugEvidencePrecatcherRefreshReport() {
     productionReadsRequired: false,
     deployedRuntimeCallsRequired: false,
     findingsZeroUnknownAfter: false,
-    nextExactSteps: ["Attach deployed runtime smoke separately; this source-only refresh does not clear formal runtime evidence gates."],
+    nextExactSteps: ["Attach deployed route evidence separately; this source-only refresh does not clear deployed route evidence."],
   };
 }
 
@@ -301,7 +301,7 @@ export function validateSitewideImageOptimizationCleanupReport(report: ReturnTyp
   if (report.imageLoadingTimestampStatus !== "generatedAt_present") failures.push("image artifact missing generatedAt.");
   if (report.imageArtifactAgeAfter > STALE_HOURS) failures.push("image artifact remains older than 72h.");
   if (report.imageLoadingStatusAfter === "WAIT" || report.imageLoadingStatusAfter === "unavailable") failures.push("image loading remains WAIT/unavailable.");
-  if (report.visualScreenshotProofRequired) failures.push("image loading cleanup must not require visual screenshot proof.");
+  if (report.visualScreenshotProofRequired) failures.push("image loading cleanup must use source evidence before optional visual reproduction.");
   return failures;
 }
 

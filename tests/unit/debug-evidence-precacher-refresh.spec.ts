@@ -15,6 +15,8 @@ describe("debug evidence and pre-catcher refresh cleanup", () => {
     expect(report.precatcherAgeAfter).toBeLessThanOrEqual(72);
     expect(report.productionReadsRequired).toBe(false);
     expect(report.findingsZeroUnknownAfter).toBe(false);
+    expect(report.nextExactSteps.join(" ")).toContain("deployed route evidence");
+    expect(report.nextExactSteps.join(" ")).not.toMatch(/deployed runtime smoke|formal runtime evidence/iu);
     expect(validateDebugEvidencePrecatcherRefreshReport(report)).toEqual([]);
   });
 });
